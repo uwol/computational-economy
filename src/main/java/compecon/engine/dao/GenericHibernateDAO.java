@@ -1,0 +1,68 @@
+package compecon.engine.dao;
+
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
+import java.util.Random;
+
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
+
+import compecon.engine.util.HibernateUtil;
+
+public abstract class GenericHibernateDAO<T, ID extends Serializable>
+		implements IGenericDAO<T, ID> {
+
+	private Class<T> persistentClass;
+
+	@SuppressWarnings("unchecked")
+	public GenericHibernateDAO() {
+		this.persistentClass = (Class<T>) ((ParameterizedType) getClass()
+				.getGenericSuperclass()).getActualTypeArguments()[0];
+	}
+
+	protected Session getSession() {
+		return HibernateUtil.getSession();
+	}
+
+	public Class<T> getPersistentClass() {
+		return persistentClass;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T find(ID id) {
+		return (T) getSession().load(getPersistentClass(), id);
+	}
+
+	@SuppressWarnings("unchecked")
+	public T findRandom() {
+		Criteria crit = getSession().createCriteria(persistentClass);
+		crit.setProjection(Projections.rowCount());
+		int count = ((Number) crit.uniqueResult()).intValue();
+		if (0 != count) {
+			int index = new Random().nextInt(count);
+			crit = getSession().createCriteria(persistentClass);
+			return (T) crit.setFirstResult(index).setMaxResults(1)
+					.uniqueResult();
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<T> findAll() {
+		return getSession().createCriteria(getPersistentClass()).list();
+	}
+
+	public void save(T entity) {
+		getSession().saveOrUpdate(entity);
+	}
+
+	public void merge(T entity) {
+		getSession().merge(entity);
+	}
+
+	public void delete(T entity) {
+		getSession().delete(entity);
+	}
+}
