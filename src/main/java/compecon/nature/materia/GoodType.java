@@ -20,5 +20,5 @@ package compecon.nature.materia;
 import compecon.culture.sectors.state.law.property.IProperty;
 
 public enum GoodType implements IProperty {
-	LABOURHOUR(), MEGACALORIE(), KILOWATT();
+	LABOURHOUR(), MEGACALORIE(), KILOWATT(), REALESTATE();
 }

@@ -20,8 +20,6 @@ package compecon.engine.dashboard.panel;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -38,15 +36,10 @@ import org.jfree.ui.RectangleInsets;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.dashboard.model.BalanceSheetsModel;
 import compecon.engine.dashboard.model.PeriodDataAccumulatorTimeSeriesModel;
-import compecon.engine.dashboard.model.PricesModel;
 import compecon.engine.dashboard.model.TimeSeriesModel;
 import compecon.nature.materia.GoodType;
 
-public class DiagramPanel extends JPanel {
-
-	protected final PricesModel pricesModel;
-
-	protected boolean blockRedraw = false;
+public class AggregatesPanel extends JPanel {
 
 	protected final TimeSeriesModel<Currency> priceIndexModel;
 
@@ -62,12 +55,9 @@ public class DiagramPanel extends JPanel {
 
 	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model;
 
-	protected final Map<GoodType, ChartPanel> priceCharts = new HashMap<GoodType, ChartPanel>();
-
 	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel;
 
-	public DiagramPanel(
-			final PricesModel pricesModel,
+	public AggregatesPanel(
 			final TimeSeriesModel<Currency> priceIndexModel,
 			final TimeSeriesModel<Currency> keyInterestRateModel,
 			final PeriodDataAccumulatorTimeSeriesModel<GoodType> effectiveAmountModel,
@@ -76,7 +66,6 @@ public class DiagramPanel extends JPanel {
 			final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model,
 			final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model,
 			final PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel) {
-		this.pricesModel = pricesModel;
 		this.priceIndexModel = priceIndexModel;
 		this.keyInterestRateModel = keyInterestRateModel;
 		this.effectiveAmountModel = effectiveAmountModel;
@@ -91,7 +80,6 @@ public class DiagramPanel extends JPanel {
 		this.add(this.createKeyInterestRatesChart());
 		this.add(this.createPriceIndicesChart());
 		this.add(this.createMoneySupplyChart());
-
 		this.add(this.createProductionCapacityChart());
 		this.add(this.createLabourCapacityChart());
 	}
@@ -205,40 +193,5 @@ public class DiagramPanel extends JPanel {
 				true, false);
 		this.configureChart(chart);
 		return new ChartPanel(chart);
-	}
-
-	private ChartPanel createPriceChartPanel(GoodType goodType) {
-		ChartPanel chartPanel = new ChartPanel(createPriceChart(goodType));
-		chartPanel.setDomainZoomable(true);
-		chartPanel.setPreferredSize(new java.awt.Dimension(800, 400));
-		return chartPanel;
-	}
-
-	private JFreeChart createPriceChart(GoodType goodType) {
-		return ChartFactory.createCandlestickChart("Price Chart for "
-				+ goodType, "Time", "Price in " + Currency.EURO,
-				this.pricesModel.getDefaultHighLowDataset(goodType), false);
-	}
-
-	public void redrawPriceCharts() {
-		if (!this.blockRedraw) {
-			// redraw price charts
-			for (GoodType goodType : GoodType.values()) {
-				if (!this.priceCharts.containsKey(goodType)) {
-					ChartPanel chartPanel = this
-							.createPriceChartPanel(goodType);
-					this.priceCharts.put(goodType, chartPanel);
-					this.add(chartPanel);
-				} else
-					this.priceCharts.get(goodType).setChart(
-							createPriceChart(goodType));
-			}
-			this.revalidate();
-			setVisible(true);
-		}
-	}
-
-	public void blockRedraw(boolean blockRedraw) {
-		this.blockRedraw = blockRedraw;
 	}
 }

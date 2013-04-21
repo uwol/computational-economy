@@ -56,8 +56,8 @@ public class Simulation {
 
 			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 2;
 			final int NUMBER_OF_HOUSEHOLDS = 1000;
-			final int NUMBER_OF_FARMS = 5;
-			final int NUMBER_OF_FACTORIES = 10;
+			final int NUMBER_OF_FARMS = 3;
+			final int NUMBER_OF_FACTORIES_PER_GOODTYPE = 2;
 
 			// initialize the time system, so that agents can register their
 			// events
@@ -90,8 +90,13 @@ public class Simulation {
 			}
 
 			// initialize factories
-			for (int i = 0; i < NUMBER_OF_FACTORIES; i++) {
-				AgentFactory.newInstanceFactory(GoodType.KILOWATT);
+			for (GoodType goodType : GoodType.values()) {
+				if (!GoodType.LABOURHOUR.equals(goodType)
+						&& !GoodType.MEGACALORIE.equals(goodType)) {
+					for (int i = 0; i < NUMBER_OF_FACTORIES_PER_GOODTYPE; i++) {
+						AgentFactory.newInstanceFactory(goodType);
+					}
+				}
 			}
 
 			// initialize households

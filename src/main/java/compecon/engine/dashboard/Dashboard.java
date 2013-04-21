@@ -42,9 +42,10 @@ import compecon.engine.dashboard.model.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.dashboard.model.PricesModel;
 import compecon.engine.dashboard.model.TimeSeriesModel;
 import compecon.engine.dashboard.panel.AgentsPanel;
+import compecon.engine.dashboard.panel.AggregatesPanel;
 import compecon.engine.dashboard.panel.ControlPanel;
-import compecon.engine.dashboard.panel.DiagramPanel;
 import compecon.engine.dashboard.panel.NationalAccountsPanel;
+import compecon.engine.dashboard.panel.PricesPanel;
 import compecon.nature.materia.GoodType;
 
 public class Dashboard extends JFrame {
@@ -57,12 +58,10 @@ public class Dashboard extends JFrame {
 	protected final BalanceSheetsModel balanceSheetsModel;
 
 	protected final PeriodDataAccumulatorTimeSeriesModel<GoodType> capacityModel = new PeriodDataAccumulatorTimeSeriesModel<GoodType>(
-			new GoodType[] { GoodType.MEGACALORIE, GoodType.KILOWATT,
-					GoodType.LABOURHOUR }, " cap.");
+			GoodType.values(), " cap.");
 
 	protected final PeriodDataAccumulatorTimeSeriesModel<GoodType> effectiveProductionOutputModel = new PeriodDataAccumulatorTimeSeriesModel<GoodType>(
-			new GoodType[] { GoodType.MEGACALORIE, GoodType.KILOWATT,
-					GoodType.LABOURHOUR });
+			GoodType.values());
 
 	protected final TimeSeriesModel<Currency> keyInterestRateModel = new TimeSeriesModel<Currency>(
 			new Currency[] { Currency.EURO });
@@ -91,7 +90,9 @@ public class Dashboard extends JFrame {
 
 	protected final JPanel borderPanel;
 
-	protected final DiagramPanel diagramPanel;
+	protected final AggregatesPanel aggregatesPanel;
+
+	protected final PricesPanel pricesPanel;
 
 	protected final NationalAccountsPanel nationalAccountsPanel;
 
@@ -103,11 +104,12 @@ public class Dashboard extends JFrame {
 		 */
 		this.balanceSheetsModel = new BalanceSheetsModel(
 				this.moneySupplyM0Model, this.moneySupplyM1Model);
-		this.diagramPanel = new DiagramPanel(this.pricesModel,
-				this.priceIndexModel, this.keyInterestRateModel,
-				this.effectiveProductionOutputModel, this.capacityModel,
-				this.balanceSheetsModel, this.moneySupplyM0Model,
-				this.moneySupplyM1Model, this.utilityModel);
+		this.aggregatesPanel = new AggregatesPanel(this.priceIndexModel,
+				this.keyInterestRateModel, this.effectiveProductionOutputModel,
+				this.capacityModel, this.balanceSheetsModel,
+				this.moneySupplyM0Model, this.moneySupplyM1Model,
+				this.utilityModel);
+		this.pricesPanel = new PricesPanel(this.pricesModel);
 		this.nationalAccountsPanel = new NationalAccountsPanel(
 				this.balanceSheetsModel.getNationalAccountsTableModels(),
 				this.monetaryTransactionsModel
@@ -129,7 +131,7 @@ public class Dashboard extends JFrame {
 		numberOfAgentsPane.setPreferredSize(new Dimension(-1, 150));
 		bottomPanel.add(numberOfAgentsPane);
 		// ToDo method in wrong class
-		ChartPanel utilityChart = this.diagramPanel.createUtilityChart();
+		ChartPanel utilityChart = this.aggregatesPanel.createUtilityChart();
 		utilityChart.setPreferredSize(new Dimension(-1, 150));
 		bottomPanel.add(utilityChart);
 		add(bottomPanel, BorderLayout.SOUTH);
@@ -138,7 +140,8 @@ public class Dashboard extends JFrame {
 		 * tabbed content panel
 		 */
 		this.jTabbedPane = new JTabbedPane();
-		this.jTabbedPane.addTab("Diagrams", this.diagramPanel);
+		this.jTabbedPane.addTab("Aggregates", this.aggregatesPanel);
+		this.jTabbedPane.addTab("Prices", this.pricesPanel);
 		this.jTabbedPane.addTab("Agents", this.agentsPanel);
 		this.jTabbedPane.addTab("National Accounts", nationalAccountsPanel);
 
@@ -154,10 +157,10 @@ public class Dashboard extends JFrame {
 						Dashboard.this.agentLogsModel.blockRefresh(true);
 
 					if (pane.getSelectedComponent().equals(
-							Dashboard.this.diagramPanel))
-						Dashboard.this.diagramPanel.blockRedraw(false);
+							Dashboard.this.pricesPanel))
+						Dashboard.this.pricesPanel.blockRedraw(false);
 					else
-						Dashboard.this.diagramPanel.blockRedraw(true);
+						Dashboard.this.pricesPanel.blockRedraw(true);
 				}
 			}
 		});
@@ -235,6 +238,6 @@ public class Dashboard extends JFrame {
 	}
 
 	public void nextPeriod() {
-		this.diagramPanel.redrawPriceCharts();
+		this.pricesPanel.redrawPriceCharts();
 	}
 }

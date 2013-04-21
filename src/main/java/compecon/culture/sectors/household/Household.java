@@ -56,7 +56,7 @@ public class Household extends Agent implements IShareOwner {
 
 	// configuration constants
 	@Transient
-	protected int NEW_HOUSEHOLD_FROM_X_DAYS = 360;
+	protected int NEW_HOUSEHOLD_FROM_X_DAYS = 360 + this.hashCode() % 360;
 
 	@Transient
 	protected int NEW_HOUSEHOLD_EVERY_X_DAYS = 360;
@@ -73,7 +73,7 @@ public class Household extends Agent implements IShareOwner {
 	protected int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 14;
 
 	@Transient
-	protected double REQUIRED_UTILITY = 2;
+	protected double REQUIRED_UTILITY = 1.0 / GoodType.values().length;
 
 	// state
 	@Column(name = "ageInDays")
@@ -105,7 +105,8 @@ public class Household extends Agent implements IShareOwner {
 		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
 		preferences.put(GoodType.MEGACALORIE, 0.3);
 		preferences.put(GoodType.KILOWATT, 0.2);
-		preferences.put(GoodType.LABOURHOUR, 0.5);
+		preferences.put(GoodType.LABOURHOUR, 0.4);
+		preferences.put(GoodType.REALESTATE, 0.1);
 		this.utilityFunction = new CobbDouglasUtilityFunction(preferences);
 
 		// daily life at random HourType
