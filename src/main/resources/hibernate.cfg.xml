@@ -3,8 +3,7 @@
       "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
       "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd" >
 <hibernate-configuration>
-	<session-factory>
-		<!-- Database connection settings -->
+	<session-factory>		
 		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
 		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/compecon</property>

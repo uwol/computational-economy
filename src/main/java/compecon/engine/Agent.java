@@ -50,7 +50,6 @@ import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.culture.sectors.state.law.property.HardCashRegister;
 import compecon.culture.sectors.state.law.property.IPropertyOwner;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
-import compecon.engine.dao.HibernateDAOFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
@@ -93,6 +92,9 @@ public abstract class Agent implements IPropertyOwner {
 
 	@Transient
 	protected final HourType BALANCE_SHEET_PUBLICATION_HOUR_TYPE = HourType.HOUR_23;
+
+	@Transient
+	private final String agentTypeName = this.getClass().getSimpleName();
 
 	public void initialize() {
 		Log.agent_onConstruct(this);
@@ -158,8 +160,8 @@ public abstract class Agent implements IPropertyOwner {
 	protected void assertTransactionsBankAccount() {
 		// initialize bank account
 		if (this.primaryBank == null) {
-			this.primaryBank = HibernateDAOFactory.getCreditBankDAO()
-					.findRandom();
+			this.primaryBank = AgentFactory
+					.getRandomInstanceCreditBank(Currency.EURO);
 			String bankPassword = this.primaryBank.openCustomerAccount(this);
 			this.bankPasswords.put(this.primaryBank, bankPassword);
 		}
@@ -240,6 +242,8 @@ public abstract class Agent implements IPropertyOwner {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " (ID " + this.id + ")";
+		if (this.id != 0)
+			return this.agentTypeName + " (ID " + this.id + ")";
+		return this.agentTypeName;
 	}
 }

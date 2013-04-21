@@ -15,22 +15,14 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao;
+package compecon.engine.util;
 
-import java.io.Serializable;
-import java.util.List;
+public class ConfigurationUtil {
 
-public interface IGenericDAO<T, ID extends Serializable> {
+	protected static boolean activatedb = "true".equals(System
+			.getProperty("activatedb"));
 
-	public T find(ID id);
-
-	public T findRandom();
-
-	public List<T> findAll();
-
-	public void save(T entity);
-
-	public void merge(T entity);
-
-	public void delete(T entity);
+	public static boolean getActivateDb() {
+		return activatedb;
+	}
 }

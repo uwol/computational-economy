@@ -15,22 +15,11 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao;
+package compecon.engine.dao.hibernate;
 
-import java.io.Serializable;
-import java.util.List;
+import compecon.culture.sectors.agriculture.Farm;
+import compecon.engine.dao.DAOFactory.IFarmDAO;
 
-public interface IGenericDAO<T, ID extends Serializable> {
+public class FarmDAO extends HibernateDAO<Farm, Long> implements IFarmDAO {
 
-	public T find(ID id);
-
-	public T findRandom();
-
-	public List<T> findAll();
-
-	public void save(T entity);
-
-	public void merge(T entity);
-
-	public void delete(T entity);
 }

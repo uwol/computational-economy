@@ -236,7 +236,7 @@ public class EconomicalBehaviour {
 				Log
 
 				.log(agent,
-						"δestRevenue = "
+						"deltaEstRevenue = "
 								+ MathUtil.round(estMarginalRevenue)
 								+ " -> numberOfLabourHours := "
 								+ MathUtil
@@ -286,7 +286,7 @@ public class EconomicalBehaviour {
 
 					.log(agent,
 							MathUtil.round(marginalOutput)
-									+ " δ"
+									+ " delta"
 									+ EconomicalBehaviour.this.producedGoodType
 									+ "("
 									+ MathUtil.round(numberOfLabourHours)
@@ -307,7 +307,7 @@ public class EconomicalBehaviour {
 
 					.log(agent,
 							MathUtil.round(lastProfitableMarginalCost)
-									+ " δcost"
+									+ " deltaCost"
 									+ "("
 									+ MathUtil
 											.round(lastProfitableNumberOfLabourHours)
@@ -316,10 +316,10 @@ public class EconomicalBehaviour {
 									+ ")"
 									+ " <= "
 									+ MathUtil.round(estMarginalRevenue)
-									+ " δestRevenue"
+									+ " deltaEstRevenue"
 									+ " < "
 									+ MathUtil.round(marginalCost)
-									+ " δcost"
+									+ " deltaCost"
 									+ "("
 									+ MathUtil.round(numberOfLabourHours)
 									+ " "

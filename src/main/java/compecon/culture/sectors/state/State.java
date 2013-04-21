@@ -26,8 +26,8 @@ import javax.persistence.Transient;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.Agent;
+import compecon.engine.AgentFactory;
 import compecon.engine.Log;
-import compecon.engine.dao.HibernateDAOFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
@@ -70,8 +70,8 @@ public class State extends Agent {
 	@Transient
 	public void doDeficitSpending() {
 		this.assertTransactionsBankAccount();
-		for (CreditBank creditBank : HibernateDAOFactory.getCreditBankDAO()
-				.findAll()) {
+		for (CreditBank creditBank : AgentFactory
+				.getAllCreditBanks(this.legislatedCurrency)) {
 			for (Agent agent : creditBank.getCustomers()) {
 				if (agent != this) {
 					this.primaryBank.transferMoney(transactionsBankAccount,

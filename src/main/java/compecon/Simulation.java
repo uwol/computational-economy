@@ -99,7 +99,7 @@ public class Simulation {
 				AgentFactory.newInstanceHousehold();
 			}
 
-			HibernateUtil.getSession().flush();
+			HibernateUtil.flushSession();
 
 			// start simulation
 			while (true) {

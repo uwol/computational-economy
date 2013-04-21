@@ -118,8 +118,8 @@ public class Log {
 
 	public static void household_NotEnoughUtility(Household household,
 			double requiredUtility) {
-		log(household, household
-				+ " does not have required utility of " + requiredUtility);
+		log(household, household + " does not have required utility of "
+				+ requiredUtility);
 	}
 
 	public static void household_LabourHourCapacity(Household household,
@@ -140,8 +140,8 @@ public class Log {
 
 	public static void farm_ProductionCapacity(Farm farm,
 			double productionCapacity) {
-		log(farm, farm + " has production capacity "
-				+ productionCapacity + " for " + GoodType.MEGACALORIE);
+		log(farm, farm + " has production capacity " + productionCapacity
+				+ " for " + GoodType.MEGACALORIE);
 
 		Dashboard.getInstance().getCapacityModel()
 				.add(GoodType.MEGACALORIE, productionCapacity);
@@ -156,8 +156,7 @@ public class Log {
 
 	public static void factory_onProduction(Factory factory, GoodType goodType,
 			double producedProducts) {
-		log(factory, factory + " produced " + producedProducts + " "
-				+ goodType);
+		log(factory, factory + " produced " + producedProducts + " " + goodType);
 
 		Dashboard.getInstance().getEffectiveProductionOutputModel()
 				.add(goodType, producedProducts);
@@ -165,8 +164,8 @@ public class Log {
 
 	public static void factory_ProductionCapacity(Factory factory,
 			GoodType goodType, double productionCapacity) {
-		log(factory, factory + " has production capacity "
-				+ productionCapacity + " for " + goodType);
+		log(factory, factory + " has production capacity " + productionCapacity
+				+ " for " + goodType);
 
 		Dashboard.getInstance().getCapacityModel()
 				.add(goodType, productionCapacity);
@@ -188,12 +187,14 @@ public class Log {
 				.bank_onTransfer(from.getClass(), to.getClass(), currency,
 						value);
 		if (Log.logTransactions) {
-			log(from, "transfered " + Currency.round(value) + " "
-					+ currency.getIso4217Code() + " to " + to + " for: "
-					+ subject);
-			log(to, "received " + Currency.round(value) + " "
-					+ currency.getIso4217Code() + " from " + from + " for: "
-					+ subject);
+			log(from,
+					"transfered " + Currency.round(value) + " "
+							+ currency.getIso4217Code() + " to " + to
+							+ " for: " + subject);
+			log(to,
+					"received " + Currency.round(value) + " "
+							+ currency.getIso4217Code() + " from " + from
+							+ " for: " + subject);
 		}
 	}
 
@@ -201,9 +202,10 @@ public class Log {
 
 	public static void centralBank_onObtainTender(CentralBank centralBank,
 			double amount, CreditBank creditBank) {
-		log(creditBank, creditBank + " obtained a tender of "
-				+ amount + " " + centralBank.getCoveredCurrency()
-				+ " of central bank money from " + centralBank);
+		log(creditBank,
+				creditBank + " obtained a tender of " + Currency.round(amount)
+						+ " " + centralBank.getCoveredCurrency()
+						+ " of central bank money from " + centralBank);
 	}
 
 	public static void centralBank_KeyInterestRate(Currency currency,

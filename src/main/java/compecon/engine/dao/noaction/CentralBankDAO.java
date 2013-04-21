@@ -15,22 +15,17 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao;
+package compecon.engine.dao.noaction;
 
-import java.io.Serializable;
-import java.util.List;
+import compecon.culture.sectors.financial.CentralBank;
+import compecon.culture.sectors.financial.Currency;
+import compecon.engine.dao.DAOFactory.ICentralBankDAO;
 
-public interface IGenericDAO<T, ID extends Serializable> {
+public class CentralBankDAO extends NoActionDAO<CentralBank, Long> implements
+		ICentralBankDAO {
 
-	public T find(ID id);
-
-	public T findRandom();
-
-	public List<T> findAll();
-
-	public void save(T entity);
-
-	public void merge(T entity);
-
-	public void delete(T entity);
+	@Override
+	public CentralBank findByCurrency(Currency currency) {
+		return null;
+	}
 }

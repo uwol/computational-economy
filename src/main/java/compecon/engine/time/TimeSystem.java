@@ -216,8 +216,8 @@ public class TimeSystem {
 		if (MonthType.JANUARY.equals(currentMonthType)
 				&& DayType.DAY_01.equals(currentDayType)
 				&& HourType.HOUR_00.equals(currentHourType)) {
-			// store state in database
-			HibernateUtil.getSession().flush();
+			// flush state to database
+			HibernateUtil.flushSession();
 		}
 
 		// remove events that have been marked as removable

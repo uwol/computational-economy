@@ -14,9 +14,12 @@ Features:
 * Bonds: Bonds are given as security for credit in open market operations between central and credit banks.
 * Time system: Agents register their actions / behaviour as events in the time system (observer pattern).
 
-Technical requirements:
-* Maven for building
-* Database server (to be configured in hibernate.cfg.xml)
+Technical platform:
+* Java 1.6
+* Maven
+* Optionally: database server 
+	* configuration: hibernate.cfg.xml 
+	* activation: vm argument -Dactivatedb=true)
 
 ![screenshot1](http://img.literaturedb.com/compecon1.png)
 

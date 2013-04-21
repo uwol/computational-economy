@@ -1,7 +1,27 @@
+/*
+This file is part of ComputationalEconomy.
+
+ComputationalEconomy is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ComputationalEconomy is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package compecon.engine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import compecon.culture.sectors.agriculture.Farm;
@@ -11,21 +31,26 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.State;
-import compecon.engine.dao.HibernateDAOFactory;
+import compecon.engine.dao.DAOFactory;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.nature.materia.GoodType;
 
 public class AgentFactory {
 
-	protected static Map<Currency, CentralBank> centralBanks = new HashMap<Currency, CentralBank>();
+	private static Random random = new Random();
 
 	protected static Map<Currency, State> states = new HashMap<Currency, State>();
+
+	protected static Map<Currency, CentralBank> centralBanks = new HashMap<Currency, CentralBank>();
+
+	protected static Map<Currency, List<CreditBank>> creditBanks = new HashMap<Currency, List<CreditBank>>();
 
 	public static State getInstanceState(Currency currency) {
 		if (!states.containsKey(currency)) {
 			State state = new State();
 			state.setLegislatedCurrency(currency);
 			state.initialize();
-			HibernateDAOFactory.getStateDAO().save(state);
+			DAOFactory.getStateDAO().save(state);
 			states.put(currency, state);
 		}
 		return states.get(currency);
@@ -36,7 +61,7 @@ public class AgentFactory {
 			CentralBank centralBank = new CentralBank();
 			centralBank.setCoveredCurrency(currency);
 			centralBank.initialize();
-			HibernateDAOFactory.getCentralBankDAO().save(centralBank);
+			DAOFactory.getCentralBankDAO().save(centralBank);
 			centralBanks.put(currency, centralBank);
 		}
 		return centralBanks.get(currency);
@@ -47,14 +72,35 @@ public class AgentFactory {
 		CreditBank creditBank = new CreditBank();
 		creditBank.setOfferedCurrencies(offeredCurrencies);
 		creditBank.initialize();
-		HibernateDAOFactory.getCreditBankDAO().save(creditBank);
+		DAOFactory.getCreditBankDAO().save(creditBank);
+		for (Currency currency : offeredCurrencies) {
+			if (!creditBanks.containsKey(currency)) {
+				creditBanks.put(currency, new ArrayList<CreditBank>());
+			}
+			creditBanks.get(currency).add(creditBank);
+		}
 		return creditBank;
+	}
+
+	public static CreditBank getRandomInstanceCreditBank(Currency currency) {
+		if (ConfigurationUtil.getActivateDb()) {
+			return DAOFactory.getCreditBankDAO().findRandom();
+		} else
+			return creditBanks.get(currency).get(
+					random.nextInt(creditBanks.get(currency).size()));
+	}
+
+	public static List<CreditBank> getAllCreditBanks(Currency currency) {
+		if (ConfigurationUtil.getActivateDb()) {
+			return DAOFactory.getCreditBankDAO().findAll();
+		} else
+			return creditBanks.get(currency);
 	}
 
 	public static Farm newInstanceFarm() {
 		Farm farm = new Farm();
 		farm.initialize();
-		HibernateDAOFactory.getFarmDAO().save(farm);
+		DAOFactory.getFarmDAO().save(farm);
 		return farm;
 	}
 
@@ -62,14 +108,14 @@ public class AgentFactory {
 		Factory factory = new Factory();
 		factory.setProducedGoodType(goodType);
 		factory.initialize();
-		HibernateDAOFactory.getFactoryDAO().save(factory);
+		DAOFactory.getFactoryDAO().save(factory);
 		return factory;
 	}
 
 	public static Household newInstanceHousehold() {
 		Household household = new Household();
 		household.initialize();
-		HibernateDAOFactory.getHouseholdDAO().save(household);
+		DAOFactory.getHouseholdDAO().save(household);
 		return household;
 	}
 }

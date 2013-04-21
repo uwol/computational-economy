@@ -15,22 +15,20 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao;
+package compecon.engine.dao.hibernate;
 
-import java.io.Serializable;
-import java.util.List;
+import org.hibernate.criterion.Restrictions;
 
-public interface IGenericDAO<T, ID extends Serializable> {
+import compecon.culture.sectors.financial.CentralBank;
+import compecon.culture.sectors.financial.Currency;
+import compecon.engine.dao.DAOFactory.ICentralBankDAO;
 
-	public T find(ID id);
-
-	public T findRandom();
-
-	public List<T> findAll();
-
-	public void save(T entity);
-
-	public void merge(T entity);
-
-	public void delete(T entity);
+public class CentralBankDAO extends HibernateDAO<CentralBank, Long> implements
+		ICentralBankDAO {
+	public CentralBank findByCurrency(Currency currency) {
+		return (CentralBank) getSession().createCriteria(CentralBank.class)
+				.add(Restrictions.eq("coveredCurrency", currency))
+				// .setCacheable(true)
+				.uniqueResult();
+	}
 }
