@@ -26,13 +26,13 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
-import compecon.culture.markets.PrimaryMarket;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.culture.sectors.state.law.property.IPropertyOwner;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
+import compecon.engine.MarketFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -152,11 +152,17 @@ public abstract class JointStockCompany extends Agent {
 					PropertyRegister.getInstance().register(
 							JointStockCompany.this, initialShare);
 					JointStockCompany.this.issuedShares.add(initialShare);
-					PrimaryMarket.getInstance().placeSettlementSellingOffer(
-							initialShare, JointStockCompany.this,
-							Currency.EURO,
-							JointStockCompany.this.transactionsBankAccount, 1,
-							0, new SettlementMarketEvent());
+					MarketFactory
+							.getInstance(
+									JointStockCompany.this.transactionsBankAccount
+											.getCurrency())
+							.placeSettlementSellingOffer(
+									initialShare,
+									JointStockCompany.this,
+									JointStockCompany.this.transactionsBankAccount
+											.getCurrency(),
+									JointStockCompany.this.transactionsBankAccount,
+									1, 0, new SettlementMarketEvent());
 				}
 			}
 		}

@@ -48,7 +48,7 @@ public class AgentFactory {
 	public static State getInstanceState(Currency currency) {
 		if (!states.containsKey(currency)) {
 			State state = new State();
-			state.setLegislatedCurrency(currency);
+			state.setPrimaryCurrency(currency);
 			state.initialize();
 			DAOFactory.getStateDAO().save(state);
 			states.put(currency, state);
@@ -59,7 +59,7 @@ public class AgentFactory {
 	public static CentralBank getInstanceCentralBank(Currency currency) {
 		if (!centralBanks.containsKey(currency)) {
 			CentralBank centralBank = new CentralBank();
-			centralBank.setCoveredCurrency(currency);
+			centralBank.setPrimaryCurrency(currency);
 			centralBank.initialize();
 			DAOFactory.getCentralBankDAO().save(centralBank);
 			centralBanks.put(currency, centralBank);
@@ -71,6 +71,7 @@ public class AgentFactory {
 			Set<Currency> offeredCurrencies) {
 		CreditBank creditBank = new CreditBank();
 		creditBank.setOfferedCurrencies(offeredCurrencies);
+		creditBank.setPrimaryCurrency(Currency.EURO);
 		creditBank.initialize();
 		DAOFactory.getCreditBankDAO().save(creditBank);
 		for (Currency currency : offeredCurrencies) {
@@ -99,6 +100,7 @@ public class AgentFactory {
 
 	public static Farm newInstanceFarm() {
 		Farm farm = new Farm();
+		farm.setPrimaryCurrency(Currency.EURO);
 		farm.initialize();
 		DAOFactory.getFarmDAO().save(farm);
 		return farm;
@@ -107,6 +109,7 @@ public class AgentFactory {
 	public static Factory newInstanceFactory(GoodType goodType) {
 		Factory factory = new Factory();
 		factory.setProducedGoodType(goodType);
+		factory.setPrimaryCurrency(Currency.EURO);
 		factory.initialize();
 		DAOFactory.getFactoryDAO().save(factory);
 		return factory;
@@ -114,6 +117,7 @@ public class AgentFactory {
 
 	public static Household newInstanceHousehold() {
 		Household household = new Household();
+		household.setPrimaryCurrency(Currency.EURO);
 		household.initialize();
 		DAOFactory.getHouseholdDAO().save(household);
 		return household;

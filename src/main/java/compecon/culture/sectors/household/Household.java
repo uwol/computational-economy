@@ -28,7 +28,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.EconomicalBehaviour;
-import compecon.culture.markets.PrimaryMarket;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
@@ -39,6 +38,7 @@ import compecon.culture.sectors.state.law.security.equity.Share;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.Log;
+import compecon.engine.MarketFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
@@ -70,7 +70,7 @@ public class Household extends Agent implements IShareOwner {
 	protected int MAX_CREDIT = 0;
 
 	@Transient
-	protected int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 14;
+	protected int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 14 + this.hashCode() % 14;
 
 	@Transient
 	protected double REQUIRED_UTILITY = 1.0 / GoodType.values().length;
@@ -124,7 +124,7 @@ public class Household extends Agent implements IShareOwner {
 				BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		this.economicalBehaviour = new EconomicalBehaviour(this,
-				GoodType.LABOURHOUR, null);
+				GoodType.LABOURHOUR, null, this.primaryCurrency);
 	}
 
 	/*
@@ -218,7 +218,8 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * maximize utility
 			 */
-			Map<GoodType, Double> prices = PrimaryMarket.getInstance()
+			Map<GoodType, Double> prices = MarketFactory.getInstance(
+					Household.this.transactionsBankAccount.getCurrency())
 					.getMarginalPrices(
 							Household.this.transactionsBankAccount
 									.getCurrency());
@@ -249,7 +250,9 @@ public class Household extends Agent implements IShareOwner {
 								Household.this.transactionsBankAccount
 										.getBalance());
 					}
-					PrimaryMarket.getInstance().buy(
+					MarketFactory.getInstance(
+							Household.this.transactionsBankAccount
+									.getCurrency()).buy(
 							goodType,
 							-1,
 							maxAmount,
@@ -287,7 +290,8 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * buy shares / capital -> equity savings
 			 */
-			PrimaryMarket.getInstance().buy(
+			MarketFactory.getInstance(
+					Household.this.transactionsBankAccount.getCurrency()).buy(
 					Share.class,
 					-1,
 					1,
@@ -331,18 +335,25 @@ public class Household extends Agent implements IShareOwner {
 			 */
 			Household.this.economicalBehaviour.getPricingBehaviour()
 					.setNewPrice();
-			PrimaryMarket.getInstance().removeAllSellingOffers(Household.this,
-					GoodType.LABOURHOUR);
+			MarketFactory
+					.getInstance(
+							Household.this.transactionsBankAccount
+									.getCurrency()).removeAllSellingOffers(
+							Household.this, GoodType.LABOURHOUR);
 			double amountOfLabourHours = PropertyRegister.getInstance()
 					.getBalance(Household.this, GoodType.LABOURHOUR);
-			PrimaryMarket.getInstance().placeSettlementSellingOffer(
-					GoodType.LABOURHOUR,
-					Household.this,
-					Currency.EURO,
-					Household.this.transactionsBankAccount,
-					amountOfLabourHours,
-					Household.this.economicalBehaviour.getPricingBehaviour()
-							.getCurrentPrice(), new SettlementMarketEvent());
+			MarketFactory.getInstance(
+					Household.this.transactionsBankAccount.getCurrency())
+					.placeSettlementSellingOffer(
+							GoodType.LABOURHOUR,
+							Household.this,
+							Household.this.transactionsBankAccount
+									.getCurrency(),
+							Household.this.transactionsBankAccount,
+							amountOfLabourHours,
+							Household.this.economicalBehaviour
+									.getPricingBehaviour().getCurrentPrice(),
+							new SettlementMarketEvent());
 			Household.this.economicalBehaviour
 					.registerOfferedAmount(amountOfLabourHours);
 

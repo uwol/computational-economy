@@ -104,7 +104,7 @@ public class CobbDouglasUtilityFunction extends UtilityFunction {
 		Map<GoodType, Double> bundleOfGoods = new LinkedHashMap<GoodType, Double>();
 		/*
 		 * analytical formula for the optimal solution of a Cobb-Douglas utility
-		 * function
+		 * function under given budget restriction -> Lagrange function
 		 */
 		for (GoodType goodType : this.getGoodTypes()) {
 			double optimalAmount = this.exponents.get(goodType) * budget

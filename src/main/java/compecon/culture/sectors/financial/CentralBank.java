@@ -24,20 +24,16 @@ import java.util.Map.Entry;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Index;
-
-import compecon.culture.markets.PrimaryMarket;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.culture.sectors.state.law.security.debt.Bond;
 import compecon.culture.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.Log;
+import compecon.engine.MarketFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -72,10 +68,6 @@ public class CentralBank extends Bank {
 	protected StatisticalOffice statisticalOffice;
 
 	// state
-
-	@Enumerated(EnumType.STRING)
-	@Index(name = "IDX_COVERED_CURRENCY")
-	protected Currency coveredCurrency;
 
 	@Column(name = "effectiveKeyInterestRate")
 	protected double effectiveKeyInterestRate = 0.03;
@@ -135,16 +127,16 @@ public class CentralBank extends Bank {
 	 * Accessors
 	 */
 
-	public Currency getCoveredCurrency() {
-		return this.coveredCurrency;
+	public Currency getPrimaryCurrency() {
+		return this.primaryCurrency;
 	}
 
 	public double getEffectiveKeyInterestRate() {
 		return this.effectiveKeyInterestRate;
 	}
 
-	public void setCoveredCurrency(final Currency coveredCurrency) {
-		this.coveredCurrency = coveredCurrency;
+	public void setPrimaryCurrency(final Currency primaryCurrency) {
+		this.primaryCurrency = primaryCurrency;
 	}
 
 	public void setEffectiveKeyInterestRate(double effectiveKeyInterestRate) {
@@ -168,14 +160,14 @@ public class CentralBank extends Bank {
 			// bank account
 			String bankPassword = this.openCustomerAccount(this);
 			this.transactionsBankAccount = new BankAccount(this, true,
-					this.coveredCurrency, this);
+					this.primaryCurrency, this);
 			this.bankPasswords.put(this, bankPassword);
 		}
 	}
 
 	@Transient
 	protected void assertCurrencyIsOffered(Currency currency) {
-		if (this.coveredCurrency != currency)
+		if (this.primaryCurrency != currency)
 			throw new RuntimeException(currency
 					+ " are not offered at this bank");
 	}
@@ -420,13 +412,13 @@ public class CentralBank extends Bank {
 			CentralBank.this.statisticalOffice.recalculatePriceIndex();
 			double priceIndex = CentralBank.this.statisticalOffice
 					.getPriceIndex();
-			Log.centralBank_PriceIndex(CentralBank.this.coveredCurrency,
+			Log.centralBank_PriceIndex(CentralBank.this.primaryCurrency,
 					priceIndex);
 
 			// calculate key interest rate
 			CentralBank.this.effectiveKeyInterestRate = CentralBank.this
 					.calculateEffectiveKeyInterestRate();
-			Log.centralBank_KeyInterestRate(CentralBank.this.coveredCurrency,
+			Log.centralBank_KeyInterestRate(CentralBank.this.primaryCurrency,
 					CentralBank.this.effectiveKeyInterestRate);
 		}
 	}
@@ -520,9 +512,9 @@ public class CentralBank extends Bank {
 				double[] pricesForGoodType = entry.getValue();
 
 				// fetch and store current price for this good type
-				double marginalPriceForGoodType = PrimaryMarket.getInstance()
-						.getMarginalPrice(entry.getKey(),
-								CentralBank.this.coveredCurrency)
+				double marginalPriceForGoodType = MarketFactory.getInstance(
+						CentralBank.this.primaryCurrency).getMarginalPrice(
+						entry.getKey(), CentralBank.this.primaryCurrency)
 						/ CentralBank.this.NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
 
 				if (!Double.isNaN(marginalPriceForGoodType)

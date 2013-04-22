@@ -27,14 +27,13 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.EconomicalBehaviour;
-import compecon.culture.markets.PrimaryMarket;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
-import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.culture.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.Log;
+import compecon.engine.MarketFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
@@ -106,7 +105,8 @@ public class Factory extends JointStockCompany {
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		this.economicalBehaviour = new EconomicalBehaviour(this,
-				GoodType.MEGACALORIE, this.compositeProductionFunction);
+				GoodType.MEGACALORIE, this.compositeProductionFunction,
+				this.primaryCurrency);
 	}
 
 	/*
@@ -166,7 +166,8 @@ public class Factory extends JointStockCompany {
 							Factory.this.transactionsBankAccount.getCurrency(),
 							Factory.this.transactionsBankAccount.getBalance(),
 							MAX_CREDIT);
-			PrimaryMarket.getInstance().buy(
+			MarketFactory.getInstance(
+					Factory.this.transactionsBankAccount.getCurrency()).buy(
 					GoodType.LABOURHOUR,
 					-1,
 					requiredLabourHours,
@@ -209,18 +210,23 @@ public class Factory extends JointStockCompany {
 			 */
 			Factory.this.economicalBehaviour.getPricingBehaviour()
 					.setNewPrice();
-			PrimaryMarket.getInstance().removeAllSellingOffers(Factory.this,
-					Factory.this.producedGoodType);
+			MarketFactory.getInstance(
+					Factory.this.transactionsBankAccount.getCurrency())
+					.removeAllSellingOffers(Factory.this,
+							Factory.this.producedGoodType);
 			double amount = PropertyRegister.getInstance().getBalance(
 					Factory.this, Factory.this.producedGoodType);
-			PrimaryMarket.getInstance().placeSettlementSellingOffer(
-					Factory.this.producedGoodType,
-					Factory.this,
-					Currency.EURO,
-					Factory.this.transactionsBankAccount,
-					amount,
-					Factory.this.economicalBehaviour.getPricingBehaviour()
-							.getCurrentPrice(), new SettlementMarketEvent());
+			MarketFactory.getInstance(
+					Factory.this.transactionsBankAccount.getCurrency())
+					.placeSettlementSellingOffer(
+							Factory.this.producedGoodType,
+							Factory.this,
+							Factory.this.transactionsBankAccount.getCurrency(),
+							Factory.this.transactionsBankAccount,
+							amount,
+							Factory.this.economicalBehaviour
+									.getPricingBehaviour().getCurrentPrice(),
+							new SettlementMarketEvent());
 			Factory.this.economicalBehaviour.registerOfferedAmount(amount);
 
 			// ToDo Remove

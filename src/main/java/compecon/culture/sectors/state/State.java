@@ -18,13 +18,10 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.culture.sectors.state;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.sectors.financial.CreditBank;
-import compecon.culture.sectors.financial.Currency;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.Log;
@@ -35,9 +32,6 @@ import compecon.engine.time.calendar.MonthType;
 @Entity
 @Table(name = "State")
 public class State extends Agent {
-
-	@Enumerated(EnumType.STRING)
-	protected Currency legislatedCurrency;
 
 	@Override
 	public void initialize() {
@@ -55,14 +49,6 @@ public class State extends Agent {
 	 * Accessors
 	 */
 
-	public Currency getLegislatedCurrency() {
-		return this.legislatedCurrency;
-	}
-
-	public void setLegislatedCurrency(final Currency legislatedCurrency) {
-		this.legislatedCurrency = legislatedCurrency;
-	}
-
 	/*
 	 * Business logic
 	 */
@@ -71,7 +57,7 @@ public class State extends Agent {
 	public void doDeficitSpending() {
 		this.assertTransactionsBankAccount();
 		for (CreditBank creditBank : AgentFactory
-				.getAllCreditBanks(this.legislatedCurrency)) {
+				.getAllCreditBanks(this.primaryCurrency)) {
 			for (Agent agent : creditBank.getCustomers()) {
 				if (agent != this) {
 					this.primaryBank.transferMoney(transactionsBankAccount,

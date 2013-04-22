@@ -25,14 +25,13 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.EconomicalBehaviour;
-import compecon.culture.markets.PrimaryMarket;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
-import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.culture.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.Log;
+import compecon.engine.MarketFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
@@ -102,7 +101,8 @@ public class Farm extends JointStockCompany {
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		this.economicalBehaviour = new EconomicalBehaviour(this,
-				GoodType.MEGACALORIE, this.compositeProductionFunction);
+				GoodType.MEGACALORIE, this.compositeProductionFunction,
+				this.primaryCurrency);
 	}
 
 	/*
@@ -156,7 +156,8 @@ public class Farm extends JointStockCompany {
 							Farm.this.transactionsBankAccount.getCurrency(),
 							Farm.this.transactionsBankAccount.getBalance(),
 							MAX_CREDIT);
-			PrimaryMarket.getInstance().buy(
+			MarketFactory.getInstance(
+					Farm.this.transactionsBankAccount.getCurrency()).buy(
 					GoodType.LABOURHOUR,
 					-1,
 					requiredLabourHours,
@@ -196,18 +197,22 @@ public class Farm extends JointStockCompany {
 			 * Refresh prices / offer
 			 */
 			Farm.this.economicalBehaviour.getPricingBehaviour().setNewPrice();
-			PrimaryMarket.getInstance().removeAllSellingOffers(Farm.this,
-					GoodType.MEGACALORIE);
+			MarketFactory.getInstance(
+					Farm.this.transactionsBankAccount.getCurrency())
+					.removeAllSellingOffers(Farm.this, GoodType.MEGACALORIE);
 			double amount = PropertyRegister.getInstance().getBalance(
 					Farm.this, GoodType.MEGACALORIE);
-			PrimaryMarket.getInstance().placeSettlementSellingOffer(
-					GoodType.MEGACALORIE,
-					Farm.this,
-					Currency.EURO,
-					Farm.this.transactionsBankAccount,
-					amount,
-					Farm.this.economicalBehaviour.getPricingBehaviour()
-							.getCurrentPrice(), new SettlementMarketEvent());
+			MarketFactory.getInstance(
+					Farm.this.transactionsBankAccount.getCurrency())
+					.placeSettlementSellingOffer(
+							GoodType.MEGACALORIE,
+							Farm.this,
+							Farm.this.transactionsBankAccount.getCurrency(),
+							Farm.this.transactionsBankAccount,
+							amount,
+							Farm.this.economicalBehaviour.getPricingBehaviour()
+									.getCurrentPrice(),
+							new SettlementMarketEvent());
 			Farm.this.economicalBehaviour.registerOfferedAmount(amount);
 
 			// ToDo Remove

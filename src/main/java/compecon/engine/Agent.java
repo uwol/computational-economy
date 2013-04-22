@@ -28,6 +28,8 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,7 +44,6 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.culture.markets.PrimaryMarket;
 import compecon.culture.sectors.financial.Bank;
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
@@ -78,6 +79,11 @@ public abstract class Agent implements IPropertyOwner {
 	@Column(name = "bankPassword")
 	// CREATE INDEX bank_id ON TABLE Agent
 	protected Map<Bank, String> bankPasswords = new HashMap<Bank, String>();
+
+	@Column(name = "primaryCurrency")
+	@Enumerated(EnumType.STRING)
+	@Index(name = "IDX_COVERED_CURRENCY")
+	protected Currency primaryCurrency;
 
 	@ManyToOne
 	@JoinColumn(name = "primaryBank_id")
@@ -124,6 +130,10 @@ public abstract class Agent implements IPropertyOwner {
 		return primaryBank;
 	}
 
+	public Currency getPrimaryCurrency() {
+		return primaryCurrency;
+	}
+
 	public BankAccount getTransactionsBankAccount() {
 		return transactionsBankAccount;
 	}
@@ -148,6 +158,10 @@ public abstract class Agent implements IPropertyOwner {
 		this.primaryBank = primaryBank;
 	}
 
+	public void setPrimaryCurrency(Currency primaryCurrency) {
+		this.primaryCurrency = primaryCurrency;
+	}
+
 	public void setTransactionsBankAccount(BankAccount transactionsBankAccount) {
 		this.transactionsBankAccount = transactionsBankAccount;
 	}
@@ -161,7 +175,7 @@ public abstract class Agent implements IPropertyOwner {
 		// initialize bank account
 		if (this.primaryBank == null) {
 			this.primaryBank = AgentFactory
-					.getRandomInstanceCreditBank(Currency.EURO);
+					.getRandomInstanceCreditBank(this.primaryCurrency);
 			String bankPassword = this.primaryBank.openCustomerAccount(this);
 			this.bankPasswords.put(this.primaryBank, bankPassword);
 		}
@@ -189,7 +203,8 @@ public abstract class Agent implements IPropertyOwner {
 			TimeSystem.getInstance().removeEvent(timeSystemEvent);
 
 		// remove selling offers from primary market
-		PrimaryMarket.getInstance().removeAllSellingOffers(this);
+		MarketFactory.getInstance(this.transactionsBankAccount.getCurrency())
+				.removeAllSellingOffers(this);
 
 		// deregister from PropertyRegister
 		PropertyRegister.getInstance().deregister(this);

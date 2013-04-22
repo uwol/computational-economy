@@ -15,17 +15,20 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.culture.markets;
+package compecon.engine;
 
-public class PrimaryMarket extends SettlementMarket {
-	private static PrimaryMarket instance;
+import java.util.HashMap;
+import java.util.Map;
 
-	private PrimaryMarket() {
-	}
+import compecon.culture.markets.SettlementMarket;
+import compecon.culture.sectors.financial.Currency;
 
-	public static PrimaryMarket getInstance() {
-		if (instance == null)
-			instance = new PrimaryMarket();
-		return instance;
+public class MarketFactory {
+	private static Map<Currency, SettlementMarket> markets = new HashMap<Currency, SettlementMarket>();
+
+	public static SettlementMarket getInstance(Currency currency) {
+		if (!markets.containsKey(currency))
+			markets.put(currency, new SettlementMarket());
+		return markets.get(currency);
 	}
 }

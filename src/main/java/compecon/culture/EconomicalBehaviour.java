@@ -17,12 +17,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.culture;
 
-import compecon.culture.markets.PrimaryMarket;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.Log;
+import compecon.engine.MarketFactory;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 import compecon.nature.production.CompositeProductionFunction;
@@ -41,6 +41,8 @@ public class EconomicalBehaviour {
 
 	protected final GoodType producedGoodType;
 
+	protected final Currency currency;
+
 	protected final Agent agent;
 
 	protected boolean periodDataInitialized = false;
@@ -57,9 +59,10 @@ public class EconomicalBehaviour {
 														// ...
 
 	public EconomicalBehaviour(Agent agent, GoodType producedGoodType,
-			CompositeProductionFunction productionFunction) {
+			CompositeProductionFunction productionFunction, Currency currency) {
 		this.agent = agent;
 		this.producedGoodType = producedGoodType;
+		this.currency = currency;
 
 		this.budgetingBehaviour = new BudgetingBehaviour();
 		if (productionFunction != null)
@@ -96,9 +99,11 @@ public class EconomicalBehaviour {
 
 	public void assertPeriodDataInitialized() {
 		if (!this.periodDataInitialized) {
-			double marketPrice = PrimaryMarket.getInstance().getMarginalPrice(
-					this.producedGoodType,
-					this.agent.getTransactionsBankAccount().getCurrency());
+			double marketPrice = MarketFactory.getInstance(this.currency)
+					.getMarginalPrice(
+							this.producedGoodType,
+							this.agent.getTransactionsBankAccount()
+									.getCurrency());
 			if (!Double.isNaN(marketPrice) && !Double.isInfinite(marketPrice))
 				this.prices_InPeriods[0] = marketPrice;
 			else
@@ -204,12 +209,11 @@ public class EconomicalBehaviour {
 							+ " " + GoodType.LABOURHOUR);
 
 			// check for estimated cost per labour hour
-			double pricePerLabourHour = PrimaryMarket
-					.getInstance()
-					.getMarginalPrice(
-							GoodType.LABOURHOUR,
-							EconomicalBehaviour.this.agent
-									.getTransactionsBankAccount().getCurrency());
+			double pricePerLabourHour = MarketFactory.getInstance(
+					EconomicalBehaviour.this.currency).getMarginalPrice(
+					GoodType.LABOURHOUR,
+					EconomicalBehaviour.this.agent.getTransactionsBankAccount()
+							.getCurrency());
 			if (Double.isNaN(pricePerLabourHour)
 					|| Double.isInfinite(pricePerLabourHour)) {
 				Log
@@ -225,12 +229,11 @@ public class EconomicalBehaviour {
 			}
 
 			// check for estimated revenue per unit
-			double estMarginalRevenue = PrimaryMarket
-					.getInstance()
-					.getMarginalPrice(
-							producedGoodType,
-							EconomicalBehaviour.this.agent
-									.getTransactionsBankAccount().getCurrency());
+			double estMarginalRevenue = MarketFactory.getInstance(
+					EconomicalBehaviour.this.currency).getMarginalPrice(
+					producedGoodType,
+					EconomicalBehaviour.this.agent.getTransactionsBankAccount()
+							.getCurrency());
 			if (Double.isNaN(estMarginalRevenue)
 					|| Double.isInfinite(estMarginalRevenue)) {
 				Log

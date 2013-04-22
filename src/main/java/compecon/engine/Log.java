@@ -204,7 +204,7 @@ public class Log {
 			double amount, CreditBank creditBank) {
 		log(creditBank,
 				creditBank + " obtained a tender of " + Currency.round(amount)
-						+ " " + centralBank.getCoveredCurrency()
+						+ " " + centralBank.getPrimaryCurrency()
 						+ " of central bank money from " + centralBank);
 	}
 

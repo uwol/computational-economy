@@ -130,7 +130,7 @@ public class CreditBank extends Bank implements
 			// bankaccount
 			String bankPassword = this.openCustomerAccount(this);
 			this.transactionsBankAccount = new BankAccount(this, true,
-					Currency.EURO, this);
+					this.primaryCurrency, this);
 			this.bankPasswords.put(this, bankPassword);
 		}
 	}

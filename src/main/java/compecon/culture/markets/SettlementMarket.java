@@ -36,7 +36,7 @@ import compecon.nature.materia.GoodType;
  * The settlement market is a special market that transfers ownership of offered
  * goods and money, automatically.
  */
-public abstract class SettlementMarket extends Market {
+public class SettlementMarket extends Market {
 
 	public interface ISettlementEvent {
 		public void onEvent(GoodType goodType, double amount,

@@ -19,7 +19,7 @@ Technical platform:
 * Maven
 * Optionally: Database server 
 	* configuration: hibernate.cfg.xml 
-	* activation: vm argument -Dactivatedb=true
+	* activation (vm argument): -Dactivatedb=true
 
 ![screenshot1](http://img.literaturedb.com/compecon1.png)
 
