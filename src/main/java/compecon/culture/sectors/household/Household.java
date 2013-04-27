@@ -18,7 +18,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.culture.sectors.household;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -45,7 +44,7 @@ import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.nature.materia.GoodType;
 import compecon.nature.materia.Refreshable;
-import compecon.nature.utility.CobbDouglasUtilityFunction;
+import compecon.nature.math.utility.CobbDouglasUtilityFunction;
 
 /**
  * Agent type Household offers labour hours and consumes goods.
@@ -56,24 +55,25 @@ public class Household extends Agent implements IShareOwner {
 
 	// configuration constants
 	@Transient
-	protected int NEW_HOUSEHOLD_FROM_X_DAYS = 360 + this.hashCode() % 360;
+	protected final int NEW_HOUSEHOLD_FROM_X_DAYS = 360 + this.hashCode() % 360;
 
 	@Transient
-	protected int NEW_HOUSEHOLD_EVERY_X_DAYS = 360;
+	protected final int NEW_HOUSEHOLD_EVERY_X_DAYS = 360;
 
 	@Transient
-	protected int LIFESPAN = 360 * 10;
+	protected final int LIFESPAN = 360 * 10;
 
 	// maxCredit limits the demand for money when buying production input
 	// factors, thus limiting M1 in the monetary system
 	@Transient
-	protected int MAX_CREDIT = 0;
+	protected final int MAX_CREDIT = 0;
 
 	@Transient
-	protected int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 14 + this.hashCode() % 14;
+	protected final int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 14 + this
+			.hashCode() % 14;
 
 	@Transient
-	protected double REQUIRED_UTILITY = 1.0 / GoodType.values().length;
+	protected final double REQUIRED_UTILITY = 1.0;
 
 	// state
 	@Column(name = "ageInDays")
@@ -92,22 +92,17 @@ public class Household extends Agent implements IShareOwner {
 	protected EconomicalBehaviour economicalBehaviour;
 
 	@Transient
+	protected Map<GoodType, Double> preferences;
+
+	@Transient
 	protected CobbDouglasUtilityFunction utilityFunction;
 
 	@Override
 	public void initialize() {
 		super.initialize();
 
-		// consumption preferences; each GoodType has to be contained here, so
-		// that the corresponding price on the market can come to an
-		// equilibrium; preference for labour hour has to be high enough, so
-		// that labour hour prices do not fall endlessly
-		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.MEGACALORIE, 0.3);
-		preferences.put(GoodType.KILOWATT, 0.2);
-		preferences.put(GoodType.LABOURHOUR, 0.4);
-		preferences.put(GoodType.REALESTATE, 0.1);
-		this.utilityFunction = new CobbDouglasUtilityFunction(preferences);
+		this.utilityFunction = new CobbDouglasUtilityFunction(this.preferences);
+		this.utilityFunction.setAgent(this);
 
 		// daily life at random HourType
 		ITimeSystemEvent dailyLifeEvent = new DailyLifeEvent();
@@ -124,7 +119,7 @@ public class Household extends Agent implements IShareOwner {
 				BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		this.economicalBehaviour = new EconomicalBehaviour(this,
-				GoodType.LABOURHOUR, null, this.primaryCurrency);
+				GoodType.LABOURHOUR, this.primaryCurrency);
 	}
 
 	/*
@@ -153,6 +148,11 @@ public class Household extends Agent implements IShareOwner {
 
 	public void setContinuousDaysWithUtility(int continuousDaysWithUtility) {
 		this.continuousDaysWithUtility = continuousDaysWithUtility;
+	}
+
+	@Transient
+	public void setPreferences(Map<GoodType, Double> preferences) {
+		this.preferences = preferences;
 	}
 
 	/*
@@ -220,9 +220,7 @@ public class Household extends Agent implements IShareOwner {
 			 */
 			Map<GoodType, Double> prices = MarketFactory.getInstance(
 					Household.this.transactionsBankAccount.getCurrency())
-					.getMarginalPrices(
-							Household.this.transactionsBankAccount
-									.getCurrency());
+					.getMarginalPrices();
 			double transmissionBasedBudget = Household.this.economicalBehaviour
 					.getBudgetingBehaviour()
 					.calculateTransmissionBasedBudgetForPeriod(
@@ -231,8 +229,8 @@ public class Household extends Agent implements IShareOwner {
 							Household.this.transactionsBankAccount.getBalance(),
 							Household.this.MAX_CREDIT);
 			Map<GoodType, Double> optimalBundleOfGoods = Household.this.utilityFunction
-					.calculateOptimalBundleOfGoods(prices,
-							transmissionBasedBudget);
+					.calculateUtilityMaximizingInputsUnderBudgetRestriction(
+							prices, transmissionBasedBudget);
 
 			/*
 			 * buy goods
@@ -272,7 +270,7 @@ public class Household extends Agent implements IShareOwner {
 			 */
 			Map<GoodType, Double> bundleOfGoodsToConsume = new HashMap<GoodType, Double>();
 			for (GoodType goodType : Household.this.utilityFunction
-					.getGoodTypes()) {
+					.getInputGoodTypes()) {
 				double balance = PropertyRegister.getInstance().getBalance(
 						Household.this, goodType);
 				double amountToConsume = Math.min(balance,
@@ -347,8 +345,6 @@ public class Household extends Agent implements IShareOwner {
 					.placeSettlementSellingOffer(
 							GoodType.LABOURHOUR,
 							Household.this,
-							Household.this.transactionsBankAccount
-									.getCurrency(),
 							Household.this.transactionsBankAccount,
 							amountOfLabourHours,
 							Household.this.economicalBehaviour

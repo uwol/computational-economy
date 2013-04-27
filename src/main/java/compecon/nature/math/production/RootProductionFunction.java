@@ -15,11 +15,13 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.hibernate;
+package compecon.nature.math.production;
 
-import compecon.culture.sectors.agriculture.Farm;
-import compecon.engine.dao.DAOFactory.IFarmDAO;
+import compecon.nature.materia.GoodType;
+import compecon.nature.math.RootFunction;
 
-public class FarmDAO extends HibernateDAO<Farm, Long> implements IFarmDAO {
-
+public class RootProductionFunction extends ConvexProductionFunction {
+	public RootProductionFunction(GoodType goodType, double coefficient) {
+		super(new RootFunction(goodType, coefficient));
+	}
 }

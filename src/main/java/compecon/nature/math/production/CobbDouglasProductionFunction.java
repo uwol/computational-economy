@@ -15,22 +15,15 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.nature.utility;
+package compecon.nature.math.production;
 
 import java.util.Map;
-import java.util.Set;
 
 import compecon.nature.materia.GoodType;
+import compecon.nature.math.CobbDouglasFunction;
 
-public interface IUtilityFunction {
-
-	public Set<GoodType> getGoodTypes();
-
-	public double calculateUtility(Map<GoodType, Double> bundleOfGoods);
-
-	public double calculateMarginalUtility(Map<GoodType, Double> bundleOfGoods,
-			GoodType differentialGoodType);
-
-	public Map<GoodType, Double> calculateOptimalBundleOfGoods(
-			Map<GoodType, Double> pricesOfGoods, double budget);
+public class CobbDouglasProductionFunction extends ConvexProductionFunction {
+	public CobbDouglasProductionFunction(Map<GoodType, Double> exponents) {
+		super(new CobbDouglasFunction(exponents));
+	}
 }

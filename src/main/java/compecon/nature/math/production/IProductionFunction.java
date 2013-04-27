@@ -15,20 +15,29 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine;
+package compecon.nature.math.production;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-import compecon.culture.markets.SettlementMarket;
-import compecon.culture.sectors.financial.Currency;
+import compecon.engine.Agent;
+import compecon.nature.materia.GoodType;
 
-public class MarketFactory {
-	private static Map<Currency, SettlementMarket> markets = new HashMap<Currency, SettlementMarket>();
+public interface IProductionFunction {
 
-	public static SettlementMarket getInstance(Currency currency) {
-		if (!markets.containsKey(currency))
-			markets.put(currency, new SettlementMarket(currency));
-		return markets.get(currency);
-	}
+	public Set<GoodType> getInputGoodTypes();
+
+	public void setAgent(Agent agent);
+
+	public double calculateOutput(
+			Map<GoodType, Double> bundleOfProductionFactors);
+
+	public double calculateMarginalOutput(
+			Map<GoodType, Double> bundleOfProductionFactors,
+			GoodType differentialGoodType);
+
+	public abstract Map<GoodType, Double> calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
+			double priceOfProducedGoodType,
+			Map<GoodType, Double> pricesOfProductionFactors, double budget,
+			double maxOutput);
 }

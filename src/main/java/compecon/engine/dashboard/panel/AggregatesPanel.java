@@ -80,8 +80,8 @@ public class AggregatesPanel extends JPanel {
 		this.add(this.createKeyInterestRatesChart());
 		this.add(this.createPriceIndicesChart());
 		this.add(this.createMoneySupplyChart());
-		this.add(this.createProductionCapacityChart());
-		this.add(this.createLabourCapacityChart());
+		this.add(this.createProductionChart());
+		this.add(this.createLabourChart());
 	}
 
 	private void configureChart(JFreeChart chart) {
@@ -128,7 +128,7 @@ public class AggregatesPanel extends JPanel {
 		return new ChartPanel(chart);
 	}
 
-	private ChartPanel createProductionCapacityChart() {
+	private ChartPanel createProductionChart() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (GoodType goodType : this.effectiveAmountModel.getTypes())
@@ -136,19 +136,14 @@ public class AggregatesPanel extends JPanel {
 				timeSeriesCollection.addSeries(this.effectiveAmountModel
 						.getTimeSeries(goodType));
 
-		for (GoodType goodType : this.capacityModel.getTypes())
-			if (!goodType.equals(GoodType.LABOURHOUR))
-				timeSeriesCollection.addSeries(this.capacityModel
-						.getTimeSeries(goodType));
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Production Capacity", "Date", "Capacity & Output",
-				(XYDataset) timeSeriesCollection, true, true, false);
+		JFreeChart chart = ChartFactory.createTimeSeriesChart("Production",
+				"Date", "Output", (XYDataset) timeSeriesCollection, true, true,
+				false);
 		this.configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
-	private ChartPanel createLabourCapacityChart() {
+	private ChartPanel createLabourChart() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		timeSeriesCollection.addSeries(this.effectiveAmountModel
@@ -156,9 +151,9 @@ public class AggregatesPanel extends JPanel {
 		timeSeriesCollection.addSeries(this.capacityModel
 				.getTimeSeries(GoodType.LABOURHOUR));
 
-		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Labour Hour Capacity", "Date", "Capacity & Utilization",
-				(XYDataset) timeSeriesCollection, true, true, false);
+		JFreeChart chart = ChartFactory.createTimeSeriesChart("Labour", "Date",
+				"Capacity & Utilization", (XYDataset) timeSeriesCollection,
+				true, true, false);
 		this.configureChart(chart);
 		return new ChartPanel(chart);
 	}
@@ -189,8 +184,8 @@ public class AggregatesPanel extends JPanel {
 					.getTimeSeries(currency));
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Utility",
-				"Date", "Utility", (XYDataset) timeSeriesCollection, true,
-				true, false);
+				"Date", "Total Utility", (XYDataset) timeSeriesCollection,
+				true, true, false);
 		this.configureChart(chart);
 		return new ChartPanel(chart);
 	}

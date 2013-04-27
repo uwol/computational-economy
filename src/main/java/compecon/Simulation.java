@@ -55,9 +55,8 @@ public class Simulation {
 			HibernateUtil.openSession();
 
 			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 2;
-			final int NUMBER_OF_HOUSEHOLDS = 1000;
-			final int NUMBER_OF_FARMS = 3;
-			final int NUMBER_OF_FACTORIES_PER_GOODTYPE = 2;
+			final int NUMBER_OF_HOUSEHOLDS = 500;
+			final int NUMBER_OF_FACTORIES_PER_GOODTYPE = 5;
 
 			// initialize the time system, so that agents can register their
 			// events
@@ -84,15 +83,9 @@ public class Simulation {
 				}
 			}
 
-			// initialize farms
-			for (int i = 0; i < NUMBER_OF_FARMS; i++) {
-				AgentFactory.newInstanceFarm();
-			}
-
 			// initialize factories
 			for (GoodType goodType : GoodType.values()) {
-				if (!GoodType.LABOURHOUR.equals(goodType)
-						&& !GoodType.MEGACALORIE.equals(goodType)) {
+				if (!GoodType.LABOURHOUR.equals(goodType)) {
 					for (int i = 0; i < NUMBER_OF_FACTORIES_PER_GOODTYPE; i++) {
 						AgentFactory.newInstanceFactory(goodType);
 					}

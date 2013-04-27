@@ -514,7 +514,7 @@ public class CentralBank extends Bank {
 				// fetch and store current price for this good type
 				double marginalPriceForGoodType = MarketFactory.getInstance(
 						CentralBank.this.primaryCurrency).getMarginalPrice(
-						entry.getKey(), CentralBank.this.primaryCurrency)
+						entry.getKey())
 						/ CentralBank.this.NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
 
 				if (!Double.isNaN(marginalPriceForGoodType)

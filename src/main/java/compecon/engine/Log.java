@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import compecon.culture.sectors.agriculture.Farm;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -46,8 +45,8 @@ public class Log {
 		Dashboard.getInstance().getAgentLogsModel()
 				.signalizeContentModification();
 		Dashboard.getInstance().getBalanceSheetsModel().nextPeriod();
-		Dashboard.getInstance().getCapacityModel().nextPeriod();
 		Dashboard.getInstance().getMonetaryTransactionsModel().nextPeriod();
+		Dashboard.getInstance().getCapacityModel().nextPeriod();
 		Dashboard.getInstance().getEffectiveProductionOutputModel()
 				.nextPeriod();
 		Dashboard.getInstance().getMoneySupplyM0Model().nextPeriod();
@@ -130,45 +129,12 @@ public class Log {
 
 	// --------
 
-	public static void farm_onProduction(Farm farm, double harvestedMegaCalories) {
-		log(farm, farm + " produced " + harvestedMegaCalories + " "
-				+ GoodType.MEGACALORIE);
-
-		Dashboard.getInstance().getEffectiveProductionOutputModel()
-				.add(GoodType.MEGACALORIE, harvestedMegaCalories);
-	}
-
-	public static void farm_ProductionCapacity(Farm farm,
-			double productionCapacity) {
-		log(farm, farm + " has production capacity " + productionCapacity
-				+ " for " + GoodType.MEGACALORIE);
-
-		Dashboard.getInstance().getCapacityModel()
-				.add(GoodType.MEGACALORIE, productionCapacity);
-	}
-
-	public static void farm_onLabourHourExhaust(Farm farm, double amount) {
-		Dashboard.getInstance().getEffectiveProductionOutputModel()
-				.add(GoodType.LABOURHOUR, amount);
-	}
-
-	// --------
-
 	public static void factory_onProduction(Factory factory, GoodType goodType,
 			double producedProducts) {
 		log(factory, factory + " produced " + producedProducts + " " + goodType);
 
 		Dashboard.getInstance().getEffectiveProductionOutputModel()
 				.add(goodType, producedProducts);
-	}
-
-	public static void factory_ProductionCapacity(Factory factory,
-			GoodType goodType, double productionCapacity) {
-		log(factory, factory + " has production capacity " + productionCapacity
-				+ " for " + goodType);
-
-		Dashboard.getInstance().getCapacityModel()
-				.add(goodType, productionCapacity);
 	}
 
 	public static void factory_onLabourHourExhaust(Factory factory,

@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
 
-import compecon.culture.sectors.agriculture.Farm;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -56,18 +55,17 @@ public class BalanceSheetsModel {
 		public final static int POSITION_BANK_BORROWINGS = 3;
 
 		public final static int AGENTTYPE_HOUSEHOLD = 0;
-		public final static int AGENTTYPE_FARM = 1;
-		public final static int AGENTTYPE_FACTORY = 2;
-		public final static int AGENTTYPE_CREDITBANK = 3;
-		public final static int AGENTTYPE_CENTRALBANK = 4;
-		public final static int AGENTTYPE_STATE = 5;
+		public final static int AGENTTYPE_FACTORY = 1;
+		public final static int AGENTTYPE_CREDITBANK = 2;
+		public final static int AGENTTYPE_CENTRALBANK = 3;
+		public final static int AGENTTYPE_STATE = 4;
 
 		protected final String columnNames[] = { "Active Account",
 				"Agent Type", "Value", "Currency", "", "Passive Account",
 				"Agent Type", "Value", "Currency" };
 
-		protected final String[] agentTypeNames = { "Household", "Farm",
-				"Factory", "Credit Bank", "Central Bank", "State" };
+		protected final String[] agentTypeNames = { "Household", "Factory",
+				"Credit Bank", "Central Bank", "State" };
 
 		protected final String[] activePositionNames = { "Hard Cash", "Cash",
 				"Fin. Assets (Bonds)", "Bank Loans", "", "Labour Hour",
@@ -232,8 +230,6 @@ public class BalanceSheetsModel {
 					currency));
 			balanceSheetsForAgentTypes.put(State.class, new BalanceSheet(
 					currency));
-			balanceSheetsForAgentTypes.put(Farm.class, new BalanceSheet(
-					currency));
 			balanceSheetsForAgentTypes.put(Factory.class, new BalanceSheet(
 					currency));
 
@@ -263,8 +259,6 @@ public class BalanceSheetsModel {
 					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_CENTRALBANK;
 				else if (agentType.equals(State.class))
 					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_STATE;
-				else if (agentType.equals(Farm.class))
-					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_FARM;
 				else if (agentType.equals(Factory.class))
 					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_FACTORY;
 

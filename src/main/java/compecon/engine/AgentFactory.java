@@ -19,12 +19,12 @@ package compecon.engine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import compecon.culture.sectors.agriculture.Farm;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -98,17 +98,10 @@ public class AgentFactory {
 			return creditBanks.get(currency);
 	}
 
-	public static Farm newInstanceFarm() {
-		Farm farm = new Farm();
-		farm.setPrimaryCurrency(Currency.EURO);
-		farm.initialize();
-		DAOFactory.getFarmDAO().save(farm);
-		return farm;
-	}
-
 	public static Factory newInstanceFactory(GoodType goodType) {
 		Factory factory = new Factory();
 		factory.setProducedGoodType(goodType);
+		factory.setProductivity(10);
 		factory.setPrimaryCurrency(Currency.EURO);
 		factory.initialize();
 		DAOFactory.getFactoryDAO().save(factory);
@@ -118,6 +111,18 @@ public class AgentFactory {
 	public static Household newInstanceHousehold() {
 		Household household = new Household();
 		household.setPrimaryCurrency(Currency.EURO);
+
+		// consumption preferences; each GoodType has to be contained here, so
+		// that the corresponding price on the market can come to an
+		// equilibrium; preference for labour hour has to be high enough, so
+		// that labour hour prices do not fall endlessly
+		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
+		preferences.put(GoodType.LABOURHOUR, 0.2);
+		preferences.put(GoodType.MEGACALORIE, 0.3);
+		preferences.put(GoodType.KILOWATT, 0.2);
+		preferences.put(GoodType.REALESTATE, 0.3);
+		household.setPreferences(preferences);
+
 		household.initialize();
 		DAOFactory.getHouseholdDAO().save(household);
 		return household;

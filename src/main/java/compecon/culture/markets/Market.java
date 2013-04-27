@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -38,11 +39,19 @@ public abstract class Market {
 
 	protected String name;
 
-	// the order book
+	protected final Currency currency;
 
+	// the order book
 	protected Map<GoodType, SortedSet<MarketOffer>> sellingOffersForGoodType = new HashMap<GoodType, SortedSet<MarketOffer>>();
 
 	protected Map<Class<? extends IProperty>, SortedSet<MarketOffer>> sellingOffersForIPropertyClass = new HashMap<Class<? extends IProperty>, SortedSet<MarketOffer>>();
+
+	// index data structure for faster search
+	protected Map<Agent, Set<MarketOffer>> indexAgentMarketOffer = new HashMap<Agent, Set<MarketOffer>>();
+
+	public Market(final Currency currency) {
+		this.currency = currency;
+	}
 
 	private void assertInitializedDataStructure(GoodType goodType) {
 		if (!this.sellingOffersForGoodType.containsKey(goodType))
@@ -61,6 +70,11 @@ public abstract class Market {
 		assertInitializedDataStructure(property.getClass());
 	}
 
+	private void assertInitializedDataStructure(Agent agent) {
+		if (!this.indexAgentMarketOffer.containsKey(agent))
+			this.indexAgentMarketOffer.put(agent, new HashSet<MarketOffer>());
+	}
+
 	/*
 	 * get market offers for type
 	 */
@@ -68,9 +82,33 @@ public abstract class Market {
 		return this.sellingOffersForGoodType.get(goodType);
 	}
 
+	private SortedSet<MarketOffer> getMarketOffers(GoodType goodType,
+			Agent agent) {
+		SortedSet<MarketOffer> marketOffers = new TreeSet<MarketOffer>();
+		if (this.indexAgentMarketOffer.containsKey(agent)) {
+			for (MarketOffer marketOffer : this.indexAgentMarketOffer
+					.get(agent))
+				if (marketOffer.getProperty().equals(goodType))
+					marketOffers.add(marketOffer);
+		}
+		return marketOffers;
+	}
+
 	private SortedSet<MarketOffer> getMarketOffers(
 			Class<? extends IProperty> propertyClass) {
 		return this.sellingOffersForIPropertyClass.get(propertyClass);
+	}
+
+	private SortedSet<MarketOffer> getMarketOffers(
+			Class<? extends IProperty> propertyClass, Agent agent) {
+		SortedSet<MarketOffer> marketOffers = new TreeSet<MarketOffer>();
+		if (this.indexAgentMarketOffer.containsKey(agent)) {
+			for (MarketOffer marketOffer : this.indexAgentMarketOffer
+					.get(agent))
+				if (marketOffer.getProperty().getClass().equals(propertyClass))
+					marketOffers.add(marketOffer);
+		}
+		return marketOffers;
 	}
 
 	private SortedSet<MarketOffer> getMarketOffers(IProperty property) {
@@ -81,32 +119,44 @@ public abstract class Market {
 	 * place selling offers
 	 */
 	public void placeSellingOffer(GoodType goodType, Agent offeror,
-			Currency currency, BankAccount offerorsBankAcount, double amount,
-			double pricePerUnit) {
+			BankAccount offerorsBankAcount, double amount, double pricePerUnit) {
 		if (!Double.isNaN(amount) && !Double.isInfinite(amount)
 				&& !Double.isNaN(pricePerUnit)
 				&& !Double.isInfinite(pricePerUnit) && amount > 0) {
 			assertInitializedDataStructure(goodType);
-			MarketOffer marketOffer = new MarketOffer(offeror, currency,
+			assertInitializedDataStructure(offeror);
+
+			MarketOffer marketOffer = new MarketOffer(offeror, this.currency,
 					offerorsBankAcount, goodType, pricePerUnit, amount);
 			SortedSet<MarketOffer> marketOffers = getMarketOffers(goodType);
 			int sizeBefore = marketOffers.size();
+
+			// --- sync ---
 			marketOffers.add(marketOffer);
+			this.indexAgentMarketOffer.get(offeror).add(marketOffer);
+			// ------------
+
 			if (marketOffers.size() != sizeBefore + 1)
 				throw new RuntimeException("marketOffer not added");
 		}
 	}
 
 	public void placeSellingOffer(IProperty property, Agent offeror,
-			Currency currency, BankAccount offerorsBankAcount,
-			double pricePerUnit) {
+			BankAccount offerorsBankAcount, double pricePerUnit) {
 		if (!Double.isNaN(pricePerUnit) && !Double.isInfinite(pricePerUnit)) {
 			assertInitializedDataStructure(property);
-			MarketOffer marketOffer = new MarketOffer(offeror, currency,
+			assertInitializedDataStructure(offeror);
+
+			MarketOffer marketOffer = new MarketOffer(offeror, this.currency,
 					offerorsBankAcount, property, pricePerUnit, 1);
 			SortedSet<MarketOffer> marketOffers = getMarketOffers(property);
 			int sizeBefore = marketOffers.size();
+
+			// --- sync ---
 			marketOffers.add(marketOffer);
+			this.indexAgentMarketOffer.get(offeror).add(marketOffer);
+			// ------------
+
 			if (marketOffers.size() != sizeBefore + 1)
 				throw new RuntimeException("marketOffer not added");
 		}
@@ -117,7 +167,6 @@ public abstract class Market {
 	 */
 	public void removeSellingOffer(MarketOffer offer) {
 		SortedSet<MarketOffer> marketOffers;
-
 		if (offer.getProperty() instanceof GoodType)
 			marketOffers = this.getMarketOffers((GoodType) offer.getProperty());
 		else
@@ -126,7 +175,12 @@ public abstract class Market {
 		if (!marketOffers.contains(offer))
 			throw new RuntimeException(
 					"offer to remove not maintained by this market");
+
+		// --- sync ---
 		marketOffers.remove(offer);
+		if (this.indexAgentMarketOffer.containsKey(offer.getOfferor()))
+			this.indexAgentMarketOffer.get(offer.getOfferor()).remove(offer);
+		// ------------
 
 		if (marketOffers.contains(offer))
 			throw new RuntimeException("offer could not be removed");
@@ -139,88 +193,67 @@ public abstract class Market {
 		for (Entry<Class<? extends IProperty>, SortedSet<MarketOffer>> entry : this.sellingOffersForIPropertyClass
 				.entrySet())
 			removeAllSellingOffers(offeror, entry.getKey());
+		this.indexAgentMarketOffer.remove(offeror);
 	}
 
 	public void removeAllSellingOffers(Agent offeror, GoodType goodType) {
-		HashSet<MarketOffer> sellingOffersToRemove = new HashSet<MarketOffer>();
-
 		assertInitializedDataStructure(goodType);
-		for (MarketOffer marketOffer : getMarketOffers((GoodType) goodType))
-			if (marketOffer.getOfferor() == offeror)
-				sellingOffersToRemove.add(marketOffer);
+		assertInitializedDataStructure(offeror);
 
+		Set<MarketOffer> sellingOffersToRemove = this.getMarketOffers(goodType,
+				offeror);
+		// --- sync ---
 		getMarketOffers(goodType).removeAll(sellingOffersToRemove);
+		this.indexAgentMarketOffer.get(offeror)
+				.removeAll(sellingOffersToRemove);
+		// ------------
 	}
 
 	public void removeAllSellingOffers(Agent offeror,
 			Class<? extends IProperty> propertyClass) {
-		HashSet<MarketOffer> sellingOffersToRemove = new HashSet<MarketOffer>();
-
 		assertInitializedDataStructure(propertyClass);
-		for (MarketOffer marketOffer : getMarketOffers(propertyClass))
-			if (marketOffer.getOfferor() == offeror)
-				sellingOffersToRemove.add(marketOffer);
+		assertInitializedDataStructure(offeror);
 
+		Set<MarketOffer> sellingOffersToRemove = this.getMarketOffers(
+				propertyClass, offeror);
+		// --- sync ---
 		getMarketOffers(propertyClass).removeAll(sellingOffersToRemove);
-	}
-
-	protected void removeEmptySellingOffers() {
-		for (Entry<GoodType, SortedSet<MarketOffer>> entry : this.sellingOffersForGoodType
-				.entrySet()) {
-			HashSet<MarketOffer> sellingOffersToRemove = new HashSet<MarketOffer>();
-
-			for (MarketOffer marketOffer : entry.getValue()) {
-				if (marketOffer.getAmount() <= 0
-						|| Double.isNaN(marketOffer.getAmount())
-						|| Double.isInfinite(marketOffer.getAmount())
-						|| Double.isNaN(marketOffer.getPricePerUnit())
-						|| Double.isInfinite(marketOffer.getPricePerUnit()))
-					sellingOffersToRemove.add(marketOffer);
-			}
-
-			entry.getValue().removeAll(sellingOffersToRemove);
-		}
+		this.indexAgentMarketOffer.get(offeror)
+				.retainAll(sellingOffersToRemove);
+		// ------------
 	}
 
 	/*
 	 * get price
 	 */
-	public double getMarginalPrice(GoodType goodType, Currency currency) {
+	public double getMarginalPrice(GoodType goodType) {
 		assertInitializedDataStructure(goodType);
-		for (MarketOffer marketOffer : getMarketOffers(goodType)) {
-			// search for an offer for the right property and currency
-			if (marketOffer.getCurrency() == currency)
-				return marketOffer.getPricePerUnit();
-		}
+		for (MarketOffer marketOffer : getMarketOffers(goodType))
+			return marketOffer.getPricePerUnit();
 		return Double.NaN;
 	}
 
-	public double getMarginalPrice(Class<? extends IProperty> propertyClass,
-			Currency currency) {
+	public double getMarginalPrice(Class<? extends IProperty> propertyClass) {
 		assertInitializedDataStructure(propertyClass);
-		for (MarketOffer marketOffer : getMarketOffers(propertyClass)) {
-			// search for an offer for the right property and currency
-			if (marketOffer.getCurrency() == currency)
-				return marketOffer.getPricePerUnit();
-		}
+		for (MarketOffer marketOffer : getMarketOffers(propertyClass))
+			return marketOffer.getPricePerUnit();
 		return Double.NaN;
 	}
 
-	public Map<GoodType, Double> getMarginalPrices(Currency currency) {
+	public Map<GoodType, Double> getMarginalPrices() {
 		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
 		for (GoodType goodType : GoodType.values())
-			prices.put(goodType, getMarginalPrice(goodType, currency));
+			prices.put(goodType, getMarginalPrice(goodType));
 		return prices;
 	}
 
-	public double getPriceForAmount(GoodType goodType, Currency currency,
-			double demandedAmount) {
+	public double getPriceForAmount(GoodType goodType, double demandedAmount) {
 		assertInitializedDataStructure(goodType);
 		double totalPrice = 0;
 
 		// MarketOffer, amount to take
 		Map<MarketOffer, Double> fulfillmentSet = this.findBestFulfillmentSet(
-				goodType, currency, -1, demandedAmount, -1, -1, -1);
+				goodType, -1, demandedAmount, -1, -1, -1);
 
 		Iterator<Entry<MarketOffer, Double>> iterator = fulfillmentSet
 				.entrySet().iterator();
@@ -233,13 +266,13 @@ public abstract class Market {
 	}
 
 	public double getPriceForAmount(Class<? extends IProperty> propertyClass,
-			Currency currency, double demandedAmount) {
+			double demandedAmount) {
 		assertInitializedDataStructure(propertyClass);
 		double totalPrice = 0;
 
 		// MarketOffer, amount to take
 		Map<MarketOffer, Double> fulfillmentSet = this.findBestFulfillmentSet(
-				propertyClass, currency, -1, demandedAmount, -1, -1, -1);
+				propertyClass, -1, demandedAmount, -1, -1, -1);
 
 		Iterator<Entry<MarketOffer, Double>> iterator = fulfillmentSet
 				.entrySet().iterator();
@@ -254,33 +287,30 @@ public abstract class Market {
 	/*
 	 * get amount
 	 */
-	public double getTotalAvailableAmount(GoodType goodType, Currency currency) {
+	public double getTotalAvailableAmount(GoodType goodType) {
 		assertInitializedDataStructure(goodType);
 		double totalAmount = 0;
 		for (MarketOffer marketOffer : getMarketOffers(goodType)) {
-			if (marketOffer.getCurrency() == currency)
-				totalAmount = totalAmount + marketOffer.getAmount();
+			totalAmount = totalAmount + marketOffer.getAmount();
 		}
 		return totalAmount;
 	}
 
-	public double getTotalAvailableAmount(Class<IProperty> propertyClass,
-			Currency currency) {
+	public double getTotalAvailableAmount(Class<IProperty> propertyClass) {
 		assertInitializedDataStructure(propertyClass);
 		double totalAmount = 0;
 		for (MarketOffer marketOffer : getMarketOffers(propertyClass)) {
-			if (marketOffer.getCurrency() == currency)
-				totalAmount = totalAmount + marketOffer.getAmount();
+			totalAmount = totalAmount + marketOffer.getAmount();
 		}
 		return totalAmount;
 	}
 
 	public double getAvailableAmountForMoneySum(GoodType goodType,
-			Currency currency, double maxMoneySum) {
+			double maxMoneySum) {
 		assertInitializedDataStructure(goodType);
 		double amountAvailableForMoneySum = 0;
 		Map<MarketOffer, Double> fulfillmentSet = this.findBestFulfillmentSet(
-				goodType, currency, -1, -1, maxMoneySum, -1, -1);
+				goodType, -1, -1, maxMoneySum, -1, -1);
 
 		for (Entry<MarketOffer, Double> entry : fulfillmentSet.entrySet()) {
 			amountAvailableForMoneySum = amountAvailableForMoneySum
@@ -290,12 +320,11 @@ public abstract class Market {
 	}
 
 	public double getAvailableAmountForMoneySum(
-			Class<? extends IProperty> propertyClass, Currency currency,
-			double maxMoneySum) {
+			Class<? extends IProperty> propertyClass, double maxMoneySum) {
 		assertInitializedDataStructure(propertyClass);
 		double amountAvailableForMoneySum = 0;
 		Map<MarketOffer, Double> fulfillmentSet = this.findBestFulfillmentSet(
-				propertyClass, currency, -1, -1, maxMoneySum, -1, -1);
+				propertyClass, -1, -1, maxMoneySum, -1, -1);
 
 		for (Entry<MarketOffer, Double> entry : fulfillmentSet.entrySet()) {
 			amountAvailableForMoneySum = amountAvailableForMoneySum
@@ -305,34 +334,32 @@ public abstract class Market {
 	}
 
 	public SortedMap<MarketOffer, Double> findBestFulfillmentSet(
-			GoodType goodType, Currency currency, final double minAmount,
-			final double maxAmount, final double maxTotalPrice,
-			final double maxTotalPriceForMinAmount, final double maxPricePerUnit) {
+			GoodType goodType, final double minAmount, final double maxAmount,
+			final double maxTotalPrice, final double maxTotalPriceForMinAmount,
+			final double maxPricePerUnit) {
 		assertInitializedDataStructure(goodType);
-		return this.findBestFulfillmentSet(getMarketOffers(goodType), currency,
+		return this.findBestFulfillmentSet(getMarketOffers(goodType),
 				minAmount, maxAmount, maxTotalPrice, maxTotalPriceForMinAmount,
 				maxPricePerUnit);
 	}
 
 	public SortedMap<MarketOffer, Double> findBestFulfillmentSet(
-			Class<? extends IProperty> propertyClass, Currency currency,
-			final double minAmount, final double maxAmount,
-			final double maxTotalPrice, final double maxTotalPriceForMinAmount,
-			final double maxPricePerUnit) {
+			Class<? extends IProperty> propertyClass, final double minAmount,
+			final double maxAmount, final double maxTotalPrice,
+			final double maxTotalPriceForMinAmount, final double maxPricePerUnit) {
 		assertInitializedDataStructure(propertyClass);
 		return this.findBestFulfillmentSet(getMarketOffers(propertyClass),
-				currency, minAmount, maxAmount, maxTotalPrice,
-				maxTotalPriceForMinAmount, maxPricePerUnit);
+				minAmount, maxAmount, maxTotalPrice, maxTotalPriceForMinAmount,
+				maxPricePerUnit);
 	}
 
 	/**
 	 * maxTotalPrice is ignored, if amount(maxTotalPrice) < minAmount
 	 */
 	private SortedMap<MarketOffer, Double> findBestFulfillmentSet(
-			SortedSet<MarketOffer> marketOffers, Currency currency,
-			final double minAmount, double maxAmount,
-			final double maxTotalPrice, final double maxTotalPriceForMinAmount,
-			final double maxPricePerUnit) {
+			SortedSet<MarketOffer> marketOffers, final double minAmount,
+			double maxAmount, final double maxTotalPrice,
+			final double maxTotalPriceForMinAmount, final double maxPricePerUnit) {
 
 		if (Double.isInfinite(maxAmount))
 			maxAmount = -1;
@@ -362,103 +389,101 @@ public abstract class Market {
 		// double amountLeft = maxAmount;
 		// double moneyLeft = maxTotalPrice;
 
-		// search for offers for the right property and currency starting
+		// search for offers for the right property starting
 		// with the lowest price/unit
 		for (MarketOffer offer : marketOffers) {
 			if (offer.getAmount() <= 0)
 				throw new RuntimeException("amount of offer is "
 						+ offer.getAmount());
 
-			if (offer.getCurrency() == currency) { // is the currency correct?
-				double amountToTakeByMaxAmountRestriction;
-				double amountToTakeByMinAmountRestriction;
-				double amountToTakeByTotalPriceRestriction;
-				double amountToTakeByTotalPriceForMinAmountRestriction;
-				double amountToTakeByMaxPricePerUnitRestriction;
-
-				// amountToTakeByMaxAmountRestriction
-				if (restrictMaxAmount)
-					amountToTakeByMaxAmountRestriction = Math.min(maxAmount
-							- selectedAmount, offer.getAmount());
-				else
-					amountToTakeByMaxAmountRestriction = offer.getAmount();
-
-				// amountToTakeByMinAmountRestriction
-				if (minAmount > 0)
-					amountToTakeByMinAmountRestriction = Math.max(
-							0,
-							Math.min(minAmount - selectedAmount,
-									offer.getAmount()));
-				else
-					amountToTakeByMinAmountRestriction = 0;
-
-				// amountToTakeByTotalPriceRestriction
-				// division by 0 not allowed !
-				if (restrictTotalPrice && offer.getPricePerUnit() != 0) {
-					amountToTakeByTotalPriceRestriction = Math.min(
-							(maxTotalPrice - spentMoney)
-									/ offer.getPricePerUnit(),
-							offer.getAmount());
-				} else
-					amountToTakeByTotalPriceRestriction = offer.getAmount();
-
-				// amountToTakeByTotalPriceForMinAmountRestriction
-				// division by 0 not allowed !
-				if (restrictTotalPriceForMinAmount
-						&& offer.getPricePerUnit() != 0) {
-					amountToTakeByTotalPriceForMinAmountRestriction = Math.min(
-							(maxTotalPriceForMinAmount - spentMoney)
-									/ offer.getPricePerUnit(),
-							offer.getAmount());
-				} else
-					amountToTakeByTotalPriceForMinAmountRestriction = offer
-							.getAmount();
-
-				// amountToTakeByMaxPricePerUnitRestriction
-				if (restrictMaxPricePerUnit
-						&& offer.getPricePerUnit() > maxPricePerUnit) {
-					amountToTakeByMaxPricePerUnitRestriction = 0;
-				} else
-					amountToTakeByMaxPricePerUnitRestriction = offer
-							.getAmount();
-
-				// final amount decision
-				double amountToTake = Math
-						.max(0,
-								Math.min(
-										amountToTakeByMaxAmountRestriction,
-										Math.max(
-												Math.min(
-														amountToTakeByTotalPriceRestriction,
-														amountToTakeByMaxPricePerUnitRestriction),
-												Math.min(
-														amountToTakeByTotalPriceForMinAmountRestriction,
-														amountToTakeByMinAmountRestriction))));
-
-				double totalPrice = amountToTake * offer.getPricePerUnit();
-
-				if (amountToTake == 0) {
-					break;
-				} else if (Double.isNaN(amountToTake)
-						|| Double.isInfinite(amountToTake)) {
-					throw new RuntimeException("amount to take is "
-							+ amountToTake);
-				} else {
-					selectedOffers.put(offer, amountToTake);
-					selectedAmount += amountToTake;
-					spentMoney += totalPrice;
-
-					if (restrictTotalPrice && (minAmount <= 0)
-							&& (spentMoney - 0.00001 > maxTotalPrice))
-						throw new RuntimeException(
-								"Market calculated incorrect amount: spent too much money");
-					if (restrictMaxAmount
-							&& !MathUtil.equal(selectedAmount, maxAmount)
-							&& (selectedAmount > maxAmount))
-						throw new RuntimeException(
-								"Market calculated incorrect amount: selected too much units");
-				}
+			// is the currency correct?
+			if (offer.getCurrency() != this.currency) {
+				throw new RuntimeException("wrong currency " + currency);
 			}
+			double amountToTakeByMaxAmountRestriction;
+			double amountToTakeByMinAmountRestriction;
+			double amountToTakeByTotalPriceRestriction;
+			double amountToTakeByTotalPriceForMinAmountRestriction;
+			double amountToTakeByMaxPricePerUnitRestriction;
+
+			// amountToTakeByMaxAmountRestriction
+			if (restrictMaxAmount)
+				amountToTakeByMaxAmountRestriction = Math.min(maxAmount
+						- selectedAmount, offer.getAmount());
+			else
+				amountToTakeByMaxAmountRestriction = offer.getAmount();
+
+			// amountToTakeByMinAmountRestriction
+			if (minAmount > 0)
+				amountToTakeByMinAmountRestriction = Math
+						.max(0,
+								Math.min(minAmount - selectedAmount,
+										offer.getAmount()));
+			else
+				amountToTakeByMinAmountRestriction = 0;
+
+			// amountToTakeByTotalPriceRestriction
+			// division by 0 not allowed !
+			if (restrictTotalPrice && offer.getPricePerUnit() != 0) {
+				amountToTakeByTotalPriceRestriction = Math.min(
+						(maxTotalPrice - spentMoney) / offer.getPricePerUnit(),
+						offer.getAmount());
+			} else
+				amountToTakeByTotalPriceRestriction = offer.getAmount();
+
+			// amountToTakeByTotalPriceForMinAmountRestriction
+			// division by 0 not allowed !
+			if (restrictTotalPriceForMinAmount && offer.getPricePerUnit() != 0) {
+				amountToTakeByTotalPriceForMinAmountRestriction = Math.min(
+						(maxTotalPriceForMinAmount - spentMoney)
+								/ offer.getPricePerUnit(), offer.getAmount());
+			} else
+				amountToTakeByTotalPriceForMinAmountRestriction = offer
+						.getAmount();
+
+			// amountToTakeByMaxPricePerUnitRestriction
+			if (restrictMaxPricePerUnit
+					&& offer.getPricePerUnit() > maxPricePerUnit) {
+				amountToTakeByMaxPricePerUnitRestriction = 0;
+			} else
+				amountToTakeByMaxPricePerUnitRestriction = offer.getAmount();
+
+			// final amount decision
+			double amountToTake = Math
+					.max(0,
+							Math.min(
+									amountToTakeByMaxAmountRestriction,
+									Math.max(
+											Math.min(
+													amountToTakeByTotalPriceRestriction,
+													amountToTakeByMaxPricePerUnitRestriction),
+											Math.min(
+													amountToTakeByTotalPriceForMinAmountRestriction,
+													amountToTakeByMinAmountRestriction))));
+
+			double totalPrice = amountToTake * offer.getPricePerUnit();
+
+			if (amountToTake == 0) {
+				break;
+			} else if (Double.isNaN(amountToTake)
+					|| Double.isInfinite(amountToTake)) {
+				throw new RuntimeException("amount to take is " + amountToTake);
+			} else {
+				selectedOffers.put(offer, amountToTake);
+				selectedAmount += amountToTake;
+				spentMoney += totalPrice;
+
+				if (restrictTotalPrice && (minAmount <= 0)
+						&& (spentMoney - 0.00001 > maxTotalPrice))
+					throw new RuntimeException(
+							"Market calculated incorrect amount: spent too much money");
+				if (restrictMaxAmount
+						&& !MathUtil.equal(selectedAmount, maxAmount)
+						&& (selectedAmount > maxAmount))
+					throw new RuntimeException(
+							"Market calculated incorrect amount: selected too much units");
+			}
+
 		}
 		return selectedOffers;
 	}

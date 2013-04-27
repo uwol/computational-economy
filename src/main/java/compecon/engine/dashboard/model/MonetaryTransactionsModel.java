@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
-import compecon.culture.sectors.agriculture.Farm;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -39,7 +38,7 @@ public class MonetaryTransactionsModel {
 
 		public final Currency referenceCurrency;
 
-		protected Object[][] transientTableData = new Object[6][7];
+		protected Object[][] transientTableData = new Object[5][6];
 
 		public MonetaryTransactionsTableModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
@@ -81,7 +80,6 @@ public class MonetaryTransactionsModel {
 	public MonetaryTransactionsModel() {
 
 		this.agentTypes.add(Household.class);
-		this.agentTypes.add(Farm.class);
 		this.agentTypes.add(Factory.class);
 		this.agentTypes.add(CreditBank.class);
 		this.agentTypes.add(CentralBank.class);

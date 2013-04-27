@@ -159,8 +159,6 @@ public abstract class JointStockCompany extends Agent {
 							.placeSettlementSellingOffer(
 									initialShare,
 									JointStockCompany.this,
-									JointStockCompany.this.transactionsBankAccount
-											.getCurrency(),
 									JointStockCompany.this.transactionsBankAccount,
 									1, 0, new SettlementMarketEvent());
 				}

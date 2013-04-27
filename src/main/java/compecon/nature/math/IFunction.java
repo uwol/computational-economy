@@ -15,14 +15,19 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.nature.production;
+package compecon.nature.math;
 
-public interface IProductionFunction {
-	public double calculateMaxOutputPerProductionCycle();
+import java.util.Map;
+import java.util.Set;
 
-	public double calculateMaxLabourHourInputPerProductionCycle();
+import compecon.nature.materia.GoodType;
 
-	public double calculateOutput(double inputNumberOfLabourHours);
+public interface IFunction {
 
-	public double calculateMarginalOutput(double inputNumberOfLabourHours);
+	public Set<GoodType> getInputGoodTypes();
+
+	public double f(Map<GoodType, Double> bundleOfGoods);
+
+	public double partialDerivative(Map<GoodType, Double> forBundleOfGoods,
+			GoodType withRespectToGoodType);
 }

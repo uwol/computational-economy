@@ -17,7 +17,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao;
 
-import compecon.culture.sectors.agriculture.Farm;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -36,8 +35,6 @@ public class DAOFactory {
 
 	protected static IFactoryDAO factoryDAO;
 
-	protected static IFarmDAO farmDAO;
-
 	protected static IStateDAO stateDAO;
 
 	static {
@@ -46,14 +43,12 @@ public class DAOFactory {
 			creditBankDAO = new compecon.engine.dao.hibernate.CreditBankDAO();
 			householdDAO = new compecon.engine.dao.hibernate.HouseholdDAO();
 			factoryDAO = new compecon.engine.dao.hibernate.FactoryDAO();
-			farmDAO = new compecon.engine.dao.hibernate.FarmDAO();
 			stateDAO = new compecon.engine.dao.hibernate.StateDAO();
 		} else {
 			centralBankDAO = new compecon.engine.dao.noaction.CentralBankDAO();
 			creditBankDAO = new compecon.engine.dao.noaction.CreditBankDAO();
 			householdDAO = new compecon.engine.dao.noaction.HouseholdDAO();
 			factoryDAO = new compecon.engine.dao.noaction.FactoryDAO();
-			farmDAO = new compecon.engine.dao.noaction.FarmDAO();
 			stateDAO = new compecon.engine.dao.noaction.StateDAO();
 		}
 	}
@@ -76,10 +71,6 @@ public class DAOFactory {
 		return factoryDAO;
 	}
 
-	public static IFarmDAO getFarmDAO() {
-		return farmDAO;
-	}
-
 	public static IStateDAO getStateDAO() {
 		return stateDAO;
 	}
@@ -99,9 +90,6 @@ public class DAOFactory {
 	}
 
 	public static interface IFactoryDAO extends IGenericDAO<Factory, Long> {
-	}
-
-	public static interface IFarmDAO extends IGenericDAO<Farm, Long> {
 	}
 
 	public static interface IStateDAO extends IGenericDAO<State, Long> {

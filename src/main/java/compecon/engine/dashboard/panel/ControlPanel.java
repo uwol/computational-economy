@@ -33,7 +33,6 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.engine.AgentFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
-import compecon.nature.materia.GoodType;
 
 public class ControlPanel extends JPanel {
 
@@ -82,35 +81,6 @@ public class ControlPanel extends JPanel {
 		add(singleStepButton);
 
 		add(new JSeparator(JSeparator.HORIZONTAL));
-
-		JButton initFarmButton = new JButton("Init Farm");
-		initFarmButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TimeSystem.getInstance().addExternalEvent(
-						new ITimeSystemEvent() {
-							@Override
-							public void onEvent() {
-								AgentFactory.newInstanceFarm();
-							}
-						});
-			}
-		});
-		add(initFarmButton);
-
-		JButton initFactoryButton = new JButton("Init Factory");
-		initFactoryButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TimeSystem.getInstance().addExternalEvent(
-						new ITimeSystemEvent() {
-							@Override
-							public void onEvent() {
-								AgentFactory
-										.newInstanceFactory(GoodType.KILOWATT);
-							}
-						});
-			}
-		});
-		add(initFactoryButton);
 
 		JButton init100HouseholdsButton = new JButton("Init 100 Households");
 		init100HouseholdsButton.addActionListener(new ActionListener() {

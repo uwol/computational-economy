@@ -15,11 +15,25 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.noaction;
+package compecon.nature.math.utility;
 
-import compecon.culture.sectors.agriculture.Farm;
-import compecon.engine.dao.DAOFactory.IFarmDAO;
+import java.util.Map;
+import java.util.Set;
 
-public class FarmDAO extends NoActionDAO<Farm, Long> implements IFarmDAO {
+import compecon.engine.Agent;
+import compecon.nature.materia.GoodType;
 
+public interface IUtilityFunction {
+
+	public Set<GoodType> getInputGoodTypes();
+
+	public void setAgent(Agent agent);
+
+	public double calculateUtility(Map<GoodType, Double> bundleOfGoods);
+
+	public double calculateMarginalUtility(Map<GoodType, Double> bundleOfGoods,
+			GoodType differentialGoodType);
+
+	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
+			Map<GoodType, Double> pricesOfGoods, double budget);
 }

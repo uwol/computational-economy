@@ -15,9 +15,8 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.nature.utility;
+package compecon.nature.math;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -28,22 +27,25 @@ import compecon.nature.materia.GoodType;
 /**
  * U = (g_1)^(e_1) * (g_2)^(e_2) * ... * (g_n)^(e_n) | g_1 + g_2 + ... + g_n = 1
  */
-public class CobbDouglasUtilityFunction extends UtilityFunction {
+public class CobbDouglasFunction implements IFunction {
 
 	protected final Map<GoodType, Double> exponents;
 
 	@Override
-	public Set<GoodType> getGoodTypes() {
+	public Set<GoodType> getInputGoodTypes() {
 		return this.exponents.keySet();
 	}
 
-	public CobbDouglasUtilityFunction(Map<GoodType, Double> exponents) {
+	public CobbDouglasFunction(Map<GoodType, Double> exponents) {
 		/*
 		 * constraint on exponents
 		 */
 		double sumOfExponents = 0.0;
-		for (Double exponent : exponents.values())
+		for (Double exponent : exponents.values()) {
+			if (exponent == 1)
+				throw new RuntimeException("exponent is 1");
 			sumOfExponents += exponent;
+		}
 		if (!MathUtil.equal(sumOfExponents, 1))
 			throw new RuntimeException("sum of exponents not 1");
 
@@ -51,7 +53,7 @@ public class CobbDouglasUtilityFunction extends UtilityFunction {
 	}
 
 	@Override
-	public double calculateUtility(Map<GoodType, Double> bundleOfGoods) {
+	public double f(Map<GoodType, Double> bundleOfGoods) {
 		double utility = 1.0;
 		for (Entry<GoodType, Double> entry : this.exponents.entrySet()) {
 			GoodType goodType = entry.getKey();
@@ -64,8 +66,8 @@ public class CobbDouglasUtilityFunction extends UtilityFunction {
 	}
 
 	@Override
-	public double calculateMarginalUtility(Map<GoodType, Double> bundleOfGoods,
-			GoodType differentialGoodType) {
+	public double partialDerivative(Map<GoodType, Double> forBundleOfGoods,
+			GoodType withRespectToGoodType) {
 		/*
 		 * Constant
 		 */
@@ -73,9 +75,9 @@ public class CobbDouglasUtilityFunction extends UtilityFunction {
 		for (Entry<GoodType, Double> entry : this.exponents.entrySet()) {
 			GoodType goodType = entry.getKey();
 			double exponent = entry.getValue();
-			double base = bundleOfGoods.containsKey(goodType) ? bundleOfGoods
+			double base = forBundleOfGoods.containsKey(goodType) ? forBundleOfGoods
 					.get(goodType) : 0;
-			if (goodType != differentialGoodType) {
+			if (goodType != withRespectToGoodType) {
 				constant = constant * Math.pow(base, exponent);
 			}
 		}
@@ -83,37 +85,22 @@ public class CobbDouglasUtilityFunction extends UtilityFunction {
 		/*
 		 * Differential factor
 		 */
-		double differentialBase = bundleOfGoods
-				.containsKey(differentialGoodType) ? bundleOfGoods
-				.get(differentialGoodType) : 0;
+		double differentialBase = forBundleOfGoods
+				.containsKey(withRespectToGoodType) ? forBundleOfGoods
+				.get(withRespectToGoodType) : 0;
 		double differentialExponent = this.exponents
-				.containsKey(differentialGoodType) ? this.exponents
-				.get(differentialGoodType) - 1 : 0;
+				.containsKey(withRespectToGoodType) ? this.exponents
+				.get(withRespectToGoodType) - 1 : 0;
 		double differentialCoefficient = this.exponents
-				.containsKey(differentialGoodType) ? this.exponents
-				.get(differentialGoodType) : 0;
+				.containsKey(withRespectToGoodType) ? this.exponents
+				.get(withRespectToGoodType) : 0;
 		double differentialFactor = differentialCoefficient
 				* Math.pow(differentialBase, differentialExponent);
 
 		return constant * differentialFactor;
 	}
 
-	@Override
-	public Map<GoodType, Double> calculateOptimalBundleOfGoods(
-			Map<GoodType, Double> pricesOfGoods, double budget) {
-		Map<GoodType, Double> bundleOfGoods = new LinkedHashMap<GoodType, Double>();
-		/*
-		 * analytical formula for the optimal solution of a Cobb-Douglas utility
-		 * function under given budget restriction -> Lagrange function
-		 */
-		for (GoodType goodType : this.getGoodTypes()) {
-			double optimalAmount = this.exponents.get(goodType) * budget
-					/ pricesOfGoods.get(goodType);
-			if (Double.isNaN(optimalAmount))
-				optimalAmount = 0.0;
-			bundleOfGoods.put(goodType, optimalAmount);
-		}
-
-		return bundleOfGoods;
+	public Map<GoodType, Double> getExponents() {
+		return this.exponents;
 	}
 }

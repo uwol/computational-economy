@@ -23,7 +23,6 @@
 		<property name="hibernate.jdbc.fetch_size">100</property>
 		<property name="hibernate.jdbc.batch_size">100</property>
 
-		<mapping class="compecon.culture.sectors.agriculture.Farm" />
 		<mapping class="compecon.culture.sectors.financial.Bank" />
 		<mapping class="compecon.culture.sectors.financial.BankAccount" />
 		<mapping class="compecon.culture.sectors.financial.CreditBank" />

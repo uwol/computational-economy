@@ -38,6 +38,10 @@ import compecon.nature.materia.GoodType;
  */
 public class SettlementMarket extends Market {
 
+	public SettlementMarket(Currency currency) {
+		super(currency);
+	}
+
 	public interface ISettlementEvent {
 		public void onEvent(GoodType goodType, double amount,
 				double pricePerUnit);
@@ -49,21 +53,21 @@ public class SettlementMarket extends Market {
 	protected Map<Agent, ISettlementEvent> settlementEventListeners = new HashMap<Agent, ISettlementEvent>();
 
 	public void placeSettlementSellingOffer(GoodType goodType, Agent offeror,
-			Currency currency, BankAccount offerorsBankAcount, double amount,
-			double pricePerUnit, ISettlementEvent settlementEvent) {
+			BankAccount offerorsBankAcount, double amount, double pricePerUnit,
+			ISettlementEvent settlementEvent) {
 		if (amount > 0) {
-			this.placeSellingOffer(goodType, offeror, currency,
-					offerorsBankAcount, amount, pricePerUnit);
+			this.placeSellingOffer(goodType, offeror, offerorsBankAcount,
+					amount, pricePerUnit);
 			this.settlementEventListeners.put(offeror, settlementEvent);
 		}
 	}
 
 	public void placeSettlementSellingOffer(IProperty property, Agent offeror,
-			Currency currency, BankAccount offerorsBankAcount, double amount,
-			double pricePerUnit, ISettlementEvent settlementEvent) {
+			BankAccount offerorsBankAcount, double amount, double pricePerUnit,
+			ISettlementEvent settlementEvent) {
 		if (amount > 0) {
-			this.placeSellingOffer(property, offeror, currency,
-					offerorsBankAcount, pricePerUnit);
+			this.placeSellingOffer(property, offeror, offerorsBankAcount,
+					pricePerUnit);
 			this.settlementEventListeners.put(offeror, settlementEvent);
 		}
 	}
@@ -82,8 +86,7 @@ public class SettlementMarket extends Market {
 			final double maxPricePerUnit, Agent buyer,
 			BankAccount buyersBankAccount, String buyersBankAccountPassword) {
 		SortedMap<MarketOffer, Double> marketOffers = this
-				.findBestFulfillmentSet(goodType,
-						buyersBankAccount.getCurrency(), minAmount, maxAmount,
+				.findBestFulfillmentSet(goodType, minAmount, maxAmount,
 						maxTotalPrice, maxTotalPriceForMinAmount,
 						maxPricePerUnit);
 		Double[] priceAndAmount = this.buy(marketOffers, buyer,
@@ -106,8 +109,7 @@ public class SettlementMarket extends Market {
 			final double maxPricePerUnit, Agent buyer,
 			BankAccount buyersBankAccount, String buyersBankAccountPassword) {
 		SortedMap<MarketOffer, Double> marketOffers = this
-				.findBestFulfillmentSet(propertyClass,
-						buyersBankAccount.getCurrency(), minAmount, maxAmount,
+				.findBestFulfillmentSet(propertyClass, minAmount, maxAmount,
 						maxTotalPrice, maxTotalPriceForMinAmount,
 						maxPricePerUnit);
 		Double[] priceAndAmount = this.buy(marketOffers, buyer,
@@ -121,11 +123,6 @@ public class SettlementMarket extends Market {
 		return priceAndAmount;
 	}
 
-	/**
-	 * Currency is derived from buyers bank account
-	 * 
-	 * @return priceAndAmount
-	 */
 	private Double[] buy(SortedMap<MarketOffer, Double> marketOffers,
 			Agent buyer, BankAccount buyersBankAccount,
 			String buyersBankAccountPassword) {

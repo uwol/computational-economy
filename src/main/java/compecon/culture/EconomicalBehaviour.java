@@ -18,14 +18,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.culture;
 
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.Log;
 import compecon.engine.MarketFactory;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
-import compecon.nature.production.CompositeProductionFunction;
 
 /**
  * This behaviour controls the economical decisions of the agent, it is injected
@@ -34,8 +32,6 @@ import compecon.nature.production.CompositeProductionFunction;
 public class EconomicalBehaviour {
 
 	protected final BudgetingBehaviour budgetingBehaviour;
-
-	protected final ProductionBehaviour productionBehaviour;
 
 	protected final PricingBehaviour pricingBehaviour;
 
@@ -59,26 +55,17 @@ public class EconomicalBehaviour {
 														// ...
 
 	public EconomicalBehaviour(Agent agent, GoodType producedGoodType,
-			CompositeProductionFunction productionFunction, Currency currency) {
+			Currency currency) {
 		this.agent = agent;
 		this.producedGoodType = producedGoodType;
 		this.currency = currency;
 
 		this.budgetingBehaviour = new BudgetingBehaviour();
-		if (productionFunction != null)
-			this.productionBehaviour = new ProductionBehaviour(
-					productionFunction);
-		else
-			this.productionBehaviour = null;
 		this.pricingBehaviour = new PricingBehaviour();
 	}
 
 	public BudgetingBehaviour getBudgetingBehaviour() {
 		return this.budgetingBehaviour;
-	}
-
-	public ProductionBehaviour getProductionBehaviour() {
-		return this.productionBehaviour;
 	}
 
 	public PricingBehaviour getPricingBehaviour() {
@@ -100,10 +87,7 @@ public class EconomicalBehaviour {
 	public void assertPeriodDataInitialized() {
 		if (!this.periodDataInitialized) {
 			double marketPrice = MarketFactory.getInstance(this.currency)
-					.getMarginalPrice(
-							this.producedGoodType,
-							this.agent.getTransactionsBankAccount()
-									.getCurrency());
+					.getMarginalPrice(this.producedGoodType);
 			if (!Double.isNaN(marketPrice) && !Double.isInfinite(marketPrice))
 				this.prices_InPeriods[0] = marketPrice;
 			else
@@ -183,196 +167,6 @@ public class EconomicalBehaviour {
 	}
 
 	/**
-	 * This behaviour controls production decisions.
-	 */
-	public class ProductionBehaviour {
-
-		protected CompositeProductionFunction productionFunction;
-
-		public ProductionBehaviour(
-				CompositeProductionFunction productionFunction) {
-			this.productionFunction = productionFunction;
-		}
-
-		public double calculateProfitableAmountOfLabourHourInput() {
-			double maxOutput = this.calculateOptimalOutput();
-
-			// maximum labour hour input
-			final double maxLabourHourInputPerProductionCycle = this.productionFunction
-					.calculateMaxLabourHourInputPerProductionCycle();
-			Log
-
-			.log(agent,
-					"maxLabourHourInputPerProductionCycle := "
-							+ MathUtil
-									.round(maxLabourHourInputPerProductionCycle)
-							+ " " + GoodType.LABOURHOUR);
-
-			// check for estimated cost per labour hour
-			double pricePerLabourHour = MarketFactory.getInstance(
-					EconomicalBehaviour.this.currency).getMarginalPrice(
-					GoodType.LABOURHOUR,
-					EconomicalBehaviour.this.agent.getTransactionsBankAccount()
-							.getCurrency());
-			if (Double.isNaN(pricePerLabourHour)
-					|| Double.isInfinite(pricePerLabourHour)) {
-				Log
-
-				.log(agent,
-						"pricePerLabourHour = "
-								+ MathUtil.round(pricePerLabourHour)
-								+ " -> numberOfLabourHours := "
-								+ MathUtil
-										.round(maxLabourHourInputPerProductionCycle)
-								+ " " + GoodType.LABOURHOUR);
-				return maxLabourHourInputPerProductionCycle;
-			}
-
-			// check for estimated revenue per unit
-			double estMarginalRevenue = MarketFactory.getInstance(
-					EconomicalBehaviour.this.currency).getMarginalPrice(
-					producedGoodType,
-					EconomicalBehaviour.this.agent.getTransactionsBankAccount()
-							.getCurrency());
-			if (Double.isNaN(estMarginalRevenue)
-					|| Double.isInfinite(estMarginalRevenue)) {
-				Log
-
-				.log(agent,
-						"deltaEstRevenue = "
-								+ MathUtil.round(estMarginalRevenue)
-								+ " -> numberOfLabourHours := "
-								+ MathUtil
-										.round(maxLabourHourInputPerProductionCycle)
-								+ " " + GoodType.LABOURHOUR);
-				return maxLabourHourInputPerProductionCycle;
-			}
-
-			// maximize profit
-			int lastProfitableNumberOfLabourHours = 0;
-			double lastProfitableMarginalCost = 0;
-
-			for (int numberOfLabourHours = 0; numberOfLabourHours < this.productionFunction
-					.calculateMaxLabourHourInputPerProductionCycle(); numberOfLabourHours++) {
-
-				// wanted output can be restricted
-				double totalOutput = this.productionFunction
-						.calculateOutput(numberOfLabourHours);
-				if (maxOutput > 0 && totalOutput > maxOutput) {
-					Log
-
-					.log(agent,
-							MathUtil.round(totalOutput)
-									+ " "
-									+ EconomicalBehaviour.this.producedGoodType
-									+ "("
-									+ MathUtil.round(numberOfLabourHours)
-									+ " "
-									+ GoodType.LABOURHOUR
-									+ ")"
-									+ " > "
-									+ MathUtil.round(maxOutput)
-									+ " maxOutput "
-									+ EconomicalBehaviour.this.producedGoodType
-									+ " -> "
-									+ MathUtil
-											.round(lastProfitableNumberOfLabourHours)
-									+ " " + GoodType.LABOURHOUR);
-					break;
-				}
-
-				// marginal output could be 0
-				double marginalOutput = this.productionFunction
-						.calculateMarginalOutput(numberOfLabourHours);
-				if (marginalOutput == 0) {
-					Log
-
-					.log(agent,
-							MathUtil.round(marginalOutput)
-									+ " delta"
-									+ EconomicalBehaviour.this.producedGoodType
-									+ "("
-									+ MathUtil.round(numberOfLabourHours)
-									+ " "
-									+ GoodType.LABOURHOUR
-									+ ")"
-									+ " -> "
-									+ MathUtil
-											.round(lastProfitableNumberOfLabourHours)
-									+ " " + GoodType.LABOURHOUR);
-					break;
-				}
-
-				// revenue of unit has to be greater than marginal costs of unit
-				double marginalCost = pricePerLabourHour / marginalOutput;
-				if (estMarginalRevenue < marginalCost) {
-					Log
-
-					.log(agent,
-							MathUtil.round(lastProfitableMarginalCost)
-									+ " deltaCost"
-									+ "("
-									+ MathUtil
-											.round(lastProfitableNumberOfLabourHours)
-									+ " "
-									+ GoodType.LABOURHOUR
-									+ ")"
-									+ " <= "
-									+ MathUtil.round(estMarginalRevenue)
-									+ " deltaEstRevenue"
-									+ " < "
-									+ MathUtil.round(marginalCost)
-									+ " deltaCost"
-									+ "("
-									+ MathUtil.round(numberOfLabourHours)
-									+ " "
-									+ GoodType.LABOURHOUR
-									+ ")"
-									+ " -> "
-									+ MathUtil
-											.round(lastProfitableNumberOfLabourHours)
-									+ " " + GoodType.LABOURHOUR);
-					break;
-				}
-
-				lastProfitableMarginalCost = marginalCost;
-				lastProfitableNumberOfLabourHours = numberOfLabourHours;
-			}
-
-			return lastProfitableNumberOfLabourHours;
-		}
-
-		/**
-		 * This calculation is central for market equilibrium, as it restricts
-		 * supply -> over supply is avoided -> price deterioration is avoided ->
-		 * input factor LABOURHOUR is cost-effective -> households earn money ->
-		 * household buy goods -> money circulation is preserved
-		 */
-		public double calculateOptimalOutput() {
-			return calculateOptimalOutputBasedOnInventory();
-		}
-
-		protected double calculateOptimalOutputBasedOnInventory() {
-			return Math
-					.max(0.0,
-							((this.productionFunction
-									.calculateMaxOutputPerProductionCycle() * 10.0) - PropertyRegister
-									.getInstance().getBalance(agent,
-											producedGoodType)) / 1.0);
-
-		}
-
-		protected double calculateOptimalOutputBasedOnSalesVolume() {
-			if (EconomicalBehaviour.this.wasNothingSoldInLastPeriod())
-				return 0.0;
-			else
-				return this.productionFunction
-						.calculateMaxOutputPerProductionCycle();
-
-		}
-	}
-
-	/**
 	 * This behaviour controls pricing decisions.
 	 */
 	public class PricingBehaviour {
@@ -410,10 +204,16 @@ public class EconomicalBehaviour {
 
 			// sold less?
 			if (EconomicalBehaviour.this.offeredAmount_InPeriods[1] > 0
-					&& EconomicalBehaviour.this.soldAmount_InPeriods[2] > 0
-					&& EconomicalBehaviour.this.soldAmount_InPeriods[1] < EconomicalBehaviour.this.soldAmount_InPeriods[2]
-					&& (EconomicalBehaviour.this.offeredAmount_InPeriods[1] > EconomicalBehaviour.this.soldAmount_InPeriods[2] || MathUtil
-							.equal(EconomicalBehaviour.this.offeredAmount_InPeriods[1],
+					&& MathUtil
+							.greater(
+									EconomicalBehaviour.this.soldAmount_InPeriods[2],
+									0)
+					&& MathUtil.lesser(
+							EconomicalBehaviour.this.soldAmount_InPeriods[1],
+							EconomicalBehaviour.this.soldAmount_InPeriods[2])
+					&& (MathUtil
+							.greaterEqual(
+									EconomicalBehaviour.this.offeredAmount_InPeriods[1],
 									EconomicalBehaviour.this.soldAmount_InPeriods[2]))) {
 				Log.log(agent, prefix + "sold less: lowering price");
 				return calculateLowerPrice(oldPrice);
@@ -421,10 +221,16 @@ public class EconomicalBehaviour {
 
 			// sold more?
 			if (EconomicalBehaviour.this.offeredAmount_InPeriods[1] > 0
-					&& EconomicalBehaviour.this.soldAmount_InPeriods[2] > 0
-					&& EconomicalBehaviour.this.soldAmount_InPeriods[1] > EconomicalBehaviour.this.soldAmount_InPeriods[2]
-					&& (EconomicalBehaviour.this.offeredAmount_InPeriods[2] > EconomicalBehaviour.this.soldAmount_InPeriods[1] || MathUtil
-							.equal(EconomicalBehaviour.this.offeredAmount_InPeriods[2],
+					&& MathUtil
+							.greater(
+									EconomicalBehaviour.this.soldAmount_InPeriods[2],
+									0)
+					&& MathUtil.greater(
+							EconomicalBehaviour.this.soldAmount_InPeriods[1],
+							EconomicalBehaviour.this.soldAmount_InPeriods[2])
+					&& (MathUtil
+							.greaterEqual(
+									EconomicalBehaviour.this.offeredAmount_InPeriods[2],
 									EconomicalBehaviour.this.soldAmount_InPeriods[1]))) {
 				Log.log(agent, prefix + "sold more: raising price");
 				return calculateHigherPrice(oldPrice);
@@ -432,25 +238,27 @@ public class EconomicalBehaviour {
 
 			Log.log(agent, prefix + " newPrice := oldPrice");
 			return oldPrice;
+
 		}
 
 		public double getCurrentPrice() {
 			return EconomicalBehaviour.this.prices_InPeriods[0];
 		}
 
-		/**
-		 * overcompensates {@link #calculateLowerPrice(double)} -> prices drift
-		 * slightly upwards -> deflation is more unlikely
-		 */
 		protected double calculateHigherPrice(double price) {
-			return price * 1.3;
+			/**
+			 * alternative 1.3: would overcompensate
+			 * {@link #calculateLowerPrice(double)} -> prices drift slightly
+			 * upwards -> deflation is more unlikely
+			 */
+			return price * 1.1;
 		}
 
-		/**
+		/*
 		 * {@link #calculateHigherPrice(double)}
 		 */
 		protected double calculateLowerPrice(double price) {
-			return price / 1.2;
+			return price / 1.1;
 		}
 	}
 
