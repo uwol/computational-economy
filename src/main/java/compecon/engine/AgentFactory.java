@@ -17,12 +17,9 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import compecon.culture.sectors.financial.CentralBank;
@@ -32,39 +29,31 @@ import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.State;
 import compecon.engine.dao.DAOFactory;
-import compecon.engine.util.ConfigurationUtil;
 import compecon.nature.materia.GoodType;
 
 public class AgentFactory {
 
-	private static Random random = new Random();
-
-	protected static Map<Currency, State> states = new HashMap<Currency, State>();
-
-	protected static Map<Currency, CentralBank> centralBanks = new HashMap<Currency, CentralBank>();
-
-	protected static Map<Currency, List<CreditBank>> creditBanks = new HashMap<Currency, List<CreditBank>>();
-
 	public static State getInstanceState(Currency currency) {
-		if (!states.containsKey(currency)) {
-			State state = new State();
+		State state = DAOFactory.getStateDAO().findByCurrency(currency);
+		if (state == null) {
+			state = new State();
 			state.setPrimaryCurrency(currency);
 			state.initialize();
 			DAOFactory.getStateDAO().save(state);
-			states.put(currency, state);
 		}
-		return states.get(currency);
+		return state;
 	}
 
 	public static CentralBank getInstanceCentralBank(Currency currency) {
-		if (!centralBanks.containsKey(currency)) {
-			CentralBank centralBank = new CentralBank();
+		CentralBank centralBank = DAOFactory.getCentralBankDAO()
+				.findByCurrency(currency);
+		if (centralBank == null) {
+			centralBank = new CentralBank();
 			centralBank.setPrimaryCurrency(currency);
 			centralBank.initialize();
 			DAOFactory.getCentralBankDAO().save(centralBank);
-			centralBanks.put(currency, centralBank);
 		}
-		return centralBanks.get(currency);
+		return centralBank;
 	}
 
 	public static CreditBank newInstanceCreditBank(
@@ -74,28 +63,15 @@ public class AgentFactory {
 		creditBank.setPrimaryCurrency(Currency.EURO);
 		creditBank.initialize();
 		DAOFactory.getCreditBankDAO().save(creditBank);
-		for (Currency currency : offeredCurrencies) {
-			if (!creditBanks.containsKey(currency)) {
-				creditBanks.put(currency, new ArrayList<CreditBank>());
-			}
-			creditBanks.get(currency).add(creditBank);
-		}
 		return creditBank;
 	}
 
 	public static CreditBank getRandomInstanceCreditBank(Currency currency) {
-		if (ConfigurationUtil.getActivateDb()) {
-			return DAOFactory.getCreditBankDAO().findRandom();
-		} else
-			return creditBanks.get(currency).get(
-					random.nextInt(creditBanks.get(currency).size()));
+		return DAOFactory.getCreditBankDAO().findRandom();
 	}
 
 	public static List<CreditBank> getAllCreditBanks(Currency currency) {
-		if (ConfigurationUtil.getActivateDb()) {
-			return DAOFactory.getCreditBankDAO().findAll();
-		} else
-			return creditBanks.get(currency);
+		return DAOFactory.getCreditBankDAO().findAll();
 	}
 
 	public static Factory newInstanceFactory(GoodType goodType) {
@@ -126,5 +102,18 @@ public class AgentFactory {
 		household.initialize();
 		DAOFactory.getHouseholdDAO().save(household);
 		return household;
+	}
+
+	public static void deleteAgent(Agent agent) {
+		if (agent instanceof Household)
+			DAOFactory.getHouseholdDAO().delete((Household) agent);
+		else if (agent instanceof State)
+			DAOFactory.getStateDAO().delete((State) agent);
+		else if (agent instanceof CentralBank)
+			DAOFactory.getCentralBankDAO().delete((CentralBank) agent);
+		else if (agent instanceof CreditBank)
+			DAOFactory.getCreditBankDAO().delete((CreditBank) agent);
+		else if (agent instanceof Factory)
+			DAOFactory.getFactoryDAO().delete((Factory) agent);
 	}
 }

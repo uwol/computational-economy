@@ -15,12 +15,11 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.noaction;
+package compecon.engine.jmx;
 
-import compecon.culture.sectors.household.Household;
-import compecon.engine.dao.DAOFactory.IHouseholdDAO;
+public class Agents implements AgentsMBean {
 
-public class HouseholdDAO extends NoActionDAO<Household, Long> implements
-		IHouseholdDAO {
-
+	public int getNumberOfAgents() {
+		return AgentsModel.getNumberOfAgents();
+	}
 }

@@ -15,40 +15,21 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.noaction;
+package compecon.engine.jmx;
 
-import java.io.Serializable;
-import java.util.List;
+public class AgentsModel {
 
-import compecon.engine.dao.IGenericDAO;
+	private static int numberOfAgents;
 
-public abstract class NoActionDAO<T, ID extends Serializable> implements
-		IGenericDAO<T, ID> {
-
-	@Override
-	public T find(Serializable id) {
-		return null;
+	public static int getNumberOfAgents() {
+		return numberOfAgents;
 	}
 
-	@Override
-	public T findRandom() {
-		return null;
+	public static void incrementNumberOfAgents() {
+		numberOfAgents++;
 	}
 
-	@Override
-	public List<T> findAll() {
-		return null;
-	}
-
-	@Override
-	public void save(T entity) {
-	}
-
-	@Override
-	public void merge(T entity) {
-	}
-
-	@Override
-	public void delete(T entity) {
+	public static void decrementNumberOfAgents() {
+		numberOfAgents--;
 	}
 }

@@ -219,6 +219,8 @@ public abstract class Agent implements IPropertyOwner {
 		this.transactionsBankAccount = null;
 		this.timeSystemEvents = null;
 		this.bankPasswords = null;
+
+		AgentFactory.deleteAgent(this);
 	}
 
 	@Transient

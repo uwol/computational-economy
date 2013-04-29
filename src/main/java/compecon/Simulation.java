@@ -17,11 +17,16 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon;
 
+import java.lang.management.ManagementFactory;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.AgentFactory;
+import compecon.engine.jmx.Agents;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -52,8 +57,17 @@ public class Simulation {
 
 	public static void main(String[] args) {
 		try {
+			// init database
 			HibernateUtil.openSession();
 
+			// init JMX
+			MBeanServer mBeanServer = ManagementFactory
+					.getPlatformMBeanServer();
+			ObjectName objectName = new ObjectName("compecon.jmx:type=Agents");
+			Agents agentsMBean = new Agents();
+			mBeanServer.registerMBean(agentsMBean, objectName);
+
+			// configure simulation
 			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 2;
 			final int NUMBER_OF_HOUSEHOLDS = 500;
 			final int NUMBER_OF_FACTORIES_PER_GOODTYPE = 5;
@@ -115,7 +129,6 @@ public class Simulation {
 						Thread.sleep(50);
 				}
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			HibernateUtil.closeSession();

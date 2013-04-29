@@ -17,6 +17,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao;
 
+import java.util.List;
+
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -45,11 +47,11 @@ public class DAOFactory {
 			factoryDAO = new compecon.engine.dao.hibernate.FactoryDAO();
 			stateDAO = new compecon.engine.dao.hibernate.StateDAO();
 		} else {
-			centralBankDAO = new compecon.engine.dao.noaction.CentralBankDAO();
-			creditBankDAO = new compecon.engine.dao.noaction.CreditBankDAO();
-			householdDAO = new compecon.engine.dao.noaction.HouseholdDAO();
-			factoryDAO = new compecon.engine.dao.noaction.FactoryDAO();
-			stateDAO = new compecon.engine.dao.noaction.StateDAO();
+			centralBankDAO = new compecon.engine.dao.inmemory.CentralBankDAO();
+			creditBankDAO = new compecon.engine.dao.inmemory.CreditBankDAO();
+			householdDAO = new compecon.engine.dao.inmemory.HouseholdDAO();
+			factoryDAO = new compecon.engine.dao.inmemory.FactoryDAO();
+			stateDAO = new compecon.engine.dao.inmemory.StateDAO();
 		}
 	}
 
@@ -84,6 +86,9 @@ public class DAOFactory {
 
 	public static interface ICreditBankDAO extends
 			IGenericDAO<CreditBank, Long> {
+		public CreditBank findRandom(Currency currency);
+
+		public List<CreditBank> findAll(Currency currency);
 	}
 
 	public static interface IHouseholdDAO extends IGenericDAO<Household, Long> {

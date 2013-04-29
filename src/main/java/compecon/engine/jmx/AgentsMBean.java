@@ -15,12 +15,8 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.noaction;
+package compecon.engine.jmx;
 
-import compecon.culture.sectors.financial.CreditBank;
-import compecon.engine.dao.DAOFactory.ICreditBankDAO;
-
-public class CreditBankDAO extends NoActionDAO<CreditBank, Long> implements
-		ICreditBankDAO {
-
+public interface AgentsMBean {
+	public int getNumberOfAgents();
 }

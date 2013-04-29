@@ -29,6 +29,7 @@ import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.engine.dashboard.Dashboard;
+import compecon.engine.jmx.AgentsModel;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
@@ -70,6 +71,7 @@ public class Log {
 		log(agent, agent + " constructed");
 		Dashboard.getInstance().getNumberOfAgentsTableModel()
 				.agent_onConstruct(agent.getClass());
+		AgentsModel.incrementNumberOfAgents();
 	}
 
 	public static void agent_onDeconstruct(Agent agent) {
@@ -80,6 +82,7 @@ public class Log {
 		Dashboard.getInstance().getAgentLogsModel().agent_onDeconstruct(agent);
 		Dashboard.getInstance().getBalanceSheetsModel()
 				.notifyAgent_onDeconstruct(agent);
+		AgentsModel.decrementNumberOfAgents();
 	}
 
 	public static void agent_onPublishBalanceSheet(Agent agent,

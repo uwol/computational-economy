@@ -26,7 +26,7 @@ import compecon.engine.dao.DAOFactory.IStateDAO;
 public class StateDAO extends HibernateDAO<State, Long> implements IStateDAO {
 	public State findByCurrency(Currency currency) {
 		return (State) getSession().createCriteria(State.class)
-				.add(Restrictions.eq("legislatedCurrency", currency))
+				.add(Restrictions.eq("primaryCurrency", currency))
 				.uniqueResult();
 	}
 }

@@ -318,13 +318,10 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * potentially, derive new household
 			 */
-			if (Household.this.continuousDaysWithUtility > 7) {
-				if (Household.this.ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
-					int timeSinceLastNewHousehold = Household.this.ageInDays
-							- NEW_HOUSEHOLD_FROM_X_DAYS;
-					if (timeSinceLastNewHousehold % NEW_HOUSEHOLD_EVERY_X_DAYS == 0) {
-						AgentFactory.newInstanceHousehold();
-					}
+			if (Household.this.ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
+				if ((Household.this.ageInDays - NEW_HOUSEHOLD_FROM_X_DAYS)
+						% NEW_HOUSEHOLD_EVERY_X_DAYS == 0) {
+					AgentFactory.newInstanceHousehold();
 				}
 			}
 

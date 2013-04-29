@@ -81,6 +81,7 @@ public class ConvexProductionFunction extends ProductionFunction {
 
 			if (!Double.isNaN(estMarginalRevenue)
 					&& !Double.isInfinite(estMarginalRevenue)) {
+				// a polypoly is assumed -> price = marginal revenue
 				if (MathUtil.lesser(estMarginalRevenue, marginalCost)) {
 					Log.log(agent,
 							MathUtil.round(lastProfitableMarginalCost)

@@ -15,17 +15,12 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.noaction;
+package compecon.engine.dao.inmemory;
 
-import compecon.culture.sectors.financial.CentralBank;
-import compecon.culture.sectors.financial.Currency;
-import compecon.engine.dao.DAOFactory.ICentralBankDAO;
+import compecon.culture.sectors.household.Household;
+import compecon.engine.dao.DAOFactory.IHouseholdDAO;
 
-public class CentralBankDAO extends NoActionDAO<CentralBank, Long> implements
-		ICentralBankDAO {
+public class HouseholdDAO extends InMemoryDAO<Household, Long> implements
+		IHouseholdDAO {
 
-	@Override
-	public CentralBank findByCurrency(Currency currency) {
-		return null;
-	}
 }

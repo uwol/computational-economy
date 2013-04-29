@@ -15,12 +15,12 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.noaction;
+package compecon.engine.dao.inmemory;
 
 import compecon.culture.sectors.industry.Factory;
 import compecon.engine.dao.DAOFactory.IFactoryDAO;
 
-public class FactoryDAO extends NoActionDAO<Factory, Long> implements
+public class FactoryDAO extends InMemoryDAO<Factory, Long> implements
 		IFactoryDAO {
 
 }

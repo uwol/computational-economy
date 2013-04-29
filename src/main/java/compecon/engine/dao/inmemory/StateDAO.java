@@ -15,20 +15,19 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.hibernate;
+package compecon.engine.dao.inmemory;
 
-import org.hibernate.criterion.Restrictions;
-
-import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.Currency;
-import compecon.engine.dao.DAOFactory.ICentralBankDAO;
+import compecon.culture.sectors.state.State;
+import compecon.engine.dao.DAOFactory.IStateDAO;
 
-public class CentralBankDAO extends HibernateDAO<CentralBank, Long> implements
-		ICentralBankDAO {
-	public CentralBank findByCurrency(Currency currency) {
-		return (CentralBank) getSession().createCriteria(CentralBank.class)
-				.add(Restrictions.eq("primaryCurrency", currency))
-				// .setCacheable(true)
-				.uniqueResult();
+public class StateDAO extends InMemoryDAO<State, Long> implements IStateDAO {
+
+	@Override
+	public synchronized State findByCurrency(Currency currency) {
+		for (State state : this.findAll())
+			if (state.getPrimaryCurrency().equals(currency))
+				return state;
+		return null;
 	}
 }
