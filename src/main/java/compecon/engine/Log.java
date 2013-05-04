@@ -27,7 +27,6 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.engine.dashboard.Dashboard;
 import compecon.engine.jmx.AgentsModel;
 import compecon.engine.time.TimeSystem;
@@ -190,9 +189,9 @@ public class Log {
 
 	// --------
 
-	public static void market_onTick(double pricePerUnit, IProperty property,
+	public static void market_onTick(double pricePerUnit, GoodType goodType,
 			Currency currency, double amount) {
 		Dashboard.getInstance().getPricesModel()
-				.market_onTick(pricePerUnit, property, currency, amount);
+				.market_onTick(pricePerUnit, goodType, currency, amount);
 	}
 }

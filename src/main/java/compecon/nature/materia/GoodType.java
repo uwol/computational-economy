@@ -17,8 +17,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.nature.materia;
 
-import compecon.culture.sectors.state.law.property.IProperty;
-
-public enum GoodType implements IProperty {
+public enum GoodType {
 	LABOURHOUR(), MEGACALORIE(), KILOWATT(), REALESTATE();
 }

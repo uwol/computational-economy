@@ -86,8 +86,8 @@ public class EconomicalBehaviour {
 
 	public void assertPeriodDataInitialized() {
 		if (!this.periodDataInitialized) {
-			double marketPrice = MarketFactory.getInstance(this.currency)
-					.getMarginalPrice(this.producedGoodType);
+			double marketPrice = MarketFactory.getInstance().getMarginalPrice(
+					this.currency, this.producedGoodType);
 			if (!Double.isNaN(marketPrice) && !Double.isInfinite(marketPrice))
 				this.prices_InPeriods[0] = marketPrice;
 			else

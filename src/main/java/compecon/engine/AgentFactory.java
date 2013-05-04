@@ -17,6 +17,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.State;
 import compecon.engine.dao.DAOFactory;
+import compecon.engine.util.HibernateUtil;
 import compecon.nature.materia.GoodType;
 
 public class AgentFactory {
@@ -40,6 +42,7 @@ public class AgentFactory {
 			state.setPrimaryCurrency(currency);
 			state.initialize();
 			DAOFactory.getStateDAO().save(state);
+			HibernateUtil.flushSession();
 		}
 		return state;
 	}
@@ -52,8 +55,15 @@ public class AgentFactory {
 			centralBank.setPrimaryCurrency(currency);
 			centralBank.initialize();
 			DAOFactory.getCentralBankDAO().save(centralBank);
+			HibernateUtil.flushSession();
 		}
 		return centralBank;
+	}
+
+	public static CreditBank newInstanceCreditBank(Currency offeredCurrency) {
+		Set<Currency> offeredCurrencies = new HashSet<Currency>();
+		offeredCurrencies.add(offeredCurrency);
+		return newInstanceCreditBank(offeredCurrencies);
 	}
 
 	public static CreditBank newInstanceCreditBank(
@@ -63,6 +73,7 @@ public class AgentFactory {
 		creditBank.setPrimaryCurrency(Currency.EURO);
 		creditBank.initialize();
 		DAOFactory.getCreditBankDAO().save(creditBank);
+		HibernateUtil.flushSession();
 		return creditBank;
 	}
 
@@ -81,6 +92,7 @@ public class AgentFactory {
 		factory.setPrimaryCurrency(Currency.EURO);
 		factory.initialize();
 		DAOFactory.getFactoryDAO().save(factory);
+		HibernateUtil.flushSession();
 		return factory;
 	}
 
@@ -98,9 +110,9 @@ public class AgentFactory {
 		preferences.put(GoodType.KILOWATT, 0.2);
 		preferences.put(GoodType.REALESTATE, 0.3);
 		household.setPreferences(preferences);
-
 		household.initialize();
 		DAOFactory.getHouseholdDAO().save(household);
+		HibernateUtil.flushSession();
 		return household;
 	}
 

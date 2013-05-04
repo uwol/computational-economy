@@ -18,35 +18,34 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.culture.sectors.state.law.security.equity;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import compecon.culture.sectors.state.law.property.IProperty;
+import compecon.culture.sectors.state.law.property.Property;
 
 @Entity
 @Table(name = "Share")
-public class Share implements IProperty {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+public class Share extends Property {
 
 	@ManyToOne
 	@JoinColumn(name = "jointstockcompany_id")
 	protected JointStockCompany jointStockCompany;
 
-	private Share() {
+	public void initialize() {
+		super.initialize();
 	}
 
-	public Share(JointStockCompany jointStockCompany) {
+	/*
+	 * accessors
+	 */
+
+	public JointStockCompany getJointStockCompany() {
+		return jointStockCompany;
+	}
+
+	public void setJointStockCompany(JointStockCompany jointStockCompany) {
 		this.jointStockCompany = jointStockCompany;
 	}
 
-	public JointStockCompany getJointStockCompany() {
-		return this.jointStockCompany;
-	}
 }

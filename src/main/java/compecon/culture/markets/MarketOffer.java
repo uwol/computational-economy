@@ -17,74 +17,93 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.culture.markets;
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Index;
+
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.engine.Agent;
 
-public class MarketOffer implements Comparable<MarketOffer> {
-	protected static int lastId = 0;
+@MappedSuperclass
+public abstract class MarketOffer implements Comparable<MarketOffer> {
 
-	protected int id = 0;
+	@Id
+	@GeneratedValue(strategy = GenerationType.TABLE)
+	protected int id;
 
+	@ManyToOne
+	@JoinColumn(name = "offeror_id")
 	protected Agent offeror;
+
+	@Column(name = "primaryCurrency")
+	@Enumerated(EnumType.STRING)
+	@Index(name = "IDX_PRIMARYCURRENCY")
 	protected Currency currency;
+
+	@ManyToOne
+	@JoinColumn(name = "offerorsBankAcount_id")
+	@Index(name = "IDX_OFFERORSBANKACCOUNT_ID")
 	protected BankAccount offerorsBankAcount;
-	protected double amount;
+
+	@Column(name = "pricePerUnit")
 	protected double pricePerUnit;
-	protected IProperty property;
 
-	public MarketOffer(Agent offeror, Currency currency,
-			BankAccount offerorsBankAcount, IProperty property,
-			double pricePerUnit, double amount) {
-
-		this.id = lastId++;
-
-		this.offeror = offeror;
-		this.currency = currency;
-		this.offerorsBankAcount = offerorsBankAcount;
-		this.pricePerUnit = pricePerUnit;
-		this.amount = amount;
-		this.property = property;
-	}
+	// accessors
 
 	public int getId() {
-		return this.id;
+		return id;
 	}
 
 	public Agent getOfferor() {
-		return this.offeror;
+		return offeror;
 	}
 
 	public Currency getCurrency() {
-		return this.currency;
+		return currency;
 	}
 
 	public BankAccount getOfferorsBankAcount() {
-		return this.offerorsBankAcount;
-	}
-
-	public double getAmount() {
-		return this.amount;
-	}
-
-	public double getPriceTotal() {
-		return this.pricePerUnit * this.getAmount();
-	}
-
-	public IProperty getProperty() {
-		return this.property;
+		return offerorsBankAcount;
 	}
 
 	public double getPricePerUnit() {
-		return this.pricePerUnit;
+		return pricePerUnit;
 	}
 
-	public void decrementAmount(double amount) {
-		this.amount -= amount;
+	public void setId(int id) {
+		this.id = id;
 	}
+
+	public void setOfferor(Agent offeror) {
+		this.offeror = offeror;
+	}
+
+	public void setCurrency(Currency currency) {
+		this.currency = currency;
+	}
+
+	public void setOfferorsBankAcount(BankAccount offerorsBankAcount) {
+		this.offerorsBankAcount = offerorsBankAcount;
+	}
+
+	public void setPricePerUnit(double pricePerUnit) {
+		this.pricePerUnit = pricePerUnit;
+	}
+
+	// transient
 
 	@Override
+	@Transient
 	public int compareTo(MarketOffer marketOffer) {
 		if (this == marketOffer)
 			return 0;

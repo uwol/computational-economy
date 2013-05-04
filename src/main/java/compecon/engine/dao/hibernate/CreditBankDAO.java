@@ -28,7 +28,7 @@ import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory.ICreditBankDAO;
 
-public class CreditBankDAO extends HibernateDAO<CreditBank, Long> implements
+public class CreditBankDAO extends HibernateDAO<CreditBank> implements
 		ICreditBankDAO {
 
 	@Override

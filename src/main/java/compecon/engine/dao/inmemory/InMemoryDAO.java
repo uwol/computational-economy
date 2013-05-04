@@ -17,7 +17,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.inmemory;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -26,8 +25,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import compecon.engine.dao.IGenericDAO;
 
-public abstract class InMemoryDAO<T, ID extends Serializable> implements
-		IGenericDAO<T, ID> {
+public abstract class InMemoryDAO<T> implements IGenericDAO<T> {
 
 	protected BiMap<Integer, T> instancesByIds = HashBiMap.create();
 
@@ -36,7 +34,7 @@ public abstract class InMemoryDAO<T, ID extends Serializable> implements
 	protected Random randomizer = new Random();
 
 	@Override
-	public synchronized T find(Serializable id) {
+	public synchronized T find(int id) {
 		if (this.instancesByIds.containsKey(id))
 			return this.instancesByIds.get(id);
 		return null;

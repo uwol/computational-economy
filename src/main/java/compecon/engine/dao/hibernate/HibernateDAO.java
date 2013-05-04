@@ -17,7 +17,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.hibernate;
 
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Random;
@@ -29,8 +28,7 @@ import org.hibernate.criterion.Projections;
 import compecon.engine.dao.IGenericDAO;
 import compecon.engine.util.HibernateUtil;
 
-public class HibernateDAO<T, ID extends Serializable> implements
-		IGenericDAO<T, ID> {
+public class HibernateDAO<T> implements IGenericDAO<T> {
 
 	private Class<T> persistentClass;
 
@@ -49,7 +47,7 @@ public class HibernateDAO<T, ID extends Serializable> implements
 	}
 
 	@SuppressWarnings("unchecked")
-	public T find(ID id) {
+	public T find(int id) {
 		return (T) getSession().load(getPersistentClass(), id);
 	}
 

@@ -17,18 +17,14 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import compecon.culture.markets.SettlementMarket;
-import compecon.culture.sectors.financial.Currency;
 
 public class MarketFactory {
-	private static Map<Currency, SettlementMarket> markets = new HashMap<Currency, SettlementMarket>();
+	private static SettlementMarket market = new SettlementMarket();
 
-	public static SettlementMarket getInstance(Currency currency) {
-		if (!markets.containsKey(currency))
-			markets.put(currency, new SettlementMarket(currency));
-		return markets.get(currency);
+	public static SettlementMarket getInstance() {
+		if (market == null)
+			market = new SettlementMarket();
+		return market;
 	}
 }

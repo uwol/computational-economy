@@ -17,17 +17,16 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.culture.sectors.state.law.security.debt;
 
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.Currency;
-import compecon.engine.time.calendar.DayType;
-import compecon.engine.time.calendar.MonthType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "ZeroCouponBond")
 public class ZeroCouponBond extends Bond {
-	public ZeroCouponBond(int maturityYear, MonthType maturityMonth,
-			DayType maturityDay, BankAccount issuerBankAccount,
-			String issuerBankAccountPassword, Currency issuedInCurrency) {
-		super(maturityYear, maturityMonth, maturityDay, issuerBankAccount,
-				issuerBankAccountPassword, issuedInCurrency);
+
+	public void initialize() {
+		super.initialize();
+
 		this.faceValue = 100;
 	}
 }

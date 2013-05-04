@@ -26,7 +26,7 @@ import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory.ICreditBankDAO;
 
-public class CreditBankDAO extends InMemoryDAO<CreditBank, Long> implements
+public class CreditBankDAO extends InMemoryDAO<CreditBank> implements
 		ICreditBankDAO {
 
 	Map<Currency, List<CreditBank>> creditBanksByCurrencies = new HashMap<Currency, List<CreditBank>>();

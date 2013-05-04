@@ -24,13 +24,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -38,31 +33,22 @@ import org.hibernate.annotations.Index;
 
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.culture.sectors.state.law.property.IPropertyOwner;
+import compecon.culture.sectors.state.law.property.Property;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
-import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
-import compecon.engine.time.calendar.MonthType;
 
 @Entity
 @Table(name = "Bond")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class Bond implements IProperty {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	protected int id;
-
-	@Column(name = "isDeconstructed")
-	protected boolean isDeconstructed = false;
+public abstract class Bond extends Property {
 
 	@Column(name = "faceValue")
 	protected double faceValue; // par value or principal
 
-	@OneToOne
-	@JoinColumn(name = "issuerBankAccount")
+	@ManyToOne
+	@JoinColumn(name = "issuerBankAccount_id")
 	@Index(name = "issuerBankAccount")
 	protected BankAccount issuerBankAccount;
 
@@ -73,29 +59,62 @@ public abstract class Bond implements IProperty {
 	protected Currency issuedInCurrency;
 
 	@Transient
-	// TODO
 	protected List<ITimeSystemEvent> timeSystemEvents = new ArrayList<ITimeSystemEvent>();
 
-	public Bond(int maturityYear, MonthType maturityMonth, DayType maturityDay,
-			BankAccount issuerBankAccount, String issuerBankAccountPassword,
-			Currency issuedInCurrency) {
-		this.issuerBankAccount = issuerBankAccount;
-		this.issuerBankAccountPassword = issuerBankAccountPassword;
-		this.issuedInCurrency = issuedInCurrency;
+	public void initialize() {
+		super.initialize();
 
 		// repay face value event;
 		// has to be at HOUR_01, so that at HOUR_00 the last coupon can be payed
 		ITimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
 		this.timeSystemEvents.add(transferFaceValueEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				transferFaceValueEvent, maturityYear, maturityMonth,
-				maturityDay, HourType.HOUR_01);
+		TimeSystem.getInstance().addEvent(transferFaceValueEvent,
+				TimeSystem.getInstance().getCurrentYear() + 2,
+				TimeSystem.getInstance().getCurrentMonthType(),
+				TimeSystem.getInstance().getCurrentDayType(), HourType.HOUR_01);
 	}
+
+	/*
+	 * accessors
+	 */
 
 	public double getFaceValue() {
-		return this.faceValue;
+		return faceValue;
 	}
 
+	public BankAccount getIssuerBankAccount() {
+		return issuerBankAccount;
+	}
+
+	public String getIssuerBankAccountPassword() {
+		return issuerBankAccountPassword;
+	}
+
+	public Currency getIssuedInCurrency() {
+		return issuedInCurrency;
+	}
+
+	public void setFaceValue(double faceValue) {
+		this.faceValue = faceValue;
+	}
+
+	public void setIssuerBankAccount(BankAccount issuerBankAccount) {
+		this.issuerBankAccount = issuerBankAccount;
+	}
+
+	public void setIssuerBankAccountPassword(String issuerBankAccountPassword) {
+		this.issuerBankAccountPassword = issuerBankAccountPassword;
+	}
+
+	public void setIssuedInCurrency(Currency issuedInCurrency) {
+		this.issuedInCurrency = issuedInCurrency;
+	}
+
+	/*
+	 * business logic
+	 */
+
+	@Transient
 	protected void transferFaceValue() {
 		IPropertyOwner owner = PropertyRegister.getInstance().getPropertyOwner(
 				this);
@@ -105,19 +124,13 @@ public abstract class Bond implements IProperty {
 				"bond face value");
 	}
 
+	@Transient
 	protected void deconstruct() {
-		this.isDeconstructed = true;
 
 		// deregister from TimeSystem
 		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
 			TimeSystem.getInstance().removeEvent(timeSystemEvent);
 
-		// deregister from property rights system
-		PropertyRegister.getInstance().deregister(this);
-	}
-
-	public boolean isDecostructed() {
-		return this.isDeconstructed;
 	}
 
 	protected class TransferFaceValueEvent implements ITimeSystemEvent {

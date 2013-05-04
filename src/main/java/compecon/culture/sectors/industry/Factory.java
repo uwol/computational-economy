@@ -30,8 +30,9 @@ import javax.persistence.Transient;
 
 import compecon.culture.EconomicalBehaviour;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
+import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.culture.sectors.state.law.property.IProperty;
+import compecon.culture.sectors.state.law.property.Property;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.culture.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.Log;
@@ -96,7 +97,7 @@ public class Factory extends JointStockCompany {
 	}
 
 	/*
-	 * Accessors
+	 * accessors
 	 */
 
 	public double getProductivity() {
@@ -116,7 +117,7 @@ public class Factory extends JointStockCompany {
 	}
 
 	/*
-	 * Business logic
+	 * business logic
 	 */
 
 	@Override
@@ -130,7 +131,7 @@ public class Factory extends JointStockCompany {
 	protected class SettlementMarketEvent implements ISettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit) {
+				double pricePerUnit, Currency currency) {
 			Factory.this.assertTransactionsBankAccount();
 			if (Factory.this.producedGoodType.equals(goodType)) {
 				Factory.this.economicalBehaviour.registerSelling(amount);
@@ -138,7 +139,8 @@ public class Factory extends JointStockCompany {
 		}
 
 		@Override
-		public void onEvent(IProperty property, double amount, double totalPrice) {
+		public void onEvent(Property property, double totalPrice,
+				Currency currency) {
 		}
 	}
 
@@ -154,14 +156,13 @@ public class Factory extends JointStockCompany {
 			Map<GoodType, Double> pricesOfProductionFactors = new HashMap<GoodType, Double>();
 			for (GoodType productionFactor : Factory.this.productionFunction
 					.getInputGoodTypes()) {
-				double price = MarketFactory.getInstance(
-						Factory.this.primaryCurrency).getMarginalPrice(
-						productionFactor);
+				double price = MarketFactory.getInstance().getMarginalPrice(
+						Factory.this.primaryCurrency, productionFactor);
 				pricesOfProductionFactors.put(productionFactor, price);
 			}
-			double priceOfProducedGoodType = MarketFactory.getInstance(
-					Factory.this.primaryCurrency).getMarginalPrice(
-					Factory.this.producedGoodType);
+			double priceOfProducedGoodType = MarketFactory.getInstance()
+					.getMarginalPrice(Factory.this.primaryCurrency,
+							Factory.this.producedGoodType);
 			double budget = Factory.this.economicalBehaviour
 					.getBudgetingBehaviour()
 					.calculateTransmissionBasedBudgetForPeriod(
@@ -180,21 +181,17 @@ public class Factory extends JointStockCompany {
 			 */
 			for (Entry<GoodType, Double> entry : productionFactorsToBuy
 					.entrySet()) {
-				MarketFactory
-						.getInstance(
-								Factory.this.transactionsBankAccount
-										.getCurrency())
-						.buy(entry.getKey(),
-								-1,
-								entry.getValue(),
-								budget,
-								-1,
-								-1,
-								Factory.this,
-								Factory.this.transactionsBankAccount,
-								Factory.this.bankPasswords
-										.get(Factory.this.transactionsBankAccount
-												.getManagingBank()));
+				MarketFactory.getInstance().buy(
+						entry.getKey(),
+						Factory.this.transactionsBankAccount.getCurrency(),
+						entry.getValue(),
+						budget,
+						-1,
+						Factory.this,
+						Factory.this.transactionsBankAccount,
+						Factory.this.bankPasswords
+								.get(Factory.this.transactionsBankAccount
+										.getManagingBank()));
 			}
 
 			/*
@@ -233,22 +230,21 @@ public class Factory extends JointStockCompany {
 			 */
 			Factory.this.economicalBehaviour.getPricingBehaviour()
 					.setNewPrice();
-			MarketFactory.getInstance(
-					Factory.this.transactionsBankAccount.getCurrency())
+			MarketFactory.getInstance()
 					.removeAllSellingOffers(Factory.this,
+							Factory.this.primaryCurrency,
 							Factory.this.producedGoodType);
 			double amount = PropertyRegister.getInstance().getBalance(
 					Factory.this, Factory.this.producedGoodType);
-			MarketFactory.getInstance(
-					Factory.this.transactionsBankAccount.getCurrency())
-					.placeSettlementSellingOffer(
-							Factory.this.producedGoodType,
-							Factory.this,
-							Factory.this.transactionsBankAccount,
-							amount,
-							Factory.this.economicalBehaviour
-									.getPricingBehaviour().getCurrentPrice(),
-							new SettlementMarketEvent());
+			MarketFactory.getInstance().placeSettlementSellingOffer(
+					Factory.this.producedGoodType,
+					Factory.this,
+					Factory.this.transactionsBankAccount,
+					amount,
+					Factory.this.economicalBehaviour.getPricingBehaviour()
+							.getCurrentPrice(),
+					Factory.this.transactionsBankAccount.getCurrency(),
+					new SettlementMarketEvent());
 			Factory.this.economicalBehaviour.registerOfferedAmount(amount);
 
 			// ToDo Remove

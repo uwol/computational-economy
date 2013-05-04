@@ -3,12 +3,14 @@
       "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
       "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd" >
 <hibernate-configuration>
-	<session-factory>		
+	<session-factory>
+	
 		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
 		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/compecon</property>
 		<property name="hibernate.connection.username">root</property>
 		<property name="hibernate.connection.password"></property>
+		
 		<property name="hibernate.connection.pool_size">1</property>
 		
 		<property name="hibernate.connection.autocommit">true</property>
@@ -23,6 +25,10 @@
 		<property name="hibernate.jdbc.fetch_size">100</property>
 		<property name="hibernate.jdbc.batch_size">100</property>
 
+		<mapping class="compecon.culture.markets.MarketOffer" />
+		<mapping class="compecon.culture.markets.GoodTypeMarketOffer" />
+		<mapping class="compecon.culture.markets.PropertyMarketOffer" />
+		<mapping class="compecon.culture.sectors.financial.Currency" />
 		<mapping class="compecon.culture.sectors.financial.Bank" />
 		<mapping class="compecon.culture.sectors.financial.BankAccount" />
 		<mapping class="compecon.culture.sectors.financial.CreditBank" />
@@ -30,9 +36,13 @@
 		<mapping class="compecon.culture.sectors.household.Household" />
 		<mapping class="compecon.culture.sectors.industry.Factory" />
 		<mapping class="compecon.culture.sectors.state.State" />
+		<mapping class="compecon.culture.sectors.state.law.property.Property" />
 		<mapping class="compecon.culture.sectors.state.law.security.debt.Bond" />
+		<mapping class="compecon.culture.sectors.state.law.security.debt.FixedRateBond" />
+		<mapping class="compecon.culture.sectors.state.law.security.debt.ZeroCouponBond" />
 		<mapping class="compecon.culture.sectors.state.law.security.equity.JointStockCompany" />
 		<mapping class="compecon.culture.sectors.state.law.security.equity.Share" />
 		<mapping class="compecon.engine.Agent" />
+		<mapping class="compecon.nature.materia.GoodType" />
 	</session-factory>
 </hibernate-configuration>

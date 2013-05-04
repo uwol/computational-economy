@@ -20,7 +20,6 @@ package compecon.engine.dao.inmemory;
 import compecon.culture.sectors.industry.Factory;
 import compecon.engine.dao.DAOFactory.IFactoryDAO;
 
-public class FactoryDAO extends InMemoryDAO<Factory, Long> implements
-		IFactoryDAO {
+public class FactoryDAO extends InMemoryDAO<Factory> implements IFactoryDAO {
 
 }

@@ -20,7 +20,7 @@ package compecon.engine.dao.inmemory;
 import compecon.culture.sectors.household.Household;
 import compecon.engine.dao.DAOFactory.IHouseholdDAO;
 
-public class HouseholdDAO extends InMemoryDAO<Household, Long> implements
+public class HouseholdDAO extends InMemoryDAO<Household> implements
 		IHouseholdDAO {
 
 }

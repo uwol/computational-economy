@@ -23,12 +23,14 @@ import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory.ICentralBankDAO;
 
-public class CentralBankDAO extends HibernateDAO<CentralBank, Long> implements
+public class CentralBankDAO extends HibernateDAO<CentralBank> implements
 		ICentralBankDAO {
 	public CentralBank findByCurrency(Currency currency) {
-		return (CentralBank) getSession().createCriteria(CentralBank.class)
+		Object object = getSession().createCriteria(CentralBank.class)
 				.add(Restrictions.eq("primaryCurrency", currency))
-				// .setCacheable(true)
 				.uniqueResult();
+		if (object == null)
+			return null;
+		return (CentralBank) object;
 	}
 }

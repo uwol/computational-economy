@@ -21,11 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import java.util.SortedSet;
 
 import compecon.culture.sectors.financial.Bank;
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.IProperty;
+import compecon.culture.sectors.state.law.property.Property;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
 import compecon.engine.Log;
@@ -38,36 +39,32 @@ import compecon.nature.materia.GoodType;
  */
 public class SettlementMarket extends Market {
 
-	public SettlementMarket(Currency currency) {
-		super(currency);
-	}
-
 	public interface ISettlementEvent {
 		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit);
+				double pricePerUnit, Currency currency);
 
-		public void onEvent(IProperty property, double amount,
-				double pricePerUnit);
+		public void onEvent(Property property, double pricePerUnit,
+				Currency currency);
 	}
 
 	protected Map<Agent, ISettlementEvent> settlementEventListeners = new HashMap<Agent, ISettlementEvent>();
 
 	public void placeSettlementSellingOffer(GoodType goodType, Agent offeror,
 			BankAccount offerorsBankAcount, double amount, double pricePerUnit,
-			ISettlementEvent settlementEvent) {
+			Currency currency, ISettlementEvent settlementEvent) {
 		if (amount > 0) {
 			this.placeSellingOffer(goodType, offeror, offerorsBankAcount,
-					amount, pricePerUnit);
+					amount, pricePerUnit, currency);
 			this.settlementEventListeners.put(offeror, settlementEvent);
 		}
 	}
 
-	public void placeSettlementSellingOffer(IProperty property, Agent offeror,
+	public void placeSettlementSellingOffer(Property property, Agent offeror,
 			BankAccount offerorsBankAcount, double amount, double pricePerUnit,
-			ISettlementEvent settlementEvent) {
+			Currency currency, ISettlementEvent settlementEvent) {
 		if (amount > 0) {
 			this.placeSellingOffer(property, offeror, offerorsBankAcount,
-					pricePerUnit);
+					pricePerUnit, currency);
 			this.settlementEventListeners.put(offeror, settlementEvent);
 		}
 	}
@@ -77,119 +74,124 @@ public class SettlementMarket extends Market {
 		this.settlementEventListeners.remove(offeror);
 	}
 
-	/**
-	 * @return priceAndAmount
-	 */
-	public Double[] buy(GoodType goodType, final double minAmount,
+	public Double[] buy(GoodType goodType, Currency currency,
 			final double maxAmount, final double maxTotalPrice,
-			final double maxTotalPriceForMinAmount,
 			final double maxPricePerUnit, Agent buyer,
 			BankAccount buyersBankAccount, String buyersBankAccountPassword) {
-		SortedMap<MarketOffer, Double> marketOffers = this
-				.findBestFulfillmentSet(goodType, minAmount, maxAmount,
-						maxTotalPrice, maxTotalPriceForMinAmount,
-						maxPricePerUnit);
-		Double[] priceAndAmount = this.buy(marketOffers, buyer,
-				buyersBankAccount, buyersBankAccountPassword);
-		if (priceAndAmount[1] > 0)
-			Log.log(buyer,
-					buyer + " bought " + MathUtil.round(priceAndAmount[1])
-							+ " units of " + goodType + " for "
-							+ Currency.round(priceAndAmount[0]) + " "
-							+ buyersBankAccount.getCurrency().getIso4217Code());
-		return priceAndAmount;
-	}
 
-	/**
-	 * @return priceAndAmount
-	 */
-	public Double[] buy(Class<? extends IProperty> propertyClass,
-			final double minAmount, final double maxAmount,
-			final double maxTotalPrice, final double maxTotalPriceForMinAmount,
-			final double maxPricePerUnit, Agent buyer,
-			BankAccount buyersBankAccount, String buyersBankAccountPassword) {
-		SortedMap<MarketOffer, Double> marketOffers = this
-				.findBestFulfillmentSet(propertyClass, minAmount, maxAmount,
-						maxTotalPrice, maxTotalPriceForMinAmount,
-						maxPricePerUnit);
-		Double[] priceAndAmount = this.buy(marketOffers, buyer,
-				buyersBankAccount, buyersBankAccountPassword);
-		if (priceAndAmount[1] > 0)
-			Log.log(buyer,
-					buyer + " bought " + MathUtil.round(priceAndAmount[1])
-							+ " units of " + propertyClass.getName() + " for "
-							+ Currency.round(priceAndAmount[0]) + " "
-							+ buyersBankAccount.getCurrency().getIso4217Code());
-		return priceAndAmount;
-	}
-
-	private Double[] buy(SortedMap<MarketOffer, Double> marketOffers,
-			Agent buyer, BankAccount buyersBankAccount,
-			String buyersBankAccountPassword) {
-		Double[] result = new Double[2];
+		SortedMap<GoodTypeMarketOffer, Double> marketOffers = this
+				.findBestFulfillmentSet(goodType, currency, maxAmount,
+						maxTotalPrice, maxPricePerUnit);
 
 		Bank buyersBank = buyersBankAccount.getManagingBank();
 		PropertyRegister register = PropertyRegister.getInstance();
 
 		double moneySpentSum = 0;
 		double amountSum = 0;
+		Double[] priceAndAmount = new Double[2];
 
-		for (Entry<MarketOffer, Double> entry : marketOffers.entrySet()) {
-			MarketOffer offer = entry.getKey();
+		for (Entry<GoodTypeMarketOffer, Double> entry : marketOffers.entrySet()) {
+			GoodTypeMarketOffer marketOffer = entry.getKey();
 			double amount = entry.getValue();
 
 			// transfer money
 			buyersBank.transferMoney(buyersBankAccount,
-					offer.getOfferorsBankAcount(),
-					amount * offer.getPricePerUnit(),
+					marketOffer.getOfferorsBankAcount(),
+					amount * marketOffer.getPricePerUnit(),
 					buyersBankAccountPassword, "price for " + amount
-							+ " units of " + offer.getProperty());
+							+ " units of " + marketOffer.getGoodType());
 
-			// transfer ownership of property
-			if (offer.getProperty() instanceof GoodType) {
-				// GoodType
-				register.transfer(offer.getOfferor(), buyer,
-						(GoodType) offer.getProperty(), amount);
-				if (this.settlementEventListeners.containsKey(offer
-						.getOfferor())
-						&& this.settlementEventListeners
-								.get(offer.getOfferor()) != null)
-					this.settlementEventListeners.get(offer.getOfferor())
-							.onEvent((GoodType) offer.getProperty(), amount,
-									offer.getPricePerUnit());
+			// GoodType
+			register.transfer(marketOffer.getOfferor(), buyer,
+					marketOffer.getGoodType(), amount);
+			if (this.settlementEventListeners.containsKey(marketOffer
+					.getOfferor())
+					&& this.settlementEventListeners.get(marketOffer
+							.getOfferor()) != null)
+				this.settlementEventListeners.get(marketOffer.getOfferor())
+						.onEvent(marketOffer.getGoodType(), amount,
+								marketOffer.getPricePerUnit(),
+								marketOffer.getCurrency());
 
-				// register market tick
-				Log.market_onTick(offer.getPricePerUnit(),
-						(GoodType) offer.getProperty(), offer.getCurrency(),
-						amount);
-			} else {
-				// IProperty
-				register.transfer(offer.getOfferor(), buyer,
-						offer.getProperty(), amount);
-				if (this.settlementEventListeners.containsKey(offer
-						.getOfferor())
-						&& this.settlementEventListeners
-								.get(offer.getOfferor()) != null)
-					this.settlementEventListeners.get(offer.getOfferor())
-							.onEvent(offer.getProperty(), amount,
-									offer.getPricePerUnit());
+			// register market tick
+			Log.market_onTick(marketOffer.getPricePerUnit(),
+					marketOffer.getGoodType(), marketOffer.getCurrency(),
+					amount);
 
-				// register market tick
-				Log.market_onTick(offer.getPricePerUnit(), offer.getProperty(),
-						offer.getCurrency(), amount);
-			}
+			marketOffer.decrementAmount(amount);
+			if (marketOffer.getAmount() <= 0)
+				this.removeSellingOffer(marketOffer);
 
-			offer.decrementAmount(amount);
-			if (offer.getAmount() <= 0)
-				this.removeSellingOffer(offer);
-
-			moneySpentSum += amount * offer.getPricePerUnit();
+			moneySpentSum += amount * marketOffer.getPricePerUnit();
 			amountSum += amount;
 		}
 
-		result[0] = moneySpentSum;
-		result[1] = amountSum;
+		priceAndAmount[0] = moneySpentSum;
+		priceAndAmount[1] = amountSum;
 
-		return result;
+		if (priceAndAmount[1] > 0)
+			Log.log(buyer,
+					buyer + " bought " + MathUtil.round(priceAndAmount[1])
+							+ " units of " + goodType + " for "
+							+ Currency.round(priceAndAmount[0]) + " "
+							+ buyersBankAccount.getCurrency().getIso4217Code());
+
+		return priceAndAmount;
+	}
+
+	public Double[] buy(Class<? extends Property> propertyClass,
+			Currency currency, final double maxAmount,
+			final double maxTotalPrice, final double maxPricePerUnit,
+			Agent buyer, BankAccount buyersBankAccount,
+			String buyersBankAccountPassword) {
+
+		SortedSet<PropertyMarketOffer> marketOffers = this
+				.findBestFulfillmentSet(propertyClass, currency, maxAmount,
+						maxTotalPrice, maxPricePerUnit);
+
+		Bank buyersBank = buyersBankAccount.getManagingBank();
+		PropertyRegister register = PropertyRegister.getInstance();
+
+		double moneySpentSum = 0;
+		double amountSum = 0;
+		Double[] priceAndAmount = new Double[2];
+
+		for (PropertyMarketOffer marketOffer : marketOffers) {
+
+			// transfer money
+			buyersBank.transferMoney(buyersBankAccount,
+					marketOffer.getOfferorsBankAcount(),
+					marketOffer.getPricePerUnit(), buyersBankAccountPassword,
+					"price for " + marketOffer.getProperty());
+
+			// IProperty
+			register.transfer(marketOffer.getOfferor(), buyer,
+					marketOffer.getProperty(), 1);
+			if (this.settlementEventListeners.containsKey(marketOffer
+					.getOfferor())
+					&& this.settlementEventListeners.get(marketOffer
+							.getOfferor()) != null)
+				this.settlementEventListeners.get(marketOffer.getOfferor())
+						.onEvent(marketOffer.getProperty(),
+								marketOffer.getPricePerUnit(),
+								marketOffer.getCurrency());
+
+			this.removeSellingOffer(marketOffer);
+
+			moneySpentSum += marketOffer.getPricePerUnit();
+			amountSum += 1;
+		}
+
+		priceAndAmount[0] = moneySpentSum;
+		priceAndAmount[1] = amountSum;
+
+		if (priceAndAmount[1] > 0)
+			Log.log(buyer,
+					buyer + " bought " + MathUtil.round(priceAndAmount[1])
+							+ " units of " + propertyClass.getName() + " for "
+							+ Currency.round(priceAndAmount[0]) + " "
+							+ buyersBankAccount.getCurrency().getIso4217Code());
+
+		return priceAndAmount;
 	}
 }

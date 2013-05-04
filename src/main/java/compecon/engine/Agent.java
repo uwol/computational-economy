@@ -82,7 +82,7 @@ public abstract class Agent implements IPropertyOwner {
 
 	@Column(name = "primaryCurrency")
 	@Enumerated(EnumType.STRING)
-	@Index(name = "IDX_COVERED_CURRENCY")
+	@Index(name = "IDX_PRIMARY_CURRENCY")
 	protected Currency primaryCurrency;
 
 	@ManyToOne
@@ -91,7 +91,7 @@ public abstract class Agent implements IPropertyOwner {
 	protected Bank primaryBank;
 
 	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "transactionsBankAccount_id")
+	@JoinColumn(name = "transactionsbankaccount_id")
 	@Index(name = "IDX_TRANSACTIONSBANKACCOUNT_ID")
 	// bank account for basic daily transactions
 	protected BankAccount transactionsBankAccount;
@@ -107,7 +107,7 @@ public abstract class Agent implements IPropertyOwner {
 	}
 
 	/*
-	 * Accessors
+	 * accessors
 	 */
 
 	public int getId() {
@@ -167,11 +167,11 @@ public abstract class Agent implements IPropertyOwner {
 	}
 
 	/*
-	 * Assertions
+	 * assertions
 	 */
 
 	@Transient
-	protected void assertTransactionsBankAccount() {
+	public void assertTransactionsBankAccount() {
 		// initialize bank account
 		if (this.primaryBank == null) {
 			this.primaryBank = AgentFactory
@@ -187,7 +187,7 @@ public abstract class Agent implements IPropertyOwner {
 	}
 
 	/*
-	 * Business logic
+	 * business logic
 	 */
 
 	/**
@@ -203,8 +203,7 @@ public abstract class Agent implements IPropertyOwner {
 			TimeSystem.getInstance().removeEvent(timeSystemEvent);
 
 		// remove selling offers from primary market
-		MarketFactory.getInstance(this.transactionsBankAccount.getCurrency())
-				.removeAllSellingOffers(this);
+		MarketFactory.getInstance().removeAllSellingOffers(this);
 
 		// deregister from PropertyRegister
 		PropertyRegister.getInstance().deregister(this);

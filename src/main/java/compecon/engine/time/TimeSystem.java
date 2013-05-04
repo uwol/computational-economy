@@ -213,12 +213,14 @@ public class TimeSystem {
 			this.externalEvents.clear();
 		}
 
-		if (MonthType.JANUARY.equals(currentMonthType)
-				&& DayType.DAY_01.equals(currentDayType)
-				&& HourType.HOUR_00.equals(currentHourType)) {
-			// flush state to database
-			HibernateUtil.flushSession();
-		}
+		/*
+		 * if (MonthType.JANUARY.equals(currentMonthType) &&
+		 * DayType.DAY_01.equals(currentDayType) &&
+		 * HourType.HOUR_00.equals(currentHourType)) {
+		 */
+		// flush state to database
+		HibernateUtil.flushSession();
+		// }
 
 		// remove events that have been marked as removable
 		if (this.eventsToBeRemoved.size() > 0) {

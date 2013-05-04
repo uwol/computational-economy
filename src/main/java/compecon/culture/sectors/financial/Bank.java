@@ -50,7 +50,7 @@ public abstract class Bank extends JointStockCompany {
 	protected Map<Agent, BankAccount> customerBankAccounts = new HashMap<Agent, BankAccount>();
 
 	/*
-	 * Accessors
+	 * accessors
 	 */
 
 	public Map<Agent, BankAccount> getCustomerBankAccounts() {
@@ -71,7 +71,7 @@ public abstract class Bank extends JointStockCompany {
 	}
 
 	/*
-	 * Assertions
+	 * assertions
 	 */
 
 	@Transient
@@ -112,7 +112,7 @@ public abstract class Bank extends JointStockCompany {
 	protected abstract void assertCurrencyIsOffered(Currency currency);
 
 	/*
-	 * Business logic
+	 * business logic
 	 */
 
 	@Transient

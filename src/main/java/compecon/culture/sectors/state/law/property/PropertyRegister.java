@@ -31,14 +31,14 @@ import compecon.nature.materia.GoodType;
 
 /**
  * The property register manages property rights. Each
- * {@link compecon.culture.sectors.state.law.property.IProperty} can be assigned to an
- * owning agent and can be transfered between agents.
+ * {@link compecon.culture.sectors.state.law.property.IProperty} can be assigned
+ * to an owning agent and can be transfered between agents.
  */
 public class PropertyRegister {
 
 	private static PropertyRegister instance;
 
-	private Map<IPropertyOwner, Set<IProperty>> iPropertiesOfIPropertyOwners = new HashMap<IPropertyOwner, Set<IProperty>>();
+	private Map<IPropertyOwner, Set<Property>> iPropertiesOfIPropertyOwners = new HashMap<IPropertyOwner, Set<Property>>();
 
 	private Map<IPropertyOwner, HashMap<GoodType, Double>> goodTypesOfIPropertyOwners = new HashMap<IPropertyOwner, HashMap<GoodType, Double>>();
 
@@ -59,7 +59,7 @@ public class PropertyRegister {
 						new HashMap<GoodType, Double>());
 			if (!this.iPropertiesOfIPropertyOwners.containsKey(propertyOwner))
 				this.iPropertiesOfIPropertyOwners.put(propertyOwner,
-						new HashSet<IProperty>());
+						new HashSet<Property>());
 		}
 	}
 
@@ -76,7 +76,7 @@ public class PropertyRegister {
 		return 0;
 	}
 
-	public Set<IProperty> getIProperties(IPropertyOwner propertyOwner) {
+	public Set<Property> getIProperties(IPropertyOwner propertyOwner) {
 		this.assertInitializedDataStructure(propertyOwner);
 
 		return this.iPropertiesOfIPropertyOwners.get(propertyOwner);
@@ -94,8 +94,8 @@ public class PropertyRegister {
 		return propertyOwners;
 	}
 
-	public IPropertyOwner getPropertyOwner(IProperty property) {
-		for (Entry<IPropertyOwner, Set<IProperty>> entry : this.iPropertiesOfIPropertyOwners
+	public IPropertyOwner getPropertyOwner(Property property) {
+		for (Entry<IPropertyOwner, Set<Property>> entry : this.iPropertiesOfIPropertyOwners
 				.entrySet()) {
 			if (entry.getValue().contains(property))
 				return entry.getKey();
@@ -107,11 +107,11 @@ public class PropertyRegister {
 	 * register and deregister IProperties
 	 */
 
-	public void register(IPropertyOwner newOwner, IProperty property) {
+	public void register(IPropertyOwner newOwner, Property property) {
 		this.transfer(null, newOwner, property);
 	}
 
-	public void deregister(IProperty property) {
+	public void deregister(Property property) {
 		IPropertyOwner oldOwner = getPropertyOwner(property);
 		if (this.iPropertiesOfIPropertyOwners.containsKey(oldOwner))
 			this.iPropertiesOfIPropertyOwners.get(oldOwner).remove(property);
@@ -149,7 +149,7 @@ public class PropertyRegister {
 			if (this.iPropertiesOfIPropertyOwners.containsKey(owner)) {
 				// transfer all IProperties, via a new HashSet to avoid
 				// ConcurrentModificationException
-				for (IProperty property : new HashSet<IProperty>(
+				for (Property property : new HashSet<Property>(
 						this.iPropertiesOfIPropertyOwners.get(owner))) {
 					this.transfer(owner, newOwner, property);
 				}
@@ -217,12 +217,12 @@ public class PropertyRegister {
 	}
 
 	public void transfer(IPropertyOwner oldOwner, IPropertyOwner newOwner,
-			IProperty property, double amount) {
+			Property property, double amount) {
 		this.transfer(oldOwner, newOwner, property);
 	}
 
 	public void transfer(IPropertyOwner oldOwner, IPropertyOwner newOwner,
-			IProperty property) {
+			Property property) {
 		this.assertInitializedDataStructure(oldOwner);
 		this.assertInitializedDataStructure(newOwner);
 

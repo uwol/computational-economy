@@ -41,8 +41,8 @@ import compecon.culture.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.Log;
+import compecon.engine.PropertyFactory;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
@@ -95,7 +95,7 @@ public class CreditBank extends Bank implements
 	}
 
 	/*
-	 * Accessors
+	 * accessors
 	 */
 
 	public Set<Currency> getOfferedCurrencies() {
@@ -115,12 +115,12 @@ public class CreditBank extends Bank implements
 	}
 
 	/*
-	 * Assertions
+	 * assertions
 	 */
 
 	@Transient
 	@Override
-	protected void assertTransactionsBankAccount() {
+	public void assertTransactionsBankAccount() {
 		if (this.primaryBank == null)
 			this.primaryBank = this;
 		if (this.transactionsBankAccount == null) {
@@ -170,7 +170,7 @@ public class CreditBank extends Bank implements
 	}
 
 	/*
-	 * Business logic
+	 * business logic
 	 */
 
 	@Transient
@@ -383,15 +383,14 @@ public class CreditBank extends Bank implements
 					 * moneyReserveGap; no split up per 100 currency units, as
 					 * one mega bond takes less memory and CPU performance
 					 */
-					FixedRateBond bond = new FixedRateBond(TimeSystem
-							.getInstance().getCurrentYear() + 2, TimeSystem
-							.getInstance().getCurrentMonthType(), TimeSystem
-							.getInstance().getCurrentDayType(),
-							CreditBank.this.transactionsBankAccount,
-							CreditBank.this.customerPasswords
-									.get(CreditBank.this), currency,
-							centralBank.getEffectiveKeyInterestRate() + 0.02,
-							moneyReserveGap);
+					FixedRateBond bond = PropertyFactory
+							.newInstanceFixedRateBond(
+									currency,
+									CreditBank.this.transactionsBankAccount,
+									CreditBank.this.customerPasswords
+											.get(CreditBank.this),
+									moneyReserveGap,
+									centralBank.getEffectiveKeyInterestRate() + 0.02);
 					bonds.add(bond);
 
 					PropertyRegister.getInstance().register(centralBank, bond);
@@ -433,7 +432,7 @@ public class CreditBank extends Bank implements
 			// list issued bonds on balance sheet
 			Set<Bond> bondsToDelete = new HashSet<Bond>();
 			for (Bond bond : CreditBank.this.issuedBonds) {
-				if (!bond.isDecostructed())
+				if (!bond.isDeconstructed())
 					balanceSheet.financialLiabilities += bond.getFaceValue();
 				else
 					bondsToDelete.add(bond);

@@ -20,7 +20,7 @@ package compecon.engine.dao.hibernate;
 import compecon.culture.sectors.household.Household;
 import compecon.engine.dao.DAOFactory.IHouseholdDAO;
 
-public class HouseholdDAO extends HibernateDAO<Household, Long> implements
+public class HouseholdDAO extends HibernateDAO<Household> implements
 		IHouseholdDAO {
 
 }

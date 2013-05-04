@@ -15,8 +15,11 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.culture.sectors.state.law.property;
+package compecon.engine.dao.inmemory;
 
-public interface IProperty {
+import compecon.culture.sectors.state.law.property.Property;
+import compecon.engine.dao.DAOFactory.IPropertyDAO;
+
+public class PropertyDAO extends InMemoryDAO<Property> implements IPropertyDAO {
 
 }

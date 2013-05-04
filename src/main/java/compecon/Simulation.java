@@ -57,7 +57,7 @@ public class Simulation {
 
 	public static void main(String[] args) {
 		try {
-			// init database
+			// init database connection
 			HibernateUtil.openSession();
 
 			// init JMX

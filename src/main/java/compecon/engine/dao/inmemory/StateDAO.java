@@ -21,7 +21,7 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.State;
 import compecon.engine.dao.DAOFactory.IStateDAO;
 
-public class StateDAO extends InMemoryDAO<State, Long> implements IStateDAO {
+public class StateDAO extends InMemoryDAO<State> implements IStateDAO {
 
 	@Override
 	public synchronized State findByCurrency(Currency currency) {

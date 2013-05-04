@@ -17,9 +17,9 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.hibernate;
 
-import compecon.culture.sectors.industry.Factory;
-import compecon.engine.dao.DAOFactory.IFactoryDAO;
+import compecon.culture.sectors.state.law.property.Property;
+import compecon.engine.dao.DAOFactory.IPropertyDAO;
 
-public class FactoryDAO extends HibernateDAO<Factory> implements IFactoryDAO {
+public class PropertyDAO extends HibernateDAO<Property> implements IPropertyDAO {
 
 }

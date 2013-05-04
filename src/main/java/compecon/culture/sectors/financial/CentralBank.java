@@ -28,7 +28,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.culture.sectors.state.law.property.IProperty;
+import compecon.culture.sectors.state.law.property.Property;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.culture.sectors.state.law.security.debt.Bond;
 import compecon.culture.sectors.state.law.security.debt.FixedRateBond;
@@ -124,7 +124,7 @@ public class CentralBank extends Bank {
 	}
 
 	/*
-	 * Accessors
+	 * accessors
 	 */
 
 	public Currency getPrimaryCurrency() {
@@ -144,12 +144,12 @@ public class CentralBank extends Bank {
 	}
 
 	/*
-	 * Assertions
+	 * assertions
 	 */
 
 	@Transient
 	@Override
-	protected void assertTransactionsBankAccount() {
+	public void assertTransactionsBankAccount() {
 		if (this.primaryBank == null) {
 			this.primaryBank = this;
 		}
@@ -173,7 +173,7 @@ public class CentralBank extends Bank {
 	}
 
 	/*
-	 * Business logic
+	 * business logic
 	 */
 
 	@Transient
@@ -441,7 +441,7 @@ public class CentralBank extends Bank {
 			}
 
 			// bonds
-			for (IProperty property : PropertyRegister.getInstance()
+			for (Property property : PropertyRegister.getInstance()
 					.getIProperties(CentralBank.this)) {
 				if (property instanceof Bond)
 					balanceSheet.bonds += ((Bond) property).getFaceValue();
@@ -512,9 +512,9 @@ public class CentralBank extends Bank {
 				double[] pricesForGoodType = entry.getValue();
 
 				// fetch and store current price for this good type
-				double marginalPriceForGoodType = MarketFactory.getInstance(
-						CentralBank.this.primaryCurrency).getMarginalPrice(
-						entry.getKey())
+				double marginalPriceForGoodType = MarketFactory.getInstance()
+						.getMarginalPrice(CentralBank.this.primaryCurrency,
+								entry.getKey())
 						/ CentralBank.this.NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
 
 				if (!Double.isNaN(marginalPriceForGoodType)

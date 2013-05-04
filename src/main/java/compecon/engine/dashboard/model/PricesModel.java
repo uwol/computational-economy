@@ -25,7 +25,6 @@ import java.util.Map;
 import org.jfree.data.xy.DefaultHighLowDataset;
 
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
@@ -126,16 +125,12 @@ public class PricesModel {
 
 	protected final Map<GoodType, PriceModel> priceModels = new HashMap<GoodType, PriceModel>();
 
-	public void market_onTick(double pricePerUnit, IProperty property,
+	public void market_onTick(double pricePerUnit, GoodType goodType,
 			Currency currency, double amount) {
-		if (property instanceof GoodType) {
-			GoodType goodType = (GoodType) property;
-
-			if (currency.equals(Currency.EURO)) {
-				if (!this.priceModels.containsKey(goodType))
-					this.priceModels.put(goodType, new PriceModel());
-				this.priceModels.get(goodType).tick(pricePerUnit, amount);
-			}
+		if (currency.equals(Currency.EURO)) {
+			if (!this.priceModels.containsKey(goodType))
+				this.priceModels.put(goodType, new PriceModel());
+			this.priceModels.get(goodType).tick(pricePerUnit, amount);
 		}
 	}
 

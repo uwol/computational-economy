@@ -15,11 +15,30 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.hibernate;
+package compecon.culture.markets;
 
-import compecon.culture.sectors.industry.Factory;
-import compecon.engine.dao.DAOFactory.IFactoryDAO;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-public class FactoryDAO extends HibernateDAO<Factory> implements IFactoryDAO {
+import compecon.culture.sectors.state.law.property.Property;
 
+@Entity
+@Table(name = "PropertyMarketOffer")
+public class PropertyMarketOffer extends MarketOffer {
+
+	@ManyToOne
+	@JoinColumn(name = "property_id")
+	protected Property property;
+
+	// accessors
+
+	public Property getProperty() {
+		return property;
+	}
+
+	public void setProperty(Property property) {
+		this.property = property;
+	}
 }

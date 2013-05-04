@@ -28,11 +28,12 @@ import javax.persistence.Transient;
 
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.IProperty;
 import compecon.culture.sectors.state.law.property.IPropertyOwner;
+import compecon.culture.sectors.state.law.property.Property;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
 import compecon.engine.MarketFactory;
+import compecon.engine.PropertyFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -126,12 +127,12 @@ public abstract class JointStockCompany extends Agent {
 	private class SettlementMarketEvent implements ISettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit) {
+				double pricePerUnit, Currency currency) {
 		}
 
 		@Override
-		public void onEvent(IProperty property, double amount,
-				double pricePerUnit) {
+		public void onEvent(Property property, double pricePerUnit,
+				Currency currency) {
 		}
 	}
 
@@ -148,19 +149,22 @@ public abstract class JointStockCompany extends Agent {
 			if (JointStockCompany.this.issuedShares.size() == 0) {
 				// issue 10 shares
 				for (int i = 0; i < 3; i++) {
-					Share initialShare = new Share(JointStockCompany.this);
+					Share initialShare = PropertyFactory
+							.newInstanceShare(JointStockCompany.this);
 					PropertyRegister.getInstance().register(
 							JointStockCompany.this, initialShare);
 					JointStockCompany.this.issuedShares.add(initialShare);
 					MarketFactory
-							.getInstance(
-									JointStockCompany.this.transactionsBankAccount
-											.getCurrency())
+							.getInstance()
 							.placeSettlementSellingOffer(
 									initialShare,
 									JointStockCompany.this,
 									JointStockCompany.this.transactionsBankAccount,
-									1, 0, new SettlementMarketEvent());
+									1,
+									0,
+									JointStockCompany.this.transactionsBankAccount
+											.getCurrency(),
+									new SettlementMarketEvent());
 				}
 			}
 		}

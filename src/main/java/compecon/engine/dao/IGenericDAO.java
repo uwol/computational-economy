@@ -17,12 +17,11 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao;
 
-import java.io.Serializable;
 import java.util.List;
 
-public interface IGenericDAO<T, ID extends Serializable> {
+public interface IGenericDAO<T> {
 
-	public T find(ID id);
+	public T find(int id);
 
 	public T findRandom();
 

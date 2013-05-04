@@ -21,7 +21,7 @@ import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory.ICentralBankDAO;
 
-public class CentralBankDAO extends InMemoryDAO<CentralBank, Long> implements
+public class CentralBankDAO extends InMemoryDAO<CentralBank> implements
 		ICentralBankDAO {
 
 	@Override

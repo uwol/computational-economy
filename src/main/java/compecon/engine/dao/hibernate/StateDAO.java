@@ -23,10 +23,13 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.State;
 import compecon.engine.dao.DAOFactory.IStateDAO;
 
-public class StateDAO extends HibernateDAO<State, Long> implements IStateDAO {
+public class StateDAO extends HibernateDAO<State> implements IStateDAO {
 	public State findByCurrency(Currency currency) {
-		return (State) getSession().createCriteria(State.class)
+		Object object = getSession().createCriteria(State.class)
 				.add(Restrictions.eq("primaryCurrency", currency))
 				.uniqueResult();
+		if (object == null)
+			return null;
+		return (State) object;
 	}
 }
