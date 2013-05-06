@@ -80,5 +80,6 @@ public class HibernateDAO<T> implements IGenericDAO<T> {
 
 	public void delete(T entity) {
 		getSession().delete(entity);
+		// getSession().evict(entity);
 	}
 }

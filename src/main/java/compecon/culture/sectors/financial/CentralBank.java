@@ -24,7 +24,6 @@ import java.util.Map.Entry;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
@@ -44,8 +43,6 @@ import compecon.nature.materia.GoodType;
  * Agent type central bank adjusts key interest rates based on price indices.
  */
 @Entity
-// @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Table(name = "CentralBank")
 public class CentralBank extends Bank {
 
 	// constants

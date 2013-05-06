@@ -25,7 +25,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.EconomicalBehaviour;
@@ -50,7 +49,6 @@ import compecon.nature.math.production.RootProductionFunction;
  * machine and labour hour.
  */
 @Entity
-@Table(name = "Factory")
 public class Factory extends JointStockCompany {
 
 	@Enumerated(EnumType.STRING)

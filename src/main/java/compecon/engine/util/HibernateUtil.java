@@ -56,6 +56,11 @@ public class HibernateUtil {
 		}
 	}
 
+	public static void clearSession() {
+		if (ConfigurationUtil.getActivateDb())
+			session.clear();
+	}
+
 	public static void closeSession() {
 		if (ConfigurationUtil.getActivateDb()) {
 			// close session independent from transaction contexts

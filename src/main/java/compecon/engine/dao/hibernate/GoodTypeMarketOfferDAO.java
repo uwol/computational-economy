@@ -18,6 +18,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.dao.hibernate;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -31,20 +32,27 @@ import compecon.nature.materia.GoodType;
 public class GoodTypeMarketOfferDAO extends HibernateDAO<GoodTypeMarketOffer>
 		implements IGoodTypeMarketOfferDAO {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllSellingOffers(Agent offeror) {
-		String hql = "DELETE FROM GoodTypeMarketOffer m WHERE m.offeror = :offeror";
-		getSession().createQuery(hql).setEntity("offeror", offeror)
-				.executeUpdate();
+		String hql = "FROM GoodTypeMarketOffer m WHERE m.offeror = :offeror";
+		List<GoodTypeMarketOffer> marketOffers = getSession().createQuery(hql)
+				.setEntity("offeror", offeror).list();
+		for (GoodTypeMarketOffer marketOffer : marketOffers)
+			this.delete(marketOffer);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllSellingOffers(Agent offeror, Currency currency,
 			GoodType goodType) {
-		String hql = "DELETE FROM GoodTypeMarketOffer m WHERE m.offeror = :offeror AND m.currency = :currency AND m.goodType = :goodType";
-		getSession().createQuery(hql).setEntity("offeror", offeror)
+		String hql = "FROM GoodTypeMarketOffer m WHERE m.offeror = :offeror AND m.currency = :currency AND m.goodType = :goodType";
+		List<GoodTypeMarketOffer> marketOffers = getSession().createQuery(hql)
+				.setEntity("offeror", offeror)
 				.setParameter("currency", currency)
-				.setParameter("goodType", goodType).executeUpdate();
+				.setParameter("goodType", goodType).list();
+		for (GoodTypeMarketOffer marketOffer : marketOffers)
+			this.delete(marketOffer);
 	}
 
 	@Override

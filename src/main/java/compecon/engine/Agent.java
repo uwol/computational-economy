@@ -58,7 +58,7 @@ import compecon.nature.materia.GoodType;
 
 @Entity
 @Table(name = "Agent")
-@org.hibernate.annotations.Table(appliesTo = "Agent", indexes = { @Index(name = "IDX_DTYPE", columnNames = { "DTYPE" }) })
+@org.hibernate.annotations.Table(appliesTo = "Agent", indexes = { @Index(name = "IDX_A_DTYPE", columnNames = { "DTYPE" }) })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DTYPE")
 public abstract class Agent implements IPropertyOwner {
@@ -82,17 +82,17 @@ public abstract class Agent implements IPropertyOwner {
 
 	@Column(name = "primaryCurrency")
 	@Enumerated(EnumType.STRING)
-	@Index(name = "IDX_PRIMARY_CURRENCY")
+	@Index(name = "IDX_A_PRIMARYCURRENCY")
 	protected Currency primaryCurrency;
 
 	@ManyToOne
 	@JoinColumn(name = "primaryBank_id")
-	@Index(name = "IDX_PRIMARYBANK_ID")
+	@Index(name = "IDX_A_PRIMARYBANK")
 	protected Bank primaryBank;
 
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "transactionsbankaccount_id")
-	@Index(name = "IDX_TRANSACTIONSBANKACCOUNT_ID")
+	@Index(name = "IDX_A_TRANSACTIONSBANKACCOUNT")
 	// bank account for basic daily transactions
 	protected BankAccount transactionsBankAccount;
 

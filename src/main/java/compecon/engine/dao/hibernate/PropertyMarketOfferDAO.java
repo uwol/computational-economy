@@ -18,6 +18,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.dao.hibernate;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -31,21 +32,27 @@ import compecon.engine.dao.DAOFactory.IPropertyMarketOfferDAO;
 public class PropertyMarketOfferDAO extends HibernateDAO<PropertyMarketOffer>
 		implements IPropertyMarketOfferDAO {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllSellingOffers(Agent offeror) {
-		String hql = "DELETE FROM PropertyMarketOffer m WHERE m.offeror = :offeror";
-		getSession().createQuery(hql).setEntity("offeror", offeror)
-				.executeUpdate();
+		String hql = "FROM PropertyMarketOffer m WHERE m.offeror = :offeror";
+		List<PropertyMarketOffer> marketOffers = getSession().createQuery(hql)
+				.setEntity("offeror", offeror).list();
+		for (PropertyMarketOffer marketOffer : marketOffers)
+			this.delete(marketOffer);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllSellingOffers(Agent offeror, Currency currency,
 			Class<? extends Property> propertyClass) {
-		String hql = "DELETE FROM PropertyMarketOffer m WHERE m.offeror = :offeror AND m.currency = :currency AND m.property.class = :propertyClass";
-		getSession().createQuery(hql).setEntity("offeror", offeror)
+		String hql = "FROM PropertyMarketOffer m WHERE m.offeror = :offeror AND m.currency = :currency AND m.property.class = :propertyClass";
+		List<PropertyMarketOffer> marketOffers = getSession().createQuery(hql)
+				.setEntity("offeror", offeror)
 				.setParameter("currency", currency)
-				.setParameter("propertyClass", propertyClass.getName())
-				.executeUpdate();
+				.setParameter("propertyClass", propertyClass.getName()).list();
+		for (PropertyMarketOffer marketOffer : marketOffers)
+			this.delete(marketOffer);
 	}
 
 	@Override
@@ -70,7 +77,7 @@ public class PropertyMarketOfferDAO extends HibernateDAO<PropertyMarketOffer>
 				+ "ORDER BY m.pricePerUnit ASC";
 		ScrollableResults itemCursor = getSession().createQuery(queryString)
 				.setParameter("currency", currency)
-				.setParameter("propertyClass", propertyClass.getName())
+				.setParameter("propertyClass", propertyClass.getSimpleName())
 				.scroll(ScrollMode.FORWARD_ONLY);
 		return new HibernateIterator<PropertyMarketOffer>(itemCursor);
 	}

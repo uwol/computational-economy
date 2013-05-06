@@ -34,7 +34,7 @@ public class MathUtil {
 			return false;
 		if (Double.isInfinite(value1) || Double.isInfinite(value2))
 			return false;
-		return Math.abs(value1 - epsilon) > value2;
+		return value1 - epsilon > value2;
 	}
 
 	public static boolean greaterEqual(double value1, double value2) {
@@ -46,7 +46,7 @@ public class MathUtil {
 			return false;
 		if (Double.isInfinite(value1) || Double.isInfinite(value2))
 			return false;
-		return Math.abs(value1 + epsilon) < value2;
+		return value1 + epsilon < value2;
 	}
 
 	public static boolean lesserEqual(double value1, double value2) {

@@ -30,7 +30,6 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
@@ -52,7 +51,6 @@ import compecon.engine.time.calendar.MonthType;
  * follows minimum reserve requirements of central banks.
  */
 @Entity
-@Table(name = "CreditBank")
 public class CreditBank extends Bank implements
 		compecon.culture.sectors.financial.ICentralBankCustomer {
 

@@ -18,7 +18,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.culture.sectors.state;
 
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.sectors.financial.CreditBank;
@@ -30,7 +29,6 @@ import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 
 @Entity
-@Table(name = "State")
 public class State extends Agent {
 
 	@Override

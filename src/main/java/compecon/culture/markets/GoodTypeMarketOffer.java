@@ -24,10 +24,17 @@ import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Index;
+
 import compecon.nature.materia.GoodType;
 
 @Entity
 @Table(name = "GoodTypeMarketOffer")
+@org.hibernate.annotations.Table(appliesTo = "GoodTypeMarketOffer", indexes = {
+		@Index(name = "IDX_GTMO_CURRENCY", columnNames = "currency"),
+		@Index(name = "IDX_GTMO_OFFERORSBANKACCOUNT", columnNames = "offerorsBankAcount_id"),
+		@Index(name = "IDX_GTMO_MARGINALPRICE", columnNames = { "currency",
+				"goodType", "pricePerUnit" }) })
 public class GoodTypeMarketOffer extends MarketOffer {
 
 	@Column(name = "amount")

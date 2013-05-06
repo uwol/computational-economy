@@ -29,6 +29,7 @@ import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.property.Property;
 import compecon.engine.Agent;
+import compecon.engine.MarketOfferFactory;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.engine.util.MathUtil;
@@ -45,17 +46,9 @@ public abstract class Market {
 		if (!Double.isNaN(amount) && !Double.isInfinite(amount)
 				&& !Double.isNaN(pricePerUnit)
 				&& !Double.isInfinite(pricePerUnit) && amount > 0) {
-
-			GoodTypeMarketOffer marketOffer = new GoodTypeMarketOffer();
-			marketOffer.setGoodType(goodType);
-			marketOffer.setOfferor(offeror);
-			marketOffer.setOfferorsBankAcount(offerorsBankAcount);
-			marketOffer.setAmount(amount);
-			marketOffer.setPricePerUnit(pricePerUnit);
-			marketOffer.setCurrency(currency);
-
-			DAOFactory.getGoodTypeMarketOfferDAO().save(marketOffer);
-			HibernateUtil.flushSession();
+			MarketOfferFactory
+					.newInstanceGoodTypeMarketOffer(goodType, offeror,
+							offerorsBankAcount, amount, pricePerUnit, currency);
 		}
 	}
 
@@ -63,16 +56,8 @@ public abstract class Market {
 			BankAccount offerorsBankAcount, double pricePerUnit,
 			Currency currency) {
 		if (!Double.isNaN(pricePerUnit) && !Double.isInfinite(pricePerUnit)) {
-
-			PropertyMarketOffer marketOffer = new PropertyMarketOffer();
-			marketOffer.setProperty(property);
-			marketOffer.setOfferor(offeror);
-			marketOffer.setOfferorsBankAcount(offerorsBankAcount);
-			marketOffer.setPricePerUnit(pricePerUnit);
-			marketOffer.setCurrency(currency);
-
-			DAOFactory.getPropertyMarketOfferDAO().save(marketOffer);
-			HibernateUtil.flushSession();
+			MarketOfferFactory.newInstancePropertyMarketOffer(property,
+					offeror, offerorsBankAcount, pricePerUnit, currency);
 		}
 	}
 
@@ -308,9 +293,8 @@ public abstract class Market {
 
 			// final amount decision
 			double amountToTake = Math.max(0, Math.min(
-					amountToTakeByMaxAmountRestriction,
-
-					Math.min(amountToTakeByTotalPriceRestriction,
+					amountToTakeByMaxAmountRestriction, Math.min(
+							amountToTakeByTotalPriceRestriction,
 							amountToTakeByMaxPricePerUnitRestriction)));
 
 			double totalPrice = amountToTake * offer.getPricePerUnit();

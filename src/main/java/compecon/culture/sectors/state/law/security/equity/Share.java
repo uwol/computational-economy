@@ -20,12 +20,10 @@ package compecon.culture.sectors.state.law.security.equity;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
 import compecon.culture.sectors.state.law.property.Property;
 
 @Entity
-@Table(name = "Share")
 public class Share extends Property {
 
 	@ManyToOne

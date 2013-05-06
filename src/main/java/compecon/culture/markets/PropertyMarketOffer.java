@@ -22,10 +22,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Index;
+
 import compecon.culture.sectors.state.law.property.Property;
 
 @Entity
 @Table(name = "PropertyMarketOffer")
+@org.hibernate.annotations.Table(appliesTo = "PropertyMarketOffer", indexes = {
+		@Index(name = "IDX_PMO_CURRENCY", columnNames = "currency"),
+		@Index(name = "IDX_PMO_OFFERORSBANKACCOUNT", columnNames = "offerorsBankAcount_id"),
+		@Index(name = "IDX_PMO_MARGINALPRICE", columnNames = { "currency",
+				"pricePerUnit" }) })
 public class PropertyMarketOffer extends MarketOffer {
 
 	@ManyToOne

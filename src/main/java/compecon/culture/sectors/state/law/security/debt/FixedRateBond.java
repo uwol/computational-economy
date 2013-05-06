@@ -19,7 +19,6 @@ package compecon.culture.sectors.state.law.security.debt;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.sectors.state.law.property.IPropertyOwner;
@@ -29,7 +28,6 @@ import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
 
 @Entity
-@Table(name = "FixedRateBond")
 public class FixedRateBond extends Bond {
 
 	@Column(name = "coupon")

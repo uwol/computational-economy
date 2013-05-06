@@ -17,7 +17,7 @@ import compecon.engine.PropertyFactory;
 
 @Entity
 @Table(name = "Property")
-@org.hibernate.annotations.Table(appliesTo = "Property", indexes = { @Index(name = "IDX_DTYPE", columnNames = { "DTYPE" }) })
+@org.hibernate.annotations.Table(appliesTo = "Property", indexes = { @Index(name = "IDX_P_DTYPE", columnNames = { "DTYPE" }) })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DTYPE")
 public abstract class Property {

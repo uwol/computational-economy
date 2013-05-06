@@ -18,10 +18,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.culture.sectors.state.law.security.debt;
 
 import javax.persistence.Entity;
-import javax.persistence.Table;
 
 @Entity
-@Table(name = "ZeroCouponBond")
 public class ZeroCouponBond extends Bond {
 
 	public void initialize() {

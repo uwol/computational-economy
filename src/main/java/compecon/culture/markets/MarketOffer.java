@@ -28,8 +28,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Index;
-
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.Agent;
@@ -45,14 +43,12 @@ public abstract class MarketOffer implements Comparable<MarketOffer> {
 	@JoinColumn(name = "offeror_id")
 	protected Agent offeror;
 
-	@Column(name = "primaryCurrency")
+	@Column(name = "currency")
 	@Enumerated(EnumType.STRING)
-	@Index(name = "IDX_PRIMARYCURRENCY")
 	protected Currency currency;
 
 	@ManyToOne
 	@JoinColumn(name = "offerorsBankAcount_id")
-	@Index(name = "IDX_OFFERORSBANKACCOUNT_ID")
 	protected BankAccount offerorsBankAcount;
 
 	@Column(name = "pricePerUnit")

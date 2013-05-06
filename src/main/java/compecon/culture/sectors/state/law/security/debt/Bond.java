@@ -26,7 +26,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
@@ -41,7 +40,6 @@ import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
 
 @Entity
-@Table(name = "Bond")
 public abstract class Bond extends Property {
 
 	@Column(name = "faceValue")

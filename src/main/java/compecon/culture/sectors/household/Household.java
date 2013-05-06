@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import compecon.culture.EconomicalBehaviour;
@@ -50,7 +49,6 @@ import compecon.nature.math.utility.CobbDouglasUtilityFunction;
  * Agent type Household offers labour hours and consumes goods.
  */
 @Entity
-@Table(name = "Household")
 public class Household extends Agent implements IShareOwner {
 
 	// configuration constants
