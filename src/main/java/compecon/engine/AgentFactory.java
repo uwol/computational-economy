@@ -107,8 +107,9 @@ public class AgentFactory {
 		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
 		preferences.put(GoodType.LABOURHOUR, 0.2);
 		preferences.put(GoodType.MEGACALORIE, 0.3);
-		preferences.put(GoodType.KILOWATT, 0.2);
-		preferences.put(GoodType.REALESTATE, 0.3);
+		preferences.put(GoodType.KILOWATT, 0.1);
+		preferences.put(GoodType.REALESTATE, 0.2);
+		preferences.put(GoodType.CAR, 0.2);
 		household.setPreferences(preferences);
 		household.initialize();
 		DAOFactory.getHouseholdDAO().save(household);

@@ -28,6 +28,7 @@
 		<property name="hibernate.jdbc.batch_versioned_data">true</property>
 		<property name="hibernate.jdbc.fetch_size">100</property>
 		<property name="hibernate.jdbc.batch_size">100</property>
+		<property name="hibernate.generate.statistics">true</property>
 
 		<mapping class="compecon.culture.markets.MarketOffer" />
 		<mapping class="compecon.culture.markets.GoodTypeMarketOffer" />

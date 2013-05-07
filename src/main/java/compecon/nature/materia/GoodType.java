@@ -18,5 +18,5 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.nature.materia;
 
 public enum GoodType {
-	LABOURHOUR(), MEGACALORIE(), KILOWATT(), REALESTATE();
+	LABOURHOUR(), MEGACALORIE(), KILOWATT(), REALESTATE(), CAR();
 }
