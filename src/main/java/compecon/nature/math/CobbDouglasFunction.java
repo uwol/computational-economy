@@ -27,7 +27,7 @@ import compecon.nature.materia.GoodType;
 /**
  * U = (g_1)^(e_1) * (g_2)^(e_2) * ... * (g_n)^(e_n) | g_1 + g_2 + ... + g_n = 1
  */
-public class CobbDouglasFunction implements IFunction {
+public class CobbDouglasFunction extends Function implements IFunction {
 
 	protected final Map<GoodType, Double> exponents;
 
@@ -53,31 +53,32 @@ public class CobbDouglasFunction implements IFunction {
 	}
 
 	@Override
-	public double f(Map<GoodType, Double> bundleOfGoods) {
-		double utility = 1.0;
+	public double f(Map<GoodType, Double> bundleOfInputGoods) {
+		double output = 1.0;
 		for (Entry<GoodType, Double> entry : this.exponents.entrySet()) {
 			GoodType goodType = entry.getKey();
 			double exponent = entry.getValue();
-			double base = bundleOfGoods.containsKey(goodType) ? bundleOfGoods
+			double base = bundleOfInputGoods.containsKey(goodType) ? bundleOfInputGoods
 					.get(goodType) : 0.0;
-			utility = utility * Math.pow(base, exponent);
+			output = output * Math.pow(base, exponent);
 		}
-		return utility;
+		return output;
 	}
 
 	@Override
-	public double partialDerivative(Map<GoodType, Double> forBundleOfGoods,
-			GoodType withRespectToGoodType) {
+	public double partialDerivative(
+			Map<GoodType, Double> forBundleOfInputGoods,
+			GoodType withRespectToInputGoodType) {
 		/*
 		 * Constant
 		 */
 		double constant = 1;
 		for (Entry<GoodType, Double> entry : this.exponents.entrySet()) {
 			GoodType goodType = entry.getKey();
-			double exponent = entry.getValue();
-			double base = forBundleOfGoods.containsKey(goodType) ? forBundleOfGoods
-					.get(goodType) : 0;
-			if (goodType != withRespectToGoodType) {
+			if (goodType != withRespectToInputGoodType) {
+				double exponent = entry.getValue();
+				double base = forBundleOfInputGoods.containsKey(goodType) ? forBundleOfInputGoods
+						.get(goodType) : 0;
 				constant = constant * Math.pow(base, exponent);
 			}
 		}
@@ -85,17 +86,21 @@ public class CobbDouglasFunction implements IFunction {
 		/*
 		 * Differential factor
 		 */
-		double differentialBase = forBundleOfGoods
-				.containsKey(withRespectToGoodType) ? forBundleOfGoods
-				.get(withRespectToGoodType) : 0;
+		double differentialBase = forBundleOfInputGoods
+				.containsKey(withRespectToInputGoodType) ? forBundleOfInputGoods
+				.get(withRespectToInputGoodType) : 0;
 		double differentialExponent = this.exponents
-				.containsKey(withRespectToGoodType) ? this.exponents
-				.get(withRespectToGoodType) - 1 : 0;
+				.containsKey(withRespectToInputGoodType) ? this.exponents
+				.get(withRespectToInputGoodType) - 1 : 0;
 		double differentialCoefficient = this.exponents
-				.containsKey(withRespectToGoodType) ? this.exponents
-				.get(withRespectToGoodType) : 0;
+				.containsKey(withRespectToInputGoodType) ? this.exponents
+				.get(withRespectToInputGoodType) : 0;
 		double differentialFactor = differentialCoefficient
 				* Math.pow(differentialBase, differentialExponent);
+
+		// Java returns Double.NaN for 0 * Double.INFINITE -> return 0
+		if (constant == 0.0 && Double.isInfinite(differentialFactor))
+			return 0.0;
 
 		return constant * differentialFactor;
 	}

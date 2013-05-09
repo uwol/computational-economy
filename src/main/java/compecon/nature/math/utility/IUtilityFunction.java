@@ -20,20 +20,18 @@ package compecon.nature.math.utility;
 import java.util.Map;
 import java.util.Set;
 
-import compecon.engine.Agent;
 import compecon.nature.materia.GoodType;
 
 public interface IUtilityFunction {
 
 	public Set<GoodType> getInputGoodTypes();
 
-	public void setAgent(Agent agent);
+	public double calculateUtility(Map<GoodType, Double> bundleOfInputGoods);
 
-	public double calculateUtility(Map<GoodType, Double> bundleOfGoods);
-
-	public double calculateMarginalUtility(Map<GoodType, Double> bundleOfGoods,
-			GoodType differentialGoodType);
+	public double calculateMarginalUtility(
+			Map<GoodType, Double> bundleOfInputGoods,
+			GoodType differentialInputGoodType);
 
 	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
-			Map<GoodType, Double> pricesOfGoods, double budget);
+			Map<GoodType, Double> pricesOfInputGoods, double budget);
 }

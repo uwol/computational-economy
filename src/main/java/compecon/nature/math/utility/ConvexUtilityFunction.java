@@ -38,7 +38,7 @@ public abstract class ConvexUtilityFunction extends UtilityFunction {
 	 * iterative implementation for calculating an optimal consumption plan
 	 */
 	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
-			Map<GoodType, Double> pricesOfGoods, double budget) {
+			Map<GoodType, Double> pricesOfInputGoods, double budget) {
 		// order of exponents is preserved, so that important GoodTypes
 		// will be bought first
 		Map<GoodType, Double> bundleOfGoods = new LinkedHashMap<GoodType, Double>();
@@ -54,9 +54,9 @@ public abstract class ConvexUtilityFunction extends UtilityFunction {
 		while (MathUtil.greater(budget, moneySpent)) {
 			GoodType optimalInput = this
 					.selectInputWithHighestMarginalUtilityPerPrice(
-							bundleOfGoods, pricesOfGoods);
+							bundleOfGoods, pricesOfInputGoods);
 			if (optimalInput != null) {
-				double priceOfGoodType = pricesOfGoods.get(optimalInput);
+				double priceOfGoodType = pricesOfInputGoods.get(optimalInput);
 				double amount = (budget / NUMBER_OF_ITERATIONS)
 						/ priceOfGoodType;
 				bundleOfGoods.put(optimalInput, bundleOfGoods.get(optimalInput)
@@ -67,31 +67,5 @@ public abstract class ConvexUtilityFunction extends UtilityFunction {
 		}
 
 		return bundleOfGoods;
-	}
-
-	private GoodType selectInputWithHighestMarginalUtilityPerPrice(
-			Map<GoodType, Double> bundleOfGoods,
-			Map<GoodType, Double> pricesOfGoods) {
-		GoodType optimalInput = (GoodType) this.getInputGoodTypes().toArray()[0];
-		double highestMarginalUtilityPerPrice = 0.0;
-
-		for (GoodType goodType : this.getInputGoodTypes()) {
-			double partialDerivative = this.calculateMarginalUtility(
-					bundleOfGoods, goodType);
-			double pricePerUnit = pricesOfGoods.get(goodType);
-			if (!Double.isNaN(pricePerUnit)) {
-				double marginalUtilityPerPrice = partialDerivative
-						/ pricePerUnit;
-				if (MathUtil.greater(marginalUtilityPerPrice,
-						highestMarginalUtilityPerPrice)
-						|| (MathUtil.equal(marginalUtilityPerPrice,
-								highestMarginalUtilityPerPrice) && bundleOfGoods
-								.get(goodType) == 0)) {
-					optimalInput = goodType;
-					highestMarginalUtilityPerPrice = marginalUtilityPerPrice;
-				}
-			}
-		}
-		return optimalInput;
 	}
 }

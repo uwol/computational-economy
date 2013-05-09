@@ -32,6 +32,10 @@ import compecon.culture.sectors.state.State;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.nature.materia.GoodType;
+import compecon.nature.materia.InputOutputModel;
+import compecon.nature.math.production.IProductionFunction;
+import compecon.nature.math.utility.CobbDouglasUtilityFunction;
+import compecon.nature.math.utility.IUtilityFunction;
 
 public class AgentFactory {
 
@@ -88,8 +92,12 @@ public class AgentFactory {
 	public static Factory newInstanceFactory(GoodType goodType) {
 		Factory factory = new Factory();
 		factory.setProducedGoodType(goodType);
-		factory.setProductivity(10);
 		factory.setPrimaryCurrency(Currency.EURO);
+
+		IProductionFunction productionFunction = InputOutputModel
+				.getProductionFunction(goodType);
+		factory.setProductionFunction(productionFunction);
+
 		factory.initialize();
 		DAOFactory.getFactoryDAO().save(factory);
 		HibernateUtil.flushSession();
@@ -110,7 +118,10 @@ public class AgentFactory {
 		preferences.put(GoodType.KILOWATT, 0.1);
 		preferences.put(GoodType.REALESTATE, 0.2);
 		preferences.put(GoodType.CAR, 0.2);
-		household.setPreferences(preferences);
+		IUtilityFunction utilityFunction = new CobbDouglasUtilityFunction(
+				preferences);
+		household.setUtilityFunction(utilityFunction);
+
 		household.initialize();
 		DAOFactory.getHouseholdDAO().save(household);
 		HibernateUtil.flushSession();

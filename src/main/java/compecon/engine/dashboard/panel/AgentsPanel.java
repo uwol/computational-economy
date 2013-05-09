@@ -57,7 +57,7 @@ public class AgentsPanel extends JPanel {
 			public void valueChanged(ListSelectionEvent e) {
 				if (e.getValueIsAdjusting() == false) {
 					AgentsPanel.this.agentLogsModel
-							.setCurrentAgentId(agentsList.getSelectedIndex());
+							.setCurrentAgent(agentsList.getSelectedIndex());
 				}
 			}
 		});

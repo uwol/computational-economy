@@ -28,7 +28,7 @@ import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.dashboard.Dashboard;
-import compecon.engine.jmx.AgentsModel;
+import compecon.engine.jmx.JmxAgentsModel;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
@@ -37,8 +37,14 @@ public class Log {
 
 	private static boolean logTransactions = false;
 
+	private static Agent agentToLogFor;
+
 	public static void setLogTransactions(boolean logTransactions) {
 		Log.logTransactions = logTransactions;
+	}
+
+	public static void setAgentToLogFor(Agent agent) {
+		agentToLogFor = agent;
 	}
 
 	public static void notifyTimeSystem_nextDay(Date date) {
@@ -58,30 +64,36 @@ public class Log {
 
 	// --------
 
-	public static void log(Agent agent, String message) {
-		Dashboard
-				.getInstance()
-				.getAgentLogsModel()
-				.logAgentEvent(TimeSystem.getInstance().getCurrentDate(),
-						agent, message);
+	public static synchronized void log(Agent agent, String message) {
+		setAgentToLogFor(agent);
+		log(message);
+	}
+
+	public static void log(String message) {
+		if (agentToLogFor != null)
+			Dashboard
+					.getInstance()
+					.getAgentLogsModel()
+					.logAgentEvent(TimeSystem.getInstance().getCurrentDate(),
+							agentToLogFor, message);
 	}
 
 	public static void agent_onConstruct(Agent agent) {
+		Dashboard.getInstance().getAgentLogsModel().agent_onConstruct(agent);
 		log(agent, agent + " constructed");
 		Dashboard.getInstance().getNumberOfAgentsTableModel()
 				.agent_onConstruct(agent.getClass());
-		AgentsModel.incrementNumberOfAgents();
+		JmxAgentsModel.incrementNumberOfAgents();
 	}
 
 	public static void agent_onDeconstruct(Agent agent) {
+		Dashboard.getInstance().getAgentLogsModel().agent_onDeconstruct(agent);
 		log(agent, agent + " deconstructed");
-
 		Dashboard.getInstance().getNumberOfAgentsTableModel()
 				.agent_onDeconstruct(agent.getClass());
-		Dashboard.getInstance().getAgentLogsModel().agent_onDeconstruct(agent);
 		Dashboard.getInstance().getBalanceSheetsModel()
 				.notifyAgent_onDeconstruct(agent);
-		AgentsModel.decrementNumberOfAgents();
+		JmxAgentsModel.decrementNumberOfAgents();
 	}
 
 	public static void agent_onPublishBalanceSheet(Agent agent,

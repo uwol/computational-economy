@@ -38,7 +38,7 @@ public class Registration {
 		MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
 		ObjectName agentsObjectName = new ObjectName("compecon.jmx:type=Agents");
-		Agents agentsMBean = new Agents();
+		JmxAgents agentsMBean = new JmxAgents();
 		mBeanServer.registerMBean(agentsMBean, agentsObjectName);
 
 		StatisticsService statsMBean = new StatisticsService();

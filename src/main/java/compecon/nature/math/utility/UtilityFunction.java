@@ -20,7 +20,6 @@ package compecon.nature.math.utility;
 import java.util.Map;
 import java.util.Set;
 
-import compecon.engine.Agent;
 import compecon.nature.materia.GoodType;
 import compecon.nature.math.IFunction;
 
@@ -28,14 +27,8 @@ public abstract class UtilityFunction implements IUtilityFunction {
 
 	protected IFunction delegate;
 
-	protected Agent agent;
-
 	protected UtilityFunction(IFunction delegate) {
 		this.delegate = delegate;
-	}
-
-	public void setAgent(Agent agent) {
-		this.agent = agent;
 	}
 
 	@Override
@@ -44,14 +37,22 @@ public abstract class UtilityFunction implements IUtilityFunction {
 	}
 
 	@Override
-	public double calculateUtility(Map<GoodType, Double> bundleOfGoods) {
-		return this.delegate.f(bundleOfGoods);
+	public double calculateUtility(Map<GoodType, Double> bundleOfInputGoods) {
+		return this.delegate.f(bundleOfInputGoods);
 	}
 
 	@Override
-	public double calculateMarginalUtility(Map<GoodType, Double> bundleOfGoods,
-			GoodType differentialGoodType) {
-		return this.delegate.partialDerivative(bundleOfGoods,
-				differentialGoodType);
+	public double calculateMarginalUtility(
+			Map<GoodType, Double> bundleOfInputGoods,
+			GoodType differentialInputGoodType) {
+		return this.delegate.partialDerivative(bundleOfInputGoods,
+				differentialInputGoodType);
+	}
+
+	protected GoodType selectInputWithHighestMarginalUtilityPerPrice(
+			Map<GoodType, Double> bundleOfInputGoods,
+			Map<GoodType, Double> pricesOfInputGoods) {
+		return this.delegate.findLargestPartialDerivatePerPrice(
+				bundleOfInputGoods, pricesOfInputGoods);
 	}
 }

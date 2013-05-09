@@ -21,7 +21,7 @@ import compecon.nature.materia.GoodType;
 import compecon.nature.math.RootFunction;
 
 public class RootProductionFunction extends ConvexProductionFunction {
-	public RootProductionFunction(GoodType goodType, double coefficient) {
-		super(new RootFunction(goodType, coefficient));
+	public RootProductionFunction(GoodType inputGoodType, double coefficient) {
+		super(new RootFunction(inputGoodType, coefficient));
 	}
 }

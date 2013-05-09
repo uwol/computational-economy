@@ -101,6 +101,19 @@ public class AgentLogsModel {
 
 	protected boolean blockRefresh = true;
 
+	public void assertAgentDataStructure(Agent agent) {
+		if (!this.messages.containsKey(agent)) {
+			this.messages.put(agent, new LinkedList<Object[]>());
+			this.agents.add(agent);
+			this.agentLogsListModel.onListModification(this.agents
+					.indexOf(agent));
+		}
+	}
+
+	public void agent_onConstruct(Agent agent) {
+		assertAgentDataStructure(agent);
+	}
+
 	public void agent_onDeconstruct(Agent agent) {
 		int index = this.agents.indexOf(agent);
 		this.messages.remove(agent);
@@ -109,12 +122,7 @@ public class AgentLogsModel {
 	}
 
 	public void logAgentEvent(Date date, Agent agent, String message) {
-		if (!this.messages.containsKey(agent)) {
-			this.messages.put(agent, new LinkedList<Object[]>());
-			this.agents.add(agent);
-			this.agentLogsListModel.onListModification(this.agents
-					.indexOf(agent));
-		}
+		assertAgentDataStructure(agent);
 		Queue<Object[]> messagesForAgent = this.messages.get(agent);
 		messagesForAgent.add(new Object[] { date, message });
 		if (messagesForAgent.size() > MESSAGES_TO_STORE)
@@ -126,9 +134,8 @@ public class AgentLogsModel {
 		this.signalizeContentModification();
 	}
 
-	public void setCurrentAgentId(Integer agentId) {
-		this.currentAgent = this.agents.get(agentId);
-		this.signalizeContentModification();
+	public void setCurrentAgent(Integer agentId) {
+		this.setCurrentAgent(this.agents.get(agentId));
 	}
 
 	public void signalizeContentModification() {

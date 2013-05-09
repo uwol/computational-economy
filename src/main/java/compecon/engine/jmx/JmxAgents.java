@@ -17,9 +17,9 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.jmx;
 
-public class Agents implements AgentsMBean {
+public class JmxAgents implements JmxAgentsMBean {
 
 	public int getNumberOfAgents() {
-		return AgentsModel.getNumberOfAgents();
+		return JmxAgentsModel.getNumberOfAgents();
 	}
 }

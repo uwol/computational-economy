@@ -20,7 +20,6 @@ package compecon.nature.math.production;
 import java.util.Map;
 import java.util.Set;
 
-import compecon.engine.Agent;
 import compecon.nature.materia.GoodType;
 import compecon.nature.math.IFunction;
 
@@ -28,14 +27,8 @@ public abstract class ProductionFunction implements IProductionFunction {
 
 	protected IFunction delegate;
 
-	protected Agent agent;
-
 	protected ProductionFunction(IFunction delegate) {
 		this.delegate = delegate;
-	}
-
-	public void setAgent(Agent agent) {
-		this.agent = agent;
 	}
 
 	@Override
@@ -55,5 +48,12 @@ public abstract class ProductionFunction implements IProductionFunction {
 			GoodType differentialGoodType) {
 		return this.delegate.partialDerivative(bundleOfProductionFactors,
 				differentialGoodType);
+	}
+
+	protected GoodType selectInputWithHighestMarginalOutputPerPrice(
+			Map<GoodType, Double> bundleOfInputGoods,
+			Map<GoodType, Double> pricesOfInputGoods) {
+		return this.delegate.findLargestPartialDerivatePerPrice(
+				bundleOfInputGoods, pricesOfInputGoods);
 	}
 }

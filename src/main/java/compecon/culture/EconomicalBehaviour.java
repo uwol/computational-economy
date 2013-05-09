@@ -189,7 +189,8 @@ public class EconomicalBehaviour {
 					&& MathUtil
 							.equal(EconomicalBehaviour.this.soldAmount_InPeriods[1],
 									0)) {
-				Log.log(agent, prefix + "sold nothing: lowering price");
+				Log.log(EconomicalBehaviour.this.agent, prefix
+						+ "sold nothing: lowering price");
 				return calculateLowerPrice(oldPrice);
 			}
 
@@ -198,7 +199,8 @@ public class EconomicalBehaviour {
 					&& MathUtil
 							.equal(EconomicalBehaviour.this.soldAmount_InPeriods[1],
 									EconomicalBehaviour.this.offeredAmount_InPeriods[1])) {
-				Log.log(agent, prefix + "sold everything: raising price");
+				Log.log(EconomicalBehaviour.this.agent, prefix
+						+ "sold everything: raising price");
 				return calculateHigherPrice(oldPrice);
 			}
 
@@ -215,7 +217,8 @@ public class EconomicalBehaviour {
 							.greaterEqual(
 									EconomicalBehaviour.this.offeredAmount_InPeriods[1],
 									EconomicalBehaviour.this.soldAmount_InPeriods[2]))) {
-				Log.log(agent, prefix + "sold less: lowering price");
+				Log.log(EconomicalBehaviour.this.agent, prefix
+						+ "sold less: lowering price");
 				return calculateLowerPrice(oldPrice);
 			}
 
@@ -232,11 +235,13 @@ public class EconomicalBehaviour {
 							.greaterEqual(
 									EconomicalBehaviour.this.offeredAmount_InPeriods[2],
 									EconomicalBehaviour.this.soldAmount_InPeriods[1]))) {
-				Log.log(agent, prefix + "sold more: raising price");
+				Log.log(EconomicalBehaviour.this.agent, prefix
+						+ "sold more: raising price");
 				return calculateHigherPrice(oldPrice);
 			}
 
-			Log.log(agent, prefix + " newPrice := oldPrice");
+			Log.log(EconomicalBehaviour.this.agent, prefix
+					+ " newPrice := oldPrice");
 			return oldPrice;
 
 		}

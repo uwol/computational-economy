@@ -31,7 +31,7 @@ public class CobbDouglasUtilityFunction extends UtilityFunction {
 
 	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
-			Map<GoodType, Double> pricesOfGoods, double budget) {
+			Map<GoodType, Double> pricesOfInputGoods, double budget) {
 		Map<GoodType, Double> bundleOfGoods = new LinkedHashMap<GoodType, Double>();
 		Map<GoodType, Double> exponents = ((CobbDouglasFunction) this.delegate)
 				.getExponents();
@@ -42,7 +42,7 @@ public class CobbDouglasUtilityFunction extends UtilityFunction {
 		 */
 		for (GoodType goodType : this.getInputGoodTypes()) {
 			double optimalAmount = exponents.get(goodType) * budget
-					/ pricesOfGoods.get(goodType);
+					/ pricesOfInputGoods.get(goodType);
 			if (Double.isNaN(optimalAmount))
 				optimalAmount = 0.0;
 			bundleOfGoods.put(goodType, optimalAmount);

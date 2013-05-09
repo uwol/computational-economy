@@ -26,8 +26,16 @@ public interface IFunction {
 
 	public Set<GoodType> getInputGoodTypes();
 
-	public double f(Map<GoodType, Double> bundleOfGoods);
+	public double f(Map<GoodType, Double> bundleOfInputGoods);
 
-	public double partialDerivative(Map<GoodType, Double> forBundleOfGoods,
-			GoodType withRespectToGoodType);
+	public double partialDerivative(
+			Map<GoodType, Double> forBundleOfInputGoods,
+			GoodType withRespectToInputGoodType);
+
+	public GoodType findLargestPartialDerivate(
+			Map<GoodType, Double> forBundleOfInputGoods);
+
+	public GoodType findLargestPartialDerivatePerPrice(
+			Map<GoodType, Double> bundleOfInputGoods,
+			Map<GoodType, Double> pricesOfInputGoods);
 }

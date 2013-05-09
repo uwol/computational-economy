@@ -43,7 +43,7 @@ import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.nature.materia.GoodType;
 import compecon.nature.materia.Refreshable;
-import compecon.nature.math.utility.CobbDouglasUtilityFunction;
+import compecon.nature.math.utility.IUtilityFunction;
 
 /**
  * Agent type Household offers labour hours and consumes goods.
@@ -90,17 +90,11 @@ public class Household extends Agent implements IShareOwner {
 	protected EconomicalBehaviour economicalBehaviour;
 
 	@Transient
-	protected Map<GoodType, Double> preferences;
-
-	@Transient
-	protected CobbDouglasUtilityFunction utilityFunction;
+	protected IUtilityFunction utilityFunction;
 
 	@Override
 	public void initialize() {
 		super.initialize();
-
-		this.utilityFunction = new CobbDouglasUtilityFunction(this.preferences);
-		this.utilityFunction.setAgent(this);
 
 		// daily life at random HourType
 		ITimeSystemEvent dailyLifeEvent = new DailyLifeEvent();
@@ -148,14 +142,13 @@ public class Household extends Agent implements IShareOwner {
 		this.continuousDaysWithUtility = continuousDaysWithUtility;
 	}
 
-	@Transient
-	public void setPreferences(Map<GoodType, Double> preferences) {
-		this.preferences = preferences;
-	}
-
 	/*
 	 * business logic
 	 */
+
+	public void setUtilityFunction(IUtilityFunction utilityFunction) {
+		this.utilityFunction = utilityFunction;
+	}
 
 	@Override
 	@Transient

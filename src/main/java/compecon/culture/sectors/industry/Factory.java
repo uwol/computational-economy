@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -42,7 +41,6 @@ import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.nature.materia.GoodType;
 import compecon.nature.math.production.IProductionFunction;
-import compecon.nature.math.production.RootProductionFunction;
 
 /**
  * Agent type factory produces arbitrary goods by combining production factors
@@ -53,9 +51,6 @@ public class Factory extends JointStockCompany {
 
 	@Enumerated(EnumType.STRING)
 	protected GoodType producedGoodType;
-
-	@Column(name = "productivity")
-	protected double productivity;
 
 	// maxCredit limits the demand for money when buying production input
 	// factors, thus limiting M1 in the monetary system
@@ -86,10 +81,6 @@ public class Factory extends JointStockCompany {
 				balanceSheetPublicationEvent, -1, MonthType.EVERY,
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
-		this.productionFunction = new RootProductionFunction(
-				GoodType.LABOURHOUR, this.productivity);
-		this.productionFunction.setAgent(this);
-
 		this.economicalBehaviour = new EconomicalBehaviour(this,
 				GoodType.MEGACALORIE, this.primaryCurrency);
 	}
@@ -98,16 +89,8 @@ public class Factory extends JointStockCompany {
 	 * accessors
 	 */
 
-	public double getProductivity() {
-		return productivity;
-	}
-
 	public GoodType getProducedGoodType() {
 		return producedGoodType;
-	}
-
-	public void setProductivity(double productivity) {
-		this.productivity = productivity;
 	}
 
 	public void setProducedGoodType(GoodType producedGoodType) {
@@ -117,6 +100,11 @@ public class Factory extends JointStockCompany {
 	/*
 	 * business logic
 	 */
+
+	@Transient
+	public void setProductionFunction(IProductionFunction productionFunction) {
+		this.productionFunction = productionFunction;
+	}
 
 	@Override
 	@Transient
@@ -170,6 +158,7 @@ public class Factory extends JointStockCompany {
 			double ownedAmountOfProducedGoodType = PropertyRegister
 					.getInstance().getBalance(Factory.this,
 							Factory.this.producedGoodType);
+			Log.setAgentToLogFor(Factory.this);
 			Map<GoodType, Double> productionFactorsToBuy = Factory.this.productionFunction
 					.calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
 							priceOfProducedGoodType, pricesOfProductionFactors,

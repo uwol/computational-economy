@@ -20,14 +20,11 @@ package compecon.nature.math.production;
 import java.util.Map;
 import java.util.Set;
 
-import compecon.engine.Agent;
 import compecon.nature.materia.GoodType;
 
 public interface IProductionFunction {
 
 	public Set<GoodType> getInputGoodTypes();
-
-	public void setAgent(Agent agent);
 
 	public double calculateOutput(
 			Map<GoodType, Double> bundleOfProductionFactors);

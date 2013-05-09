@@ -17,7 +17,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.jmx;
 
-public class AgentsModel {
+public class JmxAgentsModel {
 
 	private static int numberOfAgents;
 

@@ -43,20 +43,20 @@ public class ConvexProductionFunction extends ProductionFunction {
 		// define estimated revenue per unit
 		double estMarginalRevenue = priceOfProducedGoodType;
 
-		// checks
+		// initialize
 		for (GoodType goodType : this.getInputGoodTypes())
 			bundleOfInputFactors.put(goodType, 0.0);
 
 		// check for estimated revenue per unit
 		if (MathUtil.equal(estMarginalRevenue, 0.0)) {
-			Log.log(agent, "estMarginalRevenue = " + estMarginalRevenue
+			Log.log("estMarginalRevenue = " + estMarginalRevenue
 					+ " -> no production");
 			return bundleOfInputFactors;
 		}
 
 		// check for budget
 		if (MathUtil.equal(budget, 0)) {
-			Log.log(agent, "budget is " + budget);
+			Log.log("budget is " + budget);
 			return bundleOfInputFactors;
 		}
 
@@ -77,24 +77,19 @@ public class ConvexProductionFunction extends ProductionFunction {
 			double amount = (budget / NUMBER_OF_ITERATIONS) / priceOfGoodType;
 			bundleOfInputFactors.put(optimalInput,
 					bundleOfInputFactors.get(optimalInput) + amount);
-			double newOutput = this.calculateOutput(pricesOfProductionFactors);
+			double newOutput = this.calculateOutput(bundleOfInputFactors);
 
 			if (!Double.isNaN(estMarginalRevenue)
 					&& !Double.isInfinite(estMarginalRevenue)) {
 				// a polypoly is assumed -> price = marginal revenue
 				if (MathUtil.lesser(estMarginalRevenue, marginalCost)) {
-					Log.log(agent,
-							MathUtil.round(lastProfitableMarginalCost)
-									+ " deltaCost"
-									+ " <= "
-									+ MathUtil.round(estMarginalRevenue)
-									+ " deltaEstRevenue"
-									+ " < "
-									+ MathUtil.round(marginalCost)
-									+ " deltaCost"
-									+ " -> "
-									+ bundleOfInputFactors.entrySet()
-											.toString());
+					Log.log(MathUtil.round(lastProfitableMarginalCost)
+							+ " deltaCost" + " <= "
+							+ MathUtil.round(estMarginalRevenue)
+							+ " deltaEstRevenue" + " < "
+							+ MathUtil.round(marginalCost) + " deltaCost"
+							+ " -> "
+							+ bundleOfInputFactors.entrySet().toString());
 					break;
 				}
 			}
@@ -102,9 +97,8 @@ public class ConvexProductionFunction extends ProductionFunction {
 			if (maxOutput != -1 && MathUtil.greater(newOutput, maxOutput)) {
 				bundleOfInputFactors.put(optimalInput,
 						bundleOfInputFactors.get(optimalInput) - amount);
-				Log.log(agent, "output " + newOutput + " > maxOutput "
-						+ maxOutput + " -> "
-						+ bundleOfInputFactors.entrySet().toString());
+				Log.log("output " + newOutput + " > maxOutput " + maxOutput
+						+ " -> " + bundleOfInputFactors.entrySet().toString());
 				break;
 			}
 
@@ -115,29 +109,4 @@ public class ConvexProductionFunction extends ProductionFunction {
 		return bundleOfInputFactors;
 	}
 
-	private GoodType selectInputWithHighestMarginalOutputPerPrice(
-			Map<GoodType, Double> bundleOfGoods,
-			Map<GoodType, Double> pricesOfGoods) {
-		GoodType optimalInput = (GoodType) this.getInputGoodTypes().toArray()[0];
-		double highestMarginalOutputPerPrice = 0.0;
-
-		for (GoodType goodType : this.getInputGoodTypes()) {
-			double partialDerivative = this.calculateMarginalOutput(
-					bundleOfGoods, goodType);
-			double pricePerUnit = pricesOfGoods.get(goodType);
-			if (!Double.isNaN(pricePerUnit)) {
-				double marginalOutputPerPrice = partialDerivative
-						/ pricePerUnit;
-				if (MathUtil.greater(marginalOutputPerPrice,
-						highestMarginalOutputPerPrice)
-						|| (MathUtil.equal(marginalOutputPerPrice,
-								highestMarginalOutputPerPrice) && bundleOfGoods
-								.get(goodType) == 0)) {
-					optimalInput = goodType;
-					highestMarginalOutputPerPrice = marginalOutputPerPrice;
-				}
-			}
-		}
-		return optimalInput;
-	}
 }
