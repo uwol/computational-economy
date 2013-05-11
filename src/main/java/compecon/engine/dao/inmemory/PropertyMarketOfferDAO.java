@@ -18,10 +18,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.dao.inmemory;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -32,12 +30,11 @@ import compecon.culture.sectors.state.law.property.Property;
 import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IPropertyMarketOfferDAO;
 
-public class PropertyMarketOfferDAO extends InMemoryDAO<PropertyMarketOffer>
-		implements IPropertyMarketOfferDAO {
+public class PropertyMarketOfferDAO extends
+		AgentIndexedInMemoryDAO<PropertyMarketOffer> implements
+		IPropertyMarketOfferDAO {
 
 	protected Map<Currency, Map<Class<? extends Property>, SortedSet<PropertyMarketOffer>>> sellingOffersForPropertyClasses = new HashMap<Currency, Map<Class<? extends Property>, SortedSet<PropertyMarketOffer>>>();
-
-	protected Map<Agent, Set<PropertyMarketOffer>> indexAgentPropertyMarketOffers = new HashMap<Agent, Set<PropertyMarketOffer>>();
 
 	/*
 	 * helpers
@@ -60,17 +57,6 @@ public class PropertyMarketOfferDAO extends InMemoryDAO<PropertyMarketOffer>
 					propertyClass, new TreeSet<PropertyMarketOffer>());
 	}
 
-	private void assertInitializedDataStructure(Currency currency,
-			Property property) {
-		assertInitializedDataStructure(currency, property.getClass());
-	}
-
-	private void assertInitializedDataStructure(Agent agent) {
-		if (!this.indexAgentPropertyMarketOffers.containsKey(agent))
-			this.indexAgentPropertyMarketOffers.put(agent,
-					new HashSet<PropertyMarketOffer>());
-	}
-
 	/*
 	 * get market offers for type
 	 */
@@ -88,20 +74,12 @@ public class PropertyMarketOfferDAO extends InMemoryDAO<PropertyMarketOffer>
 		return this.getMarketOffers(currency, property.getClass());
 	}
 
-	private Set<PropertyMarketOffer> getMarketOffers(Agent agent) {
-		this.assertInitializedDataStructure(agent);
-
-		return this.indexAgentPropertyMarketOffers.get(agent);
-	}
-
 	private SortedSet<PropertyMarketOffer> findMarketOffers(Agent agent,
 			Currency currency, Class<? extends Property> propertyClass) {
-		this.assertInitializedDataStructure(agent);
 
 		SortedSet<PropertyMarketOffer> marketOffers = new TreeSet<PropertyMarketOffer>();
-		if (this.indexAgentPropertyMarketOffers.containsKey(agent)) {
-			for (PropertyMarketOffer marketOffer : this.indexAgentPropertyMarketOffers
-					.get(agent))
+		if (this.getFor(agent) != null) {
+			for (PropertyMarketOffer marketOffer : this.getFor(agent))
 				if (currency.equals(marketOffer.getCurrency())
 						&& propertyClass.equals(marketOffer.getProperty()
 								.getClass()))
@@ -118,38 +96,30 @@ public class PropertyMarketOfferDAO extends InMemoryDAO<PropertyMarketOffer>
 	public synchronized void save(PropertyMarketOffer propertyMarketOffer) {
 		this.getMarketOffers(propertyMarketOffer.getCurrency(),
 				propertyMarketOffer.getProperty()).add(propertyMarketOffer);
-		this.getMarketOffers(propertyMarketOffer.getOfferor()).add(
-				propertyMarketOffer);
 
-		super.save(propertyMarketOffer);
+		super.save(propertyMarketOffer.getOfferor(), propertyMarketOffer);
 	}
 
 	@Override
 	public synchronized void delete(PropertyMarketOffer propertyMarketOffer) {
 		this.getMarketOffers(propertyMarketOffer.getCurrency(),
 				propertyMarketOffer.getProperty()).remove(propertyMarketOffer);
-		this.getMarketOffers(propertyMarketOffer.getOfferor()).remove(
-				propertyMarketOffer);
 
-		super.delete(propertyMarketOffer);
+		super.delete(propertyMarketOffer.getOfferor(), propertyMarketOffer);
 	}
 
 	@Override
 	public void deleteAllSellingOffers(Agent offeror) {
-		this.assertInitializedDataStructure(offeror);
-
-		Set<PropertyMarketOffer> sellingOffersToRemove = this
-				.getMarketOffers(offeror);
-		for (PropertyMarketOffer propertyMarketOffer : sellingOffersToRemove)
-			this.delete(propertyMarketOffer);
+		if (this.getFor(offeror) != null)
+			for (PropertyMarketOffer propertyMarketOffer : this.getFor(offeror))
+				this.delete(propertyMarketOffer);
 	}
 
 	@Override
 	public synchronized void deleteAllSellingOffers(Agent offeror,
 			Currency currency, Class<? extends Property> propertyClass) {
-		Set<PropertyMarketOffer> sellingOffersToRemove = this.findMarketOffers(
-				offeror, currency, propertyClass);
-		for (PropertyMarketOffer propertyMarketOffer : sellingOffersToRemove)
+		for (PropertyMarketOffer propertyMarketOffer : this.findMarketOffers(
+				offeror, currency, propertyClass))
 			this.delete(propertyMarketOffer);
 	}
 

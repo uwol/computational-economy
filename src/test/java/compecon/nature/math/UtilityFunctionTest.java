@@ -32,19 +32,19 @@ public class UtilityFunctionTest {
 	public void calculateUtility() {
 		Map<GoodType, Double> preferences = new HashMap<GoodType, Double>();
 		preferences.put(GoodType.KILOWATT, 0.4);
-		preferences.put(GoodType.MEGACALORIE, 0.6);
+		preferences.put(GoodType.WHEAT, 0.6);
 		CobbDouglasUtilityFunction cobbDouglasUtilityFunction = new CobbDouglasUtilityFunction(
-				preferences);
+				preferences, 1);
 
 		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
 		prices.put(GoodType.KILOWATT, 1.0);
-		prices.put(GoodType.MEGACALORIE, 2.0);
+		prices.put(GoodType.WHEAT, 2.0);
 		double budget = 10;
 
 		Map<GoodType, Double> amount = cobbDouglasUtilityFunction
 				.calculateUtilityMaximizingInputsUnderBudgetRestriction(prices,
 						budget);
 		assertEquals(amount.get(GoodType.KILOWATT), 4, 0.001);
-		assertEquals(amount.get(GoodType.MEGACALORIE), 3., 0.001);
+		assertEquals(amount.get(GoodType.WHEAT), 3., 0.001);
 	}
 }

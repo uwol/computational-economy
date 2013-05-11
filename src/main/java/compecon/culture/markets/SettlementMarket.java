@@ -130,11 +130,18 @@ public class SettlementMarket extends Market {
 		priceAndAmount[1] = amountSum;
 
 		if (priceAndAmount[1] > 0) {
-			Log.log(buyer,
-					buyer + " bought " + MathUtil.round(priceAndAmount[1])
-							+ " units of " + goodType + " for "
-							+ Currency.round(priceAndAmount[0]) + " "
-							+ buyersBankAccount.getCurrency().getIso4217Code());
+			if (Log.isAgentSelectedByClient(buyer))
+				Log.log(buyer,
+						buyer
+								+ " bought "
+								+ MathUtil.round(priceAndAmount[1])
+								+ " units of "
+								+ goodType
+								+ " for "
+								+ Currency.round(priceAndAmount[0])
+								+ " "
+								+ buyersBankAccount.getCurrency()
+										.getIso4217Code());
 		}
 
 		return priceAndAmount;
@@ -187,11 +194,18 @@ public class SettlementMarket extends Market {
 		priceAndAmount[1] = amountSum;
 
 		if (priceAndAmount[1] > 0) {
-			Log.log(buyer,
-					buyer + " bought " + MathUtil.round(priceAndAmount[1])
-							+ " units of " + propertyClass.getName() + " for "
-							+ Currency.round(priceAndAmount[0]) + " "
-							+ buyersBankAccount.getCurrency().getIso4217Code());
+			if (Log.isAgentSelectedByClient(buyer))
+				Log.log(buyer,
+						buyer
+								+ " bought "
+								+ MathUtil.round(priceAndAmount[1])
+								+ " units of "
+								+ propertyClass.getName()
+								+ " for "
+								+ Currency.round(priceAndAmount[0])
+								+ " "
+								+ buyersBankAccount.getCurrency()
+										.getIso4217Code());
 		}
 
 		return priceAndAmount;

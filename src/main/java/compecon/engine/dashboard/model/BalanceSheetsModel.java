@@ -46,9 +46,7 @@ public class BalanceSheetsModel {
 		public final static int POSITION_CASH = 1;
 		public final static int POSITION_BONDS = 2;
 		public final static int POSITION_BANK_LOANS = 3;
-		public final static int POSITION_GOODTYPE_LABOURHOUR = 5;
-		public final static int POSITION_GOODTYPE_MEGACALORIE = 6;
-		public final static int POSITION_GOODTYPE_KILOWATT = 7;
+		public final static int STARTPOSITION_GOODTYPES = 5;
 
 		public final static int POSITION_LOANS = 1;
 		public final static int POSITION_FIN_LIABLITIES = 2;
@@ -67,17 +65,33 @@ public class BalanceSheetsModel {
 		protected final String[] agentTypeNames = { "Household", "Factory",
 				"Credit Bank", "Central Bank", "State" };
 
-		protected final String[] activePositionNames = { "Hard Cash", "Cash",
-				"Fin. Assets (Bonds)", "Bank Loans", "", "Labour Hour",
-				"Mega Calorie", "Kilo Watt" };
+		protected String[] activePositionNames;
 
-		protected final String[] passivePositionNames = { "", "Loans",
-				"Fin. Liabilities (Bonds)", "Bank Borrowings", "", "", "", "" };
+		protected String[] passivePositionNames;
 
 		protected Object[][] cells;
 
 		public NationalAccountsTableModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
+
+			this.activePositionNames = new String[STARTPOSITION_GOODTYPES
+					+ GoodType.values().length];
+			this.passivePositionNames = new String[STARTPOSITION_GOODTYPES
+					+ GoodType.values().length];
+
+			this.activePositionNames[POSITION_HARD_CASH] = "Hard Cash";
+			this.activePositionNames[POSITION_CASH] = "Cash";
+			this.activePositionNames[POSITION_BONDS] = "Fin. Assets (Bonds)";
+			this.activePositionNames[POSITION_BANK_LOANS] = "Bank Loans";
+
+			this.passivePositionNames[POSITION_LOANS] = "Loans";
+			this.passivePositionNames[POSITION_FIN_LIABLITIES] = "Fin. Liabilities (Bonds)";
+			this.passivePositionNames[POSITION_BANK_BORROWINGS] = "Bank Borrowings";
+
+			for (GoodType goodType : GoodType.values()) {
+				int position = STARTPOSITION_GOODTYPES + goodType.ordinal();
+				this.activePositionNames[position] = goodType.name();
+			}
 
 			this.cells = new Object[this.getRowCount()][this.getColumnCount()];
 
@@ -88,24 +102,25 @@ public class BalanceSheetsModel {
 				cells[i * this.agentTypeNames.length][SIDE_PASSIVE] = this.passivePositionNames[i];
 
 				for (int j = 0; j < this.agentTypeNames.length; j++) {
-					// agent type name
-					if (this.activePositionNames[i] != "")
+					if (this.activePositionNames[i] != null) {
+						// agent type name
 						cells[i * this.agentTypeNames.length + j][SIDE_ACTIVE + 1] = this.agentTypeNames[j];
-					if (this.passivePositionNames[i] != "")
-						cells[i * this.agentTypeNames.length + j][SIDE_PASSIVE + 1] = this.agentTypeNames[j];
 
-					// currency name
-					if (this.activePositionNames[i] != "") {
-						if (i < 4)
+						if (i < STARTPOSITION_GOODTYPES)
+							// currency name
 							cells[i * this.agentTypeNames.length + j][SIDE_ACTIVE + 3] = this.referenceCurrency
 									.getIso4217Code();
 						else
+							// unit
 							cells[i * this.agentTypeNames.length + j][SIDE_ACTIVE + 3] = "Units";
 					}
-					if (this.passivePositionNames[i] != "")
+					if (this.passivePositionNames[i] != null) {
+						// agent type name
+						cells[i * this.agentTypeNames.length + j][SIDE_PASSIVE + 1] = this.agentTypeNames[j];
+						// currency name
 						cells[i * this.agentTypeNames.length + j][SIDE_PASSIVE + 3] = this.referenceCurrency
 								.getIso4217Code();
-
+					}
 				}
 			}
 		}
@@ -184,13 +199,14 @@ public class BalanceSheetsModel {
 		nationalAccountsBalanceSheet.cash += balanceSheet.cash;
 		nationalAccountsBalanceSheet.bonds += balanceSheet.bonds;
 		nationalAccountsBalanceSheet.bankLoans += balanceSheet.bankLoans;
+
 		for (Entry<GoodType, Double> entry : balanceSheet.inventory.entrySet()) {
 			// initialize
 			if (!nationalAccountsBalanceSheet.inventory.containsKey(entry
 					.getKey()))
 				nationalAccountsBalanceSheet.inventory.put(entry.getKey(), 0.0);
 
-			//
+			// store amount
 			Double oldValue = nationalAccountsBalanceSheet.inventory.get(entry
 					.getKey());
 			Double newValue = oldValue + entry.getValue();
@@ -281,30 +297,17 @@ public class BalanceSheetsModel {
 						NationalAccountsTableModel.POSITION_BANK_LOANS,
 						agentTypeNr, currency,
 						Currency.round(balanceSheet.bankLoans));
-				if (balanceSheet.inventory.containsKey(GoodType.LABOURHOUR))
-					nationalAccountsTableModel
-							.setValue(
-									NationalAccountsTableModel.SIDE_ACTIVE,
-									NationalAccountsTableModel.POSITION_GOODTYPE_LABOURHOUR,
-									agentTypeNr, currency,
-									balanceSheet.inventory
-											.get(GoodType.LABOURHOUR));
-				if (balanceSheet.inventory.containsKey(GoodType.MEGACALORIE))
-					nationalAccountsTableModel
-							.setValue(
-									NationalAccountsTableModel.SIDE_ACTIVE,
-									NationalAccountsTableModel.POSITION_GOODTYPE_MEGACALORIE,
-									agentTypeNr, currency,
-									balanceSheet.inventory
-											.get(GoodType.MEGACALORIE));
-				if (balanceSheet.inventory.containsKey(GoodType.KILOWATT))
-					nationalAccountsTableModel
-							.setValue(
-									NationalAccountsTableModel.SIDE_ACTIVE,
-									NationalAccountsTableModel.POSITION_GOODTYPE_KILOWATT,
-									agentTypeNr, currency,
-									balanceSheet.inventory
-											.get(GoodType.KILOWATT));
+
+				for (GoodType goodType : GoodType.values()) {
+					if (balanceSheet.inventory.containsKey(goodType))
+						nationalAccountsTableModel
+								.setValue(
+										NationalAccountsTableModel.SIDE_ACTIVE,
+										NationalAccountsTableModel.STARTPOSITION_GOODTYPES
+												+ goodType.ordinal(),
+										agentTypeNr, currency,
+										balanceSheet.inventory.get(goodType));
+				}
 
 				// passive
 				nationalAccountsTableModel.setValue(

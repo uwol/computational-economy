@@ -12,6 +12,7 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
+import compecon.culture.sectors.state.law.security.equity.Share;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
 import compecon.engine.dao.DAOFactory;
@@ -28,6 +29,7 @@ public class MarketTest {
 		GoodType goodType = GoodType.LABOURHOUR;
 
 		// init database connection
+
 		HibernateUtil.openSession();
 
 		CentralBank centralBank = AgentFactory.getInstanceCentralBank(currency);
@@ -40,9 +42,10 @@ public class MarketTest {
 		Household household2 = AgentFactory.newInstanceHousehold();
 		household2.assertTransactionsBankAccount();
 
-		Factory factory1 = AgentFactory
-				.newInstanceFactory(GoodType.MEGACALORIE);
+		Factory factory1 = AgentFactory.newInstanceFactory(GoodType.WHEAT);
 		factory1.assertTransactionsBankAccount();
+
+		// test market for good type
 
 		assertEquals(
 				DAOFactory.getGoodTypeMarketOfferDAO().findMarginalPrice(
@@ -95,6 +98,21 @@ public class MarketTest {
 		assertEquals(
 				PropertyRegister.getInstance().getBalance(factory1, goodType),
 				5, epsilon);
+
+		// test market for properties
+
+		MarketFactory.getInstance().placeSellingOffer(new Share(), household1,
+				household1.getTransactionsBankAccount(), 4, currency);
+		MarketFactory.getInstance().placeSellingOffer(new Share(), household2,
+				household2.getTransactionsBankAccount(), 3, currency);
+		assertEquals(
+				DAOFactory.getPropertyMarketOfferDAO().findMarginalPrice(
+						currency, Share.class), 3.0, epsilon);
+
+		MarketFactory.getInstance().removeAllSellingOffers(household2);
+		assertEquals(
+				DAOFactory.getPropertyMarketOfferDAO().findMarginalPrice(
+						currency, Share.class), 4.0, epsilon);
 
 		// close database conenction
 		HibernateUtil.closeSession();

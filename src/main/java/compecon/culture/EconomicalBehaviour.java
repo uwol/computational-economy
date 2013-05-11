@@ -143,14 +143,16 @@ public class EconomicalBehaviour {
 			double creditBasedBudget = Math.max(0,
 					(bankAccountBalance + maxTotalCredit)
 							* (1 - transmissionDamper));
-			Log.log(EconomicalBehaviour.this.agent,
-					Currency.round(creditBasedBudget) + " "
-							+ currency.getIso4217Code() + " budget = ("
-							+ Currency.round(bankAccountBalance) + " "
-							+ currency.getIso4217Code()
-							+ " bankAccountBalance + " + maxTotalCredit + " "
-							+ currency.getIso4217Code() + " maxCredit)" + " * "
-							+ MathUtil.round(1 - transmissionDamper));
+			if (Log.isAgentSelectedByClient(EconomicalBehaviour.this.agent))
+				Log.log(EconomicalBehaviour.this.agent,
+						Currency.round(creditBasedBudget) + " "
+								+ currency.getIso4217Code() + " budget = ("
+								+ Currency.round(bankAccountBalance) + " "
+								+ currency.getIso4217Code()
+								+ " bankAccountBalance + " + maxTotalCredit
+								+ " " + currency.getIso4217Code()
+								+ " maxCredit)" + " * "
+								+ MathUtil.round(1 - transmissionDamper));
 			return creditBasedBudget;
 		}
 
@@ -189,8 +191,9 @@ public class EconomicalBehaviour {
 					&& MathUtil
 							.equal(EconomicalBehaviour.this.soldAmount_InPeriods[1],
 									0)) {
-				Log.log(EconomicalBehaviour.this.agent, prefix
-						+ "sold nothing: lowering price");
+				if (Log.isAgentSelectedByClient(EconomicalBehaviour.this.agent))
+					Log.log(EconomicalBehaviour.this.agent, prefix
+							+ "sold nothing: lowering price");
 				return calculateLowerPrice(oldPrice);
 			}
 
@@ -199,8 +202,9 @@ public class EconomicalBehaviour {
 					&& MathUtil
 							.equal(EconomicalBehaviour.this.soldAmount_InPeriods[1],
 									EconomicalBehaviour.this.offeredAmount_InPeriods[1])) {
-				Log.log(EconomicalBehaviour.this.agent, prefix
-						+ "sold everything: raising price");
+				if (Log.isAgentSelectedByClient(EconomicalBehaviour.this.agent))
+					Log.log(EconomicalBehaviour.this.agent, prefix
+							+ "sold everything: raising price");
 				return calculateHigherPrice(oldPrice);
 			}
 
@@ -217,8 +221,9 @@ public class EconomicalBehaviour {
 							.greaterEqual(
 									EconomicalBehaviour.this.offeredAmount_InPeriods[1],
 									EconomicalBehaviour.this.soldAmount_InPeriods[2]))) {
-				Log.log(EconomicalBehaviour.this.agent, prefix
-						+ "sold less: lowering price");
+				if (Log.isAgentSelectedByClient(EconomicalBehaviour.this.agent))
+					Log.log(EconomicalBehaviour.this.agent, prefix
+							+ "sold less: lowering price");
 				return calculateLowerPrice(oldPrice);
 			}
 
@@ -235,13 +240,15 @@ public class EconomicalBehaviour {
 							.greaterEqual(
 									EconomicalBehaviour.this.offeredAmount_InPeriods[2],
 									EconomicalBehaviour.this.soldAmount_InPeriods[1]))) {
-				Log.log(EconomicalBehaviour.this.agent, prefix
-						+ "sold more: raising price");
+				if (Log.isAgentSelectedByClient(EconomicalBehaviour.this.agent))
+					Log.log(EconomicalBehaviour.this.agent, prefix
+							+ "sold more: raising price");
 				return calculateHigherPrice(oldPrice);
 			}
 
-			Log.log(EconomicalBehaviour.this.agent, prefix
-					+ " newPrice := oldPrice");
+			if (Log.isAgentSelectedByClient(EconomicalBehaviour.this.agent))
+				Log.log(EconomicalBehaviour.this.agent, prefix
+						+ " newPrice := oldPrice");
 			return oldPrice;
 
 		}

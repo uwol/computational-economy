@@ -33,7 +33,7 @@ import compecon.nature.materia.GoodType;
 
 public class PricesPanel extends JPanel {
 
-	protected boolean blockRedraw = true;
+	protected boolean noRedraw = true;
 
 	protected final PricesModel pricesModel;
 
@@ -59,7 +59,7 @@ public class PricesPanel extends JPanel {
 	}
 
 	public void redrawPriceCharts() {
-		if (!this.blockRedraw) {
+		if (!this.noRedraw) {
 			// redraw price charts
 			for (GoodType goodType : GoodType.values()) {
 				if (!this.priceCharts.containsKey(goodType)) {
@@ -76,7 +76,7 @@ public class PricesPanel extends JPanel {
 		}
 	}
 
-	public void blockRedraw(boolean blockRedraw) {
-		this.blockRedraw = blockRedraw;
+	public void noRedraw(boolean noRedraw) {
+		this.noRedraw = noRedraw;
 	}
 }

@@ -37,15 +37,33 @@ public class Log {
 
 	private static boolean logTransactions = false;
 
-	private static Agent agentToLogFor;
+	private static Agent agentSelectedByClient;
+
+	private static Agent agentCurrentlyActive;
+
+	// --------
+
+	public static boolean isAgentSelectedByClient(Agent agent) {
+		return agent != null && agentSelectedByClient == agent;
+	}
+
+	public static Agent getAgentSelectedByClient() {
+		return agentSelectedByClient;
+	}
 
 	public static void setLogTransactions(boolean logTransactions) {
 		Log.logTransactions = logTransactions;
 	}
 
-	public static void setAgentToLogFor(Agent agent) {
-		agentToLogFor = agent;
+	public static void setAgentSelectedByClient(Agent agent) {
+		agentSelectedByClient = agent;
 	}
+
+	public static void setAgentCurrentlyActive(Agent agent) {
+		agentCurrentlyActive = agent;
+	}
+
+	// --------
 
 	public static void notifyTimeSystem_nextDay(Date date) {
 		Dashboard.getInstance().getAgentLogsModel()
@@ -65,22 +83,24 @@ public class Log {
 	// --------
 
 	public static synchronized void log(Agent agent, String message) {
-		setAgentToLogFor(agent);
+		setAgentCurrentlyActive(agent);
 		log(message);
 	}
 
 	public static void log(String message) {
-		if (agentToLogFor != null)
+		if (agentCurrentlyActive != null
+				&& agentSelectedByClient == agentCurrentlyActive)
 			Dashboard
 					.getInstance()
 					.getAgentLogsModel()
 					.logAgentEvent(TimeSystem.getInstance().getCurrentDate(),
-							agentToLogFor, message);
+							message);
 	}
 
 	public static void agent_onConstruct(Agent agent) {
 		Dashboard.getInstance().getAgentLogsModel().agent_onConstruct(agent);
-		log(agent, agent + " constructed");
+		if (isAgentSelectedByClient(agent))
+			log(agent, agent + " constructed");
 		Dashboard.getInstance().getNumberOfAgentsTableModel()
 				.agent_onConstruct(agent.getClass());
 		JmxAgentsModel.incrementNumberOfAgents();
@@ -88,7 +108,8 @@ public class Log {
 
 	public static void agent_onDeconstruct(Agent agent) {
 		Dashboard.getInstance().getAgentLogsModel().agent_onDeconstruct(agent);
-		log(agent, agent + " deconstructed");
+		if (isAgentSelectedByClient(agent))
+			log(agent, agent + " deconstructed");
 		Dashboard.getInstance().getNumberOfAgentsTableModel()
 				.agent_onDeconstruct(agent.getClass());
 		Dashboard.getInstance().getBalanceSheetsModel()
@@ -108,31 +129,37 @@ public class Log {
 			Currency currency, Map<GoodType, Double> bundleOfGoodsToConsume,
 			double utility) {
 
-		String log = household + " consumed ";
-		int i = 0;
-		for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume.entrySet()) {
-			log += MathUtil.round(entry.getValue()) + " " + entry.getKey();
-			if (i < bundleOfGoodsToConsume.size() - 1)
-				log += ", ";
-			i++;
-		}
-		log += " -> " + MathUtil.round(utility) + " utility";
+		if (Log.isAgentSelectedByClient(household)) {
+			String log = household + " consumed ";
+			int i = 0;
+			for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume
+					.entrySet()) {
+				log += MathUtil.round(entry.getValue()) + " " + entry.getKey();
+				if (i < bundleOfGoodsToConsume.size() - 1)
+					log += ", ";
+				i++;
+			}
+			log += " -> " + MathUtil.round(utility) + " utility";
 
-		log(household, log);
+			log(household, log);
+		}
+
 		Dashboard.getInstance().getUtilityModel().add(currency, utility);
 	}
 
 	public static void household_onConsumeGoods(Household household,
 			double consumedAmount, GoodType goodType) {
-		log(household,
-				household + " consumed " + MathUtil.round(consumedAmount) + " "
-						+ goodType);
+		if (Log.isAgentSelectedByClient(household))
+			log(household,
+					household + " consumed " + MathUtil.round(consumedAmount)
+							+ " " + goodType);
 	}
 
 	public static void household_NotEnoughUtility(Household household,
 			double requiredUtility) {
-		log(household, household + " does not have required utility of "
-				+ requiredUtility);
+		if (Log.isAgentSelectedByClient(household))
+			log(household, household + " does not have required utility of "
+					+ requiredUtility);
 	}
 
 	public static void household_LabourHourCapacity(Household household,
@@ -145,7 +172,9 @@ public class Log {
 
 	public static void factory_onProduction(Factory factory, GoodType goodType,
 			double producedProducts) {
-		log(factory, factory + " produced " + producedProducts + " " + goodType);
+		if (Log.isAgentSelectedByClient(factory))
+			log(factory, factory + " produced " + producedProducts + " "
+					+ goodType);
 
 		Dashboard.getInstance().getEffectiveProductionOutputModel()
 				.add(goodType, producedProducts);
@@ -167,14 +196,15 @@ public class Log {
 				.bank_onTransfer(from.getClass(), to.getClass(), currency,
 						value);
 		if (Log.logTransactions) {
-			log(from,
-					"transfered " + Currency.round(value) + " "
-							+ currency.getIso4217Code() + " to " + to
-							+ " for: " + subject);
-			log(to,
-					"received " + Currency.round(value) + " "
-							+ currency.getIso4217Code() + " from " + from
-							+ " for: " + subject);
+			if (isAgentSelectedByClient(from))
+				log(from, "transfered " + Currency.round(value) + " "
+						+ currency.getIso4217Code() + " to " + to + " for: "
+						+ subject);
+			if (isAgentSelectedByClient(to))
+				log(to,
+						"received " + Currency.round(value) + " "
+								+ currency.getIso4217Code() + " from " + from
+								+ " for: " + subject);
 		}
 	}
 
@@ -182,10 +212,12 @@ public class Log {
 
 	public static void centralBank_onObtainTender(CentralBank centralBank,
 			double amount, CreditBank creditBank) {
-		log(creditBank,
-				creditBank + " obtained a tender of " + Currency.round(amount)
-						+ " " + centralBank.getPrimaryCurrency()
-						+ " of central bank money from " + centralBank);
+		if (Log.isAgentSelectedByClient(creditBank))
+			log(creditBank,
+					creditBank + " obtained a tender of "
+							+ Currency.round(amount) + " "
+							+ centralBank.getPrimaryCurrency()
+							+ " of central bank money from " + centralBank);
 	}
 
 	public static void centralBank_KeyInterestRate(Currency currency,

@@ -25,8 +25,9 @@ import compecon.nature.math.CobbDouglasFunction;
 
 public class CobbDouglasUtilityFunction extends UtilityFunction {
 
-	public CobbDouglasUtilityFunction(Map<GoodType, Double> exponents) {
-		super(new CobbDouglasFunction(exponents));
+	public CobbDouglasUtilityFunction(Map<GoodType, Double> exponents,
+			double coefficient) {
+		super(new CobbDouglasFunction(exponents, coefficient));
 	}
 
 	@Override

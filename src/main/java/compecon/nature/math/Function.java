@@ -14,8 +14,8 @@ public abstract class Function implements IFunction {
 		double optimalPartialDerivate = 0;
 
 		for (GoodType goodType : this.getInputGoodTypes()) {
-			double partialDerivate = this.partialDerivative(
-					bundleOfInputGoods, goodType);
+			double partialDerivate = this.partialDerivative(bundleOfInputGoods,
+					goodType);
 			if (optimalGoodType == null
 					|| MathUtil
 							.greater(partialDerivate, optimalPartialDerivate)) {
@@ -39,6 +39,14 @@ public abstract class Function implements IFunction {
 			if (!Double.isNaN(pricePerUnit)) {
 				double partialDerivativePerPrice = partialDerivative
 						/ pricePerUnit;
+				/*
+				 * the check for bundleOfInputGoods.get(goodType) == 0 is a
+				 * heuristic for certain functions (e.g. Cobb-Douglas): if for
+				 * all alternatives the partial derivative is 0, choose an
+				 * input, that has not been chosen before -> in case of
+				 * Coob-Douglas partial derivative becomes > 0, as soon as all
+				 * inputs > 0
+				 */
 				if (MathUtil.greater(partialDerivativePerPrice,
 						highestPartialDerivatePerPrice)
 						|| (MathUtil.equal(partialDerivativePerPrice,

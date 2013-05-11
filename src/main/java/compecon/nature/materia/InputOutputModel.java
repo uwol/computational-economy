@@ -35,20 +35,57 @@ public class InputOutputModel {
 	protected static Map<GoodType, IProductionFunction> productionFunctionsForOutputGoodType = new HashMap<GoodType, IProductionFunction>();
 
 	static {
-		// inputs for car production
+
+		productionFunctionsForOutputGoodType.put(GoodType.IRON,
+				new RootProductionFunction(GoodType.LABOURHOUR, 10000));
+
+		productionFunctionsForOutputGoodType.put(GoodType.COAL,
+				new RootProductionFunction(GoodType.LABOURHOUR, 10000));
+
+		productionFunctionsForOutputGoodType.put(GoodType.GOLD,
+				new RootProductionFunction(GoodType.LABOURHOUR, 100));
+
+		productionFunctionsForOutputGoodType.put(GoodType.URANIUM,
+				new RootProductionFunction(GoodType.LABOURHOUR, 100));
+
+		productionFunctionsForOutputGoodType.put(GoodType.WHEAT,
+				new RootProductionFunction(GoodType.LABOURHOUR, 1000));
+
+		Map<GoodType, Double> parametersSteel = new LinkedHashMap<GoodType, Double>();
+		parametersSteel.put(GoodType.KILOWATT, 0.7);
+		parametersSteel.put(GoodType.LABOURHOUR, 0.1);
+		parametersSteel.put(GoodType.IRON, 0.1);
+		parametersSteel.put(GoodType.COAL, 0.1);
+		productionFunctionsForOutputGoodType.put(GoodType.STEEL,
+				new CobbDouglasProductionFunction(parametersSteel, 5));
+
+		Map<GoodType, Double> parametersKiloWatt = new LinkedHashMap<GoodType, Double>();
+		parametersKiloWatt.put(GoodType.LABOURHOUR, 0.2);
+		parametersKiloWatt.put(GoodType.URANIUM, 0.8);
+		productionFunctionsForOutputGoodType.put(GoodType.KILOWATT,
+				new CobbDouglasProductionFunction(parametersKiloWatt, 20));
+
+		Map<GoodType, Double> parametersRealEstate = new LinkedHashMap<GoodType, Double>();
+		parametersRealEstate.put(GoodType.STEEL, 0.2);
+		parametersRealEstate.put(GoodType.LABOURHOUR, 0.6);
+		parametersRealEstate.put(GoodType.KILOWATT, 0.2);
+		productionFunctionsForOutputGoodType.put(GoodType.REALESTATE,
+				new CobbDouglasProductionFunction(parametersRealEstate, 5));
+
 		Map<GoodType, Double> parametersCar = new LinkedHashMap<GoodType, Double>();
-		parametersCar.put(GoodType.LABOURHOUR, 0.8);
+		parametersCar.put(GoodType.STEEL, 0.2);
+		parametersCar.put(GoodType.LABOURHOUR, 0.6);
 		parametersCar.put(GoodType.KILOWATT, 0.2);
 		productionFunctionsForOutputGoodType.put(GoodType.CAR,
-				new CobbDouglasProductionFunction(parametersCar));
+				new CobbDouglasProductionFunction(parametersCar, 5));
 
-		// inputs for remaining output good types
+		// production functions for remaining output good types
 		for (GoodType goodType : GoodType.values()) {
 			if (!GoodType.LABOURHOUR.equals(goodType)) {
 				if (!productionFunctionsForOutputGoodType.containsKey(goodType)) {
 					productionFunctionsForOutputGoodType
 							.put(goodType, new RootProductionFunction(
-									GoodType.LABOURHOUR, 10));
+									GoodType.LABOURHOUR, 100));
 				}
 			}
 		}

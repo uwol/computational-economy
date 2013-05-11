@@ -18,10 +18,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.dao.inmemory;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -32,12 +30,11 @@ import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IGoodTypeMarketOfferDAO;
 import compecon.nature.materia.GoodType;
 
-public class GoodTypeMarketOfferDAO extends InMemoryDAO<GoodTypeMarketOffer>
-		implements IGoodTypeMarketOfferDAO {
+public class GoodTypeMarketOfferDAO extends
+		AgentIndexedInMemoryDAO<GoodTypeMarketOffer> implements
+		IGoodTypeMarketOfferDAO {
 
 	protected Map<Currency, Map<GoodType, SortedSet<GoodTypeMarketOffer>>> sellingOffersForGoodTypes = new HashMap<Currency, Map<GoodType, SortedSet<GoodTypeMarketOffer>>>();
-
-	protected Map<Agent, Set<GoodTypeMarketOffer>> indexAgentGoodTypeMarketOffers = new HashMap<Agent, Set<GoodTypeMarketOffer>>();
 
 	/*
 	 * helpers
@@ -58,12 +55,6 @@ public class GoodTypeMarketOfferDAO extends InMemoryDAO<GoodTypeMarketOffer>
 					new TreeSet<GoodTypeMarketOffer>());
 	}
 
-	private void assertInitializedDataStructure(Agent agent) {
-		if (!this.indexAgentGoodTypeMarketOffers.containsKey(agent))
-			this.indexAgentGoodTypeMarketOffers.put(agent,
-					new HashSet<GoodTypeMarketOffer>());
-	}
-
 	/*
 	 * get market offers for type
 	 */
@@ -75,20 +66,11 @@ public class GoodTypeMarketOfferDAO extends InMemoryDAO<GoodTypeMarketOffer>
 		return this.sellingOffersForGoodTypes.get(currency).get(goodType);
 	}
 
-	private Set<GoodTypeMarketOffer> getMarketOffers(Agent agent) {
-		this.assertInitializedDataStructure(agent);
-
-		return this.indexAgentGoodTypeMarketOffers.get(agent);
-	}
-
 	private SortedSet<GoodTypeMarketOffer> findMarketOffers(Agent agent,
 			Currency currency, GoodType goodType) {
-		this.assertInitializedDataStructure(agent);
-
 		SortedSet<GoodTypeMarketOffer> marketOffers = new TreeSet<GoodTypeMarketOffer>();
-		if (this.indexAgentGoodTypeMarketOffers.containsKey(agent)) {
-			for (GoodTypeMarketOffer marketOffer : this.indexAgentGoodTypeMarketOffers
-					.get(agent))
+		if (this.getFor(agent) != null) {
+			for (GoodTypeMarketOffer marketOffer : this.getFor(agent))
 				if (currency.equals(marketOffer.getCurrency())
 						&& goodType.equals(marketOffer.getGoodType()))
 					marketOffers.add(marketOffer);
@@ -104,38 +86,30 @@ public class GoodTypeMarketOfferDAO extends InMemoryDAO<GoodTypeMarketOffer>
 	public synchronized void save(GoodTypeMarketOffer goodTypeMarketOffer) {
 		this.getMarketOffers(goodTypeMarketOffer.getCurrency(),
 				goodTypeMarketOffer.getGoodType()).add(goodTypeMarketOffer);
-		this.getMarketOffers(goodTypeMarketOffer.getOfferor()).add(
-				goodTypeMarketOffer);
 
-		super.save(goodTypeMarketOffer);
+		super.save(goodTypeMarketOffer.getOfferor(), goodTypeMarketOffer);
 	}
 
 	@Override
 	public synchronized void delete(GoodTypeMarketOffer goodTypeMarketOffer) {
 		this.getMarketOffers(goodTypeMarketOffer.getCurrency(),
 				goodTypeMarketOffer.getGoodType()).remove(goodTypeMarketOffer);
-		this.getMarketOffers(goodTypeMarketOffer.getOfferor()).remove(
-				goodTypeMarketOffer);
 
-		super.delete(goodTypeMarketOffer);
+		super.delete(goodTypeMarketOffer.getOfferor(), goodTypeMarketOffer);
 	}
 
 	@Override
 	public synchronized void deleteAllSellingOffers(Agent offeror) {
-		this.assertInitializedDataStructure(offeror);
-
-		Set<GoodTypeMarketOffer> sellingOffersToRemove = this
-				.getMarketOffers(offeror);
-		for (GoodTypeMarketOffer goodTypeMarketOffer : sellingOffersToRemove)
-			this.delete(goodTypeMarketOffer);
+		if (this.getFor(offeror) != null)
+			for (GoodTypeMarketOffer goodTypeMarketOffer : this.getFor(offeror))
+				this.delete(goodTypeMarketOffer);
 	}
 
 	@Override
 	public synchronized void deleteAllSellingOffers(Agent offeror,
 			Currency currency, GoodType goodType) {
-		Set<GoodTypeMarketOffer> sellingOffersToRemove = this.findMarketOffers(
-				offeror, currency, goodType);
-		for (GoodTypeMarketOffer goodTypeMarketOffer : sellingOffersToRemove)
+		for (GoodTypeMarketOffer goodTypeMarketOffer : this.findMarketOffers(
+				offeror, currency, goodType))
 			this.delete(goodTypeMarketOffer);
 	}
 

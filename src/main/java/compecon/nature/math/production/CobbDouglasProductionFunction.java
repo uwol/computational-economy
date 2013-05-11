@@ -23,7 +23,8 @@ import compecon.nature.materia.GoodType;
 import compecon.nature.math.CobbDouglasFunction;
 
 public class CobbDouglasProductionFunction extends ConvexProductionFunction {
-	public CobbDouglasProductionFunction(Map<GoodType, Double> exponents) {
-		super(new CobbDouglasFunction(exponents));
+	public CobbDouglasProductionFunction(Map<GoodType, Double> exponents,
+			double totalFactorProductivity) {
+		super(new CobbDouglasFunction(exponents, totalFactorProductivity));
 	}
 }

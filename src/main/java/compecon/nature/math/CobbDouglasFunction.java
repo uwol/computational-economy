@@ -31,12 +31,15 @@ public class CobbDouglasFunction extends Function implements IFunction {
 
 	protected final Map<GoodType, Double> exponents;
 
+	protected final double coefficient;
+
 	@Override
 	public Set<GoodType> getInputGoodTypes() {
 		return this.exponents.keySet();
 	}
 
-	public CobbDouglasFunction(Map<GoodType, Double> exponents) {
+	public CobbDouglasFunction(Map<GoodType, Double> exponents,
+			double coefficient) {
 		/*
 		 * constraint on exponents
 		 */
@@ -49,12 +52,16 @@ public class CobbDouglasFunction extends Function implements IFunction {
 		if (!MathUtil.equal(sumOfExponents, 1))
 			throw new RuntimeException("sum of exponents not 1");
 
+		if (!MathUtil.greater(coefficient, 0))
+			throw new RuntimeException("coefficient is not > 0");
+
 		this.exponents = exponents;
+		this.coefficient = coefficient;
 	}
 
 	@Override
 	public double f(Map<GoodType, Double> bundleOfInputGoods) {
-		double output = 1.0;
+		double output = this.coefficient;
 		for (Entry<GoodType, Double> entry : this.exponents.entrySet()) {
 			GoodType goodType = entry.getKey();
 			double exponent = entry.getValue();
@@ -72,7 +79,7 @@ public class CobbDouglasFunction extends Function implements IFunction {
 		/*
 		 * Constant
 		 */
-		double constant = 1;
+		double constant = this.coefficient;
 		for (Entry<GoodType, Double> entry : this.exponents.entrySet()) {
 			GoodType goodType = entry.getKey();
 			if (goodType != withRespectToInputGoodType) {

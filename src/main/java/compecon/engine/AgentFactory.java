@@ -114,12 +114,14 @@ public class AgentFactory {
 		// that labour hour prices do not fall endlessly
 		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
 		preferences.put(GoodType.LABOURHOUR, 0.2);
-		preferences.put(GoodType.MEGACALORIE, 0.3);
+		preferences.put(GoodType.WHEAT, 0.2);
 		preferences.put(GoodType.KILOWATT, 0.1);
-		preferences.put(GoodType.REALESTATE, 0.2);
 		preferences.put(GoodType.CAR, 0.2);
+		preferences.put(GoodType.REALESTATE, 0.2);
+		preferences.put(GoodType.GOLD, 0.1);
+
 		IUtilityFunction utilityFunction = new CobbDouglasUtilityFunction(
-				preferences);
+				preferences, 1);
 		household.setUtilityFunction(utilityFunction);
 
 		household.initialize();

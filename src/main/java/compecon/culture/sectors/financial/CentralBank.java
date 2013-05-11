@@ -477,8 +477,9 @@ public class CentralBank extends Bank {
 			/*
 			 * set price index weights, must sum up to 1
 			 */
-			this.priceIndexWeights.put(GoodType.MEGACALORIE, 0.5);
-			this.priceIndexWeights.put(GoodType.KILOWATT, 0.5);
+			this.priceIndexWeights.put(GoodType.WHEAT, 0.5);
+			this.priceIndexWeights.put(GoodType.KILOWATT, 0.4);
+			this.priceIndexWeights.put(GoodType.CAR, 0.1);
 			/*
 			 * GoodType LABOURHOUR is not monitored, as its market price is not
 			 * influenced by the key interest rate over a transmission mechanism

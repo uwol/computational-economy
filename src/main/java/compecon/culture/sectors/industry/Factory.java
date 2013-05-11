@@ -55,7 +55,7 @@ public class Factory extends JointStockCompany {
 	// maxCredit limits the demand for money when buying production input
 	// factors, thus limiting M1 in the monetary system
 	@Transient
-	protected final int MAX_CREDIT = 10000;
+	protected final int MAX_CREDIT = 100000;
 
 	@Transient
 	protected IProductionFunction productionFunction;
@@ -82,7 +82,7 @@ public class Factory extends JointStockCompany {
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		this.economicalBehaviour = new EconomicalBehaviour(this,
-				GoodType.MEGACALORIE, this.primaryCurrency);
+				this.producedGoodType, this.primaryCurrency);
 	}
 
 	/*
@@ -158,7 +158,7 @@ public class Factory extends JointStockCompany {
 			double ownedAmountOfProducedGoodType = PropertyRegister
 					.getInstance().getBalance(Factory.this,
 							Factory.this.producedGoodType);
-			Log.setAgentToLogFor(Factory.this);
+			Log.setAgentCurrentlyActive(Factory.this);
 			Map<GoodType, Double> productionFactorsToBuy = Factory.this.productionFunction
 					.calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
 							priceOfProducedGoodType, pricesOfProductionFactors,

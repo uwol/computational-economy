@@ -19,15 +19,14 @@ package compecon.engine.dashboard.model;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 
 import javax.swing.AbstractListModel;
 import javax.swing.table.AbstractTableModel;
 
 import compecon.engine.Agent;
+import compecon.engine.Log;
 
 public class AgentLogsModel {
 
@@ -42,26 +41,14 @@ public class AgentLogsModel {
 
 		@Override
 		public int getRowCount() {
-			if (AgentLogsModel.this.messages
-					.containsKey(AgentLogsModel.this.currentAgent)) {
-				Queue<Object[]> messages = AgentLogsModel.this.messages
-						.get(AgentLogsModel.this.currentAgent);
-				return messages.size();
-			}
-			return 0;
+			return AgentLogsModel.this.messages.size();
 		}
 
 		@Override
 		public Object getValueAt(int rowIndex, int colIndex) {
-			if (AgentLogsModel.this.messages
-					.containsKey(AgentLogsModel.this.currentAgent)) {
-				ArrayList<Object[]> messagesOfAgent = new ArrayList<Object[]>(
-						AgentLogsModel.this.messages
-								.get(AgentLogsModel.this.currentAgent));
-				Object[] rowContent = (Object[]) messagesOfAgent.get(rowIndex);
-				return rowContent[colIndex];
-			}
-			return null;
+			Object[] rowContent = (Object[]) new ArrayList<Object[]>(
+					AgentLogsModel.this.messages).get(rowIndex);
+			return rowContent[colIndex];
 		}
 
 		@Override
@@ -89,29 +76,19 @@ public class AgentLogsModel {
 
 	protected final int MESSAGES_TO_STORE = 100;
 
-	protected Map<Agent, Queue<Object[]>> messages = new HashMap<Agent, Queue<Object[]>>();
+	protected Queue<Object[]> messages = new LinkedList<Object[]>();
 
 	protected ArrayList<Agent> agents = new ArrayList<Agent>();
-
-	protected Agent currentAgent;
 
 	protected AgentLogsListModel agentLogsListModel = new AgentLogsListModel();
 
 	protected AgentLogsTableModel agentLogsTableModel = new AgentLogsTableModel();
 
-	protected boolean blockRefresh = true;
-
-	public void assertAgentDataStructure(Agent agent) {
-		if (!this.messages.containsKey(agent)) {
-			this.messages.put(agent, new LinkedList<Object[]>());
-			this.agents.add(agent);
-			this.agentLogsListModel.onListModification(this.agents
-					.indexOf(agent));
-		}
-	}
+	protected boolean noRefresh = true;
 
 	public void agent_onConstruct(Agent agent) {
-		assertAgentDataStructure(agent);
+		this.agents.add(agent);
+		this.agentLogsListModel.onListModification(this.agents.indexOf(agent));
 	}
 
 	public void agent_onDeconstruct(Agent agent) {
@@ -121,16 +98,15 @@ public class AgentLogsModel {
 		this.agentLogsListModel.onListModification(index);
 	}
 
-	public void logAgentEvent(Date date, Agent agent, String message) {
-		assertAgentDataStructure(agent);
-		Queue<Object[]> messagesForAgent = this.messages.get(agent);
-		messagesForAgent.add(new Object[] { date, message });
-		if (messagesForAgent.size() > MESSAGES_TO_STORE)
-			messagesForAgent.poll();
+	public void logAgentEvent(Date date, String message) {
+		messages.add(new Object[] { date, message });
+		if (messages.size() > MESSAGES_TO_STORE)
+			messages.poll();
 	}
 
 	public void setCurrentAgent(Agent agent) {
-		this.currentAgent = agent;
+		Log.setAgentSelectedByClient(agent);
+		this.messages.clear();
 		this.signalizeContentModification();
 	}
 
@@ -139,9 +115,10 @@ public class AgentLogsModel {
 	}
 
 	public void signalizeContentModification() {
-		if (!this.blockRefresh)
-			if (this.currentAgent != null)
+		if (!this.noRefresh) {
+			if (Log.getAgentSelectedByClient() != null)
 				this.agentLogsTableModel.fireTableDataChanged();
+		}
 	}
 
 	public AgentLogsListModel getAgentLogsListModel() {
@@ -152,7 +129,7 @@ public class AgentLogsModel {
 		return this.agentLogsTableModel;
 	}
 
-	public void blockRefresh(boolean blockRefresh) {
-		this.blockRefresh = blockRefresh;
+	public void noRefresh(boolean noRefresh) {
+		this.noRefresh = noRefresh;
 	}
 }
