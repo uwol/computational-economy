@@ -15,11 +15,23 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx;
+package compecon.engine.jmx.model;
 
-public class JmxAgents implements JmxAgentsMBean {
+public class PeriodDataAccumulator {
+	double sumPerPeriod = 0;
 
-	public int getNumberOfAgents() {
-		return JmxAgentsModel.getNumberOfAgents();
+	public void add(double amount) {
+		this.sumPerPeriod += amount;
+	}
+
+	public double getAmount() {
+		return this.sumPerPeriod;
+	}
+
+	/**
+	 * Reset values to zero
+	 */
+	public void reset() {
+		this.sumPerPeriod = 0;
 	}
 }

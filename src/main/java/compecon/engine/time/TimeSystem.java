@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import compecon.engine.Log;
+import compecon.engine.jmx.Log;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;

@@ -20,7 +20,7 @@ package compecon.nature.math.production;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import compecon.engine.Log;
+import compecon.engine.jmx.Log;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 import compecon.nature.math.IFunction;

@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine;
+package compecon.engine.jmx;
 
 import java.util.Date;
 import java.util.Map;
@@ -27,8 +27,9 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.engine.Agent;
 import compecon.engine.dashboard.Dashboard;
-import compecon.engine.jmx.JmxAgentsModel;
+import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
@@ -66,16 +67,14 @@ public class Log {
 	// --------
 
 	public static void notifyTimeSystem_nextDay(Date date) {
-		Dashboard.getInstance().getAgentLogsModel()
-				.signalizeContentModification();
-		Dashboard.getInstance().getBalanceSheetsModel().nextPeriod();
-		Dashboard.getInstance().getMonetaryTransactionsModel().nextPeriod();
-		Dashboard.getInstance().getCapacityModel().nextPeriod();
-		Dashboard.getInstance().getEffectiveProductionOutputModel()
-				.nextPeriod();
-		Dashboard.getInstance().getMoneySupplyM0Model().nextPeriod();
-		Dashboard.getInstance().getMoneySupplyM1Model().nextPeriod();
-		Dashboard.getInstance().getUtilityModel().nextPeriod();
+		ModelRegistry.getAgentLogsModel().notifyListeners();
+		ModelRegistry.getBalanceSheetsModel().nextPeriod();
+		ModelRegistry.getMonetaryTransactionsModel().nextPeriod();
+		ModelRegistry.getCapacityModel().nextPeriod();
+		ModelRegistry.getEffectiveProductionOutputModel().nextPeriod();
+		ModelRegistry.getMoneySupplyM0Model().nextPeriod();
+		ModelRegistry.getMoneySupplyM1Model().nextPeriod();
+		ModelRegistry.getUtilityModel().nextPeriod();
 
 		Dashboard.getInstance().nextPeriod();
 	}
@@ -90,37 +89,31 @@ public class Log {
 	public static void log(String message) {
 		if (agentCurrentlyActive != null
 				&& agentSelectedByClient == agentCurrentlyActive)
-			Dashboard
-					.getInstance()
-					.getAgentLogsModel()
-					.logAgentEvent(TimeSystem.getInstance().getCurrentDate(),
-							message);
+			ModelRegistry.getAgentLogsModel().logAgentEvent(
+					TimeSystem.getInstance().getCurrentDate(), message);
 	}
 
 	public static void agent_onConstruct(Agent agent) {
-		Dashboard.getInstance().getAgentLogsModel().agent_onConstruct(agent);
+		ModelRegistry.getAgentLogsModel().agent_onConstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " constructed");
-		Dashboard.getInstance().getNumberOfAgentsTableModel()
-				.agent_onConstruct(agent.getClass());
-		JmxAgentsModel.incrementNumberOfAgents();
+		ModelRegistry.getNumberOfAgentsModel().agent_onConstruct(
+				agent.getClass());
 	}
 
 	public static void agent_onDeconstruct(Agent agent) {
-		Dashboard.getInstance().getAgentLogsModel().agent_onDeconstruct(agent);
+		ModelRegistry.getAgentLogsModel().agent_onDeconstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " deconstructed");
-		Dashboard.getInstance().getNumberOfAgentsTableModel()
-				.agent_onDeconstruct(agent.getClass());
-		Dashboard.getInstance().getBalanceSheetsModel()
-				.notifyAgent_onDeconstruct(agent);
-		JmxAgentsModel.decrementNumberOfAgents();
+		ModelRegistry.getNumberOfAgentsModel().agent_onDeconstruct(
+				agent.getClass());
+		ModelRegistry.getBalanceSheetsModel().notifyAgent_onDeconstruct(agent);
 	}
 
 	public static void agent_onPublishBalanceSheet(Agent agent,
 			BalanceSheet balanceSheet) {
-		Dashboard.getInstance().getBalanceSheetsModel()
-				.agent_onPublishBalanceSheet(agent, balanceSheet);
+		ModelRegistry.getBalanceSheetsModel().agent_onPublishBalanceSheet(
+				agent, balanceSheet);
 	}
 
 	// --------
@@ -144,7 +137,7 @@ public class Log {
 			log(household, log);
 		}
 
-		Dashboard.getInstance().getUtilityModel().add(currency, utility);
+		ModelRegistry.getUtilityModel().add(currency, utility);
 	}
 
 	public static void household_onConsumeGoods(Household household,
@@ -164,8 +157,8 @@ public class Log {
 
 	public static void household_LabourHourCapacity(Household household,
 			double labourHourCapacity) {
-		Dashboard.getInstance().getCapacityModel()
-				.add(GoodType.LABOURHOUR, labourHourCapacity);
+		ModelRegistry.getCapacityModel().add(GoodType.LABOURHOUR,
+				labourHourCapacity);
 	}
 
 	// --------
@@ -176,25 +169,22 @@ public class Log {
 			log(factory, factory + " produced " + producedProducts + " "
 					+ goodType);
 
-		Dashboard.getInstance().getEffectiveProductionOutputModel()
-				.add(goodType, producedProducts);
+		ModelRegistry.getEffectiveProductionOutputModel().add(goodType,
+				producedProducts);
 	}
 
 	public static void factory_onLabourHourExhaust(Factory factory,
 			double amount) {
-		Dashboard.getInstance().getEffectiveProductionOutputModel()
-				.add(GoodType.LABOURHOUR, amount);
+		ModelRegistry.getEffectiveProductionOutputModel().add(
+				GoodType.LABOURHOUR, amount);
 	}
 
 	// --------
 
 	public static void bank_onTransfer(Agent from, Agent to, Currency currency,
 			double value, String subject) {
-		Dashboard
-				.getInstance()
-				.getMonetaryTransactionsModel()
-				.bank_onTransfer(from.getClass(), to.getClass(), currency,
-						value);
+		ModelRegistry.getMonetaryTransactionsModel().bank_onTransfer(
+				from.getClass(), to.getClass(), currency, value);
 		if (Log.logTransactions) {
 			if (isAgentSelectedByClient(from))
 				log(from, "transfered " + Currency.round(value) + " "
@@ -222,20 +212,19 @@ public class Log {
 
 	public static void centralBank_KeyInterestRate(Currency currency,
 			double keyInterestRate) {
-		Dashboard.getInstance().getKeyInterestRateModel()
-				.add(currency, keyInterestRate);
+		ModelRegistry.getKeyInterestRateModel().add(currency, keyInterestRate);
 	}
 
 	public static void centralBank_PriceIndex(Currency currency,
 			double priceIndex) {
-		Dashboard.getInstance().getPriceIndexModel().add(currency, priceIndex);
+		ModelRegistry.getPriceIndexModel().add(currency, priceIndex);
 	}
 
 	// --------
 
 	public static void market_onTick(double pricePerUnit, GoodType goodType,
 			Currency currency, double amount) {
-		Dashboard.getInstance().getPricesModel()
-				.market_onTick(pricePerUnit, goodType, currency, amount);
+		ModelRegistry.getPricesModel().market_onTick(pricePerUnit, goodType,
+				currency, amount);
 	}
 }

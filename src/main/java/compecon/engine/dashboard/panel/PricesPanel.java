@@ -26,29 +26,28 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.DefaultHighLowDataset;
 
 import compecon.culture.sectors.financial.Currency;
-import compecon.engine.dashboard.model.PricesModel;
+import compecon.engine.jmx.model.ModelRegistry;
+import compecon.engine.jmx.model.PricesModel;
+import compecon.engine.jmx.model.PricesModel.PriceModel;
 import compecon.nature.materia.GoodType;
 
 public class PricesPanel extends JPanel {
 
 	protected boolean noRedraw = true;
 
-	protected final PricesModel pricesModel;
-
 	protected final Map<GoodType, ChartPanel> priceCharts = new HashMap<GoodType, ChartPanel>();
 
-	public PricesPanel(final PricesModel pricesModel) {
-		this.pricesModel = pricesModel;
-
+	public PricesPanel() {
 		this.setLayout(new GridLayout(0, 2));
 	}
 
 	private JFreeChart createPriceChart(GoodType goodType) {
 		return ChartFactory.createCandlestickChart("Price Chart for "
 				+ goodType, "Time", "Price in " + Currency.EURO,
-				this.pricesModel.getDefaultHighLowDataset(goodType), false);
+				PricesPanel.this.getDefaultHighLowDataset(goodType), false);
 	}
 
 	private ChartPanel createPriceChartPanel(GoodType goodType) {
@@ -78,5 +77,17 @@ public class PricesPanel extends JPanel {
 
 	public void noRedraw(boolean noRedraw) {
 		this.noRedraw = noRedraw;
+	}
+
+	public DefaultHighLowDataset getDefaultHighLowDataset(GoodType goodType) {
+		PricesModel pricesModel = ModelRegistry.getPricesModel();
+		if (pricesModel.getPriceModels().containsKey(goodType)) {
+			PriceModel priceModel = pricesModel.getPriceModels().get(goodType);
+			return new DefaultHighLowDataset("", priceModel.getDate(),
+					priceModel.getHigh(), priceModel.getLow(),
+					priceModel.getOpen(), priceModel.getClose(),
+					priceModel.getVolume());
+		}
+		return null;
 	}
 }

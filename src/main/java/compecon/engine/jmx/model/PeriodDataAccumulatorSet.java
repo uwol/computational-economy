@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dashboard.model;
+package compecon.engine.jmx.model;
 
 import java.util.HashMap;
 import java.util.Map;

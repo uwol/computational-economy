@@ -15,8 +15,17 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx;
+package compecon.engine.jmx.mbean;
 
 public interface JmxAgentsMBean {
-	public int getNumberOfAgents();
+
+	public int getNumberOfHouseholds();
+
+	public int getNumberOfFactories();
+
+	public int getNumberOfCreditBanks();
+
+	public int getNumberOfCentralBanks();
+
+	public int getNumberOfStates();
 }

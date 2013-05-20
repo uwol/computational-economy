@@ -15,23 +15,15 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dashboard.model;
+package compecon.engine.jmx.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import javax.swing.table.AbstractTableModel;
 
 import compecon.engine.Agent;
 
-public class NumberOfAgentsTableModel extends AbstractTableModel {
-
-	String columnNames[] = { "Agent Type", "#" };
-
+public class NumberOfAgentsModel extends Model {
 	Map<Class<? extends Agent>, Integer> numberOfAgents = new HashMap<Class<? extends Agent>, Integer>();
-	List<Class<? extends Agent>> rowNumbersOfAgents = new ArrayList<Class<? extends Agent>>();
 
 	public void agent_onConstruct(Class<? extends Agent> agentType) {
 		// store number of agents
@@ -41,12 +33,7 @@ public class NumberOfAgentsTableModel extends AbstractTableModel {
 		numberOfAgentsForAgentType++;
 		this.numberOfAgents.put(agentType, numberOfAgentsForAgentType);
 
-		// store position in table
-		if (!this.rowNumbersOfAgents.contains(agentType))
-			this.rowNumbersOfAgents.add(agentType);
-
-		fireTableCellUpdated(this.getRowNumberOfAgentType(agentType), 0);
-		fireTableCellUpdated(this.getRowNumberOfAgentType(agentType), 1);
+		this.notifyListeners();
 	}
 
 	public void agent_onDeconstruct(Class<? extends Agent> agentType) {
@@ -56,38 +43,10 @@ public class NumberOfAgentsTableModel extends AbstractTableModel {
 		numberOfAgentsForAgentType--;
 		this.numberOfAgents.put(agentType, numberOfAgentsForAgentType);
 
-		fireTableCellUpdated(this.getRowNumberOfAgentType(agentType), 0);
-		fireTableCellUpdated(this.getRowNumberOfAgentType(agentType), 1);
+		this.notifyListeners();
 	}
 
-	@Override
-	public int getColumnCount() {
-		return 2;
-	}
-
-	@Override
-	public int getRowCount() {
-		return this.numberOfAgents.size();
-	}
-
-	@Override
-	public Object getValueAt(int row, int col) {
-		if (col == 0)
-			return this.getAgentTypeAtRowNumber(row).getSimpleName();
-		else
-			return this.numberOfAgents.get(this.getAgentTypeAtRowNumber(row));
-	}
-
-	@Override
-	public String getColumnName(int column) {
-		return this.columnNames[column];
-	}
-
-	private int getRowNumberOfAgentType(Class<? extends Agent> agentType) {
-		return this.rowNumbersOfAgents.indexOf(agentType);
-	}
-
-	private Class<? extends Agent> getAgentTypeAtRowNumber(int rowNumber) {
-		return this.rowNumbersOfAgents.get(rowNumber);
+	public Map<Class<? extends Agent>, Integer> getNumberOfAgents() {
+		return numberOfAgents;
 	}
 }

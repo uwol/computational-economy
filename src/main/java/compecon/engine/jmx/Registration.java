@@ -28,6 +28,7 @@ import javax.management.ObjectName;
 
 import org.hibernate.jmx.StatisticsService;
 
+import compecon.engine.jmx.mbean.JmxAgents;
 import compecon.engine.util.HibernateUtil;
 
 public class Registration {

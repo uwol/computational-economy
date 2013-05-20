@@ -15,14 +15,12 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dashboard.model;
+package compecon.engine.jmx.model;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.jfree.data.xy.DefaultHighLowDataset;
 
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.time.TimeSystem;
@@ -30,7 +28,7 @@ import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.nature.materia.GoodType;
 
-public class PricesModel {
+public class PricesModel extends Model {
 
 	public class PriceModel {
 		private final int NUMBER_OF_DAYS = 180;
@@ -134,14 +132,7 @@ public class PricesModel {
 		}
 	}
 
-	public DefaultHighLowDataset getDefaultHighLowDataset(GoodType goodType) {
-		if (this.priceModels.containsKey(goodType)) {
-			PriceModel priceModel = this.priceModels.get(goodType);
-			return new DefaultHighLowDataset("", priceModel.getDate(),
-					priceModel.getHigh(), priceModel.getLow(),
-					priceModel.getOpen(), priceModel.getClose(),
-					priceModel.getVolume());
-		}
-		return null;
+	public Map<GoodType, PriceModel> getPriceModels() {
+		return this.priceModels;
 	}
 }

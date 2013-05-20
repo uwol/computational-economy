@@ -25,96 +25,37 @@ import java.awt.GridLayout;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.jfree.chart.ChartPanel;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.engine.dashboard.model.AgentLogsModel;
-import compecon.engine.dashboard.model.BalanceSheetsModel;
-import compecon.engine.dashboard.model.MonetaryTransactionsModel;
-import compecon.engine.dashboard.model.NumberOfAgentsTableModel;
-import compecon.engine.dashboard.model.PeriodDataAccumulatorTimeSeriesModel;
-import compecon.engine.dashboard.model.PricesModel;
-import compecon.engine.dashboard.model.TimeSeriesModel;
 import compecon.engine.dashboard.panel.AgentsPanel;
 import compecon.engine.dashboard.panel.AggregatesPanel;
 import compecon.engine.dashboard.panel.ControlPanel;
 import compecon.engine.dashboard.panel.NationalAccountsPanel;
+import compecon.engine.dashboard.panel.NumberOfAgentsPanel;
 import compecon.engine.dashboard.panel.PricesPanel;
-import compecon.nature.materia.GoodType;
 
 public class Dashboard extends JFrame {
 	private static Dashboard instance;
 
-	// models
-
-	protected final AgentLogsModel agentLogsModel = new AgentLogsModel();
-
-	protected final BalanceSheetsModel balanceSheetsModel;
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<GoodType> capacityModel = new PeriodDataAccumulatorTimeSeriesModel<GoodType>(
-			GoodType.values(), " cap.");
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<GoodType> effectiveProductionOutputModel = new PeriodDataAccumulatorTimeSeriesModel<GoodType>(
-			GoodType.values());
-
-	protected final TimeSeriesModel<Currency> keyInterestRateModel = new TimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO });
-
-	protected final MonetaryTransactionsModel monetaryTransactionsModel = new MonetaryTransactionsModel();
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO }, " M0");
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO }, " M1");
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO }, " utility");
-
-	protected final NumberOfAgentsTableModel numberOfAgentsTableModel = new NumberOfAgentsTableModel();
-
-	protected final PricesModel pricesModel = new PricesModel();
-
-	protected final TimeSeriesModel<Currency> priceIndexModel = new TimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO });
-
 	// panels
 
-	protected final AgentsPanel agentsPanel;
+	protected final AgentsPanel agentsPanel = new AgentsPanel();
 
 	protected final JPanel borderPanel;
 
-	protected final AggregatesPanel aggregatesPanel;
+	protected final AggregatesPanel aggregatesPanel = new AggregatesPanel();
 
-	protected final PricesPanel pricesPanel;
+	protected final PricesPanel pricesPanel = new PricesPanel();
 
-	protected final NationalAccountsPanel nationalAccountsPanel;
+	protected final NationalAccountsPanel nationalAccountsPanel = new NationalAccountsPanel();
 
 	protected final JTabbedPane jTabbedPane;
 
 	private Dashboard() {
-		/*
-		 * models
-		 */
-		this.balanceSheetsModel = new BalanceSheetsModel(
-				this.moneySupplyM0Model, this.moneySupplyM1Model);
-		this.aggregatesPanel = new AggregatesPanel(this.priceIndexModel,
-				this.keyInterestRateModel, this.effectiveProductionOutputModel,
-				this.capacityModel, this.balanceSheetsModel,
-				this.moneySupplyM0Model, this.moneySupplyM1Model,
-				this.utilityModel);
-		this.pricesPanel = new PricesPanel(this.pricesModel);
-		this.nationalAccountsPanel = new NationalAccountsPanel(
-				this.balanceSheetsModel.getNationalAccountsTableModels(),
-				this.monetaryTransactionsModel
-						.getMonetaryTransactionsTableModels());
-		this.agentsPanel = new AgentsPanel(this.agentLogsModel);
 
 		/*
 		 * panels
@@ -126,14 +67,13 @@ public class Dashboard extends JFrame {
 		 * bottom panel
 		 */
 		JPanel bottomPanel = new JPanel(new GridLayout(0, 2));
-		JTable numberOfAgentsTable = new JTable(numberOfAgentsTableModel);
-		JScrollPane numberOfAgentsPane = new JScrollPane(numberOfAgentsTable);
-		numberOfAgentsPane.setPreferredSize(new Dimension(-1, 150));
-		bottomPanel.add(numberOfAgentsPane);
-		// ToDo method in wrong class
+		bottomPanel.setPreferredSize(new Dimension(-1, 150));
+		bottomPanel.add(new NumberOfAgentsPanel());
+
 		ChartPanel utilityChart = this.aggregatesPanel.createUtilityChart();
 		utilityChart.setPreferredSize(new Dimension(-1, 150));
 		bottomPanel.add(utilityChart);
+
 		add(bottomPanel, BorderLayout.SOUTH);
 
 		/*
@@ -152,9 +92,9 @@ public class Dashboard extends JFrame {
 
 					if (pane.getSelectedComponent().equals(
 							Dashboard.this.agentsPanel))
-						Dashboard.this.agentLogsModel.noRefresh(false);
+						Dashboard.this.agentsPanel.noRefresh(false);
 					else
-						Dashboard.this.agentLogsModel.noRefresh(true);
+						Dashboard.this.agentsPanel.noRefresh(true);
 
 					if (pane.getSelectedComponent().equals(
 							Dashboard.this.pricesPanel))
@@ -187,54 +127,6 @@ public class Dashboard extends JFrame {
 		if (instance == null)
 			instance = new Dashboard();
 		return instance;
-	}
-
-	public AgentLogsModel getAgentLogsModel() {
-		return this.agentLogsModel;
-	}
-
-	public BalanceSheetsModel getBalanceSheetsModel() {
-		return this.balanceSheetsModel;
-	}
-
-	public PeriodDataAccumulatorTimeSeriesModel<GoodType> getCapacityModel() {
-		return this.capacityModel;
-	}
-
-	public PeriodDataAccumulatorTimeSeriesModel<GoodType> getEffectiveProductionOutputModel() {
-		return this.effectiveProductionOutputModel;
-	}
-
-	public TimeSeriesModel<Currency> getKeyInterestRateModel() {
-		return this.keyInterestRateModel;
-	}
-
-	public MonetaryTransactionsModel getMonetaryTransactionsModel() {
-		return this.monetaryTransactionsModel;
-	}
-
-	public PeriodDataAccumulatorTimeSeriesModel<Currency> getMoneySupplyM0Model() {
-		return this.moneySupplyM0Model;
-	}
-
-	public PeriodDataAccumulatorTimeSeriesModel<Currency> getMoneySupplyM1Model() {
-		return this.moneySupplyM1Model;
-	}
-
-	public NumberOfAgentsTableModel getNumberOfAgentsTableModel() {
-		return this.numberOfAgentsTableModel;
-	}
-
-	public PricesModel getPricesModel() {
-		return this.pricesModel;
-	}
-
-	public TimeSeriesModel<Currency> getPriceIndexModel() {
-		return this.priceIndexModel;
-	}
-
-	public PeriodDataAccumulatorTimeSeriesModel<Currency> getUtilityModel() {
-		return this.utilityModel;
 	}
 
 	public void nextPeriod() {

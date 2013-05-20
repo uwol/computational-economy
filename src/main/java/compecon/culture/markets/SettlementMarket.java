@@ -29,7 +29,7 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.property.Property;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
-import compecon.engine.Log;
+import compecon.engine.jmx.Log;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 

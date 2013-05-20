@@ -15,21 +15,28 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx;
+package compecon.engine.jmx.model;
 
-public class JmxAgentsModel {
+import java.util.ArrayList;
+import java.util.List;
 
-	private static int numberOfAgents;
+public class Model {
 
-	public static int getNumberOfAgents() {
-		return numberOfAgents;
+	public interface IModelListener {
+		public void notifyListener();
 	}
 
-	public static void incrementNumberOfAgents() {
-		numberOfAgents++;
+	protected List<IModelListener> listeners = new ArrayList<IModelListener>();
+
+	protected Model() {
 	}
 
-	public static void decrementNumberOfAgents() {
-		numberOfAgents--;
+	public void registerListener(IModelListener listener) {
+		this.listeners.add(listener);
+	}
+
+	public void notifyListeners() {
+		for (IModelListener listener : this.listeners)
+			listener.notifyListener();
 	}
 }

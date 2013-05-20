@@ -22,6 +22,7 @@ import java.util.Set;
 
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.AgentFactory;
+import compecon.engine.dashboard.Dashboard;
 import compecon.engine.jmx.Registration;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
@@ -53,6 +54,9 @@ public class Simulation {
 
 	public static void main(String[] args) {
 		try {
+			// open dashboard
+			Dashboard.getInstance();
+
 			// init database connection
 			HibernateUtil.openSession();
 

@@ -23,7 +23,7 @@ import javax.persistence.Transient;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
-import compecon.engine.Log;
+import compecon.engine.jmx.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;

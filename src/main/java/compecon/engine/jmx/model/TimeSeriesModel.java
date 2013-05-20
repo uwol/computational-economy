@@ -15,11 +15,10 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dashboard.model;
+package compecon.engine.jmx.model;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jfree.data.time.Day;
@@ -27,35 +26,29 @@ import org.jfree.data.time.TimeSeries;
 
 import compecon.engine.time.TimeSystem;
 
-public class PeriodDataAccumulatorTimeSeriesModel<T> {
+public class TimeSeriesModel<T> {
 
 	protected final int NUMBER_OF_DAYS = 180;
-
-	protected final PeriodDataAccumulatorSet<T> periodDataAccumulatorSet;
 
 	protected final Map<T, TimeSeries> timeSeries = new HashMap<T, TimeSeries>();
 
 	protected String titleSuffix;
 
-	public PeriodDataAccumulatorTimeSeriesModel(T[] initialTypes) {
-		this.periodDataAccumulatorSet = new PeriodDataAccumulatorSet<T>(
-				initialTypes);
+	public TimeSeriesModel(T[] initialTypes) {
 		for (T type : initialTypes)
-			assertTimeSeries(type);
+			this.assertTimeSeries(type);
 	}
 
-	public PeriodDataAccumulatorTimeSeriesModel(T[] initialTypes,
-			String titleSuffix) {
-		this.titleSuffix = titleSuffix;
-		this.periodDataAccumulatorSet = new PeriodDataAccumulatorSet<T>(
-				initialTypes);
+	public TimeSeriesModel(T[] initialTypes, String titleSuffix) {
 		for (T type : initialTypes)
-			assertTimeSeries(type);
+			this.assertTimeSeries(type);
+		this.titleSuffix = titleSuffix;
 	}
 
 	public void add(T type, double amount) {
 		if (this.timeSeries.containsKey(type))
-			this.periodDataAccumulatorSet.add(type, amount);
+			this.timeSeries.get(type).addOrUpdate(
+					new Day(TimeSystem.getInstance().getCurrentDate()), amount);
 	}
 
 	public Set<T> getTypes() {
@@ -73,25 +66,10 @@ public class PeriodDataAccumulatorTimeSeriesModel<T> {
 		}
 	}
 
-	public void nextPeriod() {
-		// write amount for each good type into corresponding time
-		// series
-		for (Entry<T, PeriodDataAccumulator> entry : this.periodDataAccumulatorSet
-				.getPeriodDataAccumulators().entrySet()) {
-			if (this.timeSeries.containsKey(entry.getKey())) {
-				this.timeSeries.get(entry.getKey()).addOrUpdate(
-						new Day(TimeSystem.getInstance().getCurrentDate()),
-						entry.getValue().getAmount());
-			}
-		}
-
-		this.periodDataAccumulatorSet.reset();
-	}
-
 	protected TimeSeries createTimeSeries(T type) {
 		String title = type.toString();
-		if (this.titleSuffix != null)
-			title += this.titleSuffix;
+		if (titleSuffix != null)
+			title += titleSuffix;
 
 		TimeSeries timeSeries = new TimeSeries(title, Day.class);
 		timeSeries.setMaximumItemAge(this.NUMBER_OF_DAYS);

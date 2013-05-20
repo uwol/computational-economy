@@ -34,47 +34,12 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 
 import compecon.culture.sectors.financial.Currency;
-import compecon.engine.dashboard.model.BalanceSheetsModel;
-import compecon.engine.dashboard.model.PeriodDataAccumulatorTimeSeriesModel;
-import compecon.engine.dashboard.model.TimeSeriesModel;
+import compecon.engine.jmx.model.ModelRegistry;
 import compecon.nature.materia.GoodType;
 
 public class AggregatesPanel extends JPanel {
 
-	protected final TimeSeriesModel<Currency> priceIndexModel;
-
-	protected final TimeSeriesModel<Currency> keyInterestRateModel;
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<GoodType> effectiveAmountModel;
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<GoodType> capacityModel;
-
-	protected final BalanceSheetsModel balanceSheetsModel;
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model;
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model;
-
-	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel;
-
-	public AggregatesPanel(
-			final TimeSeriesModel<Currency> priceIndexModel,
-			final TimeSeriesModel<Currency> keyInterestRateModel,
-			final PeriodDataAccumulatorTimeSeriesModel<GoodType> effectiveAmountModel,
-			final PeriodDataAccumulatorTimeSeriesModel<GoodType> capacityModel,
-			final BalanceSheetsModel balanceSheetsModel,
-			final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model,
-			final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model,
-			final PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel) {
-		this.priceIndexModel = priceIndexModel;
-		this.keyInterestRateModel = keyInterestRateModel;
-		this.effectiveAmountModel = effectiveAmountModel;
-		this.capacityModel = capacityModel;
-		this.balanceSheetsModel = balanceSheetsModel;
-		this.moneySupplyM0Model = moneySupplyM0Model;
-		this.moneySupplyM1Model = moneySupplyM1Model;
-		this.utilityModel = utilityModel;
-
+	public AggregatesPanel() {
 		this.setLayout(new GridLayout(0, 2));
 
 		this.add(this.createKeyInterestRatesChart());
@@ -104,9 +69,10 @@ public class AggregatesPanel extends JPanel {
 	private ChartPanel createKeyInterestRatesChart() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : this.keyInterestRateModel.getTypes())
-			timeSeriesCollection.addSeries(this.keyInterestRateModel
-					.getTimeSeries(currency));
+		for (Currency currency : ModelRegistry.getKeyInterestRateModel()
+				.getTypes())
+			timeSeriesCollection.addSeries(ModelRegistry
+					.getKeyInterestRateModel().getTimeSeries(currency));
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Key Interest Rate", "Date", "Key Interest Rate",
@@ -118,8 +84,8 @@ public class AggregatesPanel extends JPanel {
 	private ChartPanel createPriceIndicesChart() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : this.priceIndexModel.getTypes())
-			timeSeriesCollection.addSeries(this.priceIndexModel
+		for (Currency currency : ModelRegistry.getPriceIndexModel().getTypes())
+			timeSeriesCollection.addSeries(ModelRegistry.getPriceIndexModel()
 					.getTimeSeries(currency));
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Price Index",
@@ -131,10 +97,12 @@ public class AggregatesPanel extends JPanel {
 	private ChartPanel createProductionChart() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (GoodType goodType : this.effectiveAmountModel.getTypes())
+		for (GoodType goodType : ModelRegistry
+				.getEffectiveProductionOutputModel().getTypes())
 			if (!goodType.equals(GoodType.LABOURHOUR))
-				timeSeriesCollection.addSeries(this.effectiveAmountModel
-						.getTimeSeries(goodType));
+				timeSeriesCollection.addSeries(ModelRegistry
+						.getEffectiveProductionOutputModel().getTimeSeries(
+								goodType));
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Production",
 				"Date", "Output", (XYDataset) timeSeriesCollection, true, true,
@@ -146,9 +114,10 @@ public class AggregatesPanel extends JPanel {
 	private ChartPanel createLabourChart() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(this.effectiveAmountModel
-				.getTimeSeries(GoodType.LABOURHOUR));
-		timeSeriesCollection.addSeries(this.capacityModel
+		timeSeriesCollection.addSeries(ModelRegistry
+				.getEffectiveProductionOutputModel().getTimeSeries(
+						GoodType.LABOURHOUR));
+		timeSeriesCollection.addSeries(ModelRegistry.getCapacityModel()
 				.getTimeSeries(GoodType.LABOURHOUR));
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Labour", "Date",
@@ -161,13 +130,15 @@ public class AggregatesPanel extends JPanel {
 	private ChartPanel createMoneySupplyChart() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : this.moneySupplyM0Model.getTypes())
-			timeSeriesCollection.addSeries(this.moneySupplyM0Model
-					.getTimeSeries(currency));
+		for (Currency currency : ModelRegistry.getMoneySupplyM0Model()
+				.getTypes())
+			timeSeriesCollection.addSeries(ModelRegistry
+					.getMoneySupplyM0Model().getTimeSeries(currency));
 
-		for (Currency currency : this.moneySupplyM1Model.getTypes())
-			timeSeriesCollection.addSeries(this.moneySupplyM1Model
-					.getTimeSeries(currency));
+		for (Currency currency : ModelRegistry.getMoneySupplyM1Model()
+				.getTypes())
+			timeSeriesCollection.addSeries(ModelRegistry
+					.getMoneySupplyM1Model().getTimeSeries(currency));
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Money Supply to Non-Banks", "Date", "Money Supply",
@@ -179,8 +150,8 @@ public class AggregatesPanel extends JPanel {
 	public ChartPanel createUtilityChart() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : this.utilityModel.getTypes())
-			timeSeriesCollection.addSeries(this.utilityModel
+		for (Currency currency : ModelRegistry.getUtilityModel().getTypes())
+			timeSeriesCollection.addSeries(ModelRegistry.getUtilityModel()
 					.getTimeSeries(currency));
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Utility",
