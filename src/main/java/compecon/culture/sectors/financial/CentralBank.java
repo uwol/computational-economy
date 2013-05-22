@@ -439,7 +439,7 @@ public class CentralBank extends Bank {
 
 			// bonds
 			for (Property property : PropertyRegister.getInstance()
-					.getIProperties(CentralBank.this)) {
+					.getProperties(CentralBank.this)) {
 				if (property instanceof Bond)
 					balanceSheet.bonds += ((Bond) property).getFaceValue();
 			}

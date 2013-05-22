@@ -34,6 +34,7 @@ public class CreditBankDAO extends HibernateDAO<CreditBank> implements
 	@Override
 	public CreditBank findRandom(Currency currency) {
 		Criteria crit = getSession().createCriteria(CreditBank.class);
+		crit.add(Restrictions.eq("primaryCurrency", currency));
 		crit.setProjection(Projections.rowCount());
 		int count = ((Number) crit.uniqueResult()).intValue();
 		if (0 != count) {

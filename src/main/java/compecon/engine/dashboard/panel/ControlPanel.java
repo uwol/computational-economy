@@ -29,8 +29,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import compecon.Simulation;
-import compecon.culture.sectors.financial.Currency;
-import compecon.engine.AgentFactory;
+import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 
@@ -89,8 +88,8 @@ public class ControlPanel extends JPanel {
 						new ITimeSystemEvent() {
 							@Override
 							public void onEvent() {
-								for (int i = 0; i < 100; i++)
-									AgentFactory.newInstanceHousehold();
+								ModelRegistry.getControlModel()
+										.initHouseholds();
 							}
 						});
 			}
@@ -104,8 +103,8 @@ public class ControlPanel extends JPanel {
 						new ITimeSystemEvent() {
 							@Override
 							public void onEvent() {
-								AgentFactory.getInstanceState(Currency.EURO)
-										.doDeficitSpending();
+								ModelRegistry.getControlModel()
+										.deficitSpending();
 							}
 						});
 			}

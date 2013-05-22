@@ -250,6 +250,6 @@ public class Factory extends JointStockCompany {
 	}
 
 	public String toString() {
-		return super.toString() + " (" + this.producedGoodType + ")";
+		return super.toString() + " [" + this.producedGoodType + "]";
 	}
 }

@@ -65,46 +65,51 @@ public class Simulation {
 
 			// configure simulation
 			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 2;
-			final int NUMBER_OF_HOUSEHOLDS = 500;
-			final int NUMBER_OF_FACTORIES_PER_GOODTYPE = 5;
+			final int NUMBER_OF_HOUSEHOLDSPERCURRENCY = 500;
+			final int NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 5;
 
 			// initialize the time system, so that agents can register their
 			// events
 			TimeSystem timeSystem = TimeSystem.getInstance(2000,
 					MonthType.JANUARY, DayType.DAY_01);
 
-			// initialize states for currencies
 			for (Currency currency : Currency.values()) {
+				// initialize states
 				AgentFactory.getInstanceState(currency);
 			}
 
-			// initialize central banks for currencies
 			for (Currency currency : Currency.values()) {
+				// initialize central banks
 				AgentFactory.getInstanceCentralBank(currency);
 			}
 
-			// initialize credit banks
 			for (Currency currency : Currency.values()) {
 				Set<Currency> offeredCurrencies = new HashSet<Currency>();
 				offeredCurrencies.add(currency);
 
+				// initialize credit banks
 				for (int i = 0; i < NUMBER_OF_CREDITBANKSPERCURRENCY; i++) {
-					AgentFactory.newInstanceCreditBank(offeredCurrencies);
+					AgentFactory.newInstanceCreditBank(offeredCurrencies,
+							currency);
 				}
 			}
 
-			// initialize factories
-			for (GoodType goodType : GoodType.values()) {
-				if (!GoodType.LABOURHOUR.equals(goodType)) {
-					for (int i = 0; i < NUMBER_OF_FACTORIES_PER_GOODTYPE; i++) {
-						AgentFactory.newInstanceFactory(goodType);
+			for (Currency currency : Currency.values()) {
+				// initialize factories
+				for (GoodType goodType : GoodType.values()) {
+					if (!GoodType.LABOURHOUR.equals(goodType)) {
+						for (int i = 0; i < NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY; i++) {
+							AgentFactory.newInstanceFactory(goodType, currency);
+						}
 					}
 				}
 			}
 
-			// initialize households
-			for (int i = 0; i < NUMBER_OF_HOUSEHOLDS; i++) {
-				AgentFactory.newInstanceHousehold();
+			for (Currency currency : Currency.values()) {
+				// initialize households
+				for (int i = 0; i < NUMBER_OF_HOUSEHOLDSPERCURRENCY; i++) {
+					AgentFactory.newInstanceHousehold(currency);
+				}
 			}
 
 			HibernateUtil.flushSession();

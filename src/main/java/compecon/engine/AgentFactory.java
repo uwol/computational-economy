@@ -67,14 +67,18 @@ public class AgentFactory {
 	public static CreditBank newInstanceCreditBank(Currency offeredCurrency) {
 		Set<Currency> offeredCurrencies = new HashSet<Currency>();
 		offeredCurrencies.add(offeredCurrency);
-		return newInstanceCreditBank(offeredCurrencies);
+		return newInstanceCreditBank(offeredCurrencies, offeredCurrency);
 	}
 
 	public static CreditBank newInstanceCreditBank(
-			Set<Currency> offeredCurrencies) {
+			Set<Currency> offeredCurrencies, Currency primaryCurrency) {
+		if (!offeredCurrencies.contains(primaryCurrency))
+			throw new RuntimeException("primaryCurrency " + primaryCurrency
+					+ " not contained in offeredCurrencies");
+
 		CreditBank creditBank = new CreditBank();
 		creditBank.setOfferedCurrencies(offeredCurrencies);
-		creditBank.setPrimaryCurrency(Currency.EURO);
+		creditBank.setPrimaryCurrency(primaryCurrency);
 		creditBank.initialize();
 		DAOFactory.getCreditBankDAO().save(creditBank);
 		HibernateUtil.flushSession();
@@ -82,17 +86,18 @@ public class AgentFactory {
 	}
 
 	public static CreditBank getRandomInstanceCreditBank(Currency currency) {
-		return DAOFactory.getCreditBankDAO().findRandom();
+		return DAOFactory.getCreditBankDAO().findRandom(currency);
 	}
 
 	public static List<CreditBank> getAllCreditBanks(Currency currency) {
-		return DAOFactory.getCreditBankDAO().findAll();
+		return DAOFactory.getCreditBankDAO().findAll(currency);
 	}
 
-	public static Factory newInstanceFactory(GoodType goodType) {
+	public static Factory newInstanceFactory(GoodType goodType,
+			Currency primaryCurrency) {
 		Factory factory = new Factory();
 		factory.setProducedGoodType(goodType);
-		factory.setPrimaryCurrency(Currency.EURO);
+		factory.setPrimaryCurrency(primaryCurrency);
 
 		IProductionFunction productionFunction = InputOutputModel
 				.getProductionFunction(goodType);
@@ -104,9 +109,9 @@ public class AgentFactory {
 		return factory;
 	}
 
-	public static Household newInstanceHousehold() {
+	public static Household newInstanceHousehold(Currency primaryCurrency) {
 		Household household = new Household();
-		household.setPrimaryCurrency(Currency.EURO);
+		household.setPrimaryCurrency(primaryCurrency);
 
 		// consumption preferences; each GoodType has to be contained here, so
 		// that the corresponding price on the market can come to an

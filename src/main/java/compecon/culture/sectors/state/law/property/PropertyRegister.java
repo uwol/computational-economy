@@ -38,7 +38,7 @@ public class PropertyRegister {
 
 	private static PropertyRegister instance;
 
-	private Map<IPropertyOwner, Set<Property>> iPropertiesOfIPropertyOwners = new HashMap<IPropertyOwner, Set<Property>>();
+	private Map<IPropertyOwner, Set<Property>> propertiesOfIPropertyOwners = new HashMap<IPropertyOwner, Set<Property>>();
 
 	private Map<IPropertyOwner, HashMap<GoodType, Double>> goodTypesOfIPropertyOwners = new HashMap<IPropertyOwner, HashMap<GoodType, Double>>();
 
@@ -57,8 +57,8 @@ public class PropertyRegister {
 			if (!this.goodTypesOfIPropertyOwners.containsKey(propertyOwner))
 				this.goodTypesOfIPropertyOwners.put(propertyOwner,
 						new HashMap<GoodType, Double>());
-			if (!this.iPropertiesOfIPropertyOwners.containsKey(propertyOwner))
-				this.iPropertiesOfIPropertyOwners.put(propertyOwner,
+			if (!this.propertiesOfIPropertyOwners.containsKey(propertyOwner))
+				this.propertiesOfIPropertyOwners.put(propertyOwner,
 						new HashSet<Property>());
 		}
 	}
@@ -76,10 +76,19 @@ public class PropertyRegister {
 		return 0;
 	}
 
-	public Set<Property> getIProperties(IPropertyOwner propertyOwner) {
+	public Set<Property> getProperties(IPropertyOwner propertyOwner) {
 		this.assertInitializedDataStructure(propertyOwner);
 
-		return this.iPropertiesOfIPropertyOwners.get(propertyOwner);
+		return this.propertiesOfIPropertyOwners.get(propertyOwner);
+	}
+
+	public Set<Property> getProperties(IPropertyOwner propertyOwner,
+			Class<? extends Property> propertyClass) {
+		Set<Property> properties = new HashSet<Property>();
+		for (Property property : this.getProperties(propertyOwner))
+			if (property.getClass() == propertyClass)
+				properties.add(property);
+		return properties;
 	}
 
 	public Map<IPropertyOwner, Double> getPropertyOwners(GoodType goodType) {
@@ -95,7 +104,7 @@ public class PropertyRegister {
 	}
 
 	public IPropertyOwner getPropertyOwner(Property property) {
-		for (Entry<IPropertyOwner, Set<Property>> entry : this.iPropertiesOfIPropertyOwners
+		for (Entry<IPropertyOwner, Set<Property>> entry : this.propertiesOfIPropertyOwners
 				.entrySet()) {
 			if (entry.getValue().contains(property))
 				return entry.getKey();
@@ -113,8 +122,8 @@ public class PropertyRegister {
 
 	public void deregister(Property property) {
 		IPropertyOwner oldOwner = getPropertyOwner(property);
-		if (this.iPropertiesOfIPropertyOwners.containsKey(oldOwner))
-			this.iPropertiesOfIPropertyOwners.get(oldOwner).remove(property);
+		if (this.propertiesOfIPropertyOwners.containsKey(oldOwner))
+			this.propertiesOfIPropertyOwners.get(oldOwner).remove(property);
 	}
 
 	public void deregister(IPropertyOwner owner) {
@@ -130,12 +139,12 @@ public class PropertyRegister {
 		do {
 			int position = new Random().nextInt(owners.size());
 			newOwner = owners.get(position);
-		} while (owners.size() > 1 && newOwner == owner
-				&& !(newOwner instanceof Household));
+		} while (owners.size() > 1 && !(newOwner instanceof Household)
+				&& newOwner == owner);
 
 		if (newOwner != null && newOwner != owner) {
 
-			// does the owner own a good?
+			// does the old owner own a good?
 			if (this.goodTypesOfIPropertyOwners.containsKey(owner)) {
 				// transfer all goods
 				for (Entry<GoodType, Double> entry : this.goodTypesOfIPropertyOwners
@@ -145,12 +154,12 @@ public class PropertyRegister {
 								entry.getValue());
 				}
 			}
-			// does the owner own at least one IProperty?
-			if (this.iPropertiesOfIPropertyOwners.containsKey(owner)) {
+			// does the old owner own at least one IProperty?
+			if (this.propertiesOfIPropertyOwners.containsKey(owner)) {
 				// transfer all IProperties, via a new HashSet to avoid
 				// ConcurrentModificationException
 				for (Property property : new HashSet<Property>(
-						this.iPropertiesOfIPropertyOwners.get(owner))) {
+						this.propertiesOfIPropertyOwners.get(owner))) {
 					this.transfer(owner, newOwner, property);
 				}
 			}
@@ -158,7 +167,7 @@ public class PropertyRegister {
 		}
 
 		this.goodTypesOfIPropertyOwners.remove(owner);
-		this.iPropertiesOfIPropertyOwners.remove(owner);
+		this.propertiesOfIPropertyOwners.remove(owner);
 	}
 
 	/*
@@ -227,10 +236,10 @@ public class PropertyRegister {
 		this.assertInitializedDataStructure(newOwner);
 
 		if (this.getPropertyOwner(property) == null) {
-			this.iPropertiesOfIPropertyOwners.get(newOwner).add(property);
+			this.propertiesOfIPropertyOwners.get(newOwner).add(property);
 		} else if (this.getPropertyOwner(property) == oldOwner) {
-			this.iPropertiesOfIPropertyOwners.get(oldOwner).remove(property);
-			this.iPropertiesOfIPropertyOwners.get(newOwner).add(property);
+			this.propertiesOfIPropertyOwners.get(oldOwner).remove(property);
+			this.propertiesOfIPropertyOwners.get(newOwner).add(property);
 		} else
 			throw new RuntimeException("oldOwner " + oldOwner
 					+ " does not own IProperty " + property);

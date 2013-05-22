@@ -15,24 +15,18 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.culture.sectors.financial;
+package compecon.engine.jmx.model;
 
-public enum Currency {
-	EURO("EUR"), USDOLLAR("USD");
+import compecon.culture.sectors.financial.Currency;
+import compecon.engine.AgentFactory;
 
-	protected String iso4217Code;
-
-	private Currency(String iso4217Code) {
-		this.iso4217Code = iso4217Code;
+public class ControlModel extends Model {
+	public void initHouseholds() {
+		for (int i = 0; i < 100; i++)
+			AgentFactory.newInstanceHousehold(Currency.EURO);
 	}
 
-	public String getIso4217Code() {
-		return this.iso4217Code;
-	}
-
-	public static double round(double value) {
-		if (Double.isNaN(value) || Double.isInfinite(value))
-			return value;
-		return Math.round(value * 100.) / 100.;
+	public void deficitSpending() {
+		AgentFactory.getInstanceState(Currency.EURO).doDeficitSpending();
 	}
 }

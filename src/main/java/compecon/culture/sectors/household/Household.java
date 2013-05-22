@@ -152,11 +152,9 @@ public class Household extends Agent implements IShareOwner {
 
 	@Override
 	@Transient
-	public BankAccount getDividendBankAccount(Currency currency) {
+	public BankAccount getDividendBankAccount() {
 		this.assertTransactionsBankAccount();
-		if (this.transactionsBankAccount.getCurrency() == currency)
-			return this.transactionsBankAccount;
-		return null;
+		return this.transactionsBankAccount;
 	}
 
 	protected class SettlementMarketEvent implements ISettlementEvent {
@@ -290,6 +288,25 @@ public class Household extends Agent implements IShareOwner {
 							.get(Household.this.primaryBank));
 
 			/*
+			 * sell shares that are denominated in an incorrect currency
+			 */
+			MarketFactory.getInstance().removeAllSellingOffers(Household.this,
+					Household.this.transactionsBankAccount.getCurrency(),
+					Share.class);
+			for (Property property : PropertyRegister.getInstance()
+					.getProperties(Household.this, Share.class)) {
+				if (property instanceof Share) {
+					MarketFactory.getInstance().placeSellingOffer(
+							property,
+							Household.this,
+							Household.this.getTransactionsBankAccount(),
+							0.0,
+							Household.this.getTransactionsBankAccount()
+									.getCurrency());
+				}
+			}
+
+			/*
 			 * check for required utility
 			 */
 			if (utility < Household.this.REQUIRED_UTILITY) {
@@ -309,7 +326,8 @@ public class Household extends Agent implements IShareOwner {
 			if (Household.this.ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
 				if ((Household.this.ageInDays - NEW_HOUSEHOLD_FROM_X_DAYS)
 						% NEW_HOUSEHOLD_EVERY_X_DAYS == 0) {
-					AgentFactory.newInstanceHousehold();
+					AgentFactory
+							.newInstanceHousehold(Household.this.primaryCurrency);
 				}
 			}
 

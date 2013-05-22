@@ -182,7 +182,7 @@ public abstract class Agent implements IPropertyOwner {
 		}
 		if (this.transactionsBankAccount == null) {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
-					this, Currency.EURO,
+					this, this.primaryCurrency,
 					this.bankPasswords.get(this.primaryBank));
 		}
 	}
@@ -259,8 +259,7 @@ public abstract class Agent implements IPropertyOwner {
 
 	@Override
 	public String toString() {
-		if (this.id != 0)
-			return this.agentTypeName + " (ID " + this.id + ")";
-		return this.agentTypeName;
+		return this.agentTypeName + " (ID " + this.id + ") ["
+				+ this.primaryCurrency + "]";
 	}
 }

@@ -18,9 +18,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.culture.sectors.state.law.security.equity;
 
 import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.property.IPropertyOwner;
 
 public interface IShareOwner extends IPropertyOwner {
-	public BankAccount getDividendBankAccount(Currency currency);
+	public BankAccount getDividendBankAccount();
 }

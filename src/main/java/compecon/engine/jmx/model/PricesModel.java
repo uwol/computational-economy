@@ -121,18 +121,21 @@ public class PricesModel extends Model {
 		}
 	}
 
-	protected final Map<GoodType, PriceModel> priceModels = new HashMap<GoodType, PriceModel>();
+	protected final Map<Currency, Map<GoodType, PriceModel>> priceModels = new HashMap<Currency, Map<GoodType, PriceModel>>();
 
 	public void market_onTick(double pricePerUnit, GoodType goodType,
 			Currency currency, double amount) {
-		if (currency.equals(Currency.EURO)) {
-			if (!this.priceModels.containsKey(goodType))
-				this.priceModels.put(goodType, new PriceModel());
-			this.priceModels.get(goodType).tick(pricePerUnit, amount);
-		}
+		if (!this.priceModels.containsKey(currency))
+			this.priceModels.put(currency, new HashMap<GoodType, PriceModel>());
+
+		Map<GoodType, PriceModel> priceModelsForCurrency = this.priceModels
+				.get(currency);
+		if (!priceModelsForCurrency.containsKey(goodType))
+			priceModelsForCurrency.put(goodType, new PriceModel());
+		priceModelsForCurrency.get(goodType).tick(pricePerUnit, amount);
 	}
 
-	public Map<GoodType, PriceModel> getPriceModels() {
+	public Map<Currency, Map<GoodType, PriceModel>> getPriceModels() {
 		return this.priceModels;
 	}
 }

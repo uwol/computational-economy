@@ -59,7 +59,7 @@ public class State extends Agent {
 			for (Agent agent : creditBank.getCustomers()) {
 				if (agent != this) {
 					this.primaryBank.transferMoney(transactionsBankAccount,
-							agent.getTransactionsBankAccount(), 100,
+							agent.getTransactionsBankAccount(), 1000,
 							this.bankPasswords.get(this.primaryBank),
 							"deficit spending");
 				}

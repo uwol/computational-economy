@@ -97,29 +97,48 @@ public abstract class JointStockCompany extends Agent {
 	@Transient
 	protected void payDividend() {
 		if (this.issuedShares.size() > 0) {
+			JointStockCompany.this.assertTransactionsBankAccount();
+
 			double totalDividend = this.calculateTotalDividend();
+
+			// dividend to be payed?
 			if (totalDividend > 0) {
+				Currency currency = this.transactionsBankAccount.getCurrency();
 				double dividendPerOwner = totalDividend
 						/ this.issuedShares.size();
 
-				Currency currency = this.transactionsBankAccount.getCurrency();
+				// variables for checking correct behaviour
+				boolean foundShareHolder = false;
+				double dividendPayed = 0;
 
+				// pay dividend for each share
 				for (Share share : this.issuedShares) {
 					IPropertyOwner owner = PropertyRegister.getInstance()
 							.getPropertyOwner(share);
-					if (owner != null && owner instanceof IShareOwner) {
-						this.transactionsBankAccount
-								.getManagingBank()
-								.transferMoney(
-										this.transactionsBankAccount,
-										((IShareOwner) owner)
-												.getDividendBankAccount(currency),
-										dividendPerOwner,
-										this.bankPasswords
-												.get(this.primaryBank),
-										"dividend");
+					if (owner != null && owner != JointStockCompany.this) {
+						foundShareHolder = true;
+
+						if (owner instanceof IShareOwner) {
+							IShareOwner shareOwner = (IShareOwner) owner;
+							if (shareOwner.getDividendBankAccount()
+									.getCurrency() == currency) {
+								this.transactionsBankAccount
+										.getManagingBank()
+										.transferMoney(
+												this.transactionsBankAccount,
+												((IShareOwner) owner)
+														.getDividendBankAccount(),
+												dividendPerOwner,
+												this.bankPasswords
+														.get(this.primaryBank),
+												"dividend");
+								dividendPayed += dividendPerOwner;
+							}
+						}
 					}
 				}
+				if (foundShareHolder && dividendPayed == 0)
+					throw new RuntimeException("no dividend could be payed");
 			}
 		}
 	}
@@ -147,6 +166,8 @@ public abstract class JointStockCompany extends Agent {
 		@Override
 		public void onEvent() {
 			if (JointStockCompany.this.issuedShares.size() == 0) {
+				JointStockCompany.this.assertTransactionsBankAccount();
+
 				// issue 10 shares
 				for (int i = 0; i < 3; i++) {
 					Share initialShare = PropertyFactory

@@ -29,6 +29,7 @@ import javax.management.ObjectName;
 import org.hibernate.jmx.StatisticsService;
 
 import compecon.engine.jmx.mbean.JmxAgents;
+import compecon.engine.jmx.mbean.JmxControl;
 import compecon.engine.util.HibernateUtil;
 
 public class Registration {
@@ -38,10 +39,18 @@ public class Registration {
 
 		MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
+		// agents mbean
 		ObjectName agentsObjectName = new ObjectName("compecon.jmx:type=Agents");
 		JmxAgents agentsMBean = new JmxAgents();
 		mBeanServer.registerMBean(agentsMBean, agentsObjectName);
 
+		// control mbean
+		ObjectName controlObjectName = new ObjectName(
+				"compecon.jmx:type=Control");
+		JmxControl controlMBean = new JmxControl();
+		mBeanServer.registerMBean(controlMBean, controlObjectName);
+
+		// hibernate stats mbean
 		StatisticsService statsMBean = new StatisticsService();
 		statsMBean.setSessionFactory(HibernateUtil.getSessionFactory());
 		statsMBean.setStatisticsEnabled(true);

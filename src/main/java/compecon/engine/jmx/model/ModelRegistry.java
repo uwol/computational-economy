@@ -31,29 +31,31 @@ public class ModelRegistry {
 	protected final static PeriodDataAccumulatorTimeSeriesModel<GoodType> capacityModel = new PeriodDataAccumulatorTimeSeriesModel<GoodType>(
 			GoodType.values(), " cap.");
 
+	protected final static ControlModel controlModel = new ControlModel();
+
 	protected final static PeriodDataAccumulatorTimeSeriesModel<GoodType> effectiveProductionOutputModel = new PeriodDataAccumulatorTimeSeriesModel<GoodType>(
 			GoodType.values());
 
 	protected final static TimeSeriesModel<Currency> keyInterestRateModel = new TimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO });
+			Currency.values());
 
 	protected final static MonetaryTransactionsModel monetaryTransactionsModel = new MonetaryTransactionsModel();
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO }, " M0");
+			Currency.values(), " M0");
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO }, " M1");
+			Currency.values(), " M1");
 
 	protected final static NumberOfAgentsModel numberOfAgentsModel = new NumberOfAgentsModel();
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO }, " utility");
+			Currency.values(), " utility");
 
 	protected final static PricesModel pricesModel = new PricesModel();
 
 	protected final static TimeSeriesModel<Currency> priceIndexModel = new TimeSeriesModel<Currency>(
-			new Currency[] { Currency.EURO });
+			Currency.values());
 
 	static {
 		balanceSheetsModel = new BalanceSheetsModel(moneySupplyM0Model,
@@ -74,6 +76,10 @@ public class ModelRegistry {
 
 	public static PeriodDataAccumulatorTimeSeriesModel<GoodType> getCapacityModel() {
 		return capacityModel;
+	}
+
+	public static ControlModel getControlModel() {
+		return controlModel;
 	}
 
 	public static PeriodDataAccumulatorTimeSeriesModel<GoodType> getEffectiveProductionOutputModel() {

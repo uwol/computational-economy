@@ -37,12 +37,13 @@ public class MarketTest {
 		CreditBank creditBank = AgentFactory.newInstanceCreditBank(currency);
 		creditBank.assertCentralBankAccount();
 		creditBank.assertTransactionsBankAccount();
-		Household household1 = AgentFactory.newInstanceHousehold();
+		Household household1 = AgentFactory.newInstanceHousehold(Currency.EURO);
 		household1.assertTransactionsBankAccount();
-		Household household2 = AgentFactory.newInstanceHousehold();
+		Household household2 = AgentFactory.newInstanceHousehold(Currency.EURO);
 		household2.assertTransactionsBankAccount();
 
-		Factory factory1 = AgentFactory.newInstanceFactory(GoodType.WHEAT);
+		Factory factory1 = AgentFactory.newInstanceFactory(GoodType.WHEAT,
+				Currency.EURO);
 		factory1.assertTransactionsBankAccount();
 
 		// test market for good type
