@@ -15,25 +15,8 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.culture.sectors.financial;
+package compecon.culture.markets.ordertypes;
 
+public class StopMarketOrder extends MarketOrder {
 
-public enum Currency {
-	EURO("EUR"), USDOLLAR("USD");
-
-	protected String iso4217Code;
-
-	private Currency(String iso4217Code) {
-		this.iso4217Code = iso4217Code;
-	}
-
-	public String getIso4217Code() {
-		return this.iso4217Code;
-	}
-
-	public static double round(double value) {
-		if (Double.isNaN(value) || Double.isInfinite(value))
-			return value;
-		return Math.round(value * 100.) / 100.;
-	}
 }

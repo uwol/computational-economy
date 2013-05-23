@@ -25,11 +25,12 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import compecon.culture.markets.ordertypes.MarketOrder;
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.property.Property;
 import compecon.engine.Agent;
-import compecon.engine.MarketOfferFactory;
+import compecon.engine.MarketOrderFactory;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.engine.util.MathUtil;
@@ -38,7 +39,7 @@ import compecon.nature.materia.GoodType;
 public abstract class Market {
 
 	/*
-	 * place selling offers
+	 * place selling orders
 	 */
 	public void placeSellingOffer(GoodType goodType, Agent offeror,
 			BankAccount offerorsBankAcount, double amount, double pricePerUnit,
@@ -46,8 +47,8 @@ public abstract class Market {
 		if (!Double.isNaN(amount) && !Double.isInfinite(amount)
 				&& !Double.isNaN(pricePerUnit)
 				&& !Double.isInfinite(pricePerUnit) && amount > 0) {
-			MarketOfferFactory
-					.newInstanceGoodTypeMarketOffer(goodType, offeror,
+			MarketOrderFactory
+					.newInstanceGoodTypeMarketOrder(goodType, offeror,
 							offerorsBankAcount, amount, pricePerUnit, currency);
 		}
 	}
@@ -56,41 +57,35 @@ public abstract class Market {
 			BankAccount offerorsBankAcount, double pricePerUnit,
 			Currency currency) {
 		if (!Double.isNaN(pricePerUnit) && !Double.isInfinite(pricePerUnit)) {
-			MarketOfferFactory.newInstancePropertyMarketOffer(property,
+			MarketOrderFactory.newInstancePropertyMarketOrder(property,
 					offeror, offerorsBankAcount, pricePerUnit, currency);
 		}
 	}
 
 	/*
-	 * remove selling offers
+	 * remove selling orders
 	 */
 	public void removeAllSellingOffers(Agent offeror) {
-		DAOFactory.getGoodTypeMarketOfferDAO().deleteAllSellingOffers(offeror);
-		DAOFactory.getPropertyMarketOfferDAO().deleteAllSellingOffers(offeror);
+		DAOFactory.getMarketOrderDAO().deleteAllSellingOrders(offeror);
 		HibernateUtil.flushSession();
 	}
 
 	public void removeAllSellingOffers(Agent offeror, Currency currency,
 			GoodType goodType) {
-		DAOFactory.getGoodTypeMarketOfferDAO().deleteAllSellingOffers(offeror,
+		DAOFactory.getMarketOrderDAO().deleteAllSellingOrders(offeror,
 				currency, goodType);
 		HibernateUtil.flushSession();
 	}
 
 	public void removeAllSellingOffers(Agent offeror, Currency currency,
 			Class<? extends Property> propertyClass) {
-		DAOFactory.getPropertyMarketOfferDAO().deleteAllSellingOffers(offeror,
+		DAOFactory.getMarketOrderDAO().deleteAllSellingOrders(offeror,
 				currency, propertyClass);
 		HibernateUtil.flushSession();
 	}
 
-	protected void removeSellingOffer(GoodTypeMarketOffer goodTypeMarketOffer) {
-		DAOFactory.getGoodTypeMarketOfferDAO().delete(goodTypeMarketOffer);
-		HibernateUtil.flushSession();
-	}
-
-	protected void removeSellingOffer(PropertyMarketOffer propertyMarketOffer) {
-		DAOFactory.getPropertyMarketOfferDAO().delete(propertyMarketOffer);
+	protected void removeSellingOffer(MarketOrder marketOrder) {
+		DAOFactory.getMarketOrderDAO().delete(marketOrder);
 		HibernateUtil.flushSession();
 	}
 
@@ -98,14 +93,14 @@ public abstract class Market {
 	 * get price
 	 */
 	public double getMarginalPrice(Currency currency, GoodType goodType) {
-		return DAOFactory.getGoodTypeMarketOfferDAO().findMarginalPrice(
-				currency, goodType);
+		return DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+				goodType);
 	}
 
 	public double getMarginalPrice(Currency currency,
 			Class<? extends Property> propertyClass) {
-		return DAOFactory.getPropertyMarketOfferDAO().findMarginalPrice(
-				currency, propertyClass);
+		return DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+				propertyClass);
 	}
 
 	public Map<GoodType, Double> getMarginalPrices(Currency currency) {
@@ -119,14 +114,14 @@ public abstract class Market {
 	 * fulfillment
 	 */
 
-	public SortedMap<GoodTypeMarketOffer, Double> findBestFulfillmentSet(
+	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			GoodType goodType, Currency currency, double maxAmount,
 			double maxTotalPrice, double maxPricePerUnit) {
 		if (Double.isInfinite(maxAmount))
 			maxAmount = -1;
 
-		// MarketOffer, Amount
-		SortedMap<GoodTypeMarketOffer, Double> selectedOffers = new TreeMap<GoodTypeMarketOffer, Double>();
+		// MarketOrder, Amount
+		SortedMap<MarketOrder, Double> selectedOffers = new TreeMap<MarketOrder, Double>();
 
 		boolean restrictMaxAmount = true;
 		if (maxAmount < 0)
@@ -143,12 +138,12 @@ public abstract class Market {
 		double selectedAmount = 0;
 		double spentMoney = 0;
 
-		// search for offers for the right property starting
+		// search for orders for the right property starting
 		// with the lowest price/unit
-		Iterator<GoodTypeMarketOffer> iterator = DAOFactory
-				.getGoodTypeMarketOfferDAO().getIterator(goodType, currency);
+		Iterator<MarketOrder> iterator = DAOFactory.getMarketOrderDAO()
+				.getIterator(goodType, currency);
 		while (iterator.hasNext()) {
-			GoodTypeMarketOffer offer = iterator.next();
+			MarketOrder offer = iterator.next();
 
 			if (restrictMaxPricePerUnit
 					&& MathUtil.greater(offer.getPricePerUnit(),
@@ -222,15 +217,15 @@ public abstract class Market {
 		return selectedOffers;
 	}
 
-	public SortedSet<PropertyMarketOffer> findBestFulfillmentSet(
+	public SortedSet<MarketOrder> findBestFulfillmentSet(
 			Class<? extends Property> propertyClass, Currency currency,
 			double maxAmount, final double maxTotalPrice,
 			final double maxPricePerUnit) {
 		if (Double.isInfinite(maxAmount))
 			maxAmount = -1;
 
-		// MarketOffer, Amount
-		SortedSet<PropertyMarketOffer> selectedOffers = new TreeSet<PropertyMarketOffer>();
+		// MarketOrder, Amount
+		SortedSet<MarketOrder> selectedOffers = new TreeSet<MarketOrder>();
 
 		boolean restrictMaxAmount = true;
 		if (maxAmount < 0)
@@ -249,11 +244,10 @@ public abstract class Market {
 
 		// search for offers for the right property starting
 		// with the lowest price/unit
-		Iterator<PropertyMarketOffer> iterator = DAOFactory
-				.getPropertyMarketOfferDAO().getIterator(propertyClass,
-						currency);
+		Iterator<MarketOrder> iterator = DAOFactory.getMarketOrderDAO()
+				.getIterator(propertyClass, currency);
 		while (iterator.hasNext()) {
-			PropertyMarketOffer offer = iterator.next();
+			MarketOrder offer = iterator.next();
 
 			if (restrictMaxPricePerUnit
 					&& MathUtil.greater(offer.getPricePerUnit(),

@@ -286,14 +286,6 @@ public class CreditBank extends Bank implements
 		bankAccount.withdraw(amount);
 	}
 
-	@Override
-	@Transient
-	protected double calculateTotalDividend() {
-		assertTransactionsBankAccount();
-		return Math.max(0.0, this.transactionsBankAccount.getBalance()
-				- MONEY_TO_RETAIN);
-	}
-
 	protected class DailyInterestCalculationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {

@@ -6,6 +6,7 @@ import java.util.SortedMap;
 
 import org.junit.Test;
 
+import compecon.culture.markets.ordertypes.MarketOrder;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -49,46 +50,46 @@ public class MarketTest {
 		// test market for good type
 
 		assertEquals(
-				DAOFactory.getGoodTypeMarketOfferDAO().findMarginalPrice(
-						currency, goodType), Double.NaN, epsilon);
+				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+						goodType), Double.NaN, epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household1,
 				household1.getTransactionsBankAccount(), 10, 5, currency);
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2,
 				household2.getTransactionsBankAccount(), 10, 4, currency);
 		assertEquals(
-				DAOFactory.getGoodTypeMarketOfferDAO().findMarginalPrice(
-						currency, goodType), 4.0, epsilon);
+				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+						goodType), 4.0, epsilon);
 
 		MarketFactory.getInstance().removeAllSellingOffers(household2);
 		assertEquals(
-				DAOFactory.getGoodTypeMarketOfferDAO().findMarginalPrice(
-						currency, goodType), 5.0, epsilon);
+				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+						goodType), 5.0, epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2,
 				household2.getTransactionsBankAccount(), 10, 3, currency);
 		assertEquals(
-				DAOFactory.getGoodTypeMarketOfferDAO().findMarginalPrice(
-						currency, goodType), 3.0, epsilon);
+				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+						goodType), 3.0, epsilon);
 
 		MarketFactory.getInstance().removeAllSellingOffers(household2,
 				currency, goodType);
 		assertEquals(
-				DAOFactory.getGoodTypeMarketOfferDAO().findMarginalPrice(
-						currency, goodType), 5.0, epsilon);
+				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+						goodType), 5.0, epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2,
 				household2.getTransactionsBankAccount(), 10, 3, currency);
 		assertEquals(
-				DAOFactory.getGoodTypeMarketOfferDAO().findMarginalPrice(
-						currency, goodType), 3.0, epsilon);
+				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+						goodType), 3.0, epsilon);
 
-		SortedMap<GoodTypeMarketOffer, Double> marketOffers1 = MarketFactory
+		SortedMap<MarketOrder, Double> marketOffers1 = MarketFactory
 				.getInstance().findBestFulfillmentSet(goodType, currency, 20,
 						-1, 3);
 		assertEquals(marketOffers1.size(), 1);
 
-		SortedMap<GoodTypeMarketOffer, Double> marketOffers2 = MarketFactory
+		SortedMap<MarketOrder, Double> marketOffers2 = MarketFactory
 				.getInstance().findBestFulfillmentSet(goodType, currency, 20,
 						-1, 5);
 		assertEquals(marketOffers2.size(), 2);
@@ -107,13 +108,13 @@ public class MarketTest {
 		MarketFactory.getInstance().placeSellingOffer(new Share(), household2,
 				household2.getTransactionsBankAccount(), 3, currency);
 		assertEquals(
-				DAOFactory.getPropertyMarketOfferDAO().findMarginalPrice(
-						currency, Share.class), 3.0, epsilon);
+				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+						Share.class), 3.0, epsilon);
 
 		MarketFactory.getInstance().removeAllSellingOffers(household2);
 		assertEquals(
-				DAOFactory.getPropertyMarketOfferDAO().findMarginalPrice(
-						currency, Share.class), 4.0, epsilon);
+				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+						Share.class), 4.0, epsilon);
 
 		// close database conenction
 		HibernateUtil.closeSession();

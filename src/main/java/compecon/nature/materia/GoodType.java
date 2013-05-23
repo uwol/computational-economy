@@ -17,6 +17,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.nature.materia;
 
+
 public enum GoodType {
 	LABOURHOUR(), IRON(), COAL(), GOLD(), URANIUM(), WHEAT(), STEEL(), KILOWATT(), REALESTATE(), CAR();
+
 }

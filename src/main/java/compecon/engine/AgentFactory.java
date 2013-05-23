@@ -29,6 +29,7 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.State;
+import compecon.culture.sectors.trading.Trader;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.nature.materia.GoodType;
@@ -135,6 +136,16 @@ public class AgentFactory {
 		return household;
 	}
 
+	public static Trader newInstanceTrader(Currency primaryCurrency) {
+		Trader trader = new Trader();
+		trader.setPrimaryCurrency(primaryCurrency);
+
+		trader.initialize();
+		DAOFactory.getTraderDAO().save(trader);
+		HibernateUtil.flushSession();
+		return trader;
+	}
+
 	public static void deleteAgent(Agent agent) {
 		if (agent instanceof Household)
 			DAOFactory.getHouseholdDAO().delete((Household) agent);
@@ -146,5 +157,7 @@ public class AgentFactory {
 			DAOFactory.getCreditBankDAO().delete((CreditBank) agent);
 		else if (agent instanceof Factory)
 			DAOFactory.getFactoryDAO().delete((Factory) agent);
+		else if (agent instanceof Trader)
+			DAOFactory.getTraderDAO().delete((Trader) agent);
 	}
 }

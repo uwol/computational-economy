@@ -342,14 +342,6 @@ public class CentralBank extends Bank {
 		return this.MAX_EFFECTIVE_KEY_INTEREST_RATE;
 	}
 
-	@Override
-	@Transient
-	protected double calculateTotalDividend() {
-		assertTransactionsBankAccount();
-		return Math.max(0.0, this.transactionsBankAccount.getBalance()
-				- MONEY_TO_RETAIN);
-	}
-
 	@Transient
 	public double getReserveRatio() {
 		return RESERVE_RATIO;

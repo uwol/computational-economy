@@ -65,6 +65,7 @@ public class Simulation {
 
 			// configure simulation
 			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 2;
+			final int NUMBER_OF_TRADERSPERCURRENCY = 2;
 			final int NUMBER_OF_HOUSEHOLDSPERCURRENCY = 500;
 			final int NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 5;
 
@@ -102,6 +103,13 @@ public class Simulation {
 							AgentFactory.newInstanceFactory(goodType, currency);
 						}
 					}
+				}
+			}
+
+			for (Currency currency : Currency.values()) {
+				// initialize traders
+				for (int i = 0; i < NUMBER_OF_TRADERSPERCURRENCY; i++) {
+					AgentFactory.newInstanceTrader(currency);
 				}
 			}
 

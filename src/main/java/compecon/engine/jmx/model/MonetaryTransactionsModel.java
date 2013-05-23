@@ -28,6 +28,7 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.State;
+import compecon.culture.sectors.trading.Trader;
 import compecon.engine.Agent;
 
 public class MonetaryTransactionsModel extends Model {
@@ -44,6 +45,7 @@ public class MonetaryTransactionsModel extends Model {
 		this.agentTypes.add(CreditBank.class);
 		this.agentTypes.add(CentralBank.class);
 		this.agentTypes.add(State.class);
+		this.agentTypes.add(Trader.class);
 
 		for (Currency currency : Currency.values()) {
 			// initialize data structure for currency

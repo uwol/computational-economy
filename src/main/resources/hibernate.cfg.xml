@@ -30,9 +30,7 @@
 		<property name="hibernate.jdbc.batch_size">100</property>
 		<property name="hibernate.generate.statistics">true</property>
 
-		<mapping class="compecon.culture.markets.MarketOffer" />
-		<mapping class="compecon.culture.markets.GoodTypeMarketOffer" />
-		<mapping class="compecon.culture.markets.PropertyMarketOffer" />
+		<mapping class="compecon.culture.markets.ordertypes.MarketOrder" />
 		<mapping class="compecon.culture.sectors.financial.Currency" />
 		<mapping class="compecon.culture.sectors.financial.Bank" />
 		<mapping class="compecon.culture.sectors.financial.BankAccount" />
@@ -47,6 +45,7 @@
 		<mapping class="compecon.culture.sectors.state.law.security.debt.ZeroCouponBond" />
 		<mapping class="compecon.culture.sectors.state.law.security.equity.JointStockCompany" />
 		<mapping class="compecon.culture.sectors.state.law.security.equity.Share" />
+		<mapping class="compecon.culture.sectors.trading.Trader" />
 		<mapping class="compecon.engine.Agent" />
 		<mapping class="compecon.nature.materia.GoodType" />
 	</session-factory>

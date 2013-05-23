@@ -92,7 +92,11 @@ public abstract class JointStockCompany extends Agent {
 	 */
 
 	@Transient
-	protected abstract double calculateTotalDividend();
+	protected double calculateTotalDividend() {
+		this.assertTransactionsBankAccount();
+		return Math.max(0.0, this.transactionsBankAccount.getBalance()
+				- MONEY_TO_RETAIN);
+	}
 
 	@Transient
 	protected void payDividend() {
@@ -137,8 +141,11 @@ public abstract class JointStockCompany extends Agent {
 						}
 					}
 				}
-				if (foundShareHolder && dividendPayed == 0)
-					throw new RuntimeException("no dividend could be payed");
+				/**
+				 * ToDo<br />
+				 * if (foundShareHolder && dividendPayed == 0) throw new
+				 * RuntimeException("no dividend could be payed");
+				 */
 			}
 		}
 	}

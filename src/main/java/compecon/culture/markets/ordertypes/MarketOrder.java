@@ -15,9 +15,10 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.culture.markets;
+package compecon.culture.markets.ordertypes;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -25,15 +26,30 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Index;
 
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
+import compecon.culture.sectors.state.law.property.Property;
 import compecon.engine.Agent;
+import compecon.nature.materia.GoodType;
 
-@MappedSuperclass
-public abstract class MarketOffer implements Comparable<MarketOffer> {
+@Entity
+@Table(name = "MarketOrder")
+@org.hibernate.annotations.Table(appliesTo = "MarketOrder", indexes = {
+		@Index(name = "IDX_MO_CURRENCY", columnNames = "currency"),
+		@Index(name = "IDX_MO_OFFERORSBANKACCOUNT", columnNames = "offerorsBankAcount_id"),
+		@Index(name = "IDX_MO_CP_MARGINALPRICE", columnNames = { "currency",
+				"pricePerUnit" }),
+		@Index(name = "IDX_MO_CGP_MARGINALPRICE", columnNames = { "currency",
+				"goodType", "pricePerUnit" }) })
+public class MarketOrder implements Comparable<MarketOrder> {
+
+	@Column(name = "amount")
+	protected double amount;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
@@ -47,6 +63,10 @@ public abstract class MarketOffer implements Comparable<MarketOffer> {
 	@Enumerated(EnumType.STRING)
 	protected Currency currency;
 
+	@Column
+	@Enumerated(EnumType.STRING)
+	protected GoodType goodType;
+
 	@ManyToOne
 	@JoinColumn(name = "offerorsBankAcount_id")
 	protected BankAccount offerorsBankAcount;
@@ -54,7 +74,20 @@ public abstract class MarketOffer implements Comparable<MarketOffer> {
 	@Column(name = "pricePerUnit")
 	protected double pricePerUnit;
 
+	@ManyToOne
+	@Index(name = "IDX_MO_PROPERTY")
+	@JoinColumn(name = "property_id")
+	protected Property property;
+
+	@Column
+	@Enumerated(EnumType.STRING)
+	protected ValidityPeriod validityPeriod;
+
 	// accessors
+
+	public double getAmount() {
+		return amount;
+	}
 
 	public int getId() {
 		return id;
@@ -68,6 +101,10 @@ public abstract class MarketOffer implements Comparable<MarketOffer> {
 		return currency;
 	}
 
+	public GoodType getGoodType() {
+		return goodType;
+	}
+
 	public BankAccount getOfferorsBankAcount() {
 		return offerorsBankAcount;
 	}
@@ -76,8 +113,24 @@ public abstract class MarketOffer implements Comparable<MarketOffer> {
 		return pricePerUnit;
 	}
 
+	public Property getProperty() {
+		return property;
+	}
+
+	public ValidityPeriod getValidityPeriod() {
+		return validityPeriod;
+	}
+
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
+
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public void setGoodType(GoodType goodType) {
+		this.goodType = goodType;
 	}
 
 	public void setOfferor(Agent offeror) {
@@ -96,11 +149,19 @@ public abstract class MarketOffer implements Comparable<MarketOffer> {
 		this.pricePerUnit = pricePerUnit;
 	}
 
+	public void setProperty(Property property) {
+		this.property = property;
+	}
+
+	public void setValidityPeriod(ValidityPeriod validityPeriod) {
+		this.validityPeriod = validityPeriod;
+	}
+
 	// transient
 
 	@Override
 	@Transient
-	public int compareTo(MarketOffer marketOffer) {
+	public int compareTo(MarketOrder marketOffer) {
 		if (this == marketOffer)
 			return 0;
 		if (this.getPricePerUnit() > marketOffer.getPricePerUnit())
@@ -110,4 +171,19 @@ public abstract class MarketOffer implements Comparable<MarketOffer> {
 		// important, so that two market offers with same price can exists
 		return this.hashCode() - marketOffer.hashCode();
 	}
+
+	@Transient
+	public double getPriceTotal() {
+		return this.pricePerUnit * this.getAmount();
+	}
+
+	@Transient
+	public void decrementAmount(double amount) {
+		this.amount -= amount;
+	}
+
+	public enum ValidityPeriod {
+		GoodForDay, GoodTillDate, GoodTillCancelled
+	}
+
 }

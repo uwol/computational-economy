@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
+import compecon.culture.markets.ordertypes.MarketOrder;
 import compecon.culture.sectors.financial.Bank;
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
@@ -79,7 +80,7 @@ public class SettlementMarket extends Market {
 			final double maxPricePerUnit, Agent buyer,
 			BankAccount buyersBankAccount, String buyersBankAccountPassword) {
 
-		SortedMap<GoodTypeMarketOffer, Double> marketOffers = this
+		SortedMap<MarketOrder, Double> marketOffers = this
 				.findBestFulfillmentSet(goodType, currency, maxAmount,
 						maxTotalPrice, maxPricePerUnit);
 
@@ -90,8 +91,8 @@ public class SettlementMarket extends Market {
 		double amountSum = 0;
 		Double[] priceAndAmount = new Double[2];
 
-		for (Entry<GoodTypeMarketOffer, Double> entry : marketOffers.entrySet()) {
-			GoodTypeMarketOffer marketOffer = entry.getKey();
+		for (Entry<MarketOrder, Double> entry : marketOffers.entrySet()) {
+			MarketOrder marketOffer = entry.getKey();
 			double amount = entry.getValue();
 
 			// transfer money
@@ -153,9 +154,9 @@ public class SettlementMarket extends Market {
 			Agent buyer, BankAccount buyersBankAccount,
 			String buyersBankAccountPassword) {
 
-		SortedSet<PropertyMarketOffer> marketOffers = this
-				.findBestFulfillmentSet(propertyClass, currency, maxAmount,
-						maxTotalPrice, maxPricePerUnit);
+		SortedSet<MarketOrder> marketOffers = this.findBestFulfillmentSet(
+				propertyClass, currency, maxAmount, maxTotalPrice,
+				maxPricePerUnit);
 
 		Bank buyersBank = buyersBankAccount.getManagingBank();
 		PropertyRegister register = PropertyRegister.getInstance();
@@ -164,8 +165,7 @@ public class SettlementMarket extends Market {
 		double amountSum = 0;
 		Double[] priceAndAmount = new Double[2];
 
-		for (PropertyMarketOffer marketOffer : marketOffers) {
-
+		for (MarketOrder marketOffer : marketOffers) {
 			// transfer money
 			buyersBank.transferMoney(buyersBankAccount,
 					marketOffer.getOfferorsBankAcount(),

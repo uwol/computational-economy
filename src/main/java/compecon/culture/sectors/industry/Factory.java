@@ -106,14 +106,6 @@ public class Factory extends JointStockCompany {
 		this.productionFunction = productionFunction;
 	}
 
-	@Override
-	@Transient
-	protected double calculateTotalDividend() {
-		this.assertTransactionsBankAccount();
-		return Math.max(0.0, this.transactionsBankAccount.getBalance()
-				- MONEY_TO_RETAIN);
-	}
-
 	protected class SettlementMarketEvent implements ISettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,

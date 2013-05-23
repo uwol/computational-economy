@@ -37,7 +37,7 @@ public abstract class AgentIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 	 * get instances for agent
 	 */
 
-	protected synchronized Set<T> getFor(Agent agent) {
+	protected synchronized Set<T> getInstancesForAgent(Agent agent) {
 		if (this.agentIndexedInstances.containsKey(agent))
 			return this.agentIndexedInstances.get(agent);
 		return null;

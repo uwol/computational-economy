@@ -36,6 +36,7 @@ import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.State;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.culture.sectors.trading.Trader;
 import compecon.engine.Agent;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
@@ -68,13 +69,14 @@ public class NationalAccountsPanel extends JPanel {
 		public final static int AGENTTYPE_CREDITBANK = 2;
 		public final static int AGENTTYPE_CENTRALBANK = 3;
 		public final static int AGENTTYPE_STATE = 4;
+		public final static int AGENTTYPE_TRADER = 5;
 
 		protected final String columnNames[] = { "Active Account",
 				"Agent Type", "Value", "Currency", "", "Passive Account",
 				"Agent Type", "Value", "Currency" };
 
 		protected final String[] agentTypeNames = { "Household", "Factory",
-				"Credit Bank", "Central Bank", "State" };
+				"Credit Bank", "Central Bank", "State", "Trader" };
 
 		protected String[] activePositionNames;
 
@@ -197,6 +199,8 @@ public class NationalAccountsPanel extends JPanel {
 					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_STATE;
 				else if (agentType.equals(Factory.class))
 					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_FACTORY;
+				else if (agentType.equals(Trader.class))
+					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_TRADER;
 
 				// active
 				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
@@ -245,7 +249,9 @@ public class NationalAccountsPanel extends JPanel {
 
 		public final Currency referenceCurrency;
 
-		protected Object[][] transientTableData = new Object[5][6];
+		protected Object[][] transientTableData = new Object[ModelRegistry
+				.getMonetaryTransactionsModel().getAgentTypes().size()][ModelRegistry
+				.getMonetaryTransactionsModel().getAgentTypes().size() + 1];
 
 		public MonetaryTransactionsTableModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
