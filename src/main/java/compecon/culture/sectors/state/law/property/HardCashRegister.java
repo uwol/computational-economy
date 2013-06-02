@@ -39,7 +39,7 @@ public class HardCashRegister {
 	}
 
 	public double getBalance(Agent agent, Currency currency) {
-		this.assertAgentHasBalances(agent);
+		this.assureAgentHasBalances(agent);
 
 		HashMap<Currency, Double> balancesForIAgent = this.balances.get(agent);
 		double balance = 0;
@@ -50,7 +50,7 @@ public class HardCashRegister {
 	}
 
 	public double increment(Agent agent, Currency currency, double amount) {
-		this.assertAgentHasBalances(agent);
+		this.assureAgentHasBalances(agent);
 
 		if (amount <= 0)
 			throw new RuntimeException("amount is too small");
@@ -61,7 +61,7 @@ public class HardCashRegister {
 	}
 
 	public double decrement(Agent agent, Currency currency, double amount) {
-		this.assertAgentHasBalances(agent);
+		this.assureAgentHasBalances(agent);
 
 		if (amount < 0)
 			throw new RuntimeException("amount is negative");
@@ -76,7 +76,7 @@ public class HardCashRegister {
 		return newBalance;
 	}
 
-	private void assertAgentHasBalances(Agent agent) {
+	private void assureAgentHasBalances(Agent agent) {
 		if (!this.balances.containsKey(agent))
 			this.balances.put(agent, new HashMap<Currency, Double>());
 	}

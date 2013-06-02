@@ -35,6 +35,7 @@ import javax.persistence.Transient;
 
 import compecon.culture.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.Agent;
+import compecon.engine.BankAccountFactory;
 
 @Entity
 public abstract class Bank extends JointStockCompany {
@@ -48,6 +49,16 @@ public abstract class Bank extends JointStockCompany {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "managingBank")
 	@MapKeyJoinColumn(name = "agent_id")
 	protected Map<Agent, BankAccount> customerBankAccounts = new HashMap<Agent, BankAccount>();
+
+	@Override
+	public void deconstruct() {
+		super.deconstruct();
+
+		for (Agent agent : new ArrayList<Agent>(
+				this.customerBankAccounts.keySet())) {
+			this.closeCustomerAccount(agent, this.customerPasswords.get(agent));
+		}
+	}
 
 	/*
 	 * accessors
@@ -75,13 +86,13 @@ public abstract class Bank extends JointStockCompany {
 	 */
 
 	@Transient
-	protected void assertIsClientAtThisBank(Agent agent) {
+	protected void assertIsCustomerOfThisBank(Agent agent) {
 		if (this.customerPasswords.get(agent) == null)
 			throw new RuntimeException(agent + " is not client at " + this);
 	}
 
 	@Transient
-	protected void assertPasswordOk(Agent agent, String password) {
+	public void assertPasswordOk(Agent agent, String password) {
 		if (!this.checkPassword(agent, password))
 			throw new RuntimeException("password not ok");
 	}
@@ -95,9 +106,9 @@ public abstract class Bank extends JointStockCompany {
 	}
 
 	@Transient
-	protected void assertClientHasNoBankAccountAtThisBank(Agent client) {
-		if (this.customerBankAccounts.containsKey(client))
-			throw new RuntimeException("client " + client
+	protected void assertCustomerHasNoBankAccountAtThisBank(Agent customer) {
+		if (this.customerBankAccounts.containsKey(customer))
+			throw new RuntimeException("customer " + customer
 					+ " has already a bank account at this bank");
 	}
 
@@ -121,64 +132,67 @@ public abstract class Bank extends JointStockCompany {
 	}
 
 	@Transient
-	public BankAccount getBankAccount(Agent client, String password) {
-		this.assertIsClientAtThisBank(client);
-		this.assertPasswordOk(client, password);
+	public BankAccount getBankAccount(Agent customer, String password) {
+		this.assertIsCustomerOfThisBank(customer);
+		this.assertPasswordOk(customer, password);
 
-		return this.customerBankAccounts.get(client);
+		return this.customerBankAccounts.get(customer);
 	}
 
 	@Transient
-	public ArrayList<BankAccount> getBankAccounts(Agent client,
+	public ArrayList<BankAccount> getBankAccounts(Agent customer,
 			Currency currency, String password) {
-		this.assertIsClientAtThisBank(client);
-		this.assertPasswordOk(client, password);
+		this.assertIsCustomerOfThisBank(customer);
+		this.assertPasswordOk(customer, password);
 
 		ArrayList<BankAccount> bankAccounts = new ArrayList<BankAccount>();
-		if (this.customerBankAccounts.get(client).getCurrency() == currency)
-			bankAccounts.add(this.customerBankAccounts.get(client));
+		if (this.customerBankAccounts.get(customer).getCurrency() == currency)
+			bankAccounts.add(this.customerBankAccounts.get(customer));
 		return bankAccounts;
 	}
 
 	@Transient
-	public String openCustomerAccount(Agent client) {
-		if (this.hasBankAccount(client))
-			throw new RuntimeException(client
+	public String openCustomerAccount(Agent customer) {
+		if (this.hasBankAccount(customer))
+			throw new RuntimeException(customer
 					+ " has already a client account at this central bank");
 
 		String password = this.generatePassword(8);
-		this.customerPasswords.put(client, password);
+		this.customerPasswords.put(customer, password);
 		return password;
 	}
 
 	@Transient
-	public void closeCustomerAccount(Agent client, String password) {
-		this.assertTransactionsBankAccount();
+	public void closeCustomerAccount(Agent customer, String password) {
+		this.assertIsCustomerOfThisBank(customer);
+		this.assertPasswordOk(customer, password);
+		this.assureTransactionsBankAccount();
 
-		if (!this.hasBankAccount(client))
-			throw new RuntimeException(client + " is not client at " + this);
+		if (this.hasBankAccount(customer)) {
+			BankAccount bankAccount = this.customerBankAccounts.get(customer);
+			if (this.transactionsBankAccount != null)
+				this.transferMoney(bankAccount, this.transactionsBankAccount,
+						this.customerBankAccounts.get(customer).getBalance(),
+						password, "evening-up of closed bank account", true);
+			this.customerBankAccounts.remove(customer);
+			customer.onBankCloseCustomerAccount(bankAccount);
+			BankAccountFactory.deleteBankAccount(bankAccount);
+		}
 
-		this.assertIsClientAtThisBank(client);
-		this.assertPasswordOk(client, password);
-
-		this.transferMoney(this.customerBankAccounts.get(client),
-				this.transactionsBankAccount,
-				this.customerBankAccounts.get(client).getBalance(), password,
-				"evening-up of closed bank account", true);
-		this.customerBankAccounts.remove(client);
-		this.customerPasswords.remove(client);
+		this.customerPasswords.remove(customer);
 	}
 
 	@Transient
-	public BankAccount openBankAccount(Agent client, Currency currency,
+	public BankAccount openBankAccount(Agent customer, Currency currency,
 			String password) {
-		this.assertIsClientAtThisBank(client);
-		this.assertPasswordOk(client, password);
+		this.assertIsCustomerOfThisBank(customer);
+		this.assertPasswordOk(customer, password);
 		this.assertCurrencyIsOffered(currency);
-		this.assertClientHasNoBankAccountAtThisBank(client);
+		this.assertCustomerHasNoBankAccountAtThisBank(customer);
 
-		BankAccount bankAccount = new BankAccount(client, true, currency, this);
-		this.customerBankAccounts.put(client, bankAccount);
+		BankAccount bankAccount = BankAccountFactory.newInstanceBankAccount(
+				customer, true, currency, this);
+		this.customerBankAccounts.put(customer, bankAccount);
 		return bankAccount;
 	}
 

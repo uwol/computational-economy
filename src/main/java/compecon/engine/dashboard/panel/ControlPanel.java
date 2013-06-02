@@ -25,10 +25,13 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import compecon.Simulation;
+import compecon.culture.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
@@ -39,9 +42,15 @@ public class ControlPanel extends JPanel {
 
 	JButton singleStepButton;
 
-	public ControlPanel() {
-		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+	JTabbedPane economicSectorsPane = new JTabbedPane();
 
+	public ControlPanel() {
+
+		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+
+		/*
+		 * speed slider
+		 */
 		JSlider millisecondsToSleepPerHourType = new JSlider(
 				JSlider.HORIZONTAL, 0, SLIDER_MAX, SLIDER_MAX);
 		millisecondsToSleepPerHourType.addChangeListener(new ChangeListener() {
@@ -68,7 +77,7 @@ public class ControlPanel extends JPanel {
 		millisecondsToSleepPerHourType.setMajorTickSpacing(10);
 		millisecondsToSleepPerHourType.setPaintTicks(true);
 		millisecondsToSleepPerHourType.setPaintLabels(true);
-		add(millisecondsToSleepPerHourType);
+		this.add(millisecondsToSleepPerHourType);
 
 		singleStepButton = new JButton("Step");
 		singleStepButton.setEnabled(false);
@@ -77,38 +86,98 @@ public class ControlPanel extends JPanel {
 				Simulation.setSingleStep();
 			}
 		});
-		add(singleStepButton);
+		this.add(singleStepButton);
 
-		add(new JSeparator(JSeparator.HORIZONTAL));
+		this.add(new JSeparator(SwingConstants.HORIZONTAL));
 
-		JButton init100HouseholdsButton = new JButton("Init 100 Households");
-		init100HouseholdsButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TimeSystem.getInstance().addExternalEvent(
-						new ITimeSystemEvent() {
-							@Override
-							public void onEvent() {
-								ModelRegistry.getControlModel()
-										.initHouseholds();
-							}
-						});
-			}
-		});
-		add(init100HouseholdsButton);
+		/*
+		 * tabbed panel for sectors
+		 */
 
-		JButton doDeficitSpendingButton = new JButton("Deficit spending");
-		doDeficitSpendingButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TimeSystem.getInstance().addExternalEvent(
-						new ITimeSystemEvent() {
-							@Override
-							public void onEvent() {
-								ModelRegistry.getControlModel()
-										.deficitSpending();
-							}
-						});
-			}
-		});
-		add(doDeficitSpendingButton);
+		this.add(this.economicSectorsPane);
+
+		for (final Currency currency : Currency.values()) {
+			JPanel economicSectorPane = new JPanel();
+			this.economicSectorsPane.addTab(currency.getIso4217Code(),
+					economicSectorPane);
+			economicSectorPane.setLayout(new BoxLayout(economicSectorPane,
+					BoxLayout.PAGE_AXIS));
+
+			/*
+			 * init economic growth
+			 */
+
+			JButton initEconomicGrowthButton = new JButton("Economic growth");
+			initEconomicGrowthButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					TimeSystem.getInstance().addExternalEvent(
+							new ITimeSystemEvent() {
+								@Override
+								public void onEvent() {
+									ModelRegistry.getControlModel()
+											.initEconomicGrowth(currency);
+								}
+							});
+				}
+			});
+			economicSectorPane.add(initEconomicGrowthButton);
+
+			/*
+			 * deficit spending
+			 */
+
+			JButton doDeficitSpendingButton = new JButton("Deficit spending");
+			doDeficitSpendingButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					TimeSystem.getInstance().addExternalEvent(
+							new ITimeSystemEvent() {
+								@Override
+								public void onEvent() {
+									ModelRegistry.getControlModel()
+											.deficitSpending(currency);
+								}
+							});
+				}
+			});
+			economicSectorPane.add(doDeficitSpendingButton);
+
+			/*
+			 * init households
+			 */
+
+			JButton init100HouseholdsButton = new JButton("Init 100 Households");
+			init100HouseholdsButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					TimeSystem.getInstance().addExternalEvent(
+							new ITimeSystemEvent() {
+								@Override
+								public void onEvent() {
+									ModelRegistry.getControlModel()
+											.initHouseholds(currency);
+								}
+							});
+				}
+			});
+			economicSectorPane.add(init100HouseholdsButton);
+
+			/*
+			 * init car factory
+			 */
+
+			JButton initCarFactoryButton = new JButton("Init car factory");
+			initCarFactoryButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					TimeSystem.getInstance().addExternalEvent(
+							new ITimeSystemEvent() {
+								@Override
+								public void onEvent() {
+									ModelRegistry.getControlModel()
+											.initCarFactory(currency);
+								}
+							});
+				}
+			});
+			economicSectorPane.add(initCarFactoryButton);
+		}
 	}
 }

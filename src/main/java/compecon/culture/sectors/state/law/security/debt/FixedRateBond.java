@@ -72,7 +72,7 @@ public class FixedRateBond extends Bond {
 				"bond coupon");
 	}
 
-	protected class TransferCouponEvent implements ITimeSystemEvent {
+	public class TransferCouponEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
 			FixedRateBond.this.transferCoupon();

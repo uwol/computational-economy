@@ -36,12 +36,12 @@ public class TimeSeriesModel<T> {
 
 	public TimeSeriesModel(T[] initialTypes) {
 		for (T type : initialTypes)
-			this.assertTimeSeries(type);
+			this.assureTimeSeries(type);
 	}
 
 	public TimeSeriesModel(T[] initialTypes, String titleSuffix) {
 		for (T type : initialTypes)
-			this.assertTimeSeries(type);
+			this.assureTimeSeries(type);
 		this.titleSuffix = titleSuffix;
 	}
 
@@ -59,7 +59,7 @@ public class TimeSeriesModel<T> {
 		return this.timeSeries.get(type);
 	}
 
-	private void assertTimeSeries(T type) {
+	private void assureTimeSeries(T type) {
 		if (!this.timeSeries.containsKey(type)) {
 			TimeSeries amountTimeSeries = createTimeSeries(type);
 			this.timeSeries.put(type, amountTimeSeries);

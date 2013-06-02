@@ -20,9 +20,9 @@ package compecon.engine;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -91,8 +91,8 @@ public abstract class Agent implements IPropertyOwner {
 	@Index(name = "IDX_A_PRIMARYBANK")
 	protected Bank primaryBank;
 
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "transactionsbankaccount_id")
+	@OneToOne
+	@JoinColumn(name = "transactionsBankAccount_id")
 	@Index(name = "IDX_A_TRANSACTIONSBANKACCOUNT")
 	// bank account for basic daily transactions
 	protected BankAccount transactionsBankAccount;
@@ -105,6 +105,41 @@ public abstract class Agent implements IPropertyOwner {
 
 	public void initialize() {
 		Log.agent_onConstruct(this);
+	}
+
+	/**
+	 * deregisters the agent from all referencing objects
+	 */
+	@Transient
+	public void deconstruct() {
+		this.isDeconstructed = true;
+		Log.agent_onDeconstruct(this);
+
+		// deregister from TimeSystem
+		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
+			TimeSystem.getInstance().removeEvent(timeSystemEvent);
+
+		// remove selling offers from primary market
+		MarketFactory.getInstance().removeAllSellingOffers(this);
+
+		// deregister from PropertyRegister
+		PropertyRegister.getInstance().deregister(this);
+
+		// deregister from CashRegister
+		HardCashRegister.getInstance().deregister(this);
+
+		// deregister from Banks
+		for (Entry<Bank, String> entry : new HashMap<Bank, String>(
+				this.bankPasswords).entrySet()) {
+			entry.getKey().closeCustomerAccount(this, entry.getValue());
+		}
+
+		this.bankPasswords = null;
+		this.primaryBank = null;
+		this.transactionsBankAccount = null;
+		this.timeSystemEvents = null;
+
+		AgentFactory.deleteAgent(this);
 	}
 
 	/*
@@ -172,7 +207,10 @@ public abstract class Agent implements IPropertyOwner {
 	 */
 
 	@Transient
-	public void assertTransactionsBankAccount() {
+	public void assureTransactionsBankAccount() {
+		if (this.isDeconstructed)
+			return;
+
 		// initialize bank account
 		if (this.primaryBank == null) {
 			this.primaryBank = AgentFactory
@@ -187,45 +225,20 @@ public abstract class Agent implements IPropertyOwner {
 		}
 	}
 
+	@Transient
+	public void onBankCloseCustomerAccount(BankAccount bankAccount) {
+		if (this.transactionsBankAccount == bankAccount)
+			this.transactionsBankAccount = null;
+		this.bankPasswords.remove(bankAccount.getManagingBank());
+	}
+
 	/*
 	 * business logic
 	 */
 
-	/**
-	 * deregisters the agent from all referencing objects
-	 */
-	@Transient
-	protected void deconstruct() {
-		Log.agent_onDeconstruct(this);
-		this.isDeconstructed = true;
-
-		// deregister from TimeSystem
-		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
-			TimeSystem.getInstance().removeEvent(timeSystemEvent);
-
-		// remove selling offers from primary market
-		MarketFactory.getInstance().removeAllSellingOffers(this);
-
-		// deregister from PropertyRegister
-		PropertyRegister.getInstance().deregister(this);
-
-		// deregister from CashRegister
-		HardCashRegister.getInstance().deregister(this);
-
-		// deregister from CreditBank
-		this.primaryBank.closeCustomerAccount(this,
-				this.bankPasswords.get(this.primaryBank));
-		this.primaryBank = null;
-		this.transactionsBankAccount = null;
-		this.timeSystemEvents = null;
-		this.bankPasswords = null;
-
-		AgentFactory.deleteAgent(this);
-	}
-
 	@Transient
 	public BalanceSheet issueBasicBalanceSheet() {
-		this.assertTransactionsBankAccount();
+		this.assureTransactionsBankAccount();
 
 		Currency referenceCurrency = Agent.this.transactionsBankAccount
 				.getCurrency();

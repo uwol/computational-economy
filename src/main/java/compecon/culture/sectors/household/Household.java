@@ -25,7 +25,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
-import compecon.culture.EconomicalBehaviour;
+import compecon.culture.BudgetingBehaviour;
+import compecon.culture.PricingBehaviour;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
@@ -87,7 +88,10 @@ public class Household extends Agent implements IShareOwner {
 	protected LabourPower labourPower = new LabourPower();
 
 	@Transient
-	protected EconomicalBehaviour economicalBehaviour;
+	protected PricingBehaviour pricingBehaviour;
+
+	@Transient
+	protected BudgetingBehaviour budgetingBehaviour;
 
 	@Transient
 	protected IUtilityFunction utilityFunction;
@@ -110,8 +114,11 @@ public class Household extends Agent implements IShareOwner {
 				MonthType.EVERY, DayType.EVERY,
 				BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
-		this.economicalBehaviour = new EconomicalBehaviour(this,
-				GoodType.LABOURHOUR, this.primaryCurrency);
+		double marketPrice = MarketFactory.getInstance().getMarginalPrice(
+				this.primaryCurrency, GoodType.LABOURHOUR);
+		this.pricingBehaviour = new PricingBehaviour(this, GoodType.LABOURHOUR,
+				this.primaryCurrency, marketPrice);
+		this.budgetingBehaviour = new BudgetingBehaviour(this);
 	}
 
 	/*
@@ -153,17 +160,17 @@ public class Household extends Agent implements IShareOwner {
 	@Override
 	@Transient
 	public BankAccount getDividendBankAccount() {
-		this.assertTransactionsBankAccount();
+		this.assureTransactionsBankAccount();
 		return this.transactionsBankAccount;
 	}
 
-	protected class SettlementMarketEvent implements ISettlementEvent {
+	public class SettlementMarketEvent implements ISettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
 				double pricePerUnit, Currency currency) {
-			Household.this.assertTransactionsBankAccount();
+			Household.this.assureTransactionsBankAccount();
 			if (goodType.equals(GoodType.LABOURHOUR)) {
-				Household.this.economicalBehaviour.registerSelling(amount);
+				Household.this.pricingBehaviour.registerSelling(amount);
 
 				/*
 				 * no exhaust of labour hours, as the offered labour hours have
@@ -174,35 +181,41 @@ public class Household extends Agent implements IShareOwner {
 		}
 
 		@Override
+		public void onEvent(Currency commodityCurrency, double amount,
+				double pricePerUnit, Currency currency) {
+		}
+
+		@Override
 		public void onEvent(Property property, double pricePerUnit,
 				Currency currency) {
 		}
+
 	}
 
-	protected class BalanceSheetPublicationEvent implements ITimeSystemEvent {
+	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			Household.this.assertTransactionsBankAccount();
+			Household.this.assureTransactionsBankAccount();
 			Log.agent_onPublishBalanceSheet(Household.this,
 					Household.this.issueBasicBalanceSheet());
 		}
 	}
 
-	protected class DailyLifeEvent implements ITimeSystemEvent {
+	public class DailyLifeEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
 			if (Household.this.isDeconstructed)
 				throw new RuntimeException(Household.this
 						+ " is deconstructed, but not removed from TimeSystem");
 
-			Household.this.assertTransactionsBankAccount();
+			Household.this.assureTransactionsBankAccount();
 
 			/*
 			 * simulation mechanics
 			 */
 			Household.this.ageInDays++;
 			Household.this.labourPower.refresh();
-			Household.this.economicalBehaviour.nextPeriod();
+			Household.this.pricingBehaviour.nextPeriod();
 
 			/*
 			 * maximize utility
@@ -211,8 +224,7 @@ public class Household extends Agent implements IShareOwner {
 					.getMarginalPrices(
 							Household.this.transactionsBankAccount
 									.getCurrency());
-			double transmissionBasedBudget = Household.this.economicalBehaviour
-					.getBudgetingBehaviour()
+			double transmissionBasedBudget = Household.this.budgetingBehaviour
 					.calculateTransmissionBasedBudgetForPeriod(
 							Household.this.transactionsBankAccount
 									.getCurrency(),
@@ -240,8 +252,6 @@ public class Household extends Agent implements IShareOwner {
 					}
 					MarketFactory.getInstance().buy(
 							goodType,
-							Household.this.transactionsBankAccount
-									.getCurrency(),
 							maxAmount,
 							maxTotalPrice,
 							-1,
@@ -278,7 +288,6 @@ public class Household extends Agent implements IShareOwner {
 			 */
 			MarketFactory.getInstance().buy(
 					Share.class,
-					Household.this.transactionsBankAccount.getCurrency(),
 					1,
 					0,
 					0,
@@ -299,13 +308,10 @@ public class Household extends Agent implements IShareOwner {
 					Share share = (Share) property;
 					if (Household.this.primaryCurrency != share
 							.getJointStockCompany().getPrimaryCurrency())
-						MarketFactory.getInstance().placeSellingOffer(
-								property,
+						MarketFactory.getInstance().placeSellingOffer(property,
 								Household.this,
 								Household.this.getTransactionsBankAccount(),
-								0.0,
-								Household.this.getTransactionsBankAccount()
-										.getCurrency());
+								0.0);
 				}
 			}
 
@@ -337,23 +343,19 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * offer remaining labour hours
 			 */
-			Household.this.economicalBehaviour.getPricingBehaviour()
-					.setNewPrice();
+			Household.this.pricingBehaviour.setNewPrice();
 			MarketFactory.getInstance().removeAllSellingOffers(Household.this,
 					Household.this.transactionsBankAccount.getCurrency(),
 					GoodType.LABOURHOUR);
 			double amountOfLabourHours = PropertyRegister.getInstance()
 					.getBalance(Household.this, GoodType.LABOURHOUR);
 			MarketFactory.getInstance().placeSettlementSellingOffer(
-					GoodType.LABOURHOUR,
-					Household.this,
+					GoodType.LABOURHOUR, Household.this,
 					Household.this.transactionsBankAccount,
 					amountOfLabourHours,
-					Household.this.economicalBehaviour.getPricingBehaviour()
-							.getCurrentPrice(),
-					Household.this.transactionsBankAccount.getCurrency(),
+					Household.this.pricingBehaviour.getCurrentPrice(),
 					new SettlementMarketEvent());
-			Household.this.economicalBehaviour
+			Household.this.pricingBehaviour
 					.registerOfferedAmount(amountOfLabourHours);
 
 			/*

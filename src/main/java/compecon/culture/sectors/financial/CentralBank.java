@@ -146,19 +146,24 @@ public class CentralBank extends Bank {
 
 	@Transient
 	@Override
-	public void assertTransactionsBankAccount() {
+	public void assureTransactionsBankAccount() {
+		if (this.isDeconstructed)
+			return;
+
 		if (this.primaryBank == null) {
 			this.primaryBank = this;
+			String bankPassword = this.openCustomerAccount(this);
+			this.bankPasswords.put(this, bankPassword);
 		}
 		if (this.transactionsBankAccount == null) {
-			// initialize the banks own bank account and open a customer account
-			// at
-			// this new bank, so that this bank can transfer money from its own
-			// bank account
-			String bankPassword = this.openCustomerAccount(this);
-			this.transactionsBankAccount = new BankAccount(this, true,
-					this.primaryCurrency, this);
-			this.bankPasswords.put(this, bankPassword);
+			/*
+			 * initialize the banks own bank account and open a customer account
+			 * at this new bank, so that this bank can transfer money from its
+			 * own bank account
+			 */
+			this.transactionsBankAccount = this.primaryBank.openBankAccount(
+					this, this.primaryCurrency,
+					this.bankPasswords.get(this.primaryBank));
 		}
 	}
 
@@ -257,7 +262,7 @@ public class CentralBank extends Bank {
 		 */
 		CreditBank creditBank = (CreditBank) to.getManagingBank();
 		from.withdraw(amount);
-		creditBank.assertCentralBankAccount();
+		creditBank.assureCentralBankAccount();
 		creditBank.deposit(this, this.customerPasswords.get(creditBank), to,
 				amount);
 	}
@@ -299,7 +304,7 @@ public class CentralBank extends Bank {
 	public void obtainTender(CreditBank creditBank, List<FixedRateBond> bonds,
 			String password) {
 		this.assertPasswordOk(creditBank, password);
-		this.assertIsClientAtThisBank(creditBank);
+		this.assertIsCustomerOfThisBank(creditBank);
 
 		for (Bond bond : bonds) {
 			this.customerBankAccounts.get(creditBank).deposit(
@@ -347,7 +352,7 @@ public class CentralBank extends Bank {
 		return RESERVE_RATIO;
 	}
 
-	protected class DailyInterestCalculationEvent implements ITimeSystemEvent {
+	public class DailyInterestCalculationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
 			for (BankAccount bankAccount : CentralBank.this.customerBankAccounts
@@ -386,14 +391,14 @@ public class CentralBank extends Bank {
 		}
 	}
 
-	protected class MarginalPriceSnapshotEvent implements ITimeSystemEvent {
+	public class MarginalPriceSnapshotEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
 			CentralBank.this.statisticalOffice.takeSnapshotOfMarginalPrices();
 		}
 	}
 
-	protected class KeyInterestRateCalculationEvent implements ITimeSystemEvent {
+	public class KeyInterestRateCalculationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
 			// calculate price index
@@ -412,7 +417,7 @@ public class CentralBank extends Bank {
 		}
 	}
 
-	protected class BalanceSheetPublicationEvent implements ITimeSystemEvent {
+	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
 			BalanceSheet balanceSheet = CentralBank.this

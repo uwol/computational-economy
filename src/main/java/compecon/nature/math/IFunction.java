@@ -26,6 +26,8 @@ public interface IFunction {
 
 	public Set<GoodType> getInputGoodTypes();
 
+	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate();
+
 	public double f(Map<GoodType, Double> bundleOfInputGoods);
 
 	public double partialDerivative(

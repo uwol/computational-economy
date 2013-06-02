@@ -25,7 +25,7 @@ import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 import compecon.nature.math.IFunction;
 
-public class ConvexProductionFunction extends ProductionFunction {
+public abstract class ConvexProductionFunction extends ProductionFunction {
 
 	protected ConvexProductionFunction(IFunction delegate) {
 		super(delegate);
@@ -69,6 +69,7 @@ public class ConvexProductionFunction extends ProductionFunction {
 			GoodType optimalInput = this
 					.selectInputWithHighestMarginalOutputPerPrice(
 							bundleOfInputFactors, pricesOfProductionFactors);
+
 			double marginalCost = pricesOfProductionFactors.get(optimalInput)
 					/ this.calculateMarginalOutput(bundleOfInputFactors,
 							optimalInput);
@@ -79,18 +80,22 @@ public class ConvexProductionFunction extends ProductionFunction {
 					bundleOfInputFactors.get(optimalInput) + amount);
 			double newOutput = this.calculateOutput(bundleOfInputFactors);
 
-			if (!Double.isNaN(estMarginalRevenue)
-					&& !Double.isInfinite(estMarginalRevenue)) {
-				// a polypoly is assumed -> price = marginal revenue
-				if (MathUtil.lesser(estMarginalRevenue, marginalCost)) {
-					Log.log(MathUtil.round(lastProfitableMarginalCost)
-							+ " deltaCost" + " <= "
-							+ MathUtil.round(estMarginalRevenue)
-							+ " deltaEstRevenue" + " < "
-							+ MathUtil.round(marginalCost) + " deltaCost"
-							+ " -> "
-							+ bundleOfInputFactors.entrySet().toString());
-					break;
+			if (!this.delegate
+					.getNeedsAllInputFactorsNonZeroForPartialDerivate()
+					|| this.hasAllInputFactorsNonZero(bundleOfInputFactors)) {
+				if (!Double.isNaN(estMarginalRevenue)
+						&& !Double.isInfinite(estMarginalRevenue)) {
+					// a polypoly is assumed -> price = marginal revenue
+					if (MathUtil.lesser(estMarginalRevenue, marginalCost)) {
+						Log.log(MathUtil.round(lastProfitableMarginalCost)
+								+ " deltaCost" + " <= "
+								+ MathUtil.round(estMarginalRevenue)
+								+ " deltaEstRevenue" + " < "
+								+ MathUtil.round(marginalCost) + " deltaCost"
+								+ " -> "
+								+ bundleOfInputFactors.entrySet().toString());
+						break;
+					}
 				}
 			}
 
@@ -109,4 +114,13 @@ public class ConvexProductionFunction extends ProductionFunction {
 		return bundleOfInputFactors;
 	}
 
+	protected boolean hasAllInputFactorsNonZero(
+			Map<GoodType, Double> bundleOfInputFactors) {
+		for (Double amount : bundleOfInputFactors.values()) {
+			if (amount == 0)
+				return false;
+		}
+
+		return true;
+	}
 }

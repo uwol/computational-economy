@@ -64,8 +64,8 @@ public class Simulation {
 			Registration.init();
 
 			// configure simulation
-			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 2;
-			final int NUMBER_OF_TRADERSPERCURRENCY = 2;
+			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 10;
+			final int NUMBER_OF_TRADERSPERCURRENCY = 5;
 			final int NUMBER_OF_HOUSEHOLDSPERCURRENCY = 500;
 			final int NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 5;
 

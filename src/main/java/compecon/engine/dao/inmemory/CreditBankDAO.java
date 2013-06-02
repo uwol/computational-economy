@@ -31,7 +31,7 @@ public class CreditBankDAO extends InMemoryDAO<CreditBank> implements
 
 	Map<Currency, List<CreditBank>> creditBanksByCurrencies = new HashMap<Currency, List<CreditBank>>();
 
-	protected void assertCurrencyDataStructure(Currency currency) {
+	protected void assureCurrencyDataStructure(Currency currency) {
 		if (currency != null) {
 			if (!this.creditBanksByCurrencies.containsKey(currency)) {
 				this.creditBanksByCurrencies.put(currency,
@@ -42,7 +42,7 @@ public class CreditBankDAO extends InMemoryDAO<CreditBank> implements
 
 	@Override
 	public synchronized void save(CreditBank entity) {
-		assertCurrencyDataStructure(entity.getPrimaryCurrency());
+		assureCurrencyDataStructure(entity.getPrimaryCurrency());
 		super.save(entity);
 		if (entity.getPrimaryCurrency() != null)
 			this.creditBanksByCurrencies.get(entity.getPrimaryCurrency()).add(
@@ -51,7 +51,7 @@ public class CreditBankDAO extends InMemoryDAO<CreditBank> implements
 
 	@Override
 	public synchronized void delete(CreditBank entity) {
-		assertCurrencyDataStructure(entity.getPrimaryCurrency());
+		assureCurrencyDataStructure(entity.getPrimaryCurrency());
 		super.delete(entity);
 		if (entity.getPrimaryCurrency() != null)
 			this.creditBanksByCurrencies.get(entity.getPrimaryCurrency())

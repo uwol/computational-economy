@@ -41,7 +41,7 @@ public class PeriodDataAccumulatorTimeSeriesModel<T> {
 		this.periodDataAccumulatorSet = new PeriodDataAccumulatorSet<T>(
 				initialTypes);
 		for (T type : initialTypes)
-			assertTimeSeries(type);
+			assureTimeSeries(type);
 	}
 
 	public PeriodDataAccumulatorTimeSeriesModel(T[] initialTypes,
@@ -50,7 +50,7 @@ public class PeriodDataAccumulatorTimeSeriesModel<T> {
 		this.periodDataAccumulatorSet = new PeriodDataAccumulatorSet<T>(
 				initialTypes);
 		for (T type : initialTypes)
-			assertTimeSeries(type);
+			assureTimeSeries(type);
 	}
 
 	public void add(T type, double amount) {
@@ -66,7 +66,7 @@ public class PeriodDataAccumulatorTimeSeriesModel<T> {
 		return this.timeSeries.get(type);
 	}
 
-	private void assertTimeSeries(T type) {
+	private void assureTimeSeries(T type) {
 		if (!this.timeSeries.containsKey(type)) {
 			TimeSeries amountTimeSeries = createTimeSeries(type);
 			this.timeSeries.put(type, amountTimeSeries);

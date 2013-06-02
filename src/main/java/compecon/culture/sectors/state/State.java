@@ -17,9 +17,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.culture.sectors.state;
 
+import java.util.Map.Entry;
+
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
+import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
@@ -53,13 +56,14 @@ public class State extends Agent {
 
 	@Transient
 	public void doDeficitSpending() {
-		this.assertTransactionsBankAccount();
+		this.assureTransactionsBankAccount();
 		for (CreditBank creditBank : AgentFactory
 				.getAllCreditBanks(this.primaryCurrency)) {
-			for (Agent agent : creditBank.getCustomers()) {
-				if (agent != this) {
+			for (Entry<Agent, BankAccount> entry : creditBank
+					.getCustomerBankAccounts().entrySet()) {
+				if (entry.getKey() != this) {
 					this.primaryBank.transferMoney(transactionsBankAccount,
-							agent.getTransactionsBankAccount(), 1000,
+							entry.getValue(), 5000,
 							this.bankPasswords.get(this.primaryBank),
 							"deficit spending");
 				}
@@ -67,10 +71,10 @@ public class State extends Agent {
 		}
 	}
 
-	protected class BalanceSheetPublicationEvent implements ITimeSystemEvent {
+	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			State.this.assertTransactionsBankAccount();
+			State.this.assureTransactionsBankAccount();
 			Log.agent_onPublishBalanceSheet(State.this,
 					State.this.issueBasicBalanceSheet());
 		}

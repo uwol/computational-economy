@@ -28,7 +28,6 @@ import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
-import compecon.engine.dashboard.Dashboard;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.util.MathUtil;
@@ -74,9 +73,8 @@ public class Log {
 		ModelRegistry.getEffectiveProductionOutputModel().nextPeriod();
 		ModelRegistry.getMoneySupplyM0Model().nextPeriod();
 		ModelRegistry.getMoneySupplyM1Model().nextPeriod();
+		ModelRegistry.getPricesModel().nextPeriod();
 		ModelRegistry.getUtilityModel().nextPeriod();
-
-		Dashboard.getInstance().nextPeriod();
 	}
 
 	// --------
@@ -166,8 +164,9 @@ public class Log {
 	public static void factory_onProduction(Factory factory, GoodType goodType,
 			double producedProducts) {
 		if (Log.isAgentSelectedByClient(factory))
-			log(factory, factory + " produced " + producedProducts + " "
-					+ goodType);
+			log(factory,
+					factory + " produced " + MathUtil.round(producedProducts)
+							+ " " + goodType);
 
 		ModelRegistry.getEffectiveProductionOutputModel().add(goodType,
 				producedProducts);
@@ -226,5 +225,11 @@ public class Log {
 			Currency currency, double amount) {
 		ModelRegistry.getPricesModel().market_onTick(pricePerUnit, goodType,
 				currency, amount);
+	}
+
+	public static void market_onTick(double pricePerUnit,
+			Currency commodityCurrency, Currency currency, double amount) {
+		ModelRegistry.getPricesModel().market_onTick(pricePerUnit,
+				commodityCurrency, currency, amount);
 	}
 }

@@ -26,7 +26,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 
-import compecon.culture.EconomicalBehaviour;
+import compecon.culture.BudgetingBehaviour;
+import compecon.culture.PricingBehaviour;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
@@ -61,7 +62,10 @@ public class Factory extends JointStockCompany {
 	protected IProductionFunction productionFunction;
 
 	@Transient
-	protected EconomicalBehaviour economicalBehaviour;
+	protected PricingBehaviour pricingBehaviour;
+
+	@Transient
+	protected BudgetingBehaviour budgetingBehaviour;
 
 	@Override
 	public void initialize() {
@@ -81,8 +85,11 @@ public class Factory extends JointStockCompany {
 				balanceSheetPublicationEvent, -1, MonthType.EVERY,
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
-		this.economicalBehaviour = new EconomicalBehaviour(this,
-				this.producedGoodType, this.primaryCurrency);
+		double marketPrice = MarketFactory.getInstance().getMarginalPrice(
+				this.primaryCurrency, this.producedGoodType);
+		this.pricingBehaviour = new PricingBehaviour(this,
+				this.producedGoodType, this.primaryCurrency, marketPrice);
+		this.budgetingBehaviour = new BudgetingBehaviour(this);
 	}
 
 	/*
@@ -101,6 +108,10 @@ public class Factory extends JointStockCompany {
 	 * business logic
 	 */
 
+	public IProductionFunction getProductionFunction() {
+		return this.productionFunction;
+	}
+
 	@Transient
 	public void setProductionFunction(IProductionFunction productionFunction) {
 		this.productionFunction = productionFunction;
@@ -110,10 +121,15 @@ public class Factory extends JointStockCompany {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
 				double pricePerUnit, Currency currency) {
-			Factory.this.assertTransactionsBankAccount();
+			Factory.this.assureTransactionsBankAccount();
 			if (Factory.this.producedGoodType.equals(goodType)) {
-				Factory.this.economicalBehaviour.registerSelling(amount);
+				Factory.this.pricingBehaviour.registerSelling(amount);
 			}
+		}
+
+		@Override
+		public void onEvent(Currency commodityCurrency, double amount,
+				double pricePerUnit, Currency currency) {
 		}
 
 		@Override
@@ -122,14 +138,14 @@ public class Factory extends JointStockCompany {
 		}
 	}
 
-	protected class ProductionEvent implements ITimeSystemEvent {
+	public class ProductionEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			Factory.this.assertTransactionsBankAccount();
-			Factory.this.economicalBehaviour.nextPeriod();
+			Factory.this.assureTransactionsBankAccount();
+			Factory.this.pricingBehaviour.nextPeriod();
 
 			/*
-			 * Calculate optimal amount of production factors
+			 * calculate optimal amount of production factors
 			 */
 			Map<GoodType, Double> pricesOfProductionFactors = new HashMap<GoodType, Double>();
 			for (GoodType productionFactor : Factory.this.productionFunction
@@ -141,8 +157,7 @@ public class Factory extends JointStockCompany {
 			double priceOfProducedGoodType = MarketFactory.getInstance()
 					.getMarginalPrice(Factory.this.primaryCurrency,
 							Factory.this.producedGoodType);
-			double budget = Factory.this.economicalBehaviour
-					.getBudgetingBehaviour()
+			double budget = Factory.this.budgetingBehaviour
 					.calculateTransmissionBasedBudgetForPeriod(
 							Factory.this.transactionsBankAccount.getCurrency(),
 							Factory.this.transactionsBankAccount.getBalance(),
@@ -156,13 +171,12 @@ public class Factory extends JointStockCompany {
 							priceOfProducedGoodType, pricesOfProductionFactors,
 							budget, -1);
 			/*
-			 * Buy production factors
+			 * buy production factors
 			 */
 			for (Entry<GoodType, Double> entry : productionFactorsToBuy
 					.entrySet()) {
 				MarketFactory.getInstance().buy(
 						entry.getKey(),
-						Factory.this.transactionsBankAccount.getCurrency(),
 						entry.getValue(),
 						budget,
 						-1,
@@ -174,7 +188,7 @@ public class Factory extends JointStockCompany {
 			}
 
 			/*
-			 * Produce with production factors machine and labour hour
+			 * produce with production factors machine and labour hour
 			 */
 			Map<GoodType, Double> productionFactorsOwned = new HashMap<GoodType, Double>();
 			for (GoodType productionFactor : Factory.this.productionFunction
@@ -193,7 +207,7 @@ public class Factory extends JointStockCompany {
 					Factory.this.producedGoodType, producedProducts);
 
 			/*
-			 * Deregister production factors from property register
+			 * deregister production factors from property register
 			 */
 			for (Entry<GoodType, Double> entry : productionFactorsOwned
 					.entrySet()) {
@@ -205,10 +219,9 @@ public class Factory extends JointStockCompany {
 			}
 
 			/*
-			 * Refresh prices / offer
+			 * refresh prices / offer
 			 */
-			Factory.this.economicalBehaviour.getPricingBehaviour()
-					.setNewPrice();
+			Factory.this.pricingBehaviour.setNewPrice();
 			MarketFactory.getInstance()
 					.removeAllSellingOffers(Factory.this,
 							Factory.this.primaryCurrency,
@@ -216,25 +229,21 @@ public class Factory extends JointStockCompany {
 			double amount = PropertyRegister.getInstance().getBalance(
 					Factory.this, Factory.this.producedGoodType);
 			MarketFactory.getInstance().placeSettlementSellingOffer(
-					Factory.this.producedGoodType,
-					Factory.this,
-					Factory.this.transactionsBankAccount,
-					amount,
-					Factory.this.economicalBehaviour.getPricingBehaviour()
-							.getCurrentPrice(),
-					Factory.this.transactionsBankAccount.getCurrency(),
+					Factory.this.producedGoodType, Factory.this,
+					Factory.this.transactionsBankAccount, amount,
+					Factory.this.pricingBehaviour.getCurrentPrice(),
 					new SettlementMarketEvent());
-			Factory.this.economicalBehaviour.registerOfferedAmount(amount);
+			Factory.this.pricingBehaviour.registerOfferedAmount(amount);
 
 			// ToDo Remove
 			Factory.this.payDividend();
 		}
 	}
 
-	protected class BalanceSheetPublicationEvent implements ITimeSystemEvent {
+	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			Factory.this.assertTransactionsBankAccount();
+			Factory.this.assureTransactionsBankAccount();
 			BalanceSheet balanceSheet = Factory.this.issueBasicBalanceSheet();
 			balanceSheet.issuedCapital = Factory.this.issuedShares;
 			Log.agent_onPublishBalanceSheet(Factory.this, balanceSheet);

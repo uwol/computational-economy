@@ -21,14 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import compecon.culture.sectors.financial.CentralBank;
-import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
-import compecon.culture.sectors.industry.Factory;
-import compecon.culture.sectors.state.State;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
+import compecon.engine.AgentFactory;
 import compecon.nature.materia.GoodType;
 
 public class BalanceSheetsModel extends Model {
@@ -101,16 +97,10 @@ public class BalanceSheetsModel extends Model {
 
 		for (Currency currency : Currency.values()) {
 			Map<Class<? extends Agent>, BalanceSheet> balanceSheetsForAgentTypes = new HashMap<Class<? extends Agent>, BalanceSheet>();
-			balanceSheetsForAgentTypes.put(Household.class, new BalanceSheet(
-					currency));
-			balanceSheetsForAgentTypes.put(CreditBank.class, new BalanceSheet(
-					currency));
-			balanceSheetsForAgentTypes.put(CentralBank.class, new BalanceSheet(
-					currency));
-			balanceSheetsForAgentTypes.put(State.class, new BalanceSheet(
-					currency));
-			balanceSheetsForAgentTypes.put(Factory.class, new BalanceSheet(
-					currency));
+			for (Class<? extends Agent> agentType : AgentFactory.agentTypes) {
+				balanceSheetsForAgentTypes.put(agentType, new BalanceSheet(
+						currency));
+			}
 
 			this.nationalAccountsBalanceSheets.put(currency,
 					balanceSheetsForAgentTypes);

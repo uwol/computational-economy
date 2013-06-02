@@ -27,4 +27,14 @@ public class CobbDouglasProductionFunction extends ConvexProductionFunction {
 			double totalFactorProductivity) {
 		super(new CobbDouglasFunction(exponents, totalFactorProductivity));
 	}
+
+	@Override
+	public double getProductivity() {
+		return ((CobbDouglasFunction) this.delegate).getCoefficient();
+	}
+
+	@Override
+	public void setProductivity(double productivity) {
+		((CobbDouglasFunction) this.delegate).setCoefficient(productivity);
+	}
 }

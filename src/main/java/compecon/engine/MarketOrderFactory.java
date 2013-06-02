@@ -28,7 +28,7 @@ import compecon.nature.materia.GoodType;
 public class MarketOrderFactory {
 	public static MarketOrder newInstanceGoodTypeMarketOrder(GoodType goodType,
 			Agent offeror, BankAccount offerorsBankAcount, double amount,
-			double pricePerUnit, Currency currency) {
+			double pricePerUnit) {
 
 		MarketOrder marketOrder = new MarketOrder();
 		marketOrder.setGoodType(goodType);
@@ -36,7 +36,28 @@ public class MarketOrderFactory {
 		marketOrder.setOfferorsBankAcount(offerorsBankAcount);
 		marketOrder.setAmount(amount);
 		marketOrder.setPricePerUnit(pricePerUnit);
-		marketOrder.setCurrency(currency);
+
+		DAOFactory.getMarketOrderDAO().save(marketOrder);
+		HibernateUtil.flushSession();
+		return marketOrder;
+	}
+
+	public static MarketOrder newInstanceCurrencyMarketOrder(
+			Currency currencyToBeOffered, Agent offeror,
+			BankAccount offerorsBankAcount, double amount, double pricePerUnit,
+			BankAccount commodityCurrencyOfferorsBankAcount,
+			String commodityCurrencyOfferorsBankAcountPassword) {
+
+		MarketOrder marketOrder = new MarketOrder();
+		marketOrder.setCommodityCurrency(currencyToBeOffered);
+		marketOrder.setOfferor(offeror);
+		marketOrder.setOfferorsBankAcount(offerorsBankAcount);
+		marketOrder.setAmount(amount);
+		marketOrder.setPricePerUnit(pricePerUnit);
+		marketOrder
+				.setCommodityCurrencyOfferorsBankAccount(commodityCurrencyOfferorsBankAcount);
+		marketOrder
+				.setCommodityCurrencyOfferorsBankAccountPassword(commodityCurrencyOfferorsBankAcountPassword);
 
 		DAOFactory.getMarketOrderDAO().save(marketOrder);
 		HibernateUtil.flushSession();
@@ -44,14 +65,13 @@ public class MarketOrderFactory {
 	}
 
 	public static MarketOrder newInstancePropertyMarketOrder(Property property,
-			Agent offeror, BankAccount offerorsBankAcount, double pricePerUnit,
-			Currency currency) {
+			Agent offeror, BankAccount offerorsBankAcount, double pricePerUnit) {
 		MarketOrder marketOrder = new MarketOrder();
 		marketOrder.setProperty(property);
 		marketOrder.setOfferor(offeror);
 		marketOrder.setOfferorsBankAcount(offerorsBankAcount);
+		marketOrder.setAmount(1);
 		marketOrder.setPricePerUnit(pricePerUnit);
-		marketOrder.setCurrency(currency);
 
 		DAOFactory.getMarketOrderDAO().save(marketOrder);
 		HibernateUtil.flushSession();

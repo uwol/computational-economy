@@ -7,6 +7,16 @@ import compecon.nature.materia.GoodType;
 
 public abstract class Function implements IFunction {
 
+	protected final boolean needsAllInputFactorsNonZeroForPartialDerivate;
+
+	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate() {
+		return this.needsAllInputFactorsNonZeroForPartialDerivate;
+	}
+
+	public Function(boolean needsAllInputFactorsNonZeroForPartialDerivate) {
+		this.needsAllInputFactorsNonZeroForPartialDerivate = needsAllInputFactorsNonZeroForPartialDerivate;
+	}
+
 	public GoodType findLargestPartialDerivate(
 			Map<GoodType, Double> bundleOfInputGoods) {
 		GoodType optimalGoodType = (GoodType) this.getInputGoodTypes()

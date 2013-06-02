@@ -37,16 +37,25 @@ import compecon.culture.sectors.state.law.property.Property;
 import compecon.engine.Agent;
 import compecon.nature.materia.GoodType;
 
+/**
+ * http://en.wikipedia.org/wiki/Order_%28exchange%29
+ */
 @Entity
 @Table(name = "MarketOrder")
 @org.hibernate.annotations.Table(appliesTo = "MarketOrder", indexes = {
-		@Index(name = "IDX_MO_CURRENCY", columnNames = "currency"),
 		@Index(name = "IDX_MO_OFFERORSBANKACCOUNT", columnNames = "offerorsBankAcount_id"),
-		@Index(name = "IDX_MO_CP_MARGINALPRICE", columnNames = { "currency",
-				"pricePerUnit" }),
-		@Index(name = "IDX_MO_CGP_MARGINALPRICE", columnNames = { "currency",
-				"goodType", "pricePerUnit" }) })
+		@Index(name = "IDX_MO_GP", columnNames = { "goodType", "pricePerUnit" }),
+		@Index(name = "IDX_MO_CP", columnNames = { "commodityCurrency",
+				"pricePerUnit" }) })
 public class MarketOrder implements Comparable<MarketOrder> {
+
+	public enum CommodityType {
+		GOODTYPE, PROPERTY, CURRENCY
+	}
+
+	public enum ValidityPeriod {
+		GoodForDay, GoodTillDate, GoodTillCancelled
+	}
 
 	@Column(name = "amount")
 	protected double amount;
@@ -59,14 +68,6 @@ public class MarketOrder implements Comparable<MarketOrder> {
 	@JoinColumn(name = "offeror_id")
 	protected Agent offeror;
 
-	@Column(name = "currency")
-	@Enumerated(EnumType.STRING)
-	protected Currency currency;
-
-	@Column
-	@Enumerated(EnumType.STRING)
-	protected GoodType goodType;
-
 	@ManyToOne
 	@JoinColumn(name = "offerorsBankAcount_id")
 	protected BankAccount offerorsBankAcount;
@@ -74,14 +75,35 @@ public class MarketOrder implements Comparable<MarketOrder> {
 	@Column(name = "pricePerUnit")
 	protected double pricePerUnit;
 
+	@Column
+	@Enumerated(EnumType.STRING)
+	protected ValidityPeriod validityPeriod;
+
+	// market offer type 1: market offer for good type
+
+	@Column
+	@Enumerated(EnumType.STRING)
+	protected GoodType goodType;
+
+	// market offer type 2: market offer for currency / money
+
+	@Column(name = "commodityCurrency")
+	@Enumerated(EnumType.STRING)
+	protected Currency commodityCurrency;
+
+	@ManyToOne
+	@JoinColumn(name = "commodityCurrencyOfferorsBankAcount_id")
+	protected BankAccount commodityCurrencyOfferorsBankAcount;
+
+	@Column(name = "commodityCurrencyOfferorsBankAcountPassword")
+	protected String commodityCurrencyOfferorsBankAcountPassword;
+
+	// market offer type 3: market offer for property (e.g. shares)
+
 	@ManyToOne
 	@Index(name = "IDX_MO_PROPERTY")
 	@JoinColumn(name = "property_id")
 	protected Property property;
-
-	@Column
-	@Enumerated(EnumType.STRING)
-	protected ValidityPeriod validityPeriod;
 
 	// accessors
 
@@ -97,8 +119,20 @@ public class MarketOrder implements Comparable<MarketOrder> {
 		return offeror;
 	}
 
-	public Currency getCurrency() {
-		return currency;
+	/**
+	 * the currency to be traded as the commodity; not the currency of the
+	 * offeror's bank account!
+	 */
+	public Currency getCommodityCurrency() {
+		return commodityCurrency;
+	}
+
+	public BankAccount getCommodityCurrencyOfferorsBankAccount() {
+		return this.commodityCurrencyOfferorsBankAcount;
+	}
+
+	public String getCommodityCurrencyOfferorsBankAccountPassword() {
+		return this.commodityCurrencyOfferorsBankAcountPassword;
 	}
 
 	public GoodType getGoodType() {
@@ -137,8 +171,19 @@ public class MarketOrder implements Comparable<MarketOrder> {
 		this.offeror = offeror;
 	}
 
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
+	/**
+	 * @see #getCommodityCurrency()
+	 */
+	public void setCommodityCurrency(Currency currency) {
+		this.commodityCurrency = currency;
+	}
+
+	public void setCommodityCurrencyOfferorsBankAccount(BankAccount bankAccount) {
+		this.commodityCurrencyOfferorsBankAcount = bankAccount;
+	}
+
+	public void setCommodityCurrencyOfferorsBankAccountPassword(String password) {
+		this.commodityCurrencyOfferorsBankAcountPassword = password;
 	}
 
 	public void setOfferorsBankAcount(BankAccount offerorsBankAcount) {
@@ -182,8 +227,21 @@ public class MarketOrder implements Comparable<MarketOrder> {
 		this.amount -= amount;
 	}
 
-	public enum ValidityPeriod {
-		GoodForDay, GoodTillDate, GoodTillCancelled
+	@Transient
+	public CommodityType getCommodityType() {
+		if (this.commodityCurrency != null)
+			return CommodityType.CURRENCY;
+		if (this.property != null)
+			return CommodityType.PROPERTY;
+		return CommodityType.GOODTYPE;
 	}
 
+	@Transient
+	public Object getCommodity() {
+		if (CommodityType.CURRENCY.equals(getCommodityType()))
+			return this.commodityCurrency;
+		if (CommodityType.PROPERTY.equals(getCommodityType()))
+			return this.property;
+		return this.goodType;
+	}
 }

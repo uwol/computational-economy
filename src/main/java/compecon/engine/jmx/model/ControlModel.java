@@ -17,16 +17,37 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.jmx.model;
 
+import java.util.List;
+
 import compecon.culture.sectors.financial.Currency;
+import compecon.culture.sectors.industry.Factory;
 import compecon.engine.AgentFactory;
+import compecon.nature.materia.GoodType;
 
 public class ControlModel extends Model {
-	public void initHouseholds() {
-		for (int i = 0; i < 100; i++)
-			AgentFactory.newInstanceHousehold(Currency.EURO);
+
+	public void initEconomicGrowth(Currency currency) {
+		List<Factory> factories = AgentFactory.getAllFactories();
+		for (Factory factory : factories) {
+			if (currency.equals(factory.getPrimaryCurrency())) {
+				double productivity = factory.getProductionFunction()
+						.getProductivity();
+				factory.getProductionFunction().setProductivity(
+						productivity * 1.5);
+			}
+		}
 	}
 
-	public void deficitSpending() {
-		AgentFactory.getInstanceState(Currency.EURO).doDeficitSpending();
+	public void initHouseholds(Currency currency) {
+		for (int i = 0; i < 100; i++)
+			AgentFactory.newInstanceHousehold(currency);
+	}
+
+	public void initCarFactory(Currency currency) {
+		AgentFactory.newInstanceFactory(GoodType.CAR, currency);
+	}
+
+	public void deficitSpending(Currency currency) {
+		AgentFactory.getInstanceState(currency).doDeficitSpending();
 	}
 }

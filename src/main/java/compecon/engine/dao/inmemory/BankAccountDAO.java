@@ -15,8 +15,12 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.culture.markets.ordertypes;
+package compecon.engine.dao.inmemory;
 
-public class StopMarketOrder extends MarketOrder {
+import compecon.culture.sectors.financial.BankAccount;
+import compecon.engine.dao.DAOFactory.IBankAccountDAO;
+
+public class BankAccountDAO extends InMemoryDAO<BankAccount> implements
+		IBankAccountDAO {
 
 }

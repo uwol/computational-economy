@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import compecon.culture.markets.ordertypes.MarketOrder;
+import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -34,6 +35,8 @@ import compecon.engine.util.ConfigurationUtil;
 import compecon.nature.materia.GoodType;
 
 public class DAOFactory {
+
+	protected static IBankAccountDAO bankAccountDAO;
 
 	protected static ICentralBankDAO centralBankDAO;
 
@@ -53,6 +56,7 @@ public class DAOFactory {
 
 	static {
 		if (ConfigurationUtil.getActivateDb()) {
+			bankAccountDAO = new compecon.engine.dao.hibernate.BankAccountDAO();
 			centralBankDAO = new compecon.engine.dao.hibernate.CentralBankDAO();
 			creditBankDAO = new compecon.engine.dao.hibernate.CreditBankDAO();
 			householdDAO = new compecon.engine.dao.hibernate.HouseholdDAO();
@@ -62,6 +66,7 @@ public class DAOFactory {
 			stateDAO = new compecon.engine.dao.hibernate.StateDAO();
 			traderDAO = new compecon.engine.dao.hibernate.TraderDAO();
 		} else {
+			bankAccountDAO = new compecon.engine.dao.inmemory.BankAccountDAO();
 			centralBankDAO = new compecon.engine.dao.inmemory.CentralBankDAO();
 			creditBankDAO = new compecon.engine.dao.inmemory.CreditBankDAO();
 			householdDAO = new compecon.engine.dao.inmemory.HouseholdDAO();
@@ -74,6 +79,10 @@ public class DAOFactory {
 	}
 
 	// ---------------------------------
+
+	public static IBankAccountDAO getBankAccountDAO() {
+		return bankAccountDAO;
+	}
 
 	public static ICentralBankDAO getCentralBankDAO() {
 		return centralBankDAO;
@@ -109,6 +118,9 @@ public class DAOFactory {
 
 	// ---------------------------------
 
+	public static interface IBankAccountDAO extends IGenericDAO<BankAccount> {
+	}
+
 	public static interface ICentralBankDAO extends IGenericDAO<CentralBank> {
 		public CentralBank findByCurrency(Currency currency);
 	}
@@ -132,18 +144,27 @@ public class DAOFactory {
 				GoodType goodType);
 
 		public void deleteAllSellingOrders(Agent offeror, Currency currency,
+				Currency commodityCurrency);
+
+		public void deleteAllSellingOrders(Agent offeror, Currency currency,
 				Class<? extends Property> propertyClass);
 
 		public double findMarginalPrice(Currency currency, GoodType goodType);
 
 		public double findMarginalPrice(Currency currency,
+				Currency commodityCurrency);
+
+		public double findMarginalPrice(Currency currency,
 				Class<? extends Property> propertyClass);
 
-		public Iterator<MarketOrder> getIterator(GoodType goodType,
-				Currency currency);
+		public Iterator<MarketOrder> getIterator(Currency currency,
+				GoodType goodType);
 
-		public Iterator<MarketOrder> getIterator(
-				Class<? extends Property> propertyClass, Currency currency);
+		public Iterator<MarketOrder> getIterator(Currency currency,
+				Currency commodityCurrency);
+
+		public Iterator<MarketOrder> getIterator(Currency currency,
+				Class<? extends Property> propertyClass);
 	}
 
 	public static interface IPropertyDAO extends IGenericDAO<Property> {

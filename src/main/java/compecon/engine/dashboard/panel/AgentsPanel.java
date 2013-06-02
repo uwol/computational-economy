@@ -108,7 +108,7 @@ public class AgentsPanel extends JPanel {
 		}
 	}
 
-	protected final int NUMBER_OF_AGENTS_TO_SHOW = 100;
+	protected final int NUMBER_OF_AGENTS_TO_SHOW = 200;
 
 	protected final AgentLogsModel agentLogsModel = ModelRegistry
 			.getAgentLogsModel();
@@ -171,7 +171,7 @@ public class AgentsPanel extends JPanel {
 		this.add(controlPanel, BorderLayout.NORTH);
 	}
 
-	public void noRefresh(boolean noRefresh) {
+	public void setNoRefresh(boolean noRefresh) {
 		this.noRefresh = noRefresh;
 	}
 }

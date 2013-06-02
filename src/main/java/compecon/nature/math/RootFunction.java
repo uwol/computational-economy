@@ -30,6 +30,8 @@ public class RootFunction extends Function implements IFunction {
 	protected double coefficient;
 
 	public RootFunction(GoodType inputGoodType, double coefficient) {
+		super(false);
+
 		this.inputGoodType = inputGoodType;
 		this.coefficient = coefficient;
 	}
@@ -57,5 +59,13 @@ public class RootFunction extends Function implements IFunction {
 					* Math.pow(forBundleOfInputGoods.get(this.inputGoodType),
 							-0.5);
 		return 0;
+	}
+
+	public double getCoefficient() {
+		return this.coefficient;
+	}
+
+	public void setCoefficient(double coefficient) {
+		this.coefficient = coefficient;
 	}
 }

@@ -28,7 +28,7 @@ public abstract class AgentIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 
 	private Map<Agent, Set<T>> agentIndexedInstances = new HashMap<Agent, Set<T>>();
 
-	private synchronized void assertInitializedDataStructure(Agent agent) {
+	private synchronized void assureInitializedDataStructure(Agent agent) {
 		if (!this.agentIndexedInstances.containsKey(agent))
 			this.agentIndexedInstances.put(agent, new HashSet<T>());
 	}
@@ -48,7 +48,7 @@ public abstract class AgentIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 	 */
 
 	protected synchronized void save(Agent agent, T instance) {
-		this.assertInitializedDataStructure(agent);
+		this.assureInitializedDataStructure(agent);
 
 		this.agentIndexedInstances.get(agent).add(instance);
 		super.save(instance);

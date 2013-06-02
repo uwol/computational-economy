@@ -15,11 +15,12 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.culture.markets.ordertypes;
+package compecon.engine.dao.hibernate;
 
-/**
- * buying or selling order to be executed at limit or better price
- */
-public class LimitOrder extends MarketOrder {
+import compecon.culture.sectors.financial.BankAccount;
+import compecon.engine.dao.DAOFactory.IBankAccountDAO;
+
+public class BankAccountDAO extends HibernateDAO<BankAccount> implements
+		IBankAccountDAO {
 
 }

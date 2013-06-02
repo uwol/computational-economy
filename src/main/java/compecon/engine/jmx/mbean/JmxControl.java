@@ -17,17 +17,18 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.jmx.mbean;
 
+import compecon.culture.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry;
 
 public class JmxControl implements JmxControlMBean {
 
 	@Override
 	public void deficitSpending() {
-		ModelRegistry.getControlModel().deficitSpending();
+		ModelRegistry.getControlModel().deficitSpending(Currency.EURO);
 	}
 
 	@Override
 	public void initHouseholds() {
-		ModelRegistry.getControlModel().initHouseholds();
+		ModelRegistry.getControlModel().initHouseholds(Currency.EURO);
 	}
 }

@@ -31,7 +31,7 @@ public class CobbDouglasFunction extends Function implements IFunction {
 
 	protected final Map<GoodType, Double> exponents;
 
-	protected final double coefficient;
+	protected double coefficient;
 
 	@Override
 	public Set<GoodType> getInputGoodTypes() {
@@ -40,6 +40,8 @@ public class CobbDouglasFunction extends Function implements IFunction {
 
 	public CobbDouglasFunction(Map<GoodType, Double> exponents,
 			double coefficient) {
+		super(true);
+
 		/*
 		 * constraint on exponents
 		 */
@@ -114,5 +116,13 @@ public class CobbDouglasFunction extends Function implements IFunction {
 
 	public Map<GoodType, Double> getExponents() {
 		return this.exponents;
+	}
+
+	public double getCoefficient() {
+		return this.coefficient;
+	}
+
+	public void setCoefficient(double coefficient) {
+		this.coefficient = coefficient;
 	}
 }

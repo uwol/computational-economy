@@ -121,21 +121,46 @@ public class PricesModel extends Model {
 		}
 	}
 
-	protected final Map<Currency, Map<GoodType, PriceModel>> priceModels = new HashMap<Currency, Map<GoodType, PriceModel>>();
+	protected final Map<Currency, Map<GoodType, PriceModel>> priceModelsForGoodTypes = new HashMap<Currency, Map<GoodType, PriceModel>>();
+
+	protected final Map<Currency, Map<Currency, PriceModel>> priceModelsForCurrencies = new HashMap<Currency, Map<Currency, PriceModel>>();
 
 	public void market_onTick(double pricePerUnit, GoodType goodType,
 			Currency currency, double amount) {
-		if (!this.priceModels.containsKey(currency))
-			this.priceModels.put(currency, new HashMap<GoodType, PriceModel>());
+		if (!this.priceModelsForGoodTypes.containsKey(currency))
+			this.priceModelsForGoodTypes.put(currency,
+					new HashMap<GoodType, PriceModel>());
 
-		Map<GoodType, PriceModel> priceModelsForCurrency = this.priceModels
+		Map<GoodType, PriceModel> priceModelsForCurrency = this.priceModelsForGoodTypes
 				.get(currency);
 		if (!priceModelsForCurrency.containsKey(goodType))
 			priceModelsForCurrency.put(goodType, new PriceModel());
 		priceModelsForCurrency.get(goodType).tick(pricePerUnit, amount);
 	}
 
-	public Map<Currency, Map<GoodType, PriceModel>> getPriceModels() {
-		return this.priceModels;
+	public void market_onTick(double pricePerUnit, Currency commodityCurrency,
+			Currency currency, double amount) {
+		if (!this.priceModelsForCurrencies.containsKey(currency))
+			this.priceModelsForCurrencies.put(currency,
+					new HashMap<Currency, PriceModel>());
+
+		Map<Currency, PriceModel> priceModelsForCurrency = this.priceModelsForCurrencies
+				.get(currency);
+		if (!priceModelsForCurrency.containsKey(commodityCurrency))
+			priceModelsForCurrency.put(commodityCurrency, new PriceModel());
+		priceModelsForCurrency.get(commodityCurrency)
+				.tick(pricePerUnit, amount);
+	}
+
+	public Map<Currency, Map<GoodType, PriceModel>> getPriceModelsForGoodTypes() {
+		return this.priceModelsForGoodTypes;
+	}
+
+	public Map<Currency, Map<Currency, PriceModel>> getPriceModelsForCurrencies() {
+		return this.priceModelsForCurrencies;
+	}
+
+	public void nextPeriod() {
+		this.notifyListeners();
 	}
 }

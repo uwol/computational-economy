@@ -19,6 +19,8 @@ package compecon.culture.sectors.financial;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,6 +40,8 @@ public class BankAccount {
 	@Column(name = "balance")
 	protected double balance;
 
+	@Enumerated(EnumType.STRING)
+	@Index(name = "IDX_BA_CURRENCY")
 	@Column(name = "currency")
 	protected Currency currency;
 
@@ -57,19 +61,6 @@ public class BankAccount {
 	@JoinColumn(name = "agent_id")
 	@Index(name = "agent_id")
 	protected Agent owner;
-
-	public BankAccount() {
-	}
-
-	public BankAccount(final Agent owner, boolean overdraftPossible,
-			final Currency currency, final Bank managingBank) {
-		super();
-		this.owner = owner;
-		this.balance = 0;
-		this.overdraftPossible = overdraftPossible;
-		this.currency = currency;
-		this.managingBank = managingBank;
-	}
 
 	/*
 	 * Accessors
@@ -107,7 +98,7 @@ public class BankAccount {
 		this.managingBank = managingBank;
 	}
 
-	protected void setOverdraftPossible(boolean overdraftPossible) {
+	public void setOverdraftPossible(boolean overdraftPossible) {
 		this.overdraftPossible = overdraftPossible;
 	}
 

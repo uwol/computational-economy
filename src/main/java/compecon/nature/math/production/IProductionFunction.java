@@ -33,8 +33,12 @@ public interface IProductionFunction {
 			Map<GoodType, Double> bundleOfProductionFactors,
 			GoodType differentialGoodType);
 
-	public abstract Map<GoodType, Double> calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
+	public Map<GoodType, Double> calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
 			double priceOfProducedGoodType,
 			Map<GoodType, Double> pricesOfProductionFactors, double budget,
 			double maxOutput);
+
+	public double getProductivity();
+
+	public void setProductivity(double productivity);
 }

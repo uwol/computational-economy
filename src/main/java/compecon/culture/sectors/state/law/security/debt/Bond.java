@@ -131,7 +131,7 @@ public abstract class Bond extends Property {
 
 	}
 
-	protected class TransferFaceValueEvent implements ITimeSystemEvent {
+	public class TransferFaceValueEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
 			Bond.this.transferFaceValue();

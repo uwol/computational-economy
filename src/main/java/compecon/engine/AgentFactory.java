@@ -17,6 +17,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +40,17 @@ import compecon.nature.math.utility.CobbDouglasUtilityFunction;
 import compecon.nature.math.utility.IUtilityFunction;
 
 public class AgentFactory {
+
+	public final static List<Class<? extends Agent>> agentTypes = new ArrayList<Class<? extends Agent>>();
+
+	static {
+		agentTypes.add(Household.class);
+		agentTypes.add(CreditBank.class);
+		agentTypes.add(CentralBank.class);
+		agentTypes.add(State.class);
+		agentTypes.add(Factory.class);
+		agentTypes.add(Trader.class);
+	}
 
 	public static State getInstanceState(Currency currency) {
 		State state = DAOFactory.getStateDAO().findByCurrency(currency);
@@ -108,6 +120,10 @@ public class AgentFactory {
 		DAOFactory.getFactoryDAO().save(factory);
 		HibernateUtil.flushSession();
 		return factory;
+	}
+
+	public static List<Factory> getAllFactories() {
+		return DAOFactory.getFactoryDAO().findAll();
 	}
 
 	public static Household newInstanceHousehold(Currency primaryCurrency) {

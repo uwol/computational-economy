@@ -19,7 +19,7 @@ package compecon.engine.util;
 
 public class MathUtil {
 
-	private static double epsilon = 0.0000001;
+	private static double epsilon = 0.00001;
 
 	public static boolean equal(double value1, double value2) {
 		if (Double.isNaN(value1) && Double.isNaN(value2))
@@ -32,7 +32,11 @@ public class MathUtil {
 	public static boolean greater(double value1, double value2) {
 		if (Double.isNaN(value1) || Double.isNaN(value2))
 			return false;
-		if (Double.isInfinite(value1) || Double.isInfinite(value2))
+		if (!Double.isInfinite(value1) && Double.isInfinite(value2))
+			return false;
+		if (Double.isInfinite(value1) && !Double.isInfinite(value2))
+			return true;
+		if (Double.isInfinite(value1) && Double.isInfinite(value2))
 			return false;
 		return value1 - epsilon > value2;
 	}
@@ -44,7 +48,11 @@ public class MathUtil {
 	public static boolean lesser(double value1, double value2) {
 		if (Double.isNaN(value1) || Double.isNaN(value2))
 			return false;
-		if (Double.isInfinite(value1) || Double.isInfinite(value2))
+		if (Double.isInfinite(value1) && !Double.isInfinite(value2))
+			return false;
+		if (!Double.isInfinite(value1) && Double.isInfinite(value2))
+			return true;
+		if (Double.isInfinite(value1) && Double.isInfinite(value2))
 			return false;
 		return value1 + epsilon < value2;
 	}

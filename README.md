@@ -6,8 +6,9 @@ Computational Economy is an agent-based computational economics simulator implem
 Features:
 * Agent type *Household*: Households offer labour hours and consume goods according to a Cobb-Douglas utility function.
 * Agent type *Factory*: Factories produce arbitrary goods according to their production functions based on an input-output-model.
-* Agent type *Credit bank*: Credit banks manage bank accounts, create money by credit and follow minimum reserve requirements of central banks.
+* Agent type *Credit bank*: Credit banks manage bank accounts, create money by credit, trade currencies and follow minimum reserve requirements of central banks.
 * Agent type *Central bank*: Central banks adjust key interest rates based on price indices. Key interest rates induce changes in buying behaviour via a simulated transmission mechanism.
+* Agent type *Trader*: Traders import goods from foreign markets, connecting currency zones.
 * Market: Sellers offer goods on markets. The settlement market transfers ownership of offered goods and money, automatically.
 * Share: Joint-stock companies are owned by agents and pay dividends to them every period.
 * Bonds: Bonds are given as security for credit in open market operations between central and credit banks.

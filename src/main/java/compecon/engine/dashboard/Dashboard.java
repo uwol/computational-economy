@@ -41,8 +41,6 @@ import compecon.engine.dashboard.panel.PricesPanel;
 public class Dashboard extends JFrame {
 	private static Dashboard instance;
 
-	// panels
-
 	protected final AgentsPanel agentsPanel = new AgentsPanel();
 
 	protected final JPanel borderPanel;
@@ -82,8 +80,8 @@ public class Dashboard extends JFrame {
 		this.jTabbedPane = new JTabbedPane();
 		this.jTabbedPane.addTab("Aggregates", this.aggregatesPanel);
 		this.jTabbedPane.addTab("Prices", this.pricesPanel);
-		this.jTabbedPane.addTab("Agents", this.agentsPanel);
 		this.jTabbedPane.addTab("National Accounts", nationalAccountsPanel);
+		this.jTabbedPane.addTab("Agents", this.agentsPanel);
 
 		jTabbedPane.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -92,15 +90,15 @@ public class Dashboard extends JFrame {
 
 					if (pane.getSelectedComponent().equals(
 							Dashboard.this.agentsPanel))
-						Dashboard.this.agentsPanel.noRefresh(false);
+						Dashboard.this.agentsPanel.setNoRefresh(false);
 					else
-						Dashboard.this.agentsPanel.noRefresh(true);
+						Dashboard.this.agentsPanel.setNoRefresh(true);
 
 					if (pane.getSelectedComponent().equals(
 							Dashboard.this.pricesPanel))
-						Dashboard.this.pricesPanel.noRedraw(false);
+						Dashboard.this.pricesPanel.setNoRefresh(false);
 					else
-						Dashboard.this.pricesPanel.noRedraw(true);
+						Dashboard.this.pricesPanel.setNoRefresh(true);
 				}
 			}
 		});
@@ -127,9 +125,5 @@ public class Dashboard extends JFrame {
 		if (instance == null)
 			instance = new Dashboard();
 		return instance;
-	}
-
-	public void nextPeriod() {
-		this.pricesPanel.redrawPriceCharts();
 	}
 }

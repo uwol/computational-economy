@@ -17,44 +17,27 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.jmx.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import compecon.culture.sectors.financial.CentralBank;
-import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
-import compecon.culture.sectors.industry.Factory;
-import compecon.culture.sectors.state.State;
-import compecon.culture.sectors.trading.Trader;
 import compecon.engine.Agent;
+import compecon.engine.AgentFactory;
 
 public class MonetaryTransactionsModel extends Model {
 
 	// stores transaction values in a type-safe way
 	protected Map<Currency, Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>>> adjacencyMatrix = new HashMap<Currency, Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>>>();
 
-	protected List<Class<? extends Agent>> agentTypes = new ArrayList<Class<? extends Agent>>();
-
 	public MonetaryTransactionsModel() {
-
-		this.agentTypes.add(Household.class);
-		this.agentTypes.add(Factory.class);
-		this.agentTypes.add(CreditBank.class);
-		this.agentTypes.add(CentralBank.class);
-		this.agentTypes.add(State.class);
-		this.agentTypes.add(Trader.class);
-
 		for (Currency currency : Currency.values()) {
 			// initialize data structure for currency
 			Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>> adjacencyMatrixForCurrency = new HashMap<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>>();
 			// from
-			for (Class<? extends Agent> agentTypeFrom : this.agentTypes) {
+			for (Class<? extends Agent> agentTypeFrom : AgentFactory.agentTypes) {
 				// to
 				PeriodDataAccumulatorSet<Class<? extends Agent>> periodDataAccumulatorSet = new PeriodDataAccumulatorSet<Class<? extends Agent>>();
-				for (Class<? extends Agent> agentTypeTo : this.agentTypes) {
+				for (Class<? extends Agent> agentTypeTo : AgentFactory.agentTypes) {
 					periodDataAccumulatorSet.add(agentTypeTo, 0);
 				}
 
@@ -75,10 +58,6 @@ public class MonetaryTransactionsModel extends Model {
 		Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>> adjacencyMatrixForCurrency = this.adjacencyMatrix
 				.get(currency);
 		adjacencyMatrixForCurrency.get(from).add(to, value);
-	}
-
-	public List<Class<? extends Agent>> getAgentTypes() {
-		return agentTypes;
 	}
 
 	public Map<Currency, Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>>> getAdjacencyMatrix() {

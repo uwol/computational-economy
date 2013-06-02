@@ -24,4 +24,14 @@ public class RootProductionFunction extends ConvexProductionFunction {
 	public RootProductionFunction(GoodType inputGoodType, double coefficient) {
 		super(new RootFunction(inputGoodType, coefficient));
 	}
+
+	@Override
+	public double getProductivity() {
+		return ((RootFunction) this.delegate).getCoefficient();
+	}
+
+	@Override
+	public void setProductivity(double productivity) {
+		((RootFunction) this.delegate).setCoefficient(productivity);
+	}
 }

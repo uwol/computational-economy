@@ -17,7 +17,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.nature.materia;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,67 +31,47 @@ import compecon.nature.math.production.RootProductionFunction;
  * http://en.wikipedia.org/wiki/Input-output_model
  */
 public class InputOutputModel {
-	protected static Map<GoodType, IProductionFunction> productionFunctionsForOutputGoodType = new HashMap<GoodType, IProductionFunction>();
-
-	static {
-
-		productionFunctionsForOutputGoodType.put(GoodType.IRON,
-				new RootProductionFunction(GoodType.LABOURHOUR, 10000));
-
-		productionFunctionsForOutputGoodType.put(GoodType.COAL,
-				new RootProductionFunction(GoodType.LABOURHOUR, 10000));
-
-		productionFunctionsForOutputGoodType.put(GoodType.GOLD,
-				new RootProductionFunction(GoodType.LABOURHOUR, 100));
-
-		productionFunctionsForOutputGoodType.put(GoodType.URANIUM,
-				new RootProductionFunction(GoodType.LABOURHOUR, 100));
-
-		productionFunctionsForOutputGoodType.put(GoodType.WHEAT,
-				new RootProductionFunction(GoodType.LABOURHOUR, 1000));
-
-		Map<GoodType, Double> parametersSteel = new LinkedHashMap<GoodType, Double>();
-		parametersSteel.put(GoodType.KILOWATT, 0.7);
-		parametersSteel.put(GoodType.LABOURHOUR, 0.1);
-		parametersSteel.put(GoodType.IRON, 0.1);
-		parametersSteel.put(GoodType.COAL, 0.1);
-		productionFunctionsForOutputGoodType.put(GoodType.STEEL,
-				new CobbDouglasProductionFunction(parametersSteel, 5));
-
-		Map<GoodType, Double> parametersKiloWatt = new LinkedHashMap<GoodType, Double>();
-		parametersKiloWatt.put(GoodType.LABOURHOUR, 0.2);
-		parametersKiloWatt.put(GoodType.URANIUM, 0.8);
-		productionFunctionsForOutputGoodType.put(GoodType.KILOWATT,
-				new CobbDouglasProductionFunction(parametersKiloWatt, 20));
-
-		Map<GoodType, Double> parametersRealEstate = new LinkedHashMap<GoodType, Double>();
-		parametersRealEstate.put(GoodType.STEEL, 0.2);
-		parametersRealEstate.put(GoodType.LABOURHOUR, 0.6);
-		parametersRealEstate.put(GoodType.KILOWATT, 0.2);
-		productionFunctionsForOutputGoodType.put(GoodType.REALESTATE,
-				new CobbDouglasProductionFunction(parametersRealEstate, 5));
-
-		Map<GoodType, Double> parametersCar = new LinkedHashMap<GoodType, Double>();
-		parametersCar.put(GoodType.STEEL, 0.2);
-		parametersCar.put(GoodType.LABOURHOUR, 0.6);
-		parametersCar.put(GoodType.KILOWATT, 0.2);
-		productionFunctionsForOutputGoodType.put(GoodType.CAR,
-				new CobbDouglasProductionFunction(parametersCar, 5));
-
-		// production functions for remaining output good types
-		for (GoodType goodType : GoodType.values()) {
-			if (!GoodType.LABOURHOUR.equals(goodType)) {
-				if (!productionFunctionsForOutputGoodType.containsKey(goodType)) {
-					productionFunctionsForOutputGoodType
-							.put(goodType, new RootProductionFunction(
-									GoodType.LABOURHOUR, 100));
-				}
-			}
-		}
-	}
-
 	public static IProductionFunction getProductionFunction(
 			GoodType outputGoodType) {
-		return productionFunctionsForOutputGoodType.get(outputGoodType);
+		switch (outputGoodType) {
+		case IRON:
+			return new RootProductionFunction(GoodType.LABOURHOUR, 1000);
+		case COAL:
+			new RootProductionFunction(GoodType.LABOURHOUR, 10000);
+		case GOLD:
+			return new RootProductionFunction(GoodType.LABOURHOUR, 100);
+		case URANIUM:
+			return new RootProductionFunction(GoodType.LABOURHOUR, 100);
+		case WHEAT:
+			return new RootProductionFunction(GoodType.LABOURHOUR, 1000);
+		case STEEL:
+			Map<GoodType, Double> parametersSteel = new LinkedHashMap<GoodType, Double>();
+			parametersSteel.put(GoodType.KILOWATT, 0.7);
+			parametersSteel.put(GoodType.LABOURHOUR, 0.1);
+			parametersSteel.put(GoodType.IRON, 0.1);
+			parametersSteel.put(GoodType.COAL, 0.1);
+			return new CobbDouglasProductionFunction(parametersSteel, 5);
+		case KILOWATT:
+			Map<GoodType, Double> parametersKiloWatt = new LinkedHashMap<GoodType, Double>();
+			parametersKiloWatt.put(GoodType.LABOURHOUR, 0.2);
+			parametersKiloWatt.put(GoodType.URANIUM, 0.8);
+			return new CobbDouglasProductionFunction(parametersKiloWatt, 20);
+		case REALESTATE:
+			Map<GoodType, Double> parametersRealEstate = new LinkedHashMap<GoodType, Double>();
+			parametersRealEstate.put(GoodType.STEEL, 0.2);
+			parametersRealEstate.put(GoodType.LABOURHOUR, 0.6);
+			parametersRealEstate.put(GoodType.KILOWATT, 0.2);
+			return new CobbDouglasProductionFunction(parametersRealEstate, 5);
+		case CAR:
+			Map<GoodType, Double> parametersCar = new LinkedHashMap<GoodType, Double>();
+			parametersCar.put(GoodType.STEEL, 0.2);
+			parametersCar.put(GoodType.LABOURHOUR, 0.6);
+			parametersCar.put(GoodType.KILOWATT, 0.2);
+			return new CobbDouglasProductionFunction(parametersCar, 5);
+		case LABOURHOUR:
+			return null;
+		default:
+			return new RootProductionFunction(GoodType.LABOURHOUR, 100);
+		}
 	}
 }

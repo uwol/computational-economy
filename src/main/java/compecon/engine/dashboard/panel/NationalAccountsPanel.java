@@ -23,21 +23,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
-import compecon.culture.sectors.financial.CentralBank;
-import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
-import compecon.culture.sectors.industry.Factory;
-import compecon.culture.sectors.state.State;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.culture.sectors.trading.Trader;
 import compecon.engine.Agent;
+import compecon.engine.AgentFactory;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.PeriodDataAccumulator;
@@ -63,13 +59,6 @@ public class NationalAccountsPanel extends JPanel {
 		public final static int POSITION_LOANS = 1;
 		public final static int POSITION_FIN_LIABLITIES = 2;
 		public final static int POSITION_BANK_BORROWINGS = 3;
-
-		public final static int AGENTTYPE_HOUSEHOLD = 0;
-		public final static int AGENTTYPE_FACTORY = 1;
-		public final static int AGENTTYPE_CREDITBANK = 2;
-		public final static int AGENTTYPE_CENTRALBANK = 3;
-		public final static int AGENTTYPE_STATE = 4;
-		public final static int AGENTTYPE_TRADER = 5;
 
 		protected final String columnNames[] = { "Active Account",
 				"Agent Type", "Value", "Currency", "", "Passive Account",
@@ -188,19 +177,7 @@ public class NationalAccountsPanel extends JPanel {
 				Class<? extends Agent> agentType = balanceSheetEntry.getKey();
 				BalanceSheet balanceSheet = balanceSheetEntry.getValue();
 
-				int agentTypeNr = -1;
-				if (agentType.equals(Household.class))
-					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_HOUSEHOLD;
-				else if (agentType.equals(CreditBank.class))
-					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_CREDITBANK;
-				else if (agentType.equals(CentralBank.class))
-					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_CENTRALBANK;
-				else if (agentType.equals(State.class))
-					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_STATE;
-				else if (agentType.equals(Factory.class))
-					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_FACTORY;
-				else if (agentType.equals(Trader.class))
-					agentTypeNr = NationalAccountsTableModel.AGENTTYPE_TRADER;
+				int agentTypeNr = AgentFactory.agentTypes.indexOf(agentType);
 
 				// active
 				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
@@ -249,9 +226,8 @@ public class NationalAccountsPanel extends JPanel {
 
 		public final Currency referenceCurrency;
 
-		protected Object[][] transientTableData = new Object[ModelRegistry
-				.getMonetaryTransactionsModel().getAgentTypes().size()][ModelRegistry
-				.getMonetaryTransactionsModel().getAgentTypes().size() + 1];
+		protected Object[][] transientTableData = new Object[AgentFactory.agentTypes
+				.size()][AgentFactory.agentTypes.size() + 1];
 
 		public MonetaryTransactionsTableModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
@@ -277,8 +253,7 @@ public class NationalAccountsPanel extends JPanel {
 		public String getColumnName(int columnIndex) {
 			if (columnIndex == 0)
 				return "from / to";
-			return ModelRegistry.getMonetaryTransactionsModel().getAgentTypes()
-					.get(columnIndex - 1).getSimpleName();
+			return AgentFactory.agentTypes.get(columnIndex - 1).getSimpleName();
 		}
 
 		@Override
@@ -292,10 +267,8 @@ public class NationalAccountsPanel extends JPanel {
 
 				// for all agent types as sources of monetary transactions ->
 				// rows
-				for (int i = 0; i < ModelRegistry
-						.getMonetaryTransactionsModel().getAgentTypes().size(); i++) {
-					Class<? extends Agent> agentTypeFrom = ModelRegistry
-							.getMonetaryTransactionsModel().getAgentTypes()
+				for (int i = 0; i < AgentFactory.agentTypes.size(); i++) {
+					Class<? extends Agent> agentTypeFrom = AgentFactory.agentTypes
 							.get(i);
 					PeriodDataAccumulatorSet<Class<? extends Agent>> adjacencyMatrixForCurrencyAndFromAgentType = adjacencyMatrixForCurrency
 							.get(agentTypeFrom);
@@ -308,11 +281,8 @@ public class NationalAccountsPanel extends JPanel {
 					// transactions
 					// ->
 					// columns
-					for (int j = 0; j < ModelRegistry
-							.getMonetaryTransactionsModel().getAgentTypes()
-							.size(); j++) {
-						Class<? extends Agent> agentTypeTo = ModelRegistry
-								.getMonetaryTransactionsModel().getAgentTypes()
+					for (int j = 0; j < AgentFactory.agentTypes.size(); j++) {
+						Class<? extends Agent> agentTypeTo = AgentFactory.agentTypes
 								.get(j);
 						PeriodDataAccumulator periodTransactionVolum = adjacencyMatrixForCurrencyAndFromAgentType
 								.getPeriodDataAccumulators().get(agentTypeTo);
@@ -350,37 +320,33 @@ public class NationalAccountsPanel extends JPanel {
 		 */
 
 		this.setLayout(new BorderLayout());
-		JTabbedPane jTabbedPane_BalanceSheets = new JTabbedPane();
+		JTabbedPane jTabbedPane = new JTabbedPane();
 
-		// panels for national accounts
 		for (Currency currency : Currency.values()) {
+			JPanel currencyJPanel = new JPanel();
+			currencyJPanel.setLayout(new BoxLayout(currencyJPanel,
+					BoxLayout.PAGE_AXIS));
+
+			// panel for national accounts
 			if (nationalAccountsTableModels.containsKey(currency)) {
 				JTable nationalAccountsTable = new JTable(
 						nationalAccountsTableModels.get(currency));
-				jTabbedPane_BalanceSheets.addTab(currency.getIso4217Code(),
-						new JScrollPane(nationalAccountsTable));
+				currencyJPanel.add(new JScrollPane(nationalAccountsTable));
 			}
-		}
-		add(jTabbedPane_BalanceSheets, BorderLayout.CENTER);
 
-		/*
-		 * Monetary Transactions
-		 */
-
-		JTabbedPane jTabbedPane_MonetaryTransactions = new JTabbedPane();
-		// panels for national accounts
-		for (Currency currency : Currency.values()) {
+			// panel for monetary transactions
 			if (monetaryTransactionsTableModels.containsKey(currency)) {
 				JTable monetaryTransactionsTable = new JTable(
 						monetaryTransactionsTableModels.get(currency));
-				jTabbedPane_MonetaryTransactions.addTab(currency
-						.getIso4217Code(), new JScrollPane(
-						monetaryTransactionsTable));
+				JScrollPane monetaryTransactionsJScrollPane = new JScrollPane(
+						monetaryTransactionsTable);
+				monetaryTransactionsJScrollPane.setPreferredSize(new Dimension(
+						-1, 250));
+				currencyJPanel.add(monetaryTransactionsJScrollPane);
 			}
-		}
-		jTabbedPane_MonetaryTransactions
-				.setPreferredSize(new Dimension(-1, 250));
-		add(jTabbedPane_MonetaryTransactions, BorderLayout.SOUTH);
-	}
 
+			jTabbedPane.addTab(currency.getIso4217Code(), currencyJPanel);
+		}
+		add(jTabbedPane, BorderLayout.CENTER);
+	}
 }
