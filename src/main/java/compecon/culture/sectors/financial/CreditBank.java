@@ -407,8 +407,8 @@ public class CreditBank extends Bank implements
 	@Transient
 	public void onBankCloseBankAccount(BankAccount bankAccount) {
 		if (this.currencyTradeBankAccounts != null) {
-			for (Entry<Currency, BankAccount> entry : this.currencyTradeBankAccounts
-					.entrySet()) {
+			for (Entry<Currency, BankAccount> entry : new HashMap<Currency, BankAccount>(
+					this.currencyTradeBankAccounts).entrySet()) {
 				if (entry.getValue() == bankAccount)
 					this.currencyTradeBankAccounts.remove(entry.getKey());
 			}
