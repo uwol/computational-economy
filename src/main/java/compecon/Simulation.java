@@ -23,7 +23,7 @@ import java.util.Set;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.AgentFactory;
 import compecon.engine.dashboard.Dashboard;
-import compecon.engine.jmx.Registration;
+import compecon.engine.jmx.JMXRegistration;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -61,11 +61,11 @@ public class Simulation {
 			HibernateUtil.openSession();
 
 			// init JMX
-			Registration.init();
+			JMXRegistration.init();
 
 			// configure simulation
 			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 10;
-			final int NUMBER_OF_TRADERSPERCURRENCY = 5;
+			final int NUMBER_OF_TRADERSPERCURRENCY = 0;
 			final int NUMBER_OF_HOUSEHOLDSPERCURRENCY = 500;
 			final int NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 5;
 

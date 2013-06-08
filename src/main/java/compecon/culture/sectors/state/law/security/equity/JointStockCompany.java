@@ -34,6 +34,7 @@ import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
 import compecon.engine.MarketFactory;
 import compecon.engine.PropertyFactory;
+import compecon.engine.jmx.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -94,6 +95,7 @@ public abstract class JointStockCompany extends Agent {
 	@Transient
 	protected double calculateTotalDividend() {
 		this.assureTransactionsBankAccount();
+
 		return Math.max(0.0, this.transactionsBankAccount.getBalance()
 				- MONEY_TO_RETAIN);
 	}
@@ -107,6 +109,8 @@ public abstract class JointStockCompany extends Agent {
 
 			// dividend to be payed?
 			if (totalDividend > 0) {
+				double totalDividendPayed = 0;
+
 				Currency currency = this.transactionsBankAccount.getCurrency();
 				double dividendPerOwner = totalDividend
 						/ this.issuedShares.size();
@@ -131,9 +135,17 @@ public abstract class JointStockCompany extends Agent {
 												this.bankPasswords
 														.get(this.primaryBank),
 												"dividend");
+								totalDividendPayed += dividendPerOwner;
 							}
 						}
 					}
+				}
+				if (Log.isAgentSelectedByClient(JointStockCompany.this)) {
+					Log.log(JointStockCompany.this, "payed dividend of "
+							+ Currency.round(totalDividendPayed)
+							+ " "
+							+ this.transactionsBankAccount.getCurrency()
+									.getIso4217Code());
 				}
 			}
 		}

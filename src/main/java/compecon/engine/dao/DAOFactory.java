@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import compecon.culture.markets.ordertypes.MarketOrder;
+import compecon.culture.sectors.financial.Bank;
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
@@ -119,6 +120,19 @@ public class DAOFactory {
 	// ---------------------------------
 
 	public static interface IBankAccountDAO extends IGenericDAO<BankAccount> {
+		public List<BankAccount> findAllBankAccountsManagedByBank(
+				Bank managingBank);
+
+		public List<BankAccount> findAllBankAccountsOfAgent(Agent owner);
+
+		public List<BankAccount> findAll(Bank managingBank, Agent owner);
+
+		public List<BankAccount> findAll(Bank managingBank, Agent owner,
+				Currency currency);
+
+		public void deleteAllBankAccounts(Bank managingBank);
+
+		public void deleteAllBankAccounts(Bank managingBank, Agent owner);
 	}
 
 	public static interface ICentralBankDAO extends IGenericDAO<CentralBank> {

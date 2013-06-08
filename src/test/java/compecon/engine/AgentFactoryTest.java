@@ -66,17 +66,17 @@ public class AgentFactoryTest {
 
 		creditBank1_EURO.assureCentralBankAccount();
 		creditBank1_EURO.assureTransactionsBankAccount();
-		creditBank1_EURO.assureTransactionsForeignCurrencyBankAccounts();
+		creditBank1_EURO.assureCurrencyTradeBankAccounts();
 		creditBank2_EURO.assureCentralBankAccount();
 		creditBank2_EURO.assureTransactionsBankAccount();
-		creditBank2_EURO.assureTransactionsForeignCurrencyBankAccounts();
+		creditBank2_EURO.assureCurrencyTradeBankAccounts();
 
 		creditBank1_USD.assureCentralBankAccount();
 		creditBank1_USD.assureTransactionsBankAccount();
-		creditBank1_USD.assureTransactionsForeignCurrencyBankAccounts();
+		creditBank1_USD.assureCurrencyTradeBankAccounts();
 		creditBank2_USD.assureCentralBankAccount();
 		creditBank2_USD.assureTransactionsBankAccount();
-		creditBank2_USD.assureTransactionsForeignCurrencyBankAccounts();
+		creditBank2_USD.assureCurrencyTradeBankAccounts();
 
 		trader1_EURO.assureTransactionsBankAccount();
 		trader1_EURO.assureTransactionsForeignCurrencyBankAccounts();

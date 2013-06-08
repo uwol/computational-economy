@@ -41,8 +41,8 @@ public class BankAccount {
 	protected double balance;
 
 	@Enumerated(EnumType.STRING)
-	@Index(name = "IDX_BA_CURRENCY")
 	@Column(name = "currency")
+	@Index(name = "IDX_BA_CURRENCY")
 	protected Currency currency;
 
 	@Id
@@ -51,7 +51,7 @@ public class BankAccount {
 
 	@ManyToOne
 	@JoinColumn(name = "managingBank_id")
-	@Index(name = "managingBank_id")
+	@Index(name = "IDX_BA_MANAGINGBANK")
 	protected Bank managingBank;
 
 	@Column(name = "overdraftPossible")
@@ -59,7 +59,7 @@ public class BankAccount {
 
 	@ManyToOne
 	@JoinColumn(name = "agent_id")
-	@Index(name = "agent_id")
+	@Index(name = "IDX_BA_AGENT")
 	protected Agent owner;
 
 	/*
@@ -125,5 +125,12 @@ public class BankAccount {
 			throw new RuntimeException(
 					"overdraft not allowed and not enough money to withdraw");
 		this.balance = this.balance - amount;
+	}
+
+	@Override
+	public String toString() {
+		return "BankAccount [ID " + this.id + ", Balance "
+				+ Currency.round(this.balance) + " "
+				+ this.currency.getIso4217Code() + "]";
 	}
 }

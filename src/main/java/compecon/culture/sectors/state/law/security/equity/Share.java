@@ -46,4 +46,7 @@ public class Share extends Property {
 		this.jointStockCompany = jointStockCompany;
 	}
 
+	public String toString() {
+		return "Share [jointStockCompany " + jointStockCompany + "]";
+	}
 }

@@ -19,23 +19,23 @@ package compecon.culture.sectors.financial;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyJoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import compecon.culture.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.Agent;
 import compecon.engine.BankAccountFactory;
+import compecon.engine.dao.DAOFactory;
 
 @Entity
 public abstract class Bank extends JointStockCompany {
@@ -46,16 +46,11 @@ public abstract class Bank extends JointStockCompany {
 	@Column(name = "customerPassword", nullable = false)
 	protected Map<Agent, String> customerPasswords = new HashMap<Agent, String>();
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "managingBank")
-	@MapKeyJoinColumn(name = "agent_id")
-	protected Map<Agent, BankAccount> customerBankAccounts = new HashMap<Agent, BankAccount>();
-
 	@Override
 	public void deconstruct() {
 		super.deconstruct();
 
-		for (Agent agent : new ArrayList<Agent>(
-				this.customerBankAccounts.keySet())) {
+		for (Agent agent : new ArrayList<Agent>(this.customerPasswords.keySet())) {
 			this.closeCustomerAccount(agent, this.customerPasswords.get(agent));
 		}
 	}
@@ -64,17 +59,8 @@ public abstract class Bank extends JointStockCompany {
 	 * accessors
 	 */
 
-	public Map<Agent, BankAccount> getCustomerBankAccounts() {
-		return customerBankAccounts;
-	}
-
 	public Map<Agent, String> getCustomerPasswords() {
 		return customerPasswords;
-	}
-
-	public void setCustomerBankAccounts(
-			Map<Agent, BankAccount> customerBankAccounts) {
-		this.customerBankAccounts = customerBankAccounts;
 	}
 
 	public void setCustomerPasswords(Map<Agent, String> customerPasswords) {
@@ -93,23 +79,9 @@ public abstract class Bank extends JointStockCompany {
 
 	@Transient
 	public void assertPasswordOk(Agent agent, String password) {
-		if (!this.checkPassword(agent, password))
+		if (!this.customerPasswords.containsKey(agent)
+				|| this.customerPasswords.get(agent) != password)
 			throw new RuntimeException("password not ok");
-	}
-
-	@Transient
-	protected boolean checkPassword(Agent agent, String password) {
-		if (this.customerPasswords.get(agent) != null
-				&& this.customerPasswords.get(agent) == password)
-			return true;
-		return false;
-	}
-
-	@Transient
-	protected void assertCustomerHasNoBankAccountAtThisBank(Agent customer) {
-		if (this.customerBankAccounts.containsKey(customer))
-			throw new RuntimeException("customer " + customer
-					+ " has already a bank account at this bank");
 	}
 
 	@Transient
@@ -117,6 +89,18 @@ public abstract class Bank extends JointStockCompany {
 		if (bankAccount.getManagingBank() != this)
 			throw new RuntimeException(bankAccount + " is managed by "
 					+ bankAccount.getManagingBank() + " and not by " + this);
+	}
+
+	@Transient
+	public void assureSelfCustomerAccount() {
+		if (this.isDeconstructed)
+			return;
+
+		if (this.primaryBank == null) {
+			this.primaryBank = this;
+			String bankPassword = this.openCustomerAccount(this);
+			this.bankPasswords.put(this, bankPassword);
+		}
 	}
 
 	@Transient
@@ -128,34 +112,31 @@ public abstract class Bank extends JointStockCompany {
 
 	@Transient
 	public Set<Agent> getCustomers() {
-		return this.customerBankAccounts.keySet();
+		return this.customerPasswords.keySet();
 	}
 
 	@Transient
-	public BankAccount getBankAccount(Agent customer, String password) {
+	public List<BankAccount> getBankAccounts(Agent customer, String password) {
 		this.assertIsCustomerOfThisBank(customer);
 		this.assertPasswordOk(customer, password);
 
-		return this.customerBankAccounts.get(customer);
+		return DAOFactory.getBankAccountDAO().findAll(this, customer);
 	}
 
 	@Transient
-	public ArrayList<BankAccount> getBankAccounts(Agent customer,
-			Currency currency, String password) {
+	public List<BankAccount> getBankAccounts(Agent customer, Currency currency,
+			String password) {
 		this.assertIsCustomerOfThisBank(customer);
 		this.assertPasswordOk(customer, password);
 
-		ArrayList<BankAccount> bankAccounts = new ArrayList<BankAccount>();
-		if (this.customerBankAccounts.get(customer).getCurrency() == currency)
-			bankAccounts.add(this.customerBankAccounts.get(customer));
-		return bankAccounts;
+		return DAOFactory.getBankAccountDAO().findAll(this, customer, currency);
 	}
 
 	@Transient
 	public String openCustomerAccount(Agent customer) {
-		if (this.hasBankAccount(customer))
+		if (this.customerPasswords.containsKey(customer))
 			throw new RuntimeException(customer
-					+ " has already a client account at this central bank");
+					+ " has already a customer account at this bank");
 
 		String password = this.generatePassword(8);
 		this.customerPasswords.put(customer, password);
@@ -168,17 +149,17 @@ public abstract class Bank extends JointStockCompany {
 		this.assertPasswordOk(customer, password);
 		this.assureTransactionsBankAccount();
 
-		if (this.hasBankAccount(customer)) {
-			BankAccount bankAccount = this.customerBankAccounts.get(customer);
-			if (this.transactionsBankAccount != null)
+		for (BankAccount bankAccount : DAOFactory.getBankAccountDAO().findAll(
+				this, customer)) {
+			if (this.transactionsBankAccount != null
+					&& bankAccount != this.transactionsBankAccount) {
 				this.transferMoney(bankAccount, this.transactionsBankAccount,
-						this.customerBankAccounts.get(customer).getBalance(),
-						password, "evening-up of closed bank account", true);
-			this.customerBankAccounts.remove(customer);
-			customer.onBankCloseCustomerAccount(bankAccount);
-			BankAccountFactory.deleteBankAccount(bankAccount);
+						bankAccount.getBalance(), password,
+						"evening-up of closed bank account", true);
+			}
+			customer.onBankCloseBankAccount(bankAccount);
 		}
-
+		DAOFactory.getBankAccountDAO().deleteAllBankAccounts(this, customer);
 		this.customerPasswords.remove(customer);
 	}
 
@@ -188,17 +169,10 @@ public abstract class Bank extends JointStockCompany {
 		this.assertIsCustomerOfThisBank(customer);
 		this.assertPasswordOk(customer, password);
 		this.assertCurrencyIsOffered(currency);
-		this.assertCustomerHasNoBankAccountAtThisBank(customer);
 
 		BankAccount bankAccount = BankAccountFactory.newInstanceBankAccount(
 				customer, true, currency, this);
-		this.customerBankAccounts.put(customer, bankAccount);
 		return bankAccount;
-	}
-
-	@Transient
-	protected boolean hasBankAccount(Agent agent) {
-		return this.customerBankAccounts.containsKey(agent);
 	}
 
 	@Transient

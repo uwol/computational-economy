@@ -18,8 +18,10 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.culture.sectors.trading;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -54,7 +56,13 @@ import compecon.nature.materia.GoodType;
 public class Trader extends JointStockCompany {
 
 	@Transient
-	protected final int MAX_CREDIT = 1000;
+	protected final int MAX_CREDIT = 10000;
+
+	@Transient
+	protected final double margin = 0.2;
+
+	@Transient
+	protected final Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
 
 	@Transient
 	protected Map<GoodType, PricingBehaviour> goodTypePricingBehaviours = new HashMap<GoodType, PricingBehaviour>();
@@ -82,12 +90,19 @@ public class Trader extends JointStockCompany {
 				balanceSheetPublicationEvent, -1, MonthType.EVERY,
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
+		// pricing behaviours
 		for (GoodType goodType : GoodType.values()) {
-			double marketPrice = MarketFactory.getInstance().getMarginalPrice(
-					this.primaryCurrency, goodType);
-			this.goodTypePricingBehaviours.put(goodType, new PricingBehaviour(
-					this, goodType, this.primaryCurrency, marketPrice));
+			if (!this.excludedGoodTypes.contains(goodType)) {
+				double marketPrice = MarketFactory.getInstance()
+						.getMarginalPrice(this.primaryCurrency, goodType);
+				this.goodTypePricingBehaviours.put(goodType,
+						new PricingBehaviour(this, goodType,
+								this.primaryCurrency, marketPrice));
+			}
 		}
+
+		// excluded good types
+		excludedGoodTypes.add(GoodType.LABOURHOUR);
 	}
 
 	@Transient
@@ -139,7 +154,7 @@ public class Trader extends JointStockCompany {
 
 	@Override
 	@Transient
-	public void onBankCloseCustomerAccount(BankAccount bankAccount) {
+	public void onBankCloseBankAccount(BankAccount bankAccount) {
 		if (this.transactionForeignCurrencyAccounts != null) {
 			for (Entry<Currency, BankAccount> entry : this.transactionForeignCurrencyAccounts
 					.entrySet()) {
@@ -149,7 +164,7 @@ public class Trader extends JointStockCompany {
 			}
 		}
 
-		super.onBankCloseCustomerAccount(bankAccount);
+		super.onBankCloseBankAccount(bankAccount);
 	}
 
 	/*
@@ -191,145 +206,168 @@ public class Trader extends JointStockCompany {
 
 			int numberOfForeignCurrencies = Trader.this.transactionForeignCurrencyAccounts
 					.keySet().size();
-			if (numberOfForeignCurrencies > 0) {
-				double budgetPerForeignCurrencyInLocalCurrency = (Trader.this.MAX_CREDIT + Trader.this.transactionsBankAccount
-						.getBalance()) / (double) numberOfForeignCurrencies;
+			double budgetPerForeignCurrencyInLocalCurrency = (Trader.this.MAX_CREDIT + Trader.this.transactionsBankAccount
+					.getBalance()) / (double) numberOfForeignCurrencies;
+
+			/*
+			 * for each currency / economy
+			 */
+			for (Entry<Currency, BankAccount> entry : Trader.this.transactionForeignCurrencyAccounts
+					.entrySet()) {
+				Currency foreignCurrency = entry.getKey();
+				BankAccount foreignCurrencyBankAccount = entry.getValue();
 
 				/*
-				 * for each currency / economy
+				 * determine the budget (local currency) for this good type,
+				 * that can be spent for buying foreign currency
 				 */
-				for (Entry<Currency, BankAccount> entry : Trader.this.transactionForeignCurrencyAccounts
-						.entrySet()) {
-					Currency foreignCurrency = entry.getKey();
-					BankAccount foreignCurrencyBankAccount = entry.getValue();
+				double budgetPerGoodTypeAndForeignCurrencyInLocalCurrency = budgetPerForeignCurrencyInLocalCurrency
+						/ (GoodType.values().length - Trader.this.excludedGoodTypes
+								.size());
 
-					if (budgetPerForeignCurrencyInLocalCurrency > 0) {
-						/*
-						 * buy foreign currency with local currency
-						 */
-						MarketFactory
-								.getInstance()
-								.buy(foreignCurrency,
-										budgetPerForeignCurrencyInLocalCurrency,
-										-1,
-										-1,
-										Trader.this,
-										Trader.this.transactionsBankAccount,
-										Trader.this.bankPasswords
-												.get(Trader.this.transactionsBankAccount
-														.getManagingBank()),
-										Trader.this.transactionForeignCurrencyAccounts
-												.get(foreignCurrency));
-					}
+				/*
+				 * for each good type
+				 */
+				for (GoodType goodType : GoodType.values()) {
+					if (!Trader.this.excludedGoodTypes.contains(goodType)) {
 
-					double budgetPerGoodTypeInForeignCurrency = foreignCurrencyBankAccount
-							.getBalance()
-							/ (double) (GoodType.values().length - 1);
-					for (GoodType goodType : GoodType.values()) {
-						if (!GoodType.LABOURHOUR.equals(goodType)) {
-							// e.g. CAR_in_EUR = 10
-							double priceOfGoodTypeInLocalCurrency = MarketFactory
-									.getInstance().getMarginalPrice(
-											primaryCurrency, goodType);
-							// e.g. CAR_in_USD = 11
-							double priceOfGoodTypeInForeignCurrency = MarketFactory
-									.getInstance().getMarginalPrice(
-											foreignCurrency, goodType);
-							// e.g. exchange rate for EUR/USD = 1.0
-							double priceOfForeignCurrencyInLocalCurrency = MarketFactory
-									.getInstance().getMarginalPrice(
-											primaryCurrency, foreignCurrency);
+						// e.g. CAR_in_EUR = 10
+						double priceOfGoodTypeInLocalCurrency = MarketFactory
+								.getInstance().getMarginalPrice(
+										primaryCurrency, goodType);
+						// e.g. CAR_in_USD = 11
+						double priceOfGoodTypeInForeignCurrency = MarketFactory
+								.getInstance().getMarginalPrice(
+										foreignCurrency, goodType);
+						// e.g. exchange rate for EUR/USD = 1.0
+						double priceOfForeignCurrencyInLocalCurrency = MarketFactory
+								.getInstance().getMarginalPrice(
+										primaryCurrency, foreignCurrency);
 
-							if (!Double.isNaN(priceOfGoodTypeInForeignCurrency)
-									&& !Double
-											.isNaN(priceOfGoodTypeInLocalCurrency)
-									&& !Double
-											.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
-								// inverse_CAR_in_USD -> correct_CAR_in_EUR =
-								// 1.25
-								double importPriceOfGoodTypeInLocalCurrency = priceOfGoodTypeInForeignCurrency
-										* priceOfForeignCurrencyInLocalCurrency;
-
+						if (Double.isNaN(priceOfGoodTypeInForeignCurrency)) {
+							if (Log.isAgentSelectedByClient(Trader.this))
 								Log.log(Trader.this,
-										primaryCurrency.getIso4217Code()
-												+ "/"
-												+ goodType
-												+ " = "
-												+ Currency
-														.round(priceOfGoodTypeInLocalCurrency)
-												+ "; "
-												+ foreignCurrency
-														.getIso4217Code()
-												+ "/"
-												+ goodType
-												+ " = "
-												+ Currency
-														.round(priceOfGoodTypeInForeignCurrency)
-												+ "; "
-												+ primaryCurrency
-														.getIso4217Code()
-												+ "/"
-												+ foreignCurrency
-														.getIso4217Code()
-												+ " = "
-												+ Currency
-														.round(priceOfForeignCurrencyInLocalCurrency)
-												+ " -> import price "
-												+ primaryCurrency
-														.getIso4217Code()
-												+ "/"
-												+ goodType
-												+ " = "
-												+ Currency
-														.round(importPriceOfGoodTypeInLocalCurrency));
+										"priceOfGoodTypeInForeignCurrency is "
+												+ priceOfGoodTypeInForeignCurrency);
+						} else if (Double.isNaN(priceOfGoodTypeInLocalCurrency)) {
+							if (Log.isAgentSelectedByClient(Trader.this))
+								Log.log(Trader.this,
+										"priceOfGoodTypeInLocalCurrency is "
+												+ priceOfGoodTypeInLocalCurrency);
+						} else if (Double
+								.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
+							if (Log.isAgentSelectedByClient(Trader.this))
+								Log.log(Trader.this,
+										"priceOfForeignCurrencyInLocalCurrency is "
+												+ priceOfForeignCurrencyInLocalCurrency);
+						} else {
+							// inverse_CAR_in_USD -> correct_CAR_in_EUR =
+							// 1.25
+							double importPriceOfGoodTypeInLocalCurrency = priceOfGoodTypeInForeignCurrency
+									* priceOfForeignCurrencyInLocalCurrency;
 
-								if (MathUtil.greater(
-										priceOfGoodTypeInLocalCurrency,
-										importPriceOfGoodTypeInLocalCurrency)) {
-									/*
-									 * buy goods with foreign currency
-									 */
-									MarketFactory
-											.getInstance()
-											.buy(goodType,
-													-1,
-													budgetPerGoodTypeInForeignCurrency,
-													priceOfGoodTypeInForeignCurrency,
-													Trader.this,
-													foreignCurrencyBankAccount,
-													Trader.this
-															.getBankPasswords()
-															.get(foreignCurrencyBankAccount
-																	.getManagingBank()));
-								}
+							if (MathUtil.greater(
+									priceOfGoodTypeInLocalCurrency,
+									importPriceOfGoodTypeInLocalCurrency)) {
+
+								if (Log.isAgentSelectedByClient(Trader.this))
+									Log.log(Trader.this,
+											"1 "
+													+ goodType
+													+ " = "
+													+ Currency
+															.round(priceOfGoodTypeInLocalCurrency)
+													+ " "
+													+ primaryCurrency
+															.getIso4217Code()
+													+ "; "
+													+ "1 "
+													+ goodType
+													+ " = "
+													+ Currency
+															.round(priceOfGoodTypeInForeignCurrency)
+													+ " "
+													+ foreignCurrency
+															.getIso4217Code()
+													+ "; "
+													+ "1 "
+													+ foreignCurrency
+															.getIso4217Code()
+													+ " = "
+													+ Currency
+															.round(priceOfForeignCurrencyInLocalCurrency)
+													+ " "
+													+ primaryCurrency
+															.getIso4217Code()
+													+ " -> import price of 1 "
+													+ goodType
+													+ " = "
+													+ Currency
+															.round(importPriceOfGoodTypeInLocalCurrency)
+													+ " "
+													+ primaryCurrency
+															.getIso4217Code()
+													+ " -> importing "
+													+ goodType);
+
+								/*
+								 * buy foreign currency with local currency
+								 */
+								MarketFactory
+										.getInstance()
+										.buy(foreignCurrency,
+												budgetPerGoodTypeAndForeignCurrencyInLocalCurrency,
+												-1,
+												-1,
+												Trader.this,
+												Trader.this.transactionsBankAccount,
+												Trader.this.bankPasswords
+														.get(Trader.this.transactionsBankAccount
+																.getManagingBank()),
+												Trader.this.transactionForeignCurrencyAccounts
+														.get(foreignCurrency));
+
+								/*
+								 * buy goods of good type with foreign currency
+								 */
+								MarketFactory
+										.getInstance()
+										.buy(goodType,
+												-1,
+												foreignCurrencyBankAccount
+														.getBalance(),
+												priceOfGoodTypeInForeignCurrency,
+												Trader.this,
+												foreignCurrencyBankAccount,
+												Trader.this
+														.getBankPasswords()
+														.get(foreignCurrencyBankAccount
+																.getManagingBank()));
 							}
 						}
 					}
+				}
 
-					/*
-					 * refresh prices / offer in local currency
-					 */
-					for (GoodType goodType : GoodType.values()) {
-						Trader.this.goodTypePricingBehaviours.get(goodType)
-								.setNewPrice();
-						MarketFactory.getInstance().removeAllSellingOffers(
-								Trader.this, Trader.this.primaryCurrency,
-								goodType);
-						double amount = PropertyRegister.getInstance()
-								.getBalance(Trader.this, goodType);
-						MarketFactory.getInstance()
-								.placeSettlementSellingOffer(
-										goodType,
-										Trader.this,
-										Trader.this.transactionsBankAccount,
-										amount,
-										Trader.this.goodTypePricingBehaviours
-												.get(goodType)
-												.getCurrentPrice(),
-										new SettlementMarketEvent());
-						Trader.this.goodTypePricingBehaviours.get(goodType)
-								.registerOfferedAmount(amount);
-					}
+				/*
+				 * refresh prices / offer in local currency
+				 */
+				for (GoodType goodType : GoodType.values()) {
+					Trader.this.goodTypePricingBehaviours.get(goodType)
+							.setNewPrice();
+					MarketFactory.getInstance().removeAllSellingOffers(
+							Trader.this, Trader.this.primaryCurrency, goodType);
+					double amount = PropertyRegister.getInstance().getBalance(
+							Trader.this, goodType);
+					MarketFactory.getInstance().placeSettlementSellingOffer(
+							goodType,
+							Trader.this,
+							Trader.this.transactionsBankAccount,
+							amount,
+							Trader.this.goodTypePricingBehaviours.get(goodType)
+									.getCurrentPrice(),
+							new SettlementMarketEvent());
+					Trader.this.goodTypePricingBehaviours.get(goodType)
+							.registerOfferedAmount(amount);
 				}
 			}
 		}

@@ -226,7 +226,7 @@ public abstract class Agent implements IPropertyOwner {
 	}
 
 	@Transient
-	public void onBankCloseCustomerAccount(BankAccount bankAccount) {
+	public void onBankCloseBankAccount(BankAccount bankAccount) {
 		if (this.transactionsBankAccount == bankAccount)
 			this.transactionsBankAccount = null;
 		this.bankPasswords.remove(bankAccount.getManagingBank());
@@ -272,7 +272,7 @@ public abstract class Agent implements IPropertyOwner {
 
 	@Override
 	public String toString() {
-		return this.agentTypeName + " (ID " + this.id + ") ["
-				+ this.primaryCurrency + "]";
+		return this.agentTypeName + " [ID: " + this.id + ", "
+				+ this.primaryCurrency.getIso4217Code() + "]";
 	}
 }

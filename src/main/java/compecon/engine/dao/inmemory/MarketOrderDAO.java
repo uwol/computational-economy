@@ -136,7 +136,8 @@ public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 			for (MarketOrder marketOrder : this.getInstancesForAgent(agent))
 				if (currency.equals(marketOrder.getOfferorsBankAcount()
 						.getCurrency())
-						&& commodityCurrency.equals(marketOrder.getCommodityCurrency()))
+						&& commodityCurrency.equals(marketOrder
+								.getCommodityCurrency()))
 					marketOrders.add(marketOrder);
 		}
 		return marketOrders;
@@ -224,8 +225,8 @@ public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 	}
 
 	@Override
-	public void deleteAllSellingOrders(Agent offeror, Currency currency,
-			Currency commodityCurrency) {
+	public synchronized void deleteAllSellingOrders(Agent offeror,
+			Currency currency, Currency commodityCurrency) {
 		for (MarketOrder marketOrder : this.findMarketOrders(offeror, currency,
 				commodityCurrency))
 			this.delete(marketOrder);
@@ -248,7 +249,7 @@ public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 	}
 
 	@Override
-	public double findMarginalPrice(Currency currency,
+	public synchronized double findMarginalPrice(Currency currency,
 			Currency commodityCurrency) {
 		for (MarketOrder marketOrder : this.getMarketOrders(currency,
 				commodityCurrency))
@@ -271,7 +272,7 @@ public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 	}
 
 	@Override
-	public Iterator<MarketOrder> getIterator(Currency currency,
+	public synchronized Iterator<MarketOrder> getIterator(Currency currency,
 			Currency commodityCurrency) {
 		return this.getMarketOrders(currency, commodityCurrency).iterator();
 	}

@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -105,7 +106,6 @@ public class Log {
 			log(agent, agent + " deconstructed");
 		ModelRegistry.getNumberOfAgentsModel().agent_onDeconstruct(
 				agent.getClass());
-		ModelRegistry.getBalanceSheetsModel().notifyAgent_onDeconstruct(agent);
 	}
 
 	public static void agent_onPublishBalanceSheet(Agent agent,
@@ -180,20 +180,20 @@ public class Log {
 
 	// --------
 
-	public static void bank_onTransfer(Agent from, Agent to, Currency currency,
-			double value, String subject) {
+	public static void bank_onTransfer(BankAccount from, BankAccount to,
+			Currency currency, double value, String subject) {
 		ModelRegistry.getMonetaryTransactionsModel().bank_onTransfer(
-				from.getClass(), to.getClass(), currency, value);
+				from.getOwner().getClass(), to.getOwner().getClass(), currency,
+				value);
 		if (Log.logTransactions) {
-			if (isAgentSelectedByClient(from))
-				log(from, "transfered " + Currency.round(value) + " "
-						+ currency.getIso4217Code() + " to " + to + " for: "
-						+ subject);
-			if (isAgentSelectedByClient(to))
-				log(to,
-						"received " + Currency.round(value) + " "
-								+ currency.getIso4217Code() + " from " + from
-								+ " for: " + subject);
+			if (isAgentSelectedByClient(from.getOwner()))
+				log(from.getOwner(), "transfers " + Currency.round(value) + " "
+						+ currency.getIso4217Code() + " from " + from + " to "
+						+ to + " for: " + subject);
+			if (isAgentSelectedByClient(to.getOwner()))
+				log(to.getOwner(), "receives " + Currency.round(value) + " "
+						+ currency.getIso4217Code() + " from " + from + " to "
+						+ to + " for: " + subject);
 		}
 	}
 

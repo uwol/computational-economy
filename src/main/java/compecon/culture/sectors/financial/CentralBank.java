@@ -32,6 +32,7 @@ import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.culture.sectors.state.law.security.debt.Bond;
 import compecon.culture.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.MarketFactory;
+import compecon.engine.dao.DAOFactory;
 import compecon.engine.jmx.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
@@ -150,11 +151,8 @@ public class CentralBank extends Bank {
 		if (this.isDeconstructed)
 			return;
 
-		if (this.primaryBank == null) {
-			this.primaryBank = this;
-			String bankPassword = this.openCustomerAccount(this);
-			this.bankPasswords.put(this, bankPassword);
-		}
+		this.assureSelfCustomerAccount();
+
 		if (this.transactionsBankAccount == null) {
 			/*
 			 * initialize the banks own bank account and open a customer account
@@ -192,11 +190,13 @@ public class CentralBank extends Bank {
 		if (!negativeAmountOK && amount < 0)
 			throw new RuntimeException("amount must be larger than 0");
 
+		if (from == to)
+			throw new RuntimeException("the bank accounts are identical");
+
 		if (from.getManagingBank() instanceof CentralBank
 				&& to.getManagingBank() instanceof CentralBank) {
+			Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
 			this.transferMoneyInternally(from, to, amount, password);
-			Log.bank_onTransfer(from.getOwner(), to.getOwner(),
-					from.getCurrency(), amount, subject);
 		} else if (from.getManagingBank() instanceof CreditBank
 				&& to.getManagingBank() instanceof CentralBank)
 			this.transferMoneyFromCreditBankAccountToCentralBankAccount(from,
@@ -205,7 +205,8 @@ public class CentralBank extends Bank {
 				&& to.getManagingBank() instanceof CreditBank) {
 			this.transferMoneyFromCentralBankAccountToCreditBankAccount(from,
 					to, amount, password);
-		}
+		} else
+			throw new RuntimeException("uncovered case");
 	}
 
 	@Transient
@@ -307,8 +308,9 @@ public class CentralBank extends Bank {
 		this.assertIsCustomerOfThisBank(creditBank);
 
 		for (Bond bond : bonds) {
-			this.customerBankAccounts.get(creditBank).deposit(
-					bond.getFaceValue());
+			BankAccount bankAccount = this.getBankAccounts(creditBank,
+					this.customerPasswords.get(creditBank)).get(0);
+			bankAccount.deposit(bond.getFaceValue());
 			Log.centralBank_onObtainTender(this, bond.getFaceValue(),
 					creditBank);
 		}
@@ -355,8 +357,8 @@ public class CentralBank extends Bank {
 	public class DailyInterestCalculationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			for (BankAccount bankAccount : CentralBank.this.customerBankAccounts
-					.values()) {
+			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
+					.findAllBankAccountsManagedByBank(CentralBank.this)) {
 				if (bankAccount.getBalance() > 0) { // liability account
 					double monthlyInterest = bankAccount.getBalance()
 							* CentralBank.this
@@ -424,8 +426,8 @@ public class CentralBank extends Bank {
 					.issueBasicBalanceSheet();
 
 			// bank accounts of customers
-			for (BankAccount bankAccount : CentralBank.this.customerBankAccounts
-					.values()) {
+			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
+					.findAllBankAccountsManagedByBank(CentralBank.this)) {
 				// TODO compare with referenceCurrency of balance sheet
 				if (bankAccount.getBalance() > 0) // passive account
 					balanceSheet.bankBorrowings += bankAccount.getBalance();

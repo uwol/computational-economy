@@ -30,6 +30,7 @@ import compecon.culture.sectors.state.law.property.Property;
 import compecon.engine.Agent;
 import compecon.engine.MarketOrderFactory;
 import compecon.engine.dao.DAOFactory;
+import compecon.engine.jmx.Log;
 import compecon.engine.util.HibernateUtil;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
@@ -45,6 +46,17 @@ public abstract class Market {
 				&& !Double.isNaN(pricePerUnit) && amount > 0) {
 			MarketOrderFactory.newInstanceGoodTypeMarketOrder(goodType,
 					offeror, offerorsBankAcount, amount, pricePerUnit);
+			if (Log.isAgentSelectedByClient(offeror))
+				Log.log(offeror,
+						"offering "
+								+ MathUtil.round(amount)
+								+ " units of "
+								+ goodType
+								+ " for "
+								+ Currency.round(pricePerUnit)
+								+ " "
+								+ offerorsBankAcount.getCurrency()
+										.getIso4217Code() + " per unit");
 		} else
 			throw new RuntimeException("error placing selling offer");
 	}
@@ -59,10 +71,22 @@ public abstract class Market {
 			commodityCurrencyOfferorsBankAcount.getManagingBank()
 					.assertPasswordOk(offeror,
 							commodityCurrencyOfferorsBankAcountPassword);
+
 			MarketOrderFactory.newInstanceCurrencyMarketOrder(
 					commodityCurrency, offeror, offerorsBankAcount, amount,
 					pricePerUnit, commodityCurrencyOfferorsBankAcount,
 					commodityCurrencyOfferorsBankAcountPassword);
+			if (Log.isAgentSelectedByClient(offeror))
+				Log.log(offeror,
+						"offering "
+								+ MathUtil.round(amount)
+								+ " units of "
+								+ commodityCurrency
+								+ " for "
+								+ Currency.round(pricePerUnit)
+								+ " "
+								+ offerorsBankAcount.getCurrency()
+										.getIso4217Code() + " per unit");
 		} else
 			throw new RuntimeException("error placing selling offer");
 	}
@@ -72,6 +96,13 @@ public abstract class Market {
 		if (property != null && !Double.isNaN(pricePerUnit)) {
 			MarketOrderFactory.newInstancePropertyMarketOrder(property,
 					offeror, offerorsBankAcount, pricePerUnit);
+
+			if (Log.isAgentSelectedByClient(offeror))
+				Log.log(offeror, "offering 1 unit of "
+						+ property.getClass().getSimpleName() + " for "
+						+ Currency.round(pricePerUnit) + " "
+						+ offerorsBankAcount.getCurrency().getIso4217Code()
+						+ " per unit");
 		} else
 			throw new RuntimeException("error placing selling offer");
 	}

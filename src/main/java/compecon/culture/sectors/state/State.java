@@ -17,8 +17,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.culture.sectors.state;
 
-import java.util.Map.Entry;
-
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
@@ -26,6 +24,7 @@ import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
+import compecon.engine.dao.DAOFactory;
 import compecon.engine.jmx.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
@@ -57,13 +56,14 @@ public class State extends Agent {
 	@Transient
 	public void doDeficitSpending() {
 		this.assureTransactionsBankAccount();
+
 		for (CreditBank creditBank : AgentFactory
 				.getAllCreditBanks(this.primaryCurrency)) {
-			for (Entry<Agent, BankAccount> entry : creditBank
-					.getCustomerBankAccounts().entrySet()) {
-				if (entry.getKey() != this) {
+			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
+					.findAllBankAccountsManagedByBank(creditBank)) {
+				if (bankAccount.getOwner() != this) {
 					this.primaryBank.transferMoney(transactionsBankAccount,
-							entry.getValue(), 5000,
+							bankAccount, 5000,
 							this.bankPasswords.get(this.primaryBank),
 							"deficit spending");
 				}

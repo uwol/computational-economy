@@ -29,8 +29,6 @@ import compecon.nature.materia.GoodType;
 
 public class BalanceSheetsModel extends Model {
 
-	protected Map<Agent, BalanceSheet> balanceSheets = new HashMap<Agent, BalanceSheet>();
-
 	protected Map<Currency, Map<Class<? extends Agent>, BalanceSheet>> nationalAccountsBalanceSheets;
 
 	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model;
@@ -48,8 +46,6 @@ public class BalanceSheetsModel extends Model {
 
 	public void agent_onPublishBalanceSheet(Agent agent,
 			BalanceSheet balanceSheet) {
-		this.balanceSheets.put(agent, balanceSheet);
-
 		BalanceSheet nationalAccountsBalanceSheet = this.nationalAccountsBalanceSheets
 				.get(balanceSheet.referenceCurrency).get(agent.getClass());
 
@@ -88,10 +84,6 @@ public class BalanceSheetsModel extends Model {
 				balanceSheet.bankBorrowings + balanceSheet.hardCash);
 	}
 
-	public void notifyAgent_onDeconstruct(Agent agent) {
-		this.balanceSheets.remove(agent);
-	}
-
 	private void resetNationalAccountsBalanceSheets() {
 		this.nationalAccountsBalanceSheets = new HashMap<Currency, Map<Class<? extends Agent>, BalanceSheet>>();
 
@@ -110,10 +102,6 @@ public class BalanceSheetsModel extends Model {
 	public void nextPeriod() {
 		this.notifyListeners();
 		this.resetNationalAccountsBalanceSheets();
-	}
-
-	public Map<Agent, BalanceSheet> getBalanceSheets() {
-		return balanceSheets;
 	}
 
 	public Map<Currency, Map<Class<? extends Agent>, BalanceSheet>> getNationalAccountsBalanceSheets() {

@@ -32,7 +32,7 @@ import compecon.engine.jmx.mbean.JmxAgents;
 import compecon.engine.jmx.mbean.JmxControl;
 import compecon.engine.util.HibernateUtil;
 
-public class Registration {
+public class JMXRegistration {
 	public static void init() throws MalformedObjectNameException,
 			InstanceAlreadyExistsException, MBeanRegistrationException,
 			NotCompliantMBeanException {

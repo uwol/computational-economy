@@ -118,6 +118,23 @@ public class SettlementMarket extends Market {
 				buyersBankAccountPassword, null);
 	}
 
+	/**
+	 * Buy a foreign currency with another currency
+	 * 
+	 * @param commodityCurrency
+	 *            Currency to buy
+	 * @param maxAmount
+	 *            Amount to buy
+	 * @param maxTotalPrice
+	 *            Max amount to pay in local currency
+	 * @param maxPricePerUnit
+	 *            Max price of foreign currency in local currency
+	 * @param buyer
+	 * @param buyersBankAccount
+	 * @param buyersBankAccountPassword
+	 * @param buyersBankAccountForCommodityCurrency
+	 *            Bank account that should receive the bought foreign currency
+	 */
 	public Double[] buy(final Currency commodityCurrency,
 			final double maxAmount, final double maxTotalPrice,
 			final double maxPricePerUnit, final Agent buyer,
@@ -164,6 +181,18 @@ public class SettlementMarket extends Market {
 		for (Entry<MarketOrder, Double> entry : marketOffers.entrySet()) {
 			MarketOrder marketOffer = entry.getKey();
 			double amount = entry.getValue();
+
+			// is the offeror' bank account is identical to the buyer's bank
+			// account
+			if (buyersBankAccount == marketOffer.getOfferorsBankAcount()) {
+				continue;
+			}
+
+			// is the offeror is identical to the buyer
+			if (buyersBankAccount.getOwner() == marketOffer
+					.getOfferorsBankAcount().getOwner()) {
+				continue;
+			}
 
 			// transfer money
 			buyersBank.transferMoney(buyersBankAccount,
@@ -262,7 +291,19 @@ public class SettlementMarket extends Market {
 								+ Currency.round(priceAndAmount[0])
 								+ " "
 								+ buyersBankAccount.getCurrency()
-										.getIso4217Code());
+										.getIso4217Code()
+								+ " under constraints [maxAmount: "
+								+ MathUtil.round(maxAmount)
+								+ ", maxTotalPrice: "
+								+ Currency.round(maxTotalPrice)
+								+ " "
+								+ buyersBankAccount.getCurrency()
+										.getIso4217Code()
+								+ ", maxPricePerUnit: "
+								+ Currency.round(maxPricePerUnit)
+								+ " "
+								+ buyersBankAccount.getCurrency()
+										.getIso4217Code() + "]");
 		}
 
 		return priceAndAmount;

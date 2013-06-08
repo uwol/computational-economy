@@ -64,9 +64,6 @@ public class NationalAccountsPanel extends JPanel {
 				"Agent Type", "Value", "Currency", "", "Passive Account",
 				"Agent Type", "Value", "Currency" };
 
-		protected final String[] agentTypeNames = { "Household", "Factory",
-				"Credit Bank", "Central Bank", "State", "Trader" };
-
 		protected String[] activePositionNames;
 
 		protected String[] passivePositionNames;
@@ -101,27 +98,29 @@ public class NationalAccountsPanel extends JPanel {
 			for (int i = 0; i < Math.max(this.activePositionNames.length,
 					this.passivePositionNames.length); i++) {
 				// position name
-				cells[i * this.agentTypeNames.length][SIDE_ACTIVE] = this.activePositionNames[i];
-				cells[i * this.agentTypeNames.length][SIDE_PASSIVE] = this.passivePositionNames[i];
+				cells[i * AgentFactory.agentTypes.size()][SIDE_ACTIVE] = this.activePositionNames[i];
+				cells[i * AgentFactory.agentTypes.size()][SIDE_PASSIVE] = this.passivePositionNames[i];
 
-				for (int j = 0; j < this.agentTypeNames.length; j++) {
+				for (int j = 0; j < AgentFactory.agentTypes.size(); j++) {
 					if (this.activePositionNames[i] != null) {
 						// agent type name
-						cells[i * this.agentTypeNames.length + j][SIDE_ACTIVE + 1] = this.agentTypeNames[j];
+						cells[i * AgentFactory.agentTypes.size() + j][SIDE_ACTIVE + 1] = AgentFactory.agentTypes
+								.get(j).getSimpleName();
 
 						if (i < STARTPOSITION_GOODTYPES)
 							// currency name
-							cells[i * this.agentTypeNames.length + j][SIDE_ACTIVE + 3] = this.referenceCurrency
+							cells[i * AgentFactory.agentTypes.size() + j][SIDE_ACTIVE + 3] = this.referenceCurrency
 									.getIso4217Code();
 						else
 							// unit
-							cells[i * this.agentTypeNames.length + j][SIDE_ACTIVE + 3] = "Units";
+							cells[i * AgentFactory.agentTypes.size() + j][SIDE_ACTIVE + 3] = "Units";
 					}
 					if (this.passivePositionNames[i] != null) {
 						// agent type name
-						cells[i * this.agentTypeNames.length + j][SIDE_PASSIVE + 1] = this.agentTypeNames[j];
+						cells[i * AgentFactory.agentTypes.size() + j][SIDE_PASSIVE + 1] = AgentFactory.agentTypes
+								.get(j).getSimpleName();
 						// currency name
-						cells[i * this.agentTypeNames.length + j][SIDE_PASSIVE + 3] = this.referenceCurrency
+						cells[i * AgentFactory.agentTypes.size() + j][SIDE_PASSIVE + 3] = this.referenceCurrency
 								.getIso4217Code();
 					}
 				}
@@ -135,7 +134,7 @@ public class NationalAccountsPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			return this.agentTypeNames.length
+			return AgentFactory.agentTypes.size()
 					* Math.max(this.activePositionNames.length,
 							this.passivePositionNames.length);
 		}
@@ -163,7 +162,8 @@ public class NationalAccountsPanel extends JPanel {
 
 		public int calculateRowNumber(final int positionTypeNr,
 				final int agentTypeNr) {
-			return (positionTypeNr * agentTypeNames.length) + agentTypeNr;
+			return (positionTypeNr * AgentFactory.agentTypes.size())
+					+ agentTypeNr;
 		}
 
 		@Override

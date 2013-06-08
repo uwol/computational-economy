@@ -306,8 +306,8 @@ public class Household extends Agent implements IShareOwner {
 					.getProperties(Household.this, Share.class)) {
 				if (property instanceof Share) {
 					Share share = (Share) property;
-					if (Household.this.primaryCurrency != share
-							.getJointStockCompany().getPrimaryCurrency())
+					if (!Household.this.primaryCurrency.equals(share
+							.getJointStockCompany().getPrimaryCurrency()))
 						MarketFactory.getInstance().placeSellingOffer(property,
 								Household.this,
 								Household.this.getTransactionsBankAccount(),
