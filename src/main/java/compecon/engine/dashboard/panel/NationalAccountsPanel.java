@@ -35,9 +35,9 @@ import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.model.Model.IModelListener;
+import compecon.engine.jmx.model.generic.PeriodDataAccumulator;
+import compecon.engine.jmx.model.generic.PeriodDataAccumulatorSet;
 import compecon.engine.jmx.model.ModelRegistry;
-import compecon.engine.jmx.model.PeriodDataAccumulator;
-import compecon.engine.jmx.model.PeriodDataAccumulatorSet;
 import compecon.nature.materia.GoodType;
 
 public class NationalAccountsPanel extends JPanel {

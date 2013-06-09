@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractButton;
 import javax.swing.AbstractListModel;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -35,12 +36,40 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
+import compecon.culture.sectors.financial.BankAccount;
+import compecon.culture.sectors.financial.Currency;
+import compecon.engine.Agent;
 import compecon.engine.jmx.Log;
-import compecon.engine.jmx.model.AgentLogsModel;
+import compecon.engine.jmx.model.AgentDetailModel;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 
 public class AgentsPanel extends JPanel {
+
+	public class AgentListModel extends AbstractListModel<Agent> implements
+			IModelListener {
+
+		public AgentListModel() {
+			ModelRegistry.getAgentDetailModel().registerListener(this);
+		}
+
+		@Override
+		public Agent getElementAt(int index) {
+			return AgentsPanel.this.agentDetailModel.getAgents().get(index);
+		}
+
+		@Override
+		public int getSize() {
+			return Math.min(NUMBER_OF_AGENTS_TO_SHOW,
+					AgentsPanel.this.agentDetailModel.getAgents().size());
+		}
+
+		@Override
+		public void notifyListener() {
+			this.fireContentsChanged(this, 0, AgentsPanel.this.agentDetailModel
+					.getAgents().size());
+		}
+	}
 
 	public class AgentLogsTableModel extends AbstractTableModel implements
 			IModelListener {
@@ -48,24 +77,25 @@ public class AgentsPanel extends JPanel {
 		protected final String columnNames[] = { "Date", "Message" };
 
 		public AgentLogsTableModel() {
-			ModelRegistry.getAgentLogsModel().registerListener(this);
+			ModelRegistry.getAgentDetailModel().registerListener(this);
 		}
 
 		@Override
 		public int getColumnCount() {
-			return 2;
+			return columnNames.length;
 		}
 
 		@Override
 		public int getRowCount() {
-			return AgentsPanel.this.agentLogsModel.getMessages().size();
+			return AgentsPanel.this.agentDetailModel
+					.getMessagesOfCurrentAgent().size();
 		}
 
 		@Override
 		public Object getValueAt(int rowIndex, int colIndex) {
 			Object[] rowContent = (Object[]) new ArrayList<Object[]>(
-					AgentsPanel.this.agentLogsModel.getMessages())
-					.get(rowIndex);
+					AgentsPanel.this.agentDetailModel
+							.getMessagesOfCurrentAgent()).get(rowIndex);
 			return rowContent[colIndex];
 		}
 
@@ -83,75 +113,73 @@ public class AgentsPanel extends JPanel {
 		}
 	}
 
-	public class AgentLogsListModel extends AbstractListModel implements
-			IModelListener {
+	public class AgentBankAccountsTableModel extends AbstractTableModel
+			implements IModelListener {
 
-		public AgentLogsListModel() {
-			ModelRegistry.getAgentLogsModel().registerListener(this);
+		protected final String columnNames[] = { "Name", "Balance", "Currency" };
+
+		public AgentBankAccountsTableModel() {
+			ModelRegistry.getAgentDetailModel().registerListener(this);
 		}
 
 		@Override
-		public Object getElementAt(int index) {
-			return AgentsPanel.this.agentLogsModel.getAgents().get(index);
+		public int getColumnCount() {
+			return columnNames.length;
 		}
 
 		@Override
-		public int getSize() {
-			return Math.min(NUMBER_OF_AGENTS_TO_SHOW,
-					AgentsPanel.this.agentLogsModel.getAgents().size());
+		public int getRowCount() {
+			return AgentsPanel.this.agentDetailModel
+					.getBankAccountsOfCurrentAgent().size();
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int colIndex) {
+			BankAccount bankAccount = AgentsPanel.this.agentDetailModel
+					.getBankAccountsOfCurrentAgent().get(rowIndex);
+			switch (colIndex) {
+			case 0:
+				return bankAccount.getName();
+			case 1:
+				return Currency.round(bankAccount.getBalance());
+			case 2:
+				return bankAccount.getCurrency();
+			default:
+				return null;
+			}
+		}
+
+		@Override
+		public String getColumnName(int columnIndex) {
+			return this.columnNames[columnIndex];
 		}
 
 		@Override
 		public void notifyListener() {
-			this.fireContentsChanged(this, 0, AgentsPanel.this.agentLogsModel
-					.getAgents().size());
+			if (!AgentsPanel.this.noRefresh) {
+				if (Log.getAgentSelectedByClient() != null)
+					this.fireTableDataChanged();
+			}
 		}
 	}
 
 	protected final int NUMBER_OF_AGENTS_TO_SHOW = 200;
 
-	protected final AgentLogsModel agentLogsModel = ModelRegistry
-			.getAgentLogsModel();
+	protected final AgentDetailModel agentDetailModel = ModelRegistry
+			.getAgentDetailModel();
 
-	protected AgentLogsListModel agentLogsListModel = new AgentLogsListModel();
+	protected AgentListModel agentLogsListModel = new AgentListModel();
 
 	protected AgentLogsTableModel agentLogsTableModel = new AgentLogsTableModel();
 
+	protected AgentBankAccountsTableModel agentBankAccountsTableModel = new AgentBankAccountsTableModel();
+
 	protected boolean noRefresh = true;
 
-	protected final JList agentsList;
+	protected final JList<Agent> agentsList;
 
 	public AgentsPanel() {
 		setLayout(new BorderLayout());
-
-		/*
-		 * agents list
-		 */
-		agentsList = new JList(this.agentLogsListModel);
-		agentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		agentsList.setLayoutOrientation(JList.VERTICAL);
-		agentsList.setVisibleRowCount(-1);
-		agentsList.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				if (e.getValueIsAdjusting() == false) {
-					AgentsPanel.this.agentLogsModel.setCurrentAgent(agentsList
-							.getSelectedIndex());
-				}
-			}
-		});
-		JScrollPane agentsListScroller = new JScrollPane(agentsList);
-		agentsListScroller.setPreferredSize(new Dimension(250, 80));
-		this.add(agentsListScroller, BorderLayout.WEST);
-
-		/*
-		 * agent details table
-		 */
-		JTable agentDetailsTable = new JTable(this.agentLogsTableModel);
-		JScrollPane agentDetailsTablePane = new JScrollPane(agentDetailsTable);
-		this.add(agentDetailsTablePane, BorderLayout.CENTER);
-
-		setVisible(true);
 
 		/*
 		 * controls
@@ -169,6 +197,49 @@ public class AgentsPanel extends JPanel {
 		});
 		controlPanel.add(showTransactionsCheckBox);
 		this.add(controlPanel, BorderLayout.NORTH);
+
+		/*
+		 * agents list
+		 */
+		agentsList = new JList<Agent>(this.agentLogsListModel);
+		agentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		agentsList.setLayoutOrientation(JList.VERTICAL);
+		agentsList.setVisibleRowCount(-1);
+		agentsList.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (e.getValueIsAdjusting() == false) {
+					AgentsPanel.this.agentDetailModel
+							.setCurrentAgent(agentsList.getSelectedIndex());
+				}
+			}
+		});
+		JScrollPane agentsListScroller = new JScrollPane(agentsList);
+		agentsListScroller.setPreferredSize(new Dimension(250, 80));
+		this.add(agentsListScroller, BorderLayout.WEST);
+
+		/*
+		 * agent detail panel
+		 */
+		JPanel agentDetailPanel = new JPanel();
+		agentDetailPanel.setLayout(new BoxLayout(agentDetailPanel,
+				BoxLayout.PAGE_AXIS));
+		this.add(agentDetailPanel, BorderLayout.CENTER);
+
+		// agent log table
+		JTable agentLogTable = new JTable(this.agentLogsTableModel);
+		JScrollPane agentLogTablePane = new JScrollPane(agentLogTable);
+		agentDetailPanel.add(agentLogTablePane);
+
+		// agent bank account table
+		JTable agentBankAccountsTable = new JTable(
+				this.agentBankAccountsTableModel);
+		JScrollPane agentBankAccountsTablePane = new JScrollPane(
+				agentBankAccountsTable);
+		agentBankAccountsTablePane.setPreferredSize(new Dimension(-1, 150));
+		agentDetailPanel.add(agentBankAccountsTablePane);
+
+		setVisible(true);
 	}
 
 	public void setNoRefresh(boolean noRefresh) {

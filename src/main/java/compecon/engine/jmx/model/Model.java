@@ -20,7 +20,7 @@ package compecon.engine.jmx.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Model {
+public abstract class Model {
 
 	public interface IModelListener {
 		public void notifyListener();

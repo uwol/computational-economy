@@ -18,13 +18,14 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.jmx.model;
 
 import compecon.culture.sectors.financial.Currency;
+import compecon.engine.jmx.model.generic.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.nature.materia.GoodType;
 
 public class ModelRegistry {
 
 	// models
 
-	protected final static AgentLogsModel agentLogsModel = new AgentLogsModel();
+	protected final static AgentDetailModel agentDetailModel = new AgentDetailModel();
 
 	protected final static BalanceSheetsModel balanceSheetsModel;
 
@@ -66,8 +67,8 @@ public class ModelRegistry {
 	 * accessors
 	 */
 
-	public static AgentLogsModel getAgentLogsModel() {
-		return agentLogsModel;
+	public static AgentDetailModel getAgentDetailModel() {
+		return agentDetailModel;
 	}
 
 	public static BalanceSheetsModel getBalanceSheetsModel() {

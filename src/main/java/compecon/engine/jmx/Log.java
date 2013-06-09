@@ -67,7 +67,7 @@ public class Log {
 	// --------
 
 	public static void notifyTimeSystem_nextDay(Date date) {
-		ModelRegistry.getAgentLogsModel().notifyListeners();
+		ModelRegistry.getAgentDetailModel().notifyListeners();
 		ModelRegistry.getBalanceSheetsModel().nextPeriod();
 		ModelRegistry.getMonetaryTransactionsModel().nextPeriod();
 		ModelRegistry.getCapacityModel().nextPeriod();
@@ -88,12 +88,12 @@ public class Log {
 	public static void log(String message) {
 		if (agentCurrentlyActive != null
 				&& agentSelectedByClient == agentCurrentlyActive)
-			ModelRegistry.getAgentLogsModel().logAgentEvent(
+			ModelRegistry.getAgentDetailModel().logAgentEvent(
 					TimeSystem.getInstance().getCurrentDate(), message);
 	}
 
 	public static void agent_onConstruct(Agent agent) {
-		ModelRegistry.getAgentLogsModel().agent_onConstruct(agent);
+		ModelRegistry.getAgentDetailModel().agent_onConstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " constructed");
 		ModelRegistry.getNumberOfAgentsModel().agent_onConstruct(
@@ -101,7 +101,7 @@ public class Log {
 	}
 
 	public static void agent_onDeconstruct(Agent agent) {
-		ModelRegistry.getAgentLogsModel().agent_onDeconstruct(agent);
+		ModelRegistry.getAgentDetailModel().agent_onDeconstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " deconstructed");
 		ModelRegistry.getNumberOfAgentsModel().agent_onDeconstruct(
@@ -186,14 +186,18 @@ public class Log {
 				from.getOwner().getClass(), to.getOwner().getClass(), currency,
 				value);
 		if (Log.logTransactions) {
-			if (isAgentSelectedByClient(from.getOwner()))
+			if (isAgentSelectedByClient(from.getOwner())) {
 				log(from.getOwner(), "transfers " + Currency.round(value) + " "
 						+ currency.getIso4217Code() + " from " + from + " to "
 						+ to + " for: " + subject);
-			if (isAgentSelectedByClient(to.getOwner()))
+				ModelRegistry.getAgentDetailModel().agent_onBankTransfer();
+			}
+			if (isAgentSelectedByClient(to.getOwner())) {
 				log(to.getOwner(), "receives " + Currency.round(value) + " "
 						+ currency.getIso4217Code() + " from " + from + " to "
 						+ to + " for: " + subject);
+				ModelRegistry.getAgentDetailModel().agent_onBankTransfer();
+			}
 		}
 	}
 

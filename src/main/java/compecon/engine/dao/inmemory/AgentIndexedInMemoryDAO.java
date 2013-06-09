@@ -17,27 +17,27 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.inmemory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import compecon.engine.Agent;
 
 public abstract class AgentIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 
-	private Map<Agent, Set<T>> agentIndexedInstances = new HashMap<Agent, Set<T>>();
+	private Map<Agent, List<T>> agentIndexedInstances = new HashMap<Agent, List<T>>();
 
 	private synchronized void assureInitializedDataStructure(Agent agent) {
 		if (!this.agentIndexedInstances.containsKey(agent))
-			this.agentIndexedInstances.put(agent, new HashSet<T>());
+			this.agentIndexedInstances.put(agent, new ArrayList<T>());
 	}
 
 	/*
 	 * get instances for agent
 	 */
 
-	protected synchronized Set<T> getInstancesForAgent(Agent agent) {
+	protected synchronized List<T> getInstancesForAgent(Agent agent) {
 		if (this.agentIndexedInstances.containsKey(agent))
 			return this.agentIndexedInstances.get(agent);
 		return null;

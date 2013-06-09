@@ -73,6 +73,9 @@ public class CreditBank extends Bank implements
 	protected double MAX_CREDIT_FOR_CURRENCY_TRADING = 100000;
 
 	@Transient
+	protected double ARBITRAGE_MARGIN = 0.2;
+
+	@Transient
 	protected Map<Currency, PricingBehaviour> foreignCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
 
 	@ElementCollection
@@ -136,7 +139,7 @@ public class CreditBank extends Bank implements
 				initialPrice = 1.0;
 			this.foreignCurrencyPricingBehaviours.put(currency,
 					new PricingBehaviour(this, this.primaryCurrency, currency,
-							initialPrice));
+							initialPrice, 0.01));
 		}
 	}
 
@@ -196,7 +199,7 @@ public class CreditBank extends Bank implements
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency,
-					this.bankPasswords.get(this.primaryBank));
+					this.bankPasswords.get(this.primaryBank), "transactions");
 		}
 	}
 
@@ -212,7 +215,7 @@ public class CreditBank extends Bank implements
 						.getInstanceCentralBank(currency).openCustomerAccount(
 								this);
 				AgentFactory.getInstanceCentralBank(currency).openBankAccount(
-						this, currency, centralBankPassword);
+						this, currency, centralBankPassword, "central bank");
 				this.bankPasswords.put(
 						AgentFactory.getInstanceCentralBank(currency),
 						centralBankPassword);
@@ -245,9 +248,12 @@ public class CreditBank extends Bank implements
 						this.bankPasswords.put(foreignCurrencyCreditBank,
 								bankPassword);
 						BankAccount bankAccount = foreignCurrencyCreditBank
-								.openBankAccount(this, currency,
+								.openBankAccount(
+										this,
+										currency,
 										this.bankPasswords
-												.get(foreignCurrencyCreditBank));
+												.get(foreignCurrencyCreditBank),
+										"currency trade (foreign)");
 						this.currencyTradeBankAccounts.put(currency,
 								bankAccount);
 					}
@@ -258,7 +264,8 @@ public class CreditBank extends Bank implements
 					this.currencyTradeBankAccounts.put(this.primaryCurrency,
 							CreditBank.this.openBankAccount(this,
 									this.primaryCurrency,
-									this.bankPasswords.get(CreditBank.this)));
+									this.bankPasswords.get(CreditBank.this),
+									"currency trade (local)"));
 				}
 			}
 		}

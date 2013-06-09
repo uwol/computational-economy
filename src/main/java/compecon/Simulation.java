@@ -65,7 +65,7 @@ public class Simulation {
 
 			// configure simulation
 			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 10;
-			final int NUMBER_OF_TRADERSPERCURRENCY = 0;
+			final int NUMBER_OF_TRADERSPERCURRENCY = 20;
 			final int NUMBER_OF_HOUSEHOLDSPERCURRENCY = 500;
 			final int NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 5;
 

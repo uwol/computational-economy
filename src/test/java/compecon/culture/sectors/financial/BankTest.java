@@ -33,12 +33,15 @@ public class BankTest {
 		household2_EUR = AgentFactory.newInstanceHousehold(Currency.EURO);
 
 		centralBank_EUR.assureTransactionsBankAccount();
+
 		creditBank1_EUR.assureCentralBankAccount();
 		creditBank1_EUR.assureTransactionsBankAccount();
 		creditBank1_EUR.assureCurrencyTradeBankAccounts();
+
 		creditBank2_EUR.assureCentralBankAccount();
 		creditBank2_EUR.assureTransactionsBankAccount();
 		creditBank2_EUR.assureCurrencyTradeBankAccounts();
+
 		household1_EUR.assureTransactionsBankAccount();
 		household2_EUR.assureTransactionsBankAccount();
 
@@ -86,6 +89,6 @@ public class BankTest {
 		int size2 = DAOFactory.getBankAccountDAO()
 				.findAllBankAccountsManagedByBank(creditBank2_EUR).size();
 
-		assertEquals(4, size1 + size2);
+		assertEquals(6, size1 + size2);
 	}
 }

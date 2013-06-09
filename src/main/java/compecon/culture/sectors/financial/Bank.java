@@ -165,13 +165,13 @@ public abstract class Bank extends JointStockCompany {
 
 	@Transient
 	public BankAccount openBankAccount(Agent customer, Currency currency,
-			String password) {
+			String password, String name) {
 		this.assertIsCustomerOfThisBank(customer);
 		this.assertPasswordOk(customer, password);
 		this.assertCurrencyIsOffered(currency);
 
 		BankAccount bankAccount = BankAccountFactory.newInstanceBankAccount(
-				customer, true, currency, this);
+				customer, true, currency, this, name);
 		return bankAccount;
 	}
 

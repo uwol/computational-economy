@@ -20,18 +20,25 @@ package compecon.engine.jmx.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
+import compecon.culture.sectors.financial.BankAccount;
 import compecon.engine.Agent;
+import compecon.engine.dao.DAOFactory;
 import compecon.engine.jmx.Log;
 
-public class AgentLogsModel extends Model {
+public class AgentDetailModel extends Model {
 
 	protected final int MESSAGES_TO_STORE = 100;
 
 	protected Queue<Object[]> messages = new LinkedList<Object[]>();
 
 	protected ArrayList<Agent> agents = new ArrayList<Agent>();
+
+	public void agent_onBankTransfer() {
+		this.notifyListeners();
+	}
 
 	public void agent_onConstruct(Agent agent) {
 		this.agents.add(agent);
@@ -60,11 +67,19 @@ public class AgentLogsModel extends Model {
 		this.setCurrentAgent(this.agents.get(agentId));
 	}
 
-	public Queue<Object[]> getMessages() {
+	public Queue<Object[]> getMessagesOfCurrentAgent() {
 		return this.messages;
 	}
 
-	public ArrayList<Agent> getAgents() {
+	public List<Agent> getAgents() {
 		return this.agents;
+	}
+
+	public List<BankAccount> getBankAccountsOfCurrentAgent() {
+		Agent agent = Log.getAgentSelectedByClient();
+		if (agent != null)
+			return DAOFactory.getBankAccountDAO().findAllBankAccountsOfAgent(
+					agent);
+		return new ArrayList<BankAccount>();
 	}
 }

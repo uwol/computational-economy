@@ -221,7 +221,7 @@ public abstract class Agent implements IPropertyOwner {
 		if (this.transactionsBankAccount == null) {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency,
-					this.bankPasswords.get(this.primaryBank));
+					this.bankPasswords.get(this.primaryBank), "transactions");
 		}
 	}
 

@@ -54,6 +54,9 @@ public class BankAccount {
 	@Index(name = "IDX_BA_MANAGINGBANK")
 	protected Bank managingBank;
 
+	@Column(name = "name")
+	protected String name;
+
 	@Column(name = "overdraftPossible")
 	protected boolean overdraftPossible = true;
 
@@ -74,8 +77,16 @@ public class BankAccount {
 		return this.currency;
 	}
 
+	public int getId() {
+		return id;
+	}
+
 	public Bank getManagingBank() {
 		return this.managingBank;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public boolean getOverdraftPossible() {
@@ -94,8 +105,16 @@ public class BankAccount {
 		this.currency = currency;
 	}
 
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public void setManagingBank(Bank managingBank) {
 		this.managingBank = managingBank;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public void setOverdraftPossible(boolean overdraftPossible) {

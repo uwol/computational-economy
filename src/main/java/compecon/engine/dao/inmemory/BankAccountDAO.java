@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import compecon.culture.sectors.financial.Bank;
 import compecon.culture.sectors.financial.BankAccount;
@@ -90,7 +89,7 @@ public class BankAccountDAO extends AgentIndexedInMemoryDAO<BankAccount>
 
 	@Override
 	public List<BankAccount> findAllBankAccountsOfAgent(Agent owner) {
-		Set<BankAccount> bankAccounts = this.getInstancesForAgent(owner);
+		List<BankAccount> bankAccounts = this.getInstancesForAgent(owner);
 		if (bankAccounts != null)
 			return new ArrayList<BankAccount>(bankAccounts);
 		return new ArrayList<BankAccount>();

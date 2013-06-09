@@ -38,6 +38,8 @@ public class PricingBehaviour {
 
 	protected boolean periodDataInitialized = false;
 
+	protected final double priceChangeResolution;
+
 	// the decision
 
 	double[] prices_InPeriods = new double[10]; // x, x-1, x-2, x-3, ...
@@ -50,11 +52,19 @@ public class PricingBehaviour {
 														// ...
 
 	public PricingBehaviour(Agent agent, Object offeredGoodOrCurrency,
-			Currency denominatedInCurrency, double initialPrice) {
+			Currency denominatedInCurrency, double initialPrice,
+			double priceChangeResolution) {
 		this.agent = agent;
 		this.initialPrice = initialPrice;
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.offeredGoodOrCurrency = offeredGoodOrCurrency;
+		this.priceChangeResolution = priceChangeResolution;
+	}
+
+	public PricingBehaviour(Agent agent, Object offeredGoodOrCurrency,
+			Currency denominatedInCurrency, double initialPrice) {
+		this(agent, offeredGoodOrCurrency, denominatedInCurrency, initialPrice,
+				0.1);
 	}
 
 	public void assurePeriodDataInitialized() {
@@ -194,13 +204,13 @@ public class PricingBehaviour {
 		 * {@link #calculateLowerPrice(double)} -> prices drift slightly upwards
 		 * -> deflation is more unlikely
 		 */
-		return price * 1.1;
+		return price * (1 + this.priceChangeResolution);
 	}
 
 	/*
 	 * {@link #calculateHigherPrice(double)}
 	 */
 	protected double calculateLowerPrice(double price) {
-		return price / 1.1;
+		return price / (1 + this.priceChangeResolution);
 	}
 }

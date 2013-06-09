@@ -59,7 +59,7 @@ public class Trader extends JointStockCompany {
 	protected final int MAX_CREDIT = 10000;
 
 	@Transient
-	protected final double margin = 0.2;
+	protected final double ARBITRAGE_MARGIN = 0.2;
 
 	@Transient
 	protected final Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
@@ -90,6 +90,9 @@ public class Trader extends JointStockCompany {
 				balanceSheetPublicationEvent, -1, MonthType.EVERY,
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
+		// excluded good types
+		excludedGoodTypes.add(GoodType.LABOURHOUR);
+
 		// pricing behaviours
 		for (GoodType goodType : GoodType.values()) {
 			if (!this.excludedGoodTypes.contains(goodType)) {
@@ -100,9 +103,6 @@ public class Trader extends JointStockCompany {
 								this.primaryCurrency, marketPrice));
 			}
 		}
-
-		// excluded good types
-		excludedGoodTypes.add(GoodType.LABOURHOUR);
 	}
 
 	@Transient
@@ -145,7 +145,8 @@ public class Trader extends JointStockCompany {
 				this.bankPasswords.put(foreignCurrencyCreditBank, bankPassword);
 				BankAccount bankAccount = foreignCurrencyCreditBank
 						.openBankAccount(this, currency, this.bankPasswords
-								.get(foreignCurrencyCreditBank));
+								.get(foreignCurrencyCreditBank),
+								"foreign currency");
 				this.transactionForeignCurrencyAccounts.put(currency,
 						bankAccount);
 			}
@@ -347,28 +348,32 @@ public class Trader extends JointStockCompany {
 						}
 					}
 				}
+			}
 
-				/*
-				 * refresh prices / offer in local currency
-				 */
-				for (GoodType goodType : GoodType.values()) {
-					Trader.this.goodTypePricingBehaviours.get(goodType)
-							.setNewPrice();
-					MarketFactory.getInstance().removeAllSellingOffers(
-							Trader.this, Trader.this.primaryCurrency, goodType);
-					double amount = PropertyRegister.getInstance().getBalance(
-							Trader.this, goodType);
-					MarketFactory.getInstance().placeSettlementSellingOffer(
-							goodType,
-							Trader.this,
-							Trader.this.transactionsBankAccount,
-							amount,
-							Trader.this.goodTypePricingBehaviours.get(goodType)
-									.getCurrentPrice(),
-							new SettlementMarketEvent());
-					Trader.this.goodTypePricingBehaviours.get(goodType)
-							.registerOfferedAmount(amount);
-				}
+			/*
+			 * refresh prices / offer in local currency
+			 */
+			for (Entry<GoodType, PricingBehaviour> entry : Trader.this.goodTypePricingBehaviours
+					.entrySet()) {
+				GoodType goodType = entry.getKey();
+				PricingBehaviour pricingBehaviour = entry.getValue();
+
+				pricingBehaviour.setNewPrice();
+				MarketFactory.getInstance().removeAllSellingOffers(Trader.this,
+						Trader.this.primaryCurrency, goodType);
+				double amount = PropertyRegister.getInstance().getBalance(
+						Trader.this, goodType);
+				MarketFactory.getInstance()
+						.placeSettlementSellingOffer(
+								goodType,
+								Trader.this,
+								Trader.this.transactionsBankAccount,
+								amount,
+								Trader.this.goodTypePricingBehaviours.get(
+										goodType).getCurrentPrice(),
+								new SettlementMarketEvent());
+				Trader.this.goodTypePricingBehaviours.get(goodType)
+						.registerOfferedAmount(amount);
 			}
 		}
 	}

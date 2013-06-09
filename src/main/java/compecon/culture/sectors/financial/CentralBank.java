@@ -161,7 +161,7 @@ public class CentralBank extends Bank {
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency,
-					this.bankPasswords.get(this.primaryBank));
+					this.bankPasswords.get(this.primaryBank), "transactions");
 		}
 	}
 

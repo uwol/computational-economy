@@ -26,13 +26,14 @@ import compecon.engine.util.HibernateUtil;
 public class BankAccountFactory {
 	public static BankAccount newInstanceBankAccount(final Agent owner,
 			boolean overdraftPossible, final Currency currency,
-			final Bank managingBank) {
+			final Bank managingBank, final String name) {
 		BankAccount bankAccount = new BankAccount();
 
 		bankAccount.setOwner(owner);
 		bankAccount.setOverdraftPossible(overdraftPossible);
 		bankAccount.setCurrency(currency);
 		bankAccount.setManagingBank(managingBank);
+		bankAccount.setName(name);
 
 		DAOFactory.getBankAccountDAO().save(bankAccount);
 		HibernateUtil.flushSession();
