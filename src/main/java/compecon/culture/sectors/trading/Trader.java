@@ -146,7 +146,7 @@ public class Trader extends JointStockCompany {
 				BankAccount bankAccount = foreignCurrencyCreditBank
 						.openBankAccount(this, currency, this.bankPasswords
 								.get(foreignCurrencyCreditBank),
-								"foreign currency");
+								"foreign currency account");
 				this.transactionForeignCurrencyAccounts.put(currency,
 						bankAccount);
 			}
