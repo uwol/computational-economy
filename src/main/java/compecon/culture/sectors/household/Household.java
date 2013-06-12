@@ -363,7 +363,8 @@ public class Household extends Agent implements IShareOwner {
 			 */
 			if (Household.this.daysWithoutUtility > Household.this.DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR
 					|| Household.this.ageInDays > LIFESPAN)
-				Household.this.deconstruct();
+				if (!TimeSystem.getInstance().isInitializationPhase())
+					Household.this.deconstruct();
 		}
 	}
 

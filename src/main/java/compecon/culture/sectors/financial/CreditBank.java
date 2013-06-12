@@ -99,18 +99,11 @@ public class CreditBank extends Bank implements
 	public void initialize() {
 		super.initialize();
 
-		// currency arbitrage
-		ITimeSystemEvent currencyArbitrageEvent = new CurrencyArbitrageEvent();
-		this.timeSystemEvents.add(currencyArbitrageEvent);
+		// trade currencies on exchange markets
+		ITimeSystemEvent currencyTradeEvent = new CurrencyTradeEvent();
+		this.timeSystemEvents.add(currencyTradeEvent);
 		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				currencyArbitrageEvent, -1, MonthType.EVERY, DayType.EVERY,
-				TimeSystem.getInstance().suggestRandomHourType());
-
-		// offer primary currency on exchange markets
-		ITimeSystemEvent primaryCurrencyOfferEvent = new PrimaryCurrencyOfferEvent();
-		this.timeSystemEvents.add(primaryCurrencyOfferEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				primaryCurrencyOfferEvent, -1, MonthType.EVERY, DayType.EVERY,
+				currencyTradeEvent, -1, MonthType.EVERY, DayType.EVERY,
 				TimeSystem.getInstance().suggestRandomHourType());
 
 		// calculate interest on customers bank accounts
@@ -644,11 +637,24 @@ public class CreditBank extends Bank implements
 		}
 	}
 
-	public class CurrencyArbitrageEvent implements ITimeSystemEvent {
+	public class CurrencyTradeEvent implements ITimeSystemEvent {
+
 		@Override
 		public void onEvent() {
 			CreditBank.this.assureCurrencyTradeBankAccounts();
 
+			// the primary currency is one of the keys of this collection of
+			// bank accounts -> -1
+			int numberOfForeignCurrencies = CreditBank.this.currencyTradeBankAccounts
+					.keySet().size() - 1;
+			if (numberOfForeignCurrencies > 0) {
+				this.buyForeignCurrencyForArbitrage();
+				this.offerLocalCurrency();
+				this.offerForeignCurrency();
+			}
+		}
+
+		protected void buyForeignCurrencyForArbitrage() {
 			int numberOfForeignCurrencies = CreditBank.this.currencyTradeBankAccounts
 					.keySet().size() - 1;
 			if (numberOfForeignCurrencies > 0) {
@@ -724,16 +730,34 @@ public class CreditBank extends Bank implements
 							 * currency, then the foreign currency should be
 							 * bought low and sold high
 							 */
-							if (MathUtil.lesserEqual(
-									priceOfForeignCurrencyInLocalCurrency,
-									correctPriceOfForeignCurrencyInLocalCurrency
-											- CreditBank.this.ARBITRAGE_MARGIN)) {
-								this.buyForeignCurrencyWithLocalCurrency(
-										foreignCurrency,
-										budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
-										correctPriceOfForeignCurrencyInLocalCurrency
-												- CreditBank.this.ARBITRAGE_MARGIN,
-										foreignCurrencyBankAccount);
+							if (MathUtil
+									.lesserEqual(
+											priceOfForeignCurrencyInLocalCurrency,
+											correctPriceOfForeignCurrencyInLocalCurrency
+													/ (1 + CreditBank.this.ARBITRAGE_MARGIN))) {
+								BankAccount localCurrencyTradeBankAccount = CreditBank.this.currencyTradeBankAccounts
+										.get(CreditBank.this.primaryCurrency);
+
+								if (MathUtil
+										.greater(
+												budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
+												0)) {
+									// buy foreign currency for low local
+									// currency price
+									MarketFactory
+											.getInstance()
+											.buy(foreignCurrency,
+													-1,
+													budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
+													correctPriceOfForeignCurrencyInLocalCurrency
+															/ (1 + CreditBank.this.ARBITRAGE_MARGIN),
+													CreditBank.this,
+													localCurrencyTradeBankAccount,
+													CreditBank.this.bankPasswords
+															.get(localCurrencyTradeBankAccount
+																	.getManagingBank()),
+													foreignCurrencyBankAccount);
+								}
 							}
 						}
 					}
@@ -741,188 +765,154 @@ public class CreditBank extends Bank implements
 			}
 		}
 
-		protected void buyForeignCurrencyWithLocalCurrency(
-				Currency foreignCurrency, double budget,
-				double maxPricePerUnit, BankAccount foreignCurrencyBankAccount) {
-			CreditBank.this.assureCurrencyTradeBankAccounts();
-
-			BankAccount localCurrencyTradeBankAccount = CreditBank.this.currencyTradeBankAccounts
-					.get(CreditBank.this.primaryCurrency);
-
-			if (MathUtil.greater(budget, 0)) {
-				// buy foreign currency for low local currency price
-				MarketFactory.getInstance().buy(
-						foreignCurrency,
-						-1,
-						budget,
-						maxPricePerUnit,
-						CreditBank.this,
-						localCurrencyTradeBankAccount,
-						CreditBank.this.bankPasswords
-								.get(localCurrencyTradeBankAccount
-										.getManagingBank()),
-						foreignCurrencyBankAccount);
+		protected void offerLocalCurrency() {
+			/*
+			 * prepare pricing behaviours
+			 */
+			for (PricingBehaviour pricingBehaviour : CreditBank.this.localCurrencyPricingBehaviours
+					.values()) {
+				pricingBehaviour.nextPeriod();
 			}
-		}
-	}
 
-	public class PrimaryCurrencyOfferEvent implements ITimeSystemEvent {
-		@Override
-		public void onEvent() {
-			CreditBank.this.assureCurrencyTradeBankAccounts();
+			/*
+			 * offer local currency on exchange markets, denominated in foreign
+			 * currency
+			 */
 
-			// the primary currency is one of the keys of this collection of
-			// bank accounts -> -1
-			int numberOfForeignCurrencies = CreditBank.this.currencyTradeBankAccounts
-					.keySet().size() - 1;
-			if (numberOfForeignCurrencies > 0) {
+			double totalLocalCurrencyBudgetForCurrencyTrading = CreditBank.this
+					.calculateLocalCurrencyBudgetForCurrencyTrading();
 
-				/*
-				 * prepare pricing behaviours
-				 */
-				for (PricingBehaviour pricingBehaviour : CreditBank.this.foreignCurrencyPricingBehaviours
-						.values()) {
-					pricingBehaviour.nextPeriod();
-				}
-				for (PricingBehaviour pricingBehaviour : CreditBank.this.localCurrencyPricingBehaviours
-						.values()) {
-					pricingBehaviour.nextPeriod();
-				}
-
-				/*
-				 * offer local currency on exchange markets, denominated in
-				 * foreign currency
-				 */
-
-				double totalLocalCurrencyBudgetForCurrencyTrading = CreditBank.this
-						.calculateLocalCurrencyBudgetForCurrencyTrading();
-
-				// if there is no budget in local currency left for offering
-				// against foreign currency
-				if (MathUtil.lesserEqual(
-						totalLocalCurrencyBudgetForCurrencyTrading, 0)) {
-					if (Log.isAgentSelectedByClient(CreditBank.this))
-						Log.log(CreditBank.this,
-								"not offering local currency for foreign currencies, as budget is "
-										+ Currency
-												.round(totalLocalCurrencyBudgetForCurrencyTrading)
-										+ " "
-										+ CreditBank.this.primaryCurrency
-												.getIso4217Code());
-				} else {
-					double partialLocalCurrencyBudgetForCurrency = totalLocalCurrencyBudgetForCurrencyTrading
-							/ (double) numberOfForeignCurrencies;
-					// for each foreign currency bank account / foreign currency
-					for (BankAccount foreignCurrencyBankAccount : CreditBank.this.currencyTradeBankAccounts
-							.values()) {
-						if (!CreditBank.this.primaryCurrency
-								.equals(foreignCurrencyBankAccount
-										.getCurrency())) {
-							/*
-							 * offer local currency for foreign currency
-							 */
-							Currency localCurrency = CreditBank.this.primaryCurrency;
-							Currency foreignCurrency = foreignCurrencyBankAccount
-									.getCurrency();
-							BankAccount localCurrencyBankAccount = CreditBank.this.currencyTradeBankAccounts
-									.get(localCurrency);
-
-							PricingBehaviour pricingBehaviour = CreditBank.this.localCurrencyPricingBehaviours
-									.get(foreignCurrency);
-
-							// calculate exchange rate
-							pricingBehaviour.setNewPrice();
-							double priceOfLocalCurrencyInForeignCurrency = pricingBehaviour
-									.getCurrentPrice();
-							if (Double
-									.isNaN(priceOfLocalCurrencyInForeignCurrency)) {
-								priceOfLocalCurrencyInForeignCurrency = MarketFactory
-										.getInstance().getMarginalPrice(
-												foreignCurrency, localCurrency);
-							}
-
-							// remove existing offers
-							MarketFactory.getInstance().removeAllSellingOffers(
-									CreditBank.this, foreignCurrency,
-									localCurrency);
-
-							// offer money amount on the market
-							MarketFactory
-									.getInstance()
-									.placeSettlementSellingOffer(
-											localCurrency,
-											CreditBank.this,
-											foreignCurrencyBankAccount,
-											partialLocalCurrencyBudgetForCurrency,
-											priceOfLocalCurrencyInForeignCurrency,
-											localCurrencyBankAccount,
-											CreditBank.this.bankPasswords
-													.get(localCurrencyBankAccount
-															.getManagingBank()),
-											new SettlementMarketEvent());
-
-							pricingBehaviour
-									.registerOfferedAmount(partialLocalCurrencyBudgetForCurrency);
-						}
-					}
-				}
-
-				/*
-				 * offer foreign currency on exchange markets, denominated in
-				 * local currency
-				 */
+			// if there is no budget in local currency left for offering
+			// against foreign currency
+			if (MathUtil.lesserEqual(
+					totalLocalCurrencyBudgetForCurrencyTrading, 0)) {
+				if (Log.isAgentSelectedByClient(CreditBank.this))
+					Log.log(CreditBank.this,
+							"not offering local currency for foreign currencies, as budget is "
+									+ Currency
+											.round(totalLocalCurrencyBudgetForCurrencyTrading)
+									+ " "
+									+ CreditBank.this.primaryCurrency
+											.getIso4217Code());
+			} else {
+				int numberOfForeignCurrencies = CreditBank.this.currencyTradeBankAccounts
+						.keySet().size() - 1;
+				double partialLocalCurrencyBudgetForCurrency = totalLocalCurrencyBudgetForCurrencyTrading
+						/ (double) numberOfForeignCurrencies;
 				// for each foreign currency bank account / foreign currency
 				for (BankAccount foreignCurrencyBankAccount : CreditBank.this.currencyTradeBankAccounts
 						.values()) {
 					if (!CreditBank.this.primaryCurrency
 							.equals(foreignCurrencyBankAccount.getCurrency())) {
 						/*
-						 * offer foreign currency for local currency
+						 * offer local currency for foreign currency
 						 */
-
 						Currency localCurrency = CreditBank.this.primaryCurrency;
 						Currency foreignCurrency = foreignCurrencyBankAccount
 								.getCurrency();
 						BankAccount localCurrencyBankAccount = CreditBank.this.currencyTradeBankAccounts
 								.get(localCurrency);
 
-						PricingBehaviour pricingBehaviour = CreditBank.this.foreignCurrencyPricingBehaviours
+						PricingBehaviour pricingBehaviour = CreditBank.this.localCurrencyPricingBehaviours
 								.get(foreignCurrency);
 
 						// calculate exchange rate
 						pricingBehaviour.setNewPrice();
-						double priceOfForeignCurrencyInLocalCurrency = pricingBehaviour
+						double priceOfLocalCurrencyInForeignCurrency = pricingBehaviour
 								.getCurrentPrice();
-						if (Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
-							priceOfForeignCurrencyInLocalCurrency = MarketFactory
+						if (Double.isNaN(priceOfLocalCurrencyInForeignCurrency)) {
+							priceOfLocalCurrencyInForeignCurrency = MarketFactory
 									.getInstance().getMarginalPrice(
-											localCurrency, foreignCurrency);
+											foreignCurrency, localCurrency);
 						}
 
 						// remove existing offers
 						MarketFactory.getInstance()
 								.removeAllSellingOffers(CreditBank.this,
-										localCurrency, foreignCurrency);
+										foreignCurrency, localCurrency);
 
 						// offer money amount on the market
-						MarketFactory
-								.getInstance()
+						MarketFactory.getInstance()
 								.placeSettlementSellingOffer(
-										foreignCurrency,
+										localCurrency,
 										CreditBank.this,
-										localCurrencyBankAccount,
-										foreignCurrencyBankAccount.getBalance(),
-										priceOfForeignCurrencyInLocalCurrency,
 										foreignCurrencyBankAccount,
+										partialLocalCurrencyBudgetForCurrency,
+										priceOfLocalCurrencyInForeignCurrency,
+										localCurrencyBankAccount,
 										CreditBank.this.bankPasswords
-												.get(foreignCurrencyBankAccount
+												.get(localCurrencyBankAccount
 														.getManagingBank()),
 										new SettlementMarketEvent());
 
 						pricingBehaviour
-								.registerOfferedAmount(foreignCurrencyBankAccount
-										.getBalance());
+								.registerOfferedAmount(partialLocalCurrencyBudgetForCurrency);
 					}
+				}
+			}
+		}
+
+		protected void offerForeignCurrency() {
+			/*
+			 * prepare pricing behaviours
+			 */
+			for (PricingBehaviour pricingBehaviour : CreditBank.this.foreignCurrencyPricingBehaviours
+					.values()) {
+				pricingBehaviour.nextPeriod();
+			}
+
+			/*
+			 * offer foreign currency on exchange markets, denominated in local
+			 * currency
+			 */
+			// for each foreign currency bank account / foreign currency
+			for (BankAccount foreignCurrencyBankAccount : CreditBank.this.currencyTradeBankAccounts
+					.values()) {
+				if (!CreditBank.this.primaryCurrency
+						.equals(foreignCurrencyBankAccount.getCurrency())) {
+					/*
+					 * offer foreign currency for local currency
+					 */
+
+					Currency localCurrency = CreditBank.this.primaryCurrency;
+					Currency foreignCurrency = foreignCurrencyBankAccount
+							.getCurrency();
+					BankAccount localCurrencyBankAccount = CreditBank.this.currencyTradeBankAccounts
+							.get(localCurrency);
+
+					PricingBehaviour pricingBehaviour = CreditBank.this.foreignCurrencyPricingBehaviours
+							.get(foreignCurrency);
+
+					// calculate exchange rate
+					pricingBehaviour.setNewPrice();
+					double priceOfForeignCurrencyInLocalCurrency = pricingBehaviour
+							.getCurrentPrice();
+					if (Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
+						priceOfForeignCurrencyInLocalCurrency = MarketFactory
+								.getInstance().getMarginalPrice(localCurrency,
+										foreignCurrency);
+					}
+
+					// remove existing offers
+					MarketFactory.getInstance().removeAllSellingOffers(
+							CreditBank.this, localCurrency, foreignCurrency);
+
+					// offer money amount on the market
+					MarketFactory.getInstance().placeSettlementSellingOffer(
+							foreignCurrency,
+							CreditBank.this,
+							localCurrencyBankAccount,
+							foreignCurrencyBankAccount.getBalance(),
+							priceOfForeignCurrencyInLocalCurrency,
+							foreignCurrencyBankAccount,
+							CreditBank.this.bankPasswords
+									.get(foreignCurrencyBankAccount
+											.getManagingBank()),
+							new SettlementMarketEvent());
+
+					pricingBehaviour
+							.registerOfferedAmount(foreignCurrencyBankAccount
+									.getBalance());
 				}
 			}
 		}

@@ -80,7 +80,7 @@ public class MarketTest {
 		household2_EUR.assureTransactionsBankAccount();
 		factory1_WHEAT_EUR.assureTransactionsBankAccount();
 		trader1_EUR.assureTransactionsBankAccount();
-		trader1_EUR.assureTransactionsForeignCurrencyBankAccounts();
+		trader1_EUR.assureGoodsTradeBankAccounts();
 
 		HibernateUtil.flushSession();
 	}

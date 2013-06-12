@@ -42,6 +42,8 @@ import compecon.engine.util.HibernateUtil;
 public class TimeSystem {
 	private static TimeSystem timeSystem;
 
+	private int dayNumber = 0;
+
 	private Random random = new Random();
 
 	private GregorianCalendar gregorianCalendar = new GregorianCalendar();
@@ -60,22 +62,9 @@ public class TimeSystem {
 				monthType.getMonthNumber(), dayType.getDayNumber());
 	}
 
-	protected TimeSystem() {
-		gregorianCalendar = new GregorianCalendar(2000,
-				MonthType.JANUARY.getMonthNumber(),
-				DayType.DAY_01.getDayNumber());
-	}
-
 	public static TimeSystem getInstance() {
 		if (TimeSystem.timeSystem == null)
-			timeSystem = new TimeSystem();
-		return timeSystem;
-	}
-
-	public static TimeSystem getInstance(int year, MonthType monthType,
-			DayType dayType) {
-		if (TimeSystem.timeSystem == null)
-			timeSystem = new TimeSystem(year, monthType, dayType);
+			timeSystem = new TimeSystem(2000, MonthType.JANUARY, DayType.DAY_01);
 		return timeSystem;
 	}
 
@@ -113,6 +102,10 @@ public class TimeSystem {
 		int randomNumber = this.random.nextInt(maxHourType.getHourNumber() + 1
 				- minHourType.getHourNumber());
 		return HourType.getHourType(minHourType.getHourNumber() + randomNumber);
+	}
+
+	public boolean isInitializationPhase() {
+		return this.dayNumber < 180;
 	}
 
 	/*
@@ -168,8 +161,10 @@ public class TimeSystem {
 	public void nextHour() {
 		this.gregorianCalendar.add(GregorianCalendar.HOUR_OF_DAY, 1);
 		if (HourType.getHourType(this.gregorianCalendar
-				.get(GregorianCalendar.HOUR_OF_DAY)) == HourType.HOUR_00)
+				.get(GregorianCalendar.HOUR_OF_DAY)) == HourType.HOUR_00) {
 			Log.notifyTimeSystem_nextDay(timeSystem.getCurrentDate());
+			this.dayNumber++;
+		}
 		this.triggerEvents();
 	}
 

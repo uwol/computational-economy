@@ -70,7 +70,7 @@ public class Trader extends JointStockCompany {
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "Trader_ForeignCurrencyBankAccounts", joinColumns = @JoinColumn(name = "trader_id"), inverseJoinColumns = @JoinColumn(name = "bankAccount_id"))
 	@MapKeyEnumerated
-	protected Map<Currency, BankAccount> transactionForeignCurrencyAccounts = new HashMap<Currency, BankAccount>();
+	protected Map<Currency, BankAccount> goodsTradeBankAccounts = new HashMap<Currency, BankAccount>();
 
 	@Override
 	public void initialize() {
@@ -109,7 +109,7 @@ public class Trader extends JointStockCompany {
 	public void deconstruct() {
 		super.deconstruct();
 
-		this.transactionForeignCurrencyAccounts = null;
+		this.goodsTradeBankAccounts = null;
 	}
 
 	/*
@@ -117,12 +117,12 @@ public class Trader extends JointStockCompany {
 	 */
 
 	public Map<Currency, BankAccount> getTransactionForeignCurrencyAccounts() {
-		return transactionForeignCurrencyAccounts;
+		return goodsTradeBankAccounts;
 	}
 
 	public void setTransactionForeignCurrencyAccounts(
 			Map<Currency, BankAccount> transactionForeignCurrencyAccounts) {
-		this.transactionForeignCurrencyAccounts = transactionForeignCurrencyAccounts;
+		this.goodsTradeBankAccounts = transactionForeignCurrencyAccounts;
 	}
 
 	/*
@@ -130,14 +130,13 @@ public class Trader extends JointStockCompany {
 	 */
 
 	@Transient
-	public void assureTransactionsForeignCurrencyBankAccounts() {
+	public void assureGoodsTradeBankAccounts() {
 		if (this.isDeconstructed)
 			return;
 
 		for (Currency currency : Currency.values()) {
 			if (currency != this.primaryCurrency
-					&& !this.transactionForeignCurrencyAccounts
-							.containsKey(currency)) {
+					&& !this.goodsTradeBankAccounts.containsKey(currency)) {
 				CreditBank foreignCurrencyCreditBank = AgentFactory
 						.getRandomInstanceCreditBank(currency);
 				String bankPassword = foreignCurrencyCreditBank
@@ -147,8 +146,7 @@ public class Trader extends JointStockCompany {
 						.openBankAccount(this, currency, this.bankPasswords
 								.get(foreignCurrencyCreditBank),
 								"foreign currency account");
-				this.transactionForeignCurrencyAccounts.put(currency,
-						bankAccount);
+				this.goodsTradeBankAccounts.put(currency, bankAccount);
 			}
 		}
 	}
@@ -156,12 +154,11 @@ public class Trader extends JointStockCompany {
 	@Override
 	@Transient
 	public void onBankCloseBankAccount(BankAccount bankAccount) {
-		if (this.transactionForeignCurrencyAccounts != null) {
-			for (Entry<Currency, BankAccount> entry : this.transactionForeignCurrencyAccounts
+		if (this.goodsTradeBankAccounts != null) {
+			for (Entry<Currency, BankAccount> entry : this.goodsTradeBankAccounts
 					.entrySet()) {
 				if (entry.getValue() == bankAccount)
-					this.transactionForeignCurrencyAccounts.remove(entry
-							.getKey());
+					this.goodsTradeBankAccounts.remove(entry.getKey());
 			}
 		}
 
@@ -195,17 +192,14 @@ public class Trader extends JointStockCompany {
 		@Override
 		public void onEvent() {
 			Trader.this.assureTransactionsBankAccount();
-			Trader.this.assureTransactionsForeignCurrencyBankAccounts();
+			Trader.this.assureGoodsTradeBankAccounts();
 
-			/*
-			 * prepare pricing behaviours
-			 */
-			for (PricingBehaviour pricingBehaviour : Trader.this.goodTypePricingBehaviours
-					.values()) {
-				pricingBehaviour.nextPeriod();
-			}
+			this.buyGoodsForArbitrage();
+			this.offerGoods();
+		}
 
-			int numberOfForeignCurrencies = Trader.this.transactionForeignCurrencyAccounts
+		protected void buyGoodsForArbitrage() {
+			int numberOfForeignCurrencies = Trader.this.goodsTradeBankAccounts
 					.keySet().size();
 			double budgetPerForeignCurrencyInLocalCurrency = (Trader.this.MAX_CREDIT + Trader.this.transactionsBankAccount
 					.getBalance()) / (double) numberOfForeignCurrencies;
@@ -213,7 +207,7 @@ public class Trader extends JointStockCompany {
 			/*
 			 * for each currency / economy
 			 */
-			for (Entry<Currency, BankAccount> entry : Trader.this.transactionForeignCurrencyAccounts
+			for (Entry<Currency, BankAccount> entry : Trader.this.goodsTradeBankAccounts
 					.entrySet()) {
 				Currency foreignCurrency = entry.getKey();
 				BankAccount foreignCurrencyBankAccount = entry.getValue();
@@ -267,8 +261,8 @@ public class Trader extends JointStockCompany {
 							double importPriceOfGoodTypeInLocalCurrency = priceOfGoodTypeInForeignCurrency
 									* priceOfForeignCurrencyInLocalCurrency;
 
-							if (MathUtil.greater(
-									priceOfGoodTypeInLocalCurrency,
+							if (MathUtil.greater(priceOfGoodTypeInLocalCurrency
+									/ (1 + ARBITRAGE_MARGIN),
 									importPriceOfGoodTypeInLocalCurrency)) {
 
 								if (Log.isAgentSelectedByClient(Trader.this))
@@ -317,15 +311,15 @@ public class Trader extends JointStockCompany {
 								MarketFactory
 										.getInstance()
 										.buy(foreignCurrency,
+												-1,
 												budgetPerGoodTypeAndForeignCurrencyInLocalCurrency,
-												-1,
-												-1,
+												priceOfForeignCurrencyInLocalCurrency,
 												Trader.this,
 												Trader.this.transactionsBankAccount,
 												Trader.this.bankPasswords
 														.get(Trader.this.transactionsBankAccount
 																.getManagingBank()),
-												Trader.this.transactionForeignCurrencyAccounts
+												Trader.this.goodsTradeBankAccounts
 														.get(foreignCurrency));
 
 								/*
@@ -348,6 +342,16 @@ public class Trader extends JointStockCompany {
 						}
 					}
 				}
+			}
+		}
+
+		protected void offerGoods() {
+			/*
+			 * prepare pricing behaviours
+			 */
+			for (PricingBehaviour pricingBehaviour : Trader.this.goodTypePricingBehaviours
+					.values()) {
+				pricingBehaviour.nextPeriod();
 			}
 
 			/*

@@ -79,7 +79,7 @@ public class AgentFactoryTest {
 		creditBank2_USD.assureCurrencyTradeBankAccounts();
 
 		trader1_EURO.assureTransactionsBankAccount();
-		trader1_EURO.assureTransactionsForeignCurrencyBankAccounts();
+		trader1_EURO.assureGoodsTradeBankAccounts();
 
 		factory1_WHEAT_EURO.assureTransactionsBankAccount();
 

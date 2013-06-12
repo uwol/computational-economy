@@ -25,9 +25,7 @@ import compecon.engine.AgentFactory;
 import compecon.engine.dashboard.Dashboard;
 import compecon.engine.jmx.JMXRegistration;
 import compecon.engine.time.TimeSystem;
-import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
-import compecon.engine.time.calendar.MonthType;
 import compecon.engine.util.HibernateUtil;
 import compecon.nature.materia.GoodType;
 
@@ -71,8 +69,7 @@ public class Simulation {
 
 			// initialize the time system, so that agents can register their
 			// events
-			TimeSystem timeSystem = TimeSystem.getInstance(2000,
-					MonthType.JANUARY, DayType.DAY_01);
+			TimeSystem timeSystem = TimeSystem.getInstance();
 
 			for (Currency currency : Currency.values()) {
 				// initialize states
