@@ -279,8 +279,8 @@ public class SettlementMarket extends Market {
 		priceAndAmount[0] = moneySpentSum;
 		priceAndAmount[1] = amountSum;
 
-		if (priceAndAmount[1] > 0) {
-			if (Log.isAgentSelectedByClient(buyer))
+		if (Log.isAgentSelectedByClient(buyer)) {
+			if (priceAndAmount[1] > 0) {
 				Log.log(buyer,
 						buyer
 								+ " bought "
@@ -304,8 +304,38 @@ public class SettlementMarket extends Market {
 								+ " "
 								+ buyersBankAccount.getCurrency()
 										.getIso4217Code() + "]");
+			} else {
+				Log.log(buyer,
+						"cannot buy "
+								+ this.determineCommodity(goodType,
+										commodityCurrency, propertyClass)
+								+ ", since no matching offers for "
+								+ this.determineCommodity(goodType,
+										commodityCurrency, propertyClass)
+								+ " under constraints [maxAmount: "
+								+ MathUtil.round(maxAmount)
+								+ ", maxTotalPrice: "
+								+ Currency.round(maxTotalPrice)
+								+ " "
+								+ buyersBankAccount.getCurrency()
+										.getIso4217Code()
+								+ ", maxPricePerUnit: "
+								+ Currency.round(maxPricePerUnit)
+								+ " "
+								+ buyersBankAccount.getCurrency()
+										.getIso4217Code() + "]");
+			}
 		}
 
 		return priceAndAmount;
+	}
+
+	private Object determineCommodity(GoodType goodType,
+			Currency commodityCurrency, Class<? extends Property> propertyClass) {
+		if (commodityCurrency != null)
+			return commodityCurrency;
+		if (propertyClass != null)
+			return propertyClass;
+		return goodType;
 	}
 }

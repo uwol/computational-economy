@@ -69,6 +69,9 @@ public class BudgetingBehaviour {
 				.getMaxEffectiveKeyInterestRate();
 	}
 
+	/**
+	 * number in [0, 1] with 1 as max dampening and 0 as no dampening
+	 */
 	protected double calculateTransmissionDamper(Currency currency) {
 		return this.calculateKeyInterestRateElasticity(currency)
 				* AgentFactory.getInstanceCentralBank(currency)

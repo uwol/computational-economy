@@ -19,7 +19,9 @@ package compecon.engine.util;
 
 public class MathUtil {
 
-	private static double epsilon = 0.00001;
+	private static final double epsilon = 0.00001;
+
+	private static final double precision = Math.round(1 / epsilon);
 
 	public static boolean equal(double value1, double value2) {
 		if (Double.isNaN(value1) && Double.isNaN(value2))
@@ -64,6 +66,6 @@ public class MathUtil {
 	public static double round(double value) {
 		if (Double.isNaN(value) || Double.isInfinite(value))
 			return value;
-		return Math.round(value * 1000.) / 1000.;
+		return Math.round(value * precision) / precision;
 	}
 }

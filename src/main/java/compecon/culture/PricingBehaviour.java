@@ -124,12 +124,15 @@ public class PricingBehaviour {
 		double oldPrice = this.prices_InPeriods[1];
 
 		String prefix = "offered " + MathUtil.round(offeredAmount_InPeriods[1])
-				+ " units of " + offeredGoodOrCurrency + " and sold "
+				+ " units of " + offeredGoodOrCurrency + " for "
+				+ Currency.round(this.prices_InPeriods[1]) + " "
+				+ this.denominatedInCurrency.getIso4217Code()
+				+ " per unit and sold "
 				+ MathUtil.round(soldAmount_InPeriods[1]) + " units -> ";
 
 		// nothing sold?
-		if (this.offeredAmount_InPeriods[1] > 0
-				&& MathUtil.equal(this.soldAmount_InPeriods[1], 0)) {
+		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0)
+				&& MathUtil.lesserEqual(this.soldAmount_InPeriods[1], 0)) {
 			double newPrice = calculateLowerPrice(oldPrice);
 			if (Log.isAgentSelectedByClient(this.agent))
 				Log.log(this.agent,
@@ -140,7 +143,7 @@ public class PricingBehaviour {
 		}
 
 		// everything sold?
-		if (this.offeredAmount_InPeriods[1] > 0
+		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0)
 				&& MathUtil.equal(this.soldAmount_InPeriods[1],
 						this.offeredAmount_InPeriods[1])) {
 			double newPrice = calculateHigherPrice(oldPrice);
@@ -153,7 +156,7 @@ public class PricingBehaviour {
 		}
 
 		// sold less?
-		if (this.offeredAmount_InPeriods[1] > 0
+		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0)
 				&& MathUtil.greater(this.soldAmount_InPeriods[2], 0)
 				&& MathUtil.lesser(this.soldAmount_InPeriods[1],
 						this.soldAmount_InPeriods[2])
@@ -161,14 +164,15 @@ public class PricingBehaviour {
 						this.soldAmount_InPeriods[2]))) {
 			double newPrice = calculateLowerPrice(oldPrice);
 			if (Log.isAgentSelectedByClient(this.agent))
-				Log.log(this.agent, prefix + "sold less -> lowering price to "
-						+ Currency.round(newPrice) + " "
-						+ this.denominatedInCurrency.getIso4217Code());
+				Log.log(this.agent, prefix + "sold less (before: "
+						+ this.soldAmount_InPeriods[2]
+						+ ")-> lowering price to " + Currency.round(newPrice)
+						+ " " + this.denominatedInCurrency.getIso4217Code());
 			return newPrice;
 		}
 
 		// sold more?
-		if (this.offeredAmount_InPeriods[1] > 0
+		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0)
 				&& MathUtil.greater(this.soldAmount_InPeriods[2], 0)
 				&& MathUtil.greater(this.soldAmount_InPeriods[1],
 						this.soldAmount_InPeriods[2])
@@ -176,9 +180,10 @@ public class PricingBehaviour {
 						this.soldAmount_InPeriods[1]))) {
 			double newPrice = calculateHigherPrice(oldPrice);
 			if (Log.isAgentSelectedByClient(this.agent))
-				Log.log(this.agent, prefix + "sold more -> raising price to "
-						+ Currency.round(newPrice) + " "
-						+ this.denominatedInCurrency.getIso4217Code());
+				Log.log(this.agent, prefix + "sold more (before: "
+						+ this.soldAmount_InPeriods[2]
+						+ ")-> raising price to " + Currency.round(newPrice)
+						+ " " + this.denominatedInCurrency.getIso4217Code());
 			return newPrice;
 		}
 

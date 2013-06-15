@@ -70,13 +70,10 @@ public class CreditBank extends Bank implements
 	private boolean centralBankAccountsInitialized = false;
 
 	@Transient
-	protected double MAX_CREDIT_FOR_CURRENCY_TRADING = 100000;
+	protected final double MAX_CREDIT_FOR_CURRENCY_TRADING = 100000;
 
 	@Transient
-	protected double ARBITRAGE_MARGIN = 0.2;
-
-	@Transient
-	protected Map<Currency, PricingBehaviour> foreignCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
+	protected final double MIN_ARBITRAGE_MARGIN = 0.05;
 
 	@Transient
 	protected Map<Currency, PricingBehaviour> localCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
@@ -130,19 +127,6 @@ public class CreditBank extends Bank implements
 		// pricing behaviours
 		for (Currency foreignCurrency : Currency.values()) {
 			if (!this.primaryCurrency.equals(foreignCurrency)) {
-
-				// price of foreign currency in local currency
-				double initialPriceOfForeignCurrencyInLocalCurrency = MarketFactory
-						.getInstance().getMarginalPrice(this.primaryCurrency,
-								foreignCurrency);
-				if (Double.isNaN(initialPriceOfForeignCurrencyInLocalCurrency))
-					initialPriceOfForeignCurrencyInLocalCurrency = 1.0;
-				this.foreignCurrencyPricingBehaviours.put(foreignCurrency,
-						new PricingBehaviour(this, foreignCurrency,
-								this.primaryCurrency,
-								initialPriceOfForeignCurrencyInLocalCurrency,
-								0.01));
-
 				// price of local currency in foreign currency
 				double initialPriceOfLocalCurrencyInForeignCurrency = MarketFactory
 						.getInstance().getMarginalPrice(foreignCurrency,
@@ -152,7 +136,7 @@ public class CreditBank extends Bank implements
 				this.localCurrencyPricingBehaviours.put(foreignCurrency,
 						new PricingBehaviour(this, this.primaryCurrency,
 								foreignCurrency,
-								initialPriceOfForeignCurrencyInLocalCurrency,
+								initialPriceOfLocalCurrencyInForeignCurrency,
 								0.01));
 			}
 		}
@@ -463,9 +447,6 @@ public class CreditBank extends Bank implements
 			if (CreditBank.this.primaryCurrency.equals(commodityCurrency)) {
 				CreditBank.this.localCurrencyPricingBehaviours.get(currency)
 						.registerSelling(amount);
-			} else {
-				CreditBank.this.foreignCurrencyPricingBehaviours.get(
-						commodityCurrency).registerSelling(amount);
 			}
 		}
 
@@ -649,9 +630,78 @@ public class CreditBank extends Bank implements
 					.keySet().size() - 1;
 			if (numberOfForeignCurrencies > 0) {
 				this.buyForeignCurrencyForArbitrage();
+				this.rebuyLocalCurrency();
 				this.offerLocalCurrency();
-				this.offerForeignCurrency();
+				this.offerForeignCurrencies();
 			}
+		}
+
+		/**
+		 * @param firstCurrency
+		 *            Currency to calculate the inverse price for, e. g. USD
+		 * @param secondCurrency
+		 *            Currency, to use for calculating the price of first
+		 *            currency, e. g. EUR
+		 */
+		private double calculateCalculatoryPriceOfFirstCurrencyInSecondCurrency(
+				Currency firstCurrency, Currency secondCurrency) {
+			// e.g. USD_in_EUR = 0.8
+			double priceOfFirstCurrencyInSecondCurrency = MarketFactory
+					.getInstance().getMarginalPrice(secondCurrency,
+							firstCurrency);
+			// e.g. EUR_in_USD = 0.8
+			double priceOfSecondCurrencyInFirstCurrency = MarketFactory
+					.getInstance().getMarginalPrice(firstCurrency,
+							secondCurrency);
+
+			if (Double.isNaN(priceOfSecondCurrencyInFirstCurrency)) {
+				return priceOfFirstCurrencyInSecondCurrency;
+			} else if (Double.isNaN(priceOfFirstCurrencyInSecondCurrency)) {
+				return Double.NaN;
+			} else {
+				// inverse_EUR_in_USD -> correct_USD_in_EUR = 1.25
+				double correctPriceOfFirstCurrencyInSecondCurrency = 1.0 / priceOfSecondCurrencyInFirstCurrency;
+
+				if (Log.isAgentSelectedByClient(CreditBank.this))
+					Log.log(CreditBank.this,
+							"on markets 1 "
+									+ secondCurrency.getIso4217Code()
+									+ " = "
+									+ Currency
+											.round(priceOfSecondCurrencyInFirstCurrency)
+									+ " "
+									+ firstCurrency.getIso4217Code()
+
+									+ " -> correct price of 1 "
+									+ firstCurrency.getIso4217Code()
+									+ " = "
+									+ Currency
+											.round(correctPriceOfFirstCurrencyInSecondCurrency)
+									+ " "
+									+ secondCurrency.getIso4217Code()
+
+									+ "; on markets "
+
+									+ "1 "
+									+ firstCurrency.getIso4217Code()
+									+ " = "
+									+ Currency
+											.round(priceOfFirstCurrencyInSecondCurrency)
+									+ " " + secondCurrency.getIso4217Code());
+				return correctPriceOfFirstCurrencyInSecondCurrency;
+			}
+		}
+
+		/**
+		 * number in [0, 1] with 1 as max dampening and 0 as no dampening
+		 */
+		private double calculateCurrencyPriceBuyingDamper(
+				double marketPriceOfCurrency, double correctPriceOfCurrency) {
+			double priceDifference = Math.max(0, marketPriceOfCurrency
+					- correctPriceOfCurrency);
+			double relativePriceDifference = priceDifference
+					/ correctPriceOfCurrency;
+			return 1.0 - Math.pow(2, -5 * relativePriceDifference);
 		}
 
 		protected void buyForeignCurrencyForArbitrage() {
@@ -669,6 +719,9 @@ public class CreditBank extends Bank implements
 				for (Entry<Currency, BankAccount> entry : CreditBank.this.currencyTradeBankAccounts
 						.entrySet()) {
 
+					BankAccount localCurrencyTradeBankAccount = CreditBank.this.currencyTradeBankAccounts
+							.get(CreditBank.this.primaryCurrency);
+
 					/*
 					 * trade between local and foreign currencies
 					 */
@@ -677,52 +730,45 @@ public class CreditBank extends Bank implements
 						BankAccount foreignCurrencyBankAccount = entry
 								.getValue();
 
-						// e.g. USD_in_EUR = 0.8
-						double priceOfForeignCurrencyInLocalCurrency = MarketFactory
+						double realPriceOfForeignCurrencyInLocalCurrency = MarketFactory
 								.getInstance().getMarginalPrice(
 										primaryCurrency, foreignCurrency);
-						// e.g. EUR_in_USD = 0.8
-						double priceOfLocalCurrencyInForeignCurrency = MarketFactory
-								.getInstance().getMarginalPrice(
-										foreignCurrency, primaryCurrency);
-						if (!Double
-								.isNaN(priceOfLocalCurrencyInForeignCurrency)
-								&& !Double
-										.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
-							// inverse_EUR_in_USD -> correct_USD_in_EUR = 1.25
-							double correctPriceOfForeignCurrencyInLocalCurrency = 1.0 / priceOfLocalCurrencyInForeignCurrency;
+						double correctPriceOfForeignCurrencyInLocalCurrency = calculateCalculatoryPriceOfFirstCurrencyInSecondCurrency(
+								foreignCurrency, primaryCurrency);
 
+						if (MathUtil
+								.lesserEqual(
+										budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
+										0)) {
 							if (Log.isAgentSelectedByClient(CreditBank.this))
 								Log.log(CreditBank.this,
-										"arbitrage calculation: 1 "
+										"-> no arbitrage with "
 												+ foreignCurrency
 														.getIso4217Code()
-												+ " = "
-												+ Currency
-														.round(priceOfForeignCurrencyInLocalCurrency)
-												+ " "
-												+ primaryCurrency
-														.getIso4217Code()
-												+ "; "
-												+ "1 "
-												+ primaryCurrency
-														.getIso4217Code()
-												+ " = "
-												+ Currency
-														.round(priceOfLocalCurrencyInForeignCurrency)
-												+ " "
+												+ ", since budgetForCurrencyTrading is "
+												+ MathUtil
+														.round(budgetForCurrencyTradingPerCurrency_InPrimaryCurrency));
+						} else if (Double
+								.isNaN(correctPriceOfForeignCurrencyInLocalCurrency)) {
+							Log.log(CreditBank.this,
+									"-> no arbitrage with "
+											+ foreignCurrency.getIso4217Code()
+											+ ", since correct price of foreign currency is "
+											+ correctPriceOfForeignCurrencyInLocalCurrency);
+						} else if (MathUtil.lesser(
+								correctPriceOfForeignCurrencyInLocalCurrency
+										/ (1 + MIN_ARBITRAGE_MARGIN),
+								realPriceOfForeignCurrencyInLocalCurrency)) {
+							if (Log.isAgentSelectedByClient(CreditBank.this))
+								Log.log(CreditBank.this,
+										"-> no arbitrage with "
 												+ foreignCurrency
 														.getIso4217Code()
-												+ " -> correct price of 1 "
+												+ ", since price of "
 												+ foreignCurrency
 														.getIso4217Code()
-												+ " = "
-												+ Currency
-														.round(correctPriceOfForeignCurrencyInLocalCurrency)
-												+ " "
-												+ primaryCurrency
-														.getIso4217Code());
-
+												+ " is too high");
+						} else {
 							/*
 							 * if the price of foreign currency denominated in
 							 * local currency is lower, than the inverse price
@@ -730,36 +776,71 @@ public class CreditBank extends Bank implements
 							 * currency, then the foreign currency should be
 							 * bought low and sold high
 							 */
-							if (MathUtil
-									.lesserEqual(
-											priceOfForeignCurrencyInLocalCurrency,
+							MarketFactory
+									.getInstance()
+									.buy(foreignCurrency,
+											-1,
+											budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
 											correctPriceOfForeignCurrencyInLocalCurrency
-													/ (1 + CreditBank.this.ARBITRAGE_MARGIN))) {
-								BankAccount localCurrencyTradeBankAccount = CreditBank.this.currencyTradeBankAccounts
-										.get(CreditBank.this.primaryCurrency);
-
-								if (MathUtil
-										.greater(
-												budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
-												0)) {
-									// buy foreign currency for low local
-									// currency price
-									MarketFactory
-											.getInstance()
-											.buy(foreignCurrency,
-													-1,
-													budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
-													correctPriceOfForeignCurrencyInLocalCurrency
-															/ (1 + CreditBank.this.ARBITRAGE_MARGIN),
-													CreditBank.this,
-													localCurrencyTradeBankAccount,
-													CreditBank.this.bankPasswords
-															.get(localCurrencyTradeBankAccount
-																	.getManagingBank()),
-													foreignCurrencyBankAccount);
-								}
-							}
+													/ (1 + MIN_ARBITRAGE_MARGIN),
+											CreditBank.this,
+											localCurrencyTradeBankAccount,
+											CreditBank.this.bankPasswords
+													.get(localCurrencyTradeBankAccount
+															.getManagingBank()),
+											foreignCurrencyBankAccount);
 						}
+					}
+				}
+			}
+		}
+
+		protected void rebuyLocalCurrency() {
+			/*
+			 * buy local currency on exchange markets, denominated in foreign
+			 * currency
+			 */
+			// for each foreign currency bank account / foreign currency
+			for (BankAccount foreignCurrencyBankAccount : CreditBank.this.currencyTradeBankAccounts
+					.values()) {
+				if (!CreditBank.this.primaryCurrency
+						.equals(foreignCurrencyBankAccount.getCurrency())) {
+					/*
+					 * buy local currency for foreign currency
+					 */
+
+					Currency localCurrency = CreditBank.this.primaryCurrency;
+					BankAccount localCurrencyBankAccount = CreditBank.this.currencyTradeBankAccounts
+							.get(localCurrency);
+
+					double realPriceOfForeignCurrencyInLocalCurrency = MarketFactory
+							.getInstance().getMarginalPrice(primaryCurrency,
+									foreignCurrencyBankAccount.getCurrency());
+					double correctPriceOfLocalCurrencyInForeignCurrency = calculateCalculatoryPriceOfFirstCurrencyInSecondCurrency(
+							localCurrency,
+							foreignCurrencyBankAccount.getCurrency());
+
+					double currencyPriceBuyingDamper = this
+							.calculateCurrencyPriceBuyingDamper(
+									realPriceOfForeignCurrencyInLocalCurrency,
+									correctPriceOfLocalCurrencyInForeignCurrency);
+
+					if (MathUtil.greater(
+							foreignCurrencyBankAccount.getBalance(), 0)) {
+						// buy local currency for foreign currency
+						MarketFactory.getInstance().buy(
+								localCurrency,
+								-1,
+								(1 - currencyPriceBuyingDamper)
+										* foreignCurrencyBankAccount
+												.getBalance(),
+								-1,
+								CreditBank.this,
+								foreignCurrencyBankAccount,
+								CreditBank.this.bankPasswords
+										.get(foreignCurrencyBankAccount
+												.getManagingBank()),
+								localCurrencyBankAccount);
 					}
 				}
 			}
@@ -788,7 +869,10 @@ public class CreditBank extends Bank implements
 					totalLocalCurrencyBudgetForCurrencyTrading, 0)) {
 				if (Log.isAgentSelectedByClient(CreditBank.this))
 					Log.log(CreditBank.this,
-							"not offering local currency for foreign currencies, as budget is "
+							"not offering "
+									+ CreditBank.this.primaryCurrency
+											.getIso4217Code()
+									+ " for foreign currencies, as budget / amount to offer is "
 									+ Currency
 											.round(totalLocalCurrencyBudgetForCurrencyTrading)
 									+ " "
@@ -812,7 +896,6 @@ public class CreditBank extends Bank implements
 								.getCurrency();
 						BankAccount localCurrencyBankAccount = CreditBank.this.currencyTradeBankAccounts
 								.get(localCurrency);
-
 						PricingBehaviour pricingBehaviour = CreditBank.this.localCurrencyPricingBehaviours
 								.get(foreignCurrency);
 
@@ -824,6 +907,12 @@ public class CreditBank extends Bank implements
 							priceOfLocalCurrencyInForeignCurrency = MarketFactory
 									.getInstance().getMarginalPrice(
 											foreignCurrency, localCurrency);
+							if (Log.isAgentSelectedByClient(CreditBank.this))
+								Log.log(CreditBank.this,
+										"could not calculate price for "
+												+ localCurrency + " in "
+												+ foreignCurrency
+												+ " -> using market price");
 						}
 
 						// remove existing offers
@@ -852,46 +941,27 @@ public class CreditBank extends Bank implements
 			}
 		}
 
-		protected void offerForeignCurrency() {
-			/*
-			 * prepare pricing behaviours
-			 */
-			for (PricingBehaviour pricingBehaviour : CreditBank.this.foreignCurrencyPricingBehaviours
-					.values()) {
-				pricingBehaviour.nextPeriod();
-			}
-
-			/*
-			 * offer foreign currency on exchange markets, denominated in local
-			 * currency
-			 */
+		protected void offerForeignCurrencies() {
 			// for each foreign currency bank account / foreign currency
 			for (BankAccount foreignCurrencyBankAccount : CreditBank.this.currencyTradeBankAccounts
 					.values()) {
 				if (!CreditBank.this.primaryCurrency
 						.equals(foreignCurrencyBankAccount.getCurrency())) {
 					/*
-					 * offer foreign currency for local currency
+					 * offer local currency for foreign currency
 					 */
-
 					Currency localCurrency = CreditBank.this.primaryCurrency;
 					Currency foreignCurrency = foreignCurrencyBankAccount
 							.getCurrency();
 					BankAccount localCurrencyBankAccount = CreditBank.this.currencyTradeBankAccounts
 							.get(localCurrency);
 
-					PricingBehaviour pricingBehaviour = CreditBank.this.foreignCurrencyPricingBehaviours
-							.get(foreignCurrency);
-
-					// calculate exchange rate
-					pricingBehaviour.setNewPrice();
-					double priceOfForeignCurrencyInLocalCurrency = pricingBehaviour
-							.getCurrentPrice();
-					if (Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
-						priceOfForeignCurrencyInLocalCurrency = MarketFactory
-								.getInstance().getMarginalPrice(localCurrency,
-										foreignCurrency);
-					}
+					// determine price of foreign currency
+					double priceOfForeignCurrencyInLocalCurrency = MarketFactory
+							.getInstance().getMarginalPrice(localCurrency,
+									foreignCurrency);
+					if (Double.isNaN(priceOfForeignCurrencyInLocalCurrency))
+						priceOfForeignCurrencyInLocalCurrency = 1;
 
 					// remove existing offers
 					MarketFactory.getInstance().removeAllSellingOffers(
@@ -907,12 +977,7 @@ public class CreditBank extends Bank implements
 							foreignCurrencyBankAccount,
 							CreditBank.this.bankPasswords
 									.get(foreignCurrencyBankAccount
-											.getManagingBank()),
-							new SettlementMarketEvent());
-
-					pricingBehaviour
-							.registerOfferedAmount(foreignCurrencyBankAccount
-									.getBalance());
+											.getManagingBank()), null);
 				}
 			}
 		}

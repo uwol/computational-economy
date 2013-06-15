@@ -206,11 +206,11 @@ public abstract class Market {
 			final GoodType goodType, Currency commodityCurrency,
 			final Class<? extends Property> propertyClass) {
 
-		if (Double.isInfinite(maxAmount))
+		if (Double.isInfinite(maxAmount) || Double.isNaN(maxAmount))
 			maxAmount = -1;
-		if (Double.isInfinite(maxTotalPrice))
+		if (Double.isInfinite(maxTotalPrice) || Double.isNaN(maxTotalPrice))
 			maxTotalPrice = -1;
-		if (Double.isInfinite(maxPricePerUnit))
+		if (Double.isInfinite(maxPricePerUnit) || Double.isNaN(maxPricePerUnit))
 			maxPricePerUnit = -1;
 
 		// MarketOrder, Amount

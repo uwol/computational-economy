@@ -17,6 +17,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.jmx.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -32,7 +34,10 @@ public class AgentDetailModel extends Model {
 
 	protected final int MESSAGES_TO_STORE = 100;
 
-	protected Queue<Object[]> messages = new LinkedList<Object[]>();
+	protected DateFormat iso8601DateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd HH:mm:ss");
+
+	protected Queue<String> messages = new LinkedList<String>();
 
 	protected ArrayList<Agent> agents = new ArrayList<Agent>();
 
@@ -52,7 +57,7 @@ public class AgentDetailModel extends Model {
 	}
 
 	public void logAgentEvent(Date date, String message) {
-		messages.add(new Object[] { date, message });
+		messages.add(iso8601DateFormat.format(date) + "      " + message);
 		if (messages.size() > MESSAGES_TO_STORE)
 			messages.poll();
 	}
@@ -67,7 +72,7 @@ public class AgentDetailModel extends Model {
 		this.setCurrentAgent(this.agents.get(agentId));
 	}
 
-	public Queue<Object[]> getMessagesOfCurrentAgent() {
+	public Queue<String> getMessagesOfCurrentAgent() {
 		return this.messages;
 	}
 

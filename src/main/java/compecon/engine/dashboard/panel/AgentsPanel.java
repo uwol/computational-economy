@@ -74,7 +74,7 @@ public class AgentsPanel extends JPanel {
 	public class AgentLogsTableModel extends AbstractTableModel implements
 			IModelListener {
 
-		protected final String columnNames[] = { "Date", "Message" };
+		protected final String columnNames[] = { "Message" };
 
 		public AgentLogsTableModel() {
 			ModelRegistry.getAgentDetailModel().registerListener(this);
@@ -93,10 +93,9 @@ public class AgentsPanel extends JPanel {
 
 		@Override
 		public Object getValueAt(int rowIndex, int colIndex) {
-			Object[] rowContent = (Object[]) new ArrayList<Object[]>(
+			return new ArrayList<String>(
 					AgentsPanel.this.agentDetailModel
 							.getMessagesOfCurrentAgent()).get(rowIndex);
-			return rowContent[colIndex];
 		}
 
 		@Override
