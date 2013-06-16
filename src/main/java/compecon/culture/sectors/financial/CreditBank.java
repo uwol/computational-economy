@@ -73,7 +73,10 @@ public class CreditBank extends Bank implements
 	protected final double MAX_CREDIT_FOR_CURRENCY_TRADING = 100000;
 
 	@Transient
-	protected final double MIN_ARBITRAGE_MARGIN = 0.05;
+	protected final double MIN_ARBITRAGE_MARGIN = 0.03;
+
+	@Transient
+	protected final double MIN_OFFER_MARGIN = 0.01;
 
 	@Transient
 	protected Map<Currency, PricingBehaviour> localCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
@@ -973,7 +976,8 @@ public class CreditBank extends Bank implements
 							CreditBank.this,
 							localCurrencyBankAccount,
 							foreignCurrencyBankAccount.getBalance(),
-							priceOfForeignCurrencyInLocalCurrency,
+							priceOfForeignCurrencyInLocalCurrency
+									* (1 + MIN_OFFER_MARGIN),
 							foreignCurrencyBankAccount,
 							CreditBank.this.bankPasswords
 									.get(foreignCurrencyBankAccount
