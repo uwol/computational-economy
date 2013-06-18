@@ -87,8 +87,10 @@ public class AgentsPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
+			// -5, so that concurrent changes in the messages queue do not
+			// produce exceptions
 			return AgentsPanel.this.agentDetailModel
-					.getMessagesOfCurrentAgent().size();
+					.getMessagesOfCurrentAgent().size() - 5;
 		}
 
 		@Override

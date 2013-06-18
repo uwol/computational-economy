@@ -38,7 +38,9 @@ public class PricingBehaviour {
 
 	protected boolean periodDataInitialized = false;
 
-	protected final double priceChangeResolution;
+	protected final double initialPriceChangeIncrement;
+
+	protected double priceChangeIncrement;
 
 	// the decision
 
@@ -53,12 +55,12 @@ public class PricingBehaviour {
 
 	public PricingBehaviour(Agent agent, Object offeredGoodOrCurrency,
 			Currency denominatedInCurrency, double initialPrice,
-			double priceChangeResolution) {
+			double initialPriceChangeIncrement) {
 		this.agent = agent;
 		this.initialPrice = initialPrice;
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.offeredGoodOrCurrency = offeredGoodOrCurrency;
-		this.priceChangeResolution = priceChangeResolution;
+		this.initialPriceChangeIncrement = initialPriceChangeIncrement;
 	}
 
 	public PricingBehaviour(Agent agent, Object offeredGoodOrCurrency,
@@ -201,6 +203,14 @@ public class PricingBehaviour {
 	}
 
 	protected double calculateHigherPrice(double price) {
+		// calculate price change increment
+		if (MathUtil
+				.greater(this.prices_InPeriods[1], this.prices_InPeriods[2])) {
+			this.priceChangeIncrement = this.priceChangeIncrement * 1.3;
+		} else {
+			this.priceChangeIncrement = this.initialPriceChangeIncrement;
+		}
+
 		// if the price is 0, multiplication does not work -> reset price
 		if (MathUtil.lesserEqual(price, 0))
 			return 0.1;
@@ -209,13 +219,20 @@ public class PricingBehaviour {
 		 * {@link #calculateLowerPrice(double)} -> prices drift slightly upwards
 		 * -> deflation is more unlikely
 		 */
-		return price * (1 + this.priceChangeResolution);
+		return price * (1 + this.priceChangeIncrement);
 	}
 
 	/*
 	 * {@link #calculateHigherPrice(double)}
 	 */
 	protected double calculateLowerPrice(double price) {
-		return price / (1 + this.priceChangeResolution);
+		// calculate price change decrement
+		if (MathUtil.lesser(this.prices_InPeriods[1], this.prices_InPeriods[2])) {
+			this.priceChangeIncrement = this.priceChangeIncrement * 1.3;
+		} else {
+			this.priceChangeIncrement = this.initialPriceChangeIncrement;
+		}
+
+		return price / (1 + this.priceChangeIncrement);
 	}
 }
