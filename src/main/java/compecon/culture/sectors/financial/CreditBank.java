@@ -63,8 +63,7 @@ import compecon.nature.materia.GoodType;
  * follows minimum reserve requirements of central banks.
  */
 @Entity
-public class CreditBank extends Bank implements
-		compecon.culture.sectors.financial.ICentralBankCustomer {
+public class CreditBank extends Bank implements ICentralBankCustomer {
 
 	@Transient
 	private boolean centralBankAccountsInitialized = false;

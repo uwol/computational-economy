@@ -282,8 +282,7 @@ public class SettlementMarket extends Market {
 		if (Log.isAgentSelectedByClient(buyer)) {
 			if (priceAndAmount[1] > 0) {
 				Log.log(buyer,
-						buyer
-								+ " bought "
+						"bought "
 								+ MathUtil.round(priceAndAmount[1])
 								+ " units of "
 								+ marketOffers.firstKey().getCommodity()

@@ -164,9 +164,8 @@ public class Log {
 	public static void factory_onProduction(Factory factory, GoodType goodType,
 			double producedProducts) {
 		if (Log.isAgentSelectedByClient(factory))
-			log(factory,
-					factory + " produced " + MathUtil.round(producedProducts)
-							+ " " + goodType);
+			log(factory, " produced " + MathUtil.round(producedProducts) + " "
+					+ goodType);
 
 		ModelRegistry.getEffectiveProductionOutputModel().add(goodType,
 				producedProducts);

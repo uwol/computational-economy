@@ -228,7 +228,8 @@ public class PricingBehaviour {
 	protected double calculateLowerPrice(double price) {
 		// calculate price change decrement
 		if (MathUtil.lesser(this.prices_InPeriods[1], this.prices_InPeriods[2])) {
-			this.priceChangeIncrement = this.priceChangeIncrement * 1.3;
+			// slight asymmetry downwards
+			this.priceChangeIncrement = this.priceChangeIncrement * 1.4;
 		} else {
 			this.priceChangeIncrement = this.initialPriceChangeIncrement;
 		}

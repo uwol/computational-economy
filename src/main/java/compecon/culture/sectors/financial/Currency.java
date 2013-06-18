@@ -17,9 +17,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.culture.sectors.financial;
 
-
 public enum Currency {
-	EURO("EUR"), USDOLLAR("USD");
+	EURO("EUR"), USDOLLAR("USD"), YEN("YEN");
 
 	protected String iso4217Code;
 
