@@ -56,7 +56,7 @@ public class Factory extends JointStockCompany {
 	// maxCredit limits the demand for money when buying production input
 	// factors, thus limiting M1 in the monetary system
 	@Transient
-	protected final int MAX_CREDIT = 100000;
+	protected final int REFERENCE_CREDIT = 100000;
 
 	@Transient
 	protected IProductionFunction productionFunction;
@@ -161,7 +161,7 @@ public class Factory extends JointStockCompany {
 					.calculateTransmissionBasedBudgetForPeriod(
 							Factory.this.transactionsBankAccount.getCurrency(),
 							Factory.this.transactionsBankAccount.getBalance(),
-							MAX_CREDIT);
+							REFERENCE_CREDIT);
 			double ownedAmountOfProducedGoodType = PropertyRegister
 					.getInstance().getBalance(Factory.this,
 							Factory.this.producedGoodType);

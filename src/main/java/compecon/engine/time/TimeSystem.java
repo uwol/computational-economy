@@ -42,6 +42,8 @@ import compecon.engine.util.HibernateUtil;
 public class TimeSystem {
 	private static TimeSystem timeSystem;
 
+	private final int startYear;
+
 	private int dayNumber = 0;
 
 	private Random random = new Random();
@@ -57,14 +59,16 @@ public class TimeSystem {
 
 	private List<ITimeSystemEvent> externalEvents = new ArrayList<ITimeSystemEvent>();
 
-	protected TimeSystem(int year, MonthType monthType, DayType dayType) {
+	protected TimeSystem(int year) {
 		gregorianCalendar = new GregorianCalendar(year,
-				monthType.getMonthNumber(), dayType.getDayNumber());
+				MonthType.JANUARY.getMonthNumber(),
+				DayType.DAY_01.getDayNumber());
+		startYear = year;
 	}
 
 	public static TimeSystem getInstance() {
 		if (TimeSystem.timeSystem == null)
-			timeSystem = new TimeSystem(2000, MonthType.JANUARY, DayType.DAY_01);
+			timeSystem = new TimeSystem(2000);
 		return timeSystem;
 	}
 
@@ -74,6 +78,18 @@ public class TimeSystem {
 
 	public int getCurrentYear() {
 		return this.gregorianCalendar.get(GregorianCalendar.YEAR);
+	}
+
+	public int getCurrentMonthNumberInYear() {
+		return this.gregorianCalendar.get(GregorianCalendar.MONTH) + 1;
+	}
+
+	public int getCurrentDayNumberInMonth() {
+		return this.gregorianCalendar.get(GregorianCalendar.DAY_OF_MONTH);
+	}
+
+	public int getStartYear() {
+		return this.startYear;
 	}
 
 	public MonthType getCurrentMonthType() {

@@ -65,7 +65,7 @@ public class Household extends Agent implements IShareOwner {
 	// maxCredit limits the demand for money when buying production input
 	// factors, thus limiting M1 in the monetary system
 	@Transient
-	protected final int MAX_CREDIT = 0;
+	protected final int REFERENCE_CREDIT = 0;
 
 	@Transient
 	protected final int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 14 + this
@@ -229,7 +229,7 @@ public class Household extends Agent implements IShareOwner {
 							Household.this.transactionsBankAccount
 									.getCurrency(),
 							Household.this.transactionsBankAccount.getBalance(),
-							Household.this.MAX_CREDIT);
+							Household.this.REFERENCE_CREDIT);
 			Map<GoodType, Double> optimalBundleOfGoods = Household.this.utilityFunction
 					.calculateUtilityMaximizingInputsUnderBudgetRestriction(
 							prices, transmissionBasedBudget);

@@ -33,16 +33,45 @@ public class BudgetingBehaviour {
 
 	protected final Agent agent;
 
+	protected double lastCredit = Double.NaN;
+
 	public BudgetingBehaviour(Agent agent) {
 		this.agent = agent;
+	}
+
+	public double calculateTransmissionBasedBudgetForPeriod(Currency currency,
+			double bankAccountBalance, double maxTotalCredit) {
+		return this.calculateTransmissionBasedBudgetWithoutUpperBound(currency,
+				bankAccountBalance, maxTotalCredit);
+	}
+
+	protected double calculateTransmissionBasedBudgetWithoutUpperBound(
+			Currency currency, double bankAccountBalance, double maxTotalCredit) {
+		if (Double.isNaN(lastCredit)) {
+			lastCredit = maxTotalCredit;
+		}
+
+		if (MathUtil.equal(maxTotalCredit, 0.0)) {
+			return bankAccountBalance;
+		} else {
+			double keyInterestRate = AgentFactory.getInstanceCentralBank(
+					currency).getEffectiveKeyInterestRate();
+			double difference = keyInterestRate - 0.1;
+			// double factor = 1 - Math.cbrt((keyInterestRate - 0.1) / 10.0);
+			double factor = 1 - (difference / 50);
+			double credit = lastCredit * factor;
+			double budget = bankAccountBalance + credit;
+			lastCredit = credit;
+			return budget;
+		}
 	}
 
 	/*
 	 * maxCredit defines the maximum additional debt the buyer is going to
 	 * accept -> nexus with the monetary sphere
 	 */
-	public double calculateTransmissionBasedBudgetForPeriod(Currency currency,
-			double bankAccountBalance, double maxTotalCredit) {
+	protected double calculateTransmissionBasedBudgetForPeriodWitUpperBound(
+			Currency currency, double bankAccountBalance, double maxTotalCredit) {
 
 		/*
 		 * transmission mechanism
@@ -64,11 +93,6 @@ public class BudgetingBehaviour {
 		return creditBasedBudget;
 	}
 
-	protected double calculateKeyInterestRateElasticity(Currency currency) {
-		return 1 / AgentFactory.getInstanceCentralBank(currency)
-				.getMaxEffectiveKeyInterestRate();
-	}
-
 	/**
 	 * number in [0, 1] with 1 as max dampening and 0 as no dampening
 	 */
@@ -76,5 +100,10 @@ public class BudgetingBehaviour {
 		return this.calculateKeyInterestRateElasticity(currency)
 				* AgentFactory.getInstanceCentralBank(currency)
 						.getEffectiveKeyInterestRate();
+	}
+
+	protected double calculateKeyInterestRateElasticity(Currency currency) {
+		return 1 / AgentFactory.getInstanceCentralBank(currency)
+				.getMaxEffectiveKeyInterestRate();
 	}
 }

@@ -35,6 +35,7 @@ import compecon.engine.MarketFactory;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.jmx.Log;
 import compecon.engine.time.ITimeSystemEvent;
+import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
@@ -68,7 +69,7 @@ public class CentralBank extends Bank {
 	// state
 
 	@Column(name = "effectiveKeyInterestRate")
-	protected double effectiveKeyInterestRate = 0.03;
+	protected double effectiveKeyInterestRate = 0.1;
 
 	@Override
 	public void initialize() {
@@ -85,6 +86,9 @@ public class CentralBank extends Bank {
 		// -> market situation differs over the day !!!
 		ITimeSystemEvent recalculateAveragePriceIndexEvent = new MarginalPriceSnapshotEvent();
 		this.timeSystemEvents.add(recalculateAveragePriceIndexEvent);
+		compecon.engine.time.TimeSystem.getInstance().addEvent(
+				recalculateAveragePriceIndexEvent, -1, MonthType.EVERY,
+				DayType.EVERY, HourType.HOUR_03);
 		compecon.engine.time.TimeSystem.getInstance().addEvent(
 				recalculateAveragePriceIndexEvent, -1, MonthType.EVERY,
 				DayType.EVERY, HourType.HOUR_09);
@@ -319,24 +323,42 @@ public class CentralBank extends Bank {
 
 	@Transient
 	protected double calculateEffectiveKeyInterestRate() {
-		double monthlyNominalInflationTarget = this
-				.calculateMonthlyNominalInterestRate(INFLATION_TARGET);
-		double dailyNominalInflationTarget = monthlyNominalInflationTarget / 30;
+		double targetPriceIndexForCurrentPeriod = this
+				.calculateTargetPriceIndexForPeriod();
 
 		// prices have risen?
-		if (this.statisticalOffice.getPriceIndex()
-				* (1 + dailyNominalInflationTarget) > 1)
+		if (this.statisticalOffice.getPriceIndex() > targetPriceIndexForCurrentPeriod)
 			// raise key interest rate -> contractive monetary policy
-			return Math.min(this.effectiveKeyInterestRate + 0.001,
+			return Math.min(this.effectiveKeyInterestRate + 0.01,
 					MAX_EFFECTIVE_KEY_INTEREST_RATE);
 		// prices have fallen?
-		else if (this.statisticalOffice.getPriceIndex()
-				* (1 + dailyNominalInflationTarget) < 1)
+		else if (this.statisticalOffice.getPriceIndex() < targetPriceIndexForCurrentPeriod)
 			// lower key interest rate -> expansive monetary policy
-			return Math.max(this.effectiveKeyInterestRate - 0.001,
+			return Math.max(this.effectiveKeyInterestRate - 0.01,
 					MIN_EFFECTIVE_KEY_INTEREST_RATE);
 		else
 			return this.effectiveKeyInterestRate;
+	}
+
+	@Transient
+	protected double calculateTargetPriceIndexForPeriod() {
+		int yearNumber = TimeSystem.getInstance().getCurrentYear()
+				- TimeSystem.getInstance().getStartYear();
+		double targetPriceLevelForYear = Math.pow((1 + INFLATION_TARGET),
+				yearNumber);
+
+		double monthlyNominalInflationTarget = this
+				.calculateMonthlyNominalInterestRate(INFLATION_TARGET);
+
+		double targetPriceLevelForMonth = Math.pow(
+				1.0 + monthlyNominalInflationTarget, TimeSystem.getInstance()
+						.getCurrentMonthNumberInYear() - 1) - 1.0;
+		double targetPriceLevelForDay = (monthlyNominalInflationTarget / 30)
+				* TimeSystem.getInstance().getCurrentDayNumberInMonth();
+
+		double combinedTargetPriceLevel = (targetPriceLevelForYear
+				+ targetPriceLevelForMonth + targetPriceLevelForDay);
+		return 5.0 * combinedTargetPriceLevel;
 	}
 
 	@Transient
@@ -459,7 +481,7 @@ public class CentralBank extends Bank {
 	protected class StatisticalOffice {
 		// constants
 
-		protected final int NUMBER_OF_LOGGED_PERIODS = 180;
+		protected final int NUMBER_OF_LOGGED_PERIODS = 3;
 
 		protected final Map<GoodType, Double> priceIndexWeights = new HashMap<GoodType, Double>();
 
@@ -489,7 +511,7 @@ public class CentralBank extends Bank {
 
 			/*
 			 * initialize monitoredMarginalPrices and
-			 * averageMarginalPricesForGoodTypes; prices should be stores for
+			 * averageMarginalPricesForGoodTypes; prices should be stored for
 			 * all GoodTypes, not only those in the price index
 			 */
 			for (GoodType goodType : GoodType.values()) {
@@ -512,8 +534,7 @@ public class CentralBank extends Bank {
 				// fetch and store current price for this good type
 				double marginalPriceForGoodType = MarketFactory.getInstance()
 						.getMarginalPrice(CentralBank.this.primaryCurrency,
-								entry.getKey())
-						/ CentralBank.this.NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
+								entry.getKey());
 
 				if (!Double.isNaN(marginalPriceForGoodType)
 						&& !Double.isInfinite(marginalPriceForGoodType)) {
@@ -566,16 +587,14 @@ public class CentralBank extends Bank {
 					.entrySet()) {
 				GoodType goodType = entry.getKey();
 				Double weight = entry.getValue();
-				double[] monitoredMarginalPrices = this.monitoredMarginalPricesForGoodTypesAndPeriods
-						.get(entry.getKey());
-				// add marginal price for good type to price index, weighted by
-				// defined weight and average marginal price of this good type
-				double weightedMarginalPrice = weight
-						* monitoredMarginalPrices[0];
+
+				// average marginal price of the good type
 				double averageMarginalPrice = this.averageMarginalPricesForGoodTypes
 						.get(goodType);
-				double newPriceIndexForGoodType = weightedMarginalPrice
-						/ averageMarginalPrice;
+
+				// add marginal price for good type to price index, weighted by
+				// defined weight
+				double newPriceIndexForGoodType = weight * averageMarginalPrice;
 
 				if (!Double.isNaN(newPriceIndexForGoodType)
 						&& !Double.isInfinite(newPriceIndexForGoodType)) {
