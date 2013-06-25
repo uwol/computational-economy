@@ -467,16 +467,19 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(CreditBank.this)) {
 				if (bankAccount.getOwner() != CreditBank.this) {
-					if (bankAccount.getBalance() > 0) { // liability account ->
-														// passive
-						double monthlyInterest = bankAccount.getBalance()
-								* CreditBank.this
-										.calculateMonthlyNominalInterestRate(AgentFactory
-												.getInstanceCentralBank(
+					double monthlyInterest = bankAccount.getBalance()
+							* CreditBank.this
+									.calculateMonthlyNominalInterestRate(AgentFactory
+											.getInstanceCentralBank(
 
-												bankAccount.getCurrency())
-												.getEffectiveKeyInterestRate());
-						double dailyInterest = monthlyInterest / 30;
+											bankAccount.getCurrency())
+											.getEffectiveKeyInterestRate());
+					double dailyInterest = monthlyInterest / 30;
+
+					// liability account + positive interest rate or asset
+					// account +
+					// negative interest rate
+					if (dailyInterest > 0) {
 						try {
 							CreditBank.this.transferMoney(
 									CreditBank.this.transactionsBankAccount,
@@ -487,19 +490,13 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						} catch (Exception e) {
 							throw new RuntimeException(e.getMessage());
 						}
-					} else if (bankAccount.getBalance() < 0) { // asset account
-																// ->
-																// active
-						double monthlyInterest = -1
-								* bankAccount.getBalance()
-								* CreditBank.this
-										.calculateMonthlyNominalInterestRate(AgentFactory
-												.getInstanceCentralBank(
-
-												bankAccount.getCurrency())
-												.getEffectiveKeyInterestRate() * 1.5);
-						double dailyInterest = monthlyInterest / 30;
+					}
+					// asset account + positive interest rate or liability
+					// account + negative interest rate
+					else if (dailyInterest < 0) {
 						try {
+							// credit banks add margin on key interest rate
+							dailyInterest = -1 * dailyInterest * 1.5;
 							CreditBank.this.transferMoney(bankAccount,
 									CreditBank.this.transactionsBankAccount,
 									dailyInterest,

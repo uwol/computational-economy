@@ -55,13 +55,10 @@ public class CentralBank extends Bank {
 	protected final double INFLATION_TARGET = 0.02;
 
 	@Transient
-	protected final double MAX_EFFECTIVE_KEY_INTEREST_RATE = 0.2;
-
-	@Transient
-	protected final double MIN_EFFECTIVE_KEY_INTEREST_RATE = 0;
-
-	@Transient
 	protected int NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
+
+	@Transient
+	protected final double TARGET_PRICE_INDEX = 15;
 
 	@Transient
 	protected StatisticalOffice statisticalOffice;
@@ -325,19 +322,14 @@ public class CentralBank extends Bank {
 	protected double calculateEffectiveKeyInterestRate() {
 		double targetPriceIndexForCurrentPeriod = this
 				.calculateTargetPriceIndexForPeriod();
+		double currentPriceIndex = this.statisticalOffice.getPriceIndex();
+		double newEffectiveKeyInterestRate = 0.03 + (((currentPriceIndex - targetPriceIndexForCurrentPeriod) / currentPriceIndex) / 10);
 
-		// prices have risen?
-		if (this.statisticalOffice.getPriceIndex() > targetPriceIndexForCurrentPeriod)
-			// raise key interest rate -> contractive monetary policy
-			return Math.min(this.effectiveKeyInterestRate + 0.01,
-					MAX_EFFECTIVE_KEY_INTEREST_RATE);
-		// prices have fallen?
-		else if (this.statisticalOffice.getPriceIndex() < targetPriceIndexForCurrentPeriod)
-			// lower key interest rate -> expansive monetary policy
-			return Math.max(this.effectiveKeyInterestRate - 0.01,
-					MIN_EFFECTIVE_KEY_INTEREST_RATE);
-		else
-			return this.effectiveKeyInterestRate;
+		if (!Double.isNaN(newEffectiveKeyInterestRate)
+				&& !Double.isInfinite(newEffectiveKeyInterestRate)) {
+			return newEffectiveKeyInterestRate;
+		}
+		return this.effectiveKeyInterestRate;
 	}
 
 	@Transient
@@ -358,18 +350,13 @@ public class CentralBank extends Bank {
 
 		double combinedTargetPriceLevel = (targetPriceLevelForYear
 				+ targetPriceLevelForMonth + targetPriceLevelForDay);
-		return 5.0 * combinedTargetPriceLevel;
+		return TARGET_PRICE_INDEX * combinedTargetPriceLevel;
 	}
 
 	@Transient
 	public double getAverageMarginalPriceForGoodType(GoodType goodType) {
 		return this.statisticalOffice
 				.getAverageMarginalPriceForGoodType(goodType);
-	}
-
-	@Transient
-	public double getMaxEffectiveKeyInterestRate() {
-		return this.MAX_EFFECTIVE_KEY_INTEREST_RATE;
 	}
 
 	@Transient
@@ -382,11 +369,14 @@ public class CentralBank extends Bank {
 		public void onEvent() {
 			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(CentralBank.this)) {
-				if (bankAccount.getBalance() > 0) { // liability account
-					double monthlyInterest = bankAccount.getBalance()
-							* CentralBank.this
-									.calculateMonthlyNominalInterestRate(CentralBank.this.effectiveKeyInterestRate);
-					double dailyInterest = monthlyInterest / 30;
+				double monthlyInterest = bankAccount.getBalance()
+						* CentralBank.this
+								.calculateMonthlyNominalInterestRate(CentralBank.this.effectiveKeyInterestRate);
+				double dailyInterest = monthlyInterest / 30;
+
+				// liability account + positive interest rate or asset account +
+				// negative interest rate
+				if (dailyInterest > 0) {
 					try {
 						CentralBank.this.transferMoneyInternally(
 								CentralBank.this.transactionsBankAccount,
@@ -396,13 +386,12 @@ public class CentralBank extends Bank {
 					} catch (Exception e) {
 						throw new RuntimeException(e.getMessage());
 					}
-				} else if (bankAccount.getBalance() < 0) { // asset account
-					double monthlyInterest = -1
-							* bankAccount.getBalance()
-							* CentralBank.this
-									.calculateMonthlyNominalInterestRate(CentralBank.this.effectiveKeyInterestRate);
-					double dailyInterest = monthlyInterest / 30;
+				}
+				// asset account + positive interest rate or liability
+				// account + negative interest rate
+				else if (dailyInterest < 0) {
 					try {
+						dailyInterest = -1 * dailyInterest;
 						CentralBank.this.transferMoneyInternally(bankAccount,
 								CentralBank.this.transactionsBankAccount,
 								dailyInterest,
@@ -499,9 +488,13 @@ public class CentralBank extends Bank {
 			/*
 			 * set price index weights, must sum up to 1
 			 */
-			this.priceIndexWeights.put(GoodType.WHEAT, 0.5);
-			this.priceIndexWeights.put(GoodType.KILOWATT, 0.4);
-			this.priceIndexWeights.put(GoodType.CAR, 0.1);
+
+			this.priceIndexWeights.put(GoodType.WHEAT, 0.2);
+			this.priceIndexWeights.put(GoodType.KILOWATT, 0.2);
+			this.priceIndexWeights.put(GoodType.CAR, 0.2);
+			this.priceIndexWeights.put(GoodType.REALESTATE, 0.2);
+			this.priceIndexWeights.put(GoodType.GOLD, 0.2);
+
 			/*
 			 * GoodType LABOURHOUR is not monitored, as its market price is not
 			 * influenced by the key interest rate over a transmission mechanism

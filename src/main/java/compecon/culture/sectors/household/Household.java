@@ -54,13 +54,13 @@ public class Household extends Agent implements IShareOwner {
 
 	// configuration constants
 	@Transient
-	protected final int NEW_HOUSEHOLD_FROM_X_DAYS = 360 + this.hashCode() % 360;
+	protected final int NEW_HOUSEHOLD_FROM_X_DAYS = 365 * 18;
 
 	@Transient
-	protected final int NEW_HOUSEHOLD_EVERY_X_DAYS = 360;
+	protected final int NEW_HOUSEHOLD_EVERY_X_DAYS = 365 * 5;
 
 	@Transient
-	protected final int LIFESPAN = 360 * 10;
+	protected final int LIFESPAN = 365 * 80;
 
 	// maxCredit limits the demand for money when buying production input
 	// factors, thus limiting M1 in the monetary system
@@ -68,8 +68,8 @@ public class Household extends Agent implements IShareOwner {
 	protected final int REFERENCE_CREDIT = 0;
 
 	@Transient
-	protected final int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 14 + this
-			.hashCode() % 14;
+	protected final int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 60 + this
+			.hashCode() % 60;
 
 	@Transient
 	protected final double REQUIRED_UTILITY = 1.0;

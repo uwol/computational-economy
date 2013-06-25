@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import compecon.culture.sectors.financial.Currency;
+import compecon.culture.sectors.household.Household;
 import compecon.engine.AgentFactory;
 import compecon.engine.dashboard.Dashboard;
 import compecon.engine.jmx.JMXRegistration;
@@ -113,7 +114,9 @@ public class Simulation {
 			for (Currency currency : Currency.values()) {
 				// initialize households
 				for (int i = 0; i < NUMBER_OF_HOUSEHOLDSPERCURRENCY; i++) {
-					AgentFactory.newInstanceHousehold(currency);
+					Household household = AgentFactory
+							.newInstanceHousehold(currency);
+					household.setAgeInDays(household.hashCode() % (365 * 80));
 				}
 			}
 
