@@ -20,6 +20,7 @@ package compecon.culture.sectors.state.law.property;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -40,7 +41,7 @@ public class PropertyRegister {
 
 	private Map<Property, IPropertyOwner> propertyOwnersOfProperties = new HashMap<Property, IPropertyOwner>();
 
-	private Map<IPropertyOwner, Set<Property>> propertiesOfIPropertyOwners = new HashMap<IPropertyOwner, Set<Property>>();
+	private Map<IPropertyOwner, List<Property>> propertiesOfIPropertyOwners = new HashMap<IPropertyOwner, List<Property>>();
 
 	private Map<IPropertyOwner, HashMap<GoodType, Double>> goodTypesOfIPropertyOwners = new HashMap<IPropertyOwner, HashMap<GoodType, Double>>();
 
@@ -56,12 +57,18 @@ public class PropertyRegister {
 
 	private void assureInitializedDataStructure(IPropertyOwner propertyOwner) {
 		if (propertyOwner != null) {
-			if (!this.goodTypesOfIPropertyOwners.containsKey(propertyOwner))
+			if (!this.goodTypesOfIPropertyOwners.containsKey(propertyOwner)) {
 				this.goodTypesOfIPropertyOwners.put(propertyOwner,
 						new HashMap<GoodType, Double>());
+				// initialize balances with 0.0
+				for (GoodType goodType : GoodType.values()) {
+					this.goodTypesOfIPropertyOwners.get(propertyOwner).put(
+							goodType, 0.0);
+				}
+			}
 			if (!this.propertiesOfIPropertyOwners.containsKey(propertyOwner))
 				this.propertiesOfIPropertyOwners.put(propertyOwner,
-						new HashSet<Property>());
+						new ArrayList<Property>());
 		}
 	}
 
@@ -78,7 +85,13 @@ public class PropertyRegister {
 		return 0;
 	}
 
-	public Set<Property> getProperties(IPropertyOwner propertyOwner) {
+	public Map<GoodType, Double> getBalance(IPropertyOwner propertyOwner) {
+		this.assureInitializedDataStructure(propertyOwner);
+
+		return this.goodTypesOfIPropertyOwners.get(propertyOwner);
+	}
+
+	public List<Property> getProperties(IPropertyOwner propertyOwner) {
 		this.assureInitializedDataStructure(propertyOwner);
 
 		return this.propertiesOfIPropertyOwners.get(propertyOwner);

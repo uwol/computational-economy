@@ -138,4 +138,11 @@ public abstract class Bond extends Property {
 			Bond.this.deconstruct(); // delete bond from simulation
 		}
 	}
+
+	public String toString() {
+		return this.getClass().getSimpleName() + " [Issuer: "
+				+ this.issuerBankAccount.getOwner() + ", Facevalue: "
+				+ Currency.round(this.faceValue) + " "
+				+ this.issuedInCurrency.getIso4217Code() + "]";
+	}
 }

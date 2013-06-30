@@ -263,10 +263,8 @@ public abstract class Agent implements IPropertyOwner {
 					* Agent.this.transactionsBankAccount.getBalance();
 
 		// inventory
-		for (GoodType goodType : GoodType.values()) {
-			balanceSheet.inventory.put(goodType, PropertyRegister.getInstance()
-					.getBalance(Agent.this, goodType));
-		}
+		balanceSheet.inventory.putAll(PropertyRegister.getInstance()
+					.getBalance(Agent.this));
 
 		return balanceSheet;
 	}

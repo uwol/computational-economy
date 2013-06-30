@@ -19,6 +19,7 @@ package compecon.engine.dashboard.panel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -43,6 +44,8 @@ import compecon.engine.jmx.Log;
 import compecon.engine.jmx.model.AgentDetailModel;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
+import compecon.engine.util.MathUtil;
+import compecon.nature.materia.GoodType;
 
 public class AgentsPanel extends JPanel {
 
@@ -138,6 +141,7 @@ public class AgentsPanel extends JPanel {
 		public Object getValueAt(int rowIndex, int colIndex) {
 			BankAccount bankAccount = AgentsPanel.this.agentDetailModel
 					.getBankAccountsOfCurrentAgent().get(rowIndex);
+
 			switch (colIndex) {
 			case 0:
 				return bankAccount.getName();
@@ -145,6 +149,101 @@ public class AgentsPanel extends JPanel {
 				return Currency.round(bankAccount.getBalance());
 			case 2:
 				return bankAccount.getCurrency();
+			default:
+				return null;
+			}
+		}
+
+		@Override
+		public String getColumnName(int columnIndex) {
+			return this.columnNames[columnIndex];
+		}
+
+		@Override
+		public void notifyListener() {
+			if (!AgentsPanel.this.noRefresh) {
+				if (Log.getAgentSelectedByClient() != null)
+					this.fireTableDataChanged();
+			}
+		}
+	}
+
+	public class AgentGoodsTableModel extends AbstractTableModel implements
+			IModelListener {
+
+		protected final String columnNames[] = { "Name", "Balance" };
+
+		public AgentGoodsTableModel() {
+			ModelRegistry.getAgentDetailModel().registerListener(this);
+		}
+
+		@Override
+		public int getColumnCount() {
+			return columnNames.length;
+		}
+
+		@Override
+		public int getRowCount() {
+			return AgentsPanel.this.agentDetailModel.getGoodsOfCurrentAgent()
+					.size();
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int colIndex) {
+			GoodType goodType = GoodType.values()[rowIndex];
+			double balance = AgentsPanel.this.agentDetailModel
+					.getGoodsOfCurrentAgent().get(goodType);
+
+			switch (colIndex) {
+			case 0:
+				return goodType.toString();
+			case 1:
+				return MathUtil.round(balance);
+			default:
+				return null;
+			}
+		}
+
+		@Override
+		public String getColumnName(int columnIndex) {
+			return this.columnNames[columnIndex];
+		}
+
+		@Override
+		public void notifyListener() {
+			if (!AgentsPanel.this.noRefresh) {
+				if (Log.getAgentSelectedByClient() != null)
+					this.fireTableDataChanged();
+			}
+		}
+	}
+
+	public class AgentPropertyTableModel extends AbstractTableModel implements
+			IModelListener {
+
+		protected final String columnNames[] = { "Name" };
+
+		public AgentPropertyTableModel() {
+			ModelRegistry.getAgentDetailModel().registerListener(this);
+		}
+
+		@Override
+		public int getColumnCount() {
+			return columnNames.length;
+		}
+
+		@Override
+		public int getRowCount() {
+			return AgentsPanel.this.agentDetailModel
+					.getPropertiesOfCurrentAgent().size();
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int colIndex) {
+			switch (colIndex) {
+			case 0:
+				return AgentsPanel.this.agentDetailModel
+						.getPropertiesOfCurrentAgent().get(rowIndex);
 			default:
 				return null;
 			}
@@ -174,6 +273,10 @@ public class AgentsPanel extends JPanel {
 	protected AgentLogsTableModel agentLogsTableModel = new AgentLogsTableModel();
 
 	protected AgentBankAccountsTableModel agentBankAccountsTableModel = new AgentBankAccountsTableModel();
+
+	protected AgentGoodsTableModel agentGoodsTableModel = new AgentGoodsTableModel();
+
+	protected AgentPropertyTableModel agentPropertyTableModel = new AgentPropertyTableModel();
 
 	protected boolean noRefresh = true;
 
@@ -227,18 +330,32 @@ public class AgentsPanel extends JPanel {
 				BoxLayout.PAGE_AXIS));
 		this.add(agentDetailPanel, BorderLayout.CENTER);
 
-		// agent log table
+		// table with log entries for the agent
 		JTable agentLogTable = new JTable(this.agentLogsTableModel);
 		JScrollPane agentLogTablePane = new JScrollPane(agentLogTable);
 		agentDetailPanel.add(agentLogTablePane);
+
+		// panel for money and goods owned by this agent
+		JPanel agentBankAccountsAndGoodsPanel = new JPanel(new GridLayout(0, 3));
+		agentBankAccountsAndGoodsPanel.setPreferredSize(new Dimension(-1, 150));
+		agentDetailPanel.add(agentBankAccountsAndGoodsPanel);
 
 		// agent bank account table
 		JTable agentBankAccountsTable = new JTable(
 				this.agentBankAccountsTableModel);
 		JScrollPane agentBankAccountsTablePane = new JScrollPane(
 				agentBankAccountsTable);
-		agentBankAccountsTablePane.setPreferredSize(new Dimension(-1, 150));
-		agentDetailPanel.add(agentBankAccountsTablePane);
+		agentBankAccountsAndGoodsPanel.add(agentBankAccountsTablePane);
+
+		// agent goods table
+		JTable agentGoodsTable = new JTable(this.agentGoodsTableModel);
+		JScrollPane agentGoodsTablePane = new JScrollPane(agentGoodsTable);
+		agentBankAccountsAndGoodsPanel.add(agentGoodsTablePane);
+
+		// agent property table
+		JTable agentPropertyTable = new JTable(this.agentPropertyTableModel);
+		JScrollPane agentPropertyTablePane = new JScrollPane(agentPropertyTable);
+		agentBankAccountsAndGoodsPanel.add(agentPropertyTablePane);
 
 		setVisible(true);
 	}

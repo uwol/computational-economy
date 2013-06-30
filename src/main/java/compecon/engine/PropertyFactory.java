@@ -34,6 +34,7 @@ public class PropertyFactory {
 		fixedRateBond.setIssuerBankAccountPassword(issuerBankAccountPassword);
 		fixedRateBond.setFaceValue(faceValue);
 		fixedRateBond.setCoupon(coupon);
+		fixedRateBond.setIssuedInCurrency(currency);
 		fixedRateBond.initialize();
 		DAOFactory.getPropertyDAO().save(fixedRateBond);
 		HibernateUtil.flushSession();

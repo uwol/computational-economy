@@ -21,14 +21,19 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import compecon.culture.sectors.financial.BankAccount;
+import compecon.culture.sectors.state.law.property.Property;
+import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.jmx.Log;
+import compecon.nature.materia.GoodType;
 
 public class AgentDetailModel extends Model {
 
@@ -86,5 +91,19 @@ public class AgentDetailModel extends Model {
 			return DAOFactory.getBankAccountDAO().findAllBankAccountsOfAgent(
 					agent);
 		return new ArrayList<BankAccount>();
+	}
+
+	public Map<GoodType, Double> getGoodsOfCurrentAgent() {
+		Agent agent = Log.getAgentSelectedByClient();
+		if (agent != null)
+			return PropertyRegister.getInstance().getBalance(agent);
+		return new HashMap<GoodType, Double>();
+	}
+
+	public List<Property> getPropertiesOfCurrentAgent() {
+		Agent agent = Log.getAgentSelectedByClient();
+		if (agent != null)
+			return PropertyRegister.getInstance().getProperties(agent);
+		return new ArrayList<Property>();
 	}
 }

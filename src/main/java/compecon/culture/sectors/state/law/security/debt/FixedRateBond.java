@@ -21,6 +21,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
+import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.property.IPropertyOwner;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.time.ITimeSystemEvent;
@@ -77,5 +78,14 @@ public class FixedRateBond extends Bond {
 		public void onEvent() {
 			FixedRateBond.this.transferCoupon();
 		}
+	}
+
+	public String toString() {
+		return this.getClass().getSimpleName() + " [Issuer: "
+				+ this.issuerBankAccount.getOwner() + ", Facevalue: "
+				+ Currency.round(this.faceValue) + " "
+				+ this.issuedInCurrency.getIso4217Code() + ", Coupon: "
+				+ Currency.round(this.coupon) + " "
+				+ this.issuedInCurrency.getIso4217Code() + "]";
 	}
 }
