@@ -21,43 +21,38 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import compecon.nature.materia.GoodType;
+public class RootFunction<T> extends ConvexFunction<T> implements IFunction<T> {
 
-public class RootFunction extends Function implements IFunction {
-
-	protected GoodType inputGoodType;
+	protected T inputType;
 
 	protected double coefficient;
 
-	public RootFunction(GoodType inputGoodType, double coefficient) {
+	public RootFunction(T inputType, double coefficient) {
 		super(false);
 
-		this.inputGoodType = inputGoodType;
+		this.inputType = inputType;
 		this.coefficient = coefficient;
 	}
 
 	@Override
-	public Set<GoodType> getInputGoodTypes() {
-		Set<GoodType> inputGoodTypes = new HashSet<GoodType>();
-		inputGoodTypes.add(this.inputGoodType);
-		return inputGoodTypes;
+	public Set<T> getInputTypes() {
+		Set<T> inputTypes = new HashSet<T>();
+		inputTypes.add(this.inputType);
+		return inputTypes;
 	}
 
 	@Override
-	public double f(Map<GoodType, Double> bundleOfInputGoods) {
+	public double f(Map<T, Double> bundleOfInputs) {
 		return this.coefficient
-				* Math.pow(bundleOfInputGoods.get(this.inputGoodType), 0.5);
+				* Math.pow(bundleOfInputs.get(this.inputType), 0.5);
 	}
 
 	@Override
-	public double partialDerivative(
-			Map<GoodType, Double> forBundleOfInputGoods,
-			GoodType withRespectToInputGoodType) {
-		if (withRespectToInputGoodType == this.inputGoodType)
-			return this.coefficient
-					* 0.5
-					* Math.pow(forBundleOfInputGoods.get(this.inputGoodType),
-							-0.5);
+	public double partialDerivative(Map<T, Double> forBundleOfInputs,
+			T withRespectToInputType) {
+		if (withRespectToInputType == this.inputType)
+			return this.coefficient * 0.5
+					* Math.pow(forBundleOfInputs.get(this.inputType), -0.5);
 		return 0;
 	}
 

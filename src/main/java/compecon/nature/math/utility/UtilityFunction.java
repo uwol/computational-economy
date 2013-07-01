@@ -25,15 +25,15 @@ import compecon.nature.math.IFunction;
 
 public abstract class UtilityFunction implements IUtilityFunction {
 
-	protected IFunction delegate;
+	protected IFunction<GoodType> delegate;
 
-	protected UtilityFunction(IFunction delegate) {
+	protected UtilityFunction(IFunction<GoodType> delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
 	public Set<GoodType> getInputGoodTypes() {
-		return this.delegate.getInputGoodTypes();
+		return this.delegate.getInputTypes();
 	}
 
 	@Override

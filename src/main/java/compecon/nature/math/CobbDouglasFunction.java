@@ -22,24 +22,23 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import compecon.engine.util.MathUtil;
-import compecon.nature.materia.GoodType;
 
 /**
  * U = (g_1)^(e_1) * (g_2)^(e_2) * ... * (g_n)^(e_n) | g_1 + g_2 + ... + g_n = 1
  */
-public class CobbDouglasFunction extends Function implements IFunction {
+public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
+		IFunction<T> {
 
-	protected final Map<GoodType, Double> exponents;
+	protected final Map<T, Double> exponents;
 
 	protected double coefficient;
 
 	@Override
-	public Set<GoodType> getInputGoodTypes() {
+	public Set<T> getInputTypes() {
 		return this.exponents.keySet();
 	}
 
-	public CobbDouglasFunction(Map<GoodType, Double> exponents,
-			double coefficient) {
+	public CobbDouglasFunction(Map<T, Double> exponents, double coefficient) {
 		super(true);
 
 		/*
@@ -62,32 +61,31 @@ public class CobbDouglasFunction extends Function implements IFunction {
 	}
 
 	@Override
-	public double f(Map<GoodType, Double> bundleOfInputGoods) {
+	public double f(Map<T, Double> bundleOfInputs) {
 		double output = this.coefficient;
-		for (Entry<GoodType, Double> entry : this.exponents.entrySet()) {
-			GoodType goodType = entry.getKey();
+		for (Entry<T, Double> entry : this.exponents.entrySet()) {
+			T inputType = entry.getKey();
 			double exponent = entry.getValue();
-			double base = bundleOfInputGoods.containsKey(goodType) ? bundleOfInputGoods
-					.get(goodType) : 0.0;
+			double base = bundleOfInputs.containsKey(inputType) ? bundleOfInputs
+					.get(inputType) : 0.0;
 			output = output * Math.pow(base, exponent);
 		}
 		return output;
 	}
 
 	@Override
-	public double partialDerivative(
-			Map<GoodType, Double> forBundleOfInputGoods,
-			GoodType withRespectToInputGoodType) {
+	public double partialDerivative(Map<T, Double> forBundleOfInputs,
+			T withRespectToInputType) {
 		/*
 		 * Constant
 		 */
 		double constant = this.coefficient;
-		for (Entry<GoodType, Double> entry : this.exponents.entrySet()) {
-			GoodType goodType = entry.getKey();
-			if (goodType != withRespectToInputGoodType) {
+		for (Entry<T, Double> entry : this.exponents.entrySet()) {
+			T inputType = entry.getKey();
+			if (inputType != withRespectToInputType) {
 				double exponent = entry.getValue();
-				double base = forBundleOfInputGoods.containsKey(goodType) ? forBundleOfInputGoods
-						.get(goodType) : 0;
+				double base = forBundleOfInputs.containsKey(inputType) ? forBundleOfInputs
+						.get(inputType) : 0;
 				constant = constant * Math.pow(base, exponent);
 			}
 		}
@@ -95,15 +93,15 @@ public class CobbDouglasFunction extends Function implements IFunction {
 		/*
 		 * Differential factor
 		 */
-		double differentialBase = forBundleOfInputGoods
-				.containsKey(withRespectToInputGoodType) ? forBundleOfInputGoods
-				.get(withRespectToInputGoodType) : 0;
+		double differentialBase = forBundleOfInputs
+				.containsKey(withRespectToInputType) ? forBundleOfInputs
+				.get(withRespectToInputType) : 0;
 		double differentialExponent = this.exponents
-				.containsKey(withRespectToInputGoodType) ? this.exponents
-				.get(withRespectToInputGoodType) - 1 : 0;
+				.containsKey(withRespectToInputType) ? this.exponents
+				.get(withRespectToInputType) - 1 : 0;
 		double differentialCoefficient = this.exponents
-				.containsKey(withRespectToInputGoodType) ? this.exponents
-				.get(withRespectToInputGoodType) : 0;
+				.containsKey(withRespectToInputType) ? this.exponents
+				.get(withRespectToInputType) : 0;
 		double differentialFactor = differentialCoefficient
 				* Math.pow(differentialBase, differentialExponent);
 
@@ -114,7 +112,7 @@ public class CobbDouglasFunction extends Function implements IFunction {
 		return constant * differentialFactor;
 	}
 
-	public Map<GoodType, Double> getExponents() {
+	public Map<T, Double> getExponents() {
 		return this.exponents;
 	}
 

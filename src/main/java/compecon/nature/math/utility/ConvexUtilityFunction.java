@@ -17,11 +17,10 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.nature.math.utility;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
+import compecon.nature.math.CobbDouglasFunction;
 import compecon.nature.math.IFunction;
 
 /**
@@ -30,42 +29,15 @@ import compecon.nature.math.IFunction;
  */
 public abstract class ConvexUtilityFunction extends UtilityFunction {
 
-	protected ConvexUtilityFunction(IFunction delegate) {
+	protected ConvexUtilityFunction(IFunction<GoodType> delegate) {
 		super(delegate);
 	}
 
-	/**
-	 * iterative implementation for calculating an optimal consumption plan
-	 */
+	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
 			Map<GoodType, Double> pricesOfInputGoods, double budget) {
-		// order of exponents is preserved, so that important GoodTypes
-		// will be bought first
-		Map<GoodType, Double> bundleOfGoods = new LinkedHashMap<GoodType, Double>();
-		for (GoodType goodType : this.getInputGoodTypes())
-			bundleOfGoods.put(goodType, 0.0);
-
-		if (MathUtil.equal(budget, 0))
-			return bundleOfGoods;
-
-		double NUMBER_OF_ITERATIONS = bundleOfGoods.size() * 5.0;
-		double moneySpent = 0.0;
-
-		while (MathUtil.greater(budget, moneySpent)) {
-			GoodType optimalInput = this
-					.selectInputWithHighestMarginalUtilityPerPrice(
-							bundleOfGoods, pricesOfInputGoods);
-			if (optimalInput != null) {
-				double priceOfGoodType = pricesOfInputGoods.get(optimalInput);
-				double amount = (budget / NUMBER_OF_ITERATIONS)
-						/ priceOfGoodType;
-				bundleOfGoods.put(optimalInput, bundleOfGoods.get(optimalInput)
-						+ amount);
-				moneySpent += priceOfGoodType * amount;
-			} else
-				break;
-		}
-
-		return bundleOfGoods;
+		return ((CobbDouglasFunction<GoodType>) this.delegate)
+				.calculateOutputMaximizingInputsUnderBudgetRestriction(
+						pricesOfInputGoods, budget);
 	}
 }

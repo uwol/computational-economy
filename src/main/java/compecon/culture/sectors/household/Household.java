@@ -224,7 +224,7 @@ public class Household extends Agent implements IShareOwner {
 					.getMarginalPrices(
 							Household.this.transactionsBankAccount
 									.getCurrency());
-			double transmissionBasedBudget = Household.this.budgetingBehaviour
+			double budget = Household.this.budgetingBehaviour
 					.calculateTransmissionBasedBudgetForPeriod(
 							Household.this.transactionsBankAccount
 									.getCurrency(),
@@ -232,7 +232,7 @@ public class Household extends Agent implements IShareOwner {
 							Household.this.REFERENCE_CREDIT);
 			Map<GoodType, Double> optimalBundleOfGoods = Household.this.utilityFunction
 					.calculateUtilityMaximizingInputsUnderBudgetRestriction(
-							prices, transmissionBasedBudget);
+							prices, budget);
 
 			/*
 			 * buy goods

@@ -22,16 +22,16 @@ import compecon.nature.math.RootFunction;
 
 public class RootProductionFunction extends ConvexProductionFunction {
 	public RootProductionFunction(GoodType inputGoodType, double coefficient) {
-		super(new RootFunction(inputGoodType, coefficient));
+		super(new RootFunction<GoodType>(inputGoodType, coefficient));
 	}
 
 	@Override
 	public double getProductivity() {
-		return ((RootFunction) this.delegate).getCoefficient();
+		return ((RootFunction<GoodType>) this.delegate).getCoefficient();
 	}
 
 	@Override
 	public void setProductivity(double productivity) {
-		((RootFunction) this.delegate).setCoefficient(productivity);
+		((RootFunction<GoodType>) this.delegate).setCoefficient(productivity);
 	}
 }

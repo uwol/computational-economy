@@ -27,7 +27,7 @@ import compecon.nature.math.IFunction;
 
 public abstract class ConvexProductionFunction extends ProductionFunction {
 
-	protected ConvexProductionFunction(IFunction delegate) {
+	protected ConvexProductionFunction(IFunction<GoodType> delegate) {
 		super(delegate);
 	}
 

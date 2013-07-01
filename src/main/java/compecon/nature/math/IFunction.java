@@ -20,24 +20,19 @@ package compecon.nature.math;
 import java.util.Map;
 import java.util.Set;
 
-import compecon.nature.materia.GoodType;
+public interface IFunction<T> {
 
-public interface IFunction {
-
-	public Set<GoodType> getInputGoodTypes();
+	public Set<T> getInputTypes();
 
 	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate();
 
-	public double f(Map<GoodType, Double> bundleOfInputGoods);
+	public double f(Map<T, Double> bundleOfInputs);
 
-	public double partialDerivative(
-			Map<GoodType, Double> forBundleOfInputGoods,
-			GoodType withRespectToInputGoodType);
+	public double partialDerivative(Map<T, Double> forBundleOfInputs,
+			T withRespectToInput);
 
-	public GoodType findLargestPartialDerivate(
-			Map<GoodType, Double> forBundleOfInputGoods);
+	public T findLargestPartialDerivate(Map<T, Double> forBundleOfInputs);
 
-	public GoodType findLargestPartialDerivatePerPrice(
-			Map<GoodType, Double> bundleOfInputGoods,
-			Map<GoodType, Double> pricesOfInputGoods);
+	public T findLargestPartialDerivatePerPrice(Map<T, Double> bundleOfInputs,
+			Map<T, Double> pricesOfInputs);
 }

@@ -25,16 +25,18 @@ import compecon.nature.math.CobbDouglasFunction;
 public class CobbDouglasProductionFunction extends ConvexProductionFunction {
 	public CobbDouglasProductionFunction(Map<GoodType, Double> exponents,
 			double totalFactorProductivity) {
-		super(new CobbDouglasFunction(exponents, totalFactorProductivity));
+		super(new CobbDouglasFunction<GoodType>(exponents,
+				totalFactorProductivity));
 	}
 
 	@Override
 	public double getProductivity() {
-		return ((CobbDouglasFunction) this.delegate).getCoefficient();
+		return ((CobbDouglasFunction<GoodType>) this.delegate).getCoefficient();
 	}
 
 	@Override
 	public void setProductivity(double productivity) {
-		((CobbDouglasFunction) this.delegate).setCoefficient(productivity);
+		((CobbDouglasFunction<GoodType>) this.delegate)
+				.setCoefficient(productivity);
 	}
 }

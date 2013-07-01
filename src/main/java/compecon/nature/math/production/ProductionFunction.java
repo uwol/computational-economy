@@ -25,15 +25,15 @@ import compecon.nature.math.IFunction;
 
 public abstract class ProductionFunction implements IProductionFunction {
 
-	protected IFunction delegate;
+	protected IFunction<GoodType> delegate;
 
-	protected ProductionFunction(IFunction delegate) {
+	protected ProductionFunction(IFunction<GoodType> delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
 	public Set<GoodType> getInputGoodTypes() {
-		return this.delegate.getInputGoodTypes();
+		return this.delegate.getInputTypes();
 	}
 
 	@Override

@@ -23,18 +23,23 @@ import java.util.Map;
 import compecon.nature.materia.GoodType;
 import compecon.nature.math.CobbDouglasFunction;
 
-public class CobbDouglasUtilityFunction extends UtilityFunction {
+public class CobbDouglasUtilityFunction extends ConvexUtilityFunction {
 
 	public CobbDouglasUtilityFunction(Map<GoodType, Double> exponents,
 			double coefficient) {
-		super(new CobbDouglasFunction(exponents, coefficient));
+		super(new CobbDouglasFunction<GoodType>(exponents, coefficient));
 	}
 
+	/**
+	 * This method implements the analytical solution for the lagrange function
+	 * of an optimization problem under budget constraints. It overwrites the
+	 * general solution for convex functions because of performance reasons.
+	 */
 	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
 			Map<GoodType, Double> pricesOfInputGoods, double budget) {
 		Map<GoodType, Double> bundleOfGoods = new LinkedHashMap<GoodType, Double>();
-		Map<GoodType, Double> exponents = ((CobbDouglasFunction) this.delegate)
+		Map<GoodType, Double> exponents = ((CobbDouglasFunction<GoodType>) this.delegate)
 				.getExponents();
 
 		/*
