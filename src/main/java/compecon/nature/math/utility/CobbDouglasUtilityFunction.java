@@ -17,7 +17,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.nature.math.utility;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import compecon.nature.materia.GoodType;
@@ -38,22 +37,8 @@ public class CobbDouglasUtilityFunction extends ConvexUtilityFunction {
 	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
 			Map<GoodType, Double> pricesOfInputGoods, double budget) {
-		Map<GoodType, Double> bundleOfGoods = new LinkedHashMap<GoodType, Double>();
-		Map<GoodType, Double> exponents = ((CobbDouglasFunction<GoodType>) this.delegate)
-				.getExponents();
-
-		/*
-		 * analytical formula for the optimal solution of a Cobb-Douglas utility
-		 * function under given budget restriction -> Lagrange function
-		 */
-		for (GoodType goodType : this.getInputGoodTypes()) {
-			double optimalAmount = exponents.get(goodType) * budget
-					/ pricesOfInputGoods.get(goodType);
-			if (Double.isNaN(optimalAmount))
-				optimalAmount = 0.0;
-			bundleOfGoods.put(goodType, optimalAmount);
-		}
-
-		return bundleOfGoods;
+		return ((CobbDouglasFunction<GoodType>) this.delegate)
+				.calculateOutputMaximizingInputsUnderBudgetRestriction(
+						pricesOfInputGoods, budget);
 	}
 }

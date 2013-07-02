@@ -155,8 +155,8 @@ public class Trader extends JointStockCompany {
 	@Transient
 	public void onBankCloseBankAccount(BankAccount bankAccount) {
 		if (this.goodsTradeBankAccounts != null) {
-			for (Entry<Currency, BankAccount> entry : this.goodsTradeBankAccounts
-					.entrySet()) {
+			for (Entry<Currency, BankAccount> entry : new HashMap<Currency, BankAccount>(
+					this.goodsTradeBankAccounts).entrySet()) {
 				if (entry.getValue() == bankAccount)
 					this.goodsTradeBankAccounts.remove(entry.getKey());
 			}

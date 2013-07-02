@@ -17,9 +17,20 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.hibernate;
 
+import java.util.List;
+
+import org.hibernate.criterion.Restrictions;
+
+import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.industry.Factory;
 import compecon.engine.dao.DAOFactory.IFactoryDAO;
 
 public class FactoryDAO extends HibernateDAO<Factory> implements IFactoryDAO {
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Factory> findAllByCurrency(Currency currency) {
+		return (List<Factory>) getSession().createCriteria(Factory.class)
+				.add(Restrictions.eq("primaryCurrency", currency)).list();
+	}
 }

@@ -103,7 +103,7 @@ public class AgentFactory {
 	}
 
 	public static List<CreditBank> getAllCreditBanks(Currency currency) {
-		return DAOFactory.getCreditBankDAO().findAll(currency);
+		return DAOFactory.getCreditBankDAO().findAllByCurrency(currency);
 	}
 
 	public static Factory newInstanceFactory(GoodType goodType,

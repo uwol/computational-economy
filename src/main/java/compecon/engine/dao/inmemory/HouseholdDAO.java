@@ -17,10 +17,27 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.inmemory;
 
+import java.util.List;
+
+import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
 import compecon.engine.dao.DAOFactory.IHouseholdDAO;
 
-public class HouseholdDAO extends InMemoryDAO<Household> implements
-		IHouseholdDAO {
+public class HouseholdDAO extends CurrencyIndexedInMemoryDAO<Household>
+		implements IHouseholdDAO {
 
+	@Override
+	public synchronized void delete(Household entity) {
+		super.delete(entity.getPrimaryCurrency(), entity);
+	}
+
+	@Override
+	public synchronized List<Household> findAllByCurrency(Currency currency) {
+		return this.getInstancesForCurrency(currency);
+	}
+
+	@Override
+	public synchronized void save(Household entity) {
+		super.save(entity.getPrimaryCurrency(), entity);
+	}
 }

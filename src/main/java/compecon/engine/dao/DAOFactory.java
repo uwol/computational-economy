@@ -142,13 +142,15 @@ public class DAOFactory {
 	public static interface ICreditBankDAO extends IGenericDAO<CreditBank> {
 		public CreditBank findRandom(Currency currency);
 
-		public List<CreditBank> findAll(Currency currency);
+		public List<CreditBank> findAllByCurrency(Currency currency);
 	}
 
 	public static interface IHouseholdDAO extends IGenericDAO<Household> {
+		public List<Household> findAllByCurrency(Currency currency);
 	}
 
 	public static interface IFactoryDAO extends IGenericDAO<Factory> {
+		public List<Factory> findAllByCurrency(Currency currency);
 	}
 
 	public static interface IMarketOrderDAO extends IGenericDAO<MarketOrder> {
@@ -189,5 +191,6 @@ public class DAOFactory {
 	}
 
 	public static interface ITraderDAO extends IGenericDAO<Trader> {
+		public List<Trader> findAllByCurrency(Currency currency);
 	}
 }

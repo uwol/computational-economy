@@ -17,10 +17,21 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.hibernate;
 
+import java.util.List;
+
+import org.hibernate.criterion.Restrictions;
+
+import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
 import compecon.engine.dao.DAOFactory.IHouseholdDAO;
 
 public class HouseholdDAO extends HibernateDAO<Household> implements
 		IHouseholdDAO {
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Household> findAllByCurrency(Currency currency) {
+		return (List<Household>) getSession().createCriteria(Household.class)
+				.add(Restrictions.eq("primaryCurrency", currency)).list();
+	}
 }

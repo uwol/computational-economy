@@ -17,9 +17,27 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.inmemory;
 
+import java.util.List;
+
+import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.trading.Trader;
 import compecon.engine.dao.DAOFactory.ITraderDAO;
 
-public class TraderDAO extends InMemoryDAO<Trader> implements ITraderDAO {
+public class TraderDAO extends CurrencyIndexedInMemoryDAO<Trader> implements
+		ITraderDAO {
 
+	@Override
+	public synchronized void delete(Trader entity) {
+		super.delete(entity.getPrimaryCurrency(), entity);
+	}
+
+	@Override
+	public synchronized List<Trader> findAllByCurrency(Currency currency) {
+		return this.getInstancesForCurrency(currency);
+	}
+
+	@Override
+	public synchronized void save(Trader entity) {
+		super.save(entity.getPrimaryCurrency(), entity);
+	}
 }

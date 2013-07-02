@@ -1,3 +1,20 @@
+/*
+This file is part of ComputationalEconomy.
+
+ComputationalEconomy is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ComputationalEconomy is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package compecon.culture.markets;
 
 import static org.junit.Assert.assertEquals;
@@ -8,8 +25,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import compecon.CompEconTestSupport;
 import compecon.culture.markets.ordertypes.MarketOrder;
-import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
@@ -18,98 +35,37 @@ import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.culture.sectors.state.law.security.equity.JointStockCompany;
 import compecon.culture.sectors.state.law.security.equity.Share;
 import compecon.culture.sectors.trading.Trader;
-import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.util.HibernateUtil;
 import compecon.nature.materia.GoodType;
 
-public class MarketTest {
+public class MarketTest extends CompEconTestSupport {
 
-	double epsilon = 0.0001;
-
-	CentralBank centralBank_EUR;
-	CentralBank centralBank_USD;
-	CreditBank creditBank1_EUR;
-	CreditBank creditBank2_EUR;
-	CreditBank creditBank1_USD;
-	CreditBank creditBank2_USD;
-	Household household1_EUR;
-	Household household2_EUR;
-	Factory factory1_WHEAT_EUR;
-	Trader trader1_EUR;
+	final double epsilon = 0.0001;
 
 	@Before
 	public void setUp() {
-		// init database connection
-
-		HibernateUtil.openSession();
-
-		centralBank_EUR = AgentFactory.getInstanceCentralBank(Currency.EURO);
-		centralBank_USD = AgentFactory
-				.getInstanceCentralBank(Currency.USDOLLAR);
-		creditBank1_EUR = AgentFactory.newInstanceCreditBank(Currency.EURO);
-		creditBank2_EUR = AgentFactory.newInstanceCreditBank(Currency.EURO);
-		creditBank1_USD = AgentFactory.newInstanceCreditBank(Currency.USDOLLAR);
-		creditBank2_USD = AgentFactory.newInstanceCreditBank(Currency.USDOLLAR);
-		household1_EUR = AgentFactory.newInstanceHousehold(Currency.EURO);
-		household2_EUR = AgentFactory.newInstanceHousehold(Currency.EURO);
-		factory1_WHEAT_EUR = AgentFactory.newInstanceFactory(GoodType.WHEAT,
-				Currency.EURO);
-		trader1_EUR = AgentFactory.newInstanceTrader(Currency.EURO);
-
-		centralBank_EUR.assureTransactionsBankAccount();
-		centralBank_USD.assureTransactionsBankAccount();
-
-		creditBank1_EUR.assureCentralBankAccount();
-		creditBank1_EUR.assureTransactionsBankAccount();
-		creditBank1_EUR.assureCurrencyTradeBankAccounts();
-		creditBank2_EUR.assureCentralBankAccount();
-		creditBank2_EUR.assureTransactionsBankAccount();
-		creditBank2_EUR.assureCurrencyTradeBankAccounts();
-
-		creditBank1_USD.assureCentralBankAccount();
-		creditBank1_USD.assureTransactionsBankAccount();
-		creditBank1_USD.assureCurrencyTradeBankAccounts();
-		creditBank2_USD.assureCentralBankAccount();
-		creditBank2_USD.assureTransactionsBankAccount();
-		creditBank2_USD.assureCurrencyTradeBankAccounts();
-
-		household1_EUR.assureTransactionsBankAccount();
-		household2_EUR.assureTransactionsBankAccount();
-		factory1_WHEAT_EUR.assureTransactionsBankAccount();
-		trader1_EUR.assureTransactionsBankAccount();
-		trader1_EUR.assureGoodsTradeBankAccounts();
-
-		HibernateUtil.flushSession();
+		super.setUp();
 	}
 
 	@After
 	public void tearDown() {
-		household1_EUR.deconstruct();
-		trader1_EUR.deconstruct();
-		household2_EUR.deconstruct();
-		factory1_WHEAT_EUR.deconstruct();
-		creditBank1_EUR.deconstruct();
-		creditBank2_EUR.deconstruct();
-		creditBank1_USD.deconstruct();
-		creditBank2_USD.deconstruct();
-		centralBank_EUR.deconstruct();
-		centralBank_USD.deconstruct();
-
-		HibernateUtil.flushSession();
-
-		// close database conenction
-		HibernateUtil.closeSession();
+		super.tearDown();
 	}
 
 	@Test
 	public void offerGoodType() {
 		// test market for good type
-
 		Currency currency = Currency.EURO;
 		GoodType goodType = GoodType.LABOURHOUR;
+
+		Household household1_EUR = DAOFactory.getHouseholdDAO()
+				.findAllByCurrency(currency).get(0);
+		Household household2_EUR = DAOFactory.getHouseholdDAO()
+				.findAllByCurrency(currency).get(1);
+		Factory factory1_WHEAT_EUR = DAOFactory.getFactoryDAO()
+				.findAllByCurrency(currency).get(0);
 
 		assertEquals(Double.NaN, DAOFactory.getMarketOrderDAO()
 				.findMarginalPrice(currency, goodType), epsilon);
@@ -181,6 +137,9 @@ public class MarketTest {
 	public void offerProperty() {
 		Currency currency = Currency.EURO;
 
+		Factory factory1_WHEAT_EUR = DAOFactory.getFactoryDAO()
+				.findAllByCurrency(currency).get(0);
+
 		assertEquals(Double.NaN, DAOFactory.getMarketOrderDAO()
 				.findMarginalPrice(currency, Share.class), epsilon);
 
@@ -204,6 +163,13 @@ public class MarketTest {
 	public void offerCurrency() {
 		Currency currency = Currency.EURO;
 		Currency commodityCurrency = Currency.USDOLLAR;
+
+		CreditBank creditBank1_EUR = DAOFactory.getCreditBankDAO()
+				.findAllByCurrency(currency).get(0);
+		CreditBank creditBank2_EUR = DAOFactory.getCreditBankDAO()
+				.findAllByCurrency(currency).get(1);
+		Trader trader1_EUR = DAOFactory.getTraderDAO()
+				.findAllByCurrency(currency).get(0);
 
 		assertEquals(Double.NaN, DAOFactory.getMarketOrderDAO()
 				.findMarginalPrice(currency, commodityCurrency), epsilon);

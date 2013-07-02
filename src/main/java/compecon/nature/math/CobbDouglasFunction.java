@@ -17,6 +17,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.nature.math;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -83,9 +84,9 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		for (Entry<T, Double> entry : this.exponents.entrySet()) {
 			T inputType = entry.getKey();
 			if (inputType != withRespectToInputType) {
-				double exponent = entry.getValue();
 				double base = forBundleOfInputs.containsKey(inputType) ? forBundleOfInputs
 						.get(inputType) : 0;
+				double exponent = entry.getValue();
 				constant = constant * Math.pow(base, exponent);
 			}
 		}
@@ -110,6 +111,38 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 			return 0.0;
 
 		return constant * differentialFactor;
+	}
+
+	/**
+	 * This method implements the analytical solution for the lagrange function
+	 * of an optimization problem under budget constraints. It overwrites the
+	 * general solution for convex functions because of performance reasons.
+	 */
+	@Override
+	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
+			Map<T, Double> pricesOfInputs, double budget) {
+		Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
+		Map<T, Double> exponents = this.getExponents();
+
+		/*
+		 * analytical formula for the optimal solution of a Cobb-Douglas
+		 * function under given budget restriction -> lagrange function
+		 */
+		for (T inputType : this.getInputTypes()) {
+			double optimalAmount = exponents.get(inputType) * budget
+					/ pricesOfInputs.get(inputType);
+			if (Double.isNaN(optimalAmount))
+				optimalAmount = 0.0;
+			bundleOfInputs.put(inputType, optimalAmount);
+		}
+
+		return bundleOfInputs;
+	}
+
+	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
+			Map<T, Double> pricesOfInputs, double budget) {
+		return super.calculateOutputMaximizingInputsUnderBudgetRestriction(
+				pricesOfInputs, budget);
 	}
 
 	public Map<T, Double> getExponents() {

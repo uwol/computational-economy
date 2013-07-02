@@ -49,7 +49,7 @@ public class CreditBankDAO extends HibernateDAO<CreditBank> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CreditBank> findAll(Currency currency) {
+	public List<CreditBank> findAllByCurrency(Currency currency) {
 		return (List<CreditBank>) getSession().createCriteria(CreditBank.class)
 				.add(Restrictions.eq("primaryCurrency", currency)).list();
 	}

@@ -28,6 +28,9 @@ import compecon.nature.materia.GoodType;
 import compecon.nature.math.utility.CobbDouglasUtilityFunction;
 
 public class UtilityFunctionTest {
+
+	public final double epsilon = 0.001;
+
 	@Test
 	public void calculateUtility() {
 		Map<GoodType, Double> preferences = new HashMap<GoodType, Double>();
@@ -44,7 +47,7 @@ public class UtilityFunctionTest {
 		Map<GoodType, Double> amount = cobbDouglasUtilityFunction
 				.calculateUtilityMaximizingInputsUnderBudgetRestriction(prices,
 						budget);
-		assertEquals(amount.get(GoodType.KILOWATT), 4, 0.001);
-		assertEquals(amount.get(GoodType.WHEAT), 3., 0.001);
+		assertEquals(4., amount.get(GoodType.KILOWATT), epsilon);
+		assertEquals(3., amount.get(GoodType.WHEAT), epsilon);
 	}
 }
