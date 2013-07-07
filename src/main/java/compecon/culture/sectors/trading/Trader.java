@@ -56,16 +56,13 @@ import compecon.nature.materia.GoodType;
 public class Trader extends JointStockCompany {
 
 	@Transient
-	protected final int MAX_CREDIT = 10000;
-
-	@Transient
 	protected final double ARBITRAGE_MARGIN = 0.2;
 
 	@Transient
-	protected final Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
+	protected Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
 
 	@Transient
-	protected Map<GoodType, PricingBehaviour> goodTypePricingBehaviours = new HashMap<GoodType, PricingBehaviour>();
+	protected final Map<GoodType, PricingBehaviour> goodTypePricingBehaviours = new HashMap<GoodType, PricingBehaviour>();
 
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "Trader_ForeignCurrencyBankAccounts", joinColumns = @JoinColumn(name = "trader_id"), inverseJoinColumns = @JoinColumn(name = "bankAccount_id"))
@@ -90,9 +87,6 @@ public class Trader extends JointStockCompany {
 				balanceSheetPublicationEvent, -1, MonthType.EVERY,
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
-		// excluded good types
-		excludedGoodTypes.add(GoodType.LABOURHOUR);
-
 		// pricing behaviours
 		for (GoodType goodType : GoodType.values()) {
 			if (!this.excludedGoodTypes.contains(goodType)) {
@@ -116,8 +110,16 @@ public class Trader extends JointStockCompany {
 	 * accessors
 	 */
 
+	public Set<GoodType> getExcludedGoodTypes() {
+		return excludedGoodTypes;
+	}
+
 	public Map<Currency, BankAccount> getTransactionForeignCurrencyAccounts() {
 		return goodsTradeBankAccounts;
+	}
+
+	public void setExcludedGoodTypes(Set<GoodType> excludedGoodTypes) {
+		this.excludedGoodTypes = excludedGoodTypes;
 	}
 
 	public void setTransactionForeignCurrencyAccounts(
@@ -201,7 +203,7 @@ public class Trader extends JointStockCompany {
 		protected void buyGoodsForArbitrage() {
 			int numberOfForeignCurrencies = Trader.this.goodsTradeBankAccounts
 					.keySet().size();
-			double budgetPerForeignCurrencyInLocalCurrency = (Trader.this.MAX_CREDIT + Trader.this.transactionsBankAccount
+			double budgetPerForeignCurrencyInLocalCurrency = (Trader.this.referenceCredit + Trader.this.transactionsBankAccount
 					.getBalance()) / (double) numberOfForeignCurrencies;
 
 			/*
@@ -391,4 +393,5 @@ public class Trader extends JointStockCompany {
 					Trader.this.issueBasicBalanceSheet());
 		}
 	}
+
 }

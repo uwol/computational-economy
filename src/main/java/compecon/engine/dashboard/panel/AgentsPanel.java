@@ -263,7 +263,7 @@ public class AgentsPanel extends JPanel {
 		}
 	}
 
-	protected final int NUMBER_OF_AGENTS_TO_SHOW = 200;
+	protected final int NUMBER_OF_AGENTS_TO_SHOW = 300;
 
 	protected final AgentDetailModel agentDetailModel = ModelRegistry
 			.getAgentDetailModel();

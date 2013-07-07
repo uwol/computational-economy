@@ -53,11 +53,6 @@ public class Factory extends JointStockCompany {
 	@Enumerated(EnumType.STRING)
 	protected GoodType producedGoodType;
 
-	// maxCredit limits the demand for money when buying production input
-	// factors, thus limiting M1 in the monetary system
-	@Transient
-	protected final int REFERENCE_CREDIT = 100000;
-
 	@Transient
 	protected IProductionFunction productionFunction;
 
@@ -100,22 +95,23 @@ public class Factory extends JointStockCompany {
 		return producedGoodType;
 	}
 
-	public void setProducedGoodType(GoodType producedGoodType) {
-		this.producedGoodType = producedGoodType;
-	}
-
-	/*
-	 * business logic
-	 */
-
+	@Transient
 	public IProductionFunction getProductionFunction() {
 		return this.productionFunction;
+	}
+
+	public void setProducedGoodType(GoodType producedGoodType) {
+		this.producedGoodType = producedGoodType;
 	}
 
 	@Transient
 	public void setProductionFunction(IProductionFunction productionFunction) {
 		this.productionFunction = productionFunction;
 	}
+
+	/*
+	 * business logic
+	 */
 
 	protected class SettlementMarketEvent implements ISettlementEvent {
 		@Override
@@ -161,7 +157,7 @@ public class Factory extends JointStockCompany {
 					.calculateTransmissionBasedBudgetForPeriod(
 							Factory.this.transactionsBankAccount.getCurrency(),
 							Factory.this.transactionsBankAccount.getBalance(),
-							REFERENCE_CREDIT);
+							Factory.this.referenceCredit);
 			double ownedAmountOfProducedGoodType = PropertyRegister
 					.getInstance().getBalance(Factory.this,
 							Factory.this.producedGoodType);
@@ -253,4 +249,5 @@ public class Factory extends JointStockCompany {
 	public String toString() {
 		return super.toString() + " [" + this.producedGoodType + "]";
 	}
+
 }

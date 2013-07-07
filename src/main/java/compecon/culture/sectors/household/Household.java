@@ -25,7 +25,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
-import compecon.culture.BudgetingBehaviour;
 import compecon.culture.PricingBehaviour;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
 import compecon.culture.sectors.financial.BankAccount;
@@ -44,6 +43,8 @@ import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.nature.materia.GoodType;
 import compecon.nature.materia.Refreshable;
+import compecon.nature.math.intertemporal.consumption.IntertemporalConsumptionFunction;
+import compecon.nature.math.intertemporal.consumption.IrvingFisherIntertemporalConsumptionFunction.Period;
 import compecon.nature.math.utility.IUtilityFunction;
 
 /**
@@ -64,8 +65,8 @@ public class Household extends Agent implements IShareOwner {
 
 	// maxCredit limits the demand for money when buying production input
 	// factors, thus limiting M1 in the monetary system
-	@Transient
-	protected final int REFERENCE_CREDIT = 0;
+	// @Transient
+	// protected final int REFERENCE_CREDIT = 0;
 
 	@Transient
 	protected final int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 60 + this
@@ -91,7 +92,7 @@ public class Household extends Agent implements IShareOwner {
 	protected PricingBehaviour pricingBehaviour;
 
 	@Transient
-	protected BudgetingBehaviour budgetingBehaviour;
+	protected IntertemporalConsumptionFunction intertemporalConsumptionFunction;
 
 	@Transient
 	protected IUtilityFunction utilityFunction;
@@ -118,7 +119,6 @@ public class Household extends Agent implements IShareOwner {
 				this.primaryCurrency, GoodType.LABOURHOUR);
 		this.pricingBehaviour = new PricingBehaviour(this, GoodType.LABOURHOUR,
 				this.primaryCurrency, marketPrice);
-		this.budgetingBehaviour = new BudgetingBehaviour(this);
 	}
 
 	/*
@@ -129,24 +129,33 @@ public class Household extends Agent implements IShareOwner {
 		return ageInDays;
 	}
 
+	public int getContinuousDaysWithUtility() {
+		return continuousDaysWithUtility;
+	}
+
 	public int getDaysWithoutUtility() {
 		return daysWithoutUtility;
 	}
 
-	public int getContinuousDaysWithUtility() {
-		return continuousDaysWithUtility;
+	public IntertemporalConsumptionFunction getIntertemporalConsumptionFunction() {
+		return intertemporalConsumptionFunction;
 	}
 
 	public void setAgeInDays(int ageInDays) {
 		this.ageInDays = ageInDays;
 	}
 
+	public void setContinuousDaysWithUtility(int continuousDaysWithUtility) {
+		this.continuousDaysWithUtility = continuousDaysWithUtility;
+	}
+
 	public void setDaysWithoutUtility(int daysWithoutUtility) {
 		this.daysWithoutUtility = daysWithoutUtility;
 	}
 
-	public void setContinuousDaysWithUtility(int continuousDaysWithUtility) {
-		this.continuousDaysWithUtility = continuousDaysWithUtility;
+	public void setIntertemporalConsumptionFunction(
+			IntertemporalConsumptionFunction intertemporalConsumptionFunction) {
+		this.intertemporalConsumptionFunction = intertemporalConsumptionFunction;
 	}
 
 	/*
@@ -218,18 +227,38 @@ public class Household extends Agent implements IShareOwner {
 			Household.this.pricingBehaviour.nextPeriod();
 
 			/*
-			 * maximize utility
+			 * calculate budget
 			 */
 			Map<GoodType, Double> prices = MarketFactory.getInstance()
 					.getMarginalPrices(
 							Household.this.transactionsBankAccount
 									.getCurrency());
-			double budget = Household.this.budgetingBehaviour
-					.calculateTransmissionBasedBudgetForPeriod(
-							Household.this.transactionsBankAccount
-									.getCurrency(),
-							Household.this.transactionsBankAccount.getBalance(),
-							Household.this.REFERENCE_CREDIT);
+
+			double keyInterestRate = AgentFactory.getInstanceCentralBank(
+					Household.this.primaryCurrency)
+					.getEffectiveKeyInterestRate();
+			Map<Period, Double> incomesInPeriods = new HashMap<Period, Double>();
+			incomesInPeriods.put(Period.CURRENT,
+					Household.this.transactionsBankAccount.getBalance());
+			incomesInPeriods.put(Period.NEXT,
+					Household.this.transactionsBankAccount.getBalance());
+
+			Map<Period, Double> intertemporalConsumptionPlan = Household.this.intertemporalConsumptionFunction
+					.calculateUtilityMaximizingConsumptionPlan(
+							incomesInPeriods, keyInterestRate,
+							Household.this.ageInDays);
+			double budget = intertemporalConsumptionPlan.get(Period.CURRENT);
+			/*
+			 * double budget = Household.this.budgetingBehaviour
+			 * .calculateTransmissionBasedBudgetForPeriod(
+			 * Household.this.transactionsBankAccount .getCurrency(),
+			 * Household.this.transactionsBankAccount.getBalance(),
+			 * Household.this.REFERENCE_CREDIT);
+			 */
+
+			/*
+			 * maximize utility
+			 */
 			Map<GoodType, Double> optimalBundleOfGoods = Household.this.utilityFunction
 					.calculateUtilityMaximizingInputsUnderBudgetRestriction(
 							prices, budget);
@@ -401,4 +430,5 @@ public class Household extends Agent implements IShareOwner {
 					this.NUMBER_OF_DAILY_LABOUR_HOURS);
 		}
 	}
+
 }

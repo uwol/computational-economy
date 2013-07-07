@@ -34,11 +34,6 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 
 	protected double coefficient;
 
-	@Override
-	public Set<T> getInputTypes() {
-		return this.exponents.keySet();
-	}
-
 	public CobbDouglasFunction(Map<T, Double> exponents, double coefficient) {
 		super(true);
 
@@ -59,6 +54,11 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 
 		this.exponents = exponents;
 		this.coefficient = coefficient;
+	}
+
+	@Override
+	public Set<T> getInputTypes() {
+		return this.exponents.keySet();
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 	 */
 	@Override
 	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
-			Map<T, Double> pricesOfInputs, double budget) {
+			Map<T, Double> costsOfInputs, double budgetRestriction) {
 		Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 		Map<T, Double> exponents = this.getExponents();
 
@@ -129,8 +129,8 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		 * function under given budget restriction -> lagrange function
 		 */
 		for (T inputType : this.getInputTypes()) {
-			double optimalAmount = exponents.get(inputType) * budget
-					/ pricesOfInputs.get(inputType);
+			double optimalAmount = exponents.get(inputType) * budgetRestriction
+					/ costsOfInputs.get(inputType);
 			if (Double.isNaN(optimalAmount))
 				optimalAmount = 0.0;
 			bundleOfInputs.put(inputType, optimalAmount);
@@ -140,9 +140,9 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 	}
 
 	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
-			Map<T, Double> pricesOfInputs, double budget) {
+			Map<T, Double> costsOfInputs, double budgetRestriction) {
 		return super.calculateOutputMaximizingInputsUnderBudgetRestriction(
-				pricesOfInputs, budget);
+				costsOfInputs, budgetRestriction);
 	}
 
 	public Map<T, Double> getExponents() {

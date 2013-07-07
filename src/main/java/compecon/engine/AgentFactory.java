@@ -18,6 +18,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,6 +36,9 @@ import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.nature.materia.GoodType;
 import compecon.nature.materia.InputOutputModel;
+import compecon.nature.math.intertemporal.consumption.CobbDouglasIntertemporalConsumptionFunction;
+import compecon.nature.math.intertemporal.consumption.IrvingFisherIntertemporalConsumptionFunction;
+import compecon.nature.math.intertemporal.consumption.IrvingFisherIntertemporalConsumptionFunction.Period;
 import compecon.nature.math.production.IProductionFunction;
 import compecon.nature.math.utility.CobbDouglasUtilityFunction;
 import compecon.nature.math.utility.IUtilityFunction;
@@ -111,6 +115,7 @@ public class AgentFactory {
 		Factory factory = new Factory();
 		factory.setProducedGoodType(goodType);
 		factory.setPrimaryCurrency(primaryCurrency);
+		factory.setReferenceCredit(100000);
 
 		IProductionFunction productionFunction = InputOutputModel
 				.getProductionFunction(goodType);
@@ -146,6 +151,15 @@ public class AgentFactory {
 				preferences, 1);
 		household.setUtilityFunction(utilityFunction);
 
+		// intertemporal preferences
+		Map<Period, Double> intermeporalPreferences = new HashMap<Period, Double>();
+		intermeporalPreferences.put(Period.CURRENT, 0.5);
+		intermeporalPreferences.put(Period.NEXT, 0.5);
+		IrvingFisherIntertemporalConsumptionFunction intertemporalConsumptionFunction = new CobbDouglasIntertemporalConsumptionFunction(
+				intermeporalPreferences);
+		household
+				.setIntertemporalConsumptionFunction(intertemporalConsumptionFunction);
+
 		household.initialize();
 		DAOFactory.getHouseholdDAO().save(household);
 		HibernateUtil.flushSession();
@@ -155,6 +169,10 @@ public class AgentFactory {
 	public static Trader newInstanceTrader(Currency primaryCurrency) {
 		Trader trader = new Trader();
 		trader.setPrimaryCurrency(primaryCurrency);
+		trader.setReferenceCredit(10000);
+
+		// excluded good types
+		trader.getExcludedGoodTypes().add(GoodType.LABOURHOUR);
 
 		trader.initialize();
 		DAOFactory.getTraderDAO().save(trader);

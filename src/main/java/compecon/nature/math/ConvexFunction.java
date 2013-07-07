@@ -17,7 +17,7 @@ public abstract class ConvexFunction<T> extends Function<T> {
 	 * iterative implementation for calculating an optimal consumption plan
 	 */
 	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
-			Map<T, Double> pricesOfInputs, double budget) {
+			Map<T, Double> costsOfInputs, double budgetRestriction) {
 
 		// order of exponents is preserved, so that important InputTypes
 		// will be chosen first
@@ -27,32 +27,33 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		for (T inputType : this.getInputTypes())
 			bundleOfInputs.put(inputType, 0.0);
 
-		// NaN prices should be initialized to a large number, so that they do
+		// NaN costs / prices should be initialized to a large number, so that
+		// they do
 		// not disturb Cobb-Douglas functions
 		for (T inputType : this.getInputTypes()) {
-			if (Double.isNaN(pricesOfInputs.get(inputType)))
-				pricesOfInputs.put(inputType, 9999999999999.);
+			if (Double.isNaN(costsOfInputs.get(inputType)))
+				costsOfInputs.put(inputType, 9999999999999.);
 		}
 
 		// check for budget
-		if (MathUtil.equal(budget, 0))
+		if (MathUtil.equal(budgetRestriction, 0))
 			return bundleOfInputs;
 
 		// maximize output
 		double NUMBER_OF_ITERATIONS = bundleOfInputs.size() * 20.0;
 
 		double moneySpent = 0.0;
-		while (MathUtil.greater(budget, moneySpent)) {
+		while (MathUtil.greater(budgetRestriction, moneySpent)) {
 			T optimalInput = this.findLargestPartialDerivatePerPrice(
-					bundleOfInputs, pricesOfInputs);
+					bundleOfInputs, costsOfInputs);
 			if (optimalInput != null) {
-				double priceOfInputType = pricesOfInputs.get(optimalInput);
-				if (!Double.isNaN(priceOfInputType)) {
-					double amount = (budget / NUMBER_OF_ITERATIONS)
-							/ priceOfInputType;
+				double costOfInputType = costsOfInputs.get(optimalInput);
+				if (!Double.isNaN(costOfInputType)) {
+					double amount = (budgetRestriction / NUMBER_OF_ITERATIONS)
+							/ costOfInputType;
 					bundleOfInputs.put(optimalInput,
 							bundleOfInputs.get(optimalInput) + amount);
-					moneySpent += priceOfInputType * amount;
+					moneySpent += costOfInputType * amount;
 				} else
 					break;
 			} else

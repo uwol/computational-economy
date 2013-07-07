@@ -55,7 +55,6 @@ import compecon.engine.jmx.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
-import compecon.nature.materia.GoodType;
 
 @Entity
 @Table(name = "Agent")
@@ -90,6 +89,11 @@ public abstract class Agent implements IPropertyOwner {
 	@JoinColumn(name = "primaryBank_id")
 	@Index(name = "IDX_A_PRIMARYBANK")
 	protected Bank primaryBank;
+
+	// maxCredit limits the demand for money when buying production input
+	// factors, thus limiting M1 in the monetary system
+	@Column(name = "referenceCredit")
+	protected int referenceCredit;
 
 	@OneToOne
 	@JoinColumn(name = "transactionsBankAccount_id")
@@ -170,6 +174,10 @@ public abstract class Agent implements IPropertyOwner {
 		return primaryCurrency;
 	}
 
+	public int getReferenceCredit() {
+		return this.referenceCredit;
+	}
+
 	public BankAccount getTransactionsBankAccount() {
 		return transactionsBankAccount;
 	}
@@ -196,6 +204,10 @@ public abstract class Agent implements IPropertyOwner {
 
 	public void setPrimaryCurrency(Currency primaryCurrency) {
 		this.primaryCurrency = primaryCurrency;
+	}
+
+	public void setReferenceCredit(int referenceCredit) {
+		this.referenceCredit = referenceCredit;
 	}
 
 	public void setTransactionsBankAccount(BankAccount transactionsBankAccount) {
@@ -264,7 +276,7 @@ public abstract class Agent implements IPropertyOwner {
 
 		// inventory
 		balanceSheet.inventory.putAll(PropertyRegister.getInstance()
-					.getBalance(Agent.this));
+				.getBalance(Agent.this));
 
 		return balanceSheet;
 	}
