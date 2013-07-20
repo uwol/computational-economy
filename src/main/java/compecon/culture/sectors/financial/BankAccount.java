@@ -37,8 +37,15 @@ import compecon.engine.Agent;
 @Table(name = "BankAccount")
 public class BankAccount {
 
+	public enum BankAccountType {
+		GIRO, SAVINGS;
+	}
+
 	@Column(name = "balance")
 	protected double balance;
+
+	@Enumerated(EnumType.STRING)
+	protected BankAccountType bankAccountType;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "currency")
@@ -73,6 +80,10 @@ public class BankAccount {
 		return this.balance;
 	}
 
+	public BankAccountType getBankAccountType() {
+		return bankAccountType;
+	}
+
 	public Currency getCurrency() {
 		return this.currency;
 	}
@@ -99,6 +110,10 @@ public class BankAccount {
 
 	public void setBalance(double balance) {
 		this.balance = balance;
+	}
+
+	public void setBankAccountType(BankAccountType bankAccountType) {
+		this.bankAccountType = bankAccountType;
 	}
 
 	public void setCurrency(Currency currency) {
@@ -153,4 +168,5 @@ public class BankAccount {
 				+ this.currency.getIso4217Code() + ", Owner: " + this.owner
 				+ "]";
 	}
+
 }

@@ -205,7 +205,7 @@ public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 					marketOrder.getProperty().getClass()).remove(marketOrder);
 		}
 
-		super.delete(marketOrder.getOfferor(), marketOrder);
+		super.delete(marketOrder);
 	}
 
 	@Override

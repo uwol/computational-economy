@@ -175,7 +175,7 @@ public class Factory extends JointStockCompany {
 						entry.getKey(),
 						entry.getValue(),
 						budget,
-						-1,
+						Double.NaN,
 						Factory.this,
 						Factory.this.transactionsBankAccount,
 						Factory.this.bankPasswords
@@ -197,8 +197,9 @@ public class Factory extends JointStockCompany {
 
 			double producedProducts = Factory.this.productionFunction
 					.calculateOutput(productionFactorsOwned);
-			PropertyRegister.getInstance().increment(Factory.this,
-					Factory.this.producedGoodType, producedProducts);
+			PropertyRegister.getInstance().incrementGoodTypeAmount(
+					Factory.this, Factory.this.producedGoodType,
+					producedProducts);
 			Log.factory_onProduction(Factory.this,
 					Factory.this.producedGoodType, producedProducts);
 
@@ -210,8 +211,8 @@ public class Factory extends JointStockCompany {
 				if (GoodType.LABOURHOUR.equals(entry.getKey()))
 					Log.factory_onLabourHourExhaust(Factory.this,
 							entry.getValue());
-				PropertyRegister.getInstance().decrement(Factory.this,
-						entry.getKey(), entry.getValue());
+				PropertyRegister.getInstance().decrementGoodTypeAmount(
+						Factory.this, entry.getKey(), entry.getValue());
 			}
 
 			/*
@@ -230,9 +231,6 @@ public class Factory extends JointStockCompany {
 					Factory.this.pricingBehaviour.getCurrentPrice(),
 					new SettlementMarketEvent());
 			Factory.this.pricingBehaviour.registerOfferedAmount(amount);
-
-			// ToDo Remove
-			Factory.this.payDividend();
 		}
 	}
 
@@ -246,6 +244,7 @@ public class Factory extends JointStockCompany {
 		}
 	}
 
+	@Override
 	public String toString() {
 		return super.toString() + " [" + this.producedGoodType + "]";
 	}

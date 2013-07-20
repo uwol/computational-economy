@@ -46,11 +46,13 @@ import org.hibernate.annotations.Index;
 
 import compecon.culture.sectors.financial.Bank;
 import compecon.culture.sectors.financial.BankAccount;
+import compecon.culture.sectors.financial.BankAccount.BankAccountType;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.culture.sectors.state.law.property.HardCashRegister;
-import compecon.culture.sectors.state.law.property.IPropertyOwner;
+import compecon.culture.sectors.state.law.property.Property;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
+import compecon.culture.sectors.state.law.security.debt.Bond;
 import compecon.engine.jmx.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
@@ -61,7 +63,7 @@ import compecon.engine.time.calendar.HourType;
 @org.hibernate.annotations.Table(appliesTo = "Agent", indexes = { @Index(name = "IDX_A_DTYPE", columnNames = { "DTYPE" }) })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DTYPE")
-public abstract class Agent implements IPropertyOwner {
+public abstract class Agent {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
@@ -127,7 +129,7 @@ public abstract class Agent implements IPropertyOwner {
 		MarketFactory.getInstance().removeAllSellingOffers(this);
 
 		// deregister from PropertyRegister
-		PropertyRegister.getInstance().deregister(this);
+		PropertyRegister.getInstance().deregisterAllProperties(this);
 
 		// deregister from CashRegister
 		HardCashRegister.getInstance().deregister(this);
@@ -219,22 +221,31 @@ public abstract class Agent implements IPropertyOwner {
 	 */
 
 	@Transient
-	public void assureTransactionsBankAccount() {
+	public void assureBankCustomerAccount() {
 		if (this.isDeconstructed)
 			return;
 
-		// initialize bank account
 		if (this.primaryBank == null) {
 			this.primaryBank = AgentFactory
 					.getRandomInstanceCreditBank(this.primaryCurrency);
 			String bankPassword = this.primaryBank.openCustomerAccount(this);
 			this.bankPasswords.put(this.primaryBank, bankPassword);
 		}
+	}
+
+	@Transient
+	public void assureTransactionsBankAccount() {
+		if (this.isDeconstructed)
+			return;
+
+		this.assureBankCustomerAccount();
+
+		// initialize bank account
 		if (this.transactionsBankAccount == null) {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency,
 					this.bankPasswords.get(this.primaryBank),
-					"transactions account");
+					"transactions account", BankAccountType.GIRO);
 		}
 	}
 
@@ -268,11 +279,18 @@ public abstract class Agent implements IPropertyOwner {
 
 		// bank deposits
 		if (Agent.this.transactionsBankAccount.getBalance() > 0)
-			balanceSheet.cash += Agent.this.transactionsBankAccount
+			balanceSheet.cashShortTerm += Agent.this.transactionsBankAccount
 					.getBalance();
 		else
 			balanceSheet.loans += -1
 					* Agent.this.transactionsBankAccount.getBalance();
+
+		// bonds
+		for (Property property : PropertyRegister.getInstance().getProperties(
+				Agent.this)) {
+			if (property instanceof Bond)
+				balanceSheet.bonds += ((Bond) property).getFaceValue();
+		}
 
 		// inventory
 		balanceSheet.inventory.putAll(PropertyRegister.getInstance()

@@ -26,9 +26,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
+import compecon.culture.sectors.financial.BankAccount.BankAccountType;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.culture.sectors.state.law.property.Property;
-import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.culture.sectors.state.law.security.debt.Bond;
 import compecon.culture.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.MarketFactory;
@@ -163,7 +162,7 @@ public class CentralBank extends Bank {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency,
 					this.bankPasswords.get(this.primaryBank),
-					"transactions account");
+					"transactions account", BankAccountType.GIRO);
 		}
 	}
 
@@ -446,13 +445,6 @@ public class CentralBank extends Bank {
 				else
 					// active account
 					balanceSheet.bankLoans += bankAccount.getBalance() * -1;
-			}
-
-			// bonds
-			for (Property property : PropertyRegister.getInstance()
-					.getProperties(CentralBank.this)) {
-				if (property instanceof Bond)
-					balanceSheet.bonds += ((Bond) property).getFaceValue();
 			}
 
 			// --------------

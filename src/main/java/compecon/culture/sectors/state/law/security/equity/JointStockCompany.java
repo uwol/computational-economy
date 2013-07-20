@@ -28,7 +28,6 @@ import javax.persistence.Transient;
 
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.IPropertyOwner;
 import compecon.culture.sectors.state.law.property.Property;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
@@ -100,57 +99,6 @@ public abstract class JointStockCompany extends Agent {
 				- MONEY_TO_RETAIN);
 	}
 
-	@Transient
-	protected void payDividend() {
-		if (this.issuedShares.size() > 0) {
-			JointStockCompany.this.assureTransactionsBankAccount();
-
-			double totalDividend = this.calculateTotalDividend();
-
-			// dividend to be payed?
-			if (totalDividend > 0) {
-				double totalDividendPayed = 0;
-
-				Currency currency = this.transactionsBankAccount.getCurrency();
-				double dividendPerOwner = totalDividend
-						/ this.issuedShares.size();
-
-				// pay dividend for each share
-				for (Share share : this.issuedShares) {
-					IPropertyOwner owner = PropertyRegister.getInstance()
-							.getPropertyOwner(share);
-					if (owner != null && owner != JointStockCompany.this) {
-
-						if (owner instanceof IShareOwner) {
-							IShareOwner shareOwner = (IShareOwner) owner;
-							if (currency.equals(shareOwner
-									.getDividendBankAccount().getCurrency())) {
-								this.transactionsBankAccount
-										.getManagingBank()
-										.transferMoney(
-												this.transactionsBankAccount,
-												((IShareOwner) owner)
-														.getDividendBankAccount(),
-												dividendPerOwner,
-												this.bankPasswords
-														.get(this.primaryBank),
-												"dividend");
-								totalDividendPayed += dividendPerOwner;
-							}
-						}
-					}
-				}
-				if (Log.isAgentSelectedByClient(JointStockCompany.this)) {
-					Log.log(JointStockCompany.this, "payed dividend of "
-							+ Currency.round(totalDividendPayed)
-							+ " "
-							+ this.transactionsBankAccount.getCurrency()
-									.getIso4217Code());
-				}
-			}
-		}
-	}
-
 	public class SettlementMarketEvent implements ISettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
@@ -171,7 +119,58 @@ public abstract class JointStockCompany extends Agent {
 	public class PayDividendEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			JointStockCompany.this.payDividend();
+			if (JointStockCompany.this.issuedShares.size() > 0) {
+				JointStockCompany.this.assureTransactionsBankAccount();
+
+				double totalDividend = JointStockCompany.this
+						.calculateTotalDividend();
+
+				// dividend to be payed?
+				if (totalDividend > 0) {
+					double totalDividendPayed = 0;
+
+					Currency currency = JointStockCompany.this.transactionsBankAccount
+							.getCurrency();
+					double dividendPerOwner = totalDividend
+							/ JointStockCompany.this.issuedShares.size();
+
+					// pay dividend for each share
+					for (Share share : JointStockCompany.this.issuedShares) {
+						Agent owner = PropertyRegister.getInstance().getOwner(
+								share);
+						if (owner != null && owner != JointStockCompany.this) {
+
+							if (owner instanceof IShareOwner) {
+								IShareOwner shareOwner = (IShareOwner) owner;
+								if (currency
+										.equals(shareOwner
+												.getDividendBankAccount()
+												.getCurrency())) {
+									JointStockCompany.this.transactionsBankAccount
+											.getManagingBank()
+											.transferMoney(
+													JointStockCompany.this.transactionsBankAccount,
+													((IShareOwner) owner)
+															.getDividendBankAccount(),
+													dividendPerOwner,
+													JointStockCompany.this.bankPasswords
+															.get(JointStockCompany.this.primaryBank),
+													"dividend");
+									totalDividendPayed += dividendPerOwner;
+								}
+							}
+						}
+					}
+					if (Log.isAgentSelectedByClient(JointStockCompany.this)) {
+						Log.log(JointStockCompany.this,
+								"payed dividend of "
+										+ Currency.round(totalDividendPayed)
+										+ " "
+										+ JointStockCompany.this.transactionsBankAccount
+												.getCurrency().getIso4217Code());
+					}
+				}
+			}
 		}
 	}
 
@@ -185,13 +184,13 @@ public abstract class JointStockCompany extends Agent {
 				for (int i = 0; i < 3; i++) {
 					Share initialShare = PropertyFactory
 							.newInstanceShare(JointStockCompany.this);
-					PropertyRegister.getInstance().register(
+					PropertyRegister.getInstance().registerProperty(
 							JointStockCompany.this, initialShare);
 					JointStockCompany.this.issuedShares.add(initialShare);
 					MarketFactory.getInstance().placeSettlementSellingOffer(
 							initialShare, JointStockCompany.this,
-							JointStockCompany.this.transactionsBankAccount, 1,
-							0, new SettlementMarketEvent());
+							JointStockCompany.this.transactionsBankAccount, 0,
+							new SettlementMarketEvent());
 				}
 			}
 		}

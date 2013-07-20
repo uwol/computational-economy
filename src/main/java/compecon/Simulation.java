@@ -27,6 +27,7 @@ import compecon.engine.dashboard.Dashboard;
 import compecon.engine.jmx.JMXRegistration;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.HibernateUtil;
 import compecon.nature.materia.GoodType;
 
@@ -64,9 +65,20 @@ public class Simulation {
 
 			// configure simulation
 			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 5;
-			final int NUMBER_OF_TRADERSPERCURRENCY = 30;
-			final int NUMBER_OF_HOUSEHOLDSPERCURRENCY = 2000;
-			final int NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 5;
+
+			int NUMBER_OF_HOUSEHOLDSPERCURRENCY;
+			int NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY;
+			int NUMBER_OF_TRADERSPERCURRENCY;
+
+			if (!ConfigurationUtil.getActivateDb()) {
+				NUMBER_OF_HOUSEHOLDSPERCURRENCY = 2000;
+				NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 5;
+				NUMBER_OF_TRADERSPERCURRENCY = 30;
+			} else {
+				NUMBER_OF_HOUSEHOLDSPERCURRENCY = 10;
+				NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 1;
+				NUMBER_OF_TRADERSPERCURRENCY = 2;
+			}
 
 			// initialize the time system, so that agents can register their
 			// events

@@ -38,22 +38,23 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 	}
 
 	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(
-			Map<Period, Double> incomesInPeriods, double keyInterestRate,
-			double ageInDays) {
+			double averageIncomePerPeriod, double currentAssets,
+			double keyInterestRate, int ageInDays, int retirementAgeInDays,
+			int averageRemainingLifeDays) {
 
 		// price levels
 		Map<Period, Double> priceLevelsOfPeriods = new HashMap<Period, Double>();
-		for (Entry<Period, Double> entry : incomesInPeriods.entrySet()) {
+		for (Period period : Period.values()) {
 			// price levels in periods
-			priceLevelsOfPeriods.put(entry.getKey(), 1.);
+			priceLevelsOfPeriods.put(period, 1.);
 		}
 
 		// income cash flow discounted to current period -> intertemporal budget
 		double discountedBudget = 0.0;
-		for (Entry<Period, Double> entry : incomesInPeriods.entrySet()) {
+		for (Period period : Period.values()) {
 			// budget, discounted to current period
-			double periodIncome = entry.getValue();
-			int periodNumber = entry.getKey().ordinal();
+			double periodIncome = averageIncomePerPeriod;
+			int periodNumber = period.ordinal();
 			discountedBudget += periodIncome
 					/ Math.pow(1 + keyInterestRate, periodNumber);
 		}

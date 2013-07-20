@@ -38,6 +38,7 @@ import javax.persistence.Transient;
 
 import compecon.culture.PricingBehaviour;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
+import compecon.culture.sectors.financial.BankAccount.BankAccountType;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.culture.sectors.state.law.property.HardCashRegister;
 import compecon.culture.sectors.state.law.property.Property;
@@ -126,6 +127,13 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 				balanceSheetPublicationEvent, -1, MonthType.EVERY,
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
+		// bonds trading
+		ITimeSystemEvent bondsTradeEvent = new BondsTradeEvent();
+		this.timeSystemEvents.add(bondsTradeEvent);
+		compecon.engine.time.TimeSystem.getInstance().addEvent(bondsTradeEvent,
+				-1, MonthType.EVERY, DayType.EVERY,
+				TimeSystem.getInstance().suggestRandomHourType());
+
 		// pricing behaviours
 		for (Currency foreignCurrency : Currency.values()) {
 			if (!this.primaryCurrency.equals(foreignCurrency)) {
@@ -201,7 +209,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency,
 					this.bankPasswords.get(this.primaryBank),
-					"transactions account");
+					"transactions account", BankAccountType.GIRO);
 		}
 	}
 
@@ -218,7 +226,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 								this);
 				AgentFactory.getInstanceCentralBank(currency).openBankAccount(
 						this, currency, centralBankPassword,
-						"central bank account");
+						"central bank account", BankAccountType.GIRO);
 				this.bankPasswords.put(
 						AgentFactory.getInstanceCentralBank(currency),
 						centralBankPassword);
@@ -256,7 +264,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 										currency,
 										this.bankPasswords
 												.get(foreignCurrencyCreditBank),
-										"currency trade (foreign) account");
+										"currency trade (foreign) account",
+										BankAccountType.GIRO);
 						this.currencyTradeBankAccounts.put(currency,
 								bankAccount);
 					}
@@ -268,7 +277,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							CreditBank.this.openBankAccount(this,
 									this.primaryCurrency,
 									this.bankPasswords.get(CreditBank.this),
-									"currency trade (local)"));
+									"currency trade (local)",
+									BankAccountType.GIRO));
 				}
 			}
 		}
@@ -339,7 +349,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		if (!negativeAmountOK && amount < 0)
 			throw new RuntimeException("amount must be >= 0");
 
-		if (from.getCurrency() != to.getCurrency())
+		if (!from.getCurrency().equals(to.getCurrency()))
 			throw new RuntimeException(
 					"both bank accounts must have the same currency");
 
@@ -555,7 +565,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 									centralBank.getEffectiveKeyInterestRate() + 0.02);
 					bonds.add(bond);
 
-					PropertyRegister.getInstance().register(centralBank, bond);
+					PropertyRegister.getInstance().registerProperty(
+							centralBank, bond);
 
 					// obtain tender for bond
 					centralBank.obtainTender(CreditBank.this, bonds,
@@ -578,19 +589,17 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			BalanceSheet balanceSheet = CreditBank.this
 					.issueBasicBalanceSheet();
 
-			// bank accounts of non-banks managed by this bank
+			// bank accounts managed by this bank
 			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(CreditBank.this)) {
 				if (bankAccount.getCurrency() != CreditBank.this.primaryCurrency)
 					throw new RuntimeException("incorrect currency");
 
-				if (!(bankAccount.getOwner() instanceof Bank)) {
-					if (bankAccount.getBalance() > 0) // passive account
-						balanceSheet.bankBorrowings += bankAccount.getBalance();
-					else
-						// active account
-						balanceSheet.bankLoans += bankAccount.getBalance() * -1;
-				}
+				if (bankAccount.getBalance() > 0) // passive account
+					balanceSheet.bankBorrowings += bankAccount.getBalance();
+				else
+					// active account
+					balanceSheet.bankLoans += bankAccount.getBalance() * -1;
 			}
 
 			// TODO: bank accounts of banks
@@ -778,7 +787,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							MarketFactory
 									.getInstance()
 									.buy(foreignCurrency,
-											-1,
+											Double.NaN,
 											budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
 											correctPriceOfForeignCurrencyInLocalCurrency
 													/ (1 + MIN_ARBITRAGE_MARGIN),
@@ -829,11 +838,11 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						// buy local currency for foreign currency
 						MarketFactory.getInstance().buy(
 								localCurrency,
-								-1,
+								Double.NaN,
 								(1 - currencyPriceBuyingDamper)
 										* foreignCurrencyBankAccount
 												.getBalance(),
-								-1,
+								Double.NaN,
 								CreditBank.this,
 								foreignCurrencyBankAccount,
 								CreditBank.this.bankPasswords
@@ -979,6 +988,74 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 									.get(foreignCurrencyBankAccount
 											.getManagingBank()), null);
 				}
+			}
+		}
+	}
+
+	public class BondsTradeEvent implements ITimeSystemEvent {
+		@Override
+		public void onEvent() {
+			CreditBank.this.assureTransactionsBankAccount();
+
+			/*
+			 * the credit bank is doing fractional reserve banking -> buy bonds
+			 * for passive bank accounts
+			 */
+
+			// bank accounts of non-banks managed by this bank
+			double sumOfPassiveBankAccounts = 0.0;
+
+			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
+					.findAllBankAccountsManagedByBank(CreditBank.this)) {
+				if (bankAccount.getCurrency() != CreditBank.this.primaryCurrency)
+					throw new RuntimeException("incorrect currency");
+
+				if (!(bankAccount.getOwner() instanceof Bank)) {
+					if (bankAccount.getBalance() > 0
+							&& BankAccountType.SAVINGS.equals(bankAccount
+									.getBankAccountType())) // passive account
+						sumOfPassiveBankAccounts += bankAccount.getBalance();
+				}
+			}
+
+			// bonds bought from other agents
+			double faceValueSumOfBonds = 0.0;
+
+			for (Property property : PropertyRegister.getInstance()
+					.getProperties(CreditBank.this, FixedRateBond.class)) {
+				if (!(property instanceof FixedRateBond))
+					throw new RuntimeException("not a bond");
+
+				faceValueSumOfBonds += ((FixedRateBond) property)
+						.getFaceValue();
+			}
+
+			// TODO money reserves; Basel 3
+			double difference = sumOfPassiveBankAccounts - faceValueSumOfBonds;
+
+			if (Log.isAgentSelectedByClient(CreditBank.this))
+				Log.log(CreditBank.this,
+						"sumOfPassiveBankAccounts = "
+								+ Currency.round(sumOfPassiveBankAccounts)
+								+ " "
+								+ CreditBank.this.primaryCurrency
+										.getIso4217Code()
+								+ "; faceValueSumOfBonds = "
+								+ Currency.round(faceValueSumOfBonds)
+								+ " "
+								+ CreditBank.this.primaryCurrency
+										.getIso4217Code()
+								+ " => difference = "
+								+ Currency.round(difference)
+								+ " "
+								+ CreditBank.this.primaryCurrency
+										.getIso4217Code());
+
+			if (MathUtil.greater(difference, 0.0)) {
+				MarketFactory.getInstance().buy(FixedRateBond.class,
+						Double.NaN, difference, Double.NaN, CreditBank.this,
+						CreditBank.this.transactionsBankAccount,
+						CreditBank.this.bankPasswords.get(CreditBank.this));
 			}
 		}
 	}

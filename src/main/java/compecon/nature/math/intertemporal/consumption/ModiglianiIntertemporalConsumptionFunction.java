@@ -17,14 +17,39 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.nature.math.intertemporal.consumption;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import compecon.nature.math.intertemporal.consumption.IrvingFisherIntertemporalConsumptionFunction.Period;
 
-public interface IntertemporalConsumptionFunction {
+public class ModiglianiIntertemporalConsumptionFunction implements
+		IntertemporalConsumptionFunction {
 
+	@Override
 	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(
 			double averageIncomePerPeriod, double currentAssets,
 			double keyInterestRate, int ageInDays, int retirementAgeInDays,
-			int averageRemainingLifeDays);
+			int averageRemainingLifeDays) {
+		int remainingDaysUntilRetirement = Math.max(retirementAgeInDays
+				- ageInDays, 0);
+
+		double consumption;
+		if (averageRemainingLifeDays > 0) {
+			consumption = (currentAssets + remainingDaysUntilRetirement
+					* averageIncomePerPeriod)
+					/ (float) averageRemainingLifeDays;
+		} else {
+			consumption = averageIncomePerPeriod + currentAssets;
+		}
+
+		if (Double.isNaN(consumption)) {
+			throw new RuntimeException("consumption is " + consumption);
+		}
+
+		Map<Period, Double> optimalConsumptionPlan = new HashMap<Period, Double>();
+		for (Period period : Period.values()) {
+			optimalConsumptionPlan.put(period, consumption);
+		}
+		return optimalConsumptionPlan;
+	}
 }

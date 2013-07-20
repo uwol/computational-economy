@@ -74,6 +74,7 @@ public class Log {
 		ModelRegistry.getEffectiveProductionOutputModel().nextPeriod();
 		ModelRegistry.getMoneySupplyM0Model().nextPeriod();
 		ModelRegistry.getMoneySupplyM1Model().nextPeriod();
+		ModelRegistry.getMoneySupplyM2Model().nextPeriod();
 		ModelRegistry.getPricesModel().nextPeriod();
 		ModelRegistry.getUtilityModel().nextPeriod();
 	}
@@ -205,11 +206,9 @@ public class Log {
 	public static void centralBank_onObtainTender(CentralBank centralBank,
 			double amount, CreditBank creditBank) {
 		if (Log.isAgentSelectedByClient(creditBank))
-			log(creditBank,
-					creditBank + " obtained a tender of "
-							+ Currency.round(amount) + " "
-							+ centralBank.getPrimaryCurrency()
-							+ " of central bank money from " + centralBank);
+			log(creditBank, " obtained a tender of " + Currency.round(amount)
+					+ " " + centralBank.getPrimaryCurrency()
+					+ " of central bank money from " + centralBank);
 	}
 
 	public static void centralBank_KeyInterestRate(Currency currency,

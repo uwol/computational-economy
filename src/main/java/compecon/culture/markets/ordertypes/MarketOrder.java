@@ -202,7 +202,9 @@ public class MarketOrder implements Comparable<MarketOrder> {
 		this.validityPeriod = validityPeriod;
 	}
 
-	// transient
+	/*
+	 * business logic
+	 */
 
 	@Override
 	@Transient

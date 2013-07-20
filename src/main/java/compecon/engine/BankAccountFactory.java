@@ -19,6 +19,7 @@ package compecon.engine;
 
 import compecon.culture.sectors.financial.Bank;
 import compecon.culture.sectors.financial.BankAccount;
+import compecon.culture.sectors.financial.BankAccount.BankAccountType;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
@@ -26,7 +27,8 @@ import compecon.engine.util.HibernateUtil;
 public class BankAccountFactory {
 	public static BankAccount newInstanceBankAccount(final Agent owner,
 			boolean overdraftPossible, final Currency currency,
-			final Bank managingBank, final String name) {
+			final Bank managingBank, final String name,
+			final BankAccountType bankAccountType) {
 		BankAccount bankAccount = new BankAccount();
 
 		bankAccount.setOwner(owner);
@@ -34,6 +36,7 @@ public class BankAccountFactory {
 		bankAccount.setCurrency(currency);
 		bankAccount.setManagingBank(managingBank);
 		bankAccount.setName(name);
+		bankAccount.setBankAccountType(bankAccountType);
 
 		DAOFactory.getBankAccountDAO().save(bankAccount);
 		HibernateUtil.flushSession();

@@ -17,8 +17,17 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.nature.materia;
 
-
 public enum GoodType {
-	LABOURHOUR(), IRON(), COAL(), GOLD(), URANIUM(), WHEAT(), STEEL(), KILOWATT(), REALESTATE(), CAR();
+	LABOURHOUR(false), IRON(false), COAL(false), GOLD(false), URANIUM(false), WHEAT(
+			false), STEEL(false), KILOWATT(false), REALESTATE(false), CAR(false);
 
+	protected final boolean wholeNumber;
+
+	private GoodType(boolean wholeNumber) {
+		this.wholeNumber = wholeNumber;
+	}
+
+	public boolean getWholeNumber() {
+		return this.wholeNumber;
+	}
 }

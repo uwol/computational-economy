@@ -94,14 +94,12 @@ public class SettlementMarket extends Market {
 	}
 
 	public void placeSettlementSellingOffer(Property property, Agent offeror,
-			BankAccount offerorsBankAcount, double amount, double pricePerUnit,
+			BankAccount offerorsBankAcount, double pricePerUnit,
 			ISettlementEvent settlementEvent) {
-		if (amount > 0) {
-			this.placeSellingOffer(property, offeror, offerorsBankAcount,
-					pricePerUnit);
-			if (settlementEvent != null)
-				this.settlementEventListeners.put(offeror, settlementEvent);
-		}
+		this.placeSellingOffer(property, offeror, offerorsBankAcount,
+				pricePerUnit);
+		if (settlementEvent != null)
+			this.settlementEventListeners.put(offeror, settlementEvent);
 	}
 
 	public void removeAllSellingOffers(Agent offeror) {
@@ -114,8 +112,8 @@ public class SettlementMarket extends Market {
 			final Agent buyer, final BankAccount buyersBankAccount,
 			final String buyersBankAccountPassword) {
 		return this.buy(goodType, null, null, maxAmount, maxTotalPrice,
-				maxPricePerUnit, buyer, buyersBankAccount,
-				buyersBankAccountPassword, null);
+				maxPricePerUnit, goodType.getWholeNumber(), buyer,
+				buyersBankAccount, buyersBankAccountPassword, null);
 	}
 
 	/**
@@ -142,8 +140,8 @@ public class SettlementMarket extends Market {
 			final String buyersBankAccountPassword,
 			final BankAccount buyersBankAccountForCommodityCurrency) {
 		return this.buy(null, commodityCurrency, null, maxAmount,
-				maxTotalPrice, maxPricePerUnit, buyer, buyersBankAccount,
-				buyersBankAccountPassword,
+				maxTotalPrice, maxPricePerUnit, false, buyer,
+				buyersBankAccount, buyersBankAccountPassword,
 				buyersBankAccountForCommodityCurrency);
 	}
 
@@ -153,7 +151,7 @@ public class SettlementMarket extends Market {
 			final BankAccount buyersBankAccount,
 			final String buyersBankAccountPassword) {
 		return this.buy(null, null, propertyClass, maxAmount, maxTotalPrice,
-				maxPricePerUnit, buyer, buyersBankAccount,
+				maxPricePerUnit, true, buyer, buyersBankAccount,
 				buyersBankAccountPassword, null);
 	}
 
@@ -161,15 +159,15 @@ public class SettlementMarket extends Market {
 			final Currency commodityCurrency,
 			final Class<? extends Property> propertyClass,
 			final double maxAmount, final double maxTotalPrice,
-			final double maxPricePerUnit, final Agent buyer,
-			final BankAccount buyersBankAccount,
+			final double maxPricePerUnit, final boolean wholeNumber,
+			final Agent buyer, final BankAccount buyersBankAccount,
 			final String buyersBankAccountPassword,
 			final BankAccount buyersBankAccountForCommodityCurrency) {
 
 		SortedMap<MarketOrder, Double> marketOffers = this
 				.findBestFulfillmentSet(buyersBankAccount.getCurrency(),
-						maxAmount, maxTotalPrice, maxPricePerUnit, goodType,
-						commodityCurrency, propertyClass);
+						maxAmount, maxTotalPrice, maxPricePerUnit, wholeNumber,
+						goodType, commodityCurrency, propertyClass);
 
 		Bank buyersBank = buyersBankAccount.getManagingBank();
 		PropertyRegister register = PropertyRegister.getInstance();
@@ -204,8 +202,8 @@ public class SettlementMarket extends Market {
 			// transfer ownership
 			switch (marketOffer.getCommodityType()) {
 			case GOODTYPE:
-				register.transfer(marketOffer.getOfferor(), buyer,
-						marketOffer.getGoodType(), amount);
+				register.transferGoodTypeAmount(marketOffer.getOfferor(),
+						buyer, marketOffer.getGoodType(), amount);
 				if (this.settlementEventListeners.containsKey(marketOffer
 						.getOfferor())
 						&& this.settlementEventListeners.get(marketOffer
@@ -251,8 +249,8 @@ public class SettlementMarket extends Market {
 						.getOfferorsBankAcount().getCurrency(), amount);
 				break;
 			case PROPERTY:
-				register.transfer(marketOffer.getOfferor(), buyer,
-						marketOffer.getProperty(), 1);
+				register.transferProperty(marketOffer.getOfferor(), buyer,
+						marketOffer.getProperty());
 				if (this.settlementEventListeners.containsKey(marketOffer
 						.getOfferor())
 						&& this.settlementEventListeners.get(marketOffer
@@ -285,7 +283,8 @@ public class SettlementMarket extends Market {
 						"bought "
 								+ MathUtil.round(priceAndAmount[1])
 								+ " units of "
-								+ marketOffers.firstKey().getCommodity()
+								+ this.determineCommodityName(goodType,
+										commodityCurrency, propertyClass)
 								+ " for "
 								+ Currency.round(priceAndAmount[0])
 								+ " "
@@ -306,10 +305,10 @@ public class SettlementMarket extends Market {
 			} else {
 				Log.log(buyer,
 						"cannot buy "
-								+ this.determineCommodity(goodType,
+								+ this.determineCommodityName(goodType,
 										commodityCurrency, propertyClass)
 								+ ", since no matching offers for "
-								+ this.determineCommodity(goodType,
+								+ this.determineCommodityName(goodType,
 										commodityCurrency, propertyClass)
 								+ " under constraints [maxAmount: "
 								+ MathUtil.round(maxAmount)
@@ -329,12 +328,12 @@ public class SettlementMarket extends Market {
 		return priceAndAmount;
 	}
 
-	private Object determineCommodity(GoodType goodType,
+	private String determineCommodityName(GoodType goodType,
 			Currency commodityCurrency, Class<? extends Property> propertyClass) {
 		if (commodityCurrency != null)
-			return commodityCurrency;
+			return commodityCurrency.getIso4217Code();
 		if (propertyClass != null)
-			return propertyClass;
-		return goodType;
+			return propertyClass.getSimpleName();
+		return goodType.toString();
 	}
 }

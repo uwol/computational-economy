@@ -107,19 +107,19 @@ public class MarketTest extends CompEconTestSupport {
 						goodType), epsilon);
 
 		SortedMap<MarketOrder, Double> marketOffers1 = MarketFactory
-				.getInstance().findBestFulfillmentSet(currency, 20, -1, 3,
-						goodType);
+				.getInstance().findBestFulfillmentSet(currency, 20, Double.NaN,
+						3, goodType);
 		assertEquals(1, marketOffers1.size());
 
 		SortedMap<MarketOrder, Double> marketOffers2 = MarketFactory
-				.getInstance().findBestFulfillmentSet(currency, 20, -1, 5,
-						goodType);
+				.getInstance().findBestFulfillmentSet(currency, 20, Double.NaN,
+						5, goodType);
 		assertEquals(2, marketOffers2.size());
 
 		MarketFactory.getInstance().buy(
 				goodType,
 				5,
-				-1,
+				Double.NaN,
 				8,
 				factory1_WHEAT_EUR,
 				factory1_WHEAT_EUR.getTransactionsBankAccount(),
@@ -139,6 +139,8 @@ public class MarketTest extends CompEconTestSupport {
 
 		Factory factory1_WHEAT_EUR = DAOFactory.getFactoryDAO()
 				.findAllByCurrency(currency).get(0);
+		Household household1_EUR = DAOFactory.getHouseholdDAO()
+				.findAllByCurrency(currency).get(0);
 
 		assertEquals(Double.NaN, DAOFactory.getMarketOrderDAO()
 				.findMarginalPrice(currency, Share.class), epsilon);
@@ -153,6 +155,30 @@ public class MarketTest extends CompEconTestSupport {
 				0.0,
 				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
 						Share.class), epsilon);
+		assertEquals(
+				3,
+				PropertyRegister.getInstance()
+						.getProperties(factory1_WHEAT_EUR, Share.class).size());
+
+		MarketFactory.getInstance().buy(
+				Share.class,
+				1,
+				Double.NaN,
+				Double.NaN,
+				household1_EUR,
+				household1_EUR.getTransactionsBankAccount(),
+				household1_EUR.getBankPasswords().get(
+						household1_EUR.getTransactionsBankAccount()
+								.getManagingBank()));
+
+		assertEquals(
+				2,
+				PropertyRegister.getInstance()
+						.getProperties(factory1_WHEAT_EUR, Share.class).size());
+		assertEquals(
+				1,
+				PropertyRegister.getInstance()
+						.getProperties(household1_EUR, Share.class).size());
 
 		MarketFactory.getInstance().removeAllSellingOffers(factory1_WHEAT_EUR);
 		assertEquals(Double.NaN, DAOFactory.getMarketOrderDAO()
@@ -248,19 +274,19 @@ public class MarketTest extends CompEconTestSupport {
 						commodityCurrency), epsilon);
 
 		SortedMap<MarketOrder, Double> marketOffers1 = MarketFactory
-				.getInstance().findBestFulfillmentSet(currency, 20, -1, 1,
-						commodityCurrency);
+				.getInstance().findBestFulfillmentSet(currency, 20, Double.NaN,
+						1, commodityCurrency);
 		assertEquals(1, marketOffers1.size());
 
 		SortedMap<MarketOrder, Double> marketOffers2 = MarketFactory
-				.getInstance().findBestFulfillmentSet(currency, 20, -1, 5,
-						commodityCurrency);
+				.getInstance().findBestFulfillmentSet(currency, 20, Double.NaN,
+						5, commodityCurrency);
 		assertEquals(2, marketOffers2.size());
 
 		MarketFactory.getInstance().buy(
 				commodityCurrency,
 				5,
-				-1,
+				Double.NaN,
 				8,
 				trader1_EUR,
 				trader1_EUR.getTransactionsBankAccount(),

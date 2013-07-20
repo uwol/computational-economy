@@ -34,6 +34,7 @@ import javax.persistence.Transient;
 import compecon.culture.PricingBehaviour;
 import compecon.culture.markets.SettlementMarket.ISettlementEvent;
 import compecon.culture.sectors.financial.BankAccount;
+import compecon.culture.sectors.financial.BankAccount.BankAccountType;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.property.Property;
@@ -147,7 +148,8 @@ public class Trader extends JointStockCompany {
 				BankAccount bankAccount = foreignCurrencyCreditBank
 						.openBankAccount(this, currency, this.bankPasswords
 								.get(foreignCurrencyCreditBank),
-								"foreign currency account");
+								"foreign currency account",
+								BankAccountType.GIRO);
 				this.goodsTradeBankAccounts.put(currency, bankAccount);
 			}
 		}
@@ -313,7 +315,7 @@ public class Trader extends JointStockCompany {
 								MarketFactory
 										.getInstance()
 										.buy(foreignCurrency,
-												-1,
+												Double.NaN,
 												budgetPerGoodTypeAndForeignCurrencyInLocalCurrency,
 												priceOfForeignCurrencyInLocalCurrency,
 												Trader.this,
@@ -330,7 +332,7 @@ public class Trader extends JointStockCompany {
 								MarketFactory
 										.getInstance()
 										.buy(goodType,
-												-1,
+												Double.NaN,
 												foreignCurrencyBankAccount
 														.getBalance(),
 												priceOfGoodTypeInForeignCurrency,

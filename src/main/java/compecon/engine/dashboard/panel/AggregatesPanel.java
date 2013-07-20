@@ -140,6 +140,11 @@ public class AggregatesPanel extends JPanel {
 			timeSeriesCollection.addSeries(ModelRegistry
 					.getMoneySupplyM1Model().getTimeSeries(currency));
 
+		for (Currency currency : ModelRegistry.getMoneySupplyM2Model()
+				.getTypes())
+			timeSeriesCollection.addSeries(ModelRegistry
+					.getMoneySupplyM2Model().getTimeSeries(currency));
+
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Money Supply to Non-Banks", "Date", "Money Supply",
 				(XYDataset) timeSeriesCollection, true, true, false);

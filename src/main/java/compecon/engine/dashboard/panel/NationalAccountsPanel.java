@@ -35,9 +35,9 @@ import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.model.Model.IModelListener;
+import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.generic.PeriodDataAccumulator;
 import compecon.engine.jmx.model.generic.PeriodDataAccumulatorSet;
-import compecon.engine.jmx.model.ModelRegistry;
 import compecon.nature.materia.GoodType;
 
 public class NationalAccountsPanel extends JPanel {
@@ -51,14 +51,15 @@ public class NationalAccountsPanel extends JPanel {
 		public final static int SIDE_PASSIVE = 5;
 
 		public final static int POSITION_HARD_CASH = 0;
-		public final static int POSITION_CASH = 1;
-		public final static int POSITION_BONDS = 2;
-		public final static int POSITION_BANK_LOANS = 3;
-		public final static int STARTPOSITION_GOODTYPES = 5;
+		public final static int POSITION_CASH_SHORT_TERM = 1;
+		public final static int POSITION_CASH_LONG_TERM = 2;
+		public final static int POSITION_BONDS = 3;
+		public final static int POSITION_BANK_LOANS = 4;
+		public final static int STARTPOSITION_GOODTYPES = 6;
 
 		public final static int POSITION_LOANS = 1;
-		public final static int POSITION_FIN_LIABLITIES = 2;
-		public final static int POSITION_BANK_BORROWINGS = 3;
+		public final static int POSITION_FIN_LIABLITIES = 3;
+		public final static int POSITION_BANK_BORROWINGS = 4;
 
 		protected final String columnNames[] = { "Active Account",
 				"Agent Type", "Value", "Currency", "", "Passive Account",
@@ -80,7 +81,8 @@ public class NationalAccountsPanel extends JPanel {
 					+ GoodType.values().length];
 
 			this.activePositionNames[POSITION_HARD_CASH] = "Hard Cash";
-			this.activePositionNames[POSITION_CASH] = "Cash";
+			this.activePositionNames[POSITION_CASH_SHORT_TERM] = "Cash Short Term";
+			this.activePositionNames[POSITION_CASH_LONG_TERM] = "Cash Long Term";
 			this.activePositionNames[POSITION_BONDS] = "Fin. Assets (Bonds)";
 			this.activePositionNames[POSITION_BANK_LOANS] = "Bank Loans";
 
@@ -185,8 +187,13 @@ public class NationalAccountsPanel extends JPanel {
 						agentTypeNr, referenceCurrency,
 						Currency.round(balanceSheet.hardCash));
 				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-						NationalAccountsTableModel.POSITION_CASH, agentTypeNr,
-						referenceCurrency, Currency.round(balanceSheet.cash));
+						NationalAccountsTableModel.POSITION_CASH_SHORT_TERM,
+						agentTypeNr, referenceCurrency,
+						Currency.round(balanceSheet.cashShortTerm));
+				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+						NationalAccountsTableModel.POSITION_CASH_LONG_TERM,
+						agentTypeNr, referenceCurrency,
+						Currency.round(balanceSheet.cashLongTerm));
 				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
 						NationalAccountsTableModel.POSITION_BONDS, agentTypeNr,
 						referenceCurrency, Currency.round(balanceSheet.bonds));

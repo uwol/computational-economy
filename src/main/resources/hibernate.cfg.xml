@@ -21,14 +21,15 @@
 		<property name="hibernate.current_session_context_class">thread</property>
 		<property name="hibernate.show_sql">false</property>
 		<property name="hibernate.format_sql">true</property>
-		<property name="hibernate.use_sql_comments">false</property>
 		<property name="hibernate.hbm2ddl.auto">create</property>
-		<property name="hibernate.order_inserts">true</property>
-		<property name="hibernate.order_updates">true</property>
-		<property name="hibernate.jdbc.batch_versioned_data">true</property>
-		<property name="hibernate.jdbc.fetch_size">100</property>
-		<property name="hibernate.jdbc.batch_size">100</property>
 		<property name="hibernate.generate.statistics">true</property>
+		
+		<!-- <property name="hibernate.order_inserts">true</property> -->
+		<!-- <property name="hibernate.order_updates">true</property> -->
+		<!-- <property name="hibernate.use_sql_comments">false</property> -->
+		<!-- <property name="hibernate.jdbc.batch_versioned_data">false</property> -->
+		<!-- <property name="hibernate.jdbc.fetch_size">100</property> -->
+		<!-- <property name="hibernate.jdbc.batch_size">100</property> -->		
 
 		<mapping class="compecon.culture.markets.ordertypes.MarketOrder" />
 		<mapping class="compecon.culture.sectors.financial.Currency" />
@@ -39,7 +40,9 @@
 		<mapping class="compecon.culture.sectors.household.Household" />
 		<mapping class="compecon.culture.sectors.industry.Factory" />
 		<mapping class="compecon.culture.sectors.state.State" />
+		<mapping class="compecon.culture.sectors.state.law.property.GoodTypeOwnership" />
 		<mapping class="compecon.culture.sectors.state.law.property.Property" />
+		<mapping class="compecon.culture.sectors.state.law.property.PropertyOwnership" />
 		<mapping class="compecon.culture.sectors.state.law.security.debt.Bond" />
 		<mapping class="compecon.culture.sectors.state.law.security.debt.FixedRateBond" />
 		<mapping class="compecon.culture.sectors.state.law.security.debt.ZeroCouponBond" />

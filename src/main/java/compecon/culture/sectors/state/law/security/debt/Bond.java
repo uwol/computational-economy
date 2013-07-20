@@ -32,9 +32,9 @@ import org.hibernate.annotations.Index;
 
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.IPropertyOwner;
 import compecon.culture.sectors.state.law.property.Property;
 import compecon.culture.sectors.state.law.property.PropertyRegister;
+import compecon.engine.Agent;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
@@ -56,6 +56,8 @@ public abstract class Bond extends Property {
 	@Enumerated(value = EnumType.STRING)
 	protected Currency issuedInCurrency;
 
+	protected int termInYears = 1;
+
 	@Transient
 	protected List<ITimeSystemEvent> timeSystemEvents = new ArrayList<ITimeSystemEvent>();
 
@@ -67,7 +69,7 @@ public abstract class Bond extends Property {
 		ITimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
 		this.timeSystemEvents.add(transferFaceValueEvent);
 		TimeSystem.getInstance().addEvent(transferFaceValueEvent,
-				TimeSystem.getInstance().getCurrentYear() + 2,
+				TimeSystem.getInstance().getCurrentYear() + termInYears,
 				TimeSystem.getInstance().getCurrentMonthType(),
 				TimeSystem.getInstance().getCurrentDayType(), HourType.HOUR_01);
 	}
@@ -92,6 +94,10 @@ public abstract class Bond extends Property {
 		return issuedInCurrency;
 	}
 
+	public int getTermInYears() {
+		return termInYears;
+	}
+
 	public void setFaceValue(double faceValue) {
 		this.faceValue = faceValue;
 	}
@@ -108,33 +114,29 @@ public abstract class Bond extends Property {
 		this.issuedInCurrency = issuedInCurrency;
 	}
 
+	public void setTermInYears(int termInYears) {
+		this.termInYears = termInYears;
+	}
+
 	/*
 	 * business logic
 	 */
 
 	@Transient
-	protected void transferFaceValue() {
-		IPropertyOwner owner = PropertyRegister.getInstance().getPropertyOwner(
-				this);
-		this.issuerBankAccount.getManagingBank().transferMoney(
-				this.issuerBankAccount, owner.getTransactionsBankAccount(),
-				this.faceValue, this.issuerBankAccountPassword,
-				"bond face value");
-	}
-
-	@Transient
-	protected void deconstruct() {
-
+	public void deconstruct() {
 		// deregister from TimeSystem
 		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
 			TimeSystem.getInstance().removeEvent(timeSystemEvent);
-
 	}
 
 	public class TransferFaceValueEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			Bond.this.transferFaceValue();
+			Agent owner = PropertyRegister.getInstance().getOwner(Bond.this);
+			Bond.this.issuerBankAccount.getManagingBank().transferMoney(
+					Bond.this.issuerBankAccount,
+					owner.getTransactionsBankAccount(), Bond.this.faceValue,
+					Bond.this.issuerBankAccountPassword, "bond face value");
 			Bond.this.deconstruct(); // delete bond from simulation
 		}
 	}
@@ -145,4 +147,5 @@ public abstract class Bond extends Property {
 				+ Currency.round(this.faceValue) + " "
 				+ this.issuedInCurrency.getIso4217Code() + "]";
 	}
+
 }

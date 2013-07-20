@@ -34,7 +34,7 @@ public class PricingBehaviour {
 
 	protected final Currency denominatedInCurrency;
 
-	protected final Object offeredGoodOrCurrency;
+	protected final Object offeredObject;
 
 	protected boolean periodDataInitialized = false;
 
@@ -53,13 +53,13 @@ public class PricingBehaviour {
 	double[] offeredAmount_InPeriods = new double[10]; // x, x-1, x-2, x-3,
 														// ...
 
-	public PricingBehaviour(Agent agent, Object offeredGoodOrCurrency,
+	public PricingBehaviour(Agent agent, Object offeredObject,
 			Currency denominatedInCurrency, double initialPrice,
 			double initialPriceChangeIncrement) {
 		this.agent = agent;
 		this.initialPrice = initialPrice;
 		this.denominatedInCurrency = denominatedInCurrency;
-		this.offeredGoodOrCurrency = offeredGoodOrCurrency;
+		this.offeredObject = offeredObject;
 		this.initialPriceChangeIncrement = initialPriceChangeIncrement;
 	}
 
@@ -126,7 +126,7 @@ public class PricingBehaviour {
 		double oldPrice = this.prices_InPeriods[1];
 
 		String prefix = "offered " + MathUtil.round(offeredAmount_InPeriods[1])
-				+ " units of " + offeredGoodOrCurrency + " for "
+				+ " units of " + offeredObject + " for "
 				+ Currency.round(this.prices_InPeriods[1]) + " "
 				+ this.denominatedInCurrency.getIso4217Code()
 				+ " per unit and sold "
@@ -200,6 +200,14 @@ public class PricingBehaviour {
 
 	public double getCurrentPrice() {
 		return this.prices_InPeriods[0];
+	}
+
+	public double getLastOfferedAmount() {
+		return this.offeredAmount_InPeriods[1];
+	}
+
+	public double getLastSoldAmount() {
+		return this.soldAmount_InPeriods[1];
 	}
 
 	protected double calculateHigherPrice(double price) {

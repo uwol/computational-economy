@@ -48,6 +48,9 @@ public class ModelRegistry {
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values(), " M1");
 
+	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM2Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
+			Currency.values(), " M2");
+
 	protected final static NumberOfAgentsModel numberOfAgentsModel = new NumberOfAgentsModel();
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
@@ -60,7 +63,7 @@ public class ModelRegistry {
 
 	static {
 		balanceSheetsModel = new BalanceSheetsModel(moneySupplyM0Model,
-				moneySupplyM1Model);
+				moneySupplyM1Model, moneySupplyM2Model);
 	}
 
 	/*
@@ -101,6 +104,10 @@ public class ModelRegistry {
 
 	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getMoneySupplyM1Model() {
 		return moneySupplyM1Model;
+	}
+
+	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getMoneySupplyM2Model() {
+		return moneySupplyM2Model;
 	}
 
 	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getUtilityModel() {

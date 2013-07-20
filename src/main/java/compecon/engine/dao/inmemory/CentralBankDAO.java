@@ -17,18 +17,35 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.inmemory;
 
+import java.util.List;
+
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory.ICentralBankDAO;
 
-public class CentralBankDAO extends InMemoryDAO<CentralBank> implements
-		ICentralBankDAO {
+public class CentralBankDAO extends CurrencyIndexedInMemoryDAO<CentralBank>
+		implements ICentralBankDAO {
+
+	@Override
+	public synchronized void delete(CentralBank entity) {
+		super.delete(entity.getPrimaryCurrency(), entity);
+	}
 
 	@Override
 	public synchronized CentralBank findByCurrency(Currency currency) {
-		for (CentralBank centralBank : this.findAll())
-			if (centralBank.getPrimaryCurrency().equals(currency))
-				return centralBank;
-		return null;
+		// should contain only one element
+		List<CentralBank> centralBanksForCurrency = this
+				.getInstancesForCurrency(currency);
+		if (centralBanksForCurrency == null)
+			return null;
+		if (centralBanksForCurrency.size() > 1)
+			throw new RuntimeException(
+					"more than one central bank per currency");
+		return centralBanksForCurrency.get(0);
+	}
+
+	@Override
+	public synchronized void save(CentralBank entity) {
+		super.save(entity.getPrimaryCurrency(), entity);
 	}
 }

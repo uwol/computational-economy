@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import compecon.culture.sectors.financial.Bank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
@@ -36,12 +37,16 @@ public class BalanceSheetsModel extends Model {
 
 	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model;
 
+	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM2Model;
+
 	public BalanceSheetsModel(
 			PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model,
-			PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model) {
+			PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model,
+			PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM2Model) {
 
 		this.moneySupplyM0Model = moneySupplyM0Model;
 		this.moneySupplyM1Model = moneySupplyM1Model;
+		this.moneySupplyM2Model = moneySupplyM2Model;
 		this.resetNationalAccountsBalanceSheets();
 	}
 
@@ -52,7 +57,8 @@ public class BalanceSheetsModel extends Model {
 
 		// assets
 		nationalAccountsBalanceSheet.hardCash += balanceSheet.hardCash;
-		nationalAccountsBalanceSheet.cash += balanceSheet.cash;
+		nationalAccountsBalanceSheet.cashShortTerm += balanceSheet.cashShortTerm;
+		nationalAccountsBalanceSheet.cashLongTerm += balanceSheet.cashLongTerm;
 		nationalAccountsBalanceSheet.bonds += balanceSheet.bonds;
 		nationalAccountsBalanceSheet.bankLoans += balanceSheet.bankLoans;
 
@@ -79,10 +85,15 @@ public class BalanceSheetsModel extends Model {
 		nationalAccountsBalanceSheet.issuedCapital
 				.addAll(balanceSheet.issuedCapital);
 
-		this.moneySupplyM0Model.add(balanceSheet.referenceCurrency,
-				balanceSheet.hardCash);
-		this.moneySupplyM1Model.add(balanceSheet.referenceCurrency,
-				balanceSheet.bankBorrowings + balanceSheet.hardCash);
+		if (!(agent instanceof Bank)) {
+			this.moneySupplyM0Model.add(balanceSheet.referenceCurrency,
+					balanceSheet.hardCash);
+			this.moneySupplyM1Model.add(balanceSheet.referenceCurrency,
+					balanceSheet.cashShortTerm + balanceSheet.hardCash);
+			this.moneySupplyM2Model.add(balanceSheet.referenceCurrency,
+					balanceSheet.hardCash + balanceSheet.cashShortTerm
+							+ balanceSheet.cashLongTerm);
+		}
 	}
 
 	private void resetNationalAccountsBalanceSheets() {

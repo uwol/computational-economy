@@ -1,3 +1,20 @@
+/*
+This file is part of ComputationalEconomy.
+
+ComputationalEconomy is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ComputationalEconomy is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package compecon.culture.sectors.state.law.property;
 
 import javax.persistence.Column;
@@ -15,6 +32,12 @@ import org.hibernate.annotations.Index;
 
 import compecon.engine.PropertyFactory;
 
+/**
+ * property life cycle is managed by the initial property creator, i. e. when
+ * the property creator is deconstructed, the property should be deconstructed,
+ * too. Thus, a property is not deconstructed, when its property owner or its
+ * {@link PropertyOwnership} is deconstructed.
+ */
 @Entity
 @Table(name = "Property")
 @org.hibernate.annotations.Table(appliesTo = "Property", indexes = { @Index(name = "IDX_P_DTYPE", columnNames = { "DTYPE" }) })
@@ -59,12 +82,6 @@ public abstract class Property {
 	@Transient
 	protected void deconstruct() {
 		this.isDeconstructed = true;
-
-		// deregister from property rights system
-		PropertyRegister.getInstance().deregister(this);
-
-		// deregister from property rights system
-		PropertyRegister.getInstance().deregister(this);
 
 		PropertyFactory.deleteProperty(this);
 	}

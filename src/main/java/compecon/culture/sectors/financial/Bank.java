@@ -32,6 +32,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.Transient;
 
+import compecon.culture.sectors.financial.BankAccount.BankAccountType;
 import compecon.culture.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.Agent;
 import compecon.engine.BankAccountFactory;
@@ -165,13 +166,13 @@ public abstract class Bank extends JointStockCompany {
 
 	@Transient
 	public BankAccount openBankAccount(Agent customer, Currency currency,
-			String password, String name) {
+			String password, String name, BankAccountType bankAccountType) {
 		this.assertIsCustomerOfThisBank(customer);
 		this.assertPasswordOk(customer, password);
 		this.assertCurrencyIsOffered(currency);
 
 		BankAccount bankAccount = BankAccountFactory.newInstanceBankAccount(
-				customer, true, currency, this, name);
+				customer, true, currency, this, name, bankAccountType);
 		return bankAccount;
 	}
 

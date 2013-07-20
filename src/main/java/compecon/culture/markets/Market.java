@@ -181,7 +181,8 @@ public abstract class Market {
 			final double maxTotalPrice, final double maxPricePerUnit,
 			final GoodType goodType) {
 		return this.findBestFulfillmentSet(denominatedInCurrency, maxAmount,
-				maxTotalPrice, maxPricePerUnit, goodType, null, null);
+				maxTotalPrice, maxPricePerUnit, goodType.getWholeNumber(),
+				goodType, null, null);
 	}
 
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
@@ -189,43 +190,46 @@ public abstract class Market {
 			final double maxTotalPrice, final double maxPricePerUnit,
 			final Currency commodityCurrency) {
 		return this.findBestFulfillmentSet(denominatedInCurrency, maxAmount,
-				maxTotalPrice, maxPricePerUnit, null, commodityCurrency, null);
+				maxTotalPrice, maxPricePerUnit, false, null, commodityCurrency,
+				null);
 	}
 
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
 			final Class<? extends Property> propertyClass) {
-		return this.findBestFulfillmentSet(denominatedInCurrency, maxAmount,
-				maxTotalPrice, maxPricePerUnit, null, null, propertyClass);
+		return this
+				.findBestFulfillmentSet(denominatedInCurrency, maxAmount,
+						maxTotalPrice, maxPricePerUnit, true, null, null,
+						propertyClass);
 	}
 
 	protected SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, double maxAmount,
-			double maxTotalPrice, double maxPricePerUnit,
+			double maxTotalPrice, double maxPricePerUnit, boolean wholeNumber,
 			final GoodType goodType, Currency commodityCurrency,
 			final Class<? extends Property> propertyClass) {
 
-		if (Double.isInfinite(maxAmount) || Double.isNaN(maxAmount))
-			maxAmount = -1;
-		if (Double.isInfinite(maxTotalPrice) || Double.isNaN(maxTotalPrice))
-			maxTotalPrice = -1;
-		if (Double.isInfinite(maxPricePerUnit) || Double.isNaN(maxPricePerUnit))
-			maxPricePerUnit = -1;
+		if (MathUtil.lesser(maxAmount, 0.0))
+			throw new RuntimeException("maxAmount is " + maxAmount);
+		if (MathUtil.lesser(maxTotalPrice, 0.0))
+			throw new RuntimeException("maxTotalPrice is " + maxTotalPrice);
+		if (MathUtil.lesser(maxPricePerUnit, 0.0))
+			throw new RuntimeException("maxPricePerUnit is " + maxPricePerUnit);
 
 		// MarketOrder, Amount
 		SortedMap<MarketOrder, Double> selectedOffers = new TreeMap<MarketOrder, Double>();
 
 		boolean restrictMaxAmount = true;
-		if (maxAmount < 0)
+		if (Double.isInfinite(maxAmount) || Double.isNaN(maxAmount))
 			restrictMaxAmount = false;
 
 		boolean restrictTotalPrice = true;
-		if (maxTotalPrice < 0)
+		if (Double.isInfinite(maxTotalPrice) || Double.isNaN(maxTotalPrice))
 			restrictTotalPrice = false;
 
 		boolean restrictMaxPricePerUnit = true;
-		if (maxPricePerUnit < 0)
+		if (Double.isInfinite(maxPricePerUnit) || Double.isNaN(maxPricePerUnit))
 			restrictMaxPricePerUnit = false;
 
 		double selectedAmount = 0;
@@ -247,17 +251,18 @@ public abstract class Market {
 		}
 
 		/*
-		 * search for orders for the right property starting with the lowest
-		 * price/unit
+		 * search for orders starting with the lowest price/unit
 		 */
 		while (iterator.hasNext()) {
 			MarketOrder offer = iterator.next();
 
+			// is maxPricePerUnit exceeded?
 			if (restrictMaxPricePerUnit
 					&& MathUtil.greater(offer.getPricePerUnit(),
 							maxPricePerUnit))
 				break;
 
+			// is the amount correct?
 			if (offer.getAmount() <= 0)
 				throw new RuntimeException("amount of offer is "
 						+ offer.getAmount());
@@ -267,6 +272,7 @@ public abstract class Market {
 				throw new RuntimeException("wrong currency "
 						+ denominatedInCurrency);
 			}
+
 			double amountToTakeByMaxAmountRestriction;
 			double amountToTakeByTotalPriceRestriction;
 			double amountToTakeByMaxPricePerUnitRestriction;
@@ -299,6 +305,11 @@ public abstract class Market {
 					amountToTakeByMaxAmountRestriction, Math.min(
 							amountToTakeByTotalPriceRestriction,
 							amountToTakeByMaxPricePerUnitRestriction)));
+
+			// wholeNumberRestriction
+			if (wholeNumber) {
+				amountToTake = (long) amountToTake;
+			}
 
 			double totalPrice = amountToTake * offer.getPricePerUnit();
 

@@ -18,7 +18,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,9 +35,8 @@ import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.nature.materia.GoodType;
 import compecon.nature.materia.InputOutputModel;
-import compecon.nature.math.intertemporal.consumption.CobbDouglasIntertemporalConsumptionFunction;
-import compecon.nature.math.intertemporal.consumption.IrvingFisherIntertemporalConsumptionFunction;
-import compecon.nature.math.intertemporal.consumption.IrvingFisherIntertemporalConsumptionFunction.Period;
+import compecon.nature.math.intertemporal.consumption.IntertemporalConsumptionFunction;
+import compecon.nature.math.intertemporal.consumption.ModiglianiIntertemporalConsumptionFunction;
 import compecon.nature.math.production.IProductionFunction;
 import compecon.nature.math.utility.CobbDouglasUtilityFunction;
 import compecon.nature.math.utility.IUtilityFunction;
@@ -60,9 +58,19 @@ public class AgentFactory {
 		State state = DAOFactory.getStateDAO().findByCurrency(currency);
 		if (state == null) {
 			state = new State();
+
+			Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
+			preferences.put(GoodType.LABOURHOUR, 0.3);
+			preferences.put(GoodType.KILOWATT, 0.2);
+			preferences.put(GoodType.REALESTATE, 0.2);
+			preferences.put(GoodType.GOLD, 0.3);
+			IUtilityFunction utilityFunction = new CobbDouglasUtilityFunction(
+					preferences, 1);
+			state.setUtilityFunction(utilityFunction);
+
 			state.setPrimaryCurrency(currency);
-			state.initialize();
 			DAOFactory.getStateDAO().save(state);
+			state.initialize();
 			HibernateUtil.flushSession();
 		}
 		return state;
@@ -74,8 +82,8 @@ public class AgentFactory {
 		if (centralBank == null) {
 			centralBank = new CentralBank();
 			centralBank.setPrimaryCurrency(currency);
-			centralBank.initialize();
 			DAOFactory.getCentralBankDAO().save(centralBank);
+			centralBank.initialize();
 			HibernateUtil.flushSession();
 		}
 		return centralBank;
@@ -96,8 +104,8 @@ public class AgentFactory {
 		CreditBank creditBank = new CreditBank();
 		creditBank.setOfferedCurrencies(offeredCurrencies);
 		creditBank.setPrimaryCurrency(primaryCurrency);
-		creditBank.initialize();
 		DAOFactory.getCreditBankDAO().save(creditBank);
+		creditBank.initialize();
 		HibernateUtil.flushSession();
 		return creditBank;
 	}
@@ -121,8 +129,8 @@ public class AgentFactory {
 				.getProductionFunction(goodType);
 		factory.setProductionFunction(productionFunction);
 
-		factory.initialize();
 		DAOFactory.getFactoryDAO().save(factory);
+		factory.initialize();
 		HibernateUtil.flushSession();
 		return factory;
 	}
@@ -135,10 +143,11 @@ public class AgentFactory {
 		Household household = new Household();
 		household.setPrimaryCurrency(primaryCurrency);
 
-		// consumption preferences; each GoodType has to be contained here, so
-		// that the corresponding price on the market can come to an
-		// equilibrium; preference for labour hour has to be high enough, so
-		// that labour hour prices do not fall endlessly
+		// consumption preferences; each GoodType has to be contained here (at
+		// least transitively via the input-output-model), so that the
+		// corresponding price on the market
+		// can come to an equilibrium; preference for labour hour has to be high
+		// enough, so that labour hour prices do not fall endlessly
 		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
 		preferences.put(GoodType.LABOURHOUR, 0.2);
 		preferences.put(GoodType.WHEAT, 0.2);
@@ -146,22 +155,26 @@ public class AgentFactory {
 		preferences.put(GoodType.CAR, 0.2);
 		preferences.put(GoodType.REALESTATE, 0.2);
 		preferences.put(GoodType.GOLD, 0.1);
-
 		IUtilityFunction utilityFunction = new CobbDouglasUtilityFunction(
 				preferences, 1);
 		household.setUtilityFunction(utilityFunction);
 
 		// intertemporal preferences
-		Map<Period, Double> intermeporalPreferences = new HashMap<Period, Double>();
-		intermeporalPreferences.put(Period.CURRENT, 0.5);
-		intermeporalPreferences.put(Period.NEXT, 0.5);
-		IrvingFisherIntertemporalConsumptionFunction intertemporalConsumptionFunction = new CobbDouglasIntertemporalConsumptionFunction(
-				intermeporalPreferences);
+		/*
+		 * Map<Period, Double> intermeporalPreferences = new HashMap<Period,
+		 * Double>(); intermeporalPreferences.put(Period.CURRENT, 0.5);
+		 * intermeporalPreferences.put(Period.NEXT, 0.5);
+		 * IntertemporalConsumptionFunction intertemporalConsumptionFunction =
+		 * new CobbDouglasIntertemporalConsumptionFunction(
+		 * intermeporalPreferences);
+		 */
+
+		IntertemporalConsumptionFunction intertemporalConsumptionFunction = new ModiglianiIntertemporalConsumptionFunction();
 		household
 				.setIntertemporalConsumptionFunction(intertemporalConsumptionFunction);
 
-		household.initialize();
 		DAOFactory.getHouseholdDAO().save(household);
+		household.initialize();
 		HibernateUtil.flushSession();
 		return household;
 	}
@@ -174,8 +187,8 @@ public class AgentFactory {
 		// excluded good types
 		trader.getExcludedGoodTypes().add(GoodType.LABOURHOUR);
 
-		trader.initialize();
 		DAOFactory.getTraderDAO().save(trader);
+		trader.initialize();
 		HibernateUtil.flushSession();
 		return trader;
 	}

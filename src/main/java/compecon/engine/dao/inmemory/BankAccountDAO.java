@@ -53,7 +53,7 @@ public class BankAccountDAO extends AgentIndexedInMemoryDAO<BankAccount>
 
 		this.bankAccounts.get(bankAccount.getManagingBank())
 				.remove(bankAccount);
-		super.delete(bankAccount.getOwner(), bankAccount);
+		super.delete(bankAccount);
 	}
 
 	@Override

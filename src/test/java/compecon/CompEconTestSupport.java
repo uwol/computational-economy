@@ -60,6 +60,7 @@ public abstract class CompEconTestSupport {
 
 		for (Household household : DAOFactory.getHouseholdDAO().findAll()) {
 			household.assureTransactionsBankAccount();
+			household.assureSavingsBankAccount();
 		}
 
 		for (Trader trader : DAOFactory.getTraderDAO().findAll()) {

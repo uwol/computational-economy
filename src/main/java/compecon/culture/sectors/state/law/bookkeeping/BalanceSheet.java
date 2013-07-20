@@ -37,8 +37,11 @@ public class BalanceSheet {
 	// cash in notes and coins
 	public double hardCash;
 
-	// cash in bank deposits
-	public double cash;
+	// cash in bank deposits, demand deposits
+	public double cashShortTerm;
+
+	// cash in bank deposits, savings deposits
+	public double cashLongTerm;
 
 	// Accounts receivable also known as Debtors, is money owed to a business by
 	// its clients (customers) and shown on its balance sheet as an asset. ->

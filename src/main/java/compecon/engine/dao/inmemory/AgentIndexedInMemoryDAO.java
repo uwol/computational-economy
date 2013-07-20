@@ -28,10 +28,17 @@ public abstract class AgentIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 
 	private Map<Agent, List<T>> agentIndexedInstances = new HashMap<Agent, List<T>>();
 
-	private synchronized void assureInitializedDataStructure(Agent agent) {
-		if (agent != null) {
+	private Map<T, List<Agent>> instanceIndexedAgents = new HashMap<T, List<Agent>>();
+
+	private synchronized void assureInitializedDataStructure(Agent agent,
+			T instance) {
+		if (agent != null && instance != null) {
 			if (!this.agentIndexedInstances.containsKey(agent))
 				this.agentIndexedInstances.put(agent, new ArrayList<T>());
+
+			if (!this.instanceIndexedAgents.containsKey(instance))
+				this.instanceIndexedAgents
+						.put(instance, new ArrayList<Agent>());
 		}
 	}
 
@@ -42,6 +49,16 @@ public abstract class AgentIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 	protected synchronized List<T> getInstancesForAgent(Agent agent) {
 		if (this.agentIndexedInstances.containsKey(agent))
 			return this.agentIndexedInstances.get(agent);
+		// has to return null, as the calling DAO method should return a new
+		// collection anyway, not this one
+		return null;
+	}
+
+	protected synchronized List<Agent> getAgentsForInstance(T instance) {
+		if (this.instanceIndexedAgents.containsKey(instance))
+			return this.instanceIndexedAgents.get(instance);
+		// has to return null, as the calling DAO method should return a new
+		// collection anyway, not this one
 		return null;
 	}
 
@@ -50,17 +67,29 @@ public abstract class AgentIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 	 */
 
 	protected synchronized void save(Agent agent, T instance) {
-		this.assureInitializedDataStructure(agent);
+		this.assureInitializedDataStructure(agent, instance);
 
 		this.agentIndexedInstances.get(agent).add(instance);
+		this.instanceIndexedAgents.get(instance).add(agent);
 		super.save(instance);
 	}
 
-	protected synchronized void delete(Agent agent, T instance) {
-		if (this.agentIndexedInstances.containsKey(agent)) {
-			this.agentIndexedInstances.get(agent).remove(instance);
-			if (this.agentIndexedInstances.get(agent).isEmpty())
-				this.agentIndexedInstances.remove(agent);
+	public synchronized void delete(T instance) {
+		List<Agent> agents = getAgentsForInstance(instance);
+		if (agents != null) {
+			for (Agent agent : new ArrayList<Agent>(agents)) {
+				if (this.agentIndexedInstances.containsKey(agent)) {
+					this.agentIndexedInstances.get(agent).remove(instance);
+					if (this.agentIndexedInstances.get(agent).isEmpty())
+						this.agentIndexedInstances.remove(agent);
+				}
+
+				if (this.instanceIndexedAgents.containsKey(instance)) {
+					this.instanceIndexedAgents.get(instance).remove(agent);
+					if (this.instanceIndexedAgents.get(instance).isEmpty())
+						this.instanceIndexedAgents.remove(instance);
+				}
+			}
 		}
 
 		super.delete(instance);
