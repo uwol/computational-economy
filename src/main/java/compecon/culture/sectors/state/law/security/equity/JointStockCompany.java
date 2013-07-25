@@ -163,6 +163,7 @@ public abstract class JointStockCompany extends Agent {
 					}
 					if (Log.isAgentSelectedByClient(JointStockCompany.this)) {
 						Log.log(JointStockCompany.this,
+								PayDividendEvent.class,
 								"payed dividend of "
 										+ Currency.round(totalDividendPayed)
 										+ " "

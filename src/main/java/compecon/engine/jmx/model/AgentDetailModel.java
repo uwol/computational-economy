@@ -37,18 +37,18 @@ import compecon.nature.materia.GoodType;
 
 public class AgentDetailModel extends Model {
 
-	protected final int MESSAGES_TO_STORE = 100;
+	protected BankAccount currentBankAccount = null;
+
+	protected final int MESSAGES_TO_STORE = 200;
 
 	protected DateFormat iso8601DateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
 
-	protected Queue<String> messages = new LinkedList<String>();
-
 	protected ArrayList<Agent> agents = new ArrayList<Agent>();
 
-	public void agent_onBankTransfer() {
-		this.notifyListeners();
-	}
+	protected LinkedList<String> messagesForAgentEvents = new LinkedList<String>();
+
+	protected Map<BankAccount, LinkedList<String>> messagesForBankAccountEvents = new HashMap<BankAccount, LinkedList<String>>();
 
 	public void agent_onConstruct(Agent agent) {
 		this.agents.add(agent);
@@ -56,29 +56,66 @@ public class AgentDetailModel extends Model {
 	}
 
 	public void agent_onDeconstruct(Agent agent) {
-		this.messages.remove(agent);
 		this.agents.remove(agent);
 		this.notifyListeners();
 	}
 
 	public void logAgentEvent(Date date, String message) {
-		messages.add(iso8601DateFormat.format(date) + "      " + message);
-		if (messages.size() > MESSAGES_TO_STORE)
-			messages.poll();
+		messagesForAgentEvents.add(iso8601DateFormat.format(date) + "     "
+				+ message);
+		if (messagesForAgentEvents.size() > MESSAGES_TO_STORE)
+			messagesForAgentEvents.poll();
 	}
 
-	public void setCurrentAgent(Agent agent) {
-		Log.setAgentSelectedByClient(agent);
-		this.messages.clear();
+	public void logBankAccountEvent(Date date, BankAccount bankAccount,
+			String message) {
+		if (!this.messagesForBankAccountEvents.containsKey(bankAccount))
+			this.messagesForBankAccountEvents.put(bankAccount,
+					new LinkedList<String>());
+
+		Queue<String> messagesForBankAccount = this.messagesForBankAccountEvents
+				.get(bankAccount);
+		messagesForBankAccount.add(iso8601DateFormat.format(date) + "     "
+				+ message);
+		if (messagesForBankAccount.size() > MESSAGES_TO_STORE)
+			messagesForBankAccount.poll();
+
 		this.notifyListeners();
 	}
 
 	public void setCurrentAgent(Integer agentId) {
-		this.setCurrentAgent(this.agents.get(agentId));
+		Agent selectedAgent = this.agents.get(agentId);
+		this.messagesForAgentEvents.clear();
+		this.messagesForBankAccountEvents.clear();
+		this.currentBankAccount = null;
+		Log.setAgentSelectedByClient(selectedAgent);
+		this.notifyListeners();
 	}
 
-	public Queue<String> getMessagesOfCurrentAgent() {
-		return this.messages;
+	public void setCurrentBankAccount(Integer bankAccountId) {
+		if (bankAccountId >= 0) {
+			List<BankAccount> bankAccounts = this
+					.getBankAccountsOfCurrentAgent();
+			this.currentBankAccount = bankAccounts.get(bankAccountId);
+		}
+		this.notifyListeners();
+	}
+
+	public void resetCurrentBankAccount() {
+		this.currentBankAccount = null;
+		this.notifyListeners();
+	}
+
+	public LinkedList<String> getMessages() {
+		if (this.currentBankAccount != null) {
+			if (this.messagesForBankAccountEvents
+					.containsKey(currentBankAccount)) {
+				return this.messagesForBankAccountEvents
+						.get(currentBankAccount);
+			} else
+				return new LinkedList<String>();
+		} else
+			return this.messagesForAgentEvents;
 	}
 
 	public List<Agent> getAgents() {

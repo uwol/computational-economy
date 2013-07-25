@@ -90,15 +90,16 @@ public class Dashboard extends JFrame {
 
 					if (pane.getSelectedComponent().equals(
 							Dashboard.this.agentsPanel))
-						Dashboard.this.agentsPanel.setNoRefresh(false);
+						Dashboard.this.agentsPanel.setRefresh(true);
 					else
-						Dashboard.this.agentsPanel.setNoRefresh(true);
+						Dashboard.this.agentsPanel.setRefresh(false);
 
 					if (pane.getSelectedComponent().equals(
-							Dashboard.this.pricesPanel))
-						Dashboard.this.pricesPanel.setNoRefresh(false);
-					else
-						Dashboard.this.pricesPanel.setNoRefresh(true);
+							Dashboard.this.pricesPanel)) {
+						Dashboard.this.pricesPanel.setRefresh(true);
+						Dashboard.this.pricesPanel.redrawPriceCharts();
+					} else
+						Dashboard.this.pricesPanel.setRefresh(false);
 				}
 			}
 		});

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import compecon.Simulation;
 import compecon.culture.sectors.financial.CentralBank;
 import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
@@ -32,6 +33,7 @@ import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.State;
 import compecon.culture.sectors.trading.Trader;
 import compecon.engine.dao.DAOFactory;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.HibernateUtil;
 import compecon.nature.materia.GoodType;
 import compecon.nature.materia.InputOutputModel;
@@ -58,6 +60,8 @@ public class AgentFactory {
 		State state = DAOFactory.getStateDAO().findByCurrency(currency);
 		if (state == null) {
 			state = new State();
+			if (!ConfigurationUtil.getActivateDb())
+				state.setId(Simulation.getNextId());
 
 			Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
 			preferences.put(GoodType.LABOURHOUR, 0.3);
@@ -81,6 +85,8 @@ public class AgentFactory {
 				.findByCurrency(currency);
 		if (centralBank == null) {
 			centralBank = new CentralBank();
+			if (!ConfigurationUtil.getActivateDb())
+				centralBank.setId(Simulation.getNextId());
 			centralBank.setPrimaryCurrency(currency);
 			DAOFactory.getCentralBankDAO().save(centralBank);
 			centralBank.initialize();
@@ -102,6 +108,8 @@ public class AgentFactory {
 					+ " not contained in offeredCurrencies");
 
 		CreditBank creditBank = new CreditBank();
+		if (!ConfigurationUtil.getActivateDb())
+			creditBank.setId(Simulation.getNextId());
 		creditBank.setOfferedCurrencies(offeredCurrencies);
 		creditBank.setPrimaryCurrency(primaryCurrency);
 		DAOFactory.getCreditBankDAO().save(creditBank);
@@ -121,6 +129,8 @@ public class AgentFactory {
 	public static Factory newInstanceFactory(GoodType goodType,
 			Currency primaryCurrency) {
 		Factory factory = new Factory();
+		if (!ConfigurationUtil.getActivateDb())
+			factory.setId(Simulation.getNextId());
 		factory.setProducedGoodType(goodType);
 		factory.setPrimaryCurrency(primaryCurrency);
 		factory.setReferenceCredit(100000);
@@ -141,6 +151,8 @@ public class AgentFactory {
 
 	public static Household newInstanceHousehold(Currency primaryCurrency) {
 		Household household = new Household();
+		if (!ConfigurationUtil.getActivateDb())
+			household.setId(Simulation.getNextId());
 		household.setPrimaryCurrency(primaryCurrency);
 
 		// consumption preferences; each GoodType has to be contained here (at
@@ -181,6 +193,8 @@ public class AgentFactory {
 
 	public static Trader newInstanceTrader(Currency primaryCurrency) {
 		Trader trader = new Trader();
+		if (!ConfigurationUtil.getActivateDb())
+			trader.setId(Simulation.getNextId());
 		trader.setPrimaryCurrency(primaryCurrency);
 		trader.setReferenceCredit(10000);
 

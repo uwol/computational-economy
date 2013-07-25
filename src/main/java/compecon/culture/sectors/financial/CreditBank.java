@@ -147,7 +147,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						new PricingBehaviour(this, this.primaryCurrency,
 								foreignCurrency,
 								initialPriceOfLocalCurrencyInForeignCurrency,
-								0.01));
+								0.001));
 			}
 		}
 	}
@@ -672,6 +672,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 				if (Log.isAgentSelectedByClient(CreditBank.this))
 					Log.log(CreditBank.this,
+							CurrencyTradeEvent.class,
 							"on markets 1 "
 									+ secondCurrency.getIso4217Code()
 									+ " = "
@@ -750,6 +751,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 										0)) {
 							if (Log.isAgentSelectedByClient(CreditBank.this))
 								Log.log(CreditBank.this,
+										CurrencyTradeEvent.class,
 										"-> no arbitrage with "
 												+ foreignCurrency
 														.getIso4217Code()
@@ -759,6 +761,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						} else if (Double
 								.isNaN(correctPriceOfForeignCurrencyInLocalCurrency)) {
 							Log.log(CreditBank.this,
+									CurrencyTradeEvent.class,
 									"-> no arbitrage with "
 											+ foreignCurrency.getIso4217Code()
 											+ ", since correct price of foreign currency is "
@@ -769,6 +772,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 								realPriceOfForeignCurrencyInLocalCurrency)) {
 							if (Log.isAgentSelectedByClient(CreditBank.this))
 								Log.log(CreditBank.this,
+										CurrencyTradeEvent.class,
 										"-> no arbitrage with "
 												+ foreignCurrency
 														.getIso4217Code()
@@ -861,6 +865,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			for (PricingBehaviour pricingBehaviour : CreditBank.this.localCurrencyPricingBehaviours
 					.values()) {
 				pricingBehaviour.nextPeriod();
+				pricingBehaviour.setNewPrice();
 			}
 
 			/*
@@ -877,6 +882,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					totalLocalCurrencyBudgetForCurrencyTrading, 0)) {
 				if (Log.isAgentSelectedByClient(CreditBank.this))
 					Log.log(CreditBank.this,
+							CurrencyTradeEvent.class,
 							"not offering "
 									+ CreditBank.this.primaryCurrency
 											.getIso4217Code()
@@ -908,7 +914,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 								.get(foreignCurrency);
 
 						// calculate exchange rate
-						pricingBehaviour.setNewPrice();
 						double priceOfLocalCurrencyInForeignCurrency = pricingBehaviour
 								.getCurrentPrice();
 						if (Double.isNaN(priceOfLocalCurrencyInForeignCurrency)) {
@@ -917,6 +922,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 											foreignCurrency, localCurrency);
 							if (Log.isAgentSelectedByClient(CreditBank.this))
 								Log.log(CreditBank.this,
+										CurrencyTradeEvent.class,
 										"could not calculate price for "
 												+ localCurrency + " in "
 												+ foreignCurrency
@@ -1035,6 +1041,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 			if (Log.isAgentSelectedByClient(CreditBank.this))
 				Log.log(CreditBank.this,
+						BondsTradeEvent.class,
 						"sumOfPassiveBankAccounts = "
 								+ Currency.round(sumOfPassiveBankAccounts)
 								+ " "

@@ -33,11 +33,18 @@ import compecon.nature.materia.GoodType;
 
 public class Simulation {
 
+	protected static int lastId = 0;
+
 	protected static int millisecondsToSleepPerHourType = 0;
 
 	protected static boolean paused = false;
 
 	protected static boolean singleStep = false;
+
+	public static int getNextId() {
+		lastId++;
+		return lastId;
+	}
 
 	public static void setMillisecondsToSleepPerHourType(
 			int millisecondsToSleepPerHourType) {
@@ -73,7 +80,7 @@ public class Simulation {
 			if (!ConfigurationUtil.getActivateDb()) {
 				NUMBER_OF_HOUSEHOLDSPERCURRENCY = 2000;
 				NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 5;
-				NUMBER_OF_TRADERSPERCURRENCY = 30;
+				NUMBER_OF_TRADERSPERCURRENCY = 10;
 			} else {
 				NUMBER_OF_HOUSEHOLDSPERCURRENCY = 10;
 				NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 1;

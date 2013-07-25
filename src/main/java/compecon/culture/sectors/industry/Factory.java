@@ -40,6 +40,7 @@ import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 import compecon.nature.math.production.IProductionFunction;
 
@@ -200,6 +201,10 @@ public class Factory extends JointStockCompany {
 			PropertyRegister.getInstance().incrementGoodTypeAmount(
 					Factory.this, Factory.this.producedGoodType,
 					producedProducts);
+			if (Log.isAgentSelectedByClient(Factory.this))
+				Log.log(Factory.this, ProductionEvent.class, "produced "
+						+ MathUtil.round(producedProducts) + " "
+						+ Factory.this.producedGoodType);
 			Log.factory_onProduction(Factory.this,
 					Factory.this.producedGoodType, producedProducts);
 

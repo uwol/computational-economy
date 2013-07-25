@@ -39,7 +39,7 @@ import compecon.nature.materia.GoodType;
 
 public class PricesPanel extends JPanel implements IModelListener {
 
-	protected boolean noRefresh = true;
+	protected boolean refresh = false;
 
 	protected final Map<Currency, JPanel> panelsForCurrencies = new HashMap<Currency, JPanel>();
 
@@ -77,7 +77,7 @@ public class PricesPanel extends JPanel implements IModelListener {
 	}
 
 	public void redrawPriceCharts() {
-		if (!this.noRefresh) {
+		if (this.refresh) {
 			// redraw price charts
 			for (Currency currency : Currency.values()) {
 				for (Currency commodityCurrency : Currency.values()) {
@@ -199,7 +199,7 @@ public class PricesPanel extends JPanel implements IModelListener {
 	/**
 	 * disables / enables redrawing of price panels for performance reasons
 	 */
-	public void setNoRefresh(boolean noRefresh) {
-		this.noRefresh = noRefresh;
+	public void setRefresh(boolean refresh) {
+		this.refresh = refresh;
 	}
 }

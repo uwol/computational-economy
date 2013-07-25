@@ -80,14 +80,18 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 		public void onEvent() {
 			Agent owner = PropertyRegister.getInstance().getOwner(
 					FixedRateBond.this);
-			FixedRateBond.this.issuerBankAccount.getManagingBank()
-					.transferMoney(
-							FixedRateBond.this.issuerBankAccount,
-							owner.getTransactionsBankAccount(),
-							FixedRateBond.this.coupon
-									* FixedRateBond.this.faceValue,
-							FixedRateBond.this.issuerBankAccountPassword,
-							"bond coupon");
+			double amount = FixedRateBond.this.coupon
+					* FixedRateBond.this.faceValue;
+			if (amount > 0) {
+				FixedRateBond.this.issuerBankAccount.getManagingBank()
+						.transferMoney(
+								FixedRateBond.this.issuerBankAccount,
+								owner.getTransactionsBankAccount(),
+								FixedRateBond.this.coupon
+										* FixedRateBond.this.faceValue,
+								FixedRateBond.this.issuerBankAccountPassword,
+								"bond coupon");
+			}
 		}
 	}
 

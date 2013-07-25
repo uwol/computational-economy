@@ -347,6 +347,7 @@ public class Household extends Agent implements IShareOwner {
 						.getBalance() - budget;
 				if (Log.isAgentSelectedByClient(Household.this))
 					Log.log(Household.this,
+							DailyLifeEvent.class,
 							"saving "
 									+ Currency.round(moneySumToSave)
 									+ " "
@@ -445,6 +446,21 @@ public class Household extends Agent implements IShareOwner {
 			}
 			double utility = Household.this.utilityFunction
 					.calculateUtility(bundleOfGoodsToConsume);
+			if (Log.isAgentSelectedByClient(Household.this)) {
+				String log = "consumed ";
+				int i = 0;
+				for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume
+						.entrySet()) {
+					log += MathUtil.round(entry.getValue()) + " "
+							+ entry.getKey();
+					if (i < bundleOfGoodsToConsume.size() - 1)
+						log += ", ";
+					i++;
+				}
+				log += " -> " + MathUtil.round(utility) + " utility";
+
+				Log.log(Household.this, DailyLifeEvent.class, log);
+			}
 			Log.household_onUtility(Household.this,
 					Household.this.transactionsBankAccount.getCurrency(),
 					bundleOfGoodsToConsume, utility);
@@ -512,8 +528,10 @@ public class Household extends Agent implements IShareOwner {
 			if (utility < Household.this.REQUIRED_UTILITY) {
 				Household.this.daysWithoutUtility++;
 				Household.this.continuousDaysWithUtility = 0;
-				Log.household_NotEnoughUtility(Household.this,
-						Household.this.REQUIRED_UTILITY);
+				if (Log.isAgentSelectedByClient(Household.this))
+					Log.log(Household.this, DailyLifeEvent.class,
+							"does not have required utility of "
+									+ Household.this.REQUIRED_UTILITY);
 			} else {
 				if (Household.this.daysWithoutUtility > 0)
 					daysWithoutUtility--;

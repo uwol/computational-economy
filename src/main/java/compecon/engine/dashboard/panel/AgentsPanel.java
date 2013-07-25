@@ -19,15 +19,15 @@ package compecon.engine.dashboard.panel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
-import javax.swing.AbstractButton;
 import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -74,6 +74,29 @@ public class AgentsPanel extends JPanel {
 		}
 	}
 
+	public class AgentLogSelectionModel extends DefaultComboBoxModel<String> {
+		@Override
+		public int getSize() {
+			return 1 + ModelRegistry.getAgentDetailModel()
+					.getBankAccountsOfCurrentAgent().size();
+		}
+
+		public String getBankAccountString(BankAccount bankAccount) {
+			return bankAccount.getName() + " [" + bankAccount.getId() + "]";
+		}
+
+		@Override
+		public String getElementAt(int i) {
+			if (i == 0)
+				return "Agent";
+			else {
+				BankAccount bankAccount = ModelRegistry.getAgentDetailModel()
+						.getBankAccountsOfCurrentAgent().get(i - 1);
+				return getBankAccountString(bankAccount);
+			}
+		}
+	}
+
 	public class AgentLogsTableModel extends AbstractTableModel implements
 			IModelListener {
 
@@ -92,15 +115,13 @@ public class AgentsPanel extends JPanel {
 		public int getRowCount() {
 			// -5, so that concurrent changes in the messages queue do not
 			// produce exceptions
-			return AgentsPanel.this.agentDetailModel
-					.getMessagesOfCurrentAgent().size() - 5;
+			return AgentsPanel.this.agentDetailModel.getMessages().size() - 5;
 		}
 
 		@Override
 		public Object getValueAt(int rowIndex, int colIndex) {
-			return new ArrayList<String>(
-					AgentsPanel.this.agentDetailModel
-							.getMessagesOfCurrentAgent()).get(rowIndex);
+			return AgentsPanel.this.agentDetailModel.getMessages()
+					.get(rowIndex);
 		}
 
 		@Override
@@ -110,7 +131,7 @@ public class AgentsPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			if (!AgentsPanel.this.noRefresh) {
+			if (AgentsPanel.this.refresh) {
 				if (Log.getAgentSelectedByClient() != null)
 					this.fireTableDataChanged();
 			}
@@ -144,7 +165,7 @@ public class AgentsPanel extends JPanel {
 
 			switch (colIndex) {
 			case 0:
-				return bankAccount.getName();
+				return bankAccount.getName() + " [" + bankAccount.getId() + "]";
 			case 1:
 				return Currency.round(bankAccount.getBalance());
 			case 2:
@@ -161,7 +182,7 @@ public class AgentsPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			if (!AgentsPanel.this.noRefresh) {
+			if (AgentsPanel.this.refresh) {
 				if (Log.getAgentSelectedByClient() != null)
 					this.fireTableDataChanged();
 			}
@@ -211,7 +232,7 @@ public class AgentsPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			if (!AgentsPanel.this.noRefresh) {
+			if (AgentsPanel.this.refresh) {
 				if (Log.getAgentSelectedByClient() != null)
 					this.fireTableDataChanged();
 			}
@@ -256,7 +277,7 @@ public class AgentsPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			if (!AgentsPanel.this.noRefresh) {
+			if (AgentsPanel.this.refresh) {
 				if (Log.getAgentSelectedByClient() != null)
 					this.fireTableDataChanged();
 			}
@@ -270,6 +291,8 @@ public class AgentsPanel extends JPanel {
 
 	protected AgentListModel agentLogsListModel = new AgentListModel();
 
+	protected AgentLogSelectionModel agentLogSelectionModel = new AgentLogSelectionModel();
+
 	protected AgentLogsTableModel agentLogsTableModel = new AgentLogsTableModel();
 
 	protected AgentBankAccountsTableModel agentBankAccountsTableModel = new AgentBankAccountsTableModel();
@@ -278,7 +301,7 @@ public class AgentsPanel extends JPanel {
 
 	protected AgentPropertyTableModel agentPropertyTableModel = new AgentPropertyTableModel();
 
-	protected boolean noRefresh = true;
+	protected boolean refresh = false;
 
 	protected final JList<Agent> agentsList;
 
@@ -288,18 +311,33 @@ public class AgentsPanel extends JPanel {
 		/*
 		 * controls
 		 */
-		JPanel controlPanel = new JPanel();
-		JCheckBox showTransactionsCheckBox = new JCheckBox(
-				"Log Monetary Transactions", false);
-		showTransactionsCheckBox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent
-						.getSource();
-				boolean selected = abstractButton.getModel().isSelected();
-				Log.setLogTransactions(selected);
+		JPanel controlPanel = new JPanel(new FlowLayout());
+		final JComboBox<String> logSelection = new JComboBox<String>(
+				agentLogSelectionModel);
+		logSelection.setPreferredSize(new Dimension(300, 30));
+		logSelection.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Object newValue = logSelection.getSelectedItem();
+				if ("Agent".equals(newValue))
+					ModelRegistry.getAgentDetailModel()
+							.resetCurrentBankAccount();
+				else {
+					int i = 0;
+					for (BankAccount bankAccount : ModelRegistry
+							.getAgentDetailModel()
+							.getBankAccountsOfCurrentAgent()) {
+						if (agentLogSelectionModel.getBankAccountString(
+								bankAccount).equals(newValue)) {
+							ModelRegistry.getAgentDetailModel()
+									.setCurrentBankAccount(i);
+							break;
+						}
+						i++;
+					}
+				}
 			}
 		});
-		controlPanel.add(showTransactionsCheckBox);
+		controlPanel.add(logSelection);
 		this.add(controlPanel, BorderLayout.NORTH);
 
 		/*
@@ -341,7 +379,7 @@ public class AgentsPanel extends JPanel {
 		agentDetailPanel.add(agentBankAccountsAndGoodsPanel);
 
 		// agent bank account table
-		JTable agentBankAccountsTable = new JTable(
+		final JTable agentBankAccountsTable = new JTable(
 				this.agentBankAccountsTableModel);
 		JScrollPane agentBankAccountsTablePane = new JScrollPane(
 				agentBankAccountsTable);
@@ -360,7 +398,7 @@ public class AgentsPanel extends JPanel {
 		setVisible(true);
 	}
 
-	public void setNoRefresh(boolean noRefresh) {
-		this.noRefresh = noRefresh;
+	public void setRefresh(boolean refresh) {
+		this.refresh = refresh;
 	}
 }

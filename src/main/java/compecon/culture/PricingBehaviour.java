@@ -166,10 +166,12 @@ public class PricingBehaviour {
 						this.soldAmount_InPeriods[2]))) {
 			double newPrice = calculateLowerPrice(oldPrice);
 			if (Log.isAgentSelectedByClient(this.agent))
-				Log.log(this.agent, prefix + "sold less (before: "
-						+ this.soldAmount_InPeriods[2]
-						+ ")-> lowering price to " + Currency.round(newPrice)
-						+ " " + this.denominatedInCurrency.getIso4217Code());
+				Log.log(this.agent,
+						prefix + "sold less (before: "
+								+ MathUtil.round(this.soldAmount_InPeriods[2])
+								+ ") -> lowering price to "
+								+ Currency.round(newPrice) + " "
+								+ this.denominatedInCurrency.getIso4217Code());
 			return newPrice;
 		}
 
@@ -182,10 +184,12 @@ public class PricingBehaviour {
 						this.soldAmount_InPeriods[1]))) {
 			double newPrice = calculateHigherPrice(oldPrice);
 			if (Log.isAgentSelectedByClient(this.agent))
-				Log.log(this.agent, prefix + "sold more (before: "
-						+ this.soldAmount_InPeriods[2]
-						+ ")-> raising price to " + Currency.round(newPrice)
-						+ " " + this.denominatedInCurrency.getIso4217Code());
+				Log.log(this.agent,
+						prefix + "sold more (before: "
+								+ MathUtil.round(this.soldAmount_InPeriods[2])
+								+ ") -> raising price to "
+								+ Currency.round(newPrice) + " "
+								+ this.denominatedInCurrency.getIso4217Code());
 			return newPrice;
 		}
 

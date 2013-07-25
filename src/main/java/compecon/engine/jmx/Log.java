@@ -19,24 +19,19 @@ package compecon.engine.jmx;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.CentralBank;
-import compecon.culture.sectors.financial.CreditBank;
 import compecon.culture.sectors.financial.Currency;
 import compecon.culture.sectors.household.Household;
 import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
 import compecon.engine.jmx.model.ModelRegistry;
+import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
-import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 
 public class Log {
-
-	private static boolean logTransactions = false;
 
 	private static Agent agentSelectedByClient;
 
@@ -50,10 +45,6 @@ public class Log {
 
 	public static Agent getAgentSelectedByClient() {
 		return agentSelectedByClient;
-	}
-
-	public static void setLogTransactions(boolean logTransactions) {
-		Log.logTransactions = logTransactions;
 	}
 
 	public static void setAgentSelectedByClient(Agent agent) {
@@ -84,6 +75,12 @@ public class Log {
 	public static synchronized void log(Agent agent, String message) {
 		setAgentCurrentlyActive(agent);
 		log(message);
+	}
+
+	public static synchronized void log(Agent agent,
+			Class<? extends ITimeSystemEvent> eventClass, String message) {
+		setAgentCurrentlyActive(agent);
+		log(eventClass.getSimpleName() + ": " + message);
 	}
 
 	public static void log(String message) {
@@ -120,38 +117,7 @@ public class Log {
 	public static void household_onUtility(Household household,
 			Currency currency, Map<GoodType, Double> bundleOfGoodsToConsume,
 			double utility) {
-
-		if (Log.isAgentSelectedByClient(household)) {
-			String log = household + " consumed ";
-			int i = 0;
-			for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume
-					.entrySet()) {
-				log += MathUtil.round(entry.getValue()) + " " + entry.getKey();
-				if (i < bundleOfGoodsToConsume.size() - 1)
-					log += ", ";
-				i++;
-			}
-			log += " -> " + MathUtil.round(utility) + " utility";
-
-			log(household, log);
-		}
-
 		ModelRegistry.getUtilityModel().add(currency, utility);
-	}
-
-	public static void household_onConsumeGoods(Household household,
-			double consumedAmount, GoodType goodType) {
-		if (Log.isAgentSelectedByClient(household))
-			log(household,
-					household + " consumed " + MathUtil.round(consumedAmount)
-							+ " " + goodType);
-	}
-
-	public static void household_NotEnoughUtility(Household household,
-			double requiredUtility) {
-		if (Log.isAgentSelectedByClient(household))
-			log(household, household + " does not have required utility of "
-					+ requiredUtility);
 	}
 
 	public static void household_LabourHourCapacity(Household household,
@@ -164,10 +130,6 @@ public class Log {
 
 	public static void factory_onProduction(Factory factory, GoodType goodType,
 			double producedProducts) {
-		if (Log.isAgentSelectedByClient(factory))
-			log(factory, "produced " + MathUtil.round(producedProducts) + " "
-					+ goodType);
-
 		ModelRegistry.getEffectiveProductionOutputModel().add(goodType,
 				producedProducts);
 	}
@@ -185,31 +147,23 @@ public class Log {
 		ModelRegistry.getMonetaryTransactionsModel().bank_onTransfer(
 				from.getOwner().getClass(), to.getOwner().getClass(), currency,
 				value);
-		if (Log.logTransactions) {
-			if (isAgentSelectedByClient(from.getOwner())) {
-				log(from.getOwner(), "transfers " + Currency.round(value) + " "
-						+ currency.getIso4217Code() + " from " + from + " to "
-						+ to + " for: " + subject);
-				ModelRegistry.getAgentDetailModel().agent_onBankTransfer();
-			}
-			if (isAgentSelectedByClient(to.getOwner())) {
-				log(to.getOwner(), "receives " + Currency.round(value) + " "
-						+ currency.getIso4217Code() + " from " + from + " to "
-						+ to + " for: " + subject);
-				ModelRegistry.getAgentDetailModel().agent_onBankTransfer();
-			}
+		if (isAgentSelectedByClient(from.getOwner())) {
+			String message = from + " --- " + Currency.round(value) + " "
+					+ currency.getIso4217Code() + " ---> " + to + ": "
+					+ subject;
+			ModelRegistry.getAgentDetailModel().logBankAccountEvent(
+					TimeSystem.getInstance().getCurrentDate(), from, message);
+		}
+		if (isAgentSelectedByClient(to.getOwner())) {
+			String message = to + " <--- " + Currency.round(value) + " "
+					+ currency.getIso4217Code() + " --- " + from + ": "
+					+ subject;
+			ModelRegistry.getAgentDetailModel().logBankAccountEvent(
+					TimeSystem.getInstance().getCurrentDate(), to, message);
 		}
 	}
 
 	// --------
-
-	public static void centralBank_onObtainTender(CentralBank centralBank,
-			double amount, CreditBank creditBank) {
-		if (Log.isAgentSelectedByClient(creditBank))
-			log(creditBank, " obtained a tender of " + Currency.round(amount)
-					+ " " + centralBank.getPrimaryCurrency()
-					+ " of central bank money from " + centralBank);
-	}
 
 	public static void centralBank_KeyInterestRate(Currency currency,
 			double keyInterestRate) {

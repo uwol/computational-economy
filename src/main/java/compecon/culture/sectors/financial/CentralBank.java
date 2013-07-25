@@ -312,8 +312,12 @@ public class CentralBank extends Bank {
 			BankAccount bankAccount = this.getBankAccounts(creditBank,
 					this.customerPasswords.get(creditBank)).get(0);
 			bankAccount.deposit(bond.getFaceValue());
-			Log.centralBank_onObtainTender(this, bond.getFaceValue(),
-					creditBank);
+			if (Log.isAgentSelectedByClient(creditBank))
+				Log.log(creditBank,
+						"obtained a tender of "
+								+ Currency.round(bond.getFaceValue()) + " "
+								+ this.getPrimaryCurrency()
+								+ " of central bank money from " + this);
 		}
 	}
 
