@@ -42,6 +42,7 @@ import compecon.culture.sectors.financial.Currency;
 import compecon.engine.Agent;
 import compecon.engine.jmx.Log;
 import compecon.engine.jmx.model.AgentDetailModel;
+import compecon.engine.jmx.model.AgentDetailModel.AgentLog;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.util.MathUtil;
@@ -74,26 +75,17 @@ public class AgentsPanel extends JPanel {
 		}
 	}
 
-	public class AgentLogSelectionModel extends DefaultComboBoxModel<String> {
+	public class AgentLogSelectionModel extends DefaultComboBoxModel<AgentLog> {
 		@Override
 		public int getSize() {
-			return 1 + ModelRegistry.getAgentDetailModel()
-					.getBankAccountsOfCurrentAgent().size();
-		}
-
-		public String getBankAccountString(BankAccount bankAccount) {
-			return bankAccount.getName() + " [" + bankAccount.getId() + "]";
+			return ModelRegistry.getAgentDetailModel().getLogsOfCurrentAgent()
+					.size();
 		}
 
 		@Override
-		public String getElementAt(int i) {
-			if (i == 0)
-				return "Agent";
-			else {
-				BankAccount bankAccount = ModelRegistry.getAgentDetailModel()
-						.getBankAccountsOfCurrentAgent().get(i - 1);
-				return getBankAccountString(bankAccount);
-			}
+		public AgentLog getElementAt(int i) {
+			return ModelRegistry.getAgentDetailModel().getLogsOfCurrentAgent()
+					.get(i);
 		}
 	}
 
@@ -115,12 +107,13 @@ public class AgentsPanel extends JPanel {
 		public int getRowCount() {
 			// -5, so that concurrent changes in the messages queue do not
 			// produce exceptions
-			return AgentsPanel.this.agentDetailModel.getMessages().size() - 5;
+			return Math.max(AgentsPanel.this.agentDetailModel.getCurrentLog()
+					.getRows().size() - 5, 0);
 		}
 
 		@Override
 		public Object getValueAt(int rowIndex, int colIndex) {
-			return AgentsPanel.this.agentDetailModel.getMessages()
+			return AgentsPanel.this.agentDetailModel.getCurrentLog().getRows()
 					.get(rowIndex);
 		}
 
@@ -312,29 +305,13 @@ public class AgentsPanel extends JPanel {
 		 * controls
 		 */
 		JPanel controlPanel = new JPanel(new FlowLayout());
-		final JComboBox<String> logSelection = new JComboBox<String>(
+		final JComboBox<AgentLog> logSelection = new JComboBox<AgentLog>(
 				agentLogSelectionModel);
 		logSelection.setPreferredSize(new Dimension(300, 30));
 		logSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Object newValue = logSelection.getSelectedItem();
-				if ("Agent".equals(newValue))
-					ModelRegistry.getAgentDetailModel()
-							.resetCurrentBankAccount();
-				else {
-					int i = 0;
-					for (BankAccount bankAccount : ModelRegistry
-							.getAgentDetailModel()
-							.getBankAccountsOfCurrentAgent()) {
-						if (agentLogSelectionModel.getBankAccountString(
-								bankAccount).equals(newValue)) {
-							ModelRegistry.getAgentDetailModel()
-									.setCurrentBankAccount(i);
-							break;
-						}
-						i++;
-					}
-				}
+				ModelRegistry.getAgentDetailModel().setCurrentLog(
+						(AgentLog) logSelection.getSelectedItem());
 			}
 		});
 		controlPanel.add(logSelection);
