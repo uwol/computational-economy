@@ -196,8 +196,9 @@ public class SettlementMarket extends Market {
 			buyersBank.transferMoney(buyersBankAccount,
 					marketOffer.getOfferorsBankAcount(),
 					amount * marketOffer.getPricePerUnit(),
-					buyersBankAccountPassword, "price for " + amount
-							+ " units of " + marketOffer.getCommodity());
+					buyersBankAccountPassword,
+					"price for " + MathUtil.round(amount) + " units of "
+							+ marketOffer.getCommodity());
 
 			// transfer ownership
 			switch (marketOffer.getCommodityType()) {

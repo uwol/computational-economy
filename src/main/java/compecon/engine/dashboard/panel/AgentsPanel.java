@@ -307,7 +307,7 @@ public class AgentsPanel extends JPanel {
 		JPanel controlPanel = new JPanel(new FlowLayout());
 		final JComboBox<AgentLog> logSelection = new JComboBox<AgentLog>(
 				agentLogSelectionModel);
-		logSelection.setPreferredSize(new Dimension(300, 30));
+		logSelection.setPreferredSize(new Dimension(400, 30));
 		logSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ModelRegistry.getAgentDetailModel().setCurrentLog(

@@ -43,10 +43,6 @@ public class PricesPanel extends JPanel implements IModelListener {
 
 	protected final Map<Currency, JPanel> panelsForCurrencies = new HashMap<Currency, JPanel>();
 
-	protected final Map<Currency, Map<GoodType, ChartPanel>> priceChartPanelsForGoodTypes = new HashMap<Currency, Map<GoodType, ChartPanel>>();
-
-	protected final Map<Currency, Map<Currency, ChartPanel>> priceChartPanelsForCurrencies = new HashMap<Currency, Map<Currency, ChartPanel>>();
-
 	public PricesPanel() {
 		ModelRegistry.getPricesModel().registerListener(this);
 
@@ -54,23 +50,14 @@ public class PricesPanel extends JPanel implements IModelListener {
 
 		JTabbedPane jTabbedPane_Prices = new JTabbedPane();
 
-		// initialize maps for storing price panels, which are contained in
-		// following panels
-		for (Currency currency : Currency.values()) {
-			this.priceChartPanelsForGoodTypes.put(currency,
-					new HashMap<GoodType, ChartPanel>());
-			this.priceChartPanelsForCurrencies.put(currency,
-					new HashMap<Currency, ChartPanel>());
-		}
-
 		// for each currency a panel is added that contains sub-panels with
 		// prices for good types and currencies in this currency
 		for (Currency currency : Currency.values()) {
-			JPanel panelForPricesOfGoodTypes = new JPanel();
-			panelForPricesOfGoodTypes.setLayout(new GridLayout(0, 2));
-			this.panelsForCurrencies.put(currency, panelForPricesOfGoodTypes);
+			JPanel panelForPricesInCurrency = new JPanel();
+			panelForPricesInCurrency.setLayout(new GridLayout(0, 2));
+			this.panelsForCurrencies.put(currency, panelForPricesInCurrency);
 			jTabbedPane_Prices.addTab(currency.getIso4217Code(),
-					panelForPricesOfGoodTypes);
+					panelForPricesInCurrency);
 		}
 
 		add(jTabbedPane_Prices, BorderLayout.CENTER);
@@ -80,50 +67,29 @@ public class PricesPanel extends JPanel implements IModelListener {
 		if (this.refresh) {
 			// redraw price charts
 			for (Currency currency : Currency.values()) {
+				JPanel panelForCurrency = this.panelsForCurrencies
+						.get(currency);
+				panelForCurrency.removeAll();
+
 				for (Currency commodityCurrency : Currency.values()) {
-					if (currency != commodityCurrency) {
+					if (!currency.equals(commodityCurrency)) {
 						// initially, add a new price chart panel for this good
 						// type
-						if (!this.priceChartPanelsForCurrencies.get(currency)
-								.containsKey(commodityCurrency)) {
-							ChartPanel chartPanel = this.createPriceChartPanel(
-									currency, commodityCurrency);
-							this.priceChartPanelsForCurrencies.get(currency)
-									.put(commodityCurrency, chartPanel);
-							this.panelsForCurrencies.get(currency).add(
-									chartPanel);
-						}
-						// or refresh the chart of an existing chart panel
-						else
-							this.priceChartPanelsForCurrencies
-									.get(currency)
-									.get(commodityCurrency)
-									.setChart(
-											createPriceChart(currency,
-													commodityCurrency));
+						ChartPanel chartPanel = this.createPriceChartPanel(
+								currency, commodityCurrency);
+						panelForCurrency.add(chartPanel);
 					}
 				}
 
 				for (GoodType goodType : GoodType.values()) {
-					// initially, add a new price chart panel for this good type
-					if (!this.priceChartPanelsForGoodTypes.get(currency)
-							.containsKey(goodType)) {
-						ChartPanel chartPanel = this.createPriceChartPanel(
-								currency, goodType);
-						this.priceChartPanelsForGoodTypes.get(currency).put(
-								goodType, chartPanel);
-						this.panelsForCurrencies.get(currency).add(chartPanel);
-					}
-					// or refresh the chart of an existing chart panel
-					else
-						this.priceChartPanelsForGoodTypes.get(currency)
-								.get(goodType)
-								.setChart(createPriceChart(currency, goodType));
+					ChartPanel chartPanel = this.createPriceChartPanel(
+							currency, goodType);
+					panelForCurrency.add(chartPanel);
 				}
 			}
-			this.revalidate();
 			setVisible(true);
 		}
+		this.updateUI();
 	}
 
 	private JFreeChart createPriceChart(Currency currency, GoodType goodType) {
@@ -167,10 +133,11 @@ public class PricesPanel extends JPanel implements IModelListener {
 			Map<GoodType, PriceModel> priceModelsForGoodType = pricesModel
 					.getPriceModelsForGoodTypes().get(currency);
 			PriceModel priceModel = priceModelsForGoodType.get(goodType);
-			return new DefaultHighLowDataset("", priceModel.getDate(),
-					priceModel.getHigh(), priceModel.getLow(),
-					priceModel.getOpen(), priceModel.getClose(),
-					priceModel.getVolume());
+			if (priceModel != null)
+				return new DefaultHighLowDataset("", priceModel.getDate(),
+						priceModel.getHigh(), priceModel.getLow(),
+						priceModel.getOpen(), priceModel.getClose(),
+						priceModel.getVolume());
 		}
 		return null;
 	}
@@ -183,10 +150,11 @@ public class PricesPanel extends JPanel implements IModelListener {
 					.getPriceModelsForCurrencies().get(currency);
 			PriceModel priceModel = priceModelsForCurrencies
 					.get(commodityCurrency);
-			return new DefaultHighLowDataset("", priceModel.getDate(),
-					priceModel.getHigh(), priceModel.getLow(),
-					priceModel.getOpen(), priceModel.getClose(),
-					priceModel.getVolume());
+			if (priceModel != null)
+				return new DefaultHighLowDataset("", priceModel.getDate(),
+						priceModel.getHigh(), priceModel.getLow(),
+						priceModel.getOpen(), priceModel.getClose(),
+						priceModel.getVolume());
 		}
 		return null;
 	}

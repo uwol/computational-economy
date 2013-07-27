@@ -100,7 +100,8 @@ public class AgentDetailModel extends Model {
 			this.bankAccountLogs.put(
 					bankAccount,
 					new AgentLog(bankAccount.getName() + " ["
-							+ bankAccount.getId() + "]"));
+							+ bankAccount.getId() + ", "
+							+ bankAccount.getCurrency() + "]"));
 		this.bankAccountLogs.get(bankAccount).log(
 				iso8601DateFormat.format(date) + "     " + message);
 		this.notifyListeners();
@@ -146,6 +147,7 @@ public class AgentDetailModel extends Model {
 
 	public void setCurrentLog(AgentLog log) {
 		this.currentLog = log;
+		this.notifyListeners();
 	}
 
 	public void setCurrentAgent(Integer agentId) {

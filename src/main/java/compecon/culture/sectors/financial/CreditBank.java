@@ -916,6 +916,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						// calculate exchange rate
 						double priceOfLocalCurrencyInForeignCurrency = pricingBehaviour
 								.getCurrentPrice();
+
 						if (Double.isNaN(priceOfLocalCurrencyInForeignCurrency)) {
 							priceOfLocalCurrencyInForeignCurrency = MarketFactory
 									.getInstance().getMarginalPrice(
