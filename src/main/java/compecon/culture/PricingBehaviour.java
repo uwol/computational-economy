@@ -34,6 +34,8 @@ public class PricingBehaviour {
 
 	protected final Currency denominatedInCurrency;
 
+	protected final boolean dynamicPriceChangeIncrement;
+
 	protected final Object offeredObject;
 
 	protected boolean periodDataInitialized = false;
@@ -55,18 +57,20 @@ public class PricingBehaviour {
 
 	public PricingBehaviour(Agent agent, Object offeredObject,
 			Currency denominatedInCurrency, double initialPrice,
+			boolean dynamicPriceChangeIncrement,
 			double initialPriceChangeIncrement) {
 		this.agent = agent;
 		this.initialPrice = initialPrice;
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.offeredObject = offeredObject;
 		this.initialPriceChangeIncrement = initialPriceChangeIncrement;
+		this.dynamicPriceChangeIncrement = dynamicPriceChangeIncrement;
 	}
 
 	public PricingBehaviour(Agent agent, Object offeredGoodOrCurrency,
 			Currency denominatedInCurrency, double initialPrice) {
 		this(agent, offeredGoodOrCurrency, denominatedInCurrency, initialPrice,
-				0.1);
+				true, 0.1);
 	}
 
 	public void assurePeriodDataInitialized() {
@@ -218,7 +222,8 @@ public class PricingBehaviour {
 		// calculate price change increment
 		if (MathUtil
 				.greater(this.prices_InPeriods[1], this.prices_InPeriods[2])) {
-			this.priceChangeIncrement = this.priceChangeIncrement * 1.3;
+			if (this.dynamicPriceChangeIncrement)
+				this.priceChangeIncrement = this.priceChangeIncrement * 1.3;
 		} else {
 			this.priceChangeIncrement = this.initialPriceChangeIncrement;
 		}
@@ -240,8 +245,9 @@ public class PricingBehaviour {
 	protected double calculateLowerPrice(double price) {
 		// calculate price change decrement
 		if (MathUtil.lesser(this.prices_InPeriods[1], this.prices_InPeriods[2])) {
-			// slight asymmetry downwards
-			this.priceChangeIncrement = this.priceChangeIncrement * 1.4;
+			if (this.dynamicPriceChangeIncrement)
+				// slight asymmetry downwards
+				this.priceChangeIncrement = this.priceChangeIncrement * 1.4;
 		} else {
 			this.priceChangeIncrement = this.initialPriceChangeIncrement;
 		}

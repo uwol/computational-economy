@@ -147,7 +147,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						new PricingBehaviour(this, this.primaryCurrency,
 								foreignCurrency,
 								initialPriceOfLocalCurrencyInForeignCurrency,
-								0.001));
+								false, 0.01));
 			}
 		}
 	}
@@ -701,18 +701,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			}
 		}
 
-		/**
-		 * number in [0, 1] with 1 as max dampening and 0 as no dampening
-		 */
-		private double calculateCurrencyPriceBuyingDamper(
-				double marketPriceOfCurrency, double correctPriceOfCurrency) {
-			double priceDifference = Math.max(0, marketPriceOfCurrency
-					- correctPriceOfCurrency);
-			double relativePriceDifference = priceDifference
-					/ correctPriceOfCurrency;
-			return 1.0 - Math.pow(2, -5 * relativePriceDifference);
-		}
-
 		protected void buyForeignCurrencyForArbitrage() {
 			int numberOfForeignCurrencies = CreditBank.this.currencyTradeBankAccounts
 					.keySet().size() - 1;
@@ -825,27 +813,13 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					BankAccount localCurrencyBankAccount = CreditBank.this.currencyTradeBankAccounts
 							.get(localCurrency);
 
-					double realPriceOfForeignCurrencyInLocalCurrency = MarketFactory
-							.getInstance().getMarginalPrice(primaryCurrency,
-									foreignCurrencyBankAccount.getCurrency());
-					double correctPriceOfLocalCurrencyInForeignCurrency = calculateCalculatoryPriceOfFirstCurrencyInSecondCurrency(
-							localCurrency,
-							foreignCurrencyBankAccount.getCurrency());
-
-					double currencyPriceBuyingDamper = this
-							.calculateCurrencyPriceBuyingDamper(
-									realPriceOfForeignCurrencyInLocalCurrency,
-									correctPriceOfLocalCurrencyInForeignCurrency);
-
 					if (MathUtil.greater(
 							foreignCurrencyBankAccount.getBalance(), 0)) {
 						// buy local currency for foreign currency
 						MarketFactory.getInstance().buy(
 								localCurrency,
 								Double.NaN,
-								(1 - currencyPriceBuyingDamper)
-										* foreignCurrencyBankAccount
-												.getBalance(),
+								foreignCurrencyBankAccount.getBalance(),
 								Double.NaN,
 								CreditBank.this,
 								foreignCurrencyBankAccount,
@@ -914,11 +888,12 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 								.get(foreignCurrency);
 
 						// calculate exchange rate
-						double priceOfLocalCurrencyInForeignCurrency = pricingBehaviour
+						double pricingBehaviourPriceOfLocalCurrencyInForeignCurrency = pricingBehaviour
 								.getCurrentPrice();
 
-						if (Double.isNaN(priceOfLocalCurrencyInForeignCurrency)) {
-							priceOfLocalCurrencyInForeignCurrency = MarketFactory
+						if (Double
+								.isNaN(pricingBehaviourPriceOfLocalCurrencyInForeignCurrency)) {
+							pricingBehaviourPriceOfLocalCurrencyInForeignCurrency = MarketFactory
 									.getInstance().getMarginalPrice(
 											foreignCurrency, localCurrency);
 							if (Log.isAgentSelectedByClient(CreditBank.this))
@@ -936,13 +911,14 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 										foreignCurrency, localCurrency);
 
 						// offer money amount on the market
-						MarketFactory.getInstance()
+						MarketFactory
+								.getInstance()
 								.placeSettlementSellingOffer(
 										localCurrency,
 										CreditBank.this,
 										foreignCurrencyBankAccount,
 										partialLocalCurrencyBudgetForCurrency,
-										priceOfLocalCurrencyInForeignCurrency,
+										pricingBehaviourPriceOfLocalCurrencyInForeignCurrency,
 										localCurrencyBankAccount,
 										CreditBank.this.bankPasswords
 												.get(localCurrencyBankAccount
@@ -963,7 +939,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 				if (!CreditBank.this.primaryCurrency
 						.equals(foreignCurrencyBankAccount.getCurrency())) {
 					/*
-					 * offer local currency for foreign currency
+					 * offer foreign currency for local currency
 					 */
 					Currency localCurrency = CreditBank.this.primaryCurrency;
 					Currency foreignCurrency = foreignCurrencyBankAccount
@@ -988,8 +964,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							CreditBank.this,
 							localCurrencyBankAccount,
 							foreignCurrencyBankAccount.getBalance(),
-							priceOfForeignCurrencyInLocalCurrency
-									* (1 + MIN_OFFER_MARGIN),
+							priceOfForeignCurrencyInLocalCurrency / (1.001),
 							foreignCurrencyBankAccount,
 							CreditBank.this.bankPasswords
 									.get(foreignCurrencyBankAccount

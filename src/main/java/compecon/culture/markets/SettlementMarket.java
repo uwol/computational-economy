@@ -231,7 +231,8 @@ public class SettlementMarket extends Market {
 						amount,
 						marketOffer
 								.getCommodityCurrencyOfferorsBankAccountPassword(),
-						"price for " + amount + " units of "
+						"transfer of " + Currency.round(amount)
+								+ " units of commoditycurrency "
 								+ marketOffer.getCommodity());
 				if (this.settlementEventListeners.containsKey(marketOffer
 						.getOfferor())
