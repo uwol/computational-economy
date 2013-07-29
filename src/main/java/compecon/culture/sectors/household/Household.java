@@ -60,7 +60,8 @@ import compecon.nature.math.utility.IUtilityFunction;
 @Entity
 public class Household extends Agent implements IShareOwner {
 
-	// configuration constants
+	// configuration constants ------------------------------
+
 	@Transient
 	protected final int NEW_HOUSEHOLD_FROM_X_DAYS = 365 * 18;
 
@@ -80,9 +81,8 @@ public class Household extends Agent implements IShareOwner {
 	@Transient
 	protected final double REQUIRED_UTILITY = 1.0;
 
-	// ---------------------------------------------------
+	// dynamic state ------------------------------
 
-	// dynamic state
 	@Column(name = "ageInDays")
 	protected int ageInDays = 0;
 
@@ -109,6 +109,9 @@ public class Household extends Agent implements IShareOwner {
 
 	@Transient
 	protected IUtilityFunction utilityFunction;
+
+	@Transient
+	protected double dividendSinceLastPeriod;
 
 	@Override
 	public void initialize() {
@@ -237,6 +240,12 @@ public class Household extends Agent implements IShareOwner {
 
 	@Override
 	@Transient
+	public void onDividendTransfer(double dividendAmount) {
+		this.dividendSinceLastPeriod += dividendAmount;
+	}
+
+	@Override
+	@Transient
 	public void onBankCloseBankAccount(BankAccount bankAccount) {
 		if (this.savingsBankAccount != null
 				&& this.savingsBankAccount == bankAccount) {
@@ -252,7 +261,8 @@ public class Household extends Agent implements IShareOwner {
 				double pricePerUnit, Currency currency) {
 			Household.this.assureTransactionsBankAccount();
 			if (goodType.equals(GoodType.LABOURHOUR)) {
-				Household.this.pricingBehaviour.registerSelling(amount);
+				Household.this.pricingBehaviour.registerSelling(amount, amount
+						* pricePerUnit);
 
 				/*
 				 * no exhaust of labour hours, as the offered labour hours have
@@ -328,23 +338,33 @@ public class Household extends Agent implements IShareOwner {
 			double keyInterestRate = AgentFactory.getInstanceCentralBank(
 					Household.this.primaryCurrency)
 					.getEffectiveKeyInterestRate();
+			double income = Household.this.transactionsBankAccount.getBalance();
 			Map<Period, Double> intertemporalConsumptionPlan = Household.this.intertemporalConsumptionFunction
-					.calculateUtilityMaximizingConsumptionPlan(
-							Household.this.transactionsBankAccount.getBalance(),
+					.calculateUtilityMaximizingConsumptionPlan(income,
 							Household.this.savingsBankAccount.getBalance(),
 							keyInterestRate, Household.this.ageInDays,
 							Household.this.RETIREMENT_AGE_IN_DAYS,
 							Household.this.LIFESPAN_IN_DAYS
 									- Household.this.ageInDays);
 			double budget = intertemporalConsumptionPlan.get(Period.CURRENT);
+			double moneySumToConsume = budget;
+			double moneySumToSave = income - moneySumToConsume;
+
+			/*
+			 * logging
+			 */
+			Log.household_onIncomeWageDividend(primaryCurrency,
+					Household.this.pricingBehaviour.getLastSoldValue(),
+					Household.this.dividendSinceLastPeriod);
+			Household.this.dividendSinceLastPeriod = 0;
+			Log.household_onIncomeConsumptionSaving(primaryCurrency, income,
+					moneySumToConsume, moneySumToSave);
 
 			// if not retired
 			if (Household.this.ageInDays < Household.this.RETIREMENT_AGE_IN_DAYS) {
 				/*
 				 * save money for retirement
 				 */
-				double moneySumToSave = Household.this.transactionsBankAccount
-						.getBalance() - budget;
 				if (Log.isAgentSelectedByClient(Household.this))
 					Log.log(Household.this,
 							DailyLifeEvent.class,
@@ -397,6 +417,8 @@ public class Household extends Agent implements IShareOwner {
 								"retirement dissavings");
 			}
 
+			// TODO: what if there are not enough goods to buy? -> higher saving
+
 			/*
 			 * buy goods -> maximize utility
 			 */
@@ -417,7 +439,7 @@ public class Household extends Agent implements IShareOwner {
 								Household.this.transactionsBankAccount
 										.getBalance());
 					}
-					MarketFactory.getInstance().buy(
+					double[] priceAndAmount = MarketFactory.getInstance().buy(
 							goodType,
 							maxAmount,
 							maxTotalPrice,
@@ -446,21 +468,6 @@ public class Household extends Agent implements IShareOwner {
 			}
 			double utility = Household.this.utilityFunction
 					.calculateUtility(bundleOfGoodsToConsume);
-			if (Log.isAgentSelectedByClient(Household.this)) {
-				String log = "consumed ";
-				int i = 0;
-				for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume
-						.entrySet()) {
-					log += MathUtil.round(entry.getValue()) + " "
-							+ entry.getKey();
-					if (i < bundleOfGoodsToConsume.size() - 1)
-						log += ", ";
-					i++;
-				}
-				log += " -> " + MathUtil.round(utility) + " utility";
-
-				Log.log(Household.this, DailyLifeEvent.class, log);
-			}
 			Log.household_onUtility(Household.this,
 					Household.this.transactionsBankAccount.getCurrency(),
 					bundleOfGoodsToConsume, utility);

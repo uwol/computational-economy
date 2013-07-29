@@ -17,27 +17,19 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dashboard.panel;
 
-import java.awt.Color;
 import java.awt.GridLayout;
-import java.text.SimpleDateFormat;
-
-import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.DateAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
-import org.jfree.ui.RectangleInsets;
 
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.nature.materia.GoodType;
 
-public class AggregatesPanel extends JPanel {
+public class AggregatesPanel extends ChartsPanel {
 
 	public AggregatesPanel() {
 		this.setLayout(new GridLayout(0, 2));
@@ -47,23 +39,6 @@ public class AggregatesPanel extends JPanel {
 		this.add(this.createMoneySupplyChart());
 		this.add(this.createProductionChart());
 		this.add(this.createLabourChart());
-	}
-
-	private void configureChart(JFreeChart chart) {
-		chart.setBackgroundPaint(Color.white);
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setBackgroundPaint(Color.lightGray);
-		plot.setDomainGridlinePaint(Color.white);
-		plot.setRangeGridlinePaint(Color.white);
-		plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-
-		DateAxis dateAxis = (DateAxis) plot.getDomainAxis();
-		NumberAxis valueAxis = (NumberAxis) plot.getRangeAxis();
-
-		dateAxis.setDateFormatOverride(new SimpleDateFormat("dd-MMM"));
-		valueAxis.setAutoRangeIncludesZero(true);
-		valueAxis.setUpperMargin(0.15);
-		valueAxis.setLowerMargin(0.15);
 	}
 
 	private ChartPanel createKeyInterestRatesChart() {

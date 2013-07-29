@@ -107,7 +107,7 @@ public class SettlementMarket extends Market {
 		this.settlementEventListeners.remove(offeror);
 	}
 
-	public Double[] buy(final GoodType goodType, final double maxAmount,
+	public double[] buy(final GoodType goodType, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
 			final Agent buyer, final BankAccount buyersBankAccount,
 			final String buyersBankAccountPassword) {
@@ -133,7 +133,7 @@ public class SettlementMarket extends Market {
 	 * @param buyersBankAccountForCommodityCurrency
 	 *            Bank account that should receive the bought foreign currency
 	 */
-	public Double[] buy(final Currency commodityCurrency,
+	public double[] buy(final Currency commodityCurrency,
 			final double maxAmount, final double maxTotalPrice,
 			final double maxPricePerUnit, final Agent buyer,
 			final BankAccount buyersBankAccount,
@@ -145,7 +145,7 @@ public class SettlementMarket extends Market {
 				buyersBankAccountForCommodityCurrency);
 	}
 
-	public Double[] buy(final Class<? extends Property> propertyClass,
+	public double[] buy(final Class<? extends Property> propertyClass,
 			final double maxAmount, final double maxTotalPrice,
 			final double maxPricePerUnit, final Agent buyer,
 			final BankAccount buyersBankAccount,
@@ -155,7 +155,7 @@ public class SettlementMarket extends Market {
 				buyersBankAccountPassword, null);
 	}
 
-	protected Double[] buy(final GoodType goodType,
+	protected double[] buy(final GoodType goodType,
 			final Currency commodityCurrency,
 			final Class<? extends Property> propertyClass,
 			final double maxAmount, final double maxTotalPrice,
@@ -174,7 +174,7 @@ public class SettlementMarket extends Market {
 
 		double moneySpentSum = 0;
 		double amountSum = 0;
-		Double[] priceAndAmount = new Double[2];
+		double[] priceAndAmount = new double[2];
 
 		for (Entry<MarketOrder, Double> entry : marketOffers.entrySet()) {
 			MarketOrder marketOffer = entry.getKey();

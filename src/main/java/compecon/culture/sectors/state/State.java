@@ -48,6 +48,7 @@ import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 import compecon.nature.math.utility.IUtilityFunction;
 
@@ -136,9 +137,8 @@ public class State extends Agent {
 		public void onEvent(Property property, double totalPrice,
 				Currency currency) {
 			if (property instanceof FixedRateBond) {
-				State.this.pricingBehaviour
-						.registerSelling(((FixedRateBond) property)
-								.getFaceValue());
+				State.this.pricingBehaviour.registerSelling(
+						((FixedRateBond) property).getFaceValue(), totalPrice);
 			}
 		}
 	}
@@ -215,30 +215,34 @@ public class State extends Agent {
 					.getMarginalPrices(
 							State.this.transactionsBankAccount.getCurrency());
 			double budget = State.this.transactionsBankAccount.getBalance();
-			Map<GoodType, Double> optimalBundleOfGoods = State.this.utilityFunction
-					.calculateUtilityMaximizingInputsUnderBudgetRestriction(
-							prices, budget);
+			if (MathUtil.greater(budget, 0)) {
+				Map<GoodType, Double> optimalBundleOfGoods = State.this.utilityFunction
+						.calculateUtilityMaximizingInputsUnderBudgetRestriction(
+								prices, budget);
 
-			for (Entry<GoodType, Double> entry : optimalBundleOfGoods
-					.entrySet()) {
-				GoodType goodType = entry.getKey();
-				double maxAmount = entry.getValue();
-				double maxTotalPrice = State.this.transactionsBankAccount
-						.getBalance();
-				if (!Double.isInfinite(maxAmount)) {
-					maxTotalPrice = Math.min(maxAmount * prices.get(goodType),
-							State.this.transactionsBankAccount.getBalance());
+				for (Entry<GoodType, Double> entry : optimalBundleOfGoods
+						.entrySet()) {
+					GoodType goodType = entry.getKey();
+					double maxAmount = entry.getValue();
+					double maxTotalPrice = State.this.transactionsBankAccount
+							.getBalance();
+					if (!Double.isInfinite(maxAmount)) {
+						maxTotalPrice = Math
+								.min(maxAmount * prices.get(goodType),
+										State.this.transactionsBankAccount
+												.getBalance());
+					}
+					MarketFactory.getInstance().buy(
+							goodType,
+							maxAmount,
+							maxTotalPrice,
+							prices.get(goodType),
+							State.this,
+							State.this.transactionsBankAccount,
+							State.this.bankPasswords
+									.get(State.this.transactionsBankAccount
+											.getManagingBank()));
 				}
-				MarketFactory.getInstance().buy(
-						goodType,
-						maxAmount,
-						maxTotalPrice,
-						prices.get(goodType),
-						State.this,
-						State.this.transactionsBankAccount,
-						State.this.bankPasswords
-								.get(State.this.transactionsBankAccount
-										.getManagingBank()));
 			}
 		}
 	}

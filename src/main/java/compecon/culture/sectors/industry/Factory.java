@@ -120,7 +120,8 @@ public class Factory extends JointStockCompany {
 				double pricePerUnit, Currency currency) {
 			Factory.this.assureTransactionsBankAccount();
 			if (Factory.this.producedGoodType.equals(goodType)) {
-				Factory.this.pricingBehaviour.registerSelling(amount);
+				Factory.this.pricingBehaviour.registerSelling(amount, amount
+						* pricePerUnit);
 			}
 		}
 

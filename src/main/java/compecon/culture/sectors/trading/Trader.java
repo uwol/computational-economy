@@ -178,7 +178,7 @@ public class Trader extends JointStockCompany {
 				double pricePerUnit, Currency currency) {
 			Trader.this.assureTransactionsBankAccount();
 			Trader.this.goodTypePricingBehaviours.get(goodType)
-					.registerSelling(amount);
+					.registerSelling(amount, amount * pricePerUnit);
 		}
 
 		@Override

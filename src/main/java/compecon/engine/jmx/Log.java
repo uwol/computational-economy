@@ -19,6 +19,7 @@ package compecon.engine.jmx;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import compecon.culture.sectors.financial.BankAccount;
 import compecon.culture.sectors.financial.Currency;
@@ -29,6 +30,7 @@ import compecon.engine.Agent;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
+import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 
 public class Log {
@@ -58,16 +60,7 @@ public class Log {
 	// --------
 
 	public static void notifyTimeSystem_nextDay(Date date) {
-		ModelRegistry.getAgentDetailModel().notifyListeners();
-		ModelRegistry.getBalanceSheetsModel().nextPeriod();
-		ModelRegistry.getMonetaryTransactionsModel().nextPeriod();
-		ModelRegistry.getCapacityModel().nextPeriod();
-		ModelRegistry.getEffectiveProductionOutputModel().nextPeriod();
-		ModelRegistry.getMoneySupplyM0Model().nextPeriod();
-		ModelRegistry.getMoneySupplyM1Model().nextPeriod();
-		ModelRegistry.getMoneySupplyM2Model().nextPeriod();
-		ModelRegistry.getPricesModel().nextPeriod();
-		ModelRegistry.getUtilityModel().nextPeriod();
+		ModelRegistry.nextPeriod();
 	}
 
 	// --------
@@ -114,9 +107,40 @@ public class Log {
 
 	// --------
 
+	public static void household_onIncomeWageDividend(Currency currency,
+			double wage, double dividend) {
+		ModelRegistry.getWageModel().add(currency, wage);
+		ModelRegistry.getDividendModel().add(currency, dividend);
+	}
+
+	public static void household_onIncomeConsumptionSaving(Currency currency,
+			double income, double consumptionAmount, double savingAmount) {
+		ModelRegistry.getConsumptionModel().add(currency, consumptionAmount);
+		ModelRegistry.getIncomeModel().add(currency, income);
+		ModelRegistry.getConsumptionRateModel().add(currency,
+				consumptionAmount, income);
+		ModelRegistry.getConsumptionIncomeRatioModel().add(currency,
+				consumptionAmount, income);
+		ModelRegistry.getSavingModel().add(currency, savingAmount);
+	}
+
 	public static void household_onUtility(Household household,
 			Currency currency, Map<GoodType, Double> bundleOfGoodsToConsume,
 			double utility) {
+		if (Log.isAgentSelectedByClient(household)) {
+			String log = "consumed ";
+			int i = 0;
+			for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume
+					.entrySet()) {
+				log += MathUtil.round(entry.getValue()) + " " + entry.getKey();
+				if (i < bundleOfGoodsToConsume.size() - 1)
+					log += ", ";
+				i++;
+			}
+			log += " -> " + MathUtil.round(utility) + " utility";
+
+			Log.log(household, log);
+		}
 		ModelRegistry.getUtilityModel().add(currency, utility);
 	}
 

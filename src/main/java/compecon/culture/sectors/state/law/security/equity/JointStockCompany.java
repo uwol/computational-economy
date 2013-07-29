@@ -139,7 +139,6 @@ public abstract class JointStockCompany extends Agent {
 						Agent owner = PropertyRegister.getInstance().getOwner(
 								share);
 						if (owner != null && owner != JointStockCompany.this) {
-
 							if (owner instanceof IShareOwner) {
 								IShareOwner shareOwner = (IShareOwner) owner;
 								if (currency
@@ -156,6 +155,8 @@ public abstract class JointStockCompany extends Agent {
 													JointStockCompany.this.bankPasswords
 															.get(JointStockCompany.this.primaryBank),
 													"dividend");
+									((IShareOwner) owner)
+											.onDividendTransfer(dividendPerOwner);
 									totalDividendPayed += dividendPerOwner;
 								}
 							}

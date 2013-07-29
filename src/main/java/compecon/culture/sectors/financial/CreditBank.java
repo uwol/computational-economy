@@ -76,9 +76,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 	protected final double MIN_ARBITRAGE_MARGIN = 0.03;
 
 	@Transient
-	protected final double MIN_OFFER_MARGIN = 0.01;
-
-	@Transient
 	protected Map<Currency, PricingBehaviour> localCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
 
 	@ElementCollection
@@ -458,7 +455,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 				double pricePerUnit, Currency currency) {
 			if (CreditBank.this.primaryCurrency.equals(commodityCurrency)) {
 				CreditBank.this.localCurrencyPricingBehaviours.get(currency)
-						.registerSelling(amount);
+						.registerSelling(amount, amount * pricePerUnit);
 			}
 		}
 

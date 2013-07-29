@@ -34,6 +34,7 @@ import org.jfree.chart.ChartPanel;
 import compecon.engine.dashboard.panel.AgentsPanel;
 import compecon.engine.dashboard.panel.AggregatesPanel;
 import compecon.engine.dashboard.panel.ControlPanel;
+import compecon.engine.dashboard.panel.HouseholdPanel;
 import compecon.engine.dashboard.panel.NationalAccountsPanel;
 import compecon.engine.dashboard.panel.NumberOfAgentsPanel;
 import compecon.engine.dashboard.panel.PricesPanel;
@@ -41,17 +42,19 @@ import compecon.engine.dashboard.panel.PricesPanel;
 public class Dashboard extends JFrame {
 	private static Dashboard instance;
 
-	protected final AgentsPanel agentsPanel = new AgentsPanel();
-
-	protected final JPanel borderPanel;
+	protected final JTabbedPane jTabbedPane;
 
 	protected final AggregatesPanel aggregatesPanel = new AggregatesPanel();
 
 	protected final PricesPanel pricesPanel = new PricesPanel();
 
+	protected final HouseholdPanel householdPanel = new HouseholdPanel();
+
 	protected final NationalAccountsPanel nationalAccountsPanel = new NationalAccountsPanel();
 
-	protected final JTabbedPane jTabbedPane;
+	protected final AgentsPanel agentsPanel = new AgentsPanel();
+
+	protected final JPanel borderPanel;
 
 	private Dashboard() {
 
@@ -80,6 +83,7 @@ public class Dashboard extends JFrame {
 		this.jTabbedPane = new JTabbedPane();
 		this.jTabbedPane.addTab("Aggregates", this.aggregatesPanel);
 		this.jTabbedPane.addTab("Prices", this.pricesPanel);
+		this.jTabbedPane.addTab("Households", this.householdPanel);
 		this.jTabbedPane.addTab("National Accounts", nationalAccountsPanel);
 		this.jTabbedPane.addTab("Agents", this.agentsPanel);
 

@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model;
+package compecon.engine.jmx.model.generic;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,30 +26,13 @@ import org.jfree.data.time.TimeSeries;
 
 import compecon.engine.time.TimeSystem;
 
-public class TimeSeriesModel<T> {
+public abstract class PeriodDataAbstractTimeSeriesModel<T> {
 
 	protected final int NUMBER_OF_DAYS = 180;
 
 	protected final Map<T, TimeSeries> timeSeries = new HashMap<T, TimeSeries>();
 
 	protected String titleSuffix;
-
-	public TimeSeriesModel(T[] initialTypes) {
-		for (T type : initialTypes)
-			this.assureTimeSeries(type);
-	}
-
-	public TimeSeriesModel(T[] initialTypes, String titleSuffix) {
-		for (T type : initialTypes)
-			this.assureTimeSeries(type);
-		this.titleSuffix = titleSuffix;
-	}
-
-	public void add(T type, double amount) {
-		if (this.timeSeries.containsKey(type))
-			this.timeSeries.get(type).addOrUpdate(
-					new Day(TimeSystem.getInstance().getCurrentDate()), amount);
-	}
 
 	public Set<T> getTypes() {
 		return this.timeSeries.keySet();
@@ -59,7 +42,7 @@ public class TimeSeriesModel<T> {
 		return this.timeSeries.get(type);
 	}
 
-	private void assureTimeSeries(T type) {
+	protected void assureTimeSeries(T type) {
 		if (!this.timeSeries.containsKey(type)) {
 			TimeSeries amountTimeSeries = createTimeSeries(type);
 			this.timeSeries.put(type, amountTimeSeries);
@@ -68,12 +51,14 @@ public class TimeSeriesModel<T> {
 
 	protected TimeSeries createTimeSeries(T type) {
 		String title = type.toString();
-		if (titleSuffix != null)
-			title += titleSuffix;
+		if (this.titleSuffix != null)
+			title += this.titleSuffix;
 
 		TimeSeries timeSeries = new TimeSeries(title, Day.class);
 		timeSeries.setMaximumItemAge(this.NUMBER_OF_DAYS);
 		timeSeries.add(new Day(TimeSystem.getInstance().getCurrentDate()), 0);
 		return timeSeries;
 	}
+
+	public abstract void nextPeriod();
 }

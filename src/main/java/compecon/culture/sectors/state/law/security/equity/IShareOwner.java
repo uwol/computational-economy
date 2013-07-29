@@ -20,5 +20,7 @@ package compecon.culture.sectors.state.law.security.equity;
 import compecon.culture.sectors.financial.BankAccount;
 
 public interface IShareOwner {
+	public void onDividendTransfer(double dividendAmount);
+
 	public BankAccount getDividendBankAccount();
 }

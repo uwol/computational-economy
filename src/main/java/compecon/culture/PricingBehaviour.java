@@ -52,6 +52,8 @@ public class PricingBehaviour {
 
 	double[] soldAmount_InPeriods = new double[10]; // x, x-1, x-2, x-3, ...
 
+	double[] soldValue_InPeriods = new double[10]; // x, x-1, x-2, x-3, ...
+
 	double[] offeredAmount_InPeriods = new double[10]; // x, x-1, x-2, x-3,
 														// ...
 
@@ -84,10 +86,12 @@ public class PricingBehaviour {
 		}
 	}
 
-	public void registerSelling(double numberOfProducts) {
+	public void registerSelling(double numberOfProducts, double totalValue) {
 		if (!Double.isNaN(numberOfProducts)
-				&& !Double.isInfinite(numberOfProducts))
+				&& !Double.isInfinite(numberOfProducts)) {
 			this.soldAmount_InPeriods[0] += numberOfProducts;
+			this.soldValue_InPeriods[0] += totalValue;
+		}
 	}
 
 	public void registerOfferedAmount(double numberOfProducts) {
@@ -105,6 +109,8 @@ public class PricingBehaviour {
 		System.arraycopy(this.soldAmount_InPeriods, 0,
 				this.soldAmount_InPeriods, 1,
 				this.soldAmount_InPeriods.length - 1);
+		System.arraycopy(this.soldValue_InPeriods, 0, this.soldValue_InPeriods,
+				1, this.soldValue_InPeriods.length - 1);
 		System.arraycopy(this.offeredAmount_InPeriods, 0,
 				this.offeredAmount_InPeriods, 1,
 				this.offeredAmount_InPeriods.length - 1);
@@ -114,6 +120,7 @@ public class PricingBehaviour {
 		this.prices_InPeriods[0] = this.prices_InPeriods[1];
 		this.offeredAmount_InPeriods[0] = 0;
 		this.soldAmount_InPeriods[0] = 0;
+		this.soldValue_InPeriods[0] = 0;
 	}
 
 	public boolean wasNothingSoldInLastPeriod() {
@@ -216,6 +223,10 @@ public class PricingBehaviour {
 
 	public double getLastSoldAmount() {
 		return this.soldAmount_InPeriods[1];
+	}
+
+	public double getLastSoldValue() {
+		return this.soldValue_InPeriods[1];
 	}
 
 	protected double calculateHigherPrice(double price) {
