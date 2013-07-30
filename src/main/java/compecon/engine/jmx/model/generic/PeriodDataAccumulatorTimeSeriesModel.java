@@ -47,14 +47,27 @@ public class PeriodDataAccumulatorTimeSeriesModel<T> extends
 		}
 	}
 
+	public double getAccumulatorSum() {
+		double accumulatorSum = 0;
+		for (PeriodDataAccumulator periodDataAccumulator : this.periodDataAccumulatorSet
+				.getPeriodDataAccumulators().values()) {
+			accumulatorSum += periodDataAccumulator.getAmount();
+		}
+		return accumulatorSum;
+	}
+
 	public void nextPeriod() {
+		nextPeriod(1);
+	}
+
+	public void nextPeriod(double divisor) {
 		// write amount for each type into corresponding time series
 		for (Entry<T, PeriodDataAccumulator> entry : this.periodDataAccumulatorSet
 				.getPeriodDataAccumulators().entrySet()) {
 			if (this.timeSeries.containsKey(entry.getKey())) {
 				this.timeSeries.get(entry.getKey()).addOrUpdate(
 						new Day(TimeSystem.getInstance().getCurrentDate()),
-						entry.getValue().getAmount());
+						entry.getValue().getAmount() / divisor);
 			}
 		}
 
