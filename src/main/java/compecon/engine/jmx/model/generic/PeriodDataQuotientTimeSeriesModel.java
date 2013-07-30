@@ -39,13 +39,8 @@ public class PeriodDataQuotientTimeSeriesModel<T> extends
 
 	public PeriodDataQuotientTimeSeriesModel(T[] initialTypes,
 			String titleSuffix) {
+		this(initialTypes);
 		this.titleSuffix = titleSuffix;
-		this.periodDataDividendAccumulatorSet = new PeriodDataAccumulatorSet<T>(
-				initialTypes);
-		this.periodDataDivisorAccumulatorSet = new PeriodDataAccumulatorSet<T>(
-				initialTypes);
-		for (T type : initialTypes)
-			assureTimeSeries(type);
 	}
 
 	public void add(T type, double dividendAamount, double divisorAamount) {

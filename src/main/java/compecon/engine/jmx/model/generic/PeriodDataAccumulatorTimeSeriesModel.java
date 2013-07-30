@@ -37,11 +37,8 @@ public class PeriodDataAccumulatorTimeSeriesModel<T> extends
 
 	public PeriodDataAccumulatorTimeSeriesModel(T[] initialTypes,
 			String titleSuffix) {
+		this(initialTypes);
 		this.titleSuffix = titleSuffix;
-		this.periodDataAccumulatorSet = new PeriodDataAccumulatorSet<T>(
-				initialTypes);
-		for (T type : initialTypes)
-			assureTimeSeries(type);
 	}
 
 	public void add(T type, double amount) {

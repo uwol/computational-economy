@@ -26,6 +26,7 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry;
+import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
 
 public class HouseholdPanel extends ChartsPanel {
 
@@ -36,6 +37,7 @@ public class HouseholdPanel extends ChartsPanel {
 		this.add(createConsumptionRatePanel());
 		this.add(createSavingPanel());
 		this.add(createWageDividendPanel());
+		this.add(createIncomeSourcePanel());
 	}
 
 	protected ChartPanel createConsumptionPanel() {
@@ -97,6 +99,26 @@ public class HouseholdPanel extends ChartsPanel {
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Wage / Dividend", "Date", "Wage / Dividend",
 				timeSeriesCollection, true, true, false);
+		this.configureChart(chart);
+		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createIncomeSourcePanel() {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		for (Currency currency : ModelRegistry.getIncomeSourceModel()
+				.getTypes()) {
+			for (IncomeSource incomeSource : ModelRegistry
+					.getIncomeSourceModel().getCategories()) {
+				timeSeriesCollection.addSeries(ModelRegistry
+						.getIncomeSourceModel().getTimeSeries(currency,
+								incomeSource));
+			}
+		}
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart("Income Source",
+				"Date", "Income Source", timeSeriesCollection, true, true,
+				false);
 		this.configureChart(chart);
 		return new ChartPanel(chart);
 	}

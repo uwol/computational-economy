@@ -28,6 +28,7 @@ import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
 import compecon.engine.jmx.model.ModelRegistry;
+import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.util.MathUtil;
@@ -111,6 +112,10 @@ public class Log {
 			double wage, double dividend) {
 		ModelRegistry.getWageModel().add(currency, wage);
 		ModelRegistry.getDividendModel().add(currency, dividend);
+		ModelRegistry.getIncomeSourceModel().add(currency, IncomeSource.WAGE,
+				wage);
+		ModelRegistry.getIncomeSourceModel().add(currency,
+				IncomeSource.DIVIDEND, dividend);
 	}
 
 	public static void household_onIncomeConsumptionSaving(Currency currency,

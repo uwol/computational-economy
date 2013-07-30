@@ -19,11 +19,16 @@ package compecon.engine.jmx.model;
 
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.jmx.model.generic.PeriodDataAccumulatorTimeSeriesModel;
+import compecon.engine.jmx.model.generic.PeriodDataPercentageTimeSeriesModel;
 import compecon.engine.jmx.model.generic.PeriodDataQuotientTimeSeriesModel;
 import compecon.engine.jmx.model.generic.TimeSeriesModel;
 import compecon.nature.materia.GoodType;
 
 public class ModelRegistry {
+
+	public enum IncomeSource {
+		WAGE, DIVIDEND
+	}
 
 	protected final static ControlModel controlModel = new ControlModel();
 
@@ -82,6 +87,9 @@ public class ModelRegistry {
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> dividendModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values(), " div.");
 
+	protected final static PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource> incomeSourceModel = new PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource>(
+			Currency.values(), IncomeSource.values());
+
 	// agent details
 
 	protected final static AgentDetailModel agentDetailModel = new AgentDetailModel();
@@ -110,6 +118,7 @@ public class ModelRegistry {
 		dividendModel.nextPeriod();
 		effectiveProductionOutputModel.nextPeriod();
 		incomeModel.nextPeriod();
+		incomeSourceModel.nextPeriod();
 		monetaryTransactionsModel.nextPeriod();
 		moneySupplyM0Model.nextPeriod();
 		moneySupplyM1Model.nextPeriod();
@@ -162,6 +171,10 @@ public class ModelRegistry {
 
 	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getIncomeModel() {
 		return incomeModel;
+	}
+
+	public static PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource> getIncomeSourceModel() {
+		return incomeSourceModel;
 	}
 
 	public static TimeSeriesModel<Currency> getKeyInterestRateModel() {
