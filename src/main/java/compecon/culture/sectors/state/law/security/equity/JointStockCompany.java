@@ -54,6 +54,9 @@ public abstract class JointStockCompany extends Agent {
 	@Transient
 	protected double MONEY_TO_RETAIN = 0;
 
+	@Transient
+	protected int NUMBER_OF_INITIAL_SHARES = 50;
+
 	@Override
 	public void initialize() {
 		super.initialize();
@@ -182,8 +185,8 @@ public abstract class JointStockCompany extends Agent {
 			if (JointStockCompany.this.issuedShares.size() == 0) {
 				JointStockCompany.this.assureTransactionsBankAccount();
 
-				// issue 10 shares
-				for (int i = 0; i < 3; i++) {
+				// issue initial shares
+				for (int i = 0; i < NUMBER_OF_INITIAL_SHARES; i++) {
 					Share initialShare = PropertyFactory
 							.newInstanceShare(JointStockCompany.this);
 					PropertyRegister.getInstance().registerProperty(

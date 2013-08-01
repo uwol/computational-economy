@@ -34,19 +34,20 @@ public class PeriodDataPercentageTimeSeriesModel<T, C> {
 		this.categories = initialCategories;
 		for (T type : initialTypes) {
 			PeriodDataAccumulatorTimeSeriesModel<C> periodDataAccumulatorTimeSeriesModel = new PeriodDataAccumulatorTimeSeriesModel<C>(
-					initialCategories);
+					initialCategories, "-" + type.toString());
 			this.periodDataAccumulatorTimeSeriesModels.put(type,
 					periodDataAccumulatorTimeSeriesModel);
 		}
 	}
 
 	public void add(T type, C category, double amount) {
-		this.periodDataAccumulatorTimeSeriesModels.get(type).add(category, amount);
+		this.periodDataAccumulatorTimeSeriesModels.get(type).add(category,
+				amount);
 	}
 
 	public TimeSeries getTimeSeries(T type, C category) {
-		return this.periodDataAccumulatorTimeSeriesModels.get(type).getTimeSeries(
-				category);
+		return this.periodDataAccumulatorTimeSeriesModels.get(type)
+				.getTimeSeries(category);
 	}
 
 	public Set<T> getTypes() {

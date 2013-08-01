@@ -353,12 +353,11 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * logging
 			 */
-			Log.household_onIncomeWageDividend(primaryCurrency,
+			Log.household_onIncomeWageDividendConsumptionSaving(
+					primaryCurrency, income, moneySumToConsume, moneySumToSave,
 					Household.this.pricingBehaviour.getLastSoldValue(),
 					Household.this.dividendSinceLastPeriod);
 			Household.this.dividendSinceLastPeriod = 0;
-			Log.household_onIncomeConsumptionSaving(primaryCurrency, income,
-					moneySumToConsume, moneySumToSave);
 
 			// if not retired
 			if (Household.this.ageInDays < Household.this.RETIREMENT_AGE_IN_DAYS) {

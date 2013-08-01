@@ -27,6 +27,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import compecon.culture.sectors.financial.BankAccount.BankAccountType;
+import compecon.culture.sectors.state.State;
 import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.culture.sectors.state.law.security.debt.Bond;
 import compecon.culture.sectors.state.law.security.debt.FixedRateBond;
@@ -204,6 +205,7 @@ public class CentralBank extends Bank {
 					to, amount, password);
 		else if (from.getManagingBank() instanceof CentralBank
 				&& to.getManagingBank() instanceof CreditBank) {
+			Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
 			this.transferMoneyFromCentralBankAccountToCreditBankAccount(from,
 					to, amount, password);
 		} else
@@ -367,9 +369,15 @@ public class CentralBank extends Bank {
 		return RESERVE_RATIO;
 	}
 
+	protected double calculateTotalDividend() {
+		return 0;
+	}
+
 	public class DailyInterestCalculationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
+			assureTransactionsBankAccount();
+
 			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(CentralBank.this)) {
 				double monthlyInterest = bankAccount.getBalance()
@@ -404,6 +412,17 @@ public class CentralBank extends Bank {
 						throw new RuntimeException(e.getMessage());
 					}
 				}
+			}
+
+			if (CentralBank.this.transactionsBankAccount.getBalance() > 0) {
+				State state = DAOFactory.getStateDAO().findByCurrency(
+						primaryCurrency);
+				CentralBank.this.transferMoney(
+						CentralBank.this.transactionsBankAccount,
+						state.getTransactionsBankAccount(),
+						CentralBank.this.transactionsBankAccount.getBalance(),
+						CentralBank.this.bankPasswords.get(CentralBank.this),
+						"national interest");
 			}
 		}
 	}

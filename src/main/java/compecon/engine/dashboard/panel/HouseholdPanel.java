@@ -17,27 +17,47 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dashboard.panel;
 
+import java.awt.Color;
 import java.awt.GridLayout;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.IntervalXYDataset;
 
 import compecon.culture.sectors.financial.Currency;
+import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
+import compecon.engine.jmx.model.generic.DistributionModel.SummaryStatisticalData;
 
-public class HouseholdPanel extends ChartsPanel {
+public class HouseholdPanel extends ChartsPanel implements IModelListener {
+
+	protected Map<Currency, JFreeChart> incomeDistributionCharts = new HashMap<Currency, JFreeChart>();
 
 	public HouseholdPanel() {
 		this.setLayout(new GridLayout(0, 2));
+
+		this.setBackground(Color.lightGray);
 
 		this.add(createConsumptionPanel());
 		this.add(createConsumptionRatePanel());
 		this.add(createSavingPanel());
 		this.add(createWageDividendPanel());
 		this.add(createIncomeSourcePanel());
+
+		for (Currency currency : Currency.values()) {
+			this.add(createIncomeDistributionPanel(currency));
+		}
+
+		ModelRegistry.getIncomeDistributionModel().registerListener(this);
 	}
 
 	protected ChartPanel createConsumptionPanel() {
@@ -121,5 +141,77 @@ public class HouseholdPanel extends ChartsPanel {
 				false);
 		this.configureChart(chart);
 		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createIncomeDistributionPanel(Currency currency) {
+		IntervalXYDataset dataset = ModelRegistry.getIncomeDistributionModel()
+				.getHistogramDataset(currency);
+		JFreeChart incomeDistributionChart = ChartFactory.createHistogram(
+				"Income Distribution", "Income", "% Households at Income",
+				dataset, PlotOrientation.VERTICAL, true, false, false);
+		this.incomeDistributionCharts.put(currency, incomeDistributionChart);
+		return new ChartPanel(incomeDistributionChart);
+	}
+
+	protected void addValueMarker(JFreeChart chart, double position,
+			String label) {
+		ValueMarker marker = new ValueMarker(position);
+		marker.setPaint(Color.black);
+		marker.setLabel(label);
+		XYPlot plot = (XYPlot) chart.getPlot();
+		plot.addDomainMarker(marker);
+	}
+
+	@Override
+	public void notifyListener() {
+		for (Entry<Currency, JFreeChart> entry : this.incomeDistributionCharts
+				.entrySet()) {
+			Currency currency = entry.getKey();
+			JFreeChart chart = entry.getValue();
+			XYPlot plot = ((XYPlot) chart.getPlot());
+			plot.setDataset(ModelRegistry.getIncomeDistributionModel()
+					.getHistogramDataset(currency));
+
+			plot.clearDomainMarkers();
+			SummaryStatisticalData summaryStatisticalData = ModelRegistry
+					.getIncomeDistributionModel().getSummaryStatisticalData(
+							entry.getKey());
+			addValueMarker(
+					chart,
+					summaryStatisticalData.originalValues[summaryStatisticalData.position10Percent],
+					"10 %");
+			addValueMarker(
+					chart,
+					summaryStatisticalData.originalValues[summaryStatisticalData.position20Percent],
+					"20 %");
+			addValueMarker(
+					chart,
+					summaryStatisticalData.originalValues[summaryStatisticalData.position30Percent],
+					"30 %");
+			addValueMarker(
+					chart,
+					summaryStatisticalData.originalValues[summaryStatisticalData.position40Percent],
+					"40 %");
+			addValueMarker(
+					chart,
+					summaryStatisticalData.originalValues[summaryStatisticalData.position50Percent],
+					"50 %");
+			addValueMarker(
+					chart,
+					summaryStatisticalData.originalValues[summaryStatisticalData.position60Percent],
+					"60 %");
+			addValueMarker(
+					chart,
+					summaryStatisticalData.originalValues[summaryStatisticalData.position70Percent],
+					"70 %");
+			addValueMarker(
+					chart,
+					summaryStatisticalData.originalValues[summaryStatisticalData.position80Percent],
+					"80 %");
+			addValueMarker(
+					chart,
+					summaryStatisticalData.originalValues[summaryStatisticalData.position90Percent],
+					"90 %");
+		}
 	}
 }

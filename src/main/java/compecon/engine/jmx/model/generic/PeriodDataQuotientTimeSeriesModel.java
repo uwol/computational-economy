@@ -33,20 +33,27 @@ public class PeriodDataQuotientTimeSeriesModel<T> extends
 				initialTypes);
 		this.periodDataDivisorAccumulatorSet = new PeriodDataAccumulatorSet<T>(
 				initialTypes);
-		for (T type : initialTypes)
+		for (T type : periodDataDividendAccumulatorSet
+				.getPeriodDataAccumulators().keySet())
 			assureTimeSeries(type);
 	}
 
 	public PeriodDataQuotientTimeSeriesModel(T[] initialTypes,
 			String titleSuffix) {
-		this(initialTypes);
+		this.periodDataDividendAccumulatorSet = new PeriodDataAccumulatorSet<T>(
+				initialTypes);
+		this.periodDataDivisorAccumulatorSet = new PeriodDataAccumulatorSet<T>(
+				initialTypes);
 		this.titleSuffix = titleSuffix;
+		for (T type : periodDataDividendAccumulatorSet
+				.getPeriodDataAccumulators().keySet())
+			assureTimeSeries(type);
 	}
 
-	public void add(T type, double dividendAamount, double divisorAamount) {
+	public void add(T type, double dividendAmount, double divisorAmount) {
 		if (this.timeSeries.containsKey(type)) {
-			this.periodDataDividendAccumulatorSet.add(type, dividendAamount);
-			this.periodDataDivisorAccumulatorSet.add(type, divisorAamount);
+			this.periodDataDividendAccumulatorSet.add(type, dividendAmount);
+			this.periodDataDivisorAccumulatorSet.add(type, divisorAmount);
 		}
 	}
 

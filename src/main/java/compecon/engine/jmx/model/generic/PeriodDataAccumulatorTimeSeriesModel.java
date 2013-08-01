@@ -31,14 +31,19 @@ public class PeriodDataAccumulatorTimeSeriesModel<T> extends
 	public PeriodDataAccumulatorTimeSeriesModel(T[] initialTypes) {
 		this.periodDataAccumulatorSet = new PeriodDataAccumulatorSet<T>(
 				initialTypes);
-		for (T type : initialTypes)
+		for (T type : periodDataAccumulatorSet.getPeriodDataAccumulators()
+				.keySet())
 			assureTimeSeries(type);
 	}
 
 	public PeriodDataAccumulatorTimeSeriesModel(T[] initialTypes,
 			String titleSuffix) {
-		this(initialTypes);
+		this.periodDataAccumulatorSet = new PeriodDataAccumulatorSet<T>(
+				initialTypes);
 		this.titleSuffix = titleSuffix;
+		for (T type : periodDataAccumulatorSet.getPeriodDataAccumulators()
+				.keySet())
+			assureTimeSeries(type);
 	}
 
 	public void add(T type, double amount) {

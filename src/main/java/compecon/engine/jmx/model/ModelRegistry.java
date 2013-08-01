@@ -18,6 +18,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.jmx.model;
 
 import compecon.culture.sectors.financial.Currency;
+import compecon.engine.jmx.model.generic.DistributionModel;
 import compecon.engine.jmx.model.generic.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.jmx.model.generic.PeriodDataPercentageTimeSeriesModel;
 import compecon.engine.jmx.model.generic.PeriodDataQuotientTimeSeriesModel;
@@ -69,26 +70,29 @@ public class ModelRegistry {
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> consumptionModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values(), " con.");
 
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> incomeModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " inc.");
-
 	protected final static PeriodDataQuotientTimeSeriesModel<Currency> consumptionRateModel = new PeriodDataQuotientTimeSeriesModel<Currency>(
 			Currency.values());
 
 	protected final static PeriodDataQuotientTimeSeriesModel<Currency> consumptionIncomeRatioModel = new PeriodDataQuotientTimeSeriesModel<Currency>(
 			Currency.values());
 
+	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> dividendModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
+			Currency.values(), " div.");
+
+	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> incomeModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
+			Currency.values(), " inc.");
+
+	protected final static DistributionModel<Currency> incomeDistributionModel = new DistributionModel<Currency>(
+			Currency.values());
+
+	protected final static PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource> incomeSourceModel = new PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource>(
+			Currency.values(), IncomeSource.values());
+
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> savingModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values());
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> wageModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values(), " wage");
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> dividendModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " div.");
-
-	protected final static PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource> incomeSourceModel = new PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource>(
-			Currency.values(), IncomeSource.values());
 
 	// agent details
 
@@ -119,6 +123,7 @@ public class ModelRegistry {
 		effectiveProductionOutputModel.nextPeriod();
 		incomeModel.nextPeriod();
 		incomeSourceModel.nextPeriod();
+		incomeDistributionModel.nextPeriod();
 		monetaryTransactionsModel.nextPeriod();
 		moneySupplyM0Model.nextPeriod();
 		moneySupplyM1Model.nextPeriod();
@@ -171,6 +176,10 @@ public class ModelRegistry {
 
 	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getIncomeModel() {
 		return incomeModel;
+	}
+
+	public static DistributionModel<Currency> getIncomeDistributionModel() {
+		return incomeDistributionModel;
 	}
 
 	public static PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource> getIncomeSourceModel() {

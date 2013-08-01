@@ -108,18 +108,10 @@ public class Log {
 
 	// --------
 
-	public static void household_onIncomeWageDividend(Currency currency,
-			double wage, double dividend) {
-		ModelRegistry.getWageModel().add(currency, wage);
-		ModelRegistry.getDividendModel().add(currency, dividend);
-		ModelRegistry.getIncomeSourceModel().add(currency, IncomeSource.WAGE,
-				wage);
-		ModelRegistry.getIncomeSourceModel().add(currency,
-				IncomeSource.DIVIDEND, dividend);
-	}
+	public static void household_onIncomeWageDividendConsumptionSaving(
+			Currency currency, double income, double consumptionAmount,
+			double savingAmount, double wage, double dividend) {
 
-	public static void household_onIncomeConsumptionSaving(Currency currency,
-			double income, double consumptionAmount, double savingAmount) {
 		ModelRegistry.getConsumptionModel().add(currency, consumptionAmount);
 		ModelRegistry.getIncomeModel().add(currency, income);
 		ModelRegistry.getConsumptionRateModel().add(currency,
@@ -127,6 +119,13 @@ public class Log {
 		ModelRegistry.getConsumptionIncomeRatioModel().add(currency,
 				consumptionAmount, income);
 		ModelRegistry.getSavingModel().add(currency, savingAmount);
+		ModelRegistry.getWageModel().add(currency, wage);
+		ModelRegistry.getDividendModel().add(currency, dividend);
+		ModelRegistry.getIncomeSourceModel().add(currency, IncomeSource.WAGE,
+				wage);
+		ModelRegistry.getIncomeSourceModel().add(currency,
+				IncomeSource.DIVIDEND, dividend);
+		ModelRegistry.getIncomeDistributionModel().add(currency, income);
 	}
 
 	public static void household_onUtility(Household household,
