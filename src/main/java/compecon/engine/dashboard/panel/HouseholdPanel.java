@@ -17,11 +17,15 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dashboard.panel;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -31,6 +35,7 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYDataset;
 
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.jmx.model.Model.IModelListener;
@@ -40,100 +45,97 @@ import compecon.engine.jmx.model.generic.DistributionModel.SummaryStatisticalDat
 
 public class HouseholdPanel extends ChartsPanel implements IModelListener {
 
+	protected final Map<Currency, JPanel> panelsForCurrencies = new HashMap<Currency, JPanel>();
+
 	protected Map<Currency, JFreeChart> incomeDistributionCharts = new HashMap<Currency, JFreeChart>();
 
 	public HouseholdPanel() {
-		this.setLayout(new GridLayout(0, 2));
+		ModelRegistry.getIncomeDistributionModel().registerListener(this);
 
-		this.setBackground(Color.lightGray);
+		this.setLayout(new BorderLayout());
 
-		this.add(createConsumptionPanel());
-		this.add(createConsumptionRatePanel());
-		this.add(createSavingPanel());
-		this.add(createWageDividendPanel());
-		this.add(createIncomeSourcePanel());
+		JTabbedPane jTabbedPane_Households = new JTabbedPane();
 
+		// for each currency a panel is added that contains sub-panels with
+		// prices for good types and currencies in this currency
 		for (Currency currency : Currency.values()) {
-			this.add(createIncomeDistributionPanel(currency));
+			JPanel panelForCurrency = new JPanel();
+			panelForCurrency.setLayout(new GridLayout(0, 2));
+			this.panelsForCurrencies.put(currency, panelForCurrency);
+			jTabbedPane_Households.addTab(currency.getIso4217Code(),
+					panelForCurrency);
+
+			panelForCurrency.setLayout(new GridLayout(0, 2));
+
+			panelForCurrency.setBackground(Color.lightGray);
+
+			panelForCurrency.add(createIncomeConsumptionSavingPanel(currency));
+			panelForCurrency.add(createConsumptionSavingRatePanel(currency));
+			panelForCurrency.add(createWageDividendPanel(currency));
+			panelForCurrency.add(createIncomeSourcePanel(currency));
+			panelForCurrency.add(createIncomeDistributionPanel(currency));
+			panelForCurrency.add(createLorenzCurvePanel(currency));
 		}
 
-		ModelRegistry.getIncomeDistributionModel().registerListener(this);
+		add(jTabbedPane_Households, BorderLayout.CENTER);
+
 	}
 
-	protected ChartPanel createConsumptionPanel() {
+	protected ChartPanel createIncomeConsumptionSavingPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : ModelRegistry.getConsumptionModel().getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry.getConsumptionModel()
-					.getTimeSeries(currency));
-
-		for (Currency currency : ModelRegistry.getIncomeModel().getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry.getIncomeModel()
-					.getTimeSeries(currency));
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart("Consumption",
-				"Date", "Consumption", timeSeriesCollection, true, true, false);
-		this.configureChart(chart);
-		return new ChartPanel(chart);
-	}
-
-	protected ChartPanel createConsumptionRatePanel() {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-
-		for (Currency currency : ModelRegistry.getConsumptionRateModel()
-				.getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry
-					.getConsumptionRateModel().getTimeSeries(currency));
+		timeSeriesCollection.addSeries(ModelRegistry.getIncomeModel()
+				.getTimeSeries(currency));
+		timeSeriesCollection.addSeries(ModelRegistry.getConsumptionModel()
+				.getTimeSeries(currency));
+		timeSeriesCollection.addSeries(ModelRegistry.getSavingModel()
+				.getTimeSeries(currency));
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Consumption Rate", "Date", "Consumption Rate",
+				"Consumption & Saving", "Date", "Consumption & Saving",
 				timeSeriesCollection, true, true, false);
 		this.configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
-	protected ChartPanel createSavingPanel() {
+	protected ChartPanel createConsumptionSavingRatePanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : ModelRegistry.getSavingModel().getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry.getSavingModel()
-					.getTimeSeries(currency));
+		timeSeriesCollection.addSeries(ModelRegistry.getConsumptionRateModel()
+				.getTimeSeries(currency));
+		timeSeriesCollection.addSeries(ModelRegistry.getSavingRateModel()
+				.getTimeSeries(currency));
 
-		JFreeChart chart = ChartFactory.createTimeSeriesChart("Saving", "Date",
-				"Saving", timeSeriesCollection, true, true, false);
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				"Consumption & Saving Rate", "Date",
+				"Consumption & Saving Rate", timeSeriesCollection, true, true,
+				false);
 		this.configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
-	protected ChartPanel createWageDividendPanel() {
+	protected ChartPanel createWageDividendPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : ModelRegistry.getWageModel().getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry.getWageModel()
-					.getTimeSeries(currency));
-
-		for (Currency currency : ModelRegistry.getDividendModel().getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry.getDividendModel()
-					.getTimeSeries(currency));
+		timeSeriesCollection.addSeries(ModelRegistry.getWageModel()
+				.getTimeSeries(currency));
+		timeSeriesCollection.addSeries(ModelRegistry.getDividendModel()
+				.getTimeSeries(currency));
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Wage / Dividend", "Date", "Wage / Dividend",
+				"Wage & Dividend", "Date", "Wage & Dividend",
 				timeSeriesCollection, true, true, false);
 		this.configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
-	protected ChartPanel createIncomeSourcePanel() {
+	protected ChartPanel createIncomeSourcePanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : ModelRegistry.getIncomeSourceModel()
-				.getTypes()) {
-			for (IncomeSource incomeSource : ModelRegistry
-					.getIncomeSourceModel().getCategories()) {
-				timeSeriesCollection.addSeries(ModelRegistry
-						.getIncomeSourceModel().getTimeSeries(currency,
-								incomeSource));
-			}
+		for (IncomeSource incomeSource : ModelRegistry.getIncomeSourceModel()
+				.getCategories()) {
+			timeSeriesCollection.addSeries(ModelRegistry.getIncomeSourceModel()
+					.getTimeSeries(currency, incomeSource));
 		}
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Income Source",
@@ -162,6 +164,15 @@ public class HouseholdPanel extends ChartsPanel implements IModelListener {
 		plot.addDomainMarker(marker);
 	}
 
+	protected ChartPanel createLorenzCurvePanel(Currency currency) {
+		XYDataset dataset = ModelRegistry.getIncomeDistributionModel()
+				.getLorenzCurveDataset(currency);
+		JFreeChart lorenzCurveChart = ChartFactory.createXYLineChart(
+				"Lorenz Curve", "% of Households", "% of Income", dataset,
+				PlotOrientation.VERTICAL, true, true, false);
+		return new ChartPanel(lorenzCurveChart);
+	}
+
 	@Override
 	public void notifyListener() {
 		for (Entry<Currency, JFreeChart> entry : this.incomeDistributionCharts
@@ -178,39 +189,39 @@ public class HouseholdPanel extends ChartsPanel implements IModelListener {
 							entry.getKey());
 			addValueMarker(
 					chart,
-					summaryStatisticalData.originalValues[summaryStatisticalData.position10Percent],
+					summaryStatisticalData.originalValues[summaryStatisticalData.xWith10PercentY],
 					"10 %");
 			addValueMarker(
 					chart,
-					summaryStatisticalData.originalValues[summaryStatisticalData.position20Percent],
+					summaryStatisticalData.originalValues[summaryStatisticalData.xWith20PercentY],
 					"20 %");
 			addValueMarker(
 					chart,
-					summaryStatisticalData.originalValues[summaryStatisticalData.position30Percent],
+					summaryStatisticalData.originalValues[summaryStatisticalData.xWith30PercentY],
 					"30 %");
 			addValueMarker(
 					chart,
-					summaryStatisticalData.originalValues[summaryStatisticalData.position40Percent],
+					summaryStatisticalData.originalValues[summaryStatisticalData.xWith40PercentY],
 					"40 %");
 			addValueMarker(
 					chart,
-					summaryStatisticalData.originalValues[summaryStatisticalData.position50Percent],
+					summaryStatisticalData.originalValues[summaryStatisticalData.xWith50PercentY],
 					"50 %");
 			addValueMarker(
 					chart,
-					summaryStatisticalData.originalValues[summaryStatisticalData.position60Percent],
+					summaryStatisticalData.originalValues[summaryStatisticalData.xWith60PercentY],
 					"60 %");
 			addValueMarker(
 					chart,
-					summaryStatisticalData.originalValues[summaryStatisticalData.position70Percent],
+					summaryStatisticalData.originalValues[summaryStatisticalData.xWith70PercentY],
 					"70 %");
 			addValueMarker(
 					chart,
-					summaryStatisticalData.originalValues[summaryStatisticalData.position80Percent],
+					summaryStatisticalData.originalValues[summaryStatisticalData.xWith80PercentY],
 					"80 %");
 			addValueMarker(
 					chart,
-					summaryStatisticalData.originalValues[summaryStatisticalData.position90Percent],
+					summaryStatisticalData.originalValues[summaryStatisticalData.xWith90PercentY],
 					"90 %");
 		}
 	}

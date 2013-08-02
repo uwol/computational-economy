@@ -119,6 +119,7 @@ public class Log {
 		ModelRegistry.getConsumptionIncomeRatioModel().add(currency,
 				consumptionAmount, income);
 		ModelRegistry.getSavingModel().add(currency, savingAmount);
+		ModelRegistry.getSavingRateModel().add(currency, savingAmount, income);
 		ModelRegistry.getWageModel().add(currency, wage);
 		ModelRegistry.getDividendModel().add(currency, dividend);
 		ModelRegistry.getIncomeSourceModel().add(currency, IncomeSource.WAGE,

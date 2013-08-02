@@ -68,19 +68,19 @@ public class ModelRegistry {
 	// consumption and saving
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> consumptionModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " con.");
+			Currency.values(), " consumption");
 
 	protected final static PeriodDataQuotientTimeSeriesModel<Currency> consumptionRateModel = new PeriodDataQuotientTimeSeriesModel<Currency>(
-			Currency.values());
+			Currency.values(), " consumption rate");
 
 	protected final static PeriodDataQuotientTimeSeriesModel<Currency> consumptionIncomeRatioModel = new PeriodDataQuotientTimeSeriesModel<Currency>(
 			Currency.values());
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> dividendModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " div.");
+			Currency.values(), " dividend");
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> incomeModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " inc.");
+			Currency.values(), " income");
 
 	protected final static DistributionModel<Currency> incomeDistributionModel = new DistributionModel<Currency>(
 			Currency.values());
@@ -89,7 +89,10 @@ public class ModelRegistry {
 			Currency.values(), IncomeSource.values());
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> savingModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values());
+			Currency.values(), " saving");
+
+	protected final static PeriodDataQuotientTimeSeriesModel<Currency> savingRateModel = new PeriodDataQuotientTimeSeriesModel<Currency>(
+			Currency.values(), " saving rate");
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> wageModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values(), " wage");
@@ -130,6 +133,7 @@ public class ModelRegistry {
 		moneySupplyM2Model.nextPeriod();
 		pricesModel.nextPeriod();
 		savingModel.nextPeriod();
+		savingRateModel.nextPeriod();
 		utilityModel.nextPeriod();
 		wageModel.nextPeriod();
 	}
@@ -224,6 +228,10 @@ public class ModelRegistry {
 
 	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getSavingModel() {
 		return savingModel;
+	}
+
+	public static PeriodDataQuotientTimeSeriesModel<Currency> getSavingRateModel() {
+		return savingRateModel;
 	}
 
 	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getWageModel() {
