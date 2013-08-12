@@ -338,7 +338,7 @@ public class Household extends Agent implements IShareOwner {
 			Household.this.assureTransactionsBankAccount();
 			Household.this.assureSavingsBankAccount();
 
-			double budget = this.planConsumptionAndSaving();
+			double budget = this.saveMoney();
 
 			Map<GoodType, Double> plannedConsumptionGoodsBundle = this
 					.buyGoods(budget);
@@ -384,7 +384,7 @@ public class Household extends Agent implements IShareOwner {
 					Household.this.deconstruct();
 		}
 
-		public double planConsumptionAndSaving() {
+		protected double saveMoney() {
 			/*
 			 * calculate budget
 			 */
@@ -473,7 +473,7 @@ public class Household extends Agent implements IShareOwner {
 			return budget;
 		}
 
-		public Map<GoodType, Double> buyGoods(double budget) {
+		protected Map<GoodType, Double> buyGoods(double budget) {
 			// TODO: what if there are not enough goods to buy? -> higher saving
 
 			/*
@@ -515,7 +515,7 @@ public class Household extends Agent implements IShareOwner {
 			return plannedConsumptionGoodsBundle;
 		}
 
-		public double consumeGoods(
+		protected double consumeGoods(
 				Map<GoodType, Double> plannedConsumptionGoodsBundle) {
 			/*
 			 * consume goods
@@ -539,7 +539,7 @@ public class Household extends Agent implements IShareOwner {
 			return utility;
 		}
 
-		public void offerLabourHours() {
+		protected void offerLabourHours() {
 			/*
 			 * remove labour hour offers
 			 */
@@ -555,18 +555,20 @@ public class Household extends Agent implements IShareOwner {
 				Household.this.pricingBehaviour.setNewPrice();
 				double amountOfLabourHours = PropertyRegister.getInstance()
 						.getBalance(Household.this, GoodType.LABOURHOUR);
-				MarketFactory.getInstance().placeSettlementSellingOffer(
-						GoodType.LABOURHOUR, Household.this,
-						Household.this.transactionsBankAccount,
-						amountOfLabourHours,
-						Household.this.pricingBehaviour.getCurrentPrice(),
-						new SettlementMarketEvent());
+				double price = Household.this.pricingBehaviour
+						.getCurrentPrice();
+				MarketFactory.getInstance()
+						.placeSettlementSellingOffer(GoodType.LABOURHOUR,
+								Household.this,
+								Household.this.transactionsBankAccount,
+								amountOfLabourHours, price,
+								new SettlementMarketEvent());
 				Household.this.pricingBehaviour
 						.registerOfferedAmount(amountOfLabourHours);
 			}
 		}
 
-		public void buyAndOfferShares() {
+		protected void buyAndOfferShares() {
 			/*
 			 * buy shares / capital -> equity savings
 			 */

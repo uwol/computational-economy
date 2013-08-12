@@ -137,11 +137,30 @@ public class Factory extends JointStockCompany {
 	}
 
 	public class ProductionEvent implements ITimeSystemEvent {
+
 		@Override
 		public void onEvent() {
 			Factory.this.assureTransactionsBankAccount();
 			Factory.this.pricingBehaviour.nextPeriod();
 
+			double budget = Factory.this.budgetingBehaviour
+					.calculateTransmissionBasedBudgetForPeriod(
+							Factory.this.transactionsBankAccount.getCurrency(),
+							Factory.this.transactionsBankAccount.getBalance(),
+							Factory.this.referenceCredit);
+
+			Map<GoodType, Double> productionFactorsToBuy = this
+					.calculateProductionFactorsToBuy(budget);
+
+			this.buyProductionFactors(productionFactorsToBuy, budget);
+
+			this.produce();
+
+			this.offerProducedGoodType();
+		}
+
+		protected Map<GoodType, Double> calculateProductionFactorsToBuy(
+				double budget) {
 			/*
 			 * calculate optimal amount of production factors
 			 */
@@ -155,19 +174,17 @@ public class Factory extends JointStockCompany {
 			double priceOfProducedGoodType = MarketFactory.getInstance()
 					.getMarginalPrice(Factory.this.primaryCurrency,
 							Factory.this.producedGoodType);
-			double budget = Factory.this.budgetingBehaviour
-					.calculateTransmissionBasedBudgetForPeriod(
-							Factory.this.transactionsBankAccount.getCurrency(),
-							Factory.this.transactionsBankAccount.getBalance(),
-							Factory.this.referenceCredit);
-			double ownedAmountOfProducedGoodType = PropertyRegister
-					.getInstance().getBalance(Factory.this,
-							Factory.this.producedGoodType);
+
 			Log.setAgentCurrentlyActive(Factory.this);
 			Map<GoodType, Double> productionFactorsToBuy = Factory.this.productionFunction
 					.calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
 							priceOfProducedGoodType, pricesOfProductionFactors,
 							budget, -1);
+			return productionFactorsToBuy;
+		}
+
+		protected void buyProductionFactors(
+				Map<GoodType, Double> productionFactorsToBuy, double budget) {
 			/*
 			 * buy production factors
 			 */
@@ -184,7 +201,9 @@ public class Factory extends JointStockCompany {
 								.get(Factory.this.transactionsBankAccount
 										.getManagingBank()));
 			}
+		}
 
+		protected void produce() {
 			/*
 			 * produce with production factors machine and labour hour
 			 */
@@ -220,7 +239,9 @@ public class Factory extends JointStockCompany {
 				PropertyRegister.getInstance().decrementGoodTypeAmount(
 						Factory.this, entry.getKey(), entry.getValue());
 			}
+		}
 
+		protected void offerProducedGoodType() {
 			/*
 			 * refresh prices / offer
 			 */
@@ -231,10 +252,10 @@ public class Factory extends JointStockCompany {
 							Factory.this.producedGoodType);
 			double amount = PropertyRegister.getInstance().getBalance(
 					Factory.this, Factory.this.producedGoodType);
+			double price = Factory.this.pricingBehaviour.getCurrentPrice();
 			MarketFactory.getInstance().placeSettlementSellingOffer(
 					Factory.this.producedGoodType, Factory.this,
-					Factory.this.transactionsBankAccount, amount,
-					Factory.this.pricingBehaviour.getCurrentPrice(),
+					Factory.this.transactionsBankAccount, amount, price,
 					new SettlementMarketEvent());
 			Factory.this.pricingBehaviour.registerOfferedAmount(amount);
 		}
