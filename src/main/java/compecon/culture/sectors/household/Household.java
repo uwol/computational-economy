@@ -310,11 +310,13 @@ public class Household extends Agent implements IShareOwner {
 	}
 
 	public class DailyLifeEvent implements ITimeSystemEvent {
+
 		@Override
 		public void onEvent() {
 			if (Household.this.isDeconstructed)
 				throw new RuntimeException(Household.this
 						+ " is deconstructed, but not removed from TimeSystem");
+
 			/*
 			 * potentially call destructor
 			 */
@@ -322,9 +324,6 @@ public class Household extends Agent implements IShareOwner {
 				Household.this.deconstruct();
 				return;
 			}
-
-			Household.this.assureTransactionsBankAccount();
-			Household.this.assureSavingsBankAccount();
 
 			/*
 			 * simulation mechanics
@@ -334,12 +333,61 @@ public class Household extends Agent implements IShareOwner {
 			Household.this.pricingBehaviour.nextPeriod();
 
 			/*
+			 * actions
+			 */
+			Household.this.assureTransactionsBankAccount();
+			Household.this.assureSavingsBankAccount();
+
+			double budget = this.planConsumptionAndSaving();
+
+			Map<GoodType, Double> plannedConsumptionGoodsBundle = this
+					.buyGoods(budget);
+
+			double utility = this.consumeGoods(plannedConsumptionGoodsBundle);
+
+			this.offerLabourHours();
+
+			this.buyAndOfferShares();
+
+			/*
+			 * check for required utility
+			 */
+			if (utility < Household.this.REQUIRED_UTILITY) {
+				Household.this.daysWithoutUtility++;
+				Household.this.continuousDaysWithUtility = 0;
+				if (Log.isAgentSelectedByClient(Household.this))
+					Log.log(Household.this, DailyLifeEvent.class,
+							"does not have required utility of "
+									+ Household.this.REQUIRED_UTILITY);
+			} else {
+				if (Household.this.daysWithoutUtility > 0)
+					daysWithoutUtility--;
+				Household.this.continuousDaysWithUtility++;
+			}
+
+			/*
+			 * potentially, derive new household
+			 */
+			if (Household.this.ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
+				if ((Household.this.ageInDays - NEW_HOUSEHOLD_FROM_X_DAYS)
+						% NEW_HOUSEHOLD_EVERY_X_DAYS == 0) {
+					AgentFactory
+							.newInstanceHousehold(Household.this.primaryCurrency);
+				}
+			}
+
+			/*
+			 * potentially, call destructor
+			 */
+			if (Household.this.daysWithoutUtility > Household.this.DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR)
+				if (!TimeSystem.getInstance().isInitializationPhase())
+					Household.this.deconstruct();
+		}
+
+		public double planConsumptionAndSaving() {
+			/*
 			 * calculate budget
 			 */
-			Map<GoodType, Double> prices = MarketFactory.getInstance()
-					.getMarginalPrices(
-							Household.this.transactionsBankAccount
-									.getCurrency());
 			double keyInterestRate = AgentFactory.getInstanceCentralBank(
 					Household.this.primaryCurrency)
 					.getEffectiveKeyInterestRate();
@@ -362,6 +410,7 @@ public class Household extends Agent implements IShareOwner {
 					primaryCurrency, income, moneySumToConsume, moneySumToSave,
 					Household.this.pricingBehaviour.getLastSoldValue(),
 					Household.this.dividendSinceLastPeriod);
+
 			Household.this.dividendSinceLastPeriod = 0;
 
 			// if not retired
@@ -421,16 +470,24 @@ public class Household extends Agent implements IShareOwner {
 								"retirement dissavings");
 			}
 
+			return budget;
+		}
+
+		public Map<GoodType, Double> buyGoods(double budget) {
 			// TODO: what if there are not enough goods to buy? -> higher saving
 
 			/*
 			 * buy goods -> maximize utility
 			 */
-			Map<GoodType, Double> optimalBundleOfGoods = Household.this.utilityFunction
+			Map<GoodType, Double> prices = MarketFactory.getInstance()
+					.getMarginalPrices(
+							Household.this.transactionsBankAccount
+									.getCurrency());
+			Map<GoodType, Double> plannedConsumptionGoodsBundle = Household.this.utilityFunction
 					.calculateUtilityMaximizingInputsUnderBudgetRestriction(
 							prices, budget);
 
-			for (Entry<GoodType, Double> entry : optimalBundleOfGoods
+			for (Entry<GoodType, Double> entry : plannedConsumptionGoodsBundle
 					.entrySet()) {
 				GoodType goodType = entry.getKey();
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
@@ -455,27 +512,34 @@ public class Household extends Agent implements IShareOwner {
 											.getManagingBank()));
 				}
 			}
+			return plannedConsumptionGoodsBundle;
+		}
 
+		public double consumeGoods(
+				Map<GoodType, Double> plannedConsumptionGoodsBundle) {
 			/*
 			 * consume goods
 			 */
-			Map<GoodType, Double> bundleOfGoodsToConsume = new HashMap<GoodType, Double>();
+			Map<GoodType, Double> effectiveConsumptionGoodsBundle = new HashMap<GoodType, Double>();
 			for (GoodType goodType : Household.this.utilityFunction
 					.getInputGoodTypes()) {
 				double balance = PropertyRegister.getInstance().getBalance(
 						Household.this, goodType);
 				double amountToConsume = Math.min(balance,
-						optimalBundleOfGoods.get(goodType));
-				bundleOfGoodsToConsume.put(goodType, amountToConsume);
+						plannedConsumptionGoodsBundle.get(goodType));
+				effectiveConsumptionGoodsBundle.put(goodType, amountToConsume);
 				PropertyRegister.getInstance().decrementGoodTypeAmount(
 						Household.this, goodType, amountToConsume);
 			}
 			double utility = Household.this.utilityFunction
-					.calculateUtility(bundleOfGoodsToConsume);
+					.calculateUtility(effectiveConsumptionGoodsBundle);
 			Log.household_onUtility(Household.this,
 					Household.this.transactionsBankAccount.getCurrency(),
-					bundleOfGoodsToConsume, utility);
+					effectiveConsumptionGoodsBundle, utility);
+			return utility;
+		}
 
+		public void offerLabourHours() {
 			/*
 			 * remove labour hour offers
 			 */
@@ -500,7 +564,9 @@ public class Household extends Agent implements IShareOwner {
 				Household.this.pricingBehaviour
 						.registerOfferedAmount(amountOfLabourHours);
 			}
+		}
 
+		public void buyAndOfferShares() {
 			/*
 			 * buy shares / capital -> equity savings
 			 */
@@ -532,40 +598,6 @@ public class Household extends Agent implements IShareOwner {
 								0.0);
 				}
 			}
-
-			/*
-			 * check for required utility
-			 */
-			if (utility < Household.this.REQUIRED_UTILITY) {
-				Household.this.daysWithoutUtility++;
-				Household.this.continuousDaysWithUtility = 0;
-				if (Log.isAgentSelectedByClient(Household.this))
-					Log.log(Household.this, DailyLifeEvent.class,
-							"does not have required utility of "
-									+ Household.this.REQUIRED_UTILITY);
-			} else {
-				if (Household.this.daysWithoutUtility > 0)
-					daysWithoutUtility--;
-				Household.this.continuousDaysWithUtility++;
-			}
-
-			/*
-			 * potentially, derive new household
-			 */
-			if (Household.this.ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
-				if ((Household.this.ageInDays - NEW_HOUSEHOLD_FROM_X_DAYS)
-						% NEW_HOUSEHOLD_EVERY_X_DAYS == 0) {
-					AgentFactory
-							.newInstanceHousehold(Household.this.primaryCurrency);
-				}
-			}
-
-			/*
-			 * potentially, call destructor
-			 */
-			if (Household.this.daysWithoutUtility > Household.this.DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR)
-				if (!TimeSystem.getInstance().isInitializationPhase())
-					Household.this.deconstruct();
 		}
 	}
 
