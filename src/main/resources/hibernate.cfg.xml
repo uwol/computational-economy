@@ -42,7 +42,6 @@
 		<mapping class="compecon.culture.sectors.state.State" />
 		<mapping class="compecon.culture.sectors.state.law.property.GoodTypeOwnership" />
 		<mapping class="compecon.culture.sectors.state.law.property.Property" />
-		<mapping class="compecon.culture.sectors.state.law.property.PropertyOwnership" />
 		<mapping class="compecon.culture.sectors.state.law.security.debt.Bond" />
 		<mapping class="compecon.culture.sectors.state.law.security.debt.FixedRateBond" />
 		<mapping class="compecon.culture.sectors.state.law.security.debt.ZeroCouponBond" />

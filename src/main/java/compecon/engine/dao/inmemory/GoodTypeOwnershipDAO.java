@@ -29,11 +29,6 @@ public class GoodTypeOwnershipDAO extends
 		IGoodTypeOwnershipDAO {
 
 	@Override
-	public synchronized void delete(GoodTypeOwnership goodTypeOwnership) {
-		super.delete(goodTypeOwnership);
-	}
-
-	@Override
 	public List<GoodTypeOwnership> findAllByAgent(Agent agent) {
 		if (this.getInstancesForAgent(agent) != null)
 			return new ArrayList<GoodTypeOwnership>(

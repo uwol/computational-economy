@@ -17,9 +17,36 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.inmemory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import compecon.culture.sectors.state.law.property.Property;
+import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IPropertyDAO;
 
-public class PropertyDAO extends InMemoryDAO<Property> implements IPropertyDAO {
+public class PropertyDAO extends AgentIndexedInMemoryDAO<Property> implements
+		IPropertyDAO {
 
+	@Override
+	public List<Property> findAllByAgent(Agent agent) {
+		if (this.getInstancesForAgent(agent) != null)
+			return new ArrayList<Property>(this.getInstancesForAgent(agent));
+		return new ArrayList<Property>();
+	}
+
+	@Override
+	public synchronized void save(Property property) {
+		super.save(property.getOwner(), property);
+	}
+
+	@Override
+	public void transferProperty(Agent oldOwner, Agent newOwner,
+			Property property) {
+		// the property is deleted and re-saved, so that the
+		// agent-property-index is updated
+		this.delete(property);
+
+		property.setOwner(newOwner);
+		this.save(newOwner, property);
+	}
 }

@@ -26,10 +26,11 @@ import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 
 public class PropertyFactory {
-	public static FixedRateBond newInstanceFixedRateBond(Currency currency,
-			BankAccount issuerBankAccount, String issuerBankAccountPassword,
-			double faceValue, double coupon) {
+	public static FixedRateBond newInstanceFixedRateBond(Agent owner,
+			Currency currency, BankAccount issuerBankAccount,
+			String issuerBankAccountPassword, double faceValue, double coupon) {
 		FixedRateBond fixedRateBond = new FixedRateBond();
+		fixedRateBond.setOwner(owner);
 		fixedRateBond.setIssuerBankAccount(issuerBankAccount);
 		fixedRateBond.setIssuerBankAccountPassword(issuerBankAccountPassword);
 		fixedRateBond.setFaceValue(faceValue);
@@ -41,9 +42,11 @@ public class PropertyFactory {
 		return fixedRateBond;
 	}
 
-	public static Share newInstanceShare(JointStockCompany jointStockCompany) {
+	public static Share newInstanceShare(Agent owner,
+			JointStockCompany jointStockCompany) {
 		Share share = new Share();
 		share.setJointStockCompany(jointStockCompany);
+		share.setOwner(owner);
 		share.initialize();
 		DAOFactory.getPropertyDAO().save(share);
 		HibernateUtil.flushSession();

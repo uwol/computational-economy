@@ -129,7 +129,7 @@ public abstract class Agent {
 		MarketFactory.getInstance().removeAllSellingOffers(this);
 
 		// deregister from PropertyRegister
-		PropertyRegister.getInstance().deregisterAllProperties(this);
+		PropertyRegister.getInstance().transferEverythingToRandomAgent(this);
 
 		// deregister from CashRegister
 		HardCashRegister.getInstance().deregister(this);
@@ -146,6 +146,8 @@ public abstract class Agent {
 		this.timeSystemEvents = null;
 
 		AgentFactory.deleteAgent(this);
+		// no flush here, as calling deconstruct methods might necessiate
+		// further cleanup actions / current state might not be consistent
 	}
 
 	/*

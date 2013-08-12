@@ -55,13 +55,13 @@ public abstract class JointStockCompany extends Agent {
 	protected double MONEY_TO_RETAIN = 0;
 
 	@Transient
-	protected int NUMBER_OF_INITIAL_SHARES = 50;
+	protected final int INITIAL_NUMBER_OF_SHARES = 100;
 
 	@Override
 	public void initialize() {
 		super.initialize();
 
-		// offer shares at 00:00
+		// offer shares at 00:00î
 		// has to happen as an event, as at constructor time the transaction
 		// bank account is null
 		ITimeSystemEvent offerSharesEvent = new OfferSharesEvent();
@@ -84,6 +84,10 @@ public abstract class JointStockCompany extends Agent {
 
 	public Set<Share> getIssuedShares() {
 		return issuedShares;
+	}
+
+	public int getInitialNumberOfShares() {
+		return INITIAL_NUMBER_OF_SHARES;
 	}
 
 	public void setIssuedShares(Set<Share> issuedShares) {
@@ -144,6 +148,7 @@ public abstract class JointStockCompany extends Agent {
 						if (owner != null && owner != JointStockCompany.this) {
 							if (owner instanceof IShareOwner) {
 								IShareOwner shareOwner = (IShareOwner) owner;
+								shareOwner.assureDividendBankAccount();
 								if (currency
 										.equals(shareOwner
 												.getDividendBankAccount()
@@ -186,11 +191,9 @@ public abstract class JointStockCompany extends Agent {
 				JointStockCompany.this.assureTransactionsBankAccount();
 
 				// issue initial shares
-				for (int i = 0; i < NUMBER_OF_INITIAL_SHARES; i++) {
-					Share initialShare = PropertyFactory
-							.newInstanceShare(JointStockCompany.this);
-					PropertyRegister.getInstance().registerProperty(
-							JointStockCompany.this, initialShare);
+				for (int i = 0; i < INITIAL_NUMBER_OF_SHARES; i++) {
+					Share initialShare = PropertyFactory.newInstanceShare(
+							JointStockCompany.this, JointStockCompany.this);
 					JointStockCompany.this.issuedShares.add(initialShare);
 					MarketFactory.getInstance().placeSettlementSellingOffer(
 							initialShare, JointStockCompany.this,

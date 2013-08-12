@@ -69,8 +69,10 @@ public abstract class AgentIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 	protected synchronized void save(Agent agent, T instance) {
 		this.assureInitializedDataStructure(agent, instance);
 
-		this.agentIndexedInstances.get(agent).add(instance);
-		this.instanceIndexedAgents.get(instance).add(agent);
+		if (agent != null) {
+			this.agentIndexedInstances.get(agent).add(instance);
+			this.instanceIndexedAgents.get(instance).add(agent);
+		}
 		super.save(instance);
 	}
 

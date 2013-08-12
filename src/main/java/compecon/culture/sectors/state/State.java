@@ -169,9 +169,8 @@ public class State extends Agent {
 
 			for (Property property : PropertyRegister.getInstance()
 					.getProperties(State.this, FixedRateBond.class)) {
-				PropertyRegister.getInstance().deregisterProperty(State.this,
-						property);
 				((FixedRateBond) property).deconstruct();
+				PropertyFactory.deleteProperty(property);
 			}
 
 			/*
@@ -186,14 +185,12 @@ public class State extends Agent {
 
 			for (int i = 0; i < numberOfBondsToIsue; i++) {
 				FixedRateBond bond = PropertyFactory.newInstanceFixedRateBond(
-						State.this.primaryCurrency,
+						State.this, State.this.primaryCurrency,
 						State.this.transactionsBankAccount,
 						State.this.bankPasswords
 								.get(State.this.transactionsBankAccount
 										.getManagingBank()), faceValuePerBond,
 						State.this.pricingBehaviour.getCurrentPrice());
-				PropertyRegister.getInstance().registerProperty(State.this,
-						bond);
 			}
 
 			/*

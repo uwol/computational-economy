@@ -31,7 +31,6 @@ import compecon.culture.sectors.industry.Factory;
 import compecon.culture.sectors.state.State;
 import compecon.culture.sectors.state.law.property.GoodTypeOwnership;
 import compecon.culture.sectors.state.law.property.Property;
-import compecon.culture.sectors.state.law.property.PropertyOwnership;
 import compecon.culture.sectors.trading.Trader;
 import compecon.engine.Agent;
 import compecon.engine.util.ConfigurationUtil;
@@ -55,8 +54,6 @@ public class DAOFactory {
 
 	protected static IPropertyDAO propertyDAO;
 
-	protected static IPropertyOwnershipDAO propertyOwnershipDAO;
-
 	protected static IStateDAO stateDAO;
 
 	protected static ITraderDAO traderDAO;
@@ -71,7 +68,6 @@ public class DAOFactory {
 			factoryDAO = new compecon.engine.dao.hibernate.FactoryDAO();
 			marketOrderDAO = new compecon.engine.dao.hibernate.MarketOrderDAO();
 			propertyDAO = new compecon.engine.dao.hibernate.PropertyDAO();
-			propertyOwnershipDAO = new compecon.engine.dao.hibernate.PropertyOwnershipDAO();
 			stateDAO = new compecon.engine.dao.hibernate.StateDAO();
 			traderDAO = new compecon.engine.dao.hibernate.TraderDAO();
 		} else {
@@ -83,7 +79,6 @@ public class DAOFactory {
 			factoryDAO = new compecon.engine.dao.inmemory.FactoryDAO();
 			marketOrderDAO = new compecon.engine.dao.inmemory.MarketOrderDAO();
 			propertyDAO = new compecon.engine.dao.inmemory.PropertyDAO();
-			propertyOwnershipDAO = new compecon.engine.dao.inmemory.PropertyOwnershipDAO();
 			stateDAO = new compecon.engine.dao.inmemory.StateDAO();
 			traderDAO = new compecon.engine.dao.inmemory.TraderDAO();
 		}
@@ -121,10 +116,6 @@ public class DAOFactory {
 
 	public static IPropertyDAO getPropertyDAO() {
 		return propertyDAO;
-	}
-
-	public static IPropertyOwnershipDAO getPropertyOwnershipDAO() {
-		return propertyOwnershipDAO;
 	}
 
 	public static IStateDAO getStateDAO() {
@@ -209,15 +200,10 @@ public class DAOFactory {
 	}
 
 	public static interface IPropertyDAO extends IGenericDAO<Property> {
-	}
+		public List<Property> findAllByAgent(Agent agent);
 
-	public static interface IPropertyOwnershipDAO extends
-			IGenericDAO<PropertyOwnership> {
-		public List<PropertyOwnership> findAllByAgent(Agent agent);
-
-		public PropertyOwnership findFirstByAgent(Agent agent);
-
-		public List<Agent> findOwners(Property property);
+		public void transferProperty(Agent oldOwner, Agent newOwner,
+				Property property);
 	}
 
 	public static interface IStateDAO extends IGenericDAO<State> {

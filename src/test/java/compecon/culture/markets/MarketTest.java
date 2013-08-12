@@ -156,7 +156,7 @@ public class MarketTest extends CompEconTestSupport {
 				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
 						Share.class), epsilon);
 		assertEquals(
-				3,
+				factory1_WHEAT_EUR.getInitialNumberOfShares(),
 				PropertyRegister.getInstance()
 						.getProperties(factory1_WHEAT_EUR, Share.class).size());
 
@@ -172,7 +172,7 @@ public class MarketTest extends CompEconTestSupport {
 								.getManagingBank()));
 
 		assertEquals(
-				2,
+				factory1_WHEAT_EUR.getInitialNumberOfShares() - 1,
 				PropertyRegister.getInstance()
 						.getProperties(factory1_WHEAT_EUR, Share.class).size());
 		assertEquals(

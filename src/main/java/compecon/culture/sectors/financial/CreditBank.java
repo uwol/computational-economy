@@ -331,7 +331,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 	@Transient
 	public void transferMoney(BankAccount from, BankAccount to, double amount,
 			String password, String subject) {
-		Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
 		this.transferMoney(from, to, amount, password, subject, false);
 	}
 
@@ -350,37 +349,40 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			throw new RuntimeException(
 					"both bank accounts must have the same currency");
 
-		if (from == to)
-			throw new RuntimeException("the bank accounts are identical");
-
 		this.assertPasswordOk(from.getOwner(), password);
 
 		if (from.getBalance() - amount < 0 && !from.getOverdraftPossible())
 			throw new RuntimeException(
 					"amount is too high and bank account cannot be overdraft");
 
-		// is the money flowing internally in this bank?
-		if (to.getManagingBank() == this && from.getManagingBank() == this) {
-			// transfer money internally
-			from.withdraw(amount);
-			to.deposit(amount);
-		} else { // transfer to another bank
-			CentralBank centralBank = AgentFactory.getInstanceCentralBank(from
-					.getCurrency());
+		// no RuntimeException for identical bank accounts, as this correctly
+		// might happen in case of bonds etc.
+		if (from != to) {
+			Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
 
-			// central bank account of this credit bank
-			BankAccount toCentralBankAccountOfThisBank = centralBank
-					.getBankAccounts(this, this.bankPasswords.get(centralBank))
-					.get(0);
+			// is the money flowing internally in this bank?
+			if (to.getManagingBank() == this && from.getManagingBank() == this) {
+				// transfer money internally
+				from.withdraw(amount);
+				to.deposit(amount);
+			} else { // transfer to another bank
+				CentralBank centralBank = AgentFactory
+						.getInstanceCentralBank(from.getCurrency());
 
-			// transfer money to central bank account of this bank
-			centralBank.transferMoney(from, toCentralBankAccountOfThisBank,
-					amount, this.bankPasswords.get(centralBank), subject);
+				// central bank account of this credit bank
+				BankAccount toCentralBankAccountOfThisBank = centralBank
+						.getBankAccounts(this,
+								this.bankPasswords.get(centralBank)).get(0);
 
-			// transfer money from central bank account of this bank to bank
-			// account at target bank
-			centralBank.transferMoney(toCentralBankAccountOfThisBank, to,
-					amount, this.bankPasswords.get(centralBank), subject);
+				// transfer money to central bank account of this bank
+				centralBank.transferMoney(from, toCentralBankAccountOfThisBank,
+						amount, this.bankPasswords.get(centralBank), subject);
+
+				// transfer money from central bank account of this bank to bank
+				// account at target bank
+				centralBank.transferMoney(toCentralBankAccountOfThisBank, to,
+						amount, this.bankPasswords.get(centralBank), subject);
+			}
 		}
 	}
 
@@ -554,6 +556,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					 */
 					FixedRateBond bond = PropertyFactory
 							.newInstanceFixedRateBond(
+									CreditBank.this,
 									currency,
 									CreditBank.this.transactionsBankAccount,
 									CreditBank.this.customerPasswords
@@ -561,9 +564,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 									moneyReserveGap,
 									centralBank.getEffectiveKeyInterestRate() + 0.02);
 					bonds.add(bond);
-
-					PropertyRegister.getInstance().registerProperty(
-							centralBank, bond);
 
 					// obtain tender for bond
 					centralBank.obtainTender(CreditBank.this, bonds,

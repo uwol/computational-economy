@@ -370,6 +370,8 @@ public class CentralBank extends Bank {
 	}
 
 	protected double calculateTotalDividend() {
+		// central banks transfer their profit to the state, not arbitrary
+		// agents -> deactivate dividends, transfer money in separate event
 		return 0;
 	}
 

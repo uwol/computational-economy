@@ -44,7 +44,7 @@ public class GoodTypeOwnership {
 	protected int id;
 
 	@OneToOne
-	@JoinColumn(name = "agent_id")
+	@JoinColumn(name = "agent_id", nullable = false)
 	protected Agent agent;
 
 	@ElementCollection

@@ -17,9 +17,27 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.hibernate;
 
+import java.util.List;
+
+import org.hibernate.criterion.Restrictions;
+
 import compecon.culture.sectors.state.law.property.Property;
+import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IPropertyDAO;
 
 public class PropertyDAO extends HibernateDAO<Property> implements IPropertyDAO {
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Property> findAllByAgent(Agent agent) {
+		return (List<Property>) getSession().createCriteria(Property.class)
+				.add(Restrictions.eq("owner", agent)).list();
+	}
+
+	@Override
+	public void transferProperty(Agent oldOwner, Agent newOwner,
+			Property property) {
+		property.setOwner(newOwner);
+	}
 
 }

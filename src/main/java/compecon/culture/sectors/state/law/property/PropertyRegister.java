@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import compecon.culture.sectors.household.Household;
 import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
@@ -52,6 +53,9 @@ public class PropertyRegister {
 	 */
 
 	protected GoodTypeOwnership assureGoodTypeOwnership(Agent agent) {
+		if (agent == null)
+			throw new RuntimeException("agent is " + agent);
+
 		GoodTypeOwnership goodTypeOwnership = DAOFactory
 				.getGoodTypeOwnershipDAO().findFirstByAgent(agent);
 		if (goodTypeOwnership == null) {
@@ -61,18 +65,6 @@ public class PropertyRegister {
 			HibernateUtil.flushSession();
 		}
 		return goodTypeOwnership;
-	}
-
-	protected PropertyOwnership assurePropertyOwnership(Agent agent) {
-		PropertyOwnership propertyOwnership = DAOFactory
-				.getPropertyOwnershipDAO().findFirstByAgent(agent);
-		if (propertyOwnership == null) {
-			propertyOwnership = new PropertyOwnership();
-			propertyOwnership.setAgent(agent);
-			DAOFactory.getPropertyOwnershipDAO().save(propertyOwnership);
-			HibernateUtil.flushSession();
-		}
-		return propertyOwnership;
 	}
 
 	/*
@@ -95,90 +87,22 @@ public class PropertyRegister {
 	}
 
 	public Agent getOwner(Property property) {
-		return DAOFactory.getPropertyOwnershipDAO().findOwners(property).get(0);
-	}
-
-	public List<Agent> getOwners(Property property) {
-		return DAOFactory.getPropertyOwnershipDAO().findOwners(property);
+		return property.getOwner();
 	}
 
 	public List<Property> getProperties(Agent agent) {
-		assurePropertyOwnership(agent);
-
-		return DAOFactory.getPropertyOwnershipDAO().findFirstByAgent(agent)
-				.getOwnedProperties();
+		return DAOFactory.getPropertyDAO().findAllByAgent(agent);
 	}
 
 	public List<Property> getProperties(Agent agent,
 			Class<? extends Property> propertyClass) {
-		assurePropertyOwnership(agent);
-
 		List<Property> propertiesOfClass = new ArrayList<Property>();
-		for (Property property : DAOFactory.getPropertyOwnershipDAO()
-				.findFirstByAgent(agent).getOwnedProperties()) {
+		for (Property property : DAOFactory.getPropertyDAO().findAllByAgent(
+				agent)) {
 			if (property.getClass() == propertyClass)
 				propertiesOfClass.add(property);
 		}
 		return propertiesOfClass;
-	}
-
-	/*
-	 * register and deregister IProperties
-	 */
-
-	public void registerProperty(Agent owner, Property property) {
-		PropertyOwnership propertyOwnership = assurePropertyOwnership(owner);
-
-		propertyOwnership.getOwnedProperties().add(property);
-	}
-
-	public void deregisterProperty(Agent owner, Property property) {
-		PropertyOwnership propertyOwnership = assurePropertyOwnership(owner);
-		propertyOwnership.getOwnedProperties().remove(property);
-	}
-
-	public void deregisterAllProperties(Agent oldOwner) {
-		if (oldOwner == null)
-			return;
-
-		// fetch a random new owner
-		Agent newOwner = oldOwner;
-		while (DAOFactory.getHouseholdDAO().findAll().size() > 1
-				&& newOwner == oldOwner) {
-			newOwner = DAOFactory.getHouseholdDAO().findRandom();
-		}
-
-		assureGoodTypeOwnership(newOwner);
-		assurePropertyOwnership(newOwner);
-
-		// transfer all goods
-		for (GoodTypeOwnership goodTypeOwnership : DAOFactory
-				.getGoodTypeOwnershipDAO().findAllByAgent(oldOwner)) {
-			if (newOwner != null && newOwner != oldOwner) {
-				for (Entry<GoodType, Double> entry : goodTypeOwnership
-						.getOwnedGoodTypes().entrySet()) {
-					if (!entry.getKey().equals(GoodType.LABOURHOUR))
-						this.transferGoodTypeAmount(oldOwner, newOwner,
-								entry.getKey(), entry.getValue());
-				}
-			}
-
-			DAOFactory.getGoodTypeOwnershipDAO().delete(goodTypeOwnership);
-		}
-
-		// transfer all Properties, via a new HashSet to avoid
-		// ConcurrentModificationException
-		for (PropertyOwnership propertyOwnership : DAOFactory
-				.getPropertyOwnershipDAO().findAllByAgent(oldOwner)) {
-			if (newOwner != null && newOwner != oldOwner) {
-				for (Property property : new ArrayList<Property>(
-						propertyOwnership.getOwnedProperties())) {
-					this.transferProperty(oldOwner, newOwner, property);
-				}
-			}
-
-			DAOFactory.getPropertyOwnershipDAO().delete(propertyOwnership);
-		}
 	}
 
 	/*
@@ -233,28 +157,64 @@ public class PropertyRegister {
 		this.incrementGoodTypeAmount(newOwner, goodType, amount);
 	}
 
+	/**
+	 * newOwner with value null is allowed, e. g. for shares
+	 */
 	public void transferProperty(Agent oldOwner, Agent newOwner,
 			Property property) {
-		if (newOwner == null)
-			throw new RuntimeException("newOwner is " + newOwner);
+		// consistency check
+		if (oldOwner != property.getOwner())
+			throw new RuntimeException("oldOwner is not correct");
 
-		// the oldOwner is not derived from the property, as this is a expensive
-		// operation
+		DAOFactory.getPropertyDAO().transferProperty(oldOwner, newOwner,
+				property);
+	}
 
-		if (oldOwner == null) {
-			PropertyOwnership propertyOwnership = assurePropertyOwnership(newOwner);
-			propertyOwnership.getOwnedProperties().add(property);
-		} else {
-			// deregister (first deregister, then register -> db unique
-			// constraint of property ownership not violated)
-			this.deregisterProperty(oldOwner, property);
-			HibernateUtil.flushSession();
+	public void transferEverythingToRandomAgent(Agent oldOwner) {
+		if (oldOwner == null)
+			return;
 
-			// register
-			PropertyOwnership propertyOwnership = assurePropertyOwnership(newOwner);
-			propertyOwnership.getOwnedProperties().add(property);
+		// fetch a random new owner
+		Household newOwnerHousehold = null;
+		while ((newOwnerHousehold == null || oldOwner == newOwnerHousehold)
+				&& DAOFactory.getHouseholdDAO().findAll().size() > 1) {
+			newOwnerHousehold = DAOFactory.getHouseholdDAO().findRandom();
 		}
 
-		HibernateUtil.flushSession();
+		if (newOwnerHousehold == oldOwner)
+			throw new RuntimeException("invalid state");
+
+		if (newOwnerHousehold != null && newOwnerHousehold.isDeconstructed())
+			throw new RuntimeException(
+					"invalid household selected as new owner");
+
+		// transfer all goods
+		if (newOwnerHousehold != null) {
+			assureGoodTypeOwnership(newOwnerHousehold);
+
+			for (GoodTypeOwnership goodTypeOwnership : DAOFactory
+					.getGoodTypeOwnershipDAO().findAllByAgent(oldOwner)) {
+
+				for (Entry<GoodType, Double> entry : goodTypeOwnership
+						.getOwnedGoodTypes().entrySet()) {
+					if (!entry.getKey().equals(GoodType.LABOURHOUR))
+						this.transferGoodTypeAmount(oldOwner,
+								newOwnerHousehold, entry.getKey(),
+								entry.getValue());
+				}
+			}
+		}
+
+		// transfer all properties, eventually to null!
+		for (Property property : DAOFactory.getPropertyDAO().findAllByAgent(
+				oldOwner)) {
+			this.transferProperty(oldOwner, newOwnerHousehold, property);
+		}
+
+		// remove good type ownerships as they should have been zeroed
+		for (GoodTypeOwnership goodTypeOwnership : DAOFactory
+				.getGoodTypeOwnershipDAO().findAllByAgent(oldOwner)) {
+			DAOFactory.getGoodTypeOwnershipDAO().delete(goodTypeOwnership);
+		}
 	}
 }

@@ -47,6 +47,6 @@ public class Share extends Property {
 	}
 
 	public String toString() {
-		return "Share [jointStockCompany " + jointStockCompany + "]";
+		return "Share [JointStockCompany " + jointStockCompany + "]";
 	}
 }

@@ -211,6 +211,11 @@ public class Household extends Agent implements IShareOwner {
 	 */
 
 	@Transient
+	public void assureDividendBankAccount() {
+		this.assureTransactionsBankAccount();
+	}
+
+	@Transient
 	public void assureSavingsBankAccount() {
 		if (this.isDeconstructed)
 			return;
