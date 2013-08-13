@@ -317,8 +317,8 @@ public class CentralBank extends Bank {
 			if (Log.isAgentSelectedByClient(creditBank))
 				Log.log(creditBank,
 						"obtained a tender of "
-								+ Currency.round(bond.getFaceValue()) + " "
-								+ this.getPrimaryCurrency()
+								+ Currency.formatMoneySum(bond.getFaceValue())
+								+ " " + this.getPrimaryCurrency()
 								+ " of central bank money from " + this);
 		}
 	}

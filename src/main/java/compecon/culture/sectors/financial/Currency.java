@@ -35,4 +35,18 @@ public enum Currency {
 			return value;
 		return Math.round(value * 100.) / 100.;
 	}
+
+	public static String formatMoneySum(double value) {
+		double million = 1000000;
+		double billion = 1000000000;
+
+		if (Double.isNaN(value) || Double.isInfinite(value))
+			return "" + value;
+		if (value < million)
+			return String.format("%.2f", value);
+		else if (value < billion)
+			return String.format("%.2f M", value / million);
+		else
+			return String.format("%.2f B", value / billion);
+	}
 }

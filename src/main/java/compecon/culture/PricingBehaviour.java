@@ -138,7 +138,7 @@ public class PricingBehaviour {
 
 		String prefix = "offered " + MathUtil.round(offeredAmount_InPeriods[1])
 				+ " units of " + offeredObject + " for "
-				+ Currency.round(this.prices_InPeriods[1]) + " "
+				+ Currency.formatMoneySum(this.prices_InPeriods[1]) + " "
 				+ this.denominatedInCurrency.getIso4217Code()
 				+ " per unit and sold "
 				+ MathUtil.round(soldAmount_InPeriods[1]) + " units -> ";
@@ -150,7 +150,7 @@ public class PricingBehaviour {
 			if (Log.isAgentSelectedByClient(this.agent))
 				Log.log(this.agent,
 						prefix + "sold nothing -> lowering price to "
-								+ Currency.round(newPrice) + " "
+								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
 			return newPrice;
 		}
@@ -163,7 +163,7 @@ public class PricingBehaviour {
 			if (Log.isAgentSelectedByClient(this.agent))
 				Log.log(this.agent,
 						prefix + "sold everything -> raising price to "
-								+ Currency.round(newPrice) + " "
+								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
 			return newPrice;
 		}
@@ -181,7 +181,7 @@ public class PricingBehaviour {
 						prefix + "sold less (before: "
 								+ MathUtil.round(this.soldAmount_InPeriods[2])
 								+ ") -> lowering price to "
-								+ Currency.round(newPrice) + " "
+								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
 			return newPrice;
 		}
@@ -199,7 +199,7 @@ public class PricingBehaviour {
 						prefix + "sold more (before: "
 								+ MathUtil.round(this.soldAmount_InPeriods[2])
 								+ ") -> raising price to "
-								+ Currency.round(newPrice) + " "
+								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
 			return newPrice;
 		}
@@ -207,7 +207,7 @@ public class PricingBehaviour {
 		if (Log.isAgentSelectedByClient(this.agent))
 			Log.log(this.agent,
 					prefix + " newPrice := oldPrice = "
-							+ Currency.round(oldPrice) + " "
+							+ Currency.formatMoneySum(oldPrice) + " "
 							+ this.denominatedInCurrency.getIso4217Code());
 		return oldPrice;
 

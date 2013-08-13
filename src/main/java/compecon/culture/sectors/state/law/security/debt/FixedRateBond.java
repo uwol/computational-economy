@@ -99,9 +99,9 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 	public String toString() {
 		return this.getClass().getSimpleName() + " [Issuer: "
 				+ this.issuerBankAccount.getOwner() + ", Facevalue: "
-				+ Currency.round(this.faceValue) + " "
+				+ Currency.formatMoneySum(this.faceValue) + " "
 				+ this.issuedInCurrency.getIso4217Code() + ", Coupon: "
-				+ Currency.round(this.coupon) + " "
+				+ Currency.formatMoneySum(this.coupon) + " "
 				+ this.issuedInCurrency.getIso4217Code() + "]";
 	}
 }

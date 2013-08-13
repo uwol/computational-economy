@@ -135,7 +135,9 @@ public class Simulation {
 				for (int i = 0; i < NUMBER_OF_HOUSEHOLDSPERCURRENCY; i++) {
 					Household household = AgentFactory
 							.newInstanceHousehold(currency);
-					household.setAgeInDays(household.hashCode() % (365 * 80));
+					// division, so that households have time left to retirement
+					household.setAgeInDays((household.hashCode() % household
+							.getLifespanInDays()) / 2);
 				}
 			}
 

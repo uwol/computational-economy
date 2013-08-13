@@ -158,7 +158,7 @@ public class NationalAccountsPanel extends JPanel {
 				return;
 
 			int rowNumber = calculateRowNumber(positionTypeNr, agentTypeNr);
-			this.cells[rowNumber][sideNr + 2] = Currency.round(value);
+			this.cells[rowNumber][sideNr + 2] = Currency.formatMoneySum(value);
 			fireTableCellUpdated(rowNumber, sideNr + 2);
 		}
 
@@ -291,11 +291,12 @@ public class NationalAccountsPanel extends JPanel {
 					for (int j = 0; j < AgentFactory.agentTypes.size(); j++) {
 						Class<? extends Agent> agentTypeTo = AgentFactory.agentTypes
 								.get(j);
-						PeriodDataAccumulator periodTransactionVolum = adjacencyMatrixForCurrencyAndFromAgentType
+						PeriodDataAccumulator periodTransactionVolume = adjacencyMatrixForCurrencyAndFromAgentType
 								.getPeriodDataAccumulators().get(agentTypeTo);
 						this.transientTableData[i][j + 1] = Currency
-								.round(periodTransactionVolum.getAmount());
-						periodTransactionVolum.reset();
+								.formatMoneySum(periodTransactionVolume
+										.getAmount());
+						periodTransactionVolume.reset();
 					}
 				}
 				this.fireTableDataChanged();

@@ -69,12 +69,12 @@ public class BudgetingBehaviour {
 
 		if (Log.isAgentSelectedByClient(BudgetingBehaviour.this.agent))
 			Log.log(BudgetingBehaviour.this.agent,
-					Currency.round(creditBasedBudget) + " "
+					Currency.formatMoneySum(creditBasedBudget) + " "
 							+ currency.getIso4217Code() + " budget = ("
-							+ Currency.round(bankAccountBalance) + " "
+							+ Currency.formatMoneySum(bankAccountBalance) + " "
 							+ currency.getIso4217Code()
 							+ " bankAccountBalance + "
-							+ Currency.round(lastMaxCredit) + " "
+							+ Currency.formatMoneySum(lastMaxCredit) + " "
 							+ currency.getIso4217Code() + " maxCredit)");
 		return creditBasedBudget;
 	}

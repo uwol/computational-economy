@@ -274,7 +274,7 @@ public class Trader extends JointStockCompany {
 													+ goodType
 													+ " = "
 													+ Currency
-															.round(priceOfGoodTypeInLocalCurrency)
+															.formatMoneySum(priceOfGoodTypeInLocalCurrency)
 													+ " "
 													+ primaryCurrency
 															.getIso4217Code()
@@ -283,7 +283,7 @@ public class Trader extends JointStockCompany {
 													+ goodType
 													+ " = "
 													+ Currency
-															.round(priceOfGoodTypeInForeignCurrency)
+															.formatMoneySum(priceOfGoodTypeInForeignCurrency)
 													+ " "
 													+ foreignCurrency
 															.getIso4217Code()
@@ -293,7 +293,7 @@ public class Trader extends JointStockCompany {
 															.getIso4217Code()
 													+ " = "
 													+ Currency
-															.round(priceOfForeignCurrencyInLocalCurrency)
+															.formatMoneySum(priceOfForeignCurrencyInLocalCurrency)
 													+ " "
 													+ primaryCurrency
 															.getIso4217Code()
@@ -301,7 +301,7 @@ public class Trader extends JointStockCompany {
 													+ goodType
 													+ " = "
 													+ Currency
-															.round(importPriceOfGoodTypeInLocalCurrency)
+															.formatMoneySum(importPriceOfGoodTypeInLocalCurrency)
 													+ " "
 													+ primaryCurrency
 															.getIso4217Code()

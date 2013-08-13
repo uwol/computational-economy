@@ -177,14 +177,14 @@ public class Log {
 				from.getOwner().getClass(), to.getOwner().getClass(), currency,
 				value);
 		if (isAgentSelectedByClient(from.getOwner())) {
-			String message = " --- " + Currency.round(value) + " "
+			String message = " --- " + Currency.formatMoneySum(value) + " "
 					+ currency.getIso4217Code() + " ---> " + to + ": "
 					+ subject;
 			ModelRegistry.getAgentDetailModel().logBankAccountEvent(
 					TimeSystem.getInstance().getCurrentDate(), from, message);
 		}
 		if (isAgentSelectedByClient(to.getOwner())) {
-			String message = " <--- " + Currency.round(value) + " "
+			String message = " <--- " + Currency.formatMoneySum(value) + " "
 					+ currency.getIso4217Code() + " --- " + from + ": "
 					+ subject;
 			ModelRegistry.getAgentDetailModel().logBankAccountEvent(

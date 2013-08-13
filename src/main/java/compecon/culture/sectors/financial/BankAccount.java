@@ -164,7 +164,7 @@ public class BankAccount {
 	@Override
 	public String toString() {
 		return "BankAccount [ID: " + this.id + ", Balance: "
-				+ Currency.round(this.balance) + " "
+				+ Currency.formatMoneySum(this.balance) + " "
 				+ this.currency.getIso4217Code() + ", Owner: " + this.owner
 				+ "]";
 	}

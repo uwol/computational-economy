@@ -169,6 +169,10 @@ public class Household extends Agent implements IShareOwner {
 		return pricingBehaviour;
 	}
 
+	public int getLifespanInDays() {
+		return this.LIFESPAN_IN_DAYS;
+	}
+
 	public BankAccount getSavingsBankAccount() {
 		return savingsBankAccount;
 	}
@@ -422,13 +426,13 @@ public class Household extends Agent implements IShareOwner {
 					Log.log(Household.this,
 							DailyLifeEvent.class,
 							"saving "
-									+ Currency.round(moneySumToSave)
+									+ Currency.formatMoneySum(moneySumToSave)
 									+ " "
 									+ Household.this.transactionsBankAccount
 											.getCurrency().getIso4217Code()
 									+ " of "
 									+ Currency
-											.round(Household.this.transactionsBankAccount
+											.formatMoneySum(Household.this.transactionsBankAccount
 													.getBalance())
 									+ " "
 									+ Household.this.transactionsBankAccount
@@ -455,7 +459,7 @@ public class Household extends Agent implements IShareOwner {
 				if (Log.isAgentSelectedByClient(Household.this))
 					Log.log(Household.this,
 							"unsaving "
-									+ Currency.round(budget)
+									+ Currency.formatMoneySum(budget)
 									+ " "
 									+ Household.this.transactionsBankAccount
 											.getCurrency().getIso4217Code());

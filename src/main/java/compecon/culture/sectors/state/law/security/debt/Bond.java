@@ -144,7 +144,7 @@ public abstract class Bond extends Property {
 	public String toString() {
 		return this.getClass().getSimpleName() + " [Issuer: "
 				+ this.issuerBankAccount.getOwner() + ", Facevalue: "
-				+ Currency.round(this.faceValue) + " "
+				+ Currency.formatMoneySum(this.faceValue) + " "
 				+ this.issuedInCurrency.getIso4217Code() + "]";
 	}
 

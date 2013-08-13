@@ -53,7 +53,7 @@ public abstract class Market {
 								+ " units of "
 								+ goodType
 								+ " for "
-								+ Currency.round(pricePerUnit)
+								+ Currency.formatMoneySum(pricePerUnit)
 								+ " "
 								+ offerorsBankAcount.getCurrency()
 										.getIso4217Code() + " per unit");
@@ -83,7 +83,7 @@ public abstract class Market {
 								+ " units of "
 								+ commodityCurrency
 								+ " for "
-								+ Currency.round(pricePerUnit)
+								+ Currency.formatMoneySum(pricePerUnit)
 								+ " "
 								+ offerorsBankAcount.getCurrency()
 										.getIso4217Code() + " per unit");
@@ -100,7 +100,7 @@ public abstract class Market {
 			if (Log.isAgentSelectedByClient(offeror))
 				Log.log(offeror, "offering 1 unit of "
 						+ property.getClass().getSimpleName() + " for "
-						+ Currency.round(pricePerUnit) + " "
+						+ Currency.formatMoneySum(pricePerUnit) + " "
 						+ offerorsBankAcount.getCurrency().getIso4217Code()
 						+ " per unit");
 		} else

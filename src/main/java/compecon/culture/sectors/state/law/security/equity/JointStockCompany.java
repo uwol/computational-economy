@@ -182,7 +182,8 @@ public abstract class JointStockCompany extends Agent {
 						Log.log(JointStockCompany.this,
 								PayDividendEvent.class,
 								"payed dividend of "
-										+ Currency.round(totalDividendPayed)
+										+ Currency
+												.formatMoneySum(totalDividendPayed)
 										+ " "
 										+ JointStockCompany.this.transactionsBankAccount
 												.getCurrency().getIso4217Code());

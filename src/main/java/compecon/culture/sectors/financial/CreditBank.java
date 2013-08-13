@@ -676,7 +676,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 									+ secondCurrency.getIso4217Code()
 									+ " = "
 									+ Currency
-											.round(priceOfSecondCurrencyInFirstCurrency)
+											.formatMoneySum(priceOfSecondCurrencyInFirstCurrency)
 									+ " "
 									+ firstCurrency.getIso4217Code()
 
@@ -684,7 +684,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 									+ firstCurrency.getIso4217Code()
 									+ " = "
 									+ Currency
-											.round(correctPriceOfFirstCurrencyInSecondCurrency)
+											.formatMoneySum(correctPriceOfFirstCurrencyInSecondCurrency)
 									+ " "
 									+ secondCurrency.getIso4217Code()
 
@@ -694,7 +694,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 									+ firstCurrency.getIso4217Code()
 									+ " = "
 									+ Currency
-											.round(priceOfFirstCurrencyInSecondCurrency)
+											.formatMoneySum(priceOfFirstCurrencyInSecondCurrency)
 									+ " " + secondCurrency.getIso4217Code());
 				return correctPriceOfFirstCurrencyInSecondCurrency;
 			}
@@ -861,7 +861,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 											.getIso4217Code()
 									+ " for foreign currencies, as budget / amount to offer is "
 									+ Currency
-											.round(totalLocalCurrencyBudgetForCurrencyTrading)
+											.formatMoneySum(totalLocalCurrencyBudgetForCurrencyTrading)
 									+ " "
 									+ CreditBank.this.primaryCurrency
 											.getIso4217Code());
@@ -1018,17 +1018,18 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 				Log.log(CreditBank.this,
 						BondsTradeEvent.class,
 						"sumOfPassiveBankAccounts = "
-								+ Currency.round(sumOfPassiveBankAccounts)
+								+ Currency
+										.formatMoneySum(sumOfPassiveBankAccounts)
 								+ " "
 								+ CreditBank.this.primaryCurrency
 										.getIso4217Code()
 								+ "; faceValueSumOfBonds = "
-								+ Currency.round(faceValueSumOfBonds)
+								+ Currency.formatMoneySum(faceValueSumOfBonds)
 								+ " "
 								+ CreditBank.this.primaryCurrency
 										.getIso4217Code()
 								+ " => difference = "
-								+ Currency.round(difference)
+								+ Currency.formatMoneySum(difference)
 								+ " "
 								+ CreditBank.this.primaryCurrency
 										.getIso4217Code());

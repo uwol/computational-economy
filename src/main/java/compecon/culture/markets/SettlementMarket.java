@@ -231,7 +231,7 @@ public class SettlementMarket extends Market {
 						amount,
 						marketOffer
 								.getCommodityCurrencyOfferorsBankAccountPassword(),
-						"transfer of " + Currency.round(amount)
+						"transfer of " + Currency.formatMoneySum(amount)
 								+ " units of commoditycurrency "
 								+ marketOffer.getCommodity());
 				if (this.settlementEventListeners.containsKey(marketOffer
@@ -288,19 +288,19 @@ public class SettlementMarket extends Market {
 								+ this.determineCommodityName(goodType,
 										commodityCurrency, propertyClass)
 								+ " for "
-								+ Currency.round(priceAndAmount[0])
+								+ Currency.formatMoneySum(priceAndAmount[0])
 								+ " "
 								+ buyersBankAccount.getCurrency()
 										.getIso4217Code()
 								+ " under constraints [maxAmount: "
 								+ MathUtil.round(maxAmount)
 								+ ", maxTotalPrice: "
-								+ Currency.round(maxTotalPrice)
+								+ Currency.formatMoneySum(maxTotalPrice)
 								+ " "
 								+ buyersBankAccount.getCurrency()
 										.getIso4217Code()
 								+ ", maxPricePerUnit: "
-								+ Currency.round(maxPricePerUnit)
+								+ Currency.formatMoneySum(maxPricePerUnit)
 								+ " "
 								+ buyersBankAccount.getCurrency()
 										.getIso4217Code() + "]");
@@ -315,12 +315,12 @@ public class SettlementMarket extends Market {
 								+ " under constraints [maxAmount: "
 								+ MathUtil.round(maxAmount)
 								+ ", maxTotalPrice: "
-								+ Currency.round(maxTotalPrice)
+								+ Currency.formatMoneySum(maxTotalPrice)
 								+ " "
 								+ buyersBankAccount.getCurrency()
 										.getIso4217Code()
 								+ ", maxPricePerUnit: "
-								+ Currency.round(maxPricePerUnit)
+								+ Currency.formatMoneySum(maxPricePerUnit)
 								+ " "
 								+ buyersBankAccount.getCurrency()
 										.getIso4217Code() + "]");

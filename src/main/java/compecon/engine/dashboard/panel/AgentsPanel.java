@@ -160,7 +160,7 @@ public class AgentsPanel extends JPanel {
 			case 0:
 				return bankAccount.getName() + " [" + bankAccount.getId() + "]";
 			case 1:
-				return Currency.round(bankAccount.getBalance());
+				return Currency.formatMoneySum(bankAccount.getBalance());
 			case 2:
 				return bankAccount.getCurrency();
 			default:
