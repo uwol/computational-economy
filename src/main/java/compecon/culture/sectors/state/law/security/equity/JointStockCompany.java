@@ -20,7 +20,6 @@ package compecon.culture.sectors.state.law.security.equity;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
@@ -47,7 +46,7 @@ import compecon.nature.materia.GoodType;
 @Entity
 public abstract class JointStockCompany extends Agent {
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany
 	@JoinTable(name = "JointStockCompany_IssuedShares")
 	protected Set<Share> issuedShares = new HashSet<Share>();
 
@@ -76,6 +75,15 @@ public abstract class JointStockCompany extends Agent {
 		compecon.engine.time.TimeSystem.getInstance().addEvent(
 				payDividendEvent, -1, MonthType.EVERY, DayType.EVERY,
 				HourType.HOUR_00);
+	}
+
+	@Transient
+	public void deconstruct() {
+		super.deconstruct();
+
+		for (Share share : this.issuedShares) {
+			PropertyFactory.deleteProperty(share);
+		}
 	}
 
 	/*

@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -65,7 +64,7 @@ public class Trader extends JointStockCompany {
 	@Transient
 	protected final Map<GoodType, PricingBehaviour> goodTypePricingBehaviours = new HashMap<GoodType, PricingBehaviour>();
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany
 	@JoinTable(name = "Trader_ForeignCurrencyBankAccounts", joinColumns = @JoinColumn(name = "trader_id"), inverseJoinColumns = @JoinColumn(name = "bankAccount_id"))
 	@MapKeyEnumerated
 	protected Map<Currency, BankAccount> goodsTradeBankAccounts = new HashMap<Currency, BankAccount>();

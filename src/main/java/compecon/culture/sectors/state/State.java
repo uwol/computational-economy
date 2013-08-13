@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -55,7 +54,7 @@ import compecon.nature.math.utility.IUtilityFunction;
 @Entity
 public class State extends Agent {
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany
 	@JoinTable(name = "State_IssuedBonds", joinColumns = @JoinColumn(name = "state_id"), inverseJoinColumns = @JoinColumn(name = "bond_id"))
 	protected Set<Bond> issuedBonds = new HashSet<Bond>();
 
@@ -86,6 +85,15 @@ public class State extends Agent {
 				primaryCurrency).getEffectiveKeyInterestRate() + 0.02;
 		this.pricingBehaviour = new PricingBehaviour(this, FixedRateBond.class,
 				this.primaryCurrency, initialInterestRate);
+	}
+
+	@Transient
+	public void deconstruct() {
+		super.deconstruct();
+
+		for (Bond bond : this.issuedBonds) {
+			PropertyFactory.deleteProperty(bond);
+		}
 	}
 
 	/*

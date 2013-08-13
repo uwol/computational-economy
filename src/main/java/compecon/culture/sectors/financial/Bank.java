@@ -52,6 +52,7 @@ public abstract class Bank extends JointStockCompany {
 		super.deconstruct();
 
 		for (Agent agent : new ArrayList<Agent>(this.customerPasswords.keySet())) {
+			// implicitly deletes the associated bank accounts
 			this.closeCustomerAccount(agent, this.customerPasswords.get(agent));
 		}
 	}

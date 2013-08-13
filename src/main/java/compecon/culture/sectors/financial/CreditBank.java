@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -83,7 +82,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 	@Column(name = "offeredcurrency")
 	protected Set<Currency> offeredCurrencies = new HashSet<Currency>();
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany
 	@JoinTable(name = "CreditBank_IssuedBonds", joinColumns = @JoinColumn(name = "creditBank_id"), inverseJoinColumns = @JoinColumn(name = "bond_id"))
 	protected Set<Bond> issuedBonds = new HashSet<Bond>();
 
@@ -153,6 +152,9 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 	public void deconstruct() {
 		super.deconstruct();
 
+		for (Bond bond : this.issuedBonds) {
+			PropertyFactory.deleteProperty(bond);
+		}
 		this.currencyTradeBankAccounts = null;
 	}
 
