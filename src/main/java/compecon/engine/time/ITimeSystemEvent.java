@@ -1,4 +1,6 @@
 /*
+Copyright (C) 2013 u.wol@wwu.de 
+ 
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -16,7 +18,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package compecon.engine.time;
-
 
 /**
  * an event that is added to the time system as a listener and is triggered at
