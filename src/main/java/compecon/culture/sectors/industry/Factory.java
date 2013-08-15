@@ -228,6 +228,7 @@ public class Factory extends JointStockCompany {
 						+ MathUtil.round(producedProducts) + " "
 						+ Factory.this.producedGoodType);
 			Log.factory_onProduction(Factory.this,
+					Factory.this.primaryCurrency,
 					Factory.this.producedGoodType, producedProducts);
 
 			/*
@@ -237,7 +238,7 @@ public class Factory extends JointStockCompany {
 					.entrySet()) {
 				if (GoodType.LABOURHOUR.equals(entry.getKey()))
 					Log.factory_onLabourHourExhaust(Factory.this,
-							entry.getValue());
+							Factory.this.primaryCurrency, entry.getValue());
 				PropertyRegister.getInstance().decrementGoodTypeAmount(
 						Factory.this, entry.getKey(), entry.getValue());
 			}

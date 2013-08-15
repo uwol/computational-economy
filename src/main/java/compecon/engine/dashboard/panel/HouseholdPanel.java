@@ -58,8 +58,6 @@ public class HouseholdPanel extends ChartsPanel implements IModelListener {
 
 		JTabbedPane jTabbedPane_Households = new JTabbedPane();
 
-		// for each currency a panel is added that contains sub-panels with
-		// prices for good types and currencies in this currency
 		for (Currency currency : Currency.values()) {
 			JPanel panelForCurrency = new JPanel();
 			panelForCurrency.setLayout(new GridLayout(0, 2));

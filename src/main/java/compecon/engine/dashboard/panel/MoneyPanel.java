@@ -29,21 +29,18 @@ import org.jfree.data.xy.XYDataset;
 
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry;
-import compecon.nature.materia.GoodType;
 
-public class AggregatesPanel extends ChartsPanel {
+public class MoneyPanel extends ChartsPanel {
 
-	public AggregatesPanel() {
+	public MoneyPanel() {
 		this.setLayout(new GridLayout(0, 2));
 
-		this.add(this.createKeyInterestRatesChart());
-		this.add(this.createPriceIndicesChart());
-		this.add(this.createMoneySupplyChart());
-		this.add(this.createProductionChart());
-		this.add(this.createLabourChart());
+		this.add(createKeyInterestRatesPanel());
+		this.add(createPriceIndicesPanel());
+		this.add(createMoneySupplyPanel());
 	}
 
-	private ChartPanel createKeyInterestRatesChart() {
+	private ChartPanel createKeyInterestRatesPanel() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : ModelRegistry.getKeyInterestRateModel()
@@ -58,7 +55,7 @@ public class AggregatesPanel extends ChartsPanel {
 		return new ChartPanel(chart);
 	}
 
-	private ChartPanel createPriceIndicesChart() {
+	private ChartPanel createPriceIndicesPanel() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : ModelRegistry.getPriceIndexModel().getTypes())
@@ -71,40 +68,7 @@ public class AggregatesPanel extends ChartsPanel {
 		return new ChartPanel(chart);
 	}
 
-	private ChartPanel createProductionChart() {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-
-		for (GoodType goodType : ModelRegistry
-				.getEffectiveProductionOutputModel().getTypes())
-			if (!goodType.equals(GoodType.LABOURHOUR))
-				timeSeriesCollection.addSeries(ModelRegistry
-						.getEffectiveProductionOutputModel().getTimeSeries(
-								goodType));
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart("Production",
-				"Date", "Output", (XYDataset) timeSeriesCollection, true, true,
-				false);
-		this.configureChart(chart);
-		return new ChartPanel(chart);
-	}
-
-	private ChartPanel createLabourChart() {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-
-		timeSeriesCollection.addSeries(ModelRegistry
-				.getEffectiveProductionOutputModel().getTimeSeries(
-						GoodType.LABOURHOUR));
-		timeSeriesCollection.addSeries(ModelRegistry.getCapacityModel()
-				.getTimeSeries(GoodType.LABOURHOUR));
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart("Labour", "Date",
-				"Capacity & Utilization", (XYDataset) timeSeriesCollection,
-				true, true, false);
-		this.configureChart(chart);
-		return new ChartPanel(chart);
-	}
-
-	private ChartPanel createMoneySupplyChart() {
+	private ChartPanel createMoneySupplyPanel() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : ModelRegistry.getMoneySupplyM0Model()

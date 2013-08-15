@@ -636,6 +636,7 @@ public class Household extends Agent implements IShareOwner {
 					Household.this, GoodType.LABOURHOUR,
 					this.NUMBER_OF_DAILY_LABOUR_HOURS);
 			Log.household_LabourHourCapacity(Household.this,
+					Household.this.primaryCurrency,
 					this.NUMBER_OF_DAILY_LABOUR_HOURS);
 		}
 	}

@@ -34,9 +34,10 @@ import javax.swing.event.ChangeListener;
 import org.jfree.chart.ChartPanel;
 
 import compecon.engine.dashboard.panel.AgentsPanel;
-import compecon.engine.dashboard.panel.AggregatesPanel;
 import compecon.engine.dashboard.panel.ControlPanel;
 import compecon.engine.dashboard.panel.HouseholdPanel;
+import compecon.engine.dashboard.panel.IndustryPanel;
+import compecon.engine.dashboard.panel.MoneyPanel;
 import compecon.engine.dashboard.panel.NationalAccountsPanel;
 import compecon.engine.dashboard.panel.NumberOfAgentsPanel;
 import compecon.engine.dashboard.panel.PricesPanel;
@@ -46,11 +47,13 @@ public class Dashboard extends JFrame {
 
 	protected final JTabbedPane jTabbedPane;
 
-	protected final AggregatesPanel aggregatesPanel = new AggregatesPanel();
+	protected final HouseholdPanel householdPanel = new HouseholdPanel();
+
+	protected final IndustryPanel industryPanel = new IndustryPanel();
+
+	protected final MoneyPanel moneyPanel = new MoneyPanel();
 
 	protected final PricesPanel pricesPanel = new PricesPanel();
-
-	protected final HouseholdPanel householdPanel = new HouseholdPanel();
 
 	protected final NationalAccountsPanel nationalAccountsPanel = new NationalAccountsPanel();
 
@@ -73,7 +76,7 @@ public class Dashboard extends JFrame {
 		bottomPanel.setPreferredSize(new Dimension(-1, 150));
 		bottomPanel.add(new NumberOfAgentsPanel());
 
-		ChartPanel utilityChart = this.aggregatesPanel.createUtilityChart();
+		ChartPanel utilityChart = this.moneyPanel.createUtilityChart();
 		utilityChart.setPreferredSize(new Dimension(-1, 150));
 		bottomPanel.add(utilityChart);
 
@@ -83,9 +86,10 @@ public class Dashboard extends JFrame {
 		 * tabbed content panel
 		 */
 		this.jTabbedPane = new JTabbedPane();
-		this.jTabbedPane.addTab("Aggregates", this.aggregatesPanel);
-		this.jTabbedPane.addTab("Prices", this.pricesPanel);
 		this.jTabbedPane.addTab("Households", this.householdPanel);
+		this.jTabbedPane.addTab("Industries", this.industryPanel);
+		this.jTabbedPane.addTab("Money", this.moneyPanel);
+		this.jTabbedPane.addTab("Prices", this.pricesPanel);
 		this.jTabbedPane.addTab("National Accounts", nationalAccountsPanel);
 		this.jTabbedPane.addTab("Agents", this.agentsPanel);
 

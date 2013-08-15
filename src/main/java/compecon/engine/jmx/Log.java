@@ -152,22 +152,22 @@ public class Log {
 	}
 
 	public static void household_LabourHourCapacity(Household household,
-			double labourHourCapacity) {
-		ModelRegistry.getCapacityModel().add(GoodType.LABOURHOUR,
+			Currency currency, double labourHourCapacity) {
+		ModelRegistry.getCapacityModel(currency).add(GoodType.LABOURHOUR,
 				labourHourCapacity);
 	}
 
 	// --------
 
-	public static void factory_onProduction(Factory factory, GoodType goodType,
-			double producedProducts) {
-		ModelRegistry.getEffectiveProductionOutputModel().add(goodType,
+	public static void factory_onProduction(Factory factory, Currency currency,
+			GoodType goodType, double producedProducts) {
+		ModelRegistry.getEffectiveProductionOutputModel(currency).add(goodType,
 				producedProducts);
 	}
 
 	public static void factory_onLabourHourExhaust(Factory factory,
-			double amount) {
-		ModelRegistry.getEffectiveProductionOutputModel().add(
+			Currency currency, double amount) {
+		ModelRegistry.getEffectiveProductionOutputModel(currency).add(
 				GoodType.LABOURHOUR, amount);
 	}
 

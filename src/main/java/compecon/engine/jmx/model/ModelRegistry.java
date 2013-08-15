@@ -20,6 +20,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.jmx.model;
 
 import compecon.culture.sectors.financial.Currency;
+import compecon.engine.jmx.model.generic.CurrenciesPeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.jmx.model.generic.DistributionModel;
 import compecon.engine.jmx.model.generic.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.jmx.model.generic.PeriodDataPercentageTimeSeriesModel;
@@ -40,34 +41,11 @@ public class ModelRegistry {
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values(), " utility");
 
-	// aggregates
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<GoodType> capacityModel = new PeriodDataAccumulatorTimeSeriesModel<GoodType>(
-			GoodType.values(), " cap.");
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<GoodType> effectiveProductionOutputModel = new PeriodDataAccumulatorTimeSeriesModel<GoodType>(
-			GoodType.values());
-
-	protected final static TimeSeriesModel<Currency> keyInterestRateModel = new TimeSeriesModel<Currency>(
-			Currency.values());
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " M0");
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " M1");
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM2Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " M2");
-
-	protected final static TimeSeriesModel<Currency> priceIndexModel = new TimeSeriesModel<Currency>(
-			Currency.values());
-
 	// prices
 
 	protected final static PricesModel pricesModel = new PricesModel();
 
-	// consumption and saving
+	// households: consumption and saving
 
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> consumptionModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values(), " consumption");
@@ -99,15 +77,40 @@ public class ModelRegistry {
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> wageModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values(), " wage");
 
-	// agent details
+	// industries
 
-	protected final static AgentDetailModel agentDetailModel = new AgentDetailModel();
+	protected final static CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType> effectiveProductionOutputModel = new CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType>(
+			GoodType.values());
+
+	protected final static CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType> capacityModel = new CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType>(
+			GoodType.values(), " cap.");
+
+	// money
+
+	protected final static TimeSeriesModel<Currency> keyInterestRateModel = new TimeSeriesModel<Currency>(
+			Currency.values());
+
+	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
+			Currency.values(), " M0");
+
+	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
+			Currency.values(), " M1");
+
+	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM2Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
+			Currency.values(), " M2");
+
+	protected final static TimeSeriesModel<Currency> priceIndexModel = new TimeSeriesModel<Currency>(
+			Currency.values());
 
 	// national balances
 
 	protected final static BalanceSheetsModel balanceSheetsModel;
 
 	protected final static MonetaryTransactionsModel monetaryTransactionsModel = new MonetaryTransactionsModel();
+
+	// agent details
+
+	protected final static AgentDetailModel agentDetailModel = new AgentDetailModel();
 
 	static {
 		balanceSheetsModel = new BalanceSheetsModel(moneySupplyM0Model,
@@ -152,8 +155,10 @@ public class ModelRegistry {
 		return balanceSheetsModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<GoodType> getCapacityModel() {
-		return capacityModel;
+	public static PeriodDataAccumulatorTimeSeriesModel<GoodType> getCapacityModel(
+			Currency currency) {
+		return capacityModel
+				.getPeriodDataAccumulatorTimeSeriesModelForCurrency(currency);
 	}
 
 	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getConsumptionModel() {
@@ -176,8 +181,10 @@ public class ModelRegistry {
 		return dividendModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<GoodType> getEffectiveProductionOutputModel() {
-		return effectiveProductionOutputModel;
+	public static PeriodDataAccumulatorTimeSeriesModel<GoodType> getEffectiveProductionOutputModel(
+			Currency currency) {
+		return effectiveProductionOutputModel
+				.getPeriodDataAccumulatorTimeSeriesModelForCurrency(currency);
 	}
 
 	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getIncomeModel() {
