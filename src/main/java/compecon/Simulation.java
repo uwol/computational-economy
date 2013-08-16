@@ -72,23 +72,6 @@ public class Simulation {
 			// init JMX
 			JMXRegistration.init();
 
-			// configure simulation
-			final int NUMBER_OF_CREDITBANKSPERCURRENCY = 5;
-
-			int NUMBER_OF_HOUSEHOLDSPERCURRENCY;
-			int NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY;
-			int NUMBER_OF_TRADERSPERCURRENCY;
-
-			if (!ConfigurationUtil.getActivateDb()) {
-				NUMBER_OF_HOUSEHOLDSPERCURRENCY = 2000;
-				NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 5;
-				NUMBER_OF_TRADERSPERCURRENCY = 10;
-			} else {
-				NUMBER_OF_HOUSEHOLDSPERCURRENCY = 10;
-				NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY = 1;
-				NUMBER_OF_TRADERSPERCURRENCY = 2;
-			}
-
 			// initialize the time system, so that agents can register their
 			// events
 			TimeSystem timeSystem = TimeSystem.getInstance();
@@ -108,7 +91,8 @@ public class Simulation {
 				offeredCurrencies.add(currency);
 
 				// initialize credit banks
-				for (int i = 0; i < NUMBER_OF_CREDITBANKSPERCURRENCY; i++) {
+				for (int i = 0; i < ConfigurationUtil.CreditBankConfig
+						.getNumberPerCurrency(); i++) {
 					AgentFactory.newInstanceCreditBank(offeredCurrencies,
 							currency);
 				}
@@ -118,7 +102,8 @@ public class Simulation {
 				// initialize factories
 				for (GoodType goodType : GoodType.values()) {
 					if (!GoodType.LABOURHOUR.equals(goodType)) {
-						for (int i = 0; i < NUMBER_OF_FACTORIES_PER_GOODTYPE_AND_CURRENCY; i++) {
+						for (int i = 0; i < ConfigurationUtil.FactoryConfig
+								.getNumberPerGoodTypeAndCurrency(); i++) {
 							AgentFactory.newInstanceFactory(goodType, currency);
 						}
 					}
@@ -127,14 +112,16 @@ public class Simulation {
 
 			for (Currency currency : Currency.values()) {
 				// initialize traders
-				for (int i = 0; i < NUMBER_OF_TRADERSPERCURRENCY; i++) {
+				for (int i = 0; i < ConfigurationUtil.TraderConfig
+						.getNumberPerCurrency(); i++) {
 					AgentFactory.newInstanceTrader(currency);
 				}
 			}
 
 			for (Currency currency : Currency.values()) {
 				// initialize households
-				for (int i = 0; i < NUMBER_OF_HOUSEHOLDSPERCURRENCY; i++) {
+				for (int i = 0; i < ConfigurationUtil.HouseholdConfig
+						.getNumberPerCurrency(); i++) {
 					Household household = AgentFactory
 							.newInstanceHousehold(currency);
 					// division, so that households have time left to retirement

@@ -61,7 +61,7 @@ public class DAOFactory {
 	protected static ITraderDAO traderDAO;
 
 	static {
-		if (ConfigurationUtil.getActivateDb()) {
+		if (ConfigurationUtil.DbConfig.getActivateDb()) {
 			bankAccountDAO = new compecon.engine.dao.hibernate.BankAccountDAO();
 			centralBankDAO = new compecon.engine.dao.hibernate.CentralBankDAO();
 			creditBankDAO = new compecon.engine.dao.hibernate.CreditBankDAO();

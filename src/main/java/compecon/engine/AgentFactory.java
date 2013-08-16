@@ -62,7 +62,7 @@ public class AgentFactory {
 		State state = DAOFactory.getStateDAO().findByCurrency(currency);
 		if (state == null) {
 			state = new State();
-			if (!ConfigurationUtil.getActivateDb())
+			if (!ConfigurationUtil.DbConfig.getActivateDb())
 				state.setId(Simulation.getNextId());
 
 			Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
@@ -87,7 +87,7 @@ public class AgentFactory {
 				.findByCurrency(currency);
 		if (centralBank == null) {
 			centralBank = new CentralBank();
-			if (!ConfigurationUtil.getActivateDb())
+			if (!ConfigurationUtil.DbConfig.getActivateDb())
 				centralBank.setId(Simulation.getNextId());
 			centralBank.setPrimaryCurrency(currency);
 			DAOFactory.getCentralBankDAO().save(centralBank);
@@ -110,7 +110,7 @@ public class AgentFactory {
 					+ " not contained in offeredCurrencies");
 
 		CreditBank creditBank = new CreditBank();
-		if (!ConfigurationUtil.getActivateDb())
+		if (!ConfigurationUtil.DbConfig.getActivateDb())
 			creditBank.setId(Simulation.getNextId());
 		creditBank.setOfferedCurrencies(offeredCurrencies);
 		creditBank.setPrimaryCurrency(primaryCurrency);
@@ -131,7 +131,7 @@ public class AgentFactory {
 	public static Factory newInstanceFactory(GoodType goodType,
 			Currency primaryCurrency) {
 		Factory factory = new Factory();
-		if (!ConfigurationUtil.getActivateDb())
+		if (!ConfigurationUtil.DbConfig.getActivateDb())
 			factory.setId(Simulation.getNextId());
 		factory.setProducedGoodType(goodType);
 		factory.setPrimaryCurrency(primaryCurrency);
@@ -153,7 +153,7 @@ public class AgentFactory {
 
 	public static Household newInstanceHousehold(Currency primaryCurrency) {
 		Household household = new Household();
-		if (!ConfigurationUtil.getActivateDb())
+		if (!ConfigurationUtil.DbConfig.getActivateDb())
 			household.setId(Simulation.getNextId());
 		household.setPrimaryCurrency(primaryCurrency);
 
@@ -195,7 +195,7 @@ public class AgentFactory {
 
 	public static Trader newInstanceTrader(Currency primaryCurrency) {
 		Trader trader = new Trader();
-		if (!ConfigurationUtil.getActivateDb())
+		if (!ConfigurationUtil.DbConfig.getActivateDb())
 			trader.setId(Simulation.getNextId());
 		trader.setPrimaryCurrency(primaryCurrency);
 		trader.setReferenceCredit(10000);

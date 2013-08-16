@@ -49,6 +49,7 @@ import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 import compecon.nature.materia.Refreshable;
@@ -65,23 +66,31 @@ public class Household extends Agent implements IShareOwner {
 	// configuration constants ------------------------------
 
 	@Transient
-	protected final int NEW_HOUSEHOLD_FROM_X_DAYS = 365 * 18;
+	protected final int NEW_HOUSEHOLD_FROM_X_DAYS = ConfigurationUtil.HouseholdConfig
+			.getNewHouseholdFromAgeInDays();
 
 	@Transient
-	protected final int NEW_HOUSEHOLD_EVERY_X_DAYS = 365 * 5;
+	protected final int NEW_HOUSEHOLD_EVERY_X_DAYS = ConfigurationUtil.HouseholdConfig
+			.getNewHouseholdEveryXDays();
 
 	@Transient
-	protected final int LIFESPAN_IN_DAYS = 365 * 80;
+	protected final int LIFESPAN_IN_DAYS = ConfigurationUtil.HouseholdConfig
+			.getLifespanInDays();
 
 	@Transient
-	protected final int RETIREMENT_AGE_IN_DAYS = 365 * 65;
+	protected final int RETIREMENT_AGE_IN_DAYS = ConfigurationUtil.HouseholdConfig
+			.getRetirementAgeInDays();
 
 	@Transient
-	protected final int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = 60 + this
-			.hashCode() % 60;
+	protected final int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = ConfigurationUtil.HouseholdConfig
+			.getDaysWithoutUtilityUntilDestructor()
+			+ this.hashCode()
+			% ConfigurationUtil.HouseholdConfig
+					.getDaysWithoutUtilityUntilDestructor();
 
 	@Transient
-	protected final double REQUIRED_UTILITY = 1.0;
+	protected final double REQUIRED_UTILITY = ConfigurationUtil.HouseholdConfig
+			.getRequiredUtilityPerDay();
 
 	// dynamic state ------------------------------
 

@@ -57,6 +57,7 @@ import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 
@@ -71,10 +72,12 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 	private boolean centralBankAccountsInitialized = false;
 
 	@Transient
-	protected final double MAX_CREDIT_FOR_CURRENCY_TRADING = 100000;
+	protected final double MAX_CREDIT_FOR_CURRENCY_TRADING = ConfigurationUtil.CreditBankConfig
+			.getMaxCreditForCurrencyTrading();
 
 	@Transient
-	protected final double MIN_ARBITRAGE_MARGIN = 0.03;
+	protected final double MIN_ARBITRAGE_MARGIN = ConfigurationUtil.CreditBankConfig
+			.getMinArbitrageMargin();
 
 	@Transient
 	protected Map<Currency, PricingBehaviour> localCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
@@ -141,11 +144,13 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 								this.primaryCurrency);
 				if (Double.isNaN(initialPriceOfLocalCurrencyInForeignCurrency))
 					initialPriceOfLocalCurrencyInForeignCurrency = 1.0;
-				this.localCurrencyPricingBehaviours.put(foreignCurrency,
+				this.localCurrencyPricingBehaviours.put(
+						foreignCurrency,
 						new PricingBehaviour(this, this.primaryCurrency,
 								foreignCurrency,
 								initialPriceOfLocalCurrencyInForeignCurrency,
-								false, 0.01));
+								ConfigurationUtil.CreditBankConfig
+										.getPriceChangeIncrement()));
 			}
 		}
 	}

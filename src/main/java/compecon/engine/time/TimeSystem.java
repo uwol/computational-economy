@@ -35,6 +35,7 @@ import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.engine.time.calendar.Year;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.HibernateUtil;
 
 /**
@@ -123,7 +124,8 @@ public class TimeSystem {
 	}
 
 	public boolean isInitializationPhase() {
-		return this.dayNumber < 180;
+		return this.dayNumber < ConfigurationUtil.TimeSystemConfig
+				.getInitializationPhaseInDays();
 	}
 
 	/*

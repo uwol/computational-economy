@@ -22,6 +22,7 @@ package compecon.culture;
 import compecon.culture.sectors.financial.Currency;
 import compecon.engine.Agent;
 import compecon.engine.jmx.Log;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 
 /**
@@ -36,15 +37,11 @@ public class PricingBehaviour {
 
 	protected final Currency denominatedInCurrency;
 
-	protected final boolean dynamicPriceChangeIncrement;
-
 	protected final Object offeredObject;
 
 	protected boolean periodDataInitialized = false;
 
-	protected final double initialPriceChangeIncrement;
-
-	protected double priceChangeIncrement;
+	protected final double priceChangeIncrement;
 
 	// the decision
 
@@ -61,20 +58,19 @@ public class PricingBehaviour {
 
 	public PricingBehaviour(Agent agent, Object offeredObject,
 			Currency denominatedInCurrency, double initialPrice,
-			boolean dynamicPriceChangeIncrement,
-			double initialPriceChangeIncrement) {
+			double priceChangeIncrement) {
 		this.agent = agent;
 		this.initialPrice = initialPrice;
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.offeredObject = offeredObject;
-		this.initialPriceChangeIncrement = initialPriceChangeIncrement;
-		this.dynamicPriceChangeIncrement = dynamicPriceChangeIncrement;
+		this.priceChangeIncrement = priceChangeIncrement;
 	}
 
-	public PricingBehaviour(Agent agent, Object offeredGoodOrCurrency,
+	public PricingBehaviour(Agent agent, Object offeredObject,
 			Currency denominatedInCurrency, double initialPrice) {
-		this(agent, offeredGoodOrCurrency, denominatedInCurrency, initialPrice,
-				true, 0.1);
+		this(agent, offeredObject, denominatedInCurrency, initialPrice,
+				ConfigurationUtil.PricingBehaviourConfig
+						.getDefaultPriceChangeIncrement());
 	}
 
 	public void assurePeriodDataInitialized() {
@@ -232,15 +228,6 @@ public class PricingBehaviour {
 	}
 
 	protected double calculateHigherPrice(double price) {
-		// calculate price change increment
-		if (MathUtil
-				.greater(this.prices_InPeriods[1], this.prices_InPeriods[2])) {
-			if (this.dynamicPriceChangeIncrement)
-				this.priceChangeIncrement = this.priceChangeIncrement * 1.3;
-		} else {
-			this.priceChangeIncrement = this.initialPriceChangeIncrement;
-		}
-
 		// if the price is 0, multiplication does not work -> reset price
 		if (MathUtil.lesserEqual(price, 0))
 			return 0.1;
@@ -256,15 +243,6 @@ public class PricingBehaviour {
 	 * {@link #calculateHigherPrice(double)}
 	 */
 	protected double calculateLowerPrice(double price) {
-		// calculate price change decrement
-		if (MathUtil.lesser(this.prices_InPeriods[1], this.prices_InPeriods[2])) {
-			if (this.dynamicPriceChangeIncrement)
-				// slight asymmetry downwards
-				this.priceChangeIncrement = this.priceChangeIncrement * 1.4;
-		} else {
-			this.priceChangeIncrement = this.initialPriceChangeIncrement;
-		}
-
 		return price / (1 + this.priceChangeIncrement);
 	}
 }

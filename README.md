@@ -21,8 +21,6 @@ Technical platform:
 * Java 1.6
 * Maven
 * Optional: Database server 
-	* configuration: hibernate.cfg.xml 
-	* activation (vm argument): -Dactivatedb=true
 
 ![screenshot1](http://img.literaturedb.com/compecon1.png)
 

@@ -19,12 +19,137 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.util;
 
+import java.io.IOException;
+import java.util.Properties;
+
 public class ConfigurationUtil {
 
-	protected static boolean activatedb = "true".equals(System
-			.getProperty("activatedb"));
+	public static class CentralBankConfig {
+		public static double getReserveRatio() {
+			return Double.parseDouble(configFile
+					.getProperty("centralBank.reserveRatio"));
+		}
 
-	public static boolean getActivateDb() {
-		return activatedb;
+		public static double getInflationTarget() {
+			return Double.parseDouble(configFile
+					.getProperty("centralBank.inflationTarget"));
+		}
+
+		public static double getTargetPriceIndex() {
+			return Double.parseDouble(configFile
+					.getProperty("centralBank.targetPriceIndex"));
+		}
+	}
+
+	public static class CreditBankConfig {
+		public static int getNumberPerCurrency() {
+			return Integer.parseInt(configFile
+					.getProperty("creditBank.numberPerCurrency"));
+		}
+
+		public static double getPriceChangeIncrement() {
+			return Double.parseDouble(configFile
+					.getProperty("creditBank.priceChangeIncrement"));
+		}
+
+		public static double getMaxCreditForCurrencyTrading() {
+			return Double.parseDouble(configFile
+					.getProperty("creditBank.maxCreditForCurrencyTrading"));
+		}
+
+		public static double getMinArbitrageMargin() {
+			return Double.parseDouble(configFile
+					.getProperty("creditBank.minArbitrageMargin"));
+		}
+	}
+
+	public static class DbConfig {
+		public static boolean getActivateDb() {
+			return Boolean
+					.parseBoolean(configFile.getProperty("db.activatedb"));
+		}
+	}
+
+	public static class FactoryConfig {
+		public static int getNumberPerGoodTypeAndCurrency() {
+			return Integer.parseInt(configFile
+					.getProperty("factory.numberPerGoodTypeAndCurrency"));
+		}
+	}
+
+	public static class HouseholdConfig {
+		public static int getNumberPerCurrency() {
+			return Integer.parseInt(configFile
+					.getProperty("household.numberPerCurrency"));
+		}
+
+		public static int getLifespanInDays() {
+			return Integer.parseInt(configFile
+					.getProperty("household.lifespanInDays"));
+		}
+
+		public static int getRetirementAgeInDays() {
+			return Integer.parseInt(configFile
+					.getProperty("household.retirementAgeInDays"));
+		}
+
+		public static int getNewHouseholdFromAgeInDays() {
+			return Integer.parseInt(configFile
+					.getProperty("household.newHouseholdFromAgeInDays"));
+		}
+
+		public static int getNewHouseholdEveryXDays() {
+			return Integer.parseInt(configFile
+					.getProperty("household.newHouseholdEveryXDays"));
+		}
+
+		public static double getRequiredUtilityPerDay() {
+			return Double.parseDouble(configFile
+					.getProperty("household.requiredUtilityPerDay"));
+		}
+
+		public static int getDaysWithoutUtilityUntilDestructor() {
+			return Integer
+					.parseInt(configFile
+							.getProperty("household.daysWithoutUtilityUntilDestructor"));
+		}
+	}
+
+	public static class PricingBehaviourConfig {
+		public static double getDefaultPriceChangeIncrement() {
+			return Double
+					.parseDouble(configFile
+							.getProperty("pricingBehaviour.defaultPriceChangeIncrement"));
+		}
+	}
+
+	public static class TimeSystemConfig {
+		public static int getInitializationPhaseInDays() {
+			return Integer.parseInt(configFile
+					.getProperty("timeSystem.initializationPhaseInDays"));
+		}
+	}
+
+	public static class TraderConfig {
+		public static int getNumberPerCurrency() {
+			return Integer.parseInt(configFile
+					.getProperty("trader.numberPerCurrency"));
+		}
+
+		public static double getArbitrageMargin() {
+			return Double.parseDouble(configFile
+					.getProperty("trader.arbitrageMargin"));
+		}
+	}
+
+	protected static Properties configFile = new Properties();
+
+	static {
+		try {
+			configFile.load(ConfigurationUtil.class.getClassLoader()
+					.getResourceAsStream("configuration.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -41,6 +41,7 @@ import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.nature.materia.GoodType;
 
 /**
@@ -51,16 +52,19 @@ public class CentralBank extends Bank {
 
 	// constants
 	@Transient
-	protected final double RESERVE_RATIO = 0.1;
+	protected final double RESERVE_RATIO = ConfigurationUtil.CentralBankConfig
+			.getReserveRatio();
 
 	@Transient
-	protected final double INFLATION_TARGET = 0.02;
+	protected final double INFLATION_TARGET = ConfigurationUtil.CentralBankConfig
+			.getInflationTarget();
 
 	@Transient
 	protected int NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
 
 	@Transient
-	protected final double TARGET_PRICE_INDEX = 15;
+	protected final double TARGET_PRICE_INDEX = ConfigurationUtil.CentralBankConfig
+			.getTargetPriceIndex();
 
 	@Transient
 	protected StatisticalOffice statisticalOffice;

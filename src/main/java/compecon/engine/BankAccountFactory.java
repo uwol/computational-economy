@@ -34,7 +34,7 @@ public class BankAccountFactory {
 			final Bank managingBank, final String name,
 			final BankAccountType bankAccountType) {
 		BankAccount bankAccount = new BankAccount();
-		if (!ConfigurationUtil.getActivateDb())
+		if (!ConfigurationUtil.DbConfig.getActivateDb())
 			bankAccount.setId(Simulation.getNextId());
 
 		bankAccount.setOwner(owner);

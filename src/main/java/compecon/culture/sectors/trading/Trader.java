@@ -48,6 +48,7 @@ import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.nature.materia.GoodType;
 
@@ -58,7 +59,8 @@ import compecon.nature.materia.GoodType;
 public class Trader extends JointStockCompany {
 
 	@Transient
-	protected final double ARBITRAGE_MARGIN = 0.2;
+	protected final double ARBITRAGE_MARGIN = ConfigurationUtil.TraderConfig
+			.getArbitrageMargin();
 
 	@Transient
 	protected Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
