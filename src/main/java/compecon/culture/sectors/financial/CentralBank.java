@@ -51,20 +51,9 @@ import compecon.nature.materia.GoodType;
 public class CentralBank extends Bank {
 
 	// constants
-	@Transient
-	protected final double RESERVE_RATIO = ConfigurationUtil.CentralBankConfig
-			.getReserveRatio();
-
-	@Transient
-	protected final double INFLATION_TARGET = ConfigurationUtil.CentralBankConfig
-			.getInflationTarget();
 
 	@Transient
 	protected int NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
-
-	@Transient
-	protected final double TARGET_PRICE_INDEX = ConfigurationUtil.CentralBankConfig
-			.getTargetPriceIndex();
 
 	@Transient
 	protected StatisticalOffice statisticalOffice;
@@ -347,11 +336,13 @@ public class CentralBank extends Bank {
 	protected double calculateTargetPriceIndexForPeriod() {
 		int yearNumber = TimeSystem.getInstance().getCurrentYear()
 				- TimeSystem.getInstance().getStartYear();
-		double targetPriceLevelForYear = Math.pow((1 + INFLATION_TARGET),
+		double targetPriceLevelForYear = Math.pow(
+				(1 + ConfigurationUtil.CentralBankConfig.getInflationTarget()),
 				yearNumber);
 
 		double monthlyNominalInflationTarget = this
-				.calculateMonthlyNominalInterestRate(INFLATION_TARGET);
+				.calculateMonthlyNominalInterestRate(ConfigurationUtil.CentralBankConfig
+						.getInflationTarget());
 
 		double targetPriceLevelForMonth = Math.pow(
 				1.0 + monthlyNominalInflationTarget, TimeSystem.getInstance()
@@ -361,7 +352,8 @@ public class CentralBank extends Bank {
 
 		double combinedTargetPriceLevel = (targetPriceLevelForYear
 				+ targetPriceLevelForMonth + targetPriceLevelForDay);
-		return TARGET_PRICE_INDEX * combinedTargetPriceLevel;
+		return ConfigurationUtil.CentralBankConfig.getTargetPriceIndex()
+				* combinedTargetPriceLevel;
 	}
 
 	@Transient
@@ -372,7 +364,7 @@ public class CentralBank extends Bank {
 
 	@Transient
 	public double getReserveRatio() {
-		return RESERVE_RATIO;
+		return ConfigurationUtil.CentralBankConfig.getReserveRatio();
 	}
 
 	protected double calculateTotalDividend() {

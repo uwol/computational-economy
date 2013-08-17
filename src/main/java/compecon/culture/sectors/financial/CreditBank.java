@@ -72,14 +72,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 	private boolean centralBankAccountsInitialized = false;
 
 	@Transient
-	protected final double MAX_CREDIT_FOR_CURRENCY_TRADING = ConfigurationUtil.CreditBankConfig
-			.getMaxCreditForCurrencyTrading();
-
-	@Transient
-	protected final double MIN_ARBITRAGE_MARGIN = ConfigurationUtil.CreditBankConfig
-			.getMinArbitrageMargin();
-
-	@Transient
 	protected Map<Currency, PricingBehaviour> localCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
 
 	@ElementCollection
@@ -451,7 +443,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		// division by 2 so that the period-wise the budget converges to max
 		// credit. This ensures, that in each period there is budget left to
 		// quote on the currency markets
-		return (CreditBank.this.MAX_CREDIT_FOR_CURRENCY_TRADING + this.currencyTradeBankAccounts
+		return (ConfigurationUtil.CreditBankConfig
+				.getMaxCreditForCurrencyTrading() + this.currencyTradeBankAccounts
 				.get(this.primaryCurrency).getBalance()) / 2;
 	}
 
@@ -760,10 +753,11 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 											+ foreignCurrency.getIso4217Code()
 											+ ", since correct price of foreign currency is "
 											+ correctPriceOfForeignCurrencyInLocalCurrency);
-						} else if (MathUtil.lesser(
-								correctPriceOfForeignCurrencyInLocalCurrency
-										/ (1 + MIN_ARBITRAGE_MARGIN),
-								realPriceOfForeignCurrencyInLocalCurrency)) {
+						} else if (MathUtil
+								.lesser(correctPriceOfForeignCurrencyInLocalCurrency
+										/ (1 + ConfigurationUtil.CreditBankConfig
+												.getMinArbitrageMargin()),
+										realPriceOfForeignCurrencyInLocalCurrency)) {
 							if (Log.isAgentSelectedByClient(CreditBank.this))
 								Log.log(CreditBank.this,
 										CurrencyTradeEvent.class,
@@ -788,7 +782,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 											Double.NaN,
 											budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
 											correctPriceOfForeignCurrencyInLocalCurrency
-													/ (1 + MIN_ARBITRAGE_MARGIN),
+													/ (1 + ConfigurationUtil.CreditBankConfig
+															.getMinArbitrageMargin()),
 											CreditBank.this,
 											localCurrencyTradeBankAccount,
 											CreditBank.this.bankPasswords
@@ -845,7 +840,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			for (PricingBehaviour pricingBehaviour : CreditBank.this.localCurrencyPricingBehaviours
 					.values()) {
 				pricingBehaviour.nextPeriod();
-				pricingBehaviour.setNewPrice();
 			}
 
 			/*

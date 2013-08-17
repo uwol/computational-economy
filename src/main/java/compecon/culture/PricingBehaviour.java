@@ -84,53 +84,6 @@ public class PricingBehaviour {
 		}
 	}
 
-	public void registerSelling(double numberOfProducts, double totalValue) {
-		if (!Double.isNaN(numberOfProducts)
-				&& !Double.isInfinite(numberOfProducts)) {
-			this.soldAmount_InPeriods[0] += numberOfProducts;
-			this.soldValue_InPeriods[0] += totalValue;
-		}
-	}
-
-	public void registerOfferedAmount(double numberOfProducts) {
-		if (!Double.isNaN(numberOfProducts)
-				&& !Double.isInfinite(numberOfProducts))
-			this.offeredAmount_InPeriods[0] += numberOfProducts;
-	}
-
-	public void nextPeriod() {
-		assurePeriodDataInitialized();
-
-		// shift arrays -> a new period x, old period x becomes period x-1
-		System.arraycopy(this.prices_InPeriods, 0, this.prices_InPeriods, 1,
-				this.prices_InPeriods.length - 1);
-		System.arraycopy(this.soldAmount_InPeriods, 0,
-				this.soldAmount_InPeriods, 1,
-				this.soldAmount_InPeriods.length - 1);
-		System.arraycopy(this.soldValue_InPeriods, 0, this.soldValue_InPeriods,
-				1, this.soldValue_InPeriods.length - 1);
-		System.arraycopy(this.offeredAmount_InPeriods, 0,
-				this.offeredAmount_InPeriods, 1,
-				this.offeredAmount_InPeriods.length - 1);
-
-		// copy price from last period to current period; important for having a
-		// non-zero price every period
-		this.prices_InPeriods[0] = this.prices_InPeriods[1];
-		this.offeredAmount_InPeriods[0] = 0;
-		this.soldAmount_InPeriods[0] = 0;
-		this.soldValue_InPeriods[0] = 0;
-	}
-
-	public boolean wasNothingSoldInLastPeriod() {
-		return this.offeredAmount_InPeriods[1] > 0
-				&& MathUtil.equal(this.soldAmount_InPeriods[1], 0);
-	}
-
-	public double setNewPrice() {
-		this.prices_InPeriods[0] = calculateNewPrice();
-		return this.prices_InPeriods[0];
-	}
-
 	protected double calculateNewPrice() {
 		double oldPrice = this.prices_InPeriods[1];
 
@@ -208,23 +161,6 @@ public class PricingBehaviour {
 							+ Currency.formatMoneySum(oldPrice) + " "
 							+ this.denominatedInCurrency.getIso4217Code());
 		return oldPrice;
-
-	}
-
-	public double getCurrentPrice() {
-		return this.prices_InPeriods[0];
-	}
-
-	public double getLastOfferedAmount() {
-		return this.offeredAmount_InPeriods[1];
-	}
-
-	public double getLastSoldAmount() {
-		return this.soldAmount_InPeriods[1];
-	}
-
-	public double getLastSoldValue() {
-		return this.soldValue_InPeriods[1];
 	}
 
 	protected double calculateHigherPrice(double price) {
@@ -244,5 +180,82 @@ public class PricingBehaviour {
 	 */
 	protected double calculateLowerPrice(double price) {
 		return price / (1 + this.priceChangeIncrement);
+	}
+
+	public double getCurrentPrice() {
+		return this.prices_InPeriods[0];
+	}
+
+	public double[] getCurrentPriceArray() {
+		int numberOfPrices = ConfigurationUtil.PricingBehaviourConfig
+				.getDefaultNumberOfPrices();
+		double[] prices = new double[numberOfPrices];
+
+		double minPrice = Math.max(0, getCurrentPrice()
+				- this.priceChangeIncrement);
+		double maxPrice = getCurrentPrice() + this.priceChangeIncrement;
+		double maxMinPriceDifference = maxPrice - minPrice;
+		double priceGap = maxMinPriceDifference / (numberOfPrices - 1);
+
+		for (int i = 0; i < numberOfPrices; i++) {
+			prices[i] = minPrice + priceGap * i;
+		}
+
+		if (this.getCurrentPrice() < prices[0]
+				|| this.getCurrentPrice() > prices[prices.length - 1])
+			throw new RuntimeException("error in calculation");
+
+		return prices;
+	}
+
+	public double getLastOfferedAmount() {
+		return this.offeredAmount_InPeriods[1];
+	}
+
+	public double getLastSoldAmount() {
+		return this.soldAmount_InPeriods[1];
+	}
+
+	public double getLastSoldValue() {
+		return this.soldValue_InPeriods[1];
+	}
+
+	public void nextPeriod() {
+		assurePeriodDataInitialized();
+
+		// shift arrays -> a new period x, old period x becomes period x-1
+		System.arraycopy(this.prices_InPeriods, 0, this.prices_InPeriods, 1,
+				this.prices_InPeriods.length - 1);
+		System.arraycopy(this.soldAmount_InPeriods, 0,
+				this.soldAmount_InPeriods, 1,
+				this.soldAmount_InPeriods.length - 1);
+		System.arraycopy(this.soldValue_InPeriods, 0, this.soldValue_InPeriods,
+				1, this.soldValue_InPeriods.length - 1);
+		System.arraycopy(this.offeredAmount_InPeriods, 0,
+				this.offeredAmount_InPeriods, 1,
+				this.offeredAmount_InPeriods.length - 1);
+
+		// copy price from last period to current period; important for having a
+		// non-zero price every period
+		this.prices_InPeriods[0] = this.prices_InPeriods[1];
+		this.offeredAmount_InPeriods[0] = 0;
+		this.soldAmount_InPeriods[0] = 0;
+		this.soldValue_InPeriods[0] = 0;
+
+		this.prices_InPeriods[0] = calculateNewPrice();
+	}
+
+	public void registerSelling(double numberOfProducts, double totalValue) {
+		if (!Double.isNaN(numberOfProducts)
+				&& !Double.isInfinite(numberOfProducts)) {
+			this.soldAmount_InPeriods[0] += numberOfProducts;
+			this.soldValue_InPeriods[0] += totalValue;
+		}
+	}
+
+	public void registerOfferedAmount(double numberOfProducts) {
+		if (!Double.isNaN(numberOfProducts)
+				&& !Double.isInfinite(numberOfProducts))
+			this.offeredAmount_InPeriods[0] += numberOfProducts;
 	}
 }

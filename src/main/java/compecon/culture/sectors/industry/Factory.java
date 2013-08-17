@@ -236,9 +236,6 @@ public class Factory extends JointStockCompany {
 			 */
 			for (Entry<GoodType, Double> entry : productionFactorsOwned
 					.entrySet()) {
-				if (GoodType.LABOURHOUR.equals(entry.getKey()))
-					Log.factory_onLabourHourExhaust(Factory.this,
-							Factory.this.primaryCurrency, entry.getValue());
 				PropertyRegister.getInstance().decrementGoodTypeAmount(
 						Factory.this, entry.getKey(), entry.getValue());
 			}
@@ -248,18 +245,21 @@ public class Factory extends JointStockCompany {
 			/*
 			 * refresh prices / offer
 			 */
-			Factory.this.pricingBehaviour.setNewPrice();
 			MarketFactory.getInstance()
 					.removeAllSellingOffers(Factory.this,
 							Factory.this.primaryCurrency,
 							Factory.this.producedGoodType);
 			double amount = PropertyRegister.getInstance().getBalance(
 					Factory.this, Factory.this.producedGoodType);
-			double price = Factory.this.pricingBehaviour.getCurrentPrice();
-			MarketFactory.getInstance().placeSettlementSellingOffer(
-					Factory.this.producedGoodType, Factory.this,
-					Factory.this.transactionsBankAccount, amount, price,
-					new SettlementMarketEvent());
+			double[] prices = Factory.this.pricingBehaviour
+					.getCurrentPriceArray();
+			for (double price : prices) {
+				MarketFactory.getInstance().placeSettlementSellingOffer(
+						Factory.this.producedGoodType, Factory.this,
+						Factory.this.transactionsBankAccount,
+						amount / prices.length, price,
+						new SettlementMarketEvent());
+			}
 			Factory.this.pricingBehaviour.registerOfferedAmount(amount);
 		}
 	}

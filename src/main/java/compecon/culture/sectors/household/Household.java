@@ -66,31 +66,11 @@ public class Household extends Agent implements IShareOwner {
 	// configuration constants ------------------------------
 
 	@Transient
-	protected final int NEW_HOUSEHOLD_FROM_X_DAYS = ConfigurationUtil.HouseholdConfig
-			.getNewHouseholdFromAgeInDays();
-
-	@Transient
-	protected final int NEW_HOUSEHOLD_EVERY_X_DAYS = ConfigurationUtil.HouseholdConfig
-			.getNewHouseholdEveryXDays();
-
-	@Transient
-	protected final int LIFESPAN_IN_DAYS = ConfigurationUtil.HouseholdConfig
-			.getLifespanInDays();
-
-	@Transient
-	protected final int RETIREMENT_AGE_IN_DAYS = ConfigurationUtil.HouseholdConfig
-			.getRetirementAgeInDays();
-
-	@Transient
 	protected final int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = ConfigurationUtil.HouseholdConfig
 			.getDaysWithoutUtilityUntilDestructor()
 			+ this.hashCode()
 			% ConfigurationUtil.HouseholdConfig
 					.getDaysWithoutUtilityUntilDestructor();
-
-	@Transient
-	protected final double REQUIRED_UTILITY = ConfigurationUtil.HouseholdConfig
-			.getRequiredUtilityPerDay();
 
 	// dynamic state ------------------------------
 
@@ -178,10 +158,6 @@ public class Household extends Agent implements IShareOwner {
 
 	public PricingBehaviour getPricingBehaviour() {
 		return pricingBehaviour;
-	}
-
-	public int getLifespanInDays() {
-		return this.LIFESPAN_IN_DAYS;
 	}
 
 	public BankAccount getSavingsBankAccount() {
@@ -279,16 +255,9 @@ public class Household extends Agent implements IShareOwner {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
 				double pricePerUnit, Currency currency) {
-			Household.this.assureTransactionsBankAccount();
 			if (goodType.equals(GoodType.LABOURHOUR)) {
 				Household.this.pricingBehaviour.registerSelling(amount, amount
 						* pricePerUnit);
-
-				/*
-				 * no exhaust of labour hours, as the offered labour hours have
-				 * been transfered by the SettelementMarket via PropertyRegister
-				 * and will be exhausted by the buyer
-				 */
 			}
 		}
 
@@ -335,7 +304,8 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * potentially call destructor
 			 */
-			if (Household.this.ageInDays > LIFESPAN_IN_DAYS) {
+			if (Household.this.ageInDays > ConfigurationUtil.HouseholdConfig
+					.getLifespanInDays()) {
 				Household.this.deconstruct();
 				return;
 			}
@@ -346,6 +316,12 @@ public class Household extends Agent implements IShareOwner {
 			Household.this.ageInDays++;
 			Household.this.labourPower.refresh();
 			Household.this.pricingBehaviour.nextPeriod();
+
+			Log.household_LabourHourCapacity(Household.this.primaryCurrency,
+					Household.this.labourPower
+							.getNumberOfLabourHoursAvailable());
+			Log.household_onLabourHourExhaust(Household.this.primaryCurrency,
+					Household.this.pricingBehaviour.getLastSoldAmount());
 
 			/*
 			 * actions
@@ -367,13 +343,16 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * check for required utility
 			 */
-			if (utility < Household.this.REQUIRED_UTILITY) {
+			if (utility < ConfigurationUtil.HouseholdConfig
+					.getRequiredUtilityPerDay()) {
 				Household.this.daysWithoutUtility++;
 				Household.this.continuousDaysWithUtility = 0;
 				if (Log.isAgentSelectedByClient(Household.this))
-					Log.log(Household.this, DailyLifeEvent.class,
+					Log.log(Household.this,
+							DailyLifeEvent.class,
 							"does not have required utility of "
-									+ Household.this.REQUIRED_UTILITY);
+									+ ConfigurationUtil.HouseholdConfig
+											.getRequiredUtilityPerDay());
 			} else {
 				if (Household.this.daysWithoutUtility > 0)
 					daysWithoutUtility--;
@@ -383,9 +362,12 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * potentially, derive new household
 			 */
+			final int NEW_HOUSEHOLD_FROM_X_DAYS = ConfigurationUtil.HouseholdConfig
+					.getNewHouseholdFromAgeInDays();
 			if (Household.this.ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
 				if ((Household.this.ageInDays - NEW_HOUSEHOLD_FROM_X_DAYS)
-						% NEW_HOUSEHOLD_EVERY_X_DAYS == 0) {
+						% ConfigurationUtil.HouseholdConfig
+								.getNewHouseholdEveryXDays() == 0) {
 					AgentFactory
 							.newInstanceHousehold(Household.this.primaryCurrency);
 				}
@@ -408,11 +390,15 @@ public class Household extends Agent implements IShareOwner {
 					.getEffectiveKeyInterestRate();
 			double income = Household.this.transactionsBankAccount.getBalance();
 			Map<Period, Double> intertemporalConsumptionPlan = Household.this.intertemporalConsumptionFunction
-					.calculateUtilityMaximizingConsumptionPlan(income,
+					.calculateUtilityMaximizingConsumptionPlan(
+							income,
 							Household.this.savingsBankAccount.getBalance(),
-							keyInterestRate, Household.this.ageInDays,
-							Household.this.RETIREMENT_AGE_IN_DAYS,
-							Household.this.LIFESPAN_IN_DAYS
+							keyInterestRate,
+							Household.this.ageInDays,
+							ConfigurationUtil.HouseholdConfig
+									.getRetirementAgeInDays(),
+							ConfigurationUtil.HouseholdConfig
+									.getLifespanInDays()
 									- Household.this.ageInDays);
 			double budget = intertemporalConsumptionPlan.get(Period.CURRENT);
 			double moneySumToConsume = budget;
@@ -429,7 +415,8 @@ public class Household extends Agent implements IShareOwner {
 			Household.this.dividendSinceLastPeriod = 0;
 
 			// if not retired
-			if (Household.this.ageInDays < Household.this.RETIREMENT_AGE_IN_DAYS) {
+			if (Household.this.ageInDays < ConfigurationUtil.HouseholdConfig
+					.getRetirementAgeInDays()) {
 				/*
 				 * save money for retirement
 				 */
@@ -563,21 +550,22 @@ public class Household extends Agent implements IShareOwner {
 					GoodType.LABOURHOUR);
 
 			// if not retired
-			if (Household.this.ageInDays < Household.this.RETIREMENT_AGE_IN_DAYS) {
+			if (Household.this.ageInDays < ConfigurationUtil.HouseholdConfig
+					.getRetirementAgeInDays()) {
 				/*
 				 * offer labour hours
 				 */
-				Household.this.pricingBehaviour.setNewPrice();
 				double amountOfLabourHours = PropertyRegister.getInstance()
 						.getBalance(Household.this, GoodType.LABOURHOUR);
-				double price = Household.this.pricingBehaviour
-						.getCurrentPrice();
-				MarketFactory.getInstance()
-						.placeSettlementSellingOffer(GoodType.LABOURHOUR,
-								Household.this,
-								Household.this.transactionsBankAccount,
-								amountOfLabourHours, price,
-								new SettlementMarketEvent());
+				double prices[] = Household.this.pricingBehaviour
+						.getCurrentPriceArray();
+				for (double price : prices) {
+					MarketFactory.getInstance().placeSettlementSellingOffer(
+							GoodType.LABOURHOUR, Household.this,
+							Household.this.transactionsBankAccount,
+							amountOfLabourHours / prices.length, price,
+							new SettlementMarketEvent());
+				}
 				Household.this.pricingBehaviour
 						.registerOfferedAmount(amountOfLabourHours);
 			}
@@ -619,7 +607,6 @@ public class Household extends Agent implements IShareOwner {
 	}
 
 	protected class LabourPower implements Refreshable {
-		protected final int NUMBER_OF_DAILY_LABOUR_HOURS = 16;
 
 		public double getNumberOfLabourHoursAvailable() {
 			return PropertyRegister.getInstance().getBalance(Household.this,
@@ -642,11 +629,10 @@ public class Household extends Agent implements IShareOwner {
 		public void refresh() {
 			exhaust();
 			PropertyRegister.getInstance().incrementGoodTypeAmount(
-					Household.this, GoodType.LABOURHOUR,
-					this.NUMBER_OF_DAILY_LABOUR_HOURS);
-			Log.household_LabourHourCapacity(Household.this,
-					Household.this.primaryCurrency,
-					this.NUMBER_OF_DAILY_LABOUR_HOURS);
+					Household.this,
+					GoodType.LABOURHOUR,
+					ConfigurationUtil.HouseholdConfig
+							.getNumberOfLabourHoursPerDay());
 		}
 	}
 

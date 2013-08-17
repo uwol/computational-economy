@@ -83,6 +83,11 @@ public class ConfigurationUtil {
 					.getProperty("household.numberPerCurrency"));
 		}
 
+		public static int getNumberOfLabourHoursPerDay() {
+			return Integer.parseInt(configFile
+					.getProperty("household.numberOfLabourHoursPerDay"));
+		}
+
 		public static int getLifespanInDays() {
 			return Integer.parseInt(configFile
 					.getProperty("household.lifespanInDays"));
@@ -120,6 +125,11 @@ public class ConfigurationUtil {
 			return Double
 					.parseDouble(configFile
 							.getProperty("pricingBehaviour.defaultPriceChangeIncrement"));
+		}
+
+		public static int getDefaultNumberOfPrices() {
+			return Integer.parseInt(configFile
+					.getProperty("pricingBehaviour.defaultNumberOfPrices"));
 		}
 	}
 

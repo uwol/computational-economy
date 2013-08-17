@@ -59,10 +59,6 @@ import compecon.nature.materia.GoodType;
 public class Trader extends JointStockCompany {
 
 	@Transient
-	protected final double ARBITRAGE_MARGIN = ConfigurationUtil.TraderConfig
-			.getArbitrageMargin();
-
-	@Transient
 	protected Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
 
 	@Transient
@@ -268,9 +264,12 @@ public class Trader extends JointStockCompany {
 							double importPriceOfGoodTypeInLocalCurrency = priceOfGoodTypeInForeignCurrency
 									* priceOfForeignCurrencyInLocalCurrency;
 
-							if (MathUtil.greater(priceOfGoodTypeInLocalCurrency
-									/ (1 + ARBITRAGE_MARGIN),
-									importPriceOfGoodTypeInLocalCurrency)) {
+							if (MathUtil
+									.greater(
+											priceOfGoodTypeInLocalCurrency
+													/ (1 + ConfigurationUtil.TraderConfig
+															.getArbitrageMargin()),
+											importPriceOfGoodTypeInLocalCurrency)) {
 
 								if (Log.isAgentSelectedByClient(Trader.this))
 									Log.log(Trader.this,
@@ -369,20 +368,18 @@ public class Trader extends JointStockCompany {
 				GoodType goodType = entry.getKey();
 				PricingBehaviour pricingBehaviour = entry.getValue();
 
-				pricingBehaviour.setNewPrice();
 				MarketFactory.getInstance().removeAllSellingOffers(Trader.this,
 						Trader.this.primaryCurrency, goodType);
 				double amount = PropertyRegister.getInstance().getBalance(
 						Trader.this, goodType);
-				MarketFactory.getInstance()
-						.placeSettlementSellingOffer(
-								goodType,
-								Trader.this,
-								Trader.this.transactionsBankAccount,
-								amount,
-								Trader.this.goodTypePricingBehaviours.get(
-										goodType).getCurrentPrice(),
-								new SettlementMarketEvent());
+				double[] prices = pricingBehaviour.getCurrentPriceArray();
+				for (double price : prices) {
+					MarketFactory.getInstance().placeSettlementSellingOffer(
+							goodType, Trader.this,
+							Trader.this.transactionsBankAccount,
+							amount / prices.length, price,
+							new SettlementMarketEvent());
+				}
 				Trader.this.goodTypePricingBehaviours.get(goodType)
 						.registerOfferedAmount(amount);
 			}
