@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.math.intertemporal.consumption;
+package compecon.math.intertemporal;
 
 import java.util.Map;
 

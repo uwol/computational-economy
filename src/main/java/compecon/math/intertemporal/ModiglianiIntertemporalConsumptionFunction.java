@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.math.intertemporal.consumption;
+package compecon.math.intertemporal;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import compecon.math.intertemporal.consumption.IrvingFisherIntertemporalConsumptionFunction.Period;
+import compecon.math.intertemporal.IrvingFisherIntertemporalConsumptionFunction.Period;
 
 public class ModiglianiIntertemporalConsumptionFunction implements
 		IntertemporalConsumptionFunction {

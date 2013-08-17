@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.math;
+package compecon.math.utility;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,7 +29,7 @@ import org.junit.Test;
 import compecon.materia.GoodType;
 import compecon.math.utility.CobbDouglasUtilityFunction;
 
-public class UtilityFunctionTest {
+public class CobbDouglasUtilityFunctionTest {
 
 	public final double epsilon = 0.001;
 

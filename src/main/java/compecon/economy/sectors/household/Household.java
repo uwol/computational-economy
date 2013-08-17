@@ -53,8 +53,8 @@ import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 import compecon.materia.Refreshable;
-import compecon.math.intertemporal.consumption.IntertemporalConsumptionFunction;
-import compecon.math.intertemporal.consumption.IrvingFisherIntertemporalConsumptionFunction.Period;
+import compecon.math.intertemporal.IntertemporalConsumptionFunction;
+import compecon.math.intertemporal.IrvingFisherIntertemporalConsumptionFunction.Period;
 import compecon.math.utility.IUtilityFunction;
 
 /**

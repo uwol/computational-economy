@@ -27,33 +27,26 @@ import java.util.Map;
 import org.junit.Test;
 
 import compecon.materia.GoodType;
-import compecon.math.CobbDouglasFunction;
 
-public class FunctionTest {
+public class CobbDouglasFunctionTest {
 
 	final double epsilon = 0.001;
 
 	@Test
-	public void calculateOutput() {
-
+	public void calculateProductionOutputForGoodsWithRegularPrices() {
 		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
 		prices.put(GoodType.COAL, Double.NaN);
 		prices.put(GoodType.KILOWATT, 1.0);
 		prices.put(GoodType.WHEAT, 2.0);
 		double budget = 10;
 
-		/*
-		 * Cobb-Douglas with preferences for regular goods
-		 */
 		Map<GoodType, Double> preferences1 = new HashMap<GoodType, Double>();
 		preferences1.put(GoodType.KILOWATT, 0.4);
 		preferences1.put(GoodType.WHEAT, 0.6);
 		CobbDouglasFunction<GoodType> cobbDouglasFunction1 = new CobbDouglasFunction<GoodType>(
 				preferences1, 1);
 
-		Map<GoodType, Double> amount;
-
-		amount = cobbDouglasFunction1
+		Map<GoodType, Double> amount = cobbDouglasFunction1
 				.calculateOutputMaximizingInputsUnderBudgetRestriction(prices,
 						budget);
 		assertEquals(4., amount.get(GoodType.KILOWATT), epsilon);
@@ -64,10 +57,16 @@ public class FunctionTest {
 						prices, budget);
 		assertEquals(4., amount.get(GoodType.KILOWATT), epsilon);
 		assertEquals(3., amount.get(GoodType.WHEAT), epsilon);
+	}
 
-		/*
-		 * Cobb-Douglas with preferences for goods with NaN prices
-		 */
+	@Test
+	public void calculateProductionOutputForGoodsWithNaNPrices() {
+		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
+		prices.put(GoodType.COAL, Double.NaN);
+		prices.put(GoodType.KILOWATT, 1.0);
+		prices.put(GoodType.WHEAT, 2.0);
+		double budget = 10;
+
 		Map<GoodType, Double> preferences2 = new HashMap<GoodType, Double>();
 		preferences2.put(GoodType.COAL, 0.1);
 		preferences2.put(GoodType.KILOWATT, 0.3);
@@ -75,7 +74,7 @@ public class FunctionTest {
 		CobbDouglasFunction<GoodType> cobbDouglasFunction2 = new CobbDouglasFunction<GoodType>(
 				preferences2, 1);
 
-		amount = cobbDouglasFunction2
+		Map<GoodType, Double> amount = cobbDouglasFunction2
 				.calculateOutputMaximizingInputsUnderBudgetRestriction(prices,
 						budget);
 		assertEquals(0., amount.get(GoodType.COAL), epsilon);

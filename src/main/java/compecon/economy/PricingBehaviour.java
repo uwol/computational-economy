@@ -186,6 +186,9 @@ public class PricingBehaviour {
 		return this.prices_InPeriods[0];
 	}
 
+	/**
+	 * prices encompassing the current price, used for price differentiation.
+	 */
 	public double[] getCurrentPriceArray() {
 		int numberOfPrices = ConfigurationUtil.PricingBehaviourConfig
 				.getDefaultNumberOfPrices();
