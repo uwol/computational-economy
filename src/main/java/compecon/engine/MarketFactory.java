@@ -19,7 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine;
 
-import compecon.culture.markets.SettlementMarket;
+import compecon.economy.markets.SettlementMarket;
 
 public class MarketFactory {
 	private static SettlementMarket market = new SettlementMarket();

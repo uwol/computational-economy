@@ -19,14 +19,14 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.jmx.model;
 
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.jmx.model.generic.CurrenciesPeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.jmx.model.generic.DistributionModel;
 import compecon.engine.jmx.model.generic.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.jmx.model.generic.PeriodDataPercentageTimeSeriesModel;
 import compecon.engine.jmx.model.generic.PeriodDataQuotientTimeSeriesModel;
 import compecon.engine.jmx.model.generic.TimeSeriesModel;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class ModelRegistry {
 

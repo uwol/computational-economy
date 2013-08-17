@@ -27,23 +27,23 @@ import java.util.Map;
 import java.util.Set;
 
 import compecon.Simulation;
-import compecon.culture.sectors.financial.CentralBank;
-import compecon.culture.sectors.financial.CreditBank;
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
-import compecon.culture.sectors.industry.Factory;
-import compecon.culture.sectors.state.State;
-import compecon.culture.sectors.trading.Trader;
+import compecon.economy.sectors.financial.CentralBank;
+import compecon.economy.sectors.financial.CreditBank;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
+import compecon.economy.sectors.industry.Factory;
+import compecon.economy.sectors.state.State;
+import compecon.economy.sectors.trading.Trader;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.HibernateUtil;
-import compecon.nature.materia.GoodType;
-import compecon.nature.materia.InputOutputModel;
-import compecon.nature.math.intertemporal.consumption.IntertemporalConsumptionFunction;
-import compecon.nature.math.intertemporal.consumption.ModiglianiIntertemporalConsumptionFunction;
-import compecon.nature.math.production.IProductionFunction;
-import compecon.nature.math.utility.CobbDouglasUtilityFunction;
-import compecon.nature.math.utility.IUtilityFunction;
+import compecon.materia.GoodType;
+import compecon.materia.InputOutputModel;
+import compecon.math.intertemporal.consumption.IntertemporalConsumptionFunction;
+import compecon.math.intertemporal.consumption.ModiglianiIntertemporalConsumptionFunction;
+import compecon.math.production.IProductionFunction;
+import compecon.math.utility.CobbDouglasUtilityFunction;
+import compecon.math.utility.IUtilityFunction;
 
 public class AgentFactory {
 

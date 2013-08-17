@@ -32,15 +32,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.generic.PeriodDataAccumulator;
 import compecon.engine.jmx.model.generic.PeriodDataAccumulatorSet;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class NationalAccountsPanel extends JPanel {
 

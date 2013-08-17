@@ -19,12 +19,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine;
 
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.Property;
-import compecon.culture.sectors.state.law.security.debt.FixedRateBond;
-import compecon.culture.sectors.state.law.security.equity.JointStockCompany;
-import compecon.culture.sectors.state.law.security.equity.Share;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.property.Property;
+import compecon.economy.sectors.state.law.security.debt.FixedRateBond;
+import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
+import compecon.economy.sectors.state.law.security.equity.Share;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 

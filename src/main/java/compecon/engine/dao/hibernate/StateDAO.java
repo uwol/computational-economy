@@ -21,8 +21,8 @@ package compecon.engine.dao.hibernate;
 
 import org.hibernate.criterion.Restrictions;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.State;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.State;
 import compecon.engine.dao.DAOFactory.IStateDAO;
 
 public class StateDAO extends HibernateDAO<State> implements IStateDAO {

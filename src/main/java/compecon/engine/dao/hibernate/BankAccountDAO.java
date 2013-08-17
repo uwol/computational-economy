@@ -21,9 +21,9 @@ package compecon.engine.dao.hibernate;
 
 import java.util.List;
 
-import compecon.culture.sectors.financial.Bank;
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Bank;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IBankAccountDAO;
 

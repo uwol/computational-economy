@@ -21,8 +21,8 @@ package compecon.engine.dao.inmemory;
 
 import java.util.List;
 
-import compecon.culture.sectors.financial.CreditBank;
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.CreditBank;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory.ICreditBankDAO;
 
 public class CreditBankDAO extends CurrencyIndexedInMemoryDAO<CreditBank>

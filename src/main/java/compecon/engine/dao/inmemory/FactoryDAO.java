@@ -21,8 +21,8 @@ package compecon.engine.dao.inmemory;
 
 import java.util.List;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.industry.Factory;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.industry.Factory;
 import compecon.engine.dao.DAOFactory.IFactoryDAO;
 
 public class FactoryDAO extends CurrencyIndexedInMemoryDAO<Factory> implements

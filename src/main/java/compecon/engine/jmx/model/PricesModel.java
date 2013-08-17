@@ -24,11 +24,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class PricesModel extends Model {
 

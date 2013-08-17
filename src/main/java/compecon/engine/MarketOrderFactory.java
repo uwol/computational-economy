@@ -19,13 +19,13 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine;
 
-import compecon.culture.markets.ordertypes.MarketOrder;
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.Property;
+import compecon.economy.markets.ordertypes.MarketOrder;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.property.Property;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class MarketOrderFactory {
 	public static MarketOrder newInstanceGoodTypeMarketOrder(GoodType goodType,

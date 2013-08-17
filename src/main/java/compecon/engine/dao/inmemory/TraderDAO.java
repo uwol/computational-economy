@@ -21,8 +21,8 @@ package compecon.engine.dao.inmemory;
 
 import java.util.List;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.trading.Trader;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.trading.Trader;
 import compecon.engine.dao.DAOFactory.ITraderDAO;
 
 public class TraderDAO extends CurrencyIndexedInMemoryDAO<Trader> implements

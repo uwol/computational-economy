@@ -23,13 +23,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import compecon.culture.sectors.financial.Bank;
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.economy.sectors.financial.Bank;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.model.generic.PeriodDataAccumulatorTimeSeriesModel;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class BalanceSheetsModel extends Model {
 

@@ -22,7 +22,7 @@ package compecon.engine.dao.inmemory;
 import java.util.ArrayList;
 import java.util.List;
 
-import compecon.culture.sectors.state.law.property.GoodTypeOwnership;
+import compecon.economy.sectors.state.law.property.GoodTypeOwnership;
 import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IGoodTypeOwnershipDAO;
 

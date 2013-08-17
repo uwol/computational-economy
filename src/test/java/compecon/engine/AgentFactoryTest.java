@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import compecon.CompEconTestSupport;
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory;
 
 public class AgentFactoryTest extends CompEconTestSupport {

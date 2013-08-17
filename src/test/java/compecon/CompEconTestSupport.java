@@ -19,16 +19,16 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon;
 
-import compecon.culture.sectors.financial.CentralBank;
-import compecon.culture.sectors.financial.CreditBank;
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
-import compecon.culture.sectors.industry.Factory;
-import compecon.culture.sectors.trading.Trader;
+import compecon.economy.sectors.financial.CentralBank;
+import compecon.economy.sectors.financial.CreditBank;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
+import compecon.economy.sectors.industry.Factory;
+import compecon.economy.sectors.trading.Trader;
 import compecon.engine.AgentFactory;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public abstract class CompEconTestSupport {
 	protected void setUp() {

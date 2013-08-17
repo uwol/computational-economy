@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Currency;
 
 public class CurrencyIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 

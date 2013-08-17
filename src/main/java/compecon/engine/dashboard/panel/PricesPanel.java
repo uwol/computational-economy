@@ -32,12 +32,12 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultHighLowDataset;
 
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.PricesModel;
 import compecon.engine.jmx.model.PricesModel.PriceModel;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class PricesPanel extends JPanel implements IModelListener {
 

@@ -33,7 +33,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import compecon.Simulation;
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;

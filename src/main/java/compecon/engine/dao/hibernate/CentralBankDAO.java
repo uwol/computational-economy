@@ -21,8 +21,8 @@ package compecon.engine.dao.hibernate;
 
 import org.hibernate.criterion.Restrictions;
 
-import compecon.culture.sectors.financial.CentralBank;
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.CentralBank;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory.ICentralBankDAO;
 
 public class CentralBankDAO extends HibernateDAO<CentralBank> implements

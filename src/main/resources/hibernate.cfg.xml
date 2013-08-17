@@ -31,24 +31,24 @@
 		<!-- <property name="hibernate.jdbc.fetch_size">100</property> -->
 		<!-- <property name="hibernate.jdbc.batch_size">100</property> -->		
 
-		<mapping class="compecon.culture.markets.ordertypes.MarketOrder" />
-		<mapping class="compecon.culture.sectors.financial.Currency" />
-		<mapping class="compecon.culture.sectors.financial.Bank" />
-		<mapping class="compecon.culture.sectors.financial.BankAccount" />
-		<mapping class="compecon.culture.sectors.financial.CreditBank" />
-		<mapping class="compecon.culture.sectors.financial.CentralBank" />
-		<mapping class="compecon.culture.sectors.household.Household" />
-		<mapping class="compecon.culture.sectors.industry.Factory" />
-		<mapping class="compecon.culture.sectors.state.State" />
-		<mapping class="compecon.culture.sectors.state.law.property.GoodTypeOwnership" />
-		<mapping class="compecon.culture.sectors.state.law.property.Property" />
-		<mapping class="compecon.culture.sectors.state.law.security.debt.Bond" />
-		<mapping class="compecon.culture.sectors.state.law.security.debt.FixedRateBond" />
-		<mapping class="compecon.culture.sectors.state.law.security.debt.ZeroCouponBond" />
-		<mapping class="compecon.culture.sectors.state.law.security.equity.JointStockCompany" />
-		<mapping class="compecon.culture.sectors.state.law.security.equity.Share" />
-		<mapping class="compecon.culture.sectors.trading.Trader" />
+		<mapping class="compecon.economy.markets.ordertypes.MarketOrder" />
+		<mapping class="compecon.economy.sectors.financial.Currency" />
+		<mapping class="compecon.economy.sectors.financial.Bank" />
+		<mapping class="compecon.economy.sectors.financial.BankAccount" />
+		<mapping class="compecon.economy.sectors.financial.CreditBank" />
+		<mapping class="compecon.economy.sectors.financial.CentralBank" />
+		<mapping class="compecon.economy.sectors.household.Household" />
+		<mapping class="compecon.economy.sectors.industry.Factory" />
+		<mapping class="compecon.economy.sectors.state.State" />
+		<mapping class="compecon.economy.sectors.state.law.property.GoodTypeOwnership" />
+		<mapping class="compecon.economy.sectors.state.law.property.Property" />
+		<mapping class="compecon.economy.sectors.state.law.security.debt.Bond" />
+		<mapping class="compecon.economy.sectors.state.law.security.debt.FixedRateBond" />
+		<mapping class="compecon.economy.sectors.state.law.security.debt.ZeroCouponBond" />
+		<mapping class="compecon.economy.sectors.state.law.security.equity.JointStockCompany" />
+		<mapping class="compecon.economy.sectors.state.law.security.equity.Share" />
+		<mapping class="compecon.economy.sectors.trading.Trader" />
 		<mapping class="compecon.engine.Agent" />
-		<mapping class="compecon.nature.materia.GoodType" />
+		<mapping class="compecon.materia.GoodType" />
 	</session-factory>
 </hibernate-configuration>

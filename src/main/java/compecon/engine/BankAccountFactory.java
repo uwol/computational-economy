@@ -20,10 +20,10 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine;
 
 import compecon.Simulation;
-import compecon.culture.sectors.financial.Bank;
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.BankAccount.BankAccountType;
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Bank;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.HibernateUtil;

@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.hibernate.criterion.Restrictions;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.trading.Trader;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.trading.Trader;
 import compecon.engine.dao.DAOFactory.ITraderDAO;
 
 public class TraderDAO extends HibernateDAO<Trader> implements ITraderDAO {

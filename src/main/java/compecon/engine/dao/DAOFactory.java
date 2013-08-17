@@ -22,21 +22,21 @@ package compecon.engine.dao;
 import java.util.Iterator;
 import java.util.List;
 
-import compecon.culture.markets.ordertypes.MarketOrder;
-import compecon.culture.sectors.financial.Bank;
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.CentralBank;
-import compecon.culture.sectors.financial.CreditBank;
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
-import compecon.culture.sectors.industry.Factory;
-import compecon.culture.sectors.state.State;
-import compecon.culture.sectors.state.law.property.GoodTypeOwnership;
-import compecon.culture.sectors.state.law.property.Property;
-import compecon.culture.sectors.trading.Trader;
+import compecon.economy.markets.ordertypes.MarketOrder;
+import compecon.economy.sectors.financial.Bank;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.CentralBank;
+import compecon.economy.sectors.financial.CreditBank;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
+import compecon.economy.sectors.industry.Factory;
+import compecon.economy.sectors.state.State;
+import compecon.economy.sectors.state.law.property.GoodTypeOwnership;
+import compecon.economy.sectors.state.law.property.Property;
+import compecon.economy.sectors.trading.Trader;
 import compecon.engine.Agent;
 import compecon.engine.util.ConfigurationUtil;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class DAOFactory {
 

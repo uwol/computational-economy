@@ -19,8 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.inmemory;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.State;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.State;
 import compecon.engine.dao.DAOFactory.IStateDAO;
 
 public class StateDAO extends InMemoryDAO<State> implements IStateDAO {

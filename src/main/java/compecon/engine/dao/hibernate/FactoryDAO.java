@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.hibernate.criterion.Restrictions;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.industry.Factory;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.industry.Factory;
 import compecon.engine.dao.DAOFactory.IFactoryDAO;
 
 public class FactoryDAO extends HibernateDAO<Factory> implements IFactoryDAO {

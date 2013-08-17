@@ -26,12 +26,12 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import compecon.culture.markets.ordertypes.MarketOrder;
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.property.Property;
+import compecon.economy.markets.ordertypes.MarketOrder;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.property.Property;
 import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IMarketOrderDAO;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 		implements IMarketOrderDAO {

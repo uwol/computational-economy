@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.hibernate.criterion.Restrictions;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
 import compecon.engine.dao.DAOFactory.IHouseholdDAO;
 
 public class HouseholdDAO extends HibernateDAO<Household> implements

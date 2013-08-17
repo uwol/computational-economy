@@ -46,15 +46,15 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.culture.sectors.financial.Bank;
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.BankAccount.BankAccountType;
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.culture.sectors.state.law.property.HardCashRegister;
-import compecon.culture.sectors.state.law.property.Property;
-import compecon.culture.sectors.state.law.property.PropertyRegister;
-import compecon.culture.sectors.state.law.security.debt.Bond;
+import compecon.economy.sectors.financial.Bank;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.economy.sectors.state.law.property.HardCashRegister;
+import compecon.economy.sectors.state.law.property.Property;
+import compecon.economy.sectors.state.law.property.PropertyRegister;
+import compecon.economy.sectors.state.law.security.debt.Bond;
 import compecon.engine.jmx.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;

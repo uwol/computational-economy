@@ -22,7 +22,7 @@ package compecon.engine.jmx.model.generic;
 import java.util.HashMap;
 import java.util.Map;
 
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Currency;
 
 public class CurrenciesPeriodDataAccumulatorTimeSeriesModel<T> {
 

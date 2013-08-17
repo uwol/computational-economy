@@ -21,10 +21,10 @@ package compecon.engine.jmx.model;
 
 import java.util.List;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.industry.Factory;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.industry.Factory;
 import compecon.engine.AgentFactory;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class ControlModel extends Model {
 

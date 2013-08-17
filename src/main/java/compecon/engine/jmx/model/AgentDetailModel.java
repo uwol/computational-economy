@@ -28,13 +28,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.state.law.property.Property;
-import compecon.culture.sectors.state.law.property.PropertyRegister;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.state.law.property.Property;
+import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.jmx.Log;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class AgentDetailModel extends Model {
 

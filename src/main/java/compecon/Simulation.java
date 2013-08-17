@@ -22,8 +22,8 @@ package compecon;
 import java.util.HashSet;
 import java.util.Set;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
 import compecon.engine.AgentFactory;
 import compecon.engine.dashboard.Dashboard;
 import compecon.engine.jmx.JMXRegistration;
@@ -31,7 +31,7 @@ import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.HibernateUtil;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class Simulation {
 

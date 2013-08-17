@@ -23,18 +23,18 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
-import compecon.culture.sectors.industry.Factory;
-import compecon.culture.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
+import compecon.economy.sectors.industry.Factory;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.util.MathUtil;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class Log {
 

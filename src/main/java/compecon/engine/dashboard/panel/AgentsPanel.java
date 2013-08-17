@@ -39,8 +39,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
-import compecon.culture.sectors.financial.BankAccount;
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Agent;
 import compecon.engine.jmx.Log;
 import compecon.engine.jmx.model.AgentDetailModel;
@@ -48,7 +48,7 @@ import compecon.engine.jmx.model.AgentDetailModel.AgentLog;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.util.MathUtil;
-import compecon.nature.materia.GoodType;
+import compecon.materia.GoodType;
 
 public class AgentsPanel extends JPanel {
 

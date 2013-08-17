@@ -26,8 +26,8 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import compecon.culture.sectors.financial.CreditBank;
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.CreditBank;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory.ICreditBankDAO;
 
 public class CreditBankDAO extends HibernateDAO<CreditBank> implements

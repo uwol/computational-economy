@@ -21,8 +21,8 @@ package compecon.engine.dao.inmemory;
 
 import java.util.List;
 
-import compecon.culture.sectors.financial.Currency;
-import compecon.culture.sectors.household.Household;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
 import compecon.engine.dao.DAOFactory.IHouseholdDAO;
 
 public class HouseholdDAO extends CurrencyIndexedInMemoryDAO<Household>

@@ -27,7 +27,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 
-import compecon.culture.sectors.financial.Currency;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry;
 
 public class MoneyPanel extends ChartsPanel {
