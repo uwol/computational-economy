@@ -30,9 +30,9 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.RectangleInsets;
 
-public class ChartsPanel extends JPanel {
+public abstract class AbstractChartsPanel extends JPanel {
 
-	protected void configureChart(JFreeChart chart) {
+	protected static void configureChart(JFreeChart chart) {
 		chart.setBackgroundPaint(Color.white);
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setBackgroundPaint(Color.lightGray);

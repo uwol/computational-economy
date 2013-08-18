@@ -20,32 +20,29 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.dashboard;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.Component;
 import java.awt.Frame;
-import java.awt.GridLayout;
 
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import org.jfree.chart.ChartPanel;
 
 import compecon.engine.dashboard.panel.AgentsPanel;
 import compecon.engine.dashboard.panel.ControlPanel;
 import compecon.engine.dashboard.panel.HouseholdPanel;
 import compecon.engine.dashboard.panel.IndustryPanel;
+import compecon.engine.dashboard.panel.LogPanel;
 import compecon.engine.dashboard.panel.MoneyPanel;
 import compecon.engine.dashboard.panel.NationalAccountsPanel;
-import compecon.engine.dashboard.panel.NumberOfAgentsPanel;
 import compecon.engine.dashboard.panel.PricesPanel;
 
 public class Dashboard extends JFrame {
 	private static Dashboard instance;
 
 	protected final JTabbedPane jTabbedPane;
+
+	protected final AgentsPanel agentsPanel = new AgentsPanel();
 
 	protected final HouseholdPanel householdPanel = new HouseholdPanel();
 
@@ -57,9 +54,7 @@ public class Dashboard extends JFrame {
 
 	protected final NationalAccountsPanel nationalAccountsPanel = new NationalAccountsPanel();
 
-	protected final AgentsPanel agentsPanel = new AgentsPanel();
-
-	protected final JPanel borderPanel;
+	protected final LogPanel logPanel = new LogPanel();
 
 	private Dashboard() {
 
@@ -70,42 +65,36 @@ public class Dashboard extends JFrame {
 		setTitle("Computational Economy");
 
 		/*
-		 * bottom panel
+		 * border panel
 		 */
-		JPanel bottomPanel = new JPanel(new GridLayout(0, 2));
-		bottomPanel.setPreferredSize(new Dimension(-1, 150));
-		bottomPanel.add(new NumberOfAgentsPanel());
-
-		ChartPanel utilityChart = this.moneyPanel.createUtilityChart();
-		utilityChart.setPreferredSize(new Dimension(-1, 150));
-		bottomPanel.add(utilityChart);
-
-		add(bottomPanel, BorderLayout.SOUTH);
+		this.add(new ControlPanel(), BorderLayout.WEST);
 
 		/*
 		 * tabbed content panel
 		 */
 		this.jTabbedPane = new JTabbedPane();
+		this.jTabbedPane.addTab("Agents", this.agentsPanel);
 		this.jTabbedPane.addTab("Households", this.householdPanel);
 		this.jTabbedPane.addTab("Industries", this.industryPanel);
 		this.jTabbedPane.addTab("Money", this.moneyPanel);
 		this.jTabbedPane.addTab("Prices", this.pricesPanel);
 		this.jTabbedPane.addTab("National Accounts", nationalAccountsPanel);
-		this.jTabbedPane.addTab("Agents", this.agentsPanel);
+		this.jTabbedPane.addTab("Logs", this.logPanel);
 
 		jTabbedPane.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
 					JTabbedPane pane = (JTabbedPane) e.getSource();
+					Component selectecComponent = pane.getSelectedComponent();
 
-					if (pane.getSelectedComponent().equals(
-							Dashboard.this.agentsPanel))
-						Dashboard.this.agentsPanel.setRefresh(true);
+					// log panel
+					if (selectecComponent.equals(Dashboard.this.logPanel))
+						Dashboard.this.logPanel.setRefresh(true);
 					else
-						Dashboard.this.agentsPanel.setRefresh(false);
+						Dashboard.this.logPanel.setRefresh(false);
 
-					if (pane.getSelectedComponent().equals(
-							Dashboard.this.pricesPanel)) {
+					// prices panel
+					if (selectecComponent.equals(Dashboard.this.pricesPanel)) {
 						Dashboard.this.pricesPanel.setRefresh(true);
 						Dashboard.this.pricesPanel.redrawPriceCharts();
 					} else
@@ -115,11 +104,6 @@ public class Dashboard extends JFrame {
 		});
 
 		add(this.jTabbedPane, BorderLayout.CENTER);
-
-		borderPanel = new JPanel();
-		borderPanel.setLayout(new BoxLayout(borderPanel, BoxLayout.PAGE_AXIS));
-		borderPanel.add(new ControlPanel());
-		this.add(borderPanel, BorderLayout.WEST);
 
 		/*
 		 * Pack

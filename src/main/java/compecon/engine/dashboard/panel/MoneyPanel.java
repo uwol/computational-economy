@@ -30,7 +30,7 @@ import org.jfree.data.xy.XYDataset;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry;
 
-public class MoneyPanel extends ChartsPanel {
+public class MoneyPanel extends AbstractChartsPanel {
 
 	public MoneyPanel() {
 		this.setLayout(new GridLayout(0, 2));
@@ -40,7 +40,7 @@ public class MoneyPanel extends ChartsPanel {
 		this.add(createMoneySupplyPanel());
 	}
 
-	private ChartPanel createKeyInterestRatesPanel() {
+	protected ChartPanel createKeyInterestRatesPanel() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : ModelRegistry.getKeyInterestRateModel()
@@ -51,11 +51,11 @@ public class MoneyPanel extends ChartsPanel {
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Key Interest Rate", "Date", "Key Interest Rate",
 				timeSeriesCollection, true, true, false);
-		this.configureChart(chart);
+		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
-	private ChartPanel createPriceIndicesPanel() {
+	protected ChartPanel createPriceIndicesPanel() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : ModelRegistry.getPriceIndexModel().getTypes())
@@ -64,11 +64,11 @@ public class MoneyPanel extends ChartsPanel {
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Price Index",
 				"Date", "Price Index", timeSeriesCollection, true, true, false);
-		this.configureChart(chart);
+		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
-	private ChartPanel createMoneySupplyPanel() {
+	protected ChartPanel createMoneySupplyPanel() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : ModelRegistry.getMoneySupplyM0Model()
@@ -89,21 +89,7 @@ public class MoneyPanel extends ChartsPanel {
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Money Supply to Non-Banks", "Date", "Money Supply",
 				(XYDataset) timeSeriesCollection, true, true, false);
-		this.configureChart(chart);
-		return new ChartPanel(chart);
-	}
-
-	public ChartPanel createUtilityChart() {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-
-		for (Currency currency : ModelRegistry.getUtilityModel().getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry.getUtilityModel()
-					.getTimeSeries(currency));
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart("Utility",
-				"Date", "Total Utility", (XYDataset) timeSeriesCollection,
-				true, true, false);
-		this.configureChart(chart);
+		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 }

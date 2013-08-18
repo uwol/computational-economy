@@ -131,6 +131,11 @@ public class ConfigurationUtil {
 			return Integer.parseInt(configFile
 					.getProperty("pricingBehaviour.defaultNumberOfPrices"));
 		}
+
+		public static double getDefaultInitialPrice() {
+			return Double.parseDouble(configFile
+					.getProperty("pricingBehaviour.defaultInitialPrice"));
+		}
 	}
 
 	public static class TimeSystemConfig {

@@ -19,6 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dashboard.panel;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -44,15 +45,22 @@ public class ControlPanel extends JPanel {
 
 	JButton singleStepButton;
 
-	JTabbedPane economicSectorsPane = new JTabbedPane();
-
 	public ControlPanel() {
-
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
-		/*
-		 * speed slider
-		 */
+		this.setPreferredSize(new Dimension(200, -1));
+
+		this.add(createSpeedSliderPanel());
+
+		this.add(new JSeparator(SwingConstants.HORIZONTAL));
+
+		this.add(createEconomicSectorsPane());
+
+	}
+
+	protected JPanel createSpeedSliderPanel() {
+		JPanel speedSliderPanel = new JPanel();
+
 		JSlider millisecondsToSleepPerHourType = new JSlider(
 				JSlider.HORIZONTAL, 0, SLIDER_MAX, SLIDER_MAX);
 		millisecondsToSleepPerHourType.addChangeListener(new ChangeListener() {
@@ -79,8 +87,8 @@ public class ControlPanel extends JPanel {
 		millisecondsToSleepPerHourType.setMajorTickSpacing(10);
 		millisecondsToSleepPerHourType.setPaintTicks(true);
 		millisecondsToSleepPerHourType.setPaintLabels(true);
-		this.add(millisecondsToSleepPerHourType);
 
+		speedSliderPanel.add(millisecondsToSleepPerHourType);
 		singleStepButton = new JButton("Step");
 		singleStepButton.setEnabled(false);
 		singleStepButton.addActionListener(new ActionListener() {
@@ -88,19 +96,16 @@ public class ControlPanel extends JPanel {
 				Simulation.setSingleStep();
 			}
 		});
-		this.add(singleStepButton);
+		speedSliderPanel.add(singleStepButton);
+		return speedSliderPanel;
+	}
 
-		this.add(new JSeparator(SwingConstants.HORIZONTAL));
-
-		/*
-		 * tabbed panel for sectors
-		 */
-
-		this.add(this.economicSectorsPane);
+	protected JTabbedPane createEconomicSectorsPane() {
+		JTabbedPane economicSectorsPane = new JTabbedPane();
 
 		for (final Currency currency : Currency.values()) {
 			JPanel economicSectorPane = new JPanel();
-			this.economicSectorsPane.addTab(currency.getIso4217Code(),
+			economicSectorsPane.addTab(currency.getIso4217Code(),
 					economicSectorPane);
 			economicSectorPane.setLayout(new BoxLayout(economicSectorPane,
 					BoxLayout.PAGE_AXIS));
@@ -181,5 +186,7 @@ public class ControlPanel extends JPanel {
 			});
 			economicSectorPane.add(initCarFactoryButton);
 		}
+		return economicSectorsPane;
 	}
+
 }

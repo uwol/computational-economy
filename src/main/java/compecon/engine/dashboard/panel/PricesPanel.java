@@ -39,7 +39,7 @@ import compecon.engine.jmx.model.PricesModel;
 import compecon.engine.jmx.model.PricesModel.PriceModel;
 import compecon.materia.GoodType;
 
-public class PricesPanel extends JPanel implements IModelListener {
+public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 
 	protected boolean refresh = false;
 
@@ -94,14 +94,14 @@ public class PricesPanel extends JPanel implements IModelListener {
 		this.updateUI();
 	}
 
-	private JFreeChart createPriceChart(Currency currency, GoodType goodType) {
+	protected JFreeChart createPriceChart(Currency currency, GoodType goodType) {
 		return ChartFactory.createCandlestickChart("Price Chart for "
 				+ goodType, "Time", "Price in " + currency.getIso4217Code(),
 				PricesPanel.this.getDefaultHighLowDataset(currency, goodType),
 				false);
 	}
 
-	private JFreeChart createPriceChart(Currency currency,
+	protected JFreeChart createPriceChart(Currency currency,
 			Currency commodityCurrency) {
 		return ChartFactory.createCandlestickChart("Price Chart for "
 				+ commodityCurrency, "Time",
@@ -110,7 +110,7 @@ public class PricesPanel extends JPanel implements IModelListener {
 				false);
 	}
 
-	private ChartPanel createPriceChartPanel(Currency currency,
+	protected ChartPanel createPriceChartPanel(Currency currency,
 			GoodType goodType) {
 		ChartPanel chartPanel = new ChartPanel(createPriceChart(currency,
 				goodType));
@@ -119,7 +119,7 @@ public class PricesPanel extends JPanel implements IModelListener {
 		return chartPanel;
 	}
 
-	private ChartPanel createPriceChartPanel(Currency currency,
+	protected ChartPanel createPriceChartPanel(Currency currency,
 			Currency commodityCurrency) {
 		ChartPanel chartPanel = new ChartPanel(createPriceChart(currency,
 				commodityCurrency));
@@ -167,9 +167,10 @@ public class PricesPanel extends JPanel implements IModelListener {
 	}
 
 	/**
-	 * disables / enables redrawing of price panels for performance reasons
+	 * disables / enables redrawing of panels for performance reasons
 	 */
 	public void setRefresh(boolean refresh) {
 		this.refresh = refresh;
 	}
+
 }

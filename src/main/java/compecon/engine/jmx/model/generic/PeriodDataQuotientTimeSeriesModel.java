@@ -21,10 +21,12 @@ package compecon.engine.jmx.model.generic;
 
 import org.jfree.data.time.Day;
 
+import compecon.engine.jmx.model.generic.accumulator.PeriodDataAccumulator;
+import compecon.engine.jmx.model.generic.accumulator.PeriodDataAccumulatorSet;
 import compecon.engine.time.TimeSystem;
 
 public class PeriodDataQuotientTimeSeriesModel<T> extends
-		PeriodDataAbstractTimeSeriesModel<T> {
+		PeriodDataTimeSeriesModel<T> {
 
 	protected final PeriodDataAccumulatorSet<T> periodDataDividendAccumulatorSet;
 

@@ -36,14 +36,9 @@ public class ModelRegistry {
 
 	protected final static ControlModel controlModel = new ControlModel();
 
+	// agents
+
 	protected final static NumberOfAgentsModel numberOfAgentsModel = new NumberOfAgentsModel();
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " utility");
-
-	// prices
-
-	protected final static PricesModel pricesModel = new PricesModel();
 
 	// households: consumption and saving
 
@@ -74,6 +69,9 @@ public class ModelRegistry {
 	protected final static PeriodDataQuotientTimeSeriesModel<Currency> savingRateModel = new PeriodDataQuotientTimeSeriesModel<Currency>(
 			Currency.values(), " saving rate");
 
+	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
+			Currency.values(), " utility");
+
 	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> wageModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
 			Currency.values(), " wage");
 
@@ -84,6 +82,10 @@ public class ModelRegistry {
 
 	protected final static CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType> capacityModel = new CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType>(
 			GoodType.values(), " cap.");
+
+	// prices
+
+	protected final static PricesModel pricesModel = new PricesModel();
 
 	// money
 
@@ -136,6 +138,7 @@ public class ModelRegistry {
 		moneySupplyM0Model.nextPeriod();
 		moneySupplyM1Model.nextPeriod();
 		moneySupplyM2Model.nextPeriod();
+		numberOfAgentsModel.nextPeriod();
 		pricesModel.nextPeriod();
 		savingModel.nextPeriod();
 		savingRateModel.nextPeriod();

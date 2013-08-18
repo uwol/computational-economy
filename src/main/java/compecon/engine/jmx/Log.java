@@ -91,7 +91,7 @@ public class Log {
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " constructed");
 		ModelRegistry.getNumberOfAgentsModel().agent_onConstruct(
-				agent.getClass());
+				agent.getPrimaryCurrency(), agent.getClass());
 	}
 
 	public static void agent_onDeconstruct(Agent agent) {
@@ -99,7 +99,7 @@ public class Log {
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " deconstructed");
 		ModelRegistry.getNumberOfAgentsModel().agent_onDeconstruct(
-				agent.getClass());
+				agent.getPrimaryCurrency(), agent.getClass());
 	}
 
 	public static void agent_onPublishBalanceSheet(Agent agent,

@@ -41,7 +41,9 @@ public class PricingBehaviour {
 
 	protected boolean periodDataInitialized = false;
 
-	protected final double priceChangeIncrement;
+	protected final double initialPriceChangeIncrement;
+
+	protected double priceChangeIncrement;
 
 	// the decision
 
@@ -63,7 +65,7 @@ public class PricingBehaviour {
 		this.initialPrice = initialPrice;
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.offeredObject = offeredObject;
-		this.priceChangeIncrement = priceChangeIncrement;
+		this.initialPriceChangeIncrement = priceChangeIncrement;
 	}
 
 	public PricingBehaviour(Agent agent, Object offeredObject,
@@ -78,7 +80,8 @@ public class PricingBehaviour {
 			if (!Double.isNaN(initialPrice) && !Double.isInfinite(initialPrice))
 				this.prices_InPeriods[0] = initialPrice;
 			else
-				this.prices_InPeriods[0] = 10;
+				this.prices_InPeriods[0] = ConfigurationUtil.PricingBehaviourConfig
+						.getDefaultInitialPrice();
 
 			this.periodDataInitialized = true;
 		}
@@ -164,14 +167,10 @@ public class PricingBehaviour {
 	}
 
 	protected double calculateHigherPrice(double price) {
+		updatePriceChangeIncrement(true);
 		// if the price is 0, multiplication does not work -> reset price
 		if (MathUtil.lesserEqual(price, 0))
 			return 0.1;
-		/**
-		 * alternative 1.2: would overcompensate
-		 * {@link #calculateLowerPrice(double)} -> prices drift slightly upwards
-		 * -> deflation is more unlikely
-		 */
 		return price * (1 + this.priceChangeIncrement);
 	}
 
@@ -179,7 +178,48 @@ public class PricingBehaviour {
 	 * {@link #calculateHigherPrice(double)}
 	 */
 	protected double calculateLowerPrice(double price) {
+		updatePriceChangeIncrement(false);
 		return price / (1 + this.priceChangeIncrement);
+	}
+
+	protected void updatePriceChangeIncrement(boolean raisingPrice) {
+		if (MathUtil.lesserEqual(this.priceChangeIncrement, 0.0))
+			this.priceChangeIncrement = this.initialPriceChangeIncrement;
+
+		// price will rise after adaption of price increment
+		if (raisingPrice) {
+			// rising steadily since two periods
+			if (MathUtil.greater(this.prices_InPeriods[1],
+					this.prices_InPeriods[2])) {
+				this.priceChangeIncrement = Math.min(
+						this.initialPriceChangeIncrement,
+						this.priceChangeIncrement * 1.1);
+			}
+			// oscillating
+			else if (MathUtil.lesser(this.prices_InPeriods[1],
+					this.prices_InPeriods[2])) {
+				this.priceChangeIncrement = Math.min(
+						this.initialPriceChangeIncrement,
+						this.priceChangeIncrement / 1.1);
+			}
+		}
+		// price will fall after adaption of price increment
+		else {
+			// falling steadily since two periods
+			if (MathUtil.lesser(this.prices_InPeriods[1],
+					this.prices_InPeriods[2])) {
+				this.priceChangeIncrement = Math.min(
+						this.initialPriceChangeIncrement,
+						this.priceChangeIncrement * 1.1);
+			}
+			// oscillating
+			else if (MathUtil.greater(this.prices_InPeriods[1],
+					this.prices_InPeriods[2])) {
+				this.priceChangeIncrement = Math.min(
+						this.initialPriceChangeIncrement,
+						this.priceChangeIncrement / 1.1);
+			}
+		}
 	}
 
 	public double getCurrentPrice() {

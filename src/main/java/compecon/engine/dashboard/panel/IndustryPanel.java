@@ -22,8 +22,6 @@ package compecon.engine.dashboard.panel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -31,59 +29,44 @@ import javax.swing.JTabbedPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.materia.GoodType;
+import compecon.materia.InputOutputModel;
 
-public class IndustryPanel extends ChartsPanel {
-
-	protected final Map<Currency, JPanel> panelsForCurrencies = new HashMap<Currency, JPanel>();
+public class IndustryPanel extends AbstractChartsPanel {
 
 	public IndustryPanel() {
 		this.setLayout(new BorderLayout());
 
-		JTabbedPane jTabbedPane_Industries = new JTabbedPane();
+		JTabbedPane jTabbedPane = new JTabbedPane();
 
 		for (Currency currency : Currency.values()) {
 			JPanel panelForCurrency = new JPanel();
 			panelForCurrency.setLayout(new GridLayout(0, 2));
-			this.panelsForCurrencies.put(currency, panelForCurrency);
-			jTabbedPane_Industries.addTab(currency.getIso4217Code(),
-					panelForCurrency);
+			jTabbedPane.addTab(currency.getIso4217Code(), panelForCurrency);
 
 			panelForCurrency.setLayout(new GridLayout(0, 2));
-
 			panelForCurrency.setBackground(Color.lightGray);
 
-			panelForCurrency.add(createProductionPanel(currency));
 			panelForCurrency.add(createLabourPanel(currency));
 
+			for (GoodType goodType : ModelRegistry
+					.getEffectiveProductionOutputModel(currency).getTypes())
+				if (!goodType.equals(GoodType.LABOURHOUR)) {
+					panelForCurrency.add(createProductionPanel(currency,
+							goodType));
+				}
 		}
 
-		add(jTabbedPane_Industries, BorderLayout.CENTER);
+		add(jTabbedPane, BorderLayout.CENTER);
 	}
 
-	private ChartPanel createProductionPanel(Currency currency) {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-
-		for (GoodType goodType : ModelRegistry
-				.getEffectiveProductionOutputModel(currency).getTypes())
-			if (!goodType.equals(GoodType.LABOURHOUR))
-				timeSeriesCollection.addSeries(ModelRegistry
-						.getEffectiveProductionOutputModel(currency)
-						.getTimeSeries(goodType));
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart("Production",
-				"Date", "Output", (XYDataset) timeSeriesCollection, true, true,
-				false);
-		this.configureChart(chart);
-		return new ChartPanel(chart);
-	}
-
-	private ChartPanel createLabourPanel(Currency currency) {
+	protected ChartPanel createLabourPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		timeSeriesCollection.addSeries(ModelRegistry
@@ -92,10 +75,29 @@ public class IndustryPanel extends ChartsPanel {
 		timeSeriesCollection.addSeries(ModelRegistry.getCapacityModel(currency)
 				.getTimeSeries(GoodType.LABOURHOUR));
 
-		JFreeChart chart = ChartFactory.createTimeSeriesChart("Labour", "Date",
-				"Capacity & Utilization", (XYDataset) timeSeriesCollection,
-				true, true, false);
-		this.configureChart(chart);
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				GoodType.LABOURHOUR.toString() + " Output", "Date",
+				"Capacity & Output", (XYDataset) timeSeriesCollection, true,
+				true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createProductionPanel(Currency currency,
+			GoodType goodType) {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		timeSeriesCollection.addSeries(ModelRegistry
+				.getEffectiveProductionOutputModel(currency).getTimeSeries(
+						goodType));
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				goodType.toString() + " Output", "Date", "Output",
+				(XYDataset) timeSeriesCollection, true, true, false);
+		configureChart(chart);
+		chart.addSubtitle(new TextTitle("Inputs: "
+				+ InputOutputModel.getProductionFunction(goodType)
+						.getInputGoodTypes().toString()));
 		return new ChartPanel(chart);
 	}
 }

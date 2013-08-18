@@ -17,17 +17,23 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.mbean;
+package compecon.engine.jmx.model.generic.accumulator;
 
-public interface JmxAgentsMBean {
+public class PeriodDataAccumulator {
+	double sumPerPeriod = 0;
 
-	public int getNumberOfHouseholds();
+	public void add(double amount) {
+		this.sumPerPeriod += amount;
+	}
 
-	public int getNumberOfFactories();
+	public double getAmount() {
+		return this.sumPerPeriod;
+	}
 
-	public int getNumberOfCreditBanks();
-
-	public int getNumberOfCentralBanks();
-
-	public int getNumberOfStates();
+	/**
+	 * Reset values to zero
+	 */
+	public void reset() {
+		this.sumPerPeriod = 0;
+	}
 }

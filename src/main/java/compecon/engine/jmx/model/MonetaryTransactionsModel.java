@@ -25,7 +25,7 @@ import java.util.Map;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
-import compecon.engine.jmx.model.generic.PeriodDataAccumulatorSet;
+import compecon.engine.jmx.model.generic.accumulator.PeriodDataAccumulatorSet;
 
 public class MonetaryTransactionsModel extends Model {
 

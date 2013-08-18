@@ -30,7 +30,6 @@ import javax.management.ObjectName;
 
 import org.hibernate.jmx.StatisticsService;
 
-import compecon.engine.jmx.mbean.JmxAgents;
 import compecon.engine.jmx.mbean.JmxControl;
 import compecon.engine.util.HibernateUtil;
 
@@ -40,11 +39,6 @@ public class JMXRegistration {
 			NotCompliantMBeanException {
 
 		MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-
-		// agents mbean
-		ObjectName agentsObjectName = new ObjectName("compecon.jmx:type=Agents");
-		JmxAgents agentsMBean = new JmxAgents();
-		mBeanServer.registerMBean(agentsMBean, agentsObjectName);
 
 		// control mbean
 		ObjectName controlObjectName = new ObjectName(

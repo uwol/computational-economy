@@ -40,14 +40,14 @@ import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
 import compecon.engine.jmx.model.generic.DistributionModel.SummaryStatisticalData;
 
-public class HouseholdPanel extends ChartsPanel implements IModelListener {
-
-	protected final Map<Currency, JPanel> panelsForCurrencies = new HashMap<Currency, JPanel>();
+public class HouseholdPanel extends AbstractChartsPanel implements
+		IModelListener {
 
 	protected Map<Currency, JFreeChart> incomeDistributionCharts = new HashMap<Currency, JFreeChart>();
 
@@ -56,19 +56,20 @@ public class HouseholdPanel extends ChartsPanel implements IModelListener {
 
 		this.setLayout(new BorderLayout());
 
-		JTabbedPane jTabbedPane_Households = new JTabbedPane();
+		JTabbedPane jTabbedPane = new JTabbedPane();
 
 		for (Currency currency : Currency.values()) {
 			JPanel panelForCurrency = new JPanel();
 			panelForCurrency.setLayout(new GridLayout(0, 2));
-			this.panelsForCurrencies.put(currency, panelForCurrency);
-			jTabbedPane_Households.addTab(currency.getIso4217Code(),
-					panelForCurrency);
+			jTabbedPane.addTab(currency.getIso4217Code(), panelForCurrency);
 
 			panelForCurrency.setLayout(new GridLayout(0, 2));
 
 			panelForCurrency.setBackground(Color.lightGray);
 
+			panelForCurrency.add(AgentsPanel.createAgentNumberPanel(currency,
+					Household.class));
+			panelForCurrency.add(createUtilityPanel(currency));
 			panelForCurrency.add(createIncomeConsumptionSavingPanel(currency));
 			panelForCurrency.add(createConsumptionSavingRatePanel(currency));
 			panelForCurrency.add(createWageDividendPanel(currency));
@@ -77,8 +78,20 @@ public class HouseholdPanel extends ChartsPanel implements IModelListener {
 			panelForCurrency.add(createLorenzCurvePanel(currency));
 		}
 
-		add(jTabbedPane_Households, BorderLayout.CENTER);
+		add(jTabbedPane, BorderLayout.CENTER);
+	}
 
+	protected ChartPanel createUtilityPanel(Currency currency) {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		timeSeriesCollection.addSeries(ModelRegistry.getUtilityModel()
+				.getTimeSeries(currency));
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart("Utility",
+				"Date", "Total Utility", (XYDataset) timeSeriesCollection,
+				true, true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
 	}
 
 	protected ChartPanel createIncomeConsumptionSavingPanel(Currency currency) {
@@ -94,7 +107,7 @@ public class HouseholdPanel extends ChartsPanel implements IModelListener {
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Consumption & Saving", "Date", "Consumption & Saving",
 				timeSeriesCollection, true, true, false);
-		this.configureChart(chart);
+		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
@@ -110,7 +123,7 @@ public class HouseholdPanel extends ChartsPanel implements IModelListener {
 				"Consumption & Saving Rate", "Date",
 				"Consumption & Saving Rate", timeSeriesCollection, true, true,
 				false);
-		this.configureChart(chart);
+		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
@@ -125,7 +138,7 @@ public class HouseholdPanel extends ChartsPanel implements IModelListener {
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Wage & Dividend", "Date", "Wage & Dividend",
 				timeSeriesCollection, true, true, false);
-		this.configureChart(chart);
+		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
@@ -141,7 +154,7 @@ public class HouseholdPanel extends ChartsPanel implements IModelListener {
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Income Source",
 				"Date", "Income Source", timeSeriesCollection, true, true,
 				false);
-		this.configureChart(chart);
+		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 

@@ -28,7 +28,7 @@ import org.jfree.data.time.TimeSeries;
 
 import compecon.engine.time.TimeSystem;
 
-public abstract class PeriodDataAbstractTimeSeriesModel<T> {
+public class PeriodDataTimeSeriesModel<T> {
 
 	protected final int NUMBER_OF_DAYS = 180;
 
@@ -41,6 +41,7 @@ public abstract class PeriodDataAbstractTimeSeriesModel<T> {
 	}
 
 	public TimeSeries getTimeSeries(T type) {
+		assureTimeSeries(type);
 		return this.timeSeries.get(type);
 	}
 
@@ -62,5 +63,4 @@ public abstract class PeriodDataAbstractTimeSeriesModel<T> {
 		return timeSeries;
 	}
 
-	public abstract void nextPeriod();
 }

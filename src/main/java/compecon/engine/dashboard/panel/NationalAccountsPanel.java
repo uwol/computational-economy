@@ -38,8 +38,8 @@ import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
-import compecon.engine.jmx.model.generic.PeriodDataAccumulator;
-import compecon.engine.jmx.model.generic.PeriodDataAccumulatorSet;
+import compecon.engine.jmx.model.generic.accumulator.PeriodDataAccumulator;
+import compecon.engine.jmx.model.generic.accumulator.PeriodDataAccumulatorSet;
 import compecon.materia.GoodType;
 
 public class NationalAccountsPanel extends JPanel {
