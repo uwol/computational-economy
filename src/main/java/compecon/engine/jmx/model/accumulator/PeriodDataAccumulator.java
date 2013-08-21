@@ -17,28 +17,23 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model;
+package compecon.engine.jmx.model.accumulator;
 
-import java.util.ArrayList;
-import java.util.List;
+public class PeriodDataAccumulator {
+	double sumPerPeriod = 0;
 
-public abstract class Model {
-
-	public interface IModelListener {
-		public void notifyListener();
+	public void add(double amount) {
+		this.sumPerPeriod += amount;
 	}
 
-	protected List<IModelListener> listeners = new ArrayList<IModelListener>();
-
-	protected Model() {
+	public double getAmount() {
+		return this.sumPerPeriod;
 	}
 
-	public void registerListener(IModelListener listener) {
-		this.listeners.add(listener);
-	}
-
-	public void notifyListeners() {
-		for (IModelListener listener : this.listeners)
-			listener.notifyListener();
+	/**
+	 * Reset values to zero
+	 */
+	public void reset() {
+		this.sumPerPeriod = 0;
 	}
 }

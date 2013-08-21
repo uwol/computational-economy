@@ -55,11 +55,10 @@ public class IndustryPanel extends AbstractChartsPanel {
 
 			panelForCurrency.add(createLabourPanel(currency));
 
-			for (GoodType goodType : ModelRegistry
-					.getEffectiveProductionOutputModel(currency).getTypes())
-				if (!goodType.equals(GoodType.LABOURHOUR)) {
+			for (GoodType outputGoodType : GoodType.values())
+				if (!outputGoodType.equals(GoodType.LABOURHOUR)) {
 					panelForCurrency.add(createProductionPanel(currency,
-							goodType));
+							outputGoodType));
 				}
 		}
 
@@ -70,10 +69,10 @@ public class IndustryPanel extends AbstractChartsPanel {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		timeSeriesCollection.addSeries(ModelRegistry
-				.getEffectiveProductionOutputModel(currency).getTimeSeries(
-						GoodType.LABOURHOUR));
-		timeSeriesCollection.addSeries(ModelRegistry.getCapacityModel(currency)
-				.getTimeSeries(GoodType.LABOURHOUR));
+				.getGoodTypeProductionModel(currency, GoodType.LABOURHOUR)
+				.getOutputModel().getTimeSeries());
+		timeSeriesCollection.addSeries(ModelRegistry
+				.getLabourHourCapacityModel(currency).getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				GoodType.LABOURHOUR.toString() + " Output", "Date",
@@ -84,19 +83,25 @@ public class IndustryPanel extends AbstractChartsPanel {
 	}
 
 	protected ChartPanel createProductionPanel(Currency currency,
-			GoodType goodType) {
+			GoodType outputGoodType) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		timeSeriesCollection.addSeries(ModelRegistry
-				.getEffectiveProductionOutputModel(currency).getTimeSeries(
-						goodType));
+				.getGoodTypeProductionModel(currency, outputGoodType)
+				.getOutputModel().getTimeSeries());
+		for (GoodType inputGoodType : ModelRegistry.getGoodTypeProductionModel(
+				currency, outputGoodType).getInputGoodTypes()) {
+			timeSeriesCollection.addSeries(ModelRegistry
+					.getGoodTypeProductionModel(currency, outputGoodType)
+					.getInputModel(inputGoodType).getTimeSeries());
+		}
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				goodType.toString() + " Output", "Date", "Output",
+				outputGoodType.toString() + " Output", "Date", "Output",
 				(XYDataset) timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		chart.addSubtitle(new TextTitle("Inputs: "
-				+ InputOutputModel.getProductionFunction(goodType)
+				+ InputOutputModel.getProductionFunction(outputGoodType)
 						.getInputGoodTypes().toString()));
 		return new ChartPanel(chart);
 	}

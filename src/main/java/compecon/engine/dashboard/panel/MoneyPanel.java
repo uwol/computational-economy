@@ -43,10 +43,9 @@ public class MoneyPanel extends AbstractChartsPanel {
 	protected ChartPanel createKeyInterestRatesPanel() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : ModelRegistry.getKeyInterestRateModel()
-				.getTypes())
+		for (Currency currency : Currency.values())
 			timeSeriesCollection.addSeries(ModelRegistry
-					.getKeyInterestRateModel().getTimeSeries(currency));
+					.getKeyInterestRateModel(currency).getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Key Interest Rate", "Date", "Key Interest Rate",
@@ -58,9 +57,9 @@ public class MoneyPanel extends AbstractChartsPanel {
 	protected ChartPanel createPriceIndicesPanel() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : ModelRegistry.getPriceIndexModel().getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry.getPriceIndexModel()
-					.getTimeSeries(currency));
+		for (Currency currency : Currency.values())
+			timeSeriesCollection.addSeries(ModelRegistry.getPriceIndexModel(
+					currency).getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Price Index",
 				"Date", "Price Index", timeSeriesCollection, true, true, false);
@@ -71,20 +70,17 @@ public class MoneyPanel extends AbstractChartsPanel {
 	protected ChartPanel createMoneySupplyPanel() {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		for (Currency currency : ModelRegistry.getMoneySupplyM0Model()
-				.getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry
-					.getMoneySupplyM0Model().getTimeSeries(currency));
+		for (Currency currency : Currency.values())
+			timeSeriesCollection.addSeries(ModelRegistry.getMoneySupplyM0Model(
+					currency).getTimeSeries());
 
-		for (Currency currency : ModelRegistry.getMoneySupplyM1Model()
-				.getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry
-					.getMoneySupplyM1Model().getTimeSeries(currency));
+		for (Currency currency : Currency.values())
+			timeSeriesCollection.addSeries(ModelRegistry.getMoneySupplyM1Model(
+					currency).getTimeSeries());
 
-		for (Currency currency : ModelRegistry.getMoneySupplyM2Model()
-				.getTypes())
-			timeSeriesCollection.addSeries(ModelRegistry
-					.getMoneySupplyM2Model().getTimeSeries(currency));
+		for (Currency currency : Currency.values())
+			timeSeriesCollection.addSeries(ModelRegistry.getMoneySupplyM2Model(
+					currency).getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Money Supply to Non-Banks", "Date", "Money Supply",

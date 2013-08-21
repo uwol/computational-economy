@@ -17,50 +17,23 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model.generic;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+package compecon.engine.jmx.model.timeseries;
 
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 
 import compecon.engine.time.TimeSystem;
 
-public class PeriodDataTimeSeriesModel<T> {
+public abstract class AbstractPeriodDataTimeSeriesModel {
 
 	protected final int NUMBER_OF_DAYS = 180;
 
-	protected final Map<T, TimeSeries> timeSeries = new HashMap<T, TimeSeries>();
-
-	protected String titleSuffix;
-
-	public Set<T> getTypes() {
-		return this.timeSeries.keySet();
-	}
-
-	public TimeSeries getTimeSeries(T type) {
-		assureTimeSeries(type);
-		return this.timeSeries.get(type);
-	}
-
-	protected void assureTimeSeries(T type) {
-		if (!this.timeSeries.containsKey(type)) {
-			TimeSeries amountTimeSeries = createTimeSeries(type);
-			this.timeSeries.put(type, amountTimeSeries);
-		}
-	}
-
-	protected TimeSeries createTimeSeries(T type) {
-		String title = type.toString();
-		if (this.titleSuffix != null)
-			title += this.titleSuffix;
-
+	protected TimeSeries createTimeSeries(String title) {
 		TimeSeries timeSeries = new TimeSeries(title, Day.class);
 		timeSeries.setMaximumItemAge(this.NUMBER_OF_DAYS);
 		timeSeries.add(new Day(TimeSystem.getInstance().getCurrentDate()), 0);
 		return timeSeries;
 	}
 
+	public abstract void nextPeriod();
 }

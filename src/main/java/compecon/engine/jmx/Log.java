@@ -90,22 +90,22 @@ public class Log {
 		ModelRegistry.getAgentDetailModel().agent_onConstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " constructed");
-		ModelRegistry.getNumberOfAgentsModel().agent_onConstruct(
-				agent.getPrimaryCurrency(), agent.getClass());
+		ModelRegistry.getNumberOfAgentsModel(agent.getPrimaryCurrency())
+				.agent_onConstruct(agent.getClass());
 	}
 
 	public static void agent_onDeconstruct(Agent agent) {
 		ModelRegistry.getAgentDetailModel().agent_onDeconstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " deconstructed");
-		ModelRegistry.getNumberOfAgentsModel().agent_onDeconstruct(
-				agent.getPrimaryCurrency(), agent.getClass());
+		ModelRegistry.getNumberOfAgentsModel(agent.getPrimaryCurrency())
+				.agent_onDeconstruct(agent.getClass());
 	}
 
 	public static void agent_onPublishBalanceSheet(Agent agent,
 			BalanceSheet balanceSheet) {
-		ModelRegistry.getBalanceSheetsModel().agent_onPublishBalanceSheet(
-				agent, balanceSheet);
+		ModelRegistry.getBalanceSheetsModel(balanceSheet.referenceCurrency)
+				.agent_onPublishBalanceSheet(agent, balanceSheet);
 	}
 
 	// --------
@@ -114,21 +114,21 @@ public class Log {
 			Currency currency, double income, double consumptionAmount,
 			double savingAmount, double wage, double dividend) {
 
-		ModelRegistry.getConsumptionModel().add(currency, consumptionAmount);
-		ModelRegistry.getIncomeModel().add(currency, income);
-		ModelRegistry.getConsumptionRateModel().add(currency,
+		ModelRegistry.getConsumptionModel(currency).add(consumptionAmount);
+		ModelRegistry.getIncomeModel(currency).add(income);
+		ModelRegistry.getConsumptionRateModel(currency).add(consumptionAmount,
+				income);
+		ModelRegistry.getConsumptionIncomeRatioModel(currency).add(
 				consumptionAmount, income);
-		ModelRegistry.getConsumptionIncomeRatioModel().add(currency,
-				consumptionAmount, income);
-		ModelRegistry.getSavingModel().add(currency, savingAmount);
-		ModelRegistry.getSavingRateModel().add(currency, savingAmount, income);
-		ModelRegistry.getWageModel().add(currency, wage);
-		ModelRegistry.getDividendModel().add(currency, dividend);
-		ModelRegistry.getIncomeSourceModel().add(currency, IncomeSource.WAGE,
+		ModelRegistry.getSavingModel(currency).add(savingAmount);
+		ModelRegistry.getSavingRateModel(currency).add(savingAmount, income);
+		ModelRegistry.getWageModel(currency).add(wage);
+		ModelRegistry.getDividendModel(currency).add(dividend);
+		ModelRegistry.getIncomeSourceModel(currency).add(IncomeSource.WAGE,
 				wage);
-		ModelRegistry.getIncomeSourceModel().add(currency,
-				IncomeSource.DIVIDEND, dividend);
-		ModelRegistry.getIncomeDistributionModel().add(currency, income);
+		ModelRegistry.getIncomeSourceModel(currency).add(IncomeSource.DIVIDEND,
+				dividend);
+		ModelRegistry.getIncomeDistributionModel(currency).add(income);
 	}
 
 	public static void household_onUtility(Household household,
@@ -148,34 +148,38 @@ public class Log {
 
 			Log.log(household, log);
 		}
-		ModelRegistry.getUtilityModel().add(currency, utility);
+		ModelRegistry.getUtilityModel(currency).add(utility);
 	}
 
 	public static void household_LabourHourCapacity(Currency currency,
 			double labourHourCapacity) {
-		ModelRegistry.getCapacityModel(currency).add(GoodType.LABOURHOUR,
+		ModelRegistry.getLabourHourCapacityModel(currency).add(
 				labourHourCapacity);
 	}
 
 	public static void household_onLabourHourExhaust(Currency currency,
 			double amount) {
-		ModelRegistry.getEffectiveProductionOutputModel(currency).add(
-				GoodType.LABOURHOUR, amount);
+		ModelRegistry.getGoodTypeProductionModel(currency, GoodType.LABOURHOUR)
+				.getOutputModel().add(amount);
 	}
 
 	// --------
 
 	public static void factory_onProduction(Factory factory, Currency currency,
-			GoodType goodType, double producedProducts) {
-		ModelRegistry.getEffectiveProductionOutputModel(currency).add(goodType,
-				producedProducts);
+			GoodType outputGoodType, double output, Map<GoodType, Double> inputs) {
+		ModelRegistry.getGoodTypeProductionModel(currency, outputGoodType)
+				.getOutputModel().add(output);
+		for (Entry<GoodType, Double> input : inputs.entrySet()) {
+			ModelRegistry.getGoodTypeProductionModel(currency, outputGoodType)
+					.getInputModel(input.getKey()).add(input.getValue());
+		}
 	}
 
 	// --------
 
 	public static void bank_onTransfer(BankAccount from, BankAccount to,
 			Currency currency, double value, String subject) {
-		ModelRegistry.getMonetaryTransactionsModel().bank_onTransfer(
+		ModelRegistry.getMonetaryTransactionsModel(currency).bank_onTransfer(
 				from.getOwner().getClass(), to.getOwner().getClass(), currency,
 				value);
 		if (isAgentSelectedByClient(from.getOwner())) {
@@ -198,25 +202,25 @@ public class Log {
 
 	public static void centralBank_KeyInterestRate(Currency currency,
 			double keyInterestRate) {
-		ModelRegistry.getKeyInterestRateModel().add(currency, keyInterestRate);
+		ModelRegistry.getKeyInterestRateModel(currency).add(keyInterestRate);
 	}
 
 	public static void centralBank_PriceIndex(Currency currency,
 			double priceIndex) {
-		ModelRegistry.getPriceIndexModel().add(currency, priceIndex);
+		ModelRegistry.getPriceIndexModel(currency).add(priceIndex);
 	}
 
 	// --------
 
 	public static void market_onTick(double pricePerUnit, GoodType goodType,
 			Currency currency, double amount) {
-		ModelRegistry.getPricesModel().market_onTick(pricePerUnit, goodType,
-				currency, amount);
+		ModelRegistry.getPricesModel(currency).market_onTick(pricePerUnit,
+				goodType, currency, amount);
 	}
 
 	public static void market_onTick(double pricePerUnit,
 			Currency commodityCurrency, Currency currency, double amount) {
-		ModelRegistry.getPricesModel().market_onTick(pricePerUnit,
+		ModelRegistry.getPricesModel(currency).market_onTick(pricePerUnit,
 				commodityCurrency, currency, amount);
 	}
 }

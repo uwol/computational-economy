@@ -45,7 +45,7 @@ import compecon.engine.Agent;
 import compecon.engine.jmx.Log;
 import compecon.engine.jmx.model.AgentDetailModel;
 import compecon.engine.jmx.model.AgentDetailModel.AgentLog;
-import compecon.engine.jmx.model.Model.IModelListener;
+import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;

@@ -25,45 +25,43 @@ import java.util.Map;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
-import compecon.engine.jmx.model.generic.accumulator.PeriodDataAccumulatorSet;
+import compecon.engine.jmx.model.accumulator.PeriodDataAccumulator;
 
-public class MonetaryTransactionsModel extends Model {
+public class MonetaryTransactionsModel extends NotificationListenerModel {
 
 	// stores transaction values in a type-safe way
-	protected Map<Currency, Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>>> adjacencyMatrix = new HashMap<Currency, Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>>>();
+	protected Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrix = new HashMap<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>>();
 
 	public MonetaryTransactionsModel() {
-		for (Currency currency : Currency.values()) {
-			// initialize data structure for currency
-			Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>> adjacencyMatrixForCurrency = new HashMap<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>>();
-			// from
-			for (Class<? extends Agent> agentTypeFrom : AgentFactory.agentTypes) {
-				// to
-				PeriodDataAccumulatorSet<Class<? extends Agent>> periodDataAccumulatorSet = new PeriodDataAccumulatorSet<Class<? extends Agent>>();
-				for (Class<? extends Agent> agentTypeTo : AgentFactory.agentTypes) {
-					periodDataAccumulatorSet.add(agentTypeTo, 0);
-				}
+		// from
+		for (Class<? extends Agent> agentTypeFrom : AgentFactory.agentTypes) {
+			Map<Class<? extends Agent>, PeriodDataAccumulator> toMap = new HashMap<Class<? extends Agent>, PeriodDataAccumulator>();
+			this.adjacencyMatrix.put(agentTypeFrom, toMap);
 
-				adjacencyMatrixForCurrency.put(agentTypeFrom,
-						periodDataAccumulatorSet);
+			// to
+			for (Class<? extends Agent> agentTypeTo : AgentFactory.agentTypes) {
+				toMap.put(agentTypeTo, new PeriodDataAccumulator());
 			}
-			this.adjacencyMatrix.put(currency, adjacencyMatrixForCurrency);
-
 		}
 	}
 
 	public void nextPeriod() {
 		this.notifyListeners();
+
+		for (Class<? extends Agent> agentTypeFrom : AgentFactory.agentTypes) {
+			for (Class<? extends Agent> agentTypeTo : AgentFactory.agentTypes) {
+				this.adjacencyMatrix.get(agentTypeFrom).get(agentTypeTo)
+						.reset();
+			}
+		}
 	}
 
 	public void bank_onTransfer(Class<? extends Agent> from,
 			Class<? extends Agent> to, Currency currency, double value) {
-		Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>> adjacencyMatrixForCurrency = this.adjacencyMatrix
-				.get(currency);
-		adjacencyMatrixForCurrency.get(from).add(to, value);
+		this.adjacencyMatrix.get(from).get(to).add(value);
 	}
 
-	public Map<Currency, Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>>> getAdjacencyMatrix() {
+	public Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> getAdjacencyMatrix() {
 		return adjacencyMatrix;
 	}
 }

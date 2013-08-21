@@ -79,8 +79,8 @@ public class AgentsPanel extends AbstractChartsPanel {
 			Class<? extends Agent> agentType) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(ModelRegistry.getNumberOfAgentsModel()
-				.getNumberOfAgentsTimeSeries(currency, agentType));
+		timeSeriesCollection.addSeries(ModelRegistry.getNumberOfAgentsModel(
+				currency).getNumberOfAgentsTimeSeries(agentType));
 
 		JFreeChart chart = ChartFactory
 				.createTimeSeriesChart("# " + agentType.getSimpleName()

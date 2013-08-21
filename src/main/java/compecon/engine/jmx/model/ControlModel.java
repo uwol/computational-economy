@@ -26,7 +26,7 @@ import compecon.economy.sectors.industry.Factory;
 import compecon.engine.AgentFactory;
 import compecon.materia.GoodType;
 
-public class ControlModel extends Model {
+public class ControlModel extends NotificationListenerModel {
 
 	public void initEconomicGrowth(Currency currency) {
 		List<Factory> factories = AgentFactory.getAllFactories();

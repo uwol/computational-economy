@@ -36,7 +36,7 @@ import compecon.engine.dao.DAOFactory;
 import compecon.engine.jmx.Log;
 import compecon.materia.GoodType;
 
-public class AgentDetailModel extends Model {
+public class AgentDetailModel extends NotificationListenerModel {
 
 	public class AgentLog {
 

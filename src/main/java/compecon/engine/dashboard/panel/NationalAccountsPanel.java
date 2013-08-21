@@ -36,10 +36,9 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
-import compecon.engine.jmx.model.Model.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
-import compecon.engine.jmx.model.generic.accumulator.PeriodDataAccumulator;
-import compecon.engine.jmx.model.generic.accumulator.PeriodDataAccumulatorSet;
+import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
+import compecon.engine.jmx.model.accumulator.PeriodDataAccumulator;
 import compecon.materia.GoodType;
 
 public class NationalAccountsPanel extends JPanel {
@@ -75,7 +74,8 @@ public class NationalAccountsPanel extends JPanel {
 
 		public NationalAccountsTableModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
-			ModelRegistry.getBalanceSheetsModel().registerListener(this);
+			ModelRegistry.getBalanceSheetsModel(referenceCurrency)
+					.registerListener(this);
 
 			this.activePositionNames = new String[STARTPOSITION_GOODTYPES
 					+ GoodType.values().length];
@@ -173,8 +173,8 @@ public class NationalAccountsPanel extends JPanel {
 		@Override
 		public void notifyListener() {
 			Map<Class<? extends Agent>, BalanceSheet> balanceSheetsForAgentTypes = ModelRegistry
-					.getBalanceSheetsModel().getNationalAccountsBalanceSheets()
-					.get(this.referenceCurrency);
+					.getBalanceSheetsModel(referenceCurrency)
+					.getNationalAccountsBalanceSheet();
 
 			for (Entry<Class<? extends Agent>, BalanceSheet> balanceSheetEntry : balanceSheetsForAgentTypes
 					.entrySet()) {
@@ -240,7 +240,8 @@ public class NationalAccountsPanel extends JPanel {
 
 		public MonetaryTransactionsTableModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
-			ModelRegistry.getMonetaryTransactionsModel().registerListener(this);
+			ModelRegistry.getMonetaryTransactionsModel(referenceCurrency)
+					.registerListener(this);
 		}
 
 		@Override
@@ -267,42 +268,37 @@ public class NationalAccountsPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			if (ModelRegistry.getMonetaryTransactionsModel()
-					.getAdjacencyMatrix().containsKey(referenceCurrency)) {
-				// source data model
-				Map<Class<? extends Agent>, PeriodDataAccumulatorSet<Class<? extends Agent>>> adjacencyMatrixForCurrency = ModelRegistry
-						.getMonetaryTransactionsModel().getAdjacencyMatrix()
-						.get(referenceCurrency);
+			// source data model
+			Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrixForCurrency = ModelRegistry
+					.getMonetaryTransactionsModel(referenceCurrency)
+					.getAdjacencyMatrix();
 
-				// for all agent types as sources of monetary transactions ->
-				// rows
-				for (int i = 0; i < AgentFactory.agentTypes.size(); i++) {
-					Class<? extends Agent> agentTypeFrom = AgentFactory.agentTypes
-							.get(i);
-					PeriodDataAccumulatorSet<Class<? extends Agent>> adjacencyMatrixForCurrencyAndFromAgentType = adjacencyMatrixForCurrency
-							.get(agentTypeFrom);
+			// for all agent types as sources of monetary transactions ->
+			// rows
+			for (int i = 0; i < AgentFactory.agentTypes.size(); i++) {
+				Class<? extends Agent> agentTypeFrom = AgentFactory.agentTypes
+						.get(i);
+				Map<Class<? extends Agent>, PeriodDataAccumulator> adjacencyMatrixForCurrencyAndFromAgentType = adjacencyMatrixForCurrency
+						.get(agentTypeFrom);
 
-					// row name
-					this.transientTableData[i][0] = agentTypeFrom
-							.getSimpleName();
+				// row name
+				this.transientTableData[i][0] = agentTypeFrom.getSimpleName();
 
-					// for all agent types as destinations of monetary
-					// transactions
-					// ->
-					// columns
-					for (int j = 0; j < AgentFactory.agentTypes.size(); j++) {
-						Class<? extends Agent> agentTypeTo = AgentFactory.agentTypes
-								.get(j);
-						PeriodDataAccumulator periodTransactionVolume = adjacencyMatrixForCurrencyAndFromAgentType
-								.getPeriodDataAccumulators().get(agentTypeTo);
-						this.transientTableData[i][j + 1] = Currency
-								.formatMoneySum(periodTransactionVolume
-										.getAmount());
-						periodTransactionVolume.reset();
-					}
+				// for all agent types as destinations of monetary
+				// transactions
+				// ->
+				// columns
+				for (int j = 0; j < AgentFactory.agentTypes.size(); j++) {
+					Class<? extends Agent> agentTypeTo = AgentFactory.agentTypes
+							.get(j);
+					PeriodDataAccumulator periodTransactionVolume = adjacencyMatrixForCurrencyAndFromAgentType
+							.get(agentTypeTo);
+					this.transientTableData[i][j + 1] = Currency
+							.formatMoneySum(periodTransactionVolume.getAmount());
+					periodTransactionVolume.reset();
 				}
-				this.fireTableDataChanged();
 			}
+			this.fireTableDataChanged();
 		}
 	}
 

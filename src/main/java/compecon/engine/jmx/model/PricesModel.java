@@ -30,7 +30,7 @@ import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.materia.GoodType;
 
-public class PricesModel extends Model {
+public class PricesModel extends NotificationListenerModel {
 
 	public class PriceModel {
 		private final int NUMBER_OF_DAYS = 180;

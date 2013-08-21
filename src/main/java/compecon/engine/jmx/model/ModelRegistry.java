@@ -19,14 +19,18 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.jmx.model;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.jmx.model.generic.CurrenciesPeriodDataAccumulatorTimeSeriesModel;
-import compecon.engine.jmx.model.generic.DistributionModel;
-import compecon.engine.jmx.model.generic.PeriodDataAccumulatorTimeSeriesModel;
-import compecon.engine.jmx.model.generic.PeriodDataPercentageTimeSeriesModel;
-import compecon.engine.jmx.model.generic.PeriodDataQuotientTimeSeriesModel;
-import compecon.engine.jmx.model.generic.TimeSeriesModel;
+import compecon.engine.jmx.model.ModelRegistry.NationalEconomyModel.GoodTypeProductionModel;
+import compecon.engine.jmx.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
+import compecon.engine.jmx.model.timeseries.PeriodDataPercentageTimeSeriesModel;
+import compecon.engine.jmx.model.timeseries.PeriodDataQuotientTimeSeriesModel;
 import compecon.materia.GoodType;
+import compecon.materia.InputOutputModel;
+import compecon.math.production.IProductionFunction;
 
 public class ModelRegistry {
 
@@ -34,89 +38,196 @@ public class ModelRegistry {
 		WAGE, DIVIDEND
 	}
 
+	public static class NationalEconomyModel {
+
+		public static class GoodTypeProductionModel {
+			protected final Currency referenceCurrency;
+
+			protected final GoodType outputGoodType;
+
+			protected final PeriodDataAccumulatorTimeSeriesModel outputModel;
+
+			protected final Map<GoodType, PeriodDataAccumulatorTimeSeriesModel> inputModels = new HashMap<GoodType, PeriodDataAccumulatorTimeSeriesModel>();
+
+			public GoodTypeProductionModel(Currency referenceCurrency,
+					GoodType outputGoodType) {
+				this.referenceCurrency = referenceCurrency;
+				this.outputGoodType = outputGoodType;
+
+				this.outputModel = new PeriodDataAccumulatorTimeSeriesModel(
+						referenceCurrency.getIso4217Code() + " "
+								+ outputGoodType + " output");
+
+				if (!GoodType.LABOURHOUR.equals(outputGoodType)) {
+					IProductionFunction productionFunction = InputOutputModel
+							.getProductionFunction(outputGoodType);
+					for (GoodType inputGoodType : productionFunction
+							.getInputGoodTypes()) {
+						inputModels.put(inputGoodType,
+								new PeriodDataAccumulatorTimeSeriesModel(
+										referenceCurrency.getIso4217Code()
+												+ " " + inputGoodType
+												+ " input"));
+					}
+				}
+			}
+
+			public PeriodDataAccumulatorTimeSeriesModel getOutputModel() {
+				return this.outputModel;
+			}
+
+			public Set<GoodType> getInputGoodTypes() {
+				return this.inputModels.keySet();
+			}
+
+			public PeriodDataAccumulatorTimeSeriesModel getInputModel(
+					GoodType inputGoodType) {
+				return this.inputModels.get(inputGoodType);
+			}
+
+			public void nextPeriod() {
+				this.outputModel.nextPeriod();
+				for (PeriodDataAccumulatorTimeSeriesModel periodDataAccumulatorTimeSeriesModel : this.inputModels
+						.values()) {
+					periodDataAccumulatorTimeSeriesModel.nextPeriod();
+				}
+			}
+		}
+
+		public NationalEconomyModel(Currency referenceCurrency) {
+			this.referenceCurrency = referenceCurrency;
+
+			for (GoodType goodType : GoodType.values()) {
+				this.goodTypeProductionModels
+						.put(goodType, new GoodTypeProductionModel(
+								referenceCurrency, goodType));
+			}
+
+			this.numberOfAgentsModel = new NumberOfAgentsModel(
+					referenceCurrency);
+			this.consumptionModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " consumption");
+			this.consumptionRateModel = new PeriodDataQuotientTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " consumption rate");
+			this.consumptionIncomeRatioModel = new PeriodDataQuotientTimeSeriesModel(
+					"");
+			this.dividendModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " dividend");
+			this.incomeModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " income");
+			this.incomeDistributionModel = new PeriodDataDistributionModel(
+					this.referenceCurrency);
+			this.incomeSourceModel = new PeriodDataPercentageTimeSeriesModel<IncomeSource>(
+					IncomeSource.values(), referenceCurrency.getIso4217Code()
+							+ " income source");
+			this.savingModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " saving");
+			this.savingRateModel = new PeriodDataQuotientTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " saving rate");
+			this.utilityModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " utility");
+			this.wageModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " wage");
+			this.labourHourCapacityModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " "
+							+ GoodType.LABOURHOUR + " cap.");
+			this.pricesModel = new PricesModel();
+			this.keyInterestRateModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " key interest rate");
+			this.moneySupplyM0Model = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " M0");
+			this.moneySupplyM1Model = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " M1");
+			this.moneySupplyM2Model = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " M2");
+			this.priceIndexModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " price index");
+			this.balanceSheetsModel = new BalanceSheetsModel(referenceCurrency,
+					moneySupplyM0Model, moneySupplyM1Model, moneySupplyM2Model);
+			this.monetaryTransactionsModel = new MonetaryTransactionsModel();
+		}
+
+		public final Currency referenceCurrency;
+		public final Map<GoodType, GoodTypeProductionModel> goodTypeProductionModels = new HashMap<GoodType, GoodTypeProductionModel>();
+
+		// agents
+
+		public final NumberOfAgentsModel numberOfAgentsModel;
+
+		// households: consumption and saving
+
+		public final PeriodDataAccumulatorTimeSeriesModel consumptionModel;
+		public final PeriodDataQuotientTimeSeriesModel consumptionRateModel;
+		public final PeriodDataQuotientTimeSeriesModel consumptionIncomeRatioModel;
+		public final PeriodDataAccumulatorTimeSeriesModel dividendModel;
+		public final PeriodDataAccumulatorTimeSeriesModel incomeModel;
+		public final PeriodDataDistributionModel incomeDistributionModel;
+		public final PeriodDataPercentageTimeSeriesModel<IncomeSource> incomeSourceModel;
+		public final PeriodDataAccumulatorTimeSeriesModel savingModel;
+		public final PeriodDataQuotientTimeSeriesModel savingRateModel;
+		public final PeriodDataAccumulatorTimeSeriesModel utilityModel;
+		public final PeriodDataAccumulatorTimeSeriesModel wageModel;
+
+		// industries
+
+		public final PeriodDataAccumulatorTimeSeriesModel labourHourCapacityModel;
+
+		// prices
+
+		public final PricesModel pricesModel;
+
+		// money
+
+		public final PeriodDataAccumulatorTimeSeriesModel keyInterestRateModel;
+		public final PeriodDataAccumulatorTimeSeriesModel moneySupplyM0Model;
+		public final PeriodDataAccumulatorTimeSeriesModel moneySupplyM1Model;
+		public final PeriodDataAccumulatorTimeSeriesModel moneySupplyM2Model;
+		public final PeriodDataAccumulatorTimeSeriesModel priceIndexModel;
+
+		// national balances
+
+		public final BalanceSheetsModel balanceSheetsModel;
+		public final MonetaryTransactionsModel monetaryTransactionsModel;
+
+		public void nextPeriod() {
+			for (GoodTypeProductionModel goodTypeProductionModel : this.goodTypeProductionModels
+					.values()) {
+				goodTypeProductionModel.nextPeriod();
+			}
+
+			balanceSheetsModel.nextPeriod();
+			labourHourCapacityModel.nextPeriod();
+			consumptionModel.nextPeriod();
+			consumptionRateModel.nextPeriod();
+			dividendModel.nextPeriod();
+			incomeModel.nextPeriod();
+			incomeSourceModel.nextPeriod();
+			incomeDistributionModel.nextPeriod();
+			keyInterestRateModel.nextPeriod();
+			monetaryTransactionsModel.nextPeriod();
+			moneySupplyM0Model.nextPeriod();
+			moneySupplyM1Model.nextPeriod();
+			moneySupplyM2Model.nextPeriod();
+			numberOfAgentsModel.nextPeriod();
+			pricesModel.nextPeriod();
+			priceIndexModel.nextPeriod();
+			savingModel.nextPeriod();
+			savingRateModel.nextPeriod();
+			utilityModel.nextPeriod();
+			wageModel.nextPeriod();
+		}
+	}
+
 	protected final static ControlModel controlModel = new ControlModel();
-
-	// agents
-
-	protected final static NumberOfAgentsModel numberOfAgentsModel = new NumberOfAgentsModel();
-
-	// households: consumption and saving
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> consumptionModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " consumption");
-
-	protected final static PeriodDataQuotientTimeSeriesModel<Currency> consumptionRateModel = new PeriodDataQuotientTimeSeriesModel<Currency>(
-			Currency.values(), " consumption rate");
-
-	protected final static PeriodDataQuotientTimeSeriesModel<Currency> consumptionIncomeRatioModel = new PeriodDataQuotientTimeSeriesModel<Currency>(
-			Currency.values());
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> dividendModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " dividend");
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> incomeModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " income");
-
-	protected final static DistributionModel<Currency> incomeDistributionModel = new DistributionModel<Currency>(
-			Currency.values());
-
-	protected final static PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource> incomeSourceModel = new PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource>(
-			Currency.values(), IncomeSource.values());
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> savingModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " saving");
-
-	protected final static PeriodDataQuotientTimeSeriesModel<Currency> savingRateModel = new PeriodDataQuotientTimeSeriesModel<Currency>(
-			Currency.values(), " saving rate");
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> utilityModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " utility");
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> wageModel = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " wage");
-
-	// industries
-
-	protected final static CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType> effectiveProductionOutputModel = new CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType>(
-			GoodType.values());
-
-	protected final static CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType> capacityModel = new CurrenciesPeriodDataAccumulatorTimeSeriesModel<GoodType>(
-			GoodType.values(), " cap.");
-
-	// prices
-
-	protected final static PricesModel pricesModel = new PricesModel();
-
-	// money
-
-	protected final static TimeSeriesModel<Currency> keyInterestRateModel = new TimeSeriesModel<Currency>(
-			Currency.values());
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " M0");
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " M1");
-
-	protected final static PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM2Model = new PeriodDataAccumulatorTimeSeriesModel<Currency>(
-			Currency.values(), " M2");
-
-	protected final static TimeSeriesModel<Currency> priceIndexModel = new TimeSeriesModel<Currency>(
-			Currency.values());
-
-	// national balances
-
-	protected final static BalanceSheetsModel balanceSheetsModel;
-
-	protected final static MonetaryTransactionsModel monetaryTransactionsModel = new MonetaryTransactionsModel();
-
-	// agent details
 
 	protected final static AgentDetailModel agentDetailModel = new AgentDetailModel();
 
+	protected final static Map<Currency, NationalEconomyModel> nationalEconomyModels = new HashMap<Currency, NationalEconomyModel>();
+
 	static {
-		balanceSheetsModel = new BalanceSheetsModel(moneySupplyM0Model,
-				moneySupplyM1Model, moneySupplyM2Model);
+		for (Currency currency : Currency.values())
+			nationalEconomyModels.put(currency, new NationalEconomyModel(
+					currency));
 	}
 
 	/*
@@ -125,25 +236,11 @@ public class ModelRegistry {
 
 	public static void nextPeriod() {
 		agentDetailModel.notifyListeners();
-		balanceSheetsModel.nextPeriod();
-		capacityModel.nextPeriod();
-		consumptionModel.nextPeriod();
-		consumptionRateModel.nextPeriod();
-		dividendModel.nextPeriod();
-		effectiveProductionOutputModel.nextPeriod();
-		incomeModel.nextPeriod();
-		incomeSourceModel.nextPeriod();
-		incomeDistributionModel.nextPeriod();
-		monetaryTransactionsModel.nextPeriod();
-		moneySupplyM0Model.nextPeriod();
-		moneySupplyM1Model.nextPeriod();
-		moneySupplyM2Model.nextPeriod();
-		numberOfAgentsModel.nextPeriod();
-		pricesModel.nextPeriod();
-		savingModel.nextPeriod();
-		savingRateModel.nextPeriod();
-		utilityModel.nextPeriod();
-		wageModel.nextPeriod();
+
+		for (NationalEconomyModel nationalEconomyModel : nationalEconomyModels
+				.values()) {
+			nationalEconomyModel.nextPeriod();
+		}
 	}
 
 	/*
@@ -154,100 +251,116 @@ public class ModelRegistry {
 		return agentDetailModel;
 	}
 
-	public static BalanceSheetsModel getBalanceSheetsModel() {
-		return balanceSheetsModel;
+	public static BalanceSheetsModel getBalanceSheetsModel(Currency currency) {
+		return nationalEconomyModels.get(currency).balanceSheetsModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<GoodType> getCapacityModel(
+	public static PeriodDataAccumulatorTimeSeriesModel getLabourHourCapacityModel(
 			Currency currency) {
-		return capacityModel
-				.getPeriodDataAccumulatorTimeSeriesModelForCurrency(currency);
+		return nationalEconomyModels.get(currency).labourHourCapacityModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getConsumptionModel() {
-		return consumptionModel;
+	public static PeriodDataAccumulatorTimeSeriesModel getConsumptionModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).consumptionModel;
 	}
 
-	public static PeriodDataQuotientTimeSeriesModel<Currency> getConsumptionRateModel() {
-		return consumptionRateModel;
+	public static PeriodDataQuotientTimeSeriesModel getConsumptionRateModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).consumptionRateModel;
 	}
 
-	public static PeriodDataQuotientTimeSeriesModel<Currency> getConsumptionIncomeRatioModel() {
-		return consumptionIncomeRatioModel;
+	public static PeriodDataQuotientTimeSeriesModel getConsumptionIncomeRatioModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).consumptionIncomeRatioModel;
 	}
 
 	public static ControlModel getControlModel() {
 		return controlModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getDividendModel() {
-		return dividendModel;
-	}
-
-	public static PeriodDataAccumulatorTimeSeriesModel<GoodType> getEffectiveProductionOutputModel(
+	public static PeriodDataAccumulatorTimeSeriesModel getDividendModel(
 			Currency currency) {
-		return effectiveProductionOutputModel
-				.getPeriodDataAccumulatorTimeSeriesModelForCurrency(currency);
+		return nationalEconomyModels.get(currency).dividendModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getIncomeModel() {
-		return incomeModel;
+	public static GoodTypeProductionModel getGoodTypeProductionModel(
+			Currency currency, GoodType outputGoodType) {
+		return nationalEconomyModels.get(currency).goodTypeProductionModels
+				.get(outputGoodType);
 	}
 
-	public static DistributionModel<Currency> getIncomeDistributionModel() {
-		return incomeDistributionModel;
+	public static PeriodDataAccumulatorTimeSeriesModel getIncomeModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).incomeModel;
 	}
 
-	public static PeriodDataPercentageTimeSeriesModel<Currency, IncomeSource> getIncomeSourceModel() {
-		return incomeSourceModel;
+	public static PeriodDataDistributionModel getIncomeDistributionModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).incomeDistributionModel;
 	}
 
-	public static TimeSeriesModel<Currency> getKeyInterestRateModel() {
-		return keyInterestRateModel;
+	public static PeriodDataPercentageTimeSeriesModel<IncomeSource> getIncomeSourceModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).incomeSourceModel;
 	}
 
-	public static MonetaryTransactionsModel getMonetaryTransactionsModel() {
-		return monetaryTransactionsModel;
+	public static PeriodDataAccumulatorTimeSeriesModel getKeyInterestRateModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).keyInterestRateModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getMoneySupplyM0Model() {
-		return moneySupplyM0Model;
+	public static MonetaryTransactionsModel getMonetaryTransactionsModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).monetaryTransactionsModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getMoneySupplyM1Model() {
-		return moneySupplyM1Model;
+	public static PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM0Model(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).moneySupplyM0Model;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getMoneySupplyM2Model() {
-		return moneySupplyM2Model;
+	public static PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM1Model(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).moneySupplyM1Model;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getUtilityModel() {
-		return utilityModel;
+	public static PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM2Model(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).moneySupplyM2Model;
 	}
 
-	public static NumberOfAgentsModel getNumberOfAgentsModel() {
-		return numberOfAgentsModel;
+	public static PeriodDataAccumulatorTimeSeriesModel getUtilityModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).utilityModel;
 	}
 
-	public static PricesModel getPricesModel() {
-		return pricesModel;
+	public static NumberOfAgentsModel getNumberOfAgentsModel(Currency currency) {
+		return nationalEconomyModels.get(currency).numberOfAgentsModel;
 	}
 
-	public static TimeSeriesModel<Currency> getPriceIndexModel() {
-		return priceIndexModel;
+	public static PricesModel getPricesModel(Currency currency) {
+		return nationalEconomyModels.get(currency).pricesModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getSavingModel() {
-		return savingModel;
+	public static PeriodDataAccumulatorTimeSeriesModel getPriceIndexModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).priceIndexModel;
 	}
 
-	public static PeriodDataQuotientTimeSeriesModel<Currency> getSavingRateModel() {
-		return savingRateModel;
+	public static PeriodDataAccumulatorTimeSeriesModel getSavingModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).savingModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel<Currency> getWageModel() {
-		return wageModel;
+	public static PeriodDataQuotientTimeSeriesModel getSavingRateModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).savingRateModel;
+	}
+
+	public static PeriodDataAccumulatorTimeSeriesModel getWageModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).wageModel;
 	}
 
 }

@@ -218,18 +218,19 @@ public class Factory extends JointStockCompany {
 								productionFactor));
 			}
 
-			double producedProducts = Factory.this.productionFunction
+			double producedOutput = Factory.this.productionFunction
 					.calculateOutput(productionFactorsOwned);
-			PropertyRegister.getInstance().incrementGoodTypeAmount(
-					Factory.this, Factory.this.producedGoodType,
-					producedProducts);
-			if (Log.isAgentSelectedByClient(Factory.this))
-				Log.log(Factory.this, ProductionEvent.class, "produced "
-						+ MathUtil.round(producedProducts) + " "
-						+ Factory.this.producedGoodType);
 			Log.factory_onProduction(Factory.this,
 					Factory.this.primaryCurrency,
-					Factory.this.producedGoodType, producedProducts);
+					Factory.this.producedGoodType, producedOutput,
+					productionFactorsOwned);
+			PropertyRegister.getInstance().incrementGoodTypeAmount(
+					Factory.this, Factory.this.producedGoodType,
+					producedOutput);
+			if (Log.isAgentSelectedByClient(Factory.this))
+				Log.log(Factory.this, ProductionEvent.class, "produced "
+						+ MathUtil.round(producedOutput) + " "
+						+ Factory.this.producedGoodType);
 
 			/*
 			 * deregister production factors from property register

@@ -33,7 +33,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultHighLowDataset;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.jmx.model.Model.IModelListener;
+import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.PricesModel;
 import compecon.engine.jmx.model.PricesModel.PriceModel;
@@ -46,8 +46,6 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 	protected final Map<Currency, JPanel> panelsForCurrencies = new HashMap<Currency, JPanel>();
 
 	public PricesPanel() {
-		ModelRegistry.getPricesModel().registerListener(this);
-
 		this.setLayout(new BorderLayout());
 
 		JTabbedPane jTabbedPane_Prices = new JTabbedPane();
@@ -60,6 +58,7 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 			this.panelsForCurrencies.put(currency, panelForPricesInCurrency);
 			jTabbedPane_Prices.addTab(currency.getIso4217Code(),
 					panelForPricesInCurrency);
+			ModelRegistry.getPricesModel(currency).registerListener(this);
 		}
 
 		add(jTabbedPane_Prices, BorderLayout.CENTER);
@@ -130,7 +129,7 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 
 	public DefaultHighLowDataset getDefaultHighLowDataset(Currency currency,
 			GoodType goodType) {
-		PricesModel pricesModel = ModelRegistry.getPricesModel();
+		PricesModel pricesModel = ModelRegistry.getPricesModel(currency);
 		if (pricesModel.getPriceModelsForGoodTypes().containsKey(currency)) {
 			Map<GoodType, PriceModel> priceModelsForGoodType = pricesModel
 					.getPriceModelsForGoodTypes().get(currency);
@@ -146,7 +145,7 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 
 	public DefaultHighLowDataset getDefaultHighLowDataset(Currency currency,
 			Currency commodityCurrency) {
-		PricesModel pricesModel = ModelRegistry.getPricesModel();
+		PricesModel pricesModel = ModelRegistry.getPricesModel(currency);
 		if (pricesModel.getPriceModelsForCurrencies().containsKey(currency)) {
 			Map<Currency, PriceModel> priceModelsForCurrencies = pricesModel
 					.getPriceModelsForCurrencies().get(currency);

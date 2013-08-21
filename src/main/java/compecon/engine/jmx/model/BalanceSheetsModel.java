@@ -28,24 +28,27 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
-import compecon.engine.jmx.model.generic.PeriodDataAccumulatorTimeSeriesModel;
+import compecon.engine.jmx.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.materia.GoodType;
 
-public class BalanceSheetsModel extends Model {
+public class BalanceSheetsModel extends NotificationListenerModel {
 
-	protected Map<Currency, Map<Class<? extends Agent>, BalanceSheet>> nationalAccountsBalanceSheets;
+	protected Map<Class<? extends Agent>, BalanceSheet> nationalAccountsBalanceSheets = new HashMap<Class<? extends Agent>, BalanceSheet>();
 
-	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model;
+	protected final Currency referenceCurrency;
 
-	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model;
+	protected final PeriodDataAccumulatorTimeSeriesModel moneySupplyM0Model;
 
-	protected final PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM2Model;
+	protected final PeriodDataAccumulatorTimeSeriesModel moneySupplyM1Model;
 
-	public BalanceSheetsModel(
-			PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM0Model,
-			PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM1Model,
-			PeriodDataAccumulatorTimeSeriesModel<Currency> moneySupplyM2Model) {
+	protected final PeriodDataAccumulatorTimeSeriesModel moneySupplyM2Model;
 
+	public BalanceSheetsModel(Currency referenceCurrency,
+			PeriodDataAccumulatorTimeSeriesModel moneySupplyM0Model,
+			PeriodDataAccumulatorTimeSeriesModel moneySupplyM1Model,
+			PeriodDataAccumulatorTimeSeriesModel moneySupplyM2Model) {
+
+		this.referenceCurrency = referenceCurrency;
 		this.moneySupplyM0Model = moneySupplyM0Model;
 		this.moneySupplyM1Model = moneySupplyM1Model;
 		this.moneySupplyM2Model = moneySupplyM2Model;
@@ -54,8 +57,12 @@ public class BalanceSheetsModel extends Model {
 
 	public void agent_onPublishBalanceSheet(Agent agent,
 			BalanceSheet balanceSheet) {
+		if (!referenceCurrency.equals(agent.getPrimaryCurrency())
+				|| !referenceCurrency.equals(balanceSheet.referenceCurrency))
+			throw new RuntimeException("mismatching currencies");
+
 		BalanceSheet nationalAccountsBalanceSheet = this.nationalAccountsBalanceSheets
-				.get(balanceSheet.referenceCurrency).get(agent.getClass());
+				.get(agent.getClass());
 
 		// assets
 		nationalAccountsBalanceSheet.hardCash += balanceSheet.hardCash;
@@ -88,28 +95,20 @@ public class BalanceSheetsModel extends Model {
 				.addAll(balanceSheet.issuedCapital);
 
 		if (!(agent instanceof Bank)) {
-			this.moneySupplyM0Model.add(balanceSheet.referenceCurrency,
-					balanceSheet.hardCash);
-			this.moneySupplyM1Model.add(balanceSheet.referenceCurrency,
-					balanceSheet.cashShortTerm + balanceSheet.hardCash);
-			this.moneySupplyM2Model.add(balanceSheet.referenceCurrency,
-					balanceSheet.hardCash + balanceSheet.cashShortTerm
-							+ balanceSheet.cashLongTerm);
+			this.moneySupplyM0Model.add(balanceSheet.hardCash);
+			this.moneySupplyM1Model.add(balanceSheet.cashShortTerm
+					+ balanceSheet.hardCash);
+			this.moneySupplyM2Model.add(balanceSheet.hardCash
+					+ balanceSheet.cashShortTerm + balanceSheet.cashLongTerm);
 		}
 	}
 
 	private void resetNationalAccountsBalanceSheets() {
-		this.nationalAccountsBalanceSheets = new HashMap<Currency, Map<Class<? extends Agent>, BalanceSheet>>();
+		this.nationalAccountsBalanceSheets.clear();
 
-		for (Currency currency : Currency.values()) {
-			Map<Class<? extends Agent>, BalanceSheet> balanceSheetsForAgentTypes = new HashMap<Class<? extends Agent>, BalanceSheet>();
-			for (Class<? extends Agent> agentType : AgentFactory.agentTypes) {
-				balanceSheetsForAgentTypes.put(agentType, new BalanceSheet(
-						currency));
-			}
-
-			this.nationalAccountsBalanceSheets.put(currency,
-					balanceSheetsForAgentTypes);
+		for (Class<? extends Agent> agentType : AgentFactory.agentTypes) {
+			this.nationalAccountsBalanceSheets.put(agentType, new BalanceSheet(
+					this.referenceCurrency));
 		}
 	}
 
@@ -118,7 +117,7 @@ public class BalanceSheetsModel extends Model {
 		this.resetNationalAccountsBalanceSheets();
 	}
 
-	public Map<Currency, Map<Class<? extends Agent>, BalanceSheet>> getNationalAccountsBalanceSheets() {
-		return nationalAccountsBalanceSheets;
+	public Map<Class<? extends Agent>, BalanceSheet> getNationalAccountsBalanceSheet() {
+		return this.nationalAccountsBalanceSheets;
 	}
 }
