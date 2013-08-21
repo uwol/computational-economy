@@ -20,12 +20,16 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.dashboard.panel;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -33,8 +37,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultHighLowDataset;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
+import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
 import compecon.engine.jmx.model.PricesModel;
 import compecon.engine.jmx.model.PricesModel.PriceModel;
 import compecon.materia.GoodType;
@@ -42,6 +46,8 @@ import compecon.materia.GoodType;
 public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 
 	protected boolean refresh = false;
+
+	protected Currency selectedCurrency = Currency.EURO;
 
 	protected final Map<Currency, JPanel> panelsForCurrencies = new HashMap<Currency, JPanel>();
 
@@ -54,12 +60,30 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 		// prices for good types and currencies in this currency
 		for (Currency currency : Currency.values()) {
 			JPanel panelForPricesInCurrency = new JPanel();
-			panelForPricesInCurrency.setLayout(new GridLayout(0, 2));
+			panelForPricesInCurrency.setLayout(new GridLayout(0, 3));
 			this.panelsForCurrencies.put(currency, panelForPricesInCurrency);
 			jTabbedPane_Prices.addTab(currency.getIso4217Code(),
 					panelForPricesInCurrency);
 			ModelRegistry.getPricesModel(currency).registerListener(this);
 		}
+
+		jTabbedPane_Prices.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				if (e.getSource() instanceof JTabbedPane) {
+					JTabbedPane pane = (JTabbedPane) e.getSource();
+					Component selectecComponent = pane.getSelectedComponent();
+
+					// log panel
+					for (Entry<Currency, JPanel> panelForCurrency : panelsForCurrencies
+							.entrySet()) {
+						if (panelForCurrency.getValue().equals(
+								selectecComponent)) {
+							selectedCurrency = panelForCurrency.getKey();
+						}
+					}
+				}
+			}
+		});
 
 		add(jTabbedPane_Prices, BorderLayout.CENTER);
 	}
@@ -68,29 +92,31 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 		if (this.refresh) {
 			// redraw price charts
 			for (Currency currency : Currency.values()) {
-				JPanel panelForCurrency = this.panelsForCurrencies
-						.get(currency);
-				panelForCurrency.removeAll();
+				if (currency.equals(this.selectedCurrency)) {
+					JPanel panelForCurrency = this.panelsForCurrencies
+							.get(currency);
+					panelForCurrency.removeAll();
 
-				for (Currency commodityCurrency : Currency.values()) {
-					if (!currency.equals(commodityCurrency)) {
-						// initially, add a new price chart panel for this good
-						// type
+					for (Currency commodityCurrency : Currency.values()) {
+						if (!currency.equals(commodityCurrency)) {
+							// initially, add a new price chart panel for this
+							// good
+							// type
+							ChartPanel chartPanel = this.createPriceChartPanel(
+									currency, commodityCurrency);
+							panelForCurrency.add(chartPanel);
+						}
+					}
+
+					for (GoodType goodType : GoodType.values()) {
 						ChartPanel chartPanel = this.createPriceChartPanel(
-								currency, commodityCurrency);
+								currency, goodType);
 						panelForCurrency.add(chartPanel);
 					}
 				}
-
-				for (GoodType goodType : GoodType.values()) {
-					ChartPanel chartPanel = this.createPriceChartPanel(
-							currency, goodType);
-					panelForCurrency.add(chartPanel);
-				}
 			}
-			setVisible(true);
 		}
-		this.updateUI();
+		repaint();
 	}
 
 	protected JFreeChart createPriceChart(Currency currency, GoodType goodType) {

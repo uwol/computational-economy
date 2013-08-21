@@ -55,8 +55,6 @@ public class AgentsPanel extends AbstractChartsPanel {
 			panelForCurrency.setLayout(new GridLayout(0, 2));
 			jTabbedPane.addTab(currency.getIso4217Code(), panelForCurrency);
 
-			panelForCurrency.setLayout(new GridLayout(0, 2));
-
 			panelForCurrency.setBackground(Color.lightGray);
 
 			panelForCurrency.add(createAgentNumberPanel(currency,

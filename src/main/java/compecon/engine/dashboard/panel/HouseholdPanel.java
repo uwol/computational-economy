@@ -41,9 +41,9 @@ import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
-import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
+import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
 import compecon.engine.jmx.model.PeriodDataDistributionModel.SummaryStatisticalData;
 
 public class HouseholdPanel extends AbstractChartsPanel implements
@@ -64,8 +64,6 @@ public class HouseholdPanel extends AbstractChartsPanel implements
 			JPanel panelForCurrency = new JPanel();
 			panelForCurrency.setLayout(new GridLayout(0, 2));
 			jTabbedPane.addTab(currency.getIso4217Code(), panelForCurrency);
-
-			panelForCurrency.setLayout(new GridLayout(0, 2));
 
 			panelForCurrency.setBackground(Color.lightGray);
 

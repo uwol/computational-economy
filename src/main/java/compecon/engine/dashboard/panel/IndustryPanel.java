@@ -47,10 +47,8 @@ public class IndustryPanel extends AbstractChartsPanel {
 
 		for (Currency currency : Currency.values()) {
 			JPanel panelForCurrency = new JPanel();
-			panelForCurrency.setLayout(new GridLayout(0, 2));
+			panelForCurrency.setLayout(new GridLayout(0, 3));
 			jTabbedPane.addTab(currency.getIso4217Code(), panelForCurrency);
-
-			panelForCurrency.setLayout(new GridLayout(0, 2));
 			panelForCurrency.setBackground(Color.lightGray);
 
 			panelForCurrency.add(createLabourPanel(currency));

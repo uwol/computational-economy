@@ -21,7 +21,6 @@ package compecon.engine.dashboard;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Frame;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -96,7 +95,6 @@ public class Dashboard extends JFrame {
 					// prices panel
 					if (selectecComponent.equals(Dashboard.this.pricesPanel)) {
 						Dashboard.this.pricesPanel.setRefresh(true);
-						Dashboard.this.pricesPanel.redrawPriceCharts();
 					} else
 						Dashboard.this.pricesPanel.setRefresh(false);
 				}
@@ -111,9 +109,7 @@ public class Dashboard extends JFrame {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
-		setLocationRelativeTo(null);
 		setVisible(true);
-		setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
 
 	public static Dashboard getInstance() {
