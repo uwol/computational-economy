@@ -26,9 +26,9 @@ import compecon.math.CobbDouglasFunction;
 
 public class CobbDouglasUtilityFunction extends ConvexUtilityFunction {
 
-	public CobbDouglasUtilityFunction(Map<GoodType, Double> exponents,
-			double coefficient) {
-		super(new CobbDouglasFunction<GoodType>(exponents, coefficient));
+	public CobbDouglasUtilityFunction(double coefficient,
+			Map<GoodType, Double> exponents) {
+		super(new CobbDouglasFunction<GoodType>(coefficient, exponents));
 	}
 
 	/**

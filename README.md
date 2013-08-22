@@ -5,7 +5,7 @@ Computational Economy is an agent-based computational economics simulator implem
 
 Features:
 * Agent type *Household*: Households offer labour hours and consume goods according to a Cobb-Douglas utility function. Intertemporal consumption and retirement saving preferences are modeled by Irving-Fisher and Modigliani intertemporal choice models.
-* Agent type *Factory*: Factories produce arbitrary goods according to their production functions based on an input-output-model.
+* Agent type *Factory*: Factories produce arbitrary goods according to an input-output-model based on Cobb-Douglas, CES and root production functions.
 * Agent type *Credit bank*: Credit banks manage bank accounts, create money by credit, trade currencies, follow minimum reserve requirements of central banks and buy bonds for deposits (fractional reserve banking).
 * Agent type *Central bank*: Central banks adjust key interest rates based on price indices. Key interest rates induce changes in buying behaviour via a monetary transmission mechanism.
 * Agent type *Trader*: Traders import goods from foreign markets for arbitrage.
@@ -29,3 +29,9 @@ Technical platform:
 ![screenshot3](http://img.literaturedb.com/compecon3.png)
 
 ![screenshot3](http://img.literaturedb.com/compecon4.png)
+
+![screenshot3](http://img.literaturedb.com/compecon5.png)
+
+![screenshot3](http://img.literaturedb.com/compecon6.png)
+
+![screenshot3](http://img.literaturedb.com/compecon7.png)

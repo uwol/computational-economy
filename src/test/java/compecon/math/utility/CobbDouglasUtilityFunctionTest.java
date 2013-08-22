@@ -27,7 +27,6 @@ import java.util.Map;
 import org.junit.Test;
 
 import compecon.materia.GoodType;
-import compecon.math.utility.CobbDouglasUtilityFunction;
 
 public class CobbDouglasUtilityFunctionTest {
 
@@ -39,7 +38,7 @@ public class CobbDouglasUtilityFunctionTest {
 		preferences.put(GoodType.KILOWATT, 0.4);
 		preferences.put(GoodType.WHEAT, 0.6);
 		CobbDouglasUtilityFunction cobbDouglasUtilityFunction = new CobbDouglasUtilityFunction(
-				preferences, 1);
+				1.0, preferences);
 
 		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
 		prices.put(GoodType.KILOWATT, 1.0);

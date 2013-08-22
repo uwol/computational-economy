@@ -44,7 +44,7 @@ public class CobbDouglasFunctionTest {
 		preferences1.put(GoodType.KILOWATT, 0.4);
 		preferences1.put(GoodType.WHEAT, 0.6);
 		CobbDouglasFunction<GoodType> cobbDouglasFunction1 = new CobbDouglasFunction<GoodType>(
-				preferences1, 1);
+				1.0, preferences1);
 
 		Map<GoodType, Double> amount = cobbDouglasFunction1
 				.calculateOutputMaximizingInputsUnderBudgetRestriction(prices,
@@ -72,7 +72,7 @@ public class CobbDouglasFunctionTest {
 		preferences2.put(GoodType.KILOWATT, 0.3);
 		preferences2.put(GoodType.WHEAT, 0.6);
 		CobbDouglasFunction<GoodType> cobbDouglasFunction2 = new CobbDouglasFunction<GoodType>(
-				preferences2, 1);
+				1.0, preferences2);
 
 		Map<GoodType, Double> amount = cobbDouglasFunction2
 				.calculateOutputMaximizingInputsUnderBudgetRestriction(prices,

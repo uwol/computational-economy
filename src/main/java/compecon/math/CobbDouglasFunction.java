@@ -26,17 +26,14 @@ import java.util.Set;
 
 import compecon.engine.util.MathUtil;
 
-/**
- * U = (g_1)^(e_1) * (g_2)^(e_2) * ... * (g_n)^(e_n) | g_1 + g_2 + ... + g_n = 1
- */
 public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		IFunction<T> {
 
-	protected final Map<T, Double> exponents;
-
 	protected double coefficient;
 
-	public CobbDouglasFunction(Map<T, Double> exponents, double coefficient) {
+	protected final Map<T, Double> exponents;
+
+	public CobbDouglasFunction(double coefficient, Map<T, Double> exponents) {
 		super(true);
 
 		/*
@@ -44,14 +41,14 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		 */
 		double sumOfExponents = 0.0;
 		for (Double exponent : exponents.values()) {
-			if (exponent == 1)
+			if (exponent == 1.0)
 				throw new RuntimeException("exponent is 1");
 			sumOfExponents += exponent;
 		}
-		if (!MathUtil.equal(sumOfExponents, 1))
+		if (!MathUtil.equal(sumOfExponents, 1.0))
 			throw new RuntimeException("sum of exponents not 1");
 
-		if (!MathUtil.greater(coefficient, 0))
+		if (!MathUtil.greater(coefficient, 0.0))
 			throw new RuntimeException("coefficient is not > 0");
 
 		this.exponents = exponents;
@@ -63,19 +60,27 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		return this.exponents.keySet();
 	}
 
+	/**
+	 * y = (x_1)^(e_1) * (x_2)^(e_2) * ... * (x_n)^(e_n) <br />
+	 * | e_1 + e_2 + ... + e_n = 1
+	 */
 	@Override
 	public double f(Map<T, Double> bundleOfInputs) {
 		double output = this.coefficient;
 		for (Entry<T, Double> entry : this.exponents.entrySet()) {
 			T inputType = entry.getKey();
 			double exponent = entry.getValue();
-			double base = bundleOfInputs.containsKey(inputType) ? bundleOfInputs
+			double input = bundleOfInputs.containsKey(inputType) ? bundleOfInputs
 					.get(inputType) : 0.0;
-			output = output * Math.pow(base, exponent);
+			output = output * Math.pow(input, exponent);
 		}
 		return output;
 	}
 
+	/**
+	 * dy/d(x_1) = e_1 * (x_1)^(e_1 - 1) * (x_2)^(e_2) * ... * (x_n)^(e_n) <br />
+	 * | e_1 + e_2 + ... + e_n = 1
+	 */
 	@Override
 	public double partialDerivative(Map<T, Double> forBundleOfInputs,
 			T withRespectToInputType) {
@@ -87,7 +92,7 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 			T inputType = entry.getKey();
 			if (inputType != withRespectToInputType) {
 				double base = forBundleOfInputs.containsKey(inputType) ? forBundleOfInputs
-						.get(inputType) : 0;
+						.get(inputType) : 0.0;
 				double exponent = entry.getValue();
 				constant = constant * Math.pow(base, exponent);
 			}
@@ -96,17 +101,17 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		/*
 		 * Differential factor
 		 */
-		double differentialBase = forBundleOfInputs
+		double differentialInput = forBundleOfInputs
 				.containsKey(withRespectToInputType) ? forBundleOfInputs
-				.get(withRespectToInputType) : 0;
+				.get(withRespectToInputType) : 0.0;
 		double differentialExponent = this.exponents
 				.containsKey(withRespectToInputType) ? this.exponents
-				.get(withRespectToInputType) - 1 : 0;
+				.get(withRespectToInputType) - 1.0 : 0.0;
 		double differentialCoefficient = this.exponents
 				.containsKey(withRespectToInputType) ? this.exponents
-				.get(withRespectToInputType) : 0;
+				.get(withRespectToInputType) : 0.0;
 		double differentialFactor = differentialCoefficient
-				* Math.pow(differentialBase, differentialExponent);
+				* Math.pow(differentialInput, differentialExponent);
 
 		// Java returns Double.NaN for 0 * Double.INFINITE -> return 0
 		if (constant == 0.0 && Double.isInfinite(differentialFactor))

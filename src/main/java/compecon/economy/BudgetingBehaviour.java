@@ -23,6 +23,7 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.Log;
+import compecon.engine.util.ConfigurationUtil;
 
 /**
  * This behaviour controls buying decisions.It is injected into an agent (thus
@@ -34,7 +35,11 @@ public class BudgetingBehaviour {
 
 	protected final Agent agent;
 
-	protected final double internalRateOfReturn = 0.05;
+	protected final double internalRateOfReturn = ConfigurationUtil.BudgetingBehaviour
+			.getInternalRateOfReturn();
+
+	protected final double keyInterestRateTransmissionDamper = ConfigurationUtil.BudgetingBehaviour
+			.getKeyInterestRateTransmissionDamper();
 
 	protected double lastMaxCredit = Double.NaN;
 
@@ -60,7 +65,7 @@ public class BudgetingBehaviour {
 		double keyInterestRate = AgentFactory.getInstanceCentralBank(currency)
 				.getEffectiveKeyInterestRate();
 		lastMaxCredit = lastMaxCredit
-				* (1 + ((this.internalRateOfReturn - keyInterestRate) / 50));
+				* (1 + ((this.internalRateOfReturn - keyInterestRate) / keyInterestRateTransmissionDamper));
 
 		/*
 		 * transmission mechanism

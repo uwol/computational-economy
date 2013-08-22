@@ -37,7 +37,8 @@ public abstract class AbstractPeriodDataMultipleTimeSeriesModel<I> extends
 			final I[] initialIndexTypes, final String title) {
 		this.indexTypes = initialIndexTypes;
 		for (I indexType : this.indexTypes)
-			this.timeSeries.put(indexType, createTimeSeries(title));
+			this.timeSeries.put(indexType, createTimeSeries(indexType + " "
+					+ title));
 	}
 
 	public I[] getIndexTypes() {

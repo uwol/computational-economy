@@ -53,11 +53,12 @@ public class IndustryPanel extends AbstractChartsPanel {
 
 			panelForCurrency.add(createLabourPanel(currency));
 
-			for (GoodType outputGoodType : GoodType.values())
+			for (GoodType outputGoodType : GoodType.values()) {
 				if (!outputGoodType.equals(GoodType.LABOURHOUR)) {
 					panelForCurrency.add(createProductionPanel(currency,
 							outputGoodType));
 				}
+			}
 		}
 
 		add(jTabbedPane, BorderLayout.CENTER);

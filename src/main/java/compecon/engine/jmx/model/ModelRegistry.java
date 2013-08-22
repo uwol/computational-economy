@@ -25,6 +25,7 @@ import java.util.Set;
 
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.jmx.model.ModelRegistry.NationalEconomyModel.GoodTypeProductionModel;
+import compecon.engine.jmx.model.ModelRegistry.NationalEconomyModel.UtilityModel;
 import compecon.engine.jmx.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.jmx.model.timeseries.PeriodDataPercentageTimeSeriesModel;
 import compecon.engine.jmx.model.timeseries.PeriodDataQuotientTimeSeriesModel;
@@ -94,6 +95,49 @@ public class ModelRegistry {
 			}
 		}
 
+		public static class UtilityModel {
+
+			protected final Currency referenceCurrency;
+
+			protected final PeriodDataAccumulatorTimeSeriesModel utilityOutputModel;
+
+			protected final Map<GoodType, PeriodDataAccumulatorTimeSeriesModel> utilityInputModels = new HashMap<GoodType, PeriodDataAccumulatorTimeSeriesModel>();
+
+			public UtilityModel(Currency referenceCurrency) {
+				this.referenceCurrency = referenceCurrency;
+				this.utilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
+						referenceCurrency.getIso4217Code() + " utility");
+				for (GoodType goodType : InputOutputModel
+						.getUtilityFunctionForHousehold().getInputGoodTypes()) {
+					this.utilityInputModels.put(goodType,
+							new PeriodDataAccumulatorTimeSeriesModel(
+									referenceCurrency.getIso4217Code() + " "
+											+ goodType + " input"));
+				}
+			}
+
+			public PeriodDataAccumulatorTimeSeriesModel getOutputModel() {
+				return this.utilityOutputModel;
+			}
+
+			public Set<GoodType> getInputGoodTypes() {
+				return this.utilityInputModels.keySet();
+			}
+
+			public PeriodDataAccumulatorTimeSeriesModel getInputModel(
+					GoodType inputGoodType) {
+				return this.utilityInputModels.get(inputGoodType);
+			}
+
+			public void nextPeriod() {
+				this.utilityOutputModel.nextPeriod();
+				for (PeriodDataAccumulatorTimeSeriesModel periodDataAccumulatorTimeSeriesModel : this.utilityInputModels
+						.values()) {
+					periodDataAccumulatorTimeSeriesModel.nextPeriod();
+				}
+			}
+		}
+
 		public NationalEconomyModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
 
@@ -124,14 +168,13 @@ public class ModelRegistry {
 					referenceCurrency.getIso4217Code() + " saving");
 			this.savingRateModel = new PeriodDataQuotientTimeSeriesModel(
 					referenceCurrency.getIso4217Code() + " saving rate");
-			this.utilityModel = new PeriodDataAccumulatorTimeSeriesModel(
-					referenceCurrency.getIso4217Code() + " utility");
 			this.wageModel = new PeriodDataAccumulatorTimeSeriesModel(
 					referenceCurrency.getIso4217Code() + " wage");
 			this.labourHourCapacityModel = new PeriodDataAccumulatorTimeSeriesModel(
 					referenceCurrency.getIso4217Code() + " "
 							+ GoodType.LABOURHOUR + " cap.");
 			this.pricesModel = new PricesModel();
+			this.utilityModel = new UtilityModel(this.referenceCurrency);
 			this.keyInterestRateModel = new PeriodDataAccumulatorTimeSeriesModel(
 					referenceCurrency.getIso4217Code() + " key interest rate");
 			this.moneySupplyM0Model = new PeriodDataAccumulatorTimeSeriesModel(
@@ -165,8 +208,8 @@ public class ModelRegistry {
 		public final PeriodDataPercentageTimeSeriesModel<IncomeSource> incomeSourceModel;
 		public final PeriodDataAccumulatorTimeSeriesModel savingModel;
 		public final PeriodDataQuotientTimeSeriesModel savingRateModel;
-		public final PeriodDataAccumulatorTimeSeriesModel utilityModel;
 		public final PeriodDataAccumulatorTimeSeriesModel wageModel;
+		public final UtilityModel utilityModel;
 
 		// industries
 
@@ -330,8 +373,7 @@ public class ModelRegistry {
 		return nationalEconomyModels.get(currency).moneySupplyM2Model;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getUtilityModel(
-			Currency currency) {
+	public static UtilityModel getUtilityModel(Currency currency) {
 		return nationalEconomyModels.get(currency).utilityModel;
 	}
 

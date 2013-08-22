@@ -28,6 +28,6 @@ public class CobbDouglasIntertemporalConsumptionFunction extends
 
 	public CobbDouglasIntertemporalConsumptionFunction(
 			Map<Period, Double> intertemporalPreferences) {
-		super(new CobbDouglasFunction<Period>(intertemporalPreferences, 1.));
+		super(new CobbDouglasFunction<Period>(1.0, intertemporalPreferences));
 	}
 }

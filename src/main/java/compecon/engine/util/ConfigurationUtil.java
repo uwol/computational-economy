@@ -24,6 +24,19 @@ import java.util.Properties;
 
 public class ConfigurationUtil {
 
+	public static class BudgetingBehaviour {
+		public static double getInternalRateOfReturn() {
+			return Double.parseDouble(configFile
+					.getProperty("budgetingBehaviour.internalRateOfReturn"));
+		}
+
+		public static double getKeyInterestRateTransmissionDamper() {
+			return Double
+					.parseDouble(configFile
+							.getProperty("budgetingBehaviour.keyInterestRateTransmissionDamper"));
+		}
+	}
+
 	public static class CentralBankConfig {
 		public static double getReserveRatio() {
 			return Double.parseDouble(configFile
@@ -74,6 +87,11 @@ public class ConfigurationUtil {
 		public static int getNumberPerGoodTypeAndCurrency() {
 			return Integer.parseInt(configFile
 					.getProperty("factory.numberPerGoodTypeAndCurrency"));
+		}
+
+		public static double getReferenceCredit() {
+			return Double.parseDouble(configFile
+					.getProperty("factory.referenceCredit"));
 		}
 	}
 

@@ -21,9 +21,7 @@ package compecon.engine;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import compecon.Simulation;
@@ -42,8 +40,6 @@ import compecon.materia.InputOutputModel;
 import compecon.math.intertemporal.IntertemporalConsumptionFunction;
 import compecon.math.intertemporal.ModiglianiIntertemporalConsumptionFunction;
 import compecon.math.production.IProductionFunction;
-import compecon.math.utility.CobbDouglasUtilityFunction;
-import compecon.math.utility.IUtilityFunction;
 
 public class AgentFactory {
 
@@ -65,14 +61,8 @@ public class AgentFactory {
 			if (!ConfigurationUtil.DbConfig.getActivateDb())
 				state.setId(Simulation.getNextId());
 
-			Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-			preferences.put(GoodType.LABOURHOUR, 0.3);
-			preferences.put(GoodType.KILOWATT, 0.2);
-			preferences.put(GoodType.REALESTATE, 0.2);
-			preferences.put(GoodType.GOLD, 0.3);
-			IUtilityFunction utilityFunction = new CobbDouglasUtilityFunction(
-					preferences, 1);
-			state.setUtilityFunction(utilityFunction);
+			state.setUtilityFunction(InputOutputModel
+					.getUtilityFunctionForState());
 
 			state.setPrimaryCurrency(currency);
 			DAOFactory.getStateDAO().save(state);
@@ -135,7 +125,8 @@ public class AgentFactory {
 			factory.setId(Simulation.getNextId());
 		factory.setProducedGoodType(goodType);
 		factory.setPrimaryCurrency(primaryCurrency);
-		factory.setReferenceCredit(100000);
+		factory.setReferenceCredit(ConfigurationUtil.FactoryConfig
+				.getReferenceCredit());
 
 		IProductionFunction productionFunction = InputOutputModel
 				.getProductionFunction(goodType);
@@ -157,21 +148,8 @@ public class AgentFactory {
 			household.setId(Simulation.getNextId());
 		household.setPrimaryCurrency(primaryCurrency);
 
-		// consumption preferences; each GoodType has to be contained here (at
-		// least transitively via the input-output-model), so that the
-		// corresponding price on the market
-		// can come to an equilibrium; preference for labour hour has to be high
-		// enough, so that labour hour prices do not fall endlessly
-		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.LABOURHOUR, 0.2);
-		preferences.put(GoodType.WHEAT, 0.2);
-		preferences.put(GoodType.KILOWATT, 0.1);
-		preferences.put(GoodType.CAR, 0.2);
-		preferences.put(GoodType.REALESTATE, 0.2);
-		preferences.put(GoodType.GOLD, 0.1);
-		IUtilityFunction utilityFunction = new CobbDouglasUtilityFunction(
-				preferences, 1);
-		household.setUtilityFunction(utilityFunction);
+		household.setUtilityFunction(InputOutputModel
+				.getUtilityFunctionForHousehold());
 
 		// intertemporal preferences
 		/*

@@ -48,8 +48,8 @@ import org.hibernate.annotations.Index;
 
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.HardCashRegister;
 import compecon.economy.sectors.state.law.property.Property;
@@ -97,7 +97,7 @@ public abstract class Agent {
 	// maxCredit limits the demand for money when buying production input
 	// factors, thus limiting M1 in the monetary system
 	@Column(name = "referenceCredit")
-	protected int referenceCredit;
+	protected double referenceCredit;
 
 	@OneToOne
 	@JoinColumn(name = "transactionsBankAccount_id")
@@ -180,7 +180,7 @@ public abstract class Agent {
 		return primaryCurrency;
 	}
 
-	public int getReferenceCredit() {
+	public double getReferenceCredit() {
 		return this.referenceCredit;
 	}
 
@@ -212,7 +212,7 @@ public abstract class Agent {
 		this.primaryCurrency = primaryCurrency;
 	}
 
-	public void setReferenceCredit(int referenceCredit) {
+	public void setReferenceCredit(double referenceCredit) {
 		this.referenceCredit = referenceCredit;
 	}
 

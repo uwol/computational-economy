@@ -22,22 +22,24 @@ package compecon.math.production;
 import java.util.Map;
 
 import compecon.materia.GoodType;
-import compecon.math.CobbDouglasFunction;
+import compecon.math.CESFunction;
 
-public class CobbDouglasProductionFunction extends ConvexProductionFunction {
-	public CobbDouglasProductionFunction(double factorProductivity,
-			Map<GoodType, Double> exponents) {
-		super(new CobbDouglasFunction<GoodType>(factorProductivity, exponents));
+public class CESProductionFunction extends ConvexProductionFunction {
+	public CESProductionFunction(double factorProductivity,
+			Map<GoodType, Double> coefficients, double substitutionFactor,
+			double homogenityFactor) {
+		super(new CESFunction<GoodType>(factorProductivity, coefficients,
+				substitutionFactor, homogenityFactor));
 	}
 
 	@Override
 	public double getProductivity() {
-		return ((CobbDouglasFunction<GoodType>) this.delegate).getCoefficient();
+		return ((CESFunction<GoodType>) this.delegate).getMainCoefficient();
 	}
 
 	@Override
 	public void setProductivity(double productivity) {
-		((CobbDouglasFunction<GoodType>) this.delegate)
-				.setCoefficient(productivity);
+		((CESFunction<GoodType>) this.delegate)
+				.setMainCoefficient(productivity);
 	}
 }

@@ -148,7 +148,11 @@ public class Log {
 
 			Log.log(household, log);
 		}
-		ModelRegistry.getUtilityModel(currency).add(utility);
+		ModelRegistry.getUtilityModel(currency).getOutputModel().add(utility);
+		for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume.entrySet()) {
+			ModelRegistry.getUtilityModel(currency)
+					.getInputModel(entry.getKey()).add(entry.getValue());
+		}
 	}
 
 	public static void household_LabourHourCapacity(Currency currency,

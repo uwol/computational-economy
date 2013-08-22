@@ -45,6 +45,7 @@ import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
 import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
 import compecon.engine.jmx.model.PeriodDataDistributionModel.SummaryStatisticalData;
+import compecon.materia.GoodType;
 
 public class HouseholdPanel extends AbstractChartsPanel implements
 		IModelListener {
@@ -85,7 +86,14 @@ public class HouseholdPanel extends AbstractChartsPanel implements
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		timeSeriesCollection.addSeries(ModelRegistry.getUtilityModel(currency)
-				.getTimeSeries());
+				.getOutputModel().getTimeSeries());
+
+		for (GoodType inputGoodType : ModelRegistry.getUtilityModel(currency)
+				.getInputGoodTypes()) {
+			timeSeriesCollection.addSeries(ModelRegistry
+					.getUtilityModel(currency).getInputModel(inputGoodType)
+					.getTimeSeries());
+		}
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Utility",
 				"Date", "Total Utility", (XYDataset) timeSeriesCollection,
