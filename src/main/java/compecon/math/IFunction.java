@@ -24,6 +24,9 @@ import java.util.Set;
 
 public interface IFunction<T> {
 
+	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
+			final Map<T, Double> costsOfInputs, final double budget);
+
 	public Set<T> getInputTypes();
 
 	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate();
@@ -33,8 +36,10 @@ public interface IFunction<T> {
 	public double partialDerivative(Map<T, Double> forBundleOfInputs,
 			T withRespectToInput);
 
+	public Map<T, Double> partialDerivatives(Map<T, Double> forBundleOfInputs);
+
 	public T findLargestPartialDerivate(Map<T, Double> forBundleOfInputs);
 
-	public T findLargestPartialDerivatePerPrice(Map<T, Double> bundleOfInputs,
+	public T findHighestPartialDerivatePerPrice(Map<T, Double> bundleOfInputs,
 			Map<T, Double> pricesOfInputs);
 }

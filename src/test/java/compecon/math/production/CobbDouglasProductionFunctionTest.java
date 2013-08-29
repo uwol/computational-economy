@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.math.utility;
+package compecon.math.production;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,19 +28,19 @@ import org.junit.Test;
 
 import compecon.materia.GoodType;
 
-public class CobbDouglasUtilityFunctionTest {
+public class CobbDouglasProductionFunctionTest {
 
 	public final double epsilon = 0.001;
 
 	@Test
-	public void calculateUtility() {
+	public void calculateProductionOutput() {
 		/*
 		 * prepare function
 		 */
 		Map<GoodType, Double> preferences = new HashMap<GoodType, Double>();
 		preferences.put(GoodType.KILOWATT, 0.4);
 		preferences.put(GoodType.WHEAT, 0.6);
-		CobbDouglasUtilityFunction cobbDouglasUtilityFunction = new CobbDouglasUtilityFunction(
+		CobbDouglasProductionFunction cobbDouglasProductionFunction = new CobbDouglasProductionFunction(
 				1.0, preferences);
 
 		/*
@@ -51,9 +51,13 @@ public class CobbDouglasUtilityFunctionTest {
 		prices.put(GoodType.WHEAT, 2.0);
 		double budget = 10.0;
 
-		Map<GoodType, Double> optimalInputs = cobbDouglasUtilityFunction
-				.calculateUtilityMaximizingInputsUnderBudgetRestriction(prices,
-						budget);
+		Map<GoodType, Double> optimalInputs = cobbDouglasProductionFunction
+				.calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
+						10.0, prices, budget, Double.NaN);
+
+		/*
+		 * assert inputs
+		 */
 		assertEquals(4.0, optimalInputs.get(GoodType.KILOWATT), epsilon);
 		assertEquals(3.0, optimalInputs.get(GoodType.WHEAT), epsilon);
 
@@ -61,17 +65,17 @@ public class CobbDouglasUtilityFunctionTest {
 		 * assert output
 		 */
 		assertEquals(3.36586,
-				cobbDouglasUtilityFunction.calculateUtility(optimalInputs),
+				cobbDouglasProductionFunction.calculateOutput(optimalInputs),
 				epsilon);
 
 		/*
 		 * assert marginal outputs
 		 */
 		assertEquals(0.336586,
-				cobbDouglasUtilityFunction.calculateMarginalUtility(
+				cobbDouglasProductionFunction.calculateMarginalOutput(
 						optimalInputs, GoodType.KILOWATT), epsilon);
 		assertEquals(0.673173,
-				cobbDouglasUtilityFunction.calculateMarginalUtility(
+				cobbDouglasProductionFunction.calculateMarginalOutput(
 						optimalInputs, GoodType.WHEAT), epsilon);
 	}
 }

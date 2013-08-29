@@ -22,7 +22,6 @@ package compecon.math.utility;
 import java.util.Map;
 
 import compecon.materia.GoodType;
-import compecon.math.CobbDouglasFunction;
 import compecon.math.IFunction;
 
 /**
@@ -38,7 +37,7 @@ public abstract class ConvexUtilityFunction extends UtilityFunction {
 	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
 			Map<GoodType, Double> pricesOfInputGoods, double budget) {
-		return ((CobbDouglasFunction<GoodType>) this.delegate)
+		return ((IFunction<GoodType>) this.delegate)
 				.calculateOutputMaximizingInputsUnderBudgetRestriction(
 						pricesOfInputGoods, budget);
 	}

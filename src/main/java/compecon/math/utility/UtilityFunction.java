@@ -54,7 +54,7 @@ public abstract class UtilityFunction implements IUtilityFunction {
 	protected GoodType selectInputWithHighestMarginalUtilityPerPrice(
 			Map<GoodType, Double> bundleOfInputGoods,
 			Map<GoodType, Double> pricesOfInputGoods) {
-		return this.delegate.findLargestPartialDerivatePerPrice(
+		return this.delegate.findHighestPartialDerivatePerPrice(
 				bundleOfInputGoods, pricesOfInputGoods);
 	}
 }

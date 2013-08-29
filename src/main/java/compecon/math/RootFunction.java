@@ -52,7 +52,7 @@ public class RootFunction<T> extends ConvexFunction<T> implements IFunction<T> {
 	@Override
 	public double partialDerivative(Map<T, Double> forBundleOfInputs,
 			T withRespectToInputType) {
-		if (withRespectToInputType == this.inputType)
+		if (this.inputType.equals(withRespectToInputType))
 			return this.coefficient * 0.5
 					* Math.pow(forBundleOfInputs.get(this.inputType), -0.5);
 		return 0;

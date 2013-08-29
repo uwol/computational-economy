@@ -55,7 +55,7 @@ public abstract class ProductionFunction implements IProductionFunction {
 	protected GoodType selectInputWithHighestMarginalOutputPerPrice(
 			Map<GoodType, Double> bundleOfInputGoods,
 			Map<GoodType, Double> pricesOfInputGoods) {
-		return this.delegate.findLargestPartialDerivatePerPrice(
+		return this.delegate.findHighestPartialDerivatePerPrice(
 				bundleOfInputGoods, pricesOfInputGoods);
 	}
 }

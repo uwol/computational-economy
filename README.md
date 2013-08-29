@@ -4,7 +4,7 @@ Computational Economy
 Computational Economy is an agent-based computational economics simulator implemented in Java (https://github.com/uwol).
 
 Features:
-* Agent type *Household*: Households offer labour hours and consume goods according to a Cobb-Douglas utility function. Intertemporal consumption and retirement saving preferences are modeled by Irving-Fisher and Modigliani intertemporal choice models.
+* Agent type *Household*: Households offer labour hours and consume goods according to CES or Cobb-Douglas utility functions. Intertemporal consumption and retirement saving preferences are modeled by Irving-Fisher and Modigliani intertemporal choice models.
 * Agent type *Factory*: Factories produce arbitrary goods according to an input-output-model based on Cobb-Douglas, CES and root production functions.
 * Agent type *Credit bank*: Credit banks manage bank accounts, create money by credit, trade currencies, follow minimum reserve requirements of central banks and buy bonds for deposits (fractional reserve banking).
 * Agent type *Central bank*: Central banks adjust key interest rates based on price indices. Key interest rates induce changes in buying behaviour via a monetary transmission mechanism.
@@ -28,10 +28,10 @@ Technical platform:
 
 ![screenshot3](http://img.literaturedb.com/compecon3.png)
 
-![screenshot3](http://img.literaturedb.com/compecon4.png)
+![screenshot4](http://img.literaturedb.com/compecon4.png)
 
-![screenshot3](http://img.literaturedb.com/compecon5.png)
+![screenshot5](http://img.literaturedb.com/compecon5.png)
 
-![screenshot3](http://img.literaturedb.com/compecon6.png)
+![screenshot6](http://img.literaturedb.com/compecon6.png)
 
-![screenshot3](http://img.literaturedb.com/compecon7.png)
+![screenshot7](http://img.literaturedb.com/compecon7.png)

@@ -21,7 +21,6 @@ package compecon.math;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import compecon.engine.util.MathUtil;
@@ -36,20 +35,19 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 	public CobbDouglasFunction(double coefficient, Map<T, Double> exponents) {
 		super(true);
 
-		/*
-		 * constraint on exponents
-		 */
+		if (!MathUtil.greater(coefficient, 0.0))
+			throw new RuntimeException("coefficient has to be > 0");
+
 		double sumOfExponents = 0.0;
 		for (Double exponent : exponents.values()) {
-			if (exponent == 1.0)
-				throw new RuntimeException("exponent is 1");
+			if (exponent >= 1.0 || exponent <= 0.0)
+				throw new RuntimeException(
+						"each exponent has to be in interval ]0, 1[");
 			sumOfExponents += exponent;
 		}
-		if (!MathUtil.equal(sumOfExponents, 1.0))
-			throw new RuntimeException("sum of exponents not 1");
 
-		if (!MathUtil.greater(coefficient, 0.0))
-			throw new RuntimeException("coefficient is not > 0");
+		if (!MathUtil.equal(sumOfExponents, 1.0))
+			throw new RuntimeException("sum of exponents must equal 1");
 
 		this.exponents = exponents;
 		this.coefficient = coefficient;
@@ -67,11 +65,9 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 	@Override
 	public double f(Map<T, Double> bundleOfInputs) {
 		double output = this.coefficient;
-		for (Entry<T, Double> entry : this.exponents.entrySet()) {
-			T inputType = entry.getKey();
-			double exponent = entry.getValue();
-			double input = bundleOfInputs.containsKey(inputType) ? bundleOfInputs
-					.get(inputType) : 0.0;
+		for (T inputType : this.getInputTypes()) {
+			double exponent = this.exponents.get(inputType);
+			double input = bundleOfInputs.get(inputType);
 			output = output * Math.pow(input, exponent);
 		}
 		return output;
@@ -88,12 +84,10 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		 * Constant
 		 */
 		double constant = this.coefficient;
-		for (Entry<T, Double> entry : this.exponents.entrySet()) {
-			T inputType = entry.getKey();
-			if (inputType != withRespectToInputType) {
-				double base = forBundleOfInputs.containsKey(inputType) ? forBundleOfInputs
-						.get(inputType) : 0.0;
-				double exponent = entry.getValue();
+		for (T inputType : this.getInputTypes()) {
+			if (!inputType.equals(withRespectToInputType)) {
+				double base = forBundleOfInputs.get(inputType);
+				double exponent = this.exponents.get(inputType);
 				constant = constant * Math.pow(base, exponent);
 			}
 		}
@@ -102,14 +96,11 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		 * Differential factor
 		 */
 		double differentialInput = forBundleOfInputs
-				.containsKey(withRespectToInputType) ? forBundleOfInputs
-				.get(withRespectToInputType) : 0.0;
+				.get(withRespectToInputType);
 		double differentialExponent = this.exponents
-				.containsKey(withRespectToInputType) ? this.exponents
-				.get(withRespectToInputType) - 1.0 : 0.0;
+				.get(withRespectToInputType) - 1.0;
 		double differentialCoefficient = this.exponents
-				.containsKey(withRespectToInputType) ? this.exponents
-				.get(withRespectToInputType) : 0.0;
+				.get(withRespectToInputType);
 		double differentialFactor = differentialCoefficient
 				* Math.pow(differentialInput, differentialExponent);
 
@@ -120,16 +111,31 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		return constant * differentialFactor;
 	}
 
+	@Override
+	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
+			final Map<T, Double> costsOfInputs, final double budget) {
+		return this
+				.calculateOutputMaximizingInputsUnderBudgetRestrictionAnalytical(
+						costsOfInputs, budget);
+	}
+
 	/**
 	 * This method implements the analytical solution for the lagrange function
 	 * of an optimization problem under budget constraints. It overwrites the
 	 * general solution for convex functions because of performance reasons.
 	 */
-	@Override
-	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
+	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestrictionAnalytical(
 			Map<T, Double> costsOfInputs, double budgetRestriction) {
 		Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 		Map<T, Double> exponents = this.getExponents();
+
+		boolean costsAreNaN = false;
+		for (T inputType : this.getInputTypes()) {
+			if (Double.isNaN(costsOfInputs.get(inputType))) {
+				costsAreNaN = true;
+				break;
+			}
+		}
 
 		/*
 		 * analytical formula for the optimal solution of a Cobb-Douglas
@@ -138,18 +144,12 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		for (T inputType : this.getInputTypes()) {
 			double optimalAmount = exponents.get(inputType) * budgetRestriction
 					/ costsOfInputs.get(inputType);
-			if (Double.isNaN(optimalAmount))
+			if (costsAreNaN || Double.isNaN(optimalAmount))
 				optimalAmount = 0.0;
 			bundleOfInputs.put(inputType, optimalAmount);
 		}
 
 		return bundleOfInputs;
-	}
-
-	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
-			Map<T, Double> costsOfInputs, double budgetRestriction) {
-		return super.calculateOutputMaximizingInputsUnderBudgetRestriction(
-				costsOfInputs, budgetRestriction);
 	}
 
 	public Map<T, Double> getExponents() {

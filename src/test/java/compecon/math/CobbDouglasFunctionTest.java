@@ -28,64 +28,147 @@ import org.junit.Test;
 
 import compecon.materia.GoodType;
 
-public class CobbDouglasFunctionTest {
+public class CobbDouglasFunctionTest extends AbstractFunctionTest {
 
-	final double epsilon = 0.001;
+	final double epsilon = 0.01;
 
 	@Test
-	public void calculateProductionOutputForGoodsWithRegularPrices() {
+	public void calculateForTwoGoods() {
+		/*
+		 * prepare function
+		 */
+		Map<GoodType, Double> exponents = new HashMap<GoodType, Double>();
+		exponents.put(GoodType.KILOWATT, 0.4);
+		exponents.put(GoodType.WHEAT, 0.6);
+		CobbDouglasFunction<GoodType> cobbDouglasFunction = new CobbDouglasFunction<GoodType>(
+				1.0, exponents);
+
+		/*
+		 * maximize output under budget restriction
+		 */
 		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
 		prices.put(GoodType.COAL, Double.NaN);
 		prices.put(GoodType.KILOWATT, 1.0);
 		prices.put(GoodType.WHEAT, 2.0);
-		double budget = 10;
+		double budget = 10.0;
 
-		Map<GoodType, Double> preferences1 = new HashMap<GoodType, Double>();
-		preferences1.put(GoodType.KILOWATT, 0.4);
-		preferences1.put(GoodType.WHEAT, 0.6);
-		CobbDouglasFunction<GoodType> cobbDouglasFunction1 = new CobbDouglasFunction<GoodType>(
-				1.0, preferences1);
-
-		Map<GoodType, Double> amount = cobbDouglasFunction1
-				.calculateOutputMaximizingInputsUnderBudgetRestriction(prices,
-						budget);
-		assertEquals(4., amount.get(GoodType.KILOWATT), epsilon);
-		assertEquals(3., amount.get(GoodType.WHEAT), epsilon);
-
-		amount = cobbDouglasFunction1
+		Map<GoodType, Double> optimalInputsIterative = cobbDouglasFunction
 				.calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
 						prices, budget);
-		assertEquals(4., amount.get(GoodType.KILOWATT), epsilon);
-		assertEquals(3., amount.get(GoodType.WHEAT), epsilon);
+		Map<GoodType, Double> optimalInputsAnalytical = cobbDouglasFunction
+				.calculateOutputMaximizingInputsUnderBudgetRestrictionAnalytical(
+						prices, budget);
+		Map<GoodType, Double> optimalInputsBruteForce = cobbDouglasFunction
+				.calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
+						prices, budget);
+
+		/*
+		 * assert inputs
+		 */
+		assertEquals(4., optimalInputsAnalytical.get(GoodType.KILOWATT),
+				epsilon);
+		assertEquals(3., optimalInputsAnalytical.get(GoodType.WHEAT), epsilon);
+
+		for (GoodType goodType : optimalInputsAnalytical.keySet()) {
+			assertEquals(optimalInputsAnalytical.get(goodType),
+					optimalInputsIterative.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalytical.get(goodType),
+					optimalInputsBruteForce.get(goodType), epsilon);
+		}
+
+		/*
+		 * assert output
+		 */
+		assertEquals(3.36586, cobbDouglasFunction.f(optimalInputsAnalytical),
+				epsilon);
+
+		assertOutputIsOptimalUnderBudget(cobbDouglasFunction, budget, prices,
+				optimalInputsAnalytical);
+
+		/*
+		 * assert marginal outputs
+		 */
+		assertEquals(0.336586, cobbDouglasFunction.partialDerivative(
+				optimalInputsAnalytical, GoodType.KILOWATT), epsilon);
+		assertEquals(0.673173, cobbDouglasFunction.partialDerivative(
+				optimalInputsAnalytical, GoodType.WHEAT), epsilon);
+
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
+				optimalInputsIterative, prices);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
+				optimalInputsAnalytical, prices);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
+				optimalInputsBruteForce, prices);
 	}
 
 	@Test
-	public void calculateProductionOutputForGoodsWithNaNPrices() {
+	public void calculateForThreeGoodsWithNaNPrices() {
+		/*
+		 * prepare function
+		 */
+		Map<GoodType, Double> exponents = new HashMap<GoodType, Double>();
+		exponents.put(GoodType.COAL, 0.1);
+		exponents.put(GoodType.KILOWATT, 0.3);
+		exponents.put(GoodType.WHEAT, 0.6);
+		CobbDouglasFunction<GoodType> cobbDouglasFunction = new CobbDouglasFunction<GoodType>(
+				1.0, exponents);
+
+		/*
+		 * maximize output under budget restriction
+		 */
 		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
 		prices.put(GoodType.COAL, Double.NaN);
 		prices.put(GoodType.KILOWATT, 1.0);
 		prices.put(GoodType.WHEAT, 2.0);
-		double budget = 10;
+		double budget = 10.0;
 
-		Map<GoodType, Double> preferences2 = new HashMap<GoodType, Double>();
-		preferences2.put(GoodType.COAL, 0.1);
-		preferences2.put(GoodType.KILOWATT, 0.3);
-		preferences2.put(GoodType.WHEAT, 0.6);
-		CobbDouglasFunction<GoodType> cobbDouglasFunction2 = new CobbDouglasFunction<GoodType>(
-				1.0, preferences2);
-
-		Map<GoodType, Double> amount = cobbDouglasFunction2
-				.calculateOutputMaximizingInputsUnderBudgetRestriction(prices,
-						budget);
-		assertEquals(0., amount.get(GoodType.COAL), epsilon);
-		assertEquals(3., amount.get(GoodType.KILOWATT), epsilon);
-		assertEquals(3., amount.get(GoodType.WHEAT), epsilon);
-
-		amount = cobbDouglasFunction2
+		Map<GoodType, Double> optimalInputsAnalytical = cobbDouglasFunction
+				.calculateOutputMaximizingInputsUnderBudgetRestrictionAnalytical(
+						prices, budget);
+		Map<GoodType, Double> optimalInputsIterative = cobbDouglasFunction
 				.calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
 						prices, budget);
-		assertEquals(0., amount.get(GoodType.COAL), epsilon);
-		assertEquals(3., amount.get(GoodType.KILOWATT), epsilon);
-		assertEquals(3., amount.get(GoodType.WHEAT), epsilon);
+		Map<GoodType, Double> optimalInputsBruteForce = cobbDouglasFunction
+				.calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
+						prices, budget);
+
+		/*
+		 * assert inputs
+		 */
+		assertEquals(0.0, optimalInputsAnalytical.get(GoodType.COAL), epsilon);
+		assertEquals(0.0, optimalInputsAnalytical.get(GoodType.KILOWATT),
+				epsilon);
+		assertEquals(0.0, optimalInputsAnalytical.get(GoodType.WHEAT), epsilon);
+
+		for (GoodType goodType : optimalInputsAnalytical.keySet()) {
+			assertEquals(optimalInputsAnalytical.get(goodType),
+					optimalInputsIterative.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalytical.get(goodType),
+					optimalInputsBruteForce.get(goodType), epsilon);
+		}
+
+		/*
+		 * assert output
+		 */
+		assertEquals(0.0, cobbDouglasFunction.f(optimalInputsAnalytical),
+				epsilon);
+
+		assertOutputIsOptimalUnderBudget(cobbDouglasFunction, budget, prices,
+				optimalInputsAnalytical);
+
+		/*
+		 * assert marginal outputs
+		 */
+		assertEquals(0.0, cobbDouglasFunction.partialDerivative(
+				optimalInputsAnalytical, GoodType.KILOWATT), epsilon);
+		assertEquals(0.0, cobbDouglasFunction.partialDerivative(
+				optimalInputsAnalytical, GoodType.WHEAT), epsilon);
+
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
+				optimalInputsIterative, prices);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
+				optimalInputsAnalytical, prices);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
+				optimalInputsBruteForce, prices);
 	}
 }

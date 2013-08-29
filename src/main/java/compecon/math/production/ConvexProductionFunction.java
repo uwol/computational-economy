@@ -38,35 +38,76 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 			Map<GoodType, Double> pricesOfProductionFactors,
 			final double budget, final double maxOutput) {
 
-		// order of exponents is preserved, so that important GoodTypes
-		// will be bought first
-		Map<GoodType, Double> bundleOfInputFactors = new LinkedHashMap<GoodType, Double>();
+		// check if inputs have NaN prices
+		boolean costsAreNaN = false;
+		for (GoodType inputType : this.getInputGoodTypes()) {
+			if (Double.isNaN(pricesOfProductionFactors.get(inputType))) {
+				costsAreNaN = true;
+				break;
+			}
+		}
 
 		// define estimated revenue per unit
-		double estMarginalRevenue = priceOfProducedGoodType;
+		final double estMarginalRevenue = priceOfProducedGoodType;
 
-		// initialize
-		for (GoodType goodType : this.getInputGoodTypes())
-			bundleOfInputFactors.put(goodType, 0.0);
+		/*
+		 * special cases
+		 */
 
-		// check for estimated revenue per unit
+		// special case: if some prices are NaN, then not all inputs can be set.
+		// This becomes a problem, if all inputs have to be set -> return zero
+		// input
+		if (costsAreNaN
+				&& this.delegate
+						.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
+			Log.log("at least one of the prices is Double.NaN, but the production function needs all inputs set");
+			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
+			for (GoodType inputType : this.getInputGoodTypes())
+				bundleOfInputs.put(inputType, 0.0);
+			return bundleOfInputs;
+		}
+
+		// special case: check for budget
+		if (MathUtil.equal(budget, 0.0)) {
+			Log.log("budget is " + budget);
+			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
+			for (GoodType inputType : this.getInputGoodTypes())
+				bundleOfInputs.put(inputType, 0.0);
+			return bundleOfInputs;
+		}
+
+		// special case: check for estimated revenue per unit
 		if (MathUtil.equal(estMarginalRevenue, 0.0)) {
 			Log.log("estMarginalRevenue = " + estMarginalRevenue
 					+ " -> no production");
-			return bundleOfInputFactors;
+			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
+			for (GoodType inputType : this.getInputGoodTypes())
+				bundleOfInputs.put(inputType, 0.0);
+			return bundleOfInputs;
 		}
 
-		// check for budget
-		if (MathUtil.equal(budget, 0)) {
-			Log.log("budget is " + budget);
-			return bundleOfInputFactors;
+		/*
+		 * regular calculation
+		 */
+		double moneySpent = 0.0;
+		final Map<GoodType, Double> bundleOfInputFactors = new LinkedHashMap<GoodType, Double>();
+
+		// initialize
+		if (this.delegate.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
+			for (GoodType inputType : this.getInputGoodTypes()) {
+				bundleOfInputFactors.put(inputType, 0.0000001);
+				moneySpent += bundleOfInputFactors.get(inputType)
+						* pricesOfProductionFactors.get(inputType);
+			}
+		} else {
+			for (GoodType inputType : this.getInputGoodTypes())
+				bundleOfInputFactors.put(inputType, 0.0);
 		}
 
 		// maximize profit
 		final int NUMBER_OF_ITERATIONS = this.getInputGoodTypes().size() * 20;
 
-		double moneySpent = 0.0;
-		double lastProfitableMarginalCost = 0;
+		double lastProfitableMarginalCost = 0.0;
 		while (MathUtil.greater(budget, moneySpent)) {
 			GoodType optimalInput = this
 					.selectInputWithHighestMarginalOutputPerPrice(
@@ -82,26 +123,23 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 					bundleOfInputFactors.get(optimalInput) + amount);
 			double newOutput = this.calculateOutput(bundleOfInputFactors);
 
-			if (!this.delegate
-					.getNeedsAllInputFactorsNonZeroForPartialDerivate()
-					|| this.hasAllInputFactorsNonZero(bundleOfInputFactors)) {
-				if (!Double.isNaN(estMarginalRevenue)
-						&& !Double.isInfinite(estMarginalRevenue)) {
-					// a polypoly is assumed -> price = marginal revenue
-					if (MathUtil.lesser(estMarginalRevenue, marginalCost)) {
-						Log.log(MathUtil.round(lastProfitableMarginalCost)
-								+ " deltaCost" + " <= "
-								+ MathUtil.round(estMarginalRevenue)
-								+ " deltaEstRevenue" + " < "
-								+ MathUtil.round(marginalCost) + " deltaCost"
-								+ " -> "
-								+ bundleOfInputFactors.entrySet().toString());
-						break;
-					}
+			if (!Double.isNaN(estMarginalRevenue)
+					&& !Double.isInfinite(estMarginalRevenue)) {
+				// a polypoly is assumed -> price = marginal revenue
+				if (MathUtil.lesser(estMarginalRevenue, marginalCost)) {
+					Log.log(MathUtil.round(lastProfitableMarginalCost)
+							+ " deltaCost" + " <= "
+							+ MathUtil.round(estMarginalRevenue)
+							+ " deltaEstRevenue" + " < "
+							+ MathUtil.round(marginalCost) + " deltaCost"
+							+ " -> "
+							+ bundleOfInputFactors.entrySet().toString());
+					break;
 				}
 			}
 
-			if (maxOutput != -1 && MathUtil.greater(newOutput, maxOutput)) {
+			if (!Double.isNaN(maxOutput)
+					&& MathUtil.greater(newOutput, maxOutput)) {
 				bundleOfInputFactors.put(optimalInput,
 						bundleOfInputFactors.get(optimalInput) - amount);
 				Log.log("output " + newOutput + " > maxOutput " + maxOutput
@@ -114,15 +152,5 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		}
 
 		return bundleOfInputFactors;
-	}
-
-	protected boolean hasAllInputFactorsNonZero(
-			Map<GoodType, Double> bundleOfInputFactors) {
-		for (Double amount : bundleOfInputFactors.values()) {
-			if (amount == 0)
-				return false;
-		}
-
-		return true;
 	}
 }

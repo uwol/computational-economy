@@ -47,7 +47,6 @@ public class PropertyDAO extends AgentIndexedInMemoryDAO<Property> implements
 		// the property is deleted and re-saved, so that the
 		// agent-property-index is updated
 		this.delete(property);
-
 		property.setOwner(newOwner);
 		this.save(newOwner, property);
 	}

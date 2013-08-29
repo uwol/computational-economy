@@ -31,11 +31,6 @@ public class CobbDouglasUtilityFunction extends ConvexUtilityFunction {
 		super(new CobbDouglasFunction<GoodType>(coefficient, exponents));
 	}
 
-	/**
-	 * This method implements the analytical solution for the lagrange function
-	 * of an optimization problem under budget constraints. It overwrites the
-	 * general solution for convex functions because of performance reasons.
-	 */
 	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
 			Map<GoodType, Double> pricesOfInputGoods, double budget) {

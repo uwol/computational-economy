@@ -20,25 +20,24 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.math.utility;
 
 import java.util.Map;
-import java.util.Set;
 
 import compecon.materia.GoodType;
+import compecon.math.CESFunction;
 
-public interface IUtilityFunction {
+public class CESUtilityFunction extends ConvexUtilityFunction {
 
-	public Set<GoodType> getInputGoodTypes();
+	public CESUtilityFunction(double mainUtilityLevel,
+			Map<GoodType, Double> coefficients, double substitutionFactor,
+			double homogenityFactor) {
+		super(new CESFunction<GoodType>(mainUtilityLevel, coefficients,
+				substitutionFactor, homogenityFactor));
+	}
 
-	public double calculateUtility(Map<GoodType, Double> bundleOfInputGoods);
-
-	public double calculateMarginalUtility(
-			Map<GoodType, Double> bundleOfInputGoods,
-			GoodType differentialInputGoodType);
-
-	/**
-	 * This method implements the analytical solution for the lagrange function
-	 * of an optimization problem under budget constraints. It overwrites the
-	 * general solution for convex functions because of performance reasons.
-	 */
+	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
-			Map<GoodType, Double> pricesOfInputGoods, double budget);
+			Map<GoodType, Double> pricesOfInputGoods, double budget) {
+		return ((CESFunction<GoodType>) this.delegate)
+				.calculateOutputMaximizingInputsUnderBudgetRestriction(
+						pricesOfInputGoods, budget);
+	}
 }

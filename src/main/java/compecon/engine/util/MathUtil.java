@@ -70,4 +70,9 @@ public class MathUtil {
 			return value;
 		return Math.round(value * precision) / precision;
 	}
+
+	public static double log(double num, double base) {
+		return Math.log(num) / Math.log(base);
+	}
+
 }

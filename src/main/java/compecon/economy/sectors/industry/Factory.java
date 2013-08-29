@@ -181,7 +181,7 @@ public class Factory extends JointStockCompany {
 			Map<GoodType, Double> productionFactorsToBuy = Factory.this.productionFunction
 					.calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
 							priceOfProducedGoodType, pricesOfProductionFactors,
-							budget, -1);
+							budget, Double.NaN);
 			return productionFactorsToBuy;
 		}
 
@@ -224,9 +224,9 @@ public class Factory extends JointStockCompany {
 					Factory.this.primaryCurrency,
 					Factory.this.producedGoodType, producedOutput,
 					productionFactorsOwned);
-			PropertyRegister.getInstance().incrementGoodTypeAmount(
-					Factory.this, Factory.this.producedGoodType,
-					producedOutput);
+			PropertyRegister.getInstance()
+					.incrementGoodTypeAmount(Factory.this,
+							Factory.this.producedGoodType, producedOutput);
 			if (Log.isAgentSelectedByClient(Factory.this))
 				Log.log(Factory.this, ProductionEvent.class, "produced "
 						+ MathUtil.round(producedOutput) + " "
