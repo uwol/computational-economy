@@ -26,8 +26,8 @@ import java.util.Map.Entry;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.time.TimeSystem;

@@ -34,9 +34,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.Transient;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
-import compecon.engine.Agent;
 import compecon.engine.BankAccountFactory;
 import compecon.engine.dao.DAOFactory;
 

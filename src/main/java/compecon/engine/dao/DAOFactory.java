@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import compecon.economy.markets.ordertypes.MarketOrder;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.CentralBank;
@@ -34,7 +35,6 @@ import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.state.law.property.GoodTypeOwnership;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.trading.Trader;
-import compecon.engine.Agent;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.materia.GoodType;
 

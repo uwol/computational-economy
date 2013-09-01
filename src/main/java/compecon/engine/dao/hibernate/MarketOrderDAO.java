@@ -26,9 +26,9 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 
 import compecon.economy.markets.ordertypes.MarketOrder;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
-import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IMarketOrderDAO;
 import compecon.materia.GoodType;
 

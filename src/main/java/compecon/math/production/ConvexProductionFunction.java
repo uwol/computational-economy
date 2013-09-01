@@ -105,12 +105,12 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		}
 
 		// maximize profit
-		final int NUMBER_OF_ITERATIONS = this.getInputGoodTypes().size() * 20;
+		final int NUMBER_OF_ITERATIONS = this.getInputGoodTypes().size() * 50;
 
 		double lastProfitableMarginalCost = 0.0;
 		while (MathUtil.greater(budget, moneySpent)) {
 			GoodType optimalInput = this
-					.selectInputWithHighestMarginalOutputPerPrice(
+					.calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
 							bundleOfInputFactors, pricesOfProductionFactors);
 
 			double marginalCost = pricesOfProductionFactors.get(optimalInput)

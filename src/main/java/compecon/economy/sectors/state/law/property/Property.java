@@ -34,7 +34,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.engine.Agent;
+import compecon.economy.sectors.Agent;
 import compecon.engine.PropertyFactory;
 import compecon.engine.dao.DAOFactory.IPropertyDAO;
 

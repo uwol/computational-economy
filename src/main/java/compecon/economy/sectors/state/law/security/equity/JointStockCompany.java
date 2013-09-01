@@ -28,10 +28,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
-import compecon.engine.Agent;
 import compecon.engine.MarketFactory;
 import compecon.engine.PropertyFactory;
 import compecon.engine.jmx.Log;
@@ -53,7 +53,7 @@ public abstract class JointStockCompany extends Agent {
 	protected Set<Share> issuedShares = new HashSet<Share>();
 
 	@Transient
-	protected double MONEY_TO_RETAIN = 0;
+	protected double MONEY_TO_RETAIN = 0.0;
 
 	@Transient
 	protected final int INITIAL_NUMBER_OF_SHARES = 100;
@@ -113,7 +113,7 @@ public abstract class JointStockCompany extends Agent {
 		this.assureTransactionsBankAccount();
 
 		return Math.max(0.0, this.transactionsBankAccount.getBalance()
-				- MONEY_TO_RETAIN);
+				- this.MONEY_TO_RETAIN);
 	}
 
 	public class SettlementMarketEvent implements ISettlementEvent {

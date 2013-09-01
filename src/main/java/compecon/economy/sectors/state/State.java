@@ -32,6 +32,7 @@ import javax.persistence.Transient;
 
 import compecon.economy.PricingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -39,7 +40,6 @@ import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.debt.Bond;
 import compecon.economy.sectors.state.law.security.debt.FixedRateBond;
-import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
 import compecon.engine.PropertyFactory;

@@ -26,10 +26,10 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import compecon.economy.markets.ordertypes.MarketOrder;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
-import compecon.engine.Agent;
 import compecon.engine.MarketOrderFactory;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.jmx.Log;

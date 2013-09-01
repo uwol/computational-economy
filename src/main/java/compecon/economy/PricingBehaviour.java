@@ -19,8 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.Agent;
 import compecon.engine.jmx.Log;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
@@ -234,14 +234,18 @@ public class PricingBehaviour {
 				.getDefaultNumberOfPrices();
 		double[] prices = new double[numberOfPrices];
 
-		double minPrice = Math.max(0, getCurrentPrice()
-				- this.priceChangeIncrement);
-		double maxPrice = getCurrentPrice() + this.priceChangeIncrement;
-		double maxMinPriceDifference = maxPrice - minPrice;
-		double priceGap = maxMinPriceDifference / (numberOfPrices - 1);
+		if (numberOfPrices == 1) {
+			prices[0] = getCurrentPrice();
+		} else {
+			double minPrice = Math.max(0, getCurrentPrice()
+					- this.priceChangeIncrement);
+			double maxPrice = getCurrentPrice() + this.priceChangeIncrement;
+			double maxMinPriceDifference = maxPrice - minPrice;
+			double priceGap = maxMinPriceDifference / (numberOfPrices - 1);
 
-		for (int i = 0; i < numberOfPrices; i++) {
-			prices[i] = minPrice + priceGap * i;
+			for (int i = 0; i < numberOfPrices; i++) {
+				prices[i] = minPrice + priceGap * i;
+			}
 		}
 
 		if (this.getCurrentPrice() < prices[0]

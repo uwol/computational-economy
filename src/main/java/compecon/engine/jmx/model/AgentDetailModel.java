@@ -28,10 +28,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
-import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.jmx.Log;
 import compecon.materia.GoodType;

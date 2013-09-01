@@ -40,7 +40,8 @@ import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.household.Household;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.engine.dashboard.panel.BalanceSheetPanel.BalanceSheetTableModel;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
 import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
@@ -63,13 +64,13 @@ public class HouseholdPanel extends AbstractChartsPanel implements
 
 		for (Currency currency : Currency.values()) {
 			JPanel panelForCurrency = new JPanel();
-			panelForCurrency.setLayout(new GridLayout(0, 2));
 			jTabbedPane.addTab(currency.getIso4217Code(), panelForCurrency);
-
+			panelForCurrency.setLayout(new GridLayout(0, 3));
 			panelForCurrency.setBackground(Color.lightGray);
 
-			panelForCurrency.add(AgentsPanel.createAgentNumberPanel(currency,
-					Household.class));
+			// panelForCurrency.add(AgentsPanel.createAgentNumberPanel(currency,
+			// Household.class));
+			panelForCurrency.add(createLabourPanel(currency));
 			panelForCurrency.add(createUtilityPanel(currency));
 			panelForCurrency.add(createIncomeConsumptionSavingPanel(currency));
 			panelForCurrency.add(createConsumptionSavingRatePanel(currency));
@@ -77,9 +78,27 @@ public class HouseholdPanel extends AbstractChartsPanel implements
 			panelForCurrency.add(createIncomeSourcePanel(currency));
 			panelForCurrency.add(createIncomeDistributionPanel(currency));
 			panelForCurrency.add(createLorenzCurvePanel(currency));
+			panelForCurrency.add(createHouseholdBalanceSheetPanel(currency));
 		}
 
 		add(jTabbedPane, BorderLayout.CENTER);
+	}
+
+	protected ChartPanel createLabourPanel(Currency currency) {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		timeSeriesCollection.addSeries(ModelRegistry
+				.getGoodTypeProductionModel(currency, GoodType.LABOURHOUR)
+				.getOutputModel().getTimeSeries());
+		timeSeriesCollection.addSeries(ModelRegistry
+				.getLabourHourCapacityModel(currency).getTimeSeries());
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				GoodType.LABOURHOUR.toString() + " Output", "Date",
+				"Capacity & Output", (XYDataset) timeSeriesCollection, true,
+				true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
 	}
 
 	protected ChartPanel createUtilityPanel(Currency currency) {
@@ -192,6 +211,20 @@ public class HouseholdPanel extends AbstractChartsPanel implements
 				"Lorenz Curve", "% of Households", "% of Income", dataset,
 				PlotOrientation.VERTICAL, true, true, false);
 		return new ChartPanel(lorenzCurveChart);
+	}
+
+	protected JPanel createHouseholdBalanceSheetPanel(Currency currency) {
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
+				currency) {
+			@Override
+			protected BalanceSheet getModelData() {
+				return ModelRegistry.getBalanceSheetsModel(referenceCurrency)
+						.getHouseholdNationalAccountsBalanceSheet();
+			}
+		};
+		return new BalanceSheetPanel(currency, balanceSheetTableModel,
+				"Balance Sheet for " + currency.getIso4217Code()
+						+ " Households");
 	}
 
 	@Override

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import compecon.Simulation;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;

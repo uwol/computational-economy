@@ -95,7 +95,7 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		}
 
 		// maximize output
-		double NUMBER_OF_ITERATIONS = bundleOfInputs.size() * 1000.0;
+		double NUMBER_OF_ITERATIONS = bundleOfInputs.size() * 500.0;
 
 		while (MathUtil.greater(budget, moneySpent)) {
 			T optimalInput = this.findHighestPartialDerivatePerPrice(

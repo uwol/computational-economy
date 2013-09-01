@@ -42,6 +42,7 @@ import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 import compecon.math.production.IProductionFunction;
@@ -180,8 +181,10 @@ public class Factory extends JointStockCompany {
 			Log.setAgentCurrentlyActive(Factory.this);
 			Map<GoodType, Double> productionFactorsToBuy = Factory.this.productionFunction
 					.calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
-							priceOfProducedGoodType, pricesOfProductionFactors,
-							budget, Double.NaN);
+							priceOfProducedGoodType
+									* (1.0 + ConfigurationUtil.FactoryConfig
+											.getMargin()),
+							pricesOfProductionFactors, budget, Double.NaN);
 			return productionFactorsToBuy;
 		}
 

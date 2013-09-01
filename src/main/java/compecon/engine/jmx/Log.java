@@ -23,12 +23,13 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import compecon.economy.sectors.Agent;
+import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.engine.Agent;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
 import compecon.engine.time.ITimeSystemEvent;
@@ -106,6 +107,15 @@ public class Log {
 			BalanceSheet balanceSheet) {
 		ModelRegistry.getBalanceSheetsModel(balanceSheet.referenceCurrency)
 				.agent_onPublishBalanceSheet(agent, balanceSheet);
+		if (!(agent instanceof Bank)) {
+			ModelRegistry.getMoneySupplyM0Model(balanceSheet.referenceCurrency)
+					.add(balanceSheet.hardCash);
+			ModelRegistry.getMoneySupplyM1Model(balanceSheet.referenceCurrency)
+					.add(balanceSheet.cashShortTerm + balanceSheet.hardCash);
+			ModelRegistry.getMoneySupplyM2Model(balanceSheet.referenceCurrency)
+					.add(balanceSheet.hardCash + balanceSheet.cashShortTerm
+							+ balanceSheet.cashLongTerm);
+		}
 	}
 
 	// --------

@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.household.Household;
-import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.engine.util.MathUtil;

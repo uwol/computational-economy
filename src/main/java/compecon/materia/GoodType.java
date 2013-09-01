@@ -20,16 +20,32 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.materia;
 
 public enum GoodType {
-	LABOURHOUR(false), IRON(false), COAL(false), GOLD(false), URANIUM(false), WHEAT(
-			false), STEEL(false), KILOWATT(false), REALESTATE(false), CAR(false);
+
+	LABOURHOUR(false, Sector.TERTIARY), IRON(false, Sector.PRIMARY), COAL(
+			false, Sector.PRIMARY), URANIUM(false, Sector.PRIMARY), WHEAT(
+			false, Sector.PRIMARY), STEEL(false, Sector.SECONDARY), KILOWATT(
+			false, Sector.SECONDARY), REALESTATE(false, Sector.SECONDARY), CAR(
+			false, Sector.SECONDARY);
+
+	public enum Sector {
+		PRIMARY, SECONDARY, TERTIARY;
+	}
 
 	protected final boolean wholeNumber;
 
-	private GoodType(boolean wholeNumber) {
+	protected final Sector sector;
+
+	private GoodType(boolean wholeNumber, Sector sector) {
 		this.wholeNumber = wholeNumber;
+		this.sector = sector;
 	}
 
 	public boolean getWholeNumber() {
 		return this.wholeNumber;
 	}
+
+	public Sector getSector() {
+		return this.sector;
+	}
+
 }

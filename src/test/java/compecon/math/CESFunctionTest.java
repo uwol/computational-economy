@@ -96,7 +96,7 @@ public class CESFunctionTest extends AbstractFunctionTest {
 		 */
 		Map<GoodType, Double> coefficients = new HashMap<GoodType, Double>();
 		coefficients.put(GoodType.KILOWATT, 0.1);
-		coefficients.put(GoodType.GOLD, 0.2);
+		coefficients.put(GoodType.URANIUM, 0.2);
 		coefficients.put(GoodType.WHEAT, 0.7);
 		CESFunction<GoodType> cesFunction = new CESFunction<GoodType>(1.0,
 				coefficients, -0.5, 0.4);
@@ -107,7 +107,7 @@ public class CESFunctionTest extends AbstractFunctionTest {
 		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
 		prices.put(GoodType.COAL, Double.NaN);
 		prices.put(GoodType.KILOWATT, 1.0);
-		prices.put(GoodType.GOLD, 3.0);
+		prices.put(GoodType.URANIUM, 3.0);
 		prices.put(GoodType.WHEAT, 2.0);
 		double budget = 10.0;
 
@@ -128,7 +128,8 @@ public class CESFunctionTest extends AbstractFunctionTest {
 				epsilon);
 		assertEquals(4.565, optimalInputsAnalytical.get(GoodType.WHEAT),
 				epsilon);
-		assertEquals(0.166, optimalInputsAnalytical.get(GoodType.GOLD), epsilon);
+		assertEquals(0.166, optimalInputsAnalytical.get(GoodType.URANIUM),
+				epsilon);
 
 		for (GoodType goodType : optimalInputsAnalytical.keySet()) {
 			assertEquals(optimalInputsAnalytical.get(goodType),

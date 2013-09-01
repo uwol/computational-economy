@@ -33,6 +33,7 @@ import org.hibernate.annotations.Index;
 
 import compecon.economy.PricingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
@@ -41,7 +42,6 @@ import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.equity.IShareOwner;
 import compecon.economy.sectors.state.law.security.equity.Share;
-import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
 import compecon.engine.jmx.Log;

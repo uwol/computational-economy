@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine;
+package compecon.economy.sectors;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,10 +55,13 @@ import compecon.economy.sectors.state.law.property.HardCashRegister;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.debt.Bond;
+import compecon.engine.AgentFactory;
+import compecon.engine.MarketFactory;
 import compecon.engine.jmx.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
+import compecon.materia.GoodType;
 
 @Entity
 @Table(name = "Agent")
@@ -296,9 +299,22 @@ public abstract class Agent {
 				balanceSheet.bonds += ((Bond) property).getFaceValue();
 		}
 
-		// inventory
-		balanceSheet.inventory.putAll(PropertyRegister.getInstance()
-				.getBalance(Agent.this));
+		// inventory by value
+		Map<GoodType, Double> prices = MarketFactory.getInstance()
+				.getMarginalPrices(this.primaryCurrency);
+		for (Entry<GoodType, Double> balanceEntry : PropertyRegister
+				.getInstance().getBalance(Agent.this).entrySet()) {
+			GoodType goodType = balanceEntry.getKey();
+			double amount = balanceEntry.getValue();
+			double price = prices.get(goodType);
+			if (!Double.isNaN(price)) {
+				balanceSheet.inventoryValue += amount * price;
+			}
+		}
+
+		// inventory by amount
+		balanceSheet.inventoryQuantitative.putAll(PropertyRegister
+				.getInstance().getBalance(Agent.this));
 
 		return balanceSheet;
 	}

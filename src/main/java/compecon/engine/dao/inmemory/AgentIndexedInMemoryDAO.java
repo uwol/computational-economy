@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import compecon.engine.Agent;
+import compecon.economy.sectors.Agent;
 
 public abstract class AgentIndexedInMemoryDAO<T> extends InMemoryDAO<T> {
 

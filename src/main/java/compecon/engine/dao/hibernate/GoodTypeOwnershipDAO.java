@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.hibernate.criterion.Restrictions;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.state.law.property.GoodTypeOwnership;
-import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IGoodTypeOwnershipDAO;
 
 public class GoodTypeOwnershipDAO extends HibernateDAO<GoodTypeOwnership>

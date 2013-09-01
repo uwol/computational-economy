@@ -34,7 +34,7 @@ import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import compecon.engine.Agent;
+import compecon.economy.sectors.Agent;
 import compecon.materia.GoodType;
 
 @Entity

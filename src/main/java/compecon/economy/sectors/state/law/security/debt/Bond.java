@@ -32,11 +32,11 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
-import compecon.engine.Agent;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;

@@ -25,12 +25,12 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 
 import compecon.economy.markets.ordertypes.MarketOrder;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
-import compecon.engine.Agent;
 import compecon.engine.jmx.Log;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;

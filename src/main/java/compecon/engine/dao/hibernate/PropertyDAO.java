@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.hibernate.criterion.Restrictions;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.state.law.property.Property;
-import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IPropertyDAO;
 
 public class PropertyDAO extends HibernateDAO<Property> implements IPropertyDAO {

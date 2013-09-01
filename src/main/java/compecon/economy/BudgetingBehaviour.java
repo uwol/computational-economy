@@ -19,8 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.Log;
 import compecon.engine.util.ConfigurationUtil;

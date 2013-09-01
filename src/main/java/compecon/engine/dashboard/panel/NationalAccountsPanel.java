@@ -32,9 +32,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
@@ -51,12 +51,14 @@ public class NationalAccountsPanel extends JPanel {
 		public final static int SIDE_ACTIVE = 0;
 		public final static int SIDE_PASSIVE = 5;
 
+		public final static int STARTPOSITION_GOODTYPES = 7;
+
 		public final static int POSITION_HARD_CASH = 0;
 		public final static int POSITION_CASH_SHORT_TERM = 1;
 		public final static int POSITION_CASH_LONG_TERM = 2;
 		public final static int POSITION_BONDS = 3;
 		public final static int POSITION_BANK_LOANS = 4;
-		public final static int STARTPOSITION_GOODTYPES = 6;
+		public final static int POSITION_INVENTORY = 5;
 
 		public final static int POSITION_LOANS = 1;
 		public final static int POSITION_FIN_LIABLITIES = 3;
@@ -87,6 +89,7 @@ public class NationalAccountsPanel extends JPanel {
 			this.activePositionNames[POSITION_CASH_LONG_TERM] = "Cash Long Term";
 			this.activePositionNames[POSITION_BONDS] = "Fin. Assets (Bonds)";
 			this.activePositionNames[POSITION_BANK_LOANS] = "Bank Loans";
+			this.activePositionNames[POSITION_INVENTORY] = "Inventory";
 
 			this.passivePositionNames[POSITION_LOANS] = "Loans";
 			this.passivePositionNames[POSITION_FIN_LIABLITIES] = "Fin. Liabilities (Bonds)";
@@ -174,58 +177,65 @@ public class NationalAccountsPanel extends JPanel {
 		public void notifyListener() {
 			Map<Class<? extends Agent>, BalanceSheet> balanceSheetsForAgentTypes = ModelRegistry
 					.getBalanceSheetsModel(referenceCurrency)
-					.getNationalAccountsBalanceSheet();
+					.getNationalAccountsBalanceSheets();
 
 			for (Entry<Class<? extends Agent>, BalanceSheet> balanceSheetEntry : balanceSheetsForAgentTypes
 					.entrySet()) {
 				Class<? extends Agent> agentType = balanceSheetEntry.getKey();
 				BalanceSheet balanceSheet = balanceSheetEntry.getValue();
 
-				int agentTypeNr = AgentFactory.agentTypes.indexOf(agentType);
+				if (balanceSheet != null) {
+					int agentTypeNr = AgentFactory.agentTypes
+							.indexOf(agentType);
 
-				// active
-				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-						NationalAccountsTableModel.POSITION_HARD_CASH,
-						agentTypeNr, referenceCurrency,
-						Currency.round(balanceSheet.hardCash));
-				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-						NationalAccountsTableModel.POSITION_CASH_SHORT_TERM,
-						agentTypeNr, referenceCurrency,
-						Currency.round(balanceSheet.cashShortTerm));
-				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-						NationalAccountsTableModel.POSITION_CASH_LONG_TERM,
-						agentTypeNr, referenceCurrency,
-						Currency.round(balanceSheet.cashLongTerm));
-				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-						NationalAccountsTableModel.POSITION_BONDS, agentTypeNr,
-						referenceCurrency, Currency.round(balanceSheet.bonds));
-				this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-						NationalAccountsTableModel.POSITION_BANK_LOANS,
-						agentTypeNr, referenceCurrency,
-						Currency.round(balanceSheet.bankLoans));
+					// active
+					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+							POSITION_HARD_CASH, agentTypeNr, referenceCurrency,
+							Currency.round(balanceSheet.hardCash));
+					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+							POSITION_CASH_SHORT_TERM, agentTypeNr,
+							referenceCurrency,
+							Currency.round(balanceSheet.cashShortTerm));
+					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+							POSITION_CASH_LONG_TERM, agentTypeNr,
+							referenceCurrency,
+							Currency.round(balanceSheet.cashLongTerm));
+					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+							POSITION_BONDS, agentTypeNr, referenceCurrency,
+							Currency.round(balanceSheet.bonds));
+					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+							POSITION_BANK_LOANS, agentTypeNr,
+							referenceCurrency,
+							Currency.round(balanceSheet.bankLoans));
+					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+							POSITION_INVENTORY, agentTypeNr, referenceCurrency,
+							Currency.round(balanceSheet.inventoryValue));
 
-				for (GoodType goodType : GoodType.values()) {
-					if (balanceSheet.inventory.containsKey(goodType))
-						this.setValue(
-								NationalAccountsTableModel.SIDE_ACTIVE,
-								NationalAccountsTableModel.STARTPOSITION_GOODTYPES
-										+ goodType.ordinal(), agentTypeNr,
-								referenceCurrency,
-								balanceSheet.inventory.get(goodType));
+					for (GoodType goodType : GoodType.values()) {
+						if (balanceSheet.inventoryQuantitative
+								.containsKey(goodType))
+							this.setValue(
+									NationalAccountsTableModel.SIDE_ACTIVE,
+									NationalAccountsTableModel.STARTPOSITION_GOODTYPES
+											+ goodType.ordinal(), agentTypeNr,
+									referenceCurrency,
+									balanceSheet.inventoryQuantitative
+											.get(goodType));
+					}
+
+					// passive
+					this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
+							POSITION_LOANS, agentTypeNr, referenceCurrency,
+							Currency.round(balanceSheet.loans));
+					this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
+							POSITION_FIN_LIABLITIES, agentTypeNr,
+							referenceCurrency,
+							Currency.round(balanceSheet.financialLiabilities));
+					this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
+							POSITION_BANK_BORROWINGS, agentTypeNr,
+							referenceCurrency,
+							Currency.round(balanceSheet.bankBorrowings));
 				}
-
-				// passive
-				this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
-						NationalAccountsTableModel.POSITION_LOANS, agentTypeNr,
-						referenceCurrency, Currency.round(balanceSheet.loans));
-				this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
-						NationalAccountsTableModel.POSITION_FIN_LIABLITIES,
-						agentTypeNr, referenceCurrency,
-						Currency.round(balanceSheet.financialLiabilities));
-				this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
-						NationalAccountsTableModel.POSITION_BANK_BORROWINGS,
-						agentTypeNr, referenceCurrency,
-						Currency.round(balanceSheet.bankBorrowings));
 			}
 		}
 	}

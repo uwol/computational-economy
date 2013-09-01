@@ -42,38 +42,37 @@ public class InputOutputModel {
 			return new RootProductionFunction(GoodType.LABOURHOUR, 250.0);
 		case COAL:
 			new RootProductionFunction(GoodType.LABOURHOUR, 250.0);
-		case GOLD:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 25.0);
 		case URANIUM:
 			return new RootProductionFunction(GoodType.LABOURHOUR, 25.0);
 		case WHEAT:
 			return new RootProductionFunction(GoodType.LABOURHOUR, 50.0);
+
 		case STEEL:
 			Map<GoodType, Double> parametersSteel = new LinkedHashMap<GoodType, Double>();
-			parametersSteel.put(GoodType.KILOWATT, 0.7);
-			parametersSteel.put(GoodType.LABOURHOUR, 0.1);
-			parametersSteel.put(GoodType.IRON, 0.1);
-			parametersSteel.put(GoodType.COAL, 0.1);
-			return new CESProductionFunction(5.0, parametersSteel, -0.5, 0.4);
+			parametersSteel.put(GoodType.KILOWATT, 0.25);
+			parametersSteel.put(GoodType.LABOURHOUR, 0.25);
+			parametersSteel.put(GoodType.IRON, 0.25);
+			parametersSteel.put(GoodType.COAL, 0.25);
+			return new CESProductionFunction(5.0, parametersSteel, -0.9, 0.8);
 		case KILOWATT:
 			Map<GoodType, Double> parametersKiloWatt = new LinkedHashMap<GoodType, Double>();
 			parametersKiloWatt.put(GoodType.LABOURHOUR, 0.2);
 			parametersKiloWatt.put(GoodType.URANIUM, 0.4);
 			parametersKiloWatt.put(GoodType.COAL, 0.4);
-			return new CESProductionFunction(5.0, parametersKiloWatt, -0.5, 0.4);
+			return new CESProductionFunction(5.0, parametersKiloWatt, -0.9, 0.8);
 		case REALESTATE:
 			Map<GoodType, Double> parametersRealEstate = new LinkedHashMap<GoodType, Double>();
-			parametersRealEstate.put(GoodType.STEEL, 0.2);
-			parametersRealEstate.put(GoodType.LABOURHOUR, 0.6);
+			parametersRealEstate.put(GoodType.STEEL, 0.3);
+			parametersRealEstate.put(GoodType.LABOURHOUR, 0.5);
 			parametersRealEstate.put(GoodType.KILOWATT, 0.2);
-			return new CESProductionFunction(5.0, parametersRealEstate, -0.5,
-					0.4);
+			return new CESProductionFunction(5.0, parametersRealEstate, -0.9,
+					0.8);
 		case CAR:
 			Map<GoodType, Double> parametersCar = new LinkedHashMap<GoodType, Double>();
-			parametersCar.put(GoodType.STEEL, 0.2);
-			parametersCar.put(GoodType.LABOURHOUR, 0.6);
-			parametersCar.put(GoodType.KILOWATT, 0.2);
-			return new CESProductionFunction(5.0, parametersCar, -0.5, 0.4);
+			parametersCar.put(GoodType.STEEL, 0.4);
+			parametersCar.put(GoodType.LABOURHOUR, 0.2);
+			parametersCar.put(GoodType.KILOWATT, 0.4);
+			return new CESProductionFunction(5.0, parametersCar, -0.9, 0.8);
 		case LABOURHOUR:
 			return null;
 		default:
@@ -92,17 +91,15 @@ public class InputOutputModel {
 		preferences.put(GoodType.WHEAT, 0.2);
 		preferences.put(GoodType.KILOWATT, 0.1);
 		preferences.put(GoodType.CAR, 0.2);
-		preferences.put(GoodType.REALESTATE, 0.2);
-		preferences.put(GoodType.GOLD, 0.1);
+		preferences.put(GoodType.REALESTATE, 0.3);
 		return new CESUtilityFunction(1.0, preferences, -0.5, 0.4);
 	}
 
 	public static IUtilityFunction getUtilityFunctionForState() {
 		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
 		preferences.put(GoodType.LABOURHOUR, 0.3);
-		preferences.put(GoodType.KILOWATT, 0.2);
-		preferences.put(GoodType.REALESTATE, 0.2);
-		preferences.put(GoodType.GOLD, 0.3);
+		preferences.put(GoodType.KILOWATT, 0.4);
+		preferences.put(GoodType.REALESTATE, 0.4);
 		return new CESUtilityFunction(1.0, preferences, -0.5, 0.4);
 	}
 }

@@ -22,8 +22,8 @@ package compecon.engine.jmx.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.Agent;
 import compecon.engine.AgentFactory;
 import compecon.engine.jmx.model.accumulator.PeriodDataAccumulator;
 

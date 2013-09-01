@@ -505,10 +505,9 @@ public class CentralBank extends Bank {
 			 */
 
 			this.priceIndexWeights.put(GoodType.WHEAT, 0.2);
-			this.priceIndexWeights.put(GoodType.KILOWATT, 0.2);
+			this.priceIndexWeights.put(GoodType.KILOWATT, 0.3);
 			this.priceIndexWeights.put(GoodType.CAR, 0.2);
-			this.priceIndexWeights.put(GoodType.REALESTATE, 0.2);
-			this.priceIndexWeights.put(GoodType.GOLD, 0.2);
+			this.priceIndexWeights.put(GoodType.REALESTATE, 0.3);
 
 			/*
 			 * GoodType LABOURHOUR is not monitored, as its market price is not

@@ -34,8 +34,11 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.engine.dashboard.panel.BalanceSheetPanel.BalanceSheetTableModel;
 import compecon.engine.jmx.model.ModelRegistry;
 import compecon.materia.GoodType;
+import compecon.materia.GoodType.Sector;
 import compecon.materia.InputOutputModel;
 
 public class IndustryPanel extends AbstractChartsPanel {
@@ -43,42 +46,67 @@ public class IndustryPanel extends AbstractChartsPanel {
 	public IndustryPanel() {
 		this.setLayout(new BorderLayout());
 
-		JTabbedPane jTabbedPane = new JTabbedPane();
+		JTabbedPane jTabbedPaneCurrency = new JTabbedPane();
 
 		for (Currency currency : Currency.values()) {
 			JPanel panelForCurrency = new JPanel();
-			panelForCurrency.setLayout(new GridLayout(0, 3));
-			jTabbedPane.addTab(currency.getIso4217Code(), panelForCurrency);
-			panelForCurrency.setBackground(Color.lightGray);
+			jTabbedPaneCurrency.addTab(currency.getIso4217Code(),
+					panelForCurrency);
 
-			panelForCurrency.add(createLabourPanel(currency));
+			panelForCurrency.setLayout(new BorderLayout());
+
+			JTabbedPane jTabbedPaneSector = new JTabbedPane();
+			panelForCurrency.add(jTabbedPaneSector);
+
+			// sector 1
+			JPanel panelForSector1 = new JPanel();
+			jTabbedPaneSector.addTab(Sector.PRIMARY + " Sector",
+					panelForSector1);
+			panelForSector1.setLayout(new GridLayout(0, 3));
+			panelForSector1.setBackground(Color.lightGray);
+
+			// sector 2
+			JPanel panelForSector2 = new JPanel();
+			jTabbedPaneSector.addTab(Sector.SECONDARY + " Sector",
+					panelForSector2);
+			panelForSector2.setLayout(new GridLayout(0, 3));
+			panelForSector2.setBackground(Color.lightGray);
+
+			// sector 3
+			JPanel panelForSector3 = new JPanel();
+			jTabbedPaneSector.addTab(Sector.TERTIARY + " Sector",
+					panelForSector3);
+			panelForSector3.setLayout(new GridLayout(0, 3));
+			panelForSector3.setBackground(Color.lightGray);
 
 			for (GoodType outputGoodType : GoodType.values()) {
 				if (!outputGoodType.equals(GoodType.LABOURHOUR)) {
-					panelForCurrency.add(createProductionPanel(currency,
-							outputGoodType));
+					Sector sector = outputGoodType.getSector();
+					switch (sector) {
+					case PRIMARY:
+						panelForSector1.add(createProductionPanel(currency,
+								outputGoodType));
+						panelForSector1.add(createFactoryBalanceSheetPanel(
+								currency, outputGoodType));
+						break;
+					case SECONDARY:
+						panelForSector2.add(createProductionPanel(currency,
+								outputGoodType));
+						panelForSector2.add(createFactoryBalanceSheetPanel(
+								currency, outputGoodType));
+						break;
+					case TERTIARY:
+						panelForSector3.add(createProductionPanel(currency,
+								outputGoodType));
+						panelForSector3.add(createFactoryBalanceSheetPanel(
+								currency, outputGoodType));
+						break;
+					}
 				}
 			}
 		}
 
-		add(jTabbedPane, BorderLayout.CENTER);
-	}
-
-	protected ChartPanel createLabourPanel(Currency currency) {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-
-		timeSeriesCollection.addSeries(ModelRegistry
-				.getGoodTypeProductionModel(currency, GoodType.LABOURHOUR)
-				.getOutputModel().getTimeSeries());
-		timeSeriesCollection.addSeries(ModelRegistry
-				.getLabourHourCapacityModel(currency).getTimeSeries());
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				GoodType.LABOURHOUR.toString() + " Output", "Date",
-				"Capacity & Output", (XYDataset) timeSeriesCollection, true,
-				true, false);
-		configureChart(chart);
-		return new ChartPanel(chart);
+		add(jTabbedPaneCurrency, BorderLayout.CENTER);
 	}
 
 	protected ChartPanel createProductionPanel(Currency currency,
@@ -103,5 +131,20 @@ public class IndustryPanel extends AbstractChartsPanel {
 				+ InputOutputModel.getProductionFunction(outputGoodType)
 						.getInputGoodTypes().toString()));
 		return new ChartPanel(chart);
+	}
+
+	protected JPanel createFactoryBalanceSheetPanel(final Currency currency,
+			final GoodType goodType) {
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
+				currency) {
+			@Override
+			protected BalanceSheet getModelData() {
+				return ModelRegistry.getBalanceSheetsModel(referenceCurrency)
+						.getFactoryNationalAccountsBalanceSheet(goodType);
+			}
+		};
+		return new BalanceSheetPanel(currency, balanceSheetTableModel,
+				"Balance Sheet for " + currency.getIso4217Code() + " "
+						+ goodType + " Factories");
 	}
 }

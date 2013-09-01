@@ -33,7 +33,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.engine.Agent;
+import compecon.economy.sectors.Agent;
 
 @Entity
 @Table(name = "BankAccount")

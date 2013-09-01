@@ -20,6 +20,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine;
 
 import compecon.Simulation;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;

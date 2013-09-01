@@ -60,8 +60,27 @@ public class BalanceSheet {
 	// owned securities / bonds, shares or other properties
 	public double bonds;
 
-	// owned good types
-	public Map<GoodType, Double> inventory = new HashMap<GoodType, Double>();
+	// owned good types by value in referenceCurrency
+	public double inventoryValue;
+
+	// owned good types by number of pieces
+	public final Map<GoodType, Double> inventoryQuantitative = new HashMap<GoodType, Double>();
+
+	public double getBalanceActive() {
+		return this.hardCash + this.cashShortTerm + this.cashLongTerm
+				+ this.bankLoans + this.bonds + this.inventoryValue;
+	}
+
+	/*
+	 * Equity ----------------------------------------------
+	 */
+
+	public Set<Share> issuedCapital = new HashSet<Share>();
+
+	public double getEquity() {
+		return this.getBalanceActive() - this.loans
+				- this.financialLiabilities - this.bankBorrowings;
+	}
 
 	/*
 	 * Liabilities --------------------------------------
@@ -81,11 +100,10 @@ public class BalanceSheet {
 	// borrowings from customers in banking context -> passive accounts
 	public double bankBorrowings;
 
-	/*
-	 * Equity ----------------------------------------------
-	 */
-
-	public Set<Share> issuedCapital = new HashSet<Share>();
+	public double getBalancePassive() {
+		return this.loans + this.financialLiabilities + this.bankBorrowings
+				+ this.getEquity();
+	}
 
 	public BalanceSheet(Currency referenceCurrency) {
 		this.referenceCurrency = referenceCurrency;

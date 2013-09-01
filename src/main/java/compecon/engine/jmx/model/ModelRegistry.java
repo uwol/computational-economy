@@ -41,6 +41,10 @@ public class ModelRegistry {
 
 	public static class NationalEconomyModel {
 
+		/**
+		 * model for collecting statistics about production input and output of
+		 * factories
+		 */
 		public static class GoodTypeProductionModel {
 			protected final Currency referenceCurrency;
 
@@ -95,6 +99,9 @@ public class ModelRegistry {
 			}
 		}
 
+		/**
+		 * model for collecting statistics about utiltiy of households
+		 */
 		public static class UtilityModel {
 
 			protected final Currency referenceCurrency;
@@ -185,13 +192,11 @@ public class ModelRegistry {
 					referenceCurrency.getIso4217Code() + " M2");
 			this.priceIndexModel = new PeriodDataAccumulatorTimeSeriesModel(
 					referenceCurrency.getIso4217Code() + " price index");
-			this.balanceSheetsModel = new BalanceSheetsModel(referenceCurrency,
-					moneySupplyM0Model, moneySupplyM1Model, moneySupplyM2Model);
+			this.balanceSheetsModel = new BalanceSheetsModel(referenceCurrency);
 			this.monetaryTransactionsModel = new MonetaryTransactionsModel();
 		}
 
 		public final Currency referenceCurrency;
-		public final Map<GoodType, GoodTypeProductionModel> goodTypeProductionModels = new HashMap<GoodType, GoodTypeProductionModel>();
 
 		// agents
 
@@ -214,6 +219,7 @@ public class ModelRegistry {
 		// industries
 
 		public final PeriodDataAccumulatorTimeSeriesModel labourHourCapacityModel;
+		public final Map<GoodType, GoodTypeProductionModel> goodTypeProductionModels = new HashMap<GoodType, GoodTypeProductionModel>();
 
 		// prices
 

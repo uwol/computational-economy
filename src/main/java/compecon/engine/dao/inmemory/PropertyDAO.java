@@ -22,8 +22,8 @@ package compecon.engine.dao.inmemory;
 import java.util.ArrayList;
 import java.util.List;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.state.law.property.Property;
-import compecon.engine.Agent;
 import compecon.engine.dao.DAOFactory.IPropertyDAO;
 
 public class PropertyDAO extends AgentIndexedInMemoryDAO<Property> implements

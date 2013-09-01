@@ -21,8 +21,8 @@ package compecon.economy.sectors.state.law.property;
 
 import java.util.HashMap;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.Agent;
 
 public class HardCashRegister {
 

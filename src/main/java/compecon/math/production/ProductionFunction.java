@@ -52,7 +52,7 @@ public abstract class ProductionFunction implements IProductionFunction {
 				differentialGoodType);
 	}
 
-	protected GoodType selectInputWithHighestMarginalOutputPerPrice(
+	protected GoodType calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
 			Map<GoodType, Double> bundleOfInputGoods,
 			Map<GoodType, Double> pricesOfInputGoods) {
 		return this.delegate.findHighestPartialDerivatePerPrice(

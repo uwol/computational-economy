@@ -23,36 +23,36 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import compecon.economy.sectors.financial.Bank;
+import compecon.economy.sectors.Agent;
+import compecon.economy.sectors.financial.CentralBank;
+import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
+import compecon.economy.sectors.industry.Factory;
+import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.engine.Agent;
-import compecon.engine.AgentFactory;
-import compecon.engine.jmx.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
+import compecon.economy.sectors.trading.Trader;
 import compecon.materia.GoodType;
 
 public class BalanceSheetsModel extends NotificationListenerModel {
 
-	protected Map<Class<? extends Agent>, BalanceSheet> nationalAccountsBalanceSheets = new HashMap<Class<? extends Agent>, BalanceSheet>();
-
 	protected final Currency referenceCurrency;
 
-	protected final PeriodDataAccumulatorTimeSeriesModel moneySupplyM0Model;
+	protected final Map<Household, BalanceSheet> householdBalanceSheets = new HashMap<Household, BalanceSheet>();
 
-	protected final PeriodDataAccumulatorTimeSeriesModel moneySupplyM1Model;
+	protected final Map<GoodType, Map<Factory, BalanceSheet>> factoryBalanceSheets = new HashMap<GoodType, Map<Factory, BalanceSheet>>();
 
-	protected final PeriodDataAccumulatorTimeSeriesModel moneySupplyM2Model;
+	protected final Map<Trader, BalanceSheet> traderBalanceSheets = new HashMap<Trader, BalanceSheet>();
 
-	public BalanceSheetsModel(Currency referenceCurrency,
-			PeriodDataAccumulatorTimeSeriesModel moneySupplyM0Model,
-			PeriodDataAccumulatorTimeSeriesModel moneySupplyM1Model,
-			PeriodDataAccumulatorTimeSeriesModel moneySupplyM2Model) {
+	protected final Map<CreditBank, BalanceSheet> creditBankBalanceSheets = new HashMap<CreditBank, BalanceSheet>();
 
+	protected BalanceSheet centralBankBalanceSheet;
+
+	protected BalanceSheet stateBalanceSheet;
+
+	public BalanceSheetsModel(Currency referenceCurrency) {
 		this.referenceCurrency = referenceCurrency;
-		this.moneySupplyM0Model = moneySupplyM0Model;
-		this.moneySupplyM1Model = moneySupplyM1Model;
-		this.moneySupplyM2Model = moneySupplyM2Model;
-		this.resetNationalAccountsBalanceSheets();
+		this.resetBalanceSheets();
 	}
 
 	public void agent_onPublishBalanceSheet(Agent agent,
@@ -61,63 +61,177 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 				|| !referenceCurrency.equals(balanceSheet.referenceCurrency))
 			throw new RuntimeException("mismatching currencies");
 
-		BalanceSheet nationalAccountsBalanceSheet = this.nationalAccountsBalanceSheets
-				.get(agent.getClass());
-
-		// assets
-		nationalAccountsBalanceSheet.hardCash += balanceSheet.hardCash;
-		nationalAccountsBalanceSheet.cashShortTerm += balanceSheet.cashShortTerm;
-		nationalAccountsBalanceSheet.cashLongTerm += balanceSheet.cashLongTerm;
-		nationalAccountsBalanceSheet.bonds += balanceSheet.bonds;
-		nationalAccountsBalanceSheet.bankLoans += balanceSheet.bankLoans;
-
-		for (Entry<GoodType, Double> entry : balanceSheet.inventory.entrySet()) {
-			// initialize
-			if (!nationalAccountsBalanceSheet.inventory.containsKey(entry
-					.getKey()))
-				nationalAccountsBalanceSheet.inventory.put(entry.getKey(), 0.0);
-
-			// store amount
-			Double oldValue = nationalAccountsBalanceSheet.inventory.get(entry
-					.getKey());
-			Double newValue = oldValue + entry.getValue();
-			nationalAccountsBalanceSheet.inventory
-					.put(entry.getKey(), newValue);
-		}
-
-		// liabilities
-		nationalAccountsBalanceSheet.loans += balanceSheet.loans;
-		nationalAccountsBalanceSheet.financialLiabilities += balanceSheet.financialLiabilities;
-		nationalAccountsBalanceSheet.bankBorrowings += balanceSheet.bankBorrowings;
-
-		// equity
-		nationalAccountsBalanceSheet.issuedCapital
-				.addAll(balanceSheet.issuedCapital);
-
-		if (!(agent instanceof Bank)) {
-			this.moneySupplyM0Model.add(balanceSheet.hardCash);
-			this.moneySupplyM1Model.add(balanceSheet.cashShortTerm
-					+ balanceSheet.hardCash);
-			this.moneySupplyM2Model.add(balanceSheet.hardCash
-					+ balanceSheet.cashShortTerm + balanceSheet.cashLongTerm);
-		}
+		if (agent instanceof Household)
+			this.householdBalanceSheets.put((Household) agent, balanceSheet);
+		else if (agent instanceof Factory)
+			this.factoryBalanceSheets.get(
+					((Factory) agent).getProducedGoodType()).put(
+					(Factory) agent, balanceSheet);
+		else if (agent instanceof Trader)
+			this.traderBalanceSheets.put((Trader) agent, balanceSheet);
+		else if (agent instanceof CreditBank)
+			this.creditBankBalanceSheets.put((CreditBank) agent, balanceSheet);
+		else if (agent instanceof CentralBank
+				&& this.centralBankBalanceSheet == null)
+			this.centralBankBalanceSheet = balanceSheet;
+		else if (agent instanceof State && this.stateBalanceSheet == null)
+			this.stateBalanceSheet = balanceSheet;
+		else
+			throw new RuntimeException("unexpected agent type");
 	}
 
-	private void resetNationalAccountsBalanceSheets() {
-		this.nationalAccountsBalanceSheets.clear();
-
-		for (Class<? extends Agent> agentType : AgentFactory.agentTypes) {
-			this.nationalAccountsBalanceSheets.put(agentType, new BalanceSheet(
-					this.referenceCurrency));
-		}
+	private void resetBalanceSheets() {
+		this.householdBalanceSheets.clear();
+		this.factoryBalanceSheets.clear();
+		for (GoodType goodType : GoodType.values())
+			this.factoryBalanceSheets.put(goodType,
+					new HashMap<Factory, BalanceSheet>());
+		this.traderBalanceSheets.clear();
+		this.creditBankBalanceSheets.clear();
+		this.centralBankBalanceSheet = null;
+		this.stateBalanceSheet = null;
 	}
 
 	public void nextPeriod() {
 		this.notifyListeners();
-		this.resetNationalAccountsBalanceSheets();
+		this.resetBalanceSheets();
 	}
 
-	public Map<Class<? extends Agent>, BalanceSheet> getNationalAccountsBalanceSheet() {
-		return this.nationalAccountsBalanceSheets;
+	/**
+	 * aggregates balance sheets of households
+	 */
+	public BalanceSheet getHouseholdNationalAccountsBalanceSheet() {
+		BalanceSheet householdNationalAccountsBalanceSheet = new BalanceSheet(
+				this.referenceCurrency);
+		for (BalanceSheet balanceSheet : this.householdBalanceSheets.values())
+			copyBalanceSheetValues(balanceSheet,
+					householdNationalAccountsBalanceSheet);
+		return householdNationalAccountsBalanceSheet;
+	}
+
+	/**
+	 * aggregates balance sheets of factories for good type
+	 */
+	public BalanceSheet getFactoryNationalAccountsBalanceSheet(GoodType goodType) {
+		BalanceSheet factoryNationalAccountsBalanceSheet = new BalanceSheet(
+				this.referenceCurrency);
+		for (BalanceSheet balanceSheet : this.factoryBalanceSheets
+				.get(goodType).values())
+			copyBalanceSheetValues(balanceSheet,
+					factoryNationalAccountsBalanceSheet);
+		return factoryNationalAccountsBalanceSheet;
+	}
+
+	/**
+	 * aggregates balance sheets of factories of all good types
+	 */
+	public BalanceSheet getFactoryNationalAccountsBalanceSheet() {
+		BalanceSheet factoryNationalAccountsBalanceSheet = new BalanceSheet(
+				this.referenceCurrency);
+		for (GoodType goodType : GoodType.values()) {
+			copyBalanceSheetValues(
+					getFactoryNationalAccountsBalanceSheet(goodType),
+					factoryNationalAccountsBalanceSheet);
+		}
+		return factoryNationalAccountsBalanceSheet;
+	}
+
+	/**
+	 * aggregates balance sheets of traders
+	 */
+	public BalanceSheet getTraderNationalAccountsBalanceSheet() {
+		BalanceSheet traderNationalAccountsBalanceSheet = new BalanceSheet(
+				this.referenceCurrency);
+		for (BalanceSheet balanceSheet : this.traderBalanceSheets.values())
+			copyBalanceSheetValues(balanceSheet,
+					traderNationalAccountsBalanceSheet);
+		return traderNationalAccountsBalanceSheet;
+	}
+
+	/**
+	 * aggregates balance sheets of credit banks
+	 */
+	public BalanceSheet getCreditBankNationalAccountsBalanceSheet() {
+		BalanceSheet creaditBankationalAccountsBalanceSheet = new BalanceSheet(
+				this.referenceCurrency);
+		for (BalanceSheet balanceSheet : this.creditBankBalanceSheets.values())
+			copyBalanceSheetValues(balanceSheet,
+					creaditBankationalAccountsBalanceSheet);
+		return creaditBankationalAccountsBalanceSheet;
+	}
+
+	public BalanceSheet getCentralBankNationalAccountsBalanceSheet() {
+		return this.centralBankBalanceSheet;
+	}
+
+	public BalanceSheet getStateNationalAccountsBalanceSheet() {
+		return this.stateBalanceSheet;
+	}
+
+	/**
+	 * aggregates balance sheets of agents
+	 */
+	public BalanceSheet getNationalAccountsBalanceSheet() {
+		BalanceSheet nationalAccountsBalanceSheet = new BalanceSheet(
+				this.referenceCurrency);
+		copyBalanceSheetValues(getHouseholdNationalAccountsBalanceSheet(),
+				nationalAccountsBalanceSheet);
+		copyBalanceSheetValues(getFactoryNationalAccountsBalanceSheet(),
+				nationalAccountsBalanceSheet);
+		copyBalanceSheetValues(getTraderNationalAccountsBalanceSheet(),
+				nationalAccountsBalanceSheet);
+		copyBalanceSheetValues(getCreditBankNationalAccountsBalanceSheet(),
+				nationalAccountsBalanceSheet);
+		copyBalanceSheetValues(centralBankBalanceSheet,
+				nationalAccountsBalanceSheet);
+		copyBalanceSheetValues(stateBalanceSheet, nationalAccountsBalanceSheet);
+		return nationalAccountsBalanceSheet;
+	}
+
+	public Map<Class<? extends Agent>, BalanceSheet> getNationalAccountsBalanceSheets() {
+		Map<Class<? extends Agent>, BalanceSheet> nationalAccountsBalanceSheets = new HashMap<Class<? extends Agent>, BalanceSheet>();
+		nationalAccountsBalanceSheets.put(Household.class,
+				getHouseholdNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(Factory.class,
+				getFactoryNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(Trader.class,
+				getTraderNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(CreditBank.class,
+				getCreditBankNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(CentralBank.class,
+				getCentralBankNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(State.class,
+				getStateNationalAccountsBalanceSheet());
+		return nationalAccountsBalanceSheets;
+	}
+
+	private void copyBalanceSheetValues(BalanceSheet from, BalanceSheet to) {
+		// assets
+		to.hardCash += from.hardCash;
+		to.cashShortTerm += from.cashShortTerm;
+		to.cashLongTerm += from.cashLongTerm;
+		to.bonds += from.bonds;
+		to.bankLoans += from.bankLoans;
+		to.inventoryValue += from.inventoryValue;
+
+		// add quantitative amount of inventory to national accounts balance
+		// sheet
+		for (Entry<GoodType, Double> entry : from.inventoryQuantitative
+				.entrySet()) {
+			GoodType goodType = entry.getKey();
+			double amount = entry.getValue();
+			if (!to.inventoryQuantitative.containsKey(goodType))
+				to.inventoryQuantitative.put(goodType, 0.0);
+			double newAmount = to.inventoryQuantitative.get(goodType) + amount;
+			to.inventoryQuantitative.put(goodType, newAmount);
+		}
+
+		// liabilities
+		to.loans += from.loans;
+		to.financialLiabilities += from.financialLiabilities;
+		to.bankBorrowings += from.bankBorrowings;
+
+		// equity
+		to.issuedCapital.addAll(from.issuedCapital);
 	}
 }

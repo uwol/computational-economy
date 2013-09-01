@@ -93,6 +93,10 @@ public class ConfigurationUtil {
 			return Double.parseDouble(configFile
 					.getProperty("factory.referenceCredit"));
 		}
+
+		public static double getMargin() {
+			return Double.parseDouble(configFile.getProperty("factory.margin"));
+		}
 	}
 
 	public static class HouseholdConfig {
@@ -146,8 +150,10 @@ public class ConfigurationUtil {
 		}
 
 		public static int getDefaultNumberOfPrices() {
-			return Integer.parseInt(configFile
+			int numberOfPrices = Integer.parseInt(configFile
 					.getProperty("pricingBehaviour.defaultNumberOfPrices"));
+			assert (numberOfPrices > 0);
+			return numberOfPrices;
 		}
 
 		public static double getDefaultInitialPrice() {

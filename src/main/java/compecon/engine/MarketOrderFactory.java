@@ -20,6 +20,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine;
 
 import compecon.economy.markets.ordertypes.MarketOrder;
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
