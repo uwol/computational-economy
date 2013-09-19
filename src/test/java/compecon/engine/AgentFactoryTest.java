@@ -42,7 +42,7 @@ public class AgentFactoryTest extends CompEconTestSupport {
 	}
 
 	@Test
-	public void createAndDeleteAgents1() {
+	public void testCreateAndDeleteAgents1() {
 		assertEquals(Currency.values().length, DAOFactory.getCentralBankDAO()
 				.findAll().size());
 		assertEquals(Currency.values().length * 2, DAOFactory
@@ -52,7 +52,7 @@ public class AgentFactoryTest extends CompEconTestSupport {
 	}
 
 	@Test
-	public void createAndDeleteAgents2() {
+	public void testCreateAndDeleteAgents2() {
 		assertEquals(Currency.values().length, DAOFactory.getCentralBankDAO()
 				.findAll().size());
 		assertEquals(Currency.values().length * 2, DAOFactory

@@ -196,6 +196,7 @@ public class Log {
 		ModelRegistry.getMonetaryTransactionsModel(currency).bank_onTransfer(
 				from.getOwner().getClass(), to.getOwner().getClass(), currency,
 				value);
+		ModelRegistry.getMoneyCirculationModel(currency).add(value);
 		if (isAgentSelectedByClient(from.getOwner())) {
 			String message = " --- " + Currency.formatMoneySum(value) + " "
 					+ currency.getIso4217Code() + " ---> " + to + ": "

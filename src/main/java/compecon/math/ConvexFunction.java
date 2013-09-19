@@ -22,7 +22,9 @@ package compecon.math;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
+import compecon.math.price.IPriceFunction;
 
 public abstract class ConvexFunction<T> extends Function<T> {
 
@@ -32,24 +34,28 @@ public abstract class ConvexFunction<T> extends Function<T> {
 	}
 
 	@Override
-	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
-			final Map<T, Double> costsOfInputs, final double budget) {
-		return this
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
-						costsOfInputs, budget);
+	public Map<T, Double> calculateOutputMaximizingInputs(
+			final Map<T, IPriceFunction> priceFunctionsOfInputGoods,
+			final double budget) {
+		return this.calculateOutputMaximizingInputsIterative(
+				priceFunctionsOfInputGoods, budget,
+				ConfigurationUtil.MathConfig.getNumberOfIterations());
 	}
 
 	/**
-	 * iterative implementation for calculating an optimal consumption plan
+	 * calculates the output maximizing bundle of inputs under a budget
+	 * restriction and given static markets prices of inputs.
 	 */
-	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
-			Map<T, Double> costsOfInputs, double budget) {
+	public Map<T, Double> calculateOutputMaximizingInputsIterative(
+			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
+			final double budget, final int numberOfIterations) {
 
 		// check if inputs have NaN prices
-		boolean costsAreNaN = false;
+		boolean pricesAreNaN = false;
 		for (T inputType : this.getInputTypes()) {
-			if (Double.isNaN(costsOfInputs.get(inputType))) {
-				costsAreNaN = true;
+			if (Double.isNaN(priceFunctionsOfInputTypes.get(inputType)
+					.getPrice(0.0))) {
+				pricesAreNaN = true;
 				break;
 			}
 		}
@@ -61,7 +67,7 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		// special case: if some prices are NaN, then not all inputs can be set.
 		// This becomes a problem, if all inputs have to be set -> return zero
 		// input
-		if (costsAreNaN && this.needsAllInputFactorsNonZeroForPartialDerivate) {
+		if (pricesAreNaN && this.needsAllInputFactorsNonZeroForPartialDerivate) {
 			final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 			for (T inputType : this.getInputTypes())
 				bundleOfInputs.put(inputType, 0.0);
@@ -87,7 +93,8 @@ public abstract class ConvexFunction<T> extends Function<T> {
 			for (T inputType : this.getInputTypes()) {
 				bundleOfInputs.put(inputType, 0.0000001);
 				moneySpent += bundleOfInputs.get(inputType)
-						* costsOfInputs.get(inputType);
+						* priceFunctionsOfInputTypes.get(inputType).getPrice(
+								bundleOfInputs.get(inputType));
 			}
 		} else {
 			for (T inputType : this.getInputTypes())
@@ -95,18 +102,21 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		}
 
 		// maximize output
-		double NUMBER_OF_ITERATIONS = bundleOfInputs.size() * 500.0;
+		double NUMBER_OF_ITERATIONS = bundleOfInputs.size()
+				* numberOfIterations;
 
 		while (MathUtil.greater(budget, moneySpent)) {
 			T optimalInput = this.findHighestPartialDerivatePerPrice(
-					bundleOfInputs, costsOfInputs);
+					bundleOfInputs, priceFunctionsOfInputTypes);
 			if (optimalInput != null) {
-				double costOfInputType = costsOfInputs.get(optimalInput);
+				double priceOfOptimalInputType = priceFunctionsOfInputTypes
+						.get(optimalInput).getMarginalPrice(
+								bundleOfInputs.get(optimalInput));
 				double amount = (budget / NUMBER_OF_ITERATIONS)
-						/ costOfInputType;
+						/ priceOfOptimalInputType;
 				bundleOfInputs.put(optimalInput,
 						bundleOfInputs.get(optimalInput) + amount);
-				moneySpent += costOfInputType * amount;
+				moneySpent += priceOfOptimalInputType * amount;
 			} else
 				break;
 		}

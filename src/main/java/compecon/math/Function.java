@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import compecon.engine.util.MathUtil;
+import compecon.math.price.IPriceFunction;
 
 public abstract class Function<T> implements IFunction<T> {
 
@@ -55,27 +56,26 @@ public abstract class Function<T> implements IFunction<T> {
 	}
 
 	public T findHighestPartialDerivatePerPrice(Map<T, Double> bundleOfInputs,
-			Map<T, Double> pricesOfInputs) {
-		@SuppressWarnings("unchecked")
-		T optimalInput = (T) this.getInputTypes().toArray()[0];
+			Map<T, IPriceFunction> priceFunctionsOfInputTypes) {
+		T optimalInputType = null;
 		double highestPartialDerivatePerPrice = 0.0;
-
 		for (T inputType : this.getInputTypes()) {
 			double partialDerivative = this.partialDerivative(bundleOfInputs,
 					inputType);
-			double pricePerUnit = pricesOfInputs.get(inputType);
+			double pricePerUnit = priceFunctionsOfInputTypes.get(inputType)
+					.getMarginalPrice(bundleOfInputs.get(inputType));
 			if (!Double.isNaN(pricePerUnit)) {
 				double partialDerivativePerPrice = partialDerivative
 						/ pricePerUnit;
 				if (Double.isNaN(partialDerivativePerPrice))
 					throw new RuntimeException();
 				if (partialDerivativePerPrice > highestPartialDerivatePerPrice) {
-					optimalInput = inputType;
+					optimalInputType = inputType;
 					highestPartialDerivatePerPrice = partialDerivativePerPrice;
 				}
 			}
 		}
-		return optimalInput;
+		return optimalInputType;
 	}
 
 	public Map<T, Double> partialDerivatives(Map<T, Double> forBundleOfInputs) {
@@ -86,22 +86,24 @@ public abstract class Function<T> implements IFunction<T> {
 		return partialDerivatives;
 	}
 
-	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
-			final Map<T, Double> costsOfInputs, final double budget) {
-		return this
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
-						costsOfInputs, budget);
+	public Map<T, Double> calculateOutputMaximizingInputs(
+			final Map<T, IPriceFunction> priceFunctionsOfInputs,
+			final double budget) {
+		return this.calculateOutputMaximizingInputsByRangeScan(
+				priceFunctionsOfInputs, budget);
 	}
 
 	/**
 	 * finds the optimal bundle of inputs under the budget restriction by a
 	 * discrete brute force search on the domain of the function -> slow
 	 */
-	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
-			final Map<T, Double> costsOfInputs, final double budget) {
+	public Map<T, Double> calculateOutputMaximizingInputsByRangeScan(
+			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
+			final double budget) {
 		Map<T, Double> optimalBundleOfInputs = this
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
-						costsOfInputs, budget, 0.0, new HashMap<T, Double>());
+				.calculateOutputMaximizingInputsByRangeScan(
+						priceFunctionsOfInputTypes, budget, 0.0,
+						new HashMap<T, Double>());
 		if (optimalBundleOfInputs.isEmpty()) {
 			for (T inputType : this.getInputTypes()) {
 				optimalBundleOfInputs.put(inputType, 0.0);
@@ -115,14 +117,15 @@ public abstract class Function<T> implements IFunction<T> {
 	 *         if there is no bundleOfInputs that returns an output exceeding
 	 *         minOutput
 	 */
-	private Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
-			final Map<T, Double> costsOfInputs, final double budgetLeft,
-			final double minOutput, final Map<T, Double> bundleOfInputs) {
-		T currentInputType = identifyNextUnsetInputType(bundleOfInputs);
+	private Map<T, Double> calculateOutputMaximizingInputsByRangeScan(
+			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
+			final double budgetLeft, final double minOutput,
+			final Map<T, Double> currentBundleOfInputs) {
+		T currentInputType = identifyNextUnsetInputType(currentBundleOfInputs);
 		// if a bundle of inputs has been chosen
 		if (currentInputType == null) {
-			if (this.f(bundleOfInputs) > minOutput)
-				return bundleOfInputs;
+			if (this.f(currentBundleOfInputs) > minOutput)
+				return currentBundleOfInputs;
 			else
 				return new HashMap<T, Double>();
 		}
@@ -130,24 +133,49 @@ public abstract class Function<T> implements IFunction<T> {
 		else {
 			// the amount of this input type is limited by the remaining budget
 			double maxInputOfCurrentInputType;
-			if (Double.isNaN(costsOfInputs.get(currentInputType))) {
+			double initialPriceOfCurrentInputType = priceFunctionsOfInputTypes
+					.get(currentInputType).getPrice(0.0);
+
+			if (Double.isNaN(initialPriceOfCurrentInputType)) {
 				maxInputOfCurrentInputType = 0.0;
 			} else {
 				maxInputOfCurrentInputType = budgetLeft
-						/ costsOfInputs.get(currentInputType);
+						/ initialPriceOfCurrentInputType;
 			}
 
 			double bestOutput = minOutput;
 			Map<T, Double> bestBundleOfInputs = new HashMap<T, Double>();
 
 			for (double i = 0.0; i <= maxInputOfCurrentInputType; i += 0.01) {
-				bundleOfInputs.put(currentInputType, i);
-				double costs = Double
-						.isNaN(costsOfInputs.get(currentInputType)) ? 0.0
-						: costsOfInputs.get(currentInputType) * i;
-				Map<T, Double> betterBundleOfInputs = calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
-						costsOfInputs, budgetLeft - costs, bestOutput,
-						bundleOfInputs);
+				currentBundleOfInputs.put(currentInputType, i);
+
+				final double priceSumOfCurrentInputType;
+				if (i == 0.0) {
+					/*
+					 * if there is no input, the price sum is always 0.0; this
+					 * makes sure that in the case of
+					 * currentPriceOfCurrentInputType = Double.NaN this
+					 * iteration is executed at least once
+					 */
+					priceSumOfCurrentInputType = 0.0;
+				} else {
+					final double currentPriceOfCurrentInputType = priceFunctionsOfInputTypes
+							.get(currentInputType)
+							.getPrice(
+									currentBundleOfInputs.get(currentInputType));
+					priceSumOfCurrentInputType = currentPriceOfCurrentInputType
+							* i;
+				}
+
+				if (Double.isNaN(priceSumOfCurrentInputType)
+						|| priceSumOfCurrentInputType > budgetLeft) {
+					break;
+				}
+
+				Map<T, Double> betterBundleOfInputs = calculateOutputMaximizingInputsByRangeScan(
+						priceFunctionsOfInputTypes, budgetLeft
+								- priceSumOfCurrentInputType, bestOutput,
+						currentBundleOfInputs);
 				// if a better bundle of inputs has been found
 				if (!betterBundleOfInputs.isEmpty()) {
 					double betterOutput = this.f(betterBundleOfInputs);
@@ -159,7 +187,7 @@ public abstract class Function<T> implements IFunction<T> {
 				}
 			}
 			// remove this input, so that it will be set in next outer iteration
-			bundleOfInputs.remove(currentInputType);
+			currentBundleOfInputs.remove(currentInputType);
 			return bestBundleOfInputs;
 		}
 	}

@@ -51,6 +51,7 @@ import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
+import compecon.math.price.IPriceFunction;
 import compecon.math.utility.IUtilityFunction;
 
 @Entity
@@ -218,32 +219,25 @@ public class State extends Agent {
 			/*
 			 * buy goods for sold bonds -> no hoarding of money
 			 */
-			Map<GoodType, Double> prices = MarketFactory.getInstance()
-					.getMarginalPrices(
-							State.this.transactionsBankAccount.getCurrency());
+			Map<GoodType, IPriceFunction> priceFunctions = MarketFactory
+					.getInstance().getPriceFunctions(
+							State.this.transactionsBankAccount.getCurrency(),
+							State.this.utilityFunction.getInputGoodTypes());
 			double budget = State.this.transactionsBankAccount.getBalance();
 			if (MathUtil.greater(budget, 0)) {
 				Map<GoodType, Double> optimalBundleOfGoods = State.this.utilityFunction
-						.calculateUtilityMaximizingInputsUnderBudgetRestriction(
-								prices, budget);
+						.calculateUtilityMaximizingInputs(priceFunctions,
+								budget);
 
 				for (Entry<GoodType, Double> entry : optimalBundleOfGoods
 						.entrySet()) {
 					GoodType goodType = entry.getKey();
 					double maxAmount = entry.getValue();
-					double maxTotalPrice = State.this.transactionsBankAccount
-							.getBalance();
-					if (!Double.isInfinite(maxAmount)) {
-						maxTotalPrice = Math
-								.min(maxAmount * prices.get(goodType),
-										State.this.transactionsBankAccount
-												.getBalance());
-					}
 					MarketFactory.getInstance().buy(
 							goodType,
 							maxAmount,
-							maxTotalPrice,
-							prices.get(goodType),
+							Double.NaN,
+							Double.NaN,
 							State.this,
 							State.this.transactionsBankAccount,
 							State.this.bankPasswords

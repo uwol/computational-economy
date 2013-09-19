@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import compecon.math.ConvexFunction;
+import compecon.math.price.FixedPriceFunction;
+import compecon.math.price.IPriceFunction;
 
 public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 		IntertemporalConsumptionFunction {
@@ -32,7 +34,7 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 		CURRENT, NEXT;
 	}
 
-	ConvexFunction<Period> delegate;
+	protected final ConvexFunction<Period> delegate;
 
 	protected IrvingFisherIntertemporalConsumptionFunction(
 			ConvexFunction<Period> delegate) {
@@ -45,10 +47,10 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 			int averageRemainingLifeDays) {
 
 		// price levels
-		Map<Period, Double> priceLevelsOfPeriods = new HashMap<Period, Double>();
+		Map<Period, IPriceFunction> priceLevelsOfPeriods = new HashMap<Period, IPriceFunction>();
 		for (Period period : Period.values()) {
 			// price levels in periods
-			priceLevelsOfPeriods.put(period, 1.);
+			priceLevelsOfPeriods.put(period, new FixedPriceFunction(1.0));
 		}
 
 		// income cash flow discounted to current period -> intertemporal budget
@@ -63,8 +65,8 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 
 		// resulting consumption plan
 		Map<Period, Double> intermediateResult = delegate
-				.calculateOutputMaximizingInputsUnderBudgetRestriction(
-						priceLevelsOfPeriods, discountedBudget);
+				.calculateOutputMaximizingInputs(priceLevelsOfPeriods,
+						discountedBudget);
 		for (Entry<Period, Double> entry : intermediateResult.entrySet()) {
 			// add interest to consumption plan
 			double periodConsumption = entry.getValue();

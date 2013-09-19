@@ -47,6 +47,10 @@ public class PeriodDataPercentageTimeSeriesModel<I> extends
 		this.periodDataAccumulator.get(indexType).add(amount);
 	}
 
+	public double getValue(I indexType) {
+		return this.periodDataAccumulator.get(indexType).getAmount();
+	}
+
 	public void nextPeriod() {
 		double sum = 0;
 		for (PeriodDataAccumulator periodDataAccumulator : this.periodDataAccumulator

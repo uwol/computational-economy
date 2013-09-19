@@ -19,10 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.math.utility;
 
-import java.util.Map;
-
 import compecon.materia.GoodType;
-import compecon.math.IFunction;
+import compecon.math.ConvexFunction;
 
 /**
  * A convex function -> any local optimum must be a global optimum<br />
@@ -30,15 +28,7 @@ import compecon.math.IFunction;
  */
 public abstract class ConvexUtilityFunction extends UtilityFunction {
 
-	protected ConvexUtilityFunction(IFunction<GoodType> delegate) {
+	protected ConvexUtilityFunction(ConvexFunction<GoodType> delegate) {
 		super(delegate);
-	}
-
-	@Override
-	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
-			Map<GoodType, Double> pricesOfInputGoods, double budget) {
-		return ((IFunction<GoodType>) this.delegate)
-				.calculateOutputMaximizingInputsUnderBudgetRestriction(
-						pricesOfInputGoods, budget);
 	}
 }

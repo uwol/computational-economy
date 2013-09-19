@@ -91,7 +91,7 @@ public class Trader extends JointStockCompany {
 		for (GoodType goodType : GoodType.values()) {
 			if (!this.excludedGoodTypes.contains(goodType)) {
 				double marketPrice = MarketFactory.getInstance()
-						.getMarginalPrice(this.primaryCurrency, goodType);
+						.getPrice(this.primaryCurrency, goodType);
 				this.goodTypePricingBehaviours.put(goodType,
 						new PricingBehaviour(this, goodType,
 								this.primaryCurrency, marketPrice));
@@ -232,15 +232,15 @@ public class Trader extends JointStockCompany {
 
 							// e.g. CAR_in_EUR = 10
 							double priceOfGoodTypeInLocalCurrency = MarketFactory
-									.getInstance().getMarginalPrice(
+									.getInstance().getPrice(
 											primaryCurrency, goodType);
 							// e.g. CAR_in_USD = 11
 							double priceOfGoodTypeInForeignCurrency = MarketFactory
-									.getInstance().getMarginalPrice(
+									.getInstance().getPrice(
 											foreignCurrency, goodType);
 							// e.g. exchange rate for EUR/USD = 1.0
 							double priceOfForeignCurrencyInLocalCurrency = MarketFactory
-									.getInstance().getMarginalPrice(
+									.getInstance().getPrice(
 											primaryCurrency, foreignCurrency);
 
 							if (Double.isNaN(priceOfGoodTypeInForeignCurrency)) {

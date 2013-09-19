@@ -46,7 +46,7 @@ public class ControlModel extends NotificationListenerModel {
 	}
 
 	public void initCarFactory(Currency currency) {
-		AgentFactory.newInstanceFactory(GoodType.CAR, currency);
+		AgentFactory.newInstanceFactory(GoodType.STEEL, currency);
 	}
 
 	public void deficitSpending(Currency currency) {

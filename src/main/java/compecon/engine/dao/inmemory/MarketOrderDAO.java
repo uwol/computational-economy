@@ -30,6 +30,7 @@ import compecon.economy.markets.ordertypes.MarketOrder;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
+import compecon.engine.dao.DAOFactory;
 import compecon.engine.dao.DAOFactory.IMarketOrderDAO;
 import compecon.materia.GoodType;
 
@@ -245,8 +246,9 @@ public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 	@Override
 	public synchronized double findMarginalPrice(Currency currency,
 			GoodType goodType) {
-		for (MarketOrder marketOrder : this.getMarketOrders(currency, goodType))
+		for (MarketOrder marketOrder : this.getMarketOrders(currency, goodType)) {
 			return marketOrder.getPricePerUnit();
+		}
 		return Double.NaN;
 	}
 
@@ -254,8 +256,9 @@ public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 	public synchronized double findMarginalPrice(Currency currency,
 			Currency commodityCurrency) {
 		for (MarketOrder marketOrder : this.getMarketOrders(currency,
-				commodityCurrency))
+				commodityCurrency)) {
 			return marketOrder.getPricePerUnit();
+		}
 		return Double.NaN;
 	}
 
@@ -283,5 +286,28 @@ public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 	public synchronized Iterator<MarketOrder> getIterator(Currency currency,
 			Class<? extends Property> propertyClass) {
 		return this.getMarketOrders(currency, propertyClass).iterator();
+	}
+
+	@Override
+	public synchronized double getAmountSum(Currency currency, GoodType goodType) {
+		Iterator<MarketOrder> iterator = DAOFactory.getMarketOrderDAO()
+				.getIterator(currency, goodType);
+		double totalAmountSum = 0.0;
+		while (iterator.hasNext()) {
+			totalAmountSum += iterator.next().getAmount();
+		}
+		return totalAmountSum;
+	}
+
+	@Override
+	public synchronized double getAmountSum(Currency currency,
+			Currency commodityCurrency) {
+		Iterator<MarketOrder> iterator = DAOFactory.getMarketOrderDAO()
+				.getIterator(currency, commodityCurrency);
+		double totalAmountSum = 0.0;
+		while (iterator.hasNext()) {
+			totalAmountSum += iterator.next().getAmount();
+		}
+		return totalAmountSum;
 	}
 }

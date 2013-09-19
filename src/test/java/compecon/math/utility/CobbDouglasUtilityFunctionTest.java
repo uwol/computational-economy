@@ -26,14 +26,15 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import compecon.CompEconTestSupport;
 import compecon.materia.GoodType;
+import compecon.math.price.FixedPriceFunction;
+import compecon.math.price.IPriceFunction;
 
-public class CobbDouglasUtilityFunctionTest {
-
-	public final double epsilon = 0.001;
+public class CobbDouglasUtilityFunctionTest extends CompEconTestSupport {
 
 	@Test
-	public void calculateUtility() {
+	public void testCalculateUtilityWithFixedPrices() {
 		/*
 		 * prepare function
 		 */
@@ -46,14 +47,13 @@ public class CobbDouglasUtilityFunctionTest {
 		/*
 		 * maximize output under budget restriction
 		 */
-		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
-		prices.put(GoodType.KILOWATT, 1.0);
-		prices.put(GoodType.WHEAT, 2.0);
+		Map<GoodType, IPriceFunction> prices = new HashMap<GoodType, IPriceFunction>();
+		prices.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
+		prices.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
 		double budget = 10.0;
 
 		Map<GoodType, Double> optimalInputs = cobbDouglasUtilityFunction
-				.calculateUtilityMaximizingInputsUnderBudgetRestriction(prices,
-						budget);
+				.calculateUtilityMaximizingInputs(prices, budget);
 		assertEquals(4.0, optimalInputs.get(GoodType.KILOWATT), epsilon);
 		assertEquals(3.0, optimalInputs.get(GoodType.WHEAT), epsilon);
 

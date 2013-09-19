@@ -32,12 +32,4 @@ public class CESUtilityFunction extends ConvexUtilityFunction {
 		super(new CESFunction<GoodType>(mainUtilityLevel, coefficients,
 				substitutionFactor, homogenityFactor));
 	}
-
-	@Override
-	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
-			Map<GoodType, Double> pricesOfInputGoods, double budget) {
-		return ((CESFunction<GoodType>) this.delegate)
-				.calculateOutputMaximizingInputsUnderBudgetRestriction(
-						pricesOfInputGoods, budget);
-	}
 }

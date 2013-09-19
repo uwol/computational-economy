@@ -24,6 +24,7 @@ import java.util.Set;
 
 import compecon.materia.GoodType;
 import compecon.math.IFunction;
+import compecon.math.price.IPriceFunction;
 
 public abstract class UtilityFunction implements IUtilityFunction {
 
@@ -51,10 +52,19 @@ public abstract class UtilityFunction implements IUtilityFunction {
 				differentialInputGoodType);
 	}
 
+	@Override
+	public Map<GoodType, Double> calculateUtilityMaximizingInputs(
+			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods,
+			double budget) {
+		return ((IFunction<GoodType>) this.delegate)
+				.calculateOutputMaximizingInputs(priceFunctionsOfInputGoods,
+						budget);
+	}
+
 	protected GoodType selectInputWithHighestMarginalUtilityPerPrice(
 			Map<GoodType, Double> bundleOfInputGoods,
-			Map<GoodType, Double> pricesOfInputGoods) {
+			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods) {
 		return this.delegate.findHighestPartialDerivatePerPrice(
-				bundleOfInputGoods, pricesOfInputGoods);
+				bundleOfInputGoods, priceFunctionsOfInputGoods);
 	}
 }

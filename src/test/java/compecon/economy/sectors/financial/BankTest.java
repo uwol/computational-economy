@@ -26,14 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import compecon.CompEconTestSupport;
-import compecon.economy.sectors.financial.Bank;
-import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.engine.dao.DAOFactory;
 
 public class BankTest extends CompEconTestSupport {
-
-	final double epsilon = 0.0001;
 
 	@Before
 	public void setUp() {
@@ -46,7 +42,7 @@ public class BankTest extends CompEconTestSupport {
 	}
 
 	@Test
-	public void transferMoney() {
+	public void testTransferMoney() {
 		Currency currency = Currency.EURO;
 
 		Household household1_EUR = DAOFactory.getHouseholdDAO()

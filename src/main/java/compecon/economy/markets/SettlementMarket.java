@@ -157,6 +157,9 @@ public class SettlementMarket extends Market {
 				buyersBankAccountPassword, null);
 	}
 
+	/**
+	 * @return total price and total amount
+	 */
 	protected double[] buy(final GoodType goodType,
 			final Currency commodityCurrency,
 			final Class<? extends Property> propertyClass,

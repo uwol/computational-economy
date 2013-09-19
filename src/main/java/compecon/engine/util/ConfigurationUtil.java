@@ -76,6 +76,13 @@ public class ConfigurationUtil {
 		}
 	}
 
+	public static class DashboardConfig {
+		public static int getLogNumberOfAgents() {
+			return Integer.parseInt(configFile
+					.getProperty("dashboard.log.numberOfAgents"));
+		}
+	}
+
 	public static class DbConfig {
 		public static boolean getActivateDb() {
 			return Boolean
@@ -139,6 +146,15 @@ public class ConfigurationUtil {
 			return Integer
 					.parseInt(configFile
 							.getProperty("household.daysWithoutUtilityUntilDestructor"));
+		}
+	}
+
+	public static class MathConfig {
+		public static int getNumberOfIterations() {
+			int numberOfIterations = Integer.parseInt(configFile
+					.getProperty("math.numberOfIterations"));
+			assert (numberOfIterations > 0);
+			return numberOfIterations;
 		}
 	}
 

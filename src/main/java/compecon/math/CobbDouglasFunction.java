@@ -24,9 +24,10 @@ import java.util.Map;
 import java.util.Set;
 
 import compecon.engine.util.MathUtil;
+import compecon.math.price.IPriceFunction;
+import compecon.math.price.IPriceFunction.PriceFunctionConfig;
 
-public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
-		IFunction<T> {
+public class CobbDouglasFunction<T> extends AnalyticalConvexFunction<T> {
 
 	protected double coefficient;
 
@@ -112,27 +113,88 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 	}
 
 	@Override
-	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
-			final Map<T, Double> costsOfInputs, final double budget) {
-		return this
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionAnalytical(
-						costsOfInputs, budget);
+	public Map<T, Double> calculateOutputMaximizingInputs(
+			final Map<T, IPriceFunction> priceFunctionsOfInputs,
+			final double budget) {
+		// FIXME analytical solution is not correct for cases, where partial
+		// derivates per price are not equal -> iterative algorithm as temporal
+		// solution
+		return super.calculateOutputMaximizingInputs(priceFunctionsOfInputs,
+				budget);
+		// return this
+		// .calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
+		// priceFunctionsOfInputs, budget);
 	}
 
 	/**
 	 * This method implements the analytical solution for the lagrange function
 	 * of an optimization problem under budget constraints. It overwrites the
-	 * general solution for convex functions because of performance reasons.
+	 * general solution for convex functions for performance reasons.<br />
+	 * <br />
+	 * L(x_1, ..., x_n, l) = a * (x_1)^(e_1) * ... * (x_n)^(e_n) + l(p_1 * x_1 +
+	 * ... + p_n * x_n - b) <br />
+	 * 1 = e_1 + e_2 + ... + e_n <br />
+	 * <br />
+	 * => <br />
+	 * dL(x_1, ..., x_n, l) / dx_1 = a * e_1 * (x_1)^(e_1 - 1) * ... *
+	 * (x_n)^(e_n) + l * p_1 <br />
+	 * dL(x_1, ..., x_n, l) / dx_2 = a * e_2 * (x_2)^(e_2 - 1) * ... *
+	 * (x_n)^(e_n) + l * p_2 <br />
+	 * ... <br />
+	 * dL(x_1, ..., x_n, l) / dx_n = a * e_n * (x_n)^(e_n - 1) * (x_1)^(e_1) *
+	 * ... + l * p_n <br />
+	 * dL(x_1, ..., x_n, l) / dl = p_1 * x_1 + ... + p_n * x_n - b <br />
+	 * <br />
+	 * <br />
+	 * dL(x_1, ..., x_n, l) / dx_1 = 0 <br />
+	 * ... <br />
+	 * dL(x_1, ..., x_n, l) / dx_n = 0 <br />
+	 * dL(x_1, ..., x_n, l) / dl = 0 <br />
+	 * <br />
+	 * => <br />
+	 * l = a * e_1 * (x_1)^(e_1 - 1) * (x_2)^(e_2) * ... * (x_n)^(e_n) / -p_1 <br />
+	 * l = a * (x_1)^(e_1) * e_2 * (x_2)^(e_2 - 1) * ... * (x_n)^(e_n) / -p_2 <br />
+	 * <br />
+	 * => (1) = (2)<br />
+	 * e_1 * (x_1)^(e_1 - 1) * (x_2)^(e_2) * ... * (x_n)^(e_n) / -p_1 =
+	 * (x_1)^(e_1) * e_2 * (x_2)^(e_2 - 1) * ... * (x_n)^(e_n) / -p_2 <br />
+	 * => <br />
+	 * e_1 * (x_1)^(e_1 - 1) * (x_2)^(e_2) / p_1 = (x_1)^(e_1) * e_2 *
+	 * (x_2)^(e_2 - 1) / p_2 <br />
+	 * <br />
+	 * e_1 * (x_2)^(e_2) / (x_2)^(e_2 - 1) / p_1 = e_2 * (x_1)^(e_1) /
+	 * (x_1)^(e_1 - 1) / p_2 <br />
+	 * <br />
+	 * e_1 * x_2 / p_1 = e_2 * x_1 / p_2 <br />
+	 * <br />
+	 * x_2 = [e_2 * x_1 * p_1] / [p_2 * e_1] <br />
+	 * <br />
+	 * <br />
+	 * b = p_1 * x_1 + p_2 * [e_2 * x_1 * p_1] / [p_2 * e_1] + ... + p_n * [e_n
+	 * * x_1 * p_1] / [p_n * e_1] <br />
+	 * => <br />
+	 * b = x_1 * [p_1 + p_1 * e_2 / e_1 + ... + p_1 * e_n / e_1] <br />
+	 * => <br />
+	 * b = x_1 * p_1 * [1 + e_2 / e_1 + ... + e_n / e_1] <br />
+	 * <br />
+	 * x_1 = b / p_1 * [1 + e_2 / e_1 + ... + e_n / e_1] <br />
+	 * <br />
+	 * x_1 = b / p_1 * [e_1 / e_1 + e_2 / e_1 + ... + e_n / e_1] <br />
+	 * <br />
+	 * x_1 = b / p_1 * (e_1 + e_2 + ... + e_n) / e_1 <br />
+	 * e_1 + e_2 + ... + e_n = 1 => <br />
+	 * <br />
+	 * x_1 = b * e_1 / p_1
 	 */
-	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestrictionAnalytical(
-			Map<T, Double> costsOfInputs, double budgetRestriction) {
+	public Map<T, Double> calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
+			Map<T, Double> pricesOfInputs, double budget) {
 		Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 		Map<T, Double> exponents = this.getExponents();
 
-		boolean costsAreNaN = false;
+		boolean pricesAreNaN = false;
 		for (T inputType : this.getInputTypes()) {
-			if (Double.isNaN(costsOfInputs.get(inputType))) {
-				costsAreNaN = true;
+			if (Double.isNaN(pricesOfInputs.get(inputType))) {
+				pricesAreNaN = true;
 				break;
 			}
 		}
@@ -142,9 +204,140 @@ public class CobbDouglasFunction<T> extends ConvexFunction<T> implements
 		 * function under given budget restriction -> lagrange function
 		 */
 		for (T inputType : this.getInputTypes()) {
-			double optimalAmount = exponents.get(inputType) * budgetRestriction
-					/ costsOfInputs.get(inputType);
-			if (costsAreNaN || Double.isNaN(optimalAmount))
+			double optimalAmount = exponents.get(inputType) * budget
+					/ pricesOfInputs.get(inputType);
+			if (pricesAreNaN || Double.isNaN(optimalAmount))
+				optimalAmount = 0.0;
+			bundleOfInputs.put(inputType, optimalAmount);
+		}
+
+		return bundleOfInputs;
+	}
+
+	/**
+	 * This method implements the analytical solution for the lagrange function
+	 * of an optimization problem under budget constraints and a step price
+	 * function. It overwrites the general solution for convex functions for
+	 * performance reasons.<br />
+	 * <br />
+	 * L(x_1, ..., x_n, l) = a * (x_1)^(e_1) * ... * (x_n)^(e_n) + l(p_1(x_1) *
+	 * x_1 + ... + p_n(x_n) * x_n - b) <br />
+	 * 1 = e_1 + e_2 + ... + e_n <br />
+	 * <br />
+	 * p_1(x_1) = c_x0_(x_1) + c_xMinus1_(x_1) / x_1 <br />
+	 * ... <br />
+	 * p_n(x_n) = c_x0_(x_n) + c_xMinus1_(x_n) / x_n <br />
+	 * <br />
+	 * => <br />
+	 * <br />
+	 * L(x_1, ..., x_n, l) = a * (x_1)^(e_1) * ... * (x_n)^(e_n) + l((c_x0_(x_1)
+	 * + c_xMinus1_(x_1) / x_1) * x_1 + ... + (c_x0_(x_n) + c_xMinus1_(x_n) /
+	 * x_n) * x_n - b) <br />
+	 * => <br />
+	 * L(x_1, ..., x_n, l) = a * (x_1)^(e_1) * ... * (x_n)^(e_n) + l((c_x0_(x_1)
+	 * * x_1 + c_xMinus1_(x_1) + ... + c_x0_(x_n) * x_n + c_xMinus1_(x_n) - b) <br />
+	 * <br />
+	 * <br />
+	 * dL(x_1, ..., x_n, l) / dx_1 = a * e_1 * (x_1)^(e_1 - 1) * ... *
+	 * (x_n)^(e_n) + l * c_x0_(x_1) <br />
+	 * dL(x_1, ..., x_n, l) / dx_2 = a * e_2 * (x_2)^(e_2 - 1) * ... *
+	 * (x_n)^(e_n) + l * c_x0_(x_2) <br />
+	 * ... <br />
+	 * dL(x_1, ..., x_n, l) / dx_n = a * e_n * (x_n)^(e_n - 1) * (x_1)^(e_1) *
+	 * ... + l * c_x0_(x_n) <br />
+	 * <br />
+	 * dL(x_1, ..., x_n, l) / dl = c_x0_(x_1) * x_1 + c_xMinus1_(x_1) + ... +
+	 * c_x0_(x_n) * x_n + c_xMinus1_(x_n) - b <br />
+	 * <br />
+	 * <br />
+	 * dL(x_1, ..., x_n, l) / dx_1 = 0 <br />
+	 * ... <br />
+	 * dL(x_1, ..., x_n, l) / dx_n = 0 <br />
+	 * dL(x_1, ..., x_n, l) / dl = 0 <br />
+	 * <br />
+	 * => <br />
+	 * l = a * e_1 * (x_1)^(e_1 - 1) * (x_2)^(e_2) * ... * (x_n)^(e_n) /
+	 * -c_x0_(x_1) <br />
+	 * l = a * (x_1)^(e_1) * e_2 * (x_2)^(e_2 - 1) * ... * (x_n)^(e_n) /
+	 * -c_x0_(x_2) <br />
+	 * <br />
+	 * => (1) = (2)<br />
+	 * e_1 * (x_1)^(e_1 - 1) * (x_2)^(e_2) * ... * (x_n)^(e_n) / -c_x0_(x_1) =
+	 * (x_1)^(e_1) * e_2 * (x_2)^(e_2 - 1) * ... * (x_n)^(e_n) / -c_x0_(x_2) <br />
+	 * => <br />
+	 * e_1 * (x_1)^(e_1 - 1) * (x_2)^(e_2) / c_x0_(x_1) = (x_1)^(e_1) * e_2 *
+	 * (x_2)^(e_2 - 1) / c_x0_(x_2) <br />
+	 * <br />
+	 * e_1 * (x_2)^(e_2) / (x_2)^(e_2 - 1) / c_x0_(x_1) = e_2 * (x_1)^(e_1) /
+	 * (x_1)^(e_1 - 1) / c_x0_(x_2) <br />
+	 * <br />
+	 * e_1 * x_2 / c_x0_(x_2) = e_2 * x_1 / c_x0_(x_2) <br />
+	 * <br />
+	 * x_2 = [e_2 * x_1 * c_x0_(x_1)] / [c_x0_(x_2) * e_1] <br />
+	 * <br />
+	 * <br />
+	 * b = p_1(x_1) * x_1 + ... + p_n(x_n) * x_n <br />
+	 * <br />
+	 * b = [c_x0_(x_1) + c_xMinus1_(x_1) / x_1] * x_1 + ... + [c_x0_(x_n) +
+	 * c_xMinus1_(x_n) / x_n] * x_n <br />
+	 * => <br />
+	 * b = c_x0_(x_1) * x_1 + c_xMinus1_(x_1) + ... + c_x0_(x_n) * x_n +
+	 * c_xMinus1_(x_n) <br />
+	 * b = c_x0_(x_1) * x_1 + c_xMinus1_(x_1) + ... + c_x0_(x_n) * [e_n * x_1 *
+	 * c_x0_(x_1)] / [c_x0_(x_n) * e_1] + c_xMinus1_(x_n) <br />
+	 * => <br />
+	 * b = c_xMinus1_(x_1) + ... + c_xMinus1_(x_n) + c_x0_(x_1) * x_1 +
+	 * c_x0_(x_2) * [e_2 * x_1 * c_x0_(x_1)] / [c_x0_(x_2) * e_1] + ...
+	 * c_x0_(x_n) * [e_n * x_1 * c_x0_(x_1)] / [c_x0_(x_n) * e_1] <br />
+	 * => <br />
+	 * b = c_xMinus1_(x_1) + ... + c_xMinus1_(x_n) + x_1 * c_x0_(x_1) + x_1 *
+	 * [c_x0_(x_1) * e_2 * c_x0_(x_2)] / [c_x0_(x_2) * e_1] + ... + x_1 *
+	 * [c_x0_(x_1) * e_n * c_x0_(x_n) ] / [c_x0_(x_n) * e_1] <br />
+	 * => <br />
+	 * b = c_xMinus1_(x_1) + ... + c_xMinus1_(x_n) + x_1 * c_x0_(x_1) * [1 + e_2
+	 * / e_1 + e_2 / e_1 + ... + e_n / e_1] <br />
+	 * => <br />
+	 * b = c_xMinus1_(x_1) + c_xMinus1_(x_2) + ... + c_xMinus1_(x_n) + x_1 *
+	 * c_x0_(x_1) * [e_1 / e_1 + e_2 / e_1 + ... + e_n / e_1] <br />
+	 * e_1 + e_2 + ... + e_n = 1 => <br />
+	 * <br />
+	 * b = c_xMinus1_(x_1) + c_xMinus1_(x_2) + ... + c_xMinus1_(x_n) + x_1 *
+	 * c_x0_(x_1) * 1 / e_1 <br />
+	 * <br />
+	 * x_1 = [b - c_xMinus1_(x_1) - c_xMinus1_(x_2) - ... - c_xMinus1_(x_n)] *
+	 * e_1 / c_x0_(x_1) <br />
+	 */
+	@Override
+	protected Map<T, Double> calculatePossiblyValidOutputMaximizingInputsAnalyticalWithMarketPrices(
+			Map<T, PriceFunctionConfig> priceFunctionConfigs, double budget) {
+		Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
+		Map<T, Double> exponents = this.getExponents();
+
+		boolean pricesAreNaN = false;
+		for (T inputType : this.getInputTypes()) {
+			if (!priceFunctionConfigs.containsKey(inputType)
+					|| Double
+							.isNaN(priceFunctionConfigs.get(inputType).coefficientXPower0)) {
+				pricesAreNaN = true;
+				break;
+			}
+		}
+
+		/*
+		 * analytical formula for the optimal solution of a Cobb-Douglas
+		 * function under given budget restriction -> lagrange function
+		 */
+		double sumOfCoefficientXPowerMinus1 = 0.0;
+		for (PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs
+				.values()) {
+			sumOfCoefficientXPowerMinus1 += priceFunctionConfig.coefficientXPowerMinus1;
+		}
+
+		for (T inputType : this.getInputTypes()) {
+			double optimalAmount = exponents.get(inputType)
+					* (budget - sumOfCoefficientXPowerMinus1)
+					/ priceFunctionConfigs.get(inputType).coefficientXPower0;
+			if (pricesAreNaN || Double.isNaN(optimalAmount))
 				optimalAmount = 0.0;
 			bundleOfInputs.put(inputType, optimalAmount);
 		}

@@ -181,6 +181,11 @@ public class AgentFactory {
 
 		// excluded good types
 		trader.getExcludedGoodTypes().add(GoodType.LABOURHOUR);
+		for (GoodType goodType : GoodType.values()) {
+			if (GoodType.Sector.TERTIARY.equals(goodType.getSector())) {
+				trader.getExcludedGoodTypes().add(goodType);
+			}
+		}
 
 		DAOFactory.getTraderDAO().save(trader);
 		trader.initialize();

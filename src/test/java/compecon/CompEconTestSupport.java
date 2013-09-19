@@ -19,6 +19,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Map;
+import java.util.Map.Entry;
+
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -29,8 +35,89 @@ import compecon.engine.AgentFactory;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.materia.GoodType;
+import compecon.math.Function;
+import compecon.math.price.IPriceFunction;
 
 public abstract class CompEconTestSupport {
+
+	protected final double epsilon = 0.01;
+
+	public void assertOutputIsOptimalUnderBudget(
+			final Function<GoodType> function, final double budgetRestriction,
+			final Map<GoodType, IPriceFunction> priceFunctions,
+			final Map<GoodType, Double> referenceBundleOfInputs) {
+
+		Map<GoodType, Double> rangeScanBundleOfInputs = function
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
+						budgetRestriction);
+
+		// check that budget restriction is not violated
+		double sumOfCostsOfOptimalBundleOfInputs = 0.0;
+		for (Entry<GoodType, Double> inputEntry : rangeScanBundleOfInputs
+				.entrySet()) {
+			sumOfCostsOfOptimalBundleOfInputs += priceFunctions.get(
+					inputEntry.getKey()).getPrice(inputEntry.getValue())
+					* inputEntry.getValue();
+		}
+		if (sumOfCostsOfOptimalBundleOfInputs > budgetRestriction) {
+			throw new RuntimeException(
+					"optimalBundleOfInputs violates the budget restriction");
+		}
+
+		// check that budget restriction is not violated
+		double sumOfCostsOfReferenceBundleOfInputs = 0.0;
+		for (Entry<GoodType, Double> inputEntry : referenceBundleOfInputs
+				.entrySet()) {
+			sumOfCostsOfReferenceBundleOfInputs += priceFunctions.get(
+					inputEntry.getKey()).getPrice(inputEntry.getValue())
+					* inputEntry.getValue();
+		}
+		if (sumOfCostsOfReferenceBundleOfInputs > budgetRestriction) {
+			throw new RuntimeException(
+					"referenceBundleOfInputs violates the budget restriction");
+		}
+
+		assertTrue(function.f(rangeScanBundleOfInputs) <= function
+				.f(referenceBundleOfInputs));
+	}
+
+	/**
+	 * in an optimum partial derivatives per price have to be identical
+	 */
+	public void assertPartialDerivativesPerPriceAreEqual(
+			final Function<GoodType> function,
+			final Map<GoodType, Double> bundleOfInputs,
+			final Map<GoodType, IPriceFunction> priceFunctions) {
+		Map<GoodType, Double> partialDerivatives = function
+				.partialDerivatives(bundleOfInputs);
+		for (Entry<GoodType, Double> outerPartialDerivativeEntry : partialDerivatives
+				.entrySet()) {
+			IPriceFunction outerPriceFunction = priceFunctions
+					.get(outerPartialDerivativeEntry.getKey());
+			double outerMarginalPrice = outerPriceFunction
+					.getMarginalPrice(bundleOfInputs
+							.get(outerPartialDerivativeEntry.getKey()));
+			if (!Double.isNaN(outerMarginalPrice)) {
+				for (Entry<GoodType, Double> innerPartialDerivativeEntry : partialDerivatives
+						.entrySet()) {
+					IPriceFunction innerPriceFunction = priceFunctions
+							.get(innerPartialDerivativeEntry.getKey());
+					double innerMarginalPrice = innerPriceFunction
+							.getMarginalPrice(bundleOfInputs
+									.get(innerPartialDerivativeEntry.getKey()));
+					if (!Double.isNaN(innerMarginalPrice)) {
+						double innerPartialDerivativePerPrice = innerPartialDerivativeEntry
+								.getValue() / innerMarginalPrice;
+						double outerPartialDerivativePerPrice = outerPartialDerivativeEntry
+								.getValue() / outerMarginalPrice;
+						assertEquals(innerPartialDerivativePerPrice,
+								outerPartialDerivativePerPrice, epsilon);
+					}
+				}
+			}
+		}
+	}
+
 	protected void setUp() {
 		// init database connection
 

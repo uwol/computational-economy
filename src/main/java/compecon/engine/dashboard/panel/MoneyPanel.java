@@ -38,6 +38,8 @@ public class MoneyPanel extends AbstractChartsPanel {
 		this.add(createKeyInterestRatesPanel());
 		this.add(createPriceIndicesPanel());
 		this.add(createMoneySupplyPanel());
+		this.add(createMoneyCirculationPanel());
+		this.add(createMoneyVelocityPanel());
 	}
 
 	protected ChartPanel createKeyInterestRatesPanel() {
@@ -85,6 +87,34 @@ public class MoneyPanel extends AbstractChartsPanel {
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Money Supply to Non-Banks", "Date", "Money Supply",
 				(XYDataset) timeSeriesCollection, true, true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createMoneyCirculationPanel() {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		for (Currency currency : Currency.values())
+			timeSeriesCollection.addSeries(ModelRegistry
+					.getMoneyCirculationModel(currency).getTimeSeries());
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				"Money Circulation", "Date", "Money Circulation",
+				timeSeriesCollection, true, true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createMoneyVelocityPanel() {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		for (Currency currency : Currency.values())
+			timeSeriesCollection.addSeries(ModelRegistry.getMoneyVelocityModel(
+					currency).getTimeSeries());
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				"Velocity of Money", "Date", "Velocity of Money",
+				timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}

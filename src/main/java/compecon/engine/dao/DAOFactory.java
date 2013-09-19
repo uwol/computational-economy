@@ -199,6 +199,10 @@ public class DAOFactory {
 
 		public Iterator<MarketOrder> getIterator(Currency currency,
 				Class<? extends Property> propertyClass);
+
+		public double getAmountSum(Currency currency, GoodType goodType);
+
+		public double getAmountSum(Currency currency, Currency commodityCurrency);
 	}
 
 	public static interface IPropertyDAO extends IGenericDAO<Property> {

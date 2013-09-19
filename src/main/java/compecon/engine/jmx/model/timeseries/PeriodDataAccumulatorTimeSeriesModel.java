@@ -37,6 +37,10 @@ public class PeriodDataAccumulatorTimeSeriesModel extends
 		this.periodDataAccumulator.add(amount);
 	}
 
+	public double getValue() {
+		return this.periodDataAccumulator.getAmount();
+	}
+
 	public void nextPeriod() {
 		this.timeSeries.addOrUpdate(new Day(TimeSystem.getInstance()
 				.getCurrentDate()), this.periodDataAccumulator.getAmount());

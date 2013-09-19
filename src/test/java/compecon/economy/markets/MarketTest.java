@@ -20,6 +20,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.economy.markets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.SortedMap;
 
@@ -28,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import compecon.CompEconTestSupport;
+import compecon.economy.markets.Market.MarketPriceFunction;
 import compecon.economy.markets.ordertypes.MarketOrder;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -41,10 +44,9 @@ import compecon.engine.MarketFactory;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.materia.GoodType;
+import compecon.math.price.IPriceFunction.PriceFunctionConfig;
 
 public class MarketTest extends CompEconTestSupport {
-
-	final double epsilon = 0.0001;
 
 	@Before
 	public void setUp() {
@@ -57,7 +59,7 @@ public class MarketTest extends CompEconTestSupport {
 	}
 
 	@Test
-	public void offerGoodType() {
+	public void testOfferGoodType() {
 		// test market for good type
 		Currency currency = Currency.EURO;
 		GoodType goodType = GoodType.LABOURHOUR;
@@ -69,44 +71,77 @@ public class MarketTest extends CompEconTestSupport {
 		Factory factory1_WHEAT_EUR = DAOFactory.getFactoryDAO()
 				.findAllByCurrency(currency).get(0);
 
-		assertEquals(Double.NaN, DAOFactory.getMarketOrderDAO()
-				.findMarginalPrice(currency, goodType), epsilon);
+		assertEquals(Double.NaN,
+				MarketFactory.getInstance().getPrice(currency, goodType),
+				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household1_EUR,
 				household1_EUR.getTransactionsBankAccount(), 10, 5);
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
 				household2_EUR.getTransactionsBankAccount(), 10, 4);
+
+		assertEquals(4.0,
+				MarketFactory.getInstance().getPrice(currency, goodType),
+				epsilon);
+		assertEquals(MarketFactory.getInstance().getPrice(currency, goodType),
+				MarketFactory.getInstance()
+						.getPriceFunction(currency, goodType).getPrice(0.0),
+				epsilon);
+		assertEquals(MarketFactory.getInstance().getPrice(currency, goodType),
+				MarketFactory.getInstance()
+						.getPriceFunction(currency, goodType).getPrice(1.0),
+				epsilon);
+
+		assertEquals(4.5,
+				MarketFactory.getInstance()
+						.getPriceFunction(currency, goodType).getPrice(20.0),
+				epsilon);
+		assertEquals(4.333333,
+				MarketFactory.getInstance()
+						.getPriceFunction(currency, goodType).getPrice(15.0),
+				epsilon);
 		assertEquals(
 				4.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
-						goodType), epsilon);
-
-		MarketFactory.getInstance().removeAllSellingOffers(household2_EUR);
+				MarketFactory.getInstance()
+						.getPriceFunction(currency, goodType)
+						.getMarginalPrice(10.0), epsilon);
 		assertEquals(
 				5.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
-						goodType), epsilon);
+				MarketFactory.getInstance()
+						.getPriceFunction(currency, goodType)
+						.getMarginalPrice(11.0), epsilon);
+		assertEquals(
+				Double.NaN,
+				MarketFactory.getInstance()
+						.getPriceFunction(currency, goodType)
+						.getMarginalPrice(21.0), epsilon);
+		assertEquals(
+				Double.NaN,
+				MarketFactory.getInstance().getAveragePrice(currency, goodType,
+						21.0), epsilon);
+
+		MarketFactory.getInstance().removeAllSellingOffers(household2_EUR);
+		assertEquals(5.0,
+				MarketFactory.getInstance().getPrice(currency, goodType),
+				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
 				household2_EUR.getTransactionsBankAccount(), 10, 3);
-		assertEquals(
-				3.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
-						goodType), epsilon);
+		assertEquals(3.0,
+				MarketFactory.getInstance().getPrice(currency, goodType),
+				epsilon);
 
 		MarketFactory.getInstance().removeAllSellingOffers(household2_EUR,
 				currency, goodType);
-		assertEquals(
-				5.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
-						goodType), epsilon);
+		assertEquals(5.0,
+				MarketFactory.getInstance().getPrice(currency, goodType),
+				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
 				household2_EUR.getTransactionsBankAccount(), 10, 3);
-		assertEquals(
-				3.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
-						goodType), epsilon);
+		assertEquals(3.0,
+				MarketFactory.getInstance().getPrice(currency, goodType),
+				epsilon);
 
 		SortedMap<MarketOrder, Double> marketOffers1 = MarketFactory
 				.getInstance().findBestFulfillmentSet(currency, 20, Double.NaN,
@@ -136,7 +171,7 @@ public class MarketTest extends CompEconTestSupport {
 	}
 
 	@Test
-	public void offerProperty() {
+	public void testOfferProperty() {
 		Currency currency = Currency.EURO;
 
 		Factory factory1_WHEAT_EUR = DAOFactory.getFactoryDAO()
@@ -144,8 +179,9 @@ public class MarketTest extends CompEconTestSupport {
 		Household household1_EUR = DAOFactory.getHouseholdDAO()
 				.findAllByCurrency(currency).get(0);
 
-		assertEquals(Double.NaN, DAOFactory.getMarketOrderDAO()
-				.findMarginalPrice(currency, Share.class), epsilon);
+		assertEquals(Double.NaN,
+				MarketFactory.getInstance().getPrice(currency, Share.class),
+				epsilon);
 
 		for (ITimeSystemEvent timeSystemEvent : factory1_WHEAT_EUR
 				.getTimeSystemEvents()) {
@@ -153,10 +189,9 @@ public class MarketTest extends CompEconTestSupport {
 				timeSystemEvent.onEvent();
 		}
 
-		assertEquals(
-				0.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
-						Share.class), epsilon);
+		assertEquals(0.0,
+				MarketFactory.getInstance().getPrice(currency, Share.class),
+				epsilon);
 		assertEquals(
 				factory1_WHEAT_EUR.getInitialNumberOfShares(),
 				PropertyRegister.getInstance()
@@ -183,12 +218,13 @@ public class MarketTest extends CompEconTestSupport {
 						.getProperties(household1_EUR, Share.class).size());
 
 		MarketFactory.getInstance().removeAllSellingOffers(factory1_WHEAT_EUR);
-		assertEquals(Double.NaN, DAOFactory.getMarketOrderDAO()
-				.findMarginalPrice(currency, Share.class), epsilon);
+		assertEquals(Double.NaN,
+				MarketFactory.getInstance().getPrice(currency, Share.class),
+				epsilon);
 	}
 
 	@Test
-	public void offerCurrency() {
+	public void testOfferCurrency() {
 		Currency currency = Currency.EURO;
 		Currency commodityCurrency = Currency.USDOLLAR;
 
@@ -199,8 +235,10 @@ public class MarketTest extends CompEconTestSupport {
 		Trader trader1_EUR = DAOFactory.getTraderDAO()
 				.findAllByCurrency(currency).get(0);
 
-		assertEquals(Double.NaN, DAOFactory.getMarketOrderDAO()
-				.findMarginalPrice(currency, commodityCurrency), epsilon);
+		assertEquals(
+				Double.NaN,
+				MarketFactory.getInstance().getPrice(currency,
+						commodityCurrency), epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(
 				commodityCurrency,
@@ -227,13 +265,13 @@ public class MarketTest extends CompEconTestSupport {
 								.get(commodityCurrency).getManagingBank()));
 		assertEquals(
 				2.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+				MarketFactory.getInstance().getPrice(currency,
 						commodityCurrency), epsilon);
 
 		MarketFactory.getInstance().removeAllSellingOffers(creditBank1_EUR);
 		assertEquals(
 				3,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+				MarketFactory.getInstance().getPrice(currency,
 						commodityCurrency), epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(
@@ -249,14 +287,14 @@ public class MarketTest extends CompEconTestSupport {
 								.get(commodityCurrency).getManagingBank()));
 		assertEquals(
 				1.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+				MarketFactory.getInstance().getPrice(currency,
 						commodityCurrency), epsilon);
 
 		MarketFactory.getInstance().removeAllSellingOffers(creditBank1_EUR,
 				currency, commodityCurrency);
 		assertEquals(
 				3.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+				MarketFactory.getInstance().getPrice(currency,
 						commodityCurrency), epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(
@@ -272,7 +310,7 @@ public class MarketTest extends CompEconTestSupport {
 								.get(commodityCurrency).getManagingBank()));
 		assertEquals(
 				1.0,
-				DAOFactory.getMarketOrderDAO().findMarginalPrice(currency,
+				MarketFactory.getInstance().getPrice(currency,
 						commodityCurrency), epsilon);
 
 		SortedMap<MarketOrder, Double> marketOffers1 = MarketFactory
@@ -301,5 +339,99 @@ public class MarketTest extends CompEconTestSupport {
 				.getBalance(), epsilon);
 		assertEquals(5.0, trader1_EUR.getTransactionForeignCurrencyAccounts()
 				.get(commodityCurrency).getBalance(), epsilon);
+	}
+
+	@Test
+	public void testCalculateMarketPriceFunction() {
+		Currency currency = Currency.EURO;
+		GoodType goodType = GoodType.LABOURHOUR;
+
+		Household household1_EUR = DAOFactory.getHouseholdDAO()
+				.findAllByCurrency(currency).get(0);
+		Household household2_EUR = DAOFactory.getHouseholdDAO()
+				.findAllByCurrency(currency).get(1);
+
+		assertEquals(Double.NaN,
+				MarketFactory.getInstance().getPrice(currency, goodType),
+				epsilon);
+
+		MarketFactory.getInstance().placeSellingOffer(goodType, household1_EUR,
+				household1_EUR.getTransactionsBankAccount(), 10, 5);
+		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
+				household2_EUR.getTransactionsBankAccount(), 10, 4);
+		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
+				household2_EUR.getTransactionsBankAccount(), 10, 6);
+
+		assertValidPriceFunctionConfig(MarketFactory.getInstance()
+				.getPriceFunction(currency, goodType), 150.0, 3);
+
+		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
+				household2_EUR.getTransactionsBankAccount(), 100, 2);
+		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
+				household2_EUR.getTransactionsBankAccount(), 20, 20);
+
+		assertValidPriceFunctionConfig(MarketFactory.getInstance()
+				.getPriceFunction(currency, goodType), 1500.0, 5);
+	}
+
+	private void assertValidPriceFunctionConfig(
+			MarketPriceFunction marketPriceFunction, double maxBudget,
+			int numberOfOffers) {
+		PriceFunctionConfig[] priceFunctionConfigs = marketPriceFunction
+				.getAnalyticalPriceFunctionParameters(maxBudget);
+		assertEquals(numberOfOffers, priceFunctionConfigs.length);
+
+		// check intervals
+		double lastPriceAtIntervalRightBoundary = 0.0;
+		for (PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs) {
+			// check interval boundaries
+			assertNotEquals(priceFunctionConfig.intervalLeftBoundary,
+					priceFunctionConfig.intervalRightBoundary, epsilon);
+
+			double intervalMiddle = priceFunctionConfig.intervalRightBoundary
+					- ((priceFunctionConfig.intervalRightBoundary - priceFunctionConfig.intervalLeftBoundary) / 2.0);
+
+			// calculate analytical prices
+			double priceAtIntervalRightBoundary = priceFunctionConfig.coefficientXPower0
+					+ priceFunctionConfig.coefficientXPowerMinus1
+					/ priceFunctionConfig.intervalRightBoundary;
+			double priceAtIntervalMiddle = priceFunctionConfig.coefficientXPower0
+					+ priceFunctionConfig.coefficientXPowerMinus1
+					/ intervalMiddle;
+
+			// compare analytical prices with prices from market price function
+			assertEquals(priceAtIntervalMiddle,
+					marketPriceFunction.getPrice(intervalMiddle), epsilon);
+			assertEquals(
+					priceAtIntervalRightBoundary,
+					marketPriceFunction
+							.getPrice(priceFunctionConfig.intervalRightBoundary),
+					epsilon);
+
+			if (priceFunctionConfig.intervalLeftBoundary > 0.0) {
+				double priceAtIntervalLeftBoundary = priceFunctionConfig.coefficientXPower0
+						+ priceFunctionConfig.coefficientXPowerMinus1
+						/ priceFunctionConfig.intervalLeftBoundary;
+
+				// assert that the analytical price function does not have
+				// discontinuities
+				assertEquals(lastPriceAtIntervalRightBoundary,
+						priceAtIntervalLeftBoundary, epsilon);
+
+				// assert that the analytical price function is continuous
+				assertTrue(priceAtIntervalLeftBoundary < priceAtIntervalMiddle);
+				assertTrue(priceAtIntervalMiddle < priceAtIntervalRightBoundary);
+
+				assertEquals(
+						priceAtIntervalLeftBoundary,
+						marketPriceFunction
+								.getPrice(priceFunctionConfig.intervalLeftBoundary),
+						epsilon);
+			}
+
+			// store the current right interval boundary as the new left
+			// interval boundary for the next step of the step price function
+			lastPriceAtIntervalRightBoundary = priceAtIntervalRightBoundary;
+		}
 	}
 }

@@ -45,8 +45,9 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.engine.jmx.Log;
 import compecon.engine.jmx.model.AgentDetailModel;
 import compecon.engine.jmx.model.AgentDetailModel.AgentLog;
-import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
 import compecon.engine.jmx.model.ModelRegistry;
+import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 
@@ -250,8 +251,8 @@ public class LogPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			return LogPanel.this.agentDetailModel
-					.getPropertiesOfCurrentAgent().size();
+			return LogPanel.this.agentDetailModel.getPropertiesOfCurrentAgent()
+					.size();
 		}
 
 		@Override
@@ -279,7 +280,8 @@ public class LogPanel extends JPanel {
 		}
 	}
 
-	protected final int NUMBER_OF_AGENTS_TO_SHOW = 300;
+	protected final int NUMBER_OF_AGENTS_TO_SHOW = ConfigurationUtil.DashboardConfig
+			.getLogNumberOfAgents();
 
 	protected final AgentDetailModel agentDetailModel = ModelRegistry
 			.getAgentDetailModel();
@@ -330,8 +332,8 @@ public class LogPanel extends JPanel {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (e.getValueIsAdjusting() == false) {
-					LogPanel.this.agentDetailModel
-							.setCurrentAgent(agentsList.getSelectedIndex());
+					LogPanel.this.agentDetailModel.setCurrentAgent(agentsList
+							.getSelectedIndex());
 				}
 			}
 		});

@@ -23,9 +23,11 @@ public enum GoodType {
 
 	LABOURHOUR(false, Sector.TERTIARY), IRON(false, Sector.PRIMARY), COAL(
 			false, Sector.PRIMARY), URANIUM(false, Sector.PRIMARY), WHEAT(
-			false, Sector.PRIMARY), STEEL(false, Sector.SECONDARY), KILOWATT(
-			false, Sector.SECONDARY), REALESTATE(false, Sector.SECONDARY), CAR(
-			false, Sector.SECONDARY);
+			false, Sector.PRIMARY), FOOD(false, Sector.SECONDARY), KILOWATT(
+			false, Sector.SECONDARY), REALESTATE(false, Sector.SECONDARY), STEEL(
+			false, Sector.SECONDARY), CRAFT(false, Sector.TERTIARY), EDUCATION(
+			false, Sector.TERTIARY), ADMINISTRATION(false, Sector.TERTIARY), CONSULTING(
+			false, Sector.TERTIARY);
 
 	public enum Sector {
 		PRIMARY, SECONDARY, TERTIARY;

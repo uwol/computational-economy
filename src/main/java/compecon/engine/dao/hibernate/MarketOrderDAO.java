@@ -163,4 +163,29 @@ public class MarketOrderDAO extends HibernateDAO<MarketOrder> implements
 				.scroll(ScrollMode.FORWARD_ONLY);
 		return new HibernateIterator<MarketOrder>(itemCursor);
 	}
+
+	@Override
+	public double getAmountSum(Currency currency, GoodType goodType) {
+		String queryString = "SUM(m.pricePerUnit * m.amount) FROM MarketOrder m "
+				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.goodType = :goodType";
+		Object amountSum = getSession().createQuery(queryString)
+				.setMaxResults(1).setParameter("currency", currency)
+				.setParameter("goodType", goodType).uniqueResult();
+		if (amountSum == null)
+			return Double.NaN;
+		return (double) amountSum;
+	}
+
+	@Override
+	public double getAmountSum(Currency currency, Currency commodityCurrency) {
+		String queryString = "SUM(m.pricePerUnit * m.amount) FROM MarketOrder m "
+				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.commodityCurrency = :commodityCurrency";
+		Object amountSum = getSession().createQuery(queryString)
+				.setMaxResults(1).setParameter("currency", currency)
+				.setParameter("commodityCurrency", commodityCurrency)
+				.uniqueResult();
+		if (amountSum == null)
+			return Double.NaN;
+		return (double) amountSum;
+	}
 }

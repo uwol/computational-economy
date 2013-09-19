@@ -24,6 +24,7 @@ import java.util.Set;
 
 import compecon.materia.GoodType;
 import compecon.math.IFunction;
+import compecon.math.price.IPriceFunction;
 
 public abstract class ProductionFunction implements IProductionFunction {
 
@@ -52,10 +53,10 @@ public abstract class ProductionFunction implements IProductionFunction {
 				differentialGoodType);
 	}
 
-	protected GoodType calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
+	protected GoodType selectProductionFactorWithHighestMarginalOutputPerPrice(
 			Map<GoodType, Double> bundleOfInputGoods,
-			Map<GoodType, Double> pricesOfInputGoods) {
+			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods) {
 		return this.delegate.findHighestPartialDerivatePerPrice(
-				bundleOfInputGoods, pricesOfInputGoods);
+				bundleOfInputGoods, priceFunctionsOfInputGoods);
 	}
 }

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import compecon.materia.GoodType;
+import compecon.math.price.IPriceFunction;
 
 public interface IUtilityFunction {
 
@@ -39,6 +40,7 @@ public interface IUtilityFunction {
 	 * of an optimization problem under budget constraints. It overwrites the
 	 * general solution for convex functions because of performance reasons.
 	 */
-	public Map<GoodType, Double> calculateUtilityMaximizingInputsUnderBudgetRestriction(
-			Map<GoodType, Double> pricesOfInputGoods, double budget);
+	public Map<GoodType, Double> calculateUtilityMaximizingInputs(
+			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods,
+			double budget);
 }

@@ -17,17 +17,29 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.math.utility;
+package compecon.math.price;
 
-import java.util.Map;
+public class FixedPriceFunction implements IPriceFunction {
 
-import compecon.materia.GoodType;
-import compecon.math.CobbDouglasFunction;
+	protected final double staticPrice;
 
-public class CobbDouglasUtilityFunction extends ConvexUtilityFunction {
+	public FixedPriceFunction(final double staticPrice) {
+		this.staticPrice = staticPrice;
+	}
 
-	public CobbDouglasUtilityFunction(double coefficient,
-			Map<GoodType, Double> exponents) {
-		super(new CobbDouglasFunction<GoodType>(coefficient, exponents));
+	@Override
+	public double getPrice(double numberOfGoods) {
+		return this.staticPrice;
+	}
+
+	@Override
+	public double getMarginalPrice(double numberOfGoods) {
+		return this.staticPrice;
+	}
+
+	@Override
+	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(double maxBudget) {
+		return new PriceFunctionConfig[] { new PriceFunctionConfig(
+				0.0, Double.POSITIVE_INFINITY, this.staticPrice, 0.0) };
 	}
 }

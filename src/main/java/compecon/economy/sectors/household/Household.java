@@ -35,8 +35,8 @@ import compecon.economy.PricingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
@@ -55,6 +55,7 @@ import compecon.materia.GoodType;
 import compecon.materia.Refreshable;
 import compecon.math.intertemporal.IntertemporalConsumptionFunction;
 import compecon.math.intertemporal.IrvingFisherIntertemporalConsumptionFunction.Period;
+import compecon.math.price.IPriceFunction;
 import compecon.math.utility.IUtilityFunction;
 
 /**
@@ -122,7 +123,7 @@ public class Household extends Agent implements IShareOwner {
 				MonthType.EVERY, DayType.EVERY,
 				BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
-		double marketPrice = MarketFactory.getInstance().getMarginalPrice(
+		double marketPrice = MarketFactory.getInstance().getPrice(
 				this.primaryCurrency, GoodType.LABOURHOUR);
 		this.pricingBehaviour = new PricingBehaviour(this, GoodType.LABOURHOUR,
 				this.primaryCurrency, marketPrice);
@@ -324,17 +325,17 @@ public class Household extends Agent implements IShareOwner {
 					Household.this.pricingBehaviour.getLastSoldAmount());
 
 			/*
-			 * actions
+			 * economic actions
 			 */
 			Household.this.assureTransactionsBankAccount();
 			Household.this.assureSavingsBankAccount();
 
 			double budget = this.saveMoney();
 
-			Map<GoodType, Double> plannedConsumptionGoodsBundle = this
-					.buyGoods(budget);
+			double numberOfLabourHoursToConsume = this
+					.buyOptimalGoodsForBudget(budget);
 
-			double utility = this.consumeGoods(plannedConsumptionGoodsBundle);
+			double utility = this.consumeGoods(numberOfLabourHoursToConsume);
 
 			this.offerLabourHours();
 
@@ -475,50 +476,62 @@ public class Household extends Agent implements IShareOwner {
 			return budget;
 		}
 
-		protected Map<GoodType, Double> buyGoods(double budget) {
-			// TODO: what if there are not enough goods to buy? -> higher saving
+		protected double buyOptimalGoodsForBudget(double budget) {
+			double numberOfLabourHoursToConsume = 0.0;
 
-			/*
-			 * buy goods -> maximize utility
-			 */
-			Map<GoodType, Double> prices = MarketFactory.getInstance()
-					.getMarginalPrices(
-							Household.this.transactionsBankAccount
-									.getCurrency());
-			Map<GoodType, Double> plannedConsumptionGoodsBundle = Household.this.utilityFunction
-					.calculateUtilityMaximizingInputsUnderBudgetRestriction(
-							prices, budget);
+			if (MathUtil.greater(budget, 0.0)) {
+				// get prices for good types
+				Map<GoodType, IPriceFunction> priceFunctions = MarketFactory
+						.getInstance().getPriceFunctions(
+								Household.this.primaryCurrency,
+								Household.this.utilityFunction
+										.getInputGoodTypes());
 
-			for (Entry<GoodType, Double> entry : plannedConsumptionGoodsBundle
-					.entrySet()) {
-				GoodType goodType = entry.getKey();
-				if (!GoodType.LABOURHOUR.equals(goodType)) {
-					double maxAmount = entry.getValue();
-					double maxTotalPrice = Household.this.transactionsBankAccount
-							.getBalance();
-					if (!Double.isInfinite(maxAmount)) {
-						maxTotalPrice = Math.min(
-								maxAmount * prices.get(goodType),
-								Household.this.transactionsBankAccount
-										.getBalance());
-					}
-					double[] priceAndAmount = MarketFactory.getInstance().buy(
-							goodType,
-							maxAmount,
-							maxTotalPrice,
-							prices.get(goodType),
-							Household.this,
-							Household.this.transactionsBankAccount,
-							Household.this.bankPasswords
-									.get(Household.this.transactionsBankAccount
-											.getManagingBank()));
-				}
+				// calculate optimal consumption plan
+				Map<GoodType, Double> plannedConsumptionGoodsBundle = Household.this.utilityFunction
+						.calculateUtilityMaximizingInputs(priceFunctions,
+								budget);
+
+				numberOfLabourHoursToConsume = plannedConsumptionGoodsBundle
+						.get(GoodType.LABOURHOUR);
+
+				// buy goods
+				double budgetSpent = this.buyGoods(
+						plannedConsumptionGoodsBundle, priceFunctions, budget);
 			}
-			return plannedConsumptionGoodsBundle;
+
+			return numberOfLabourHoursToConsume;
 		}
 
-		protected double consumeGoods(
-				Map<GoodType, Double> plannedConsumptionGoodsBundle) {
+		protected double buyGoods(final Map<GoodType, Double> goodsToBuy,
+				final Map<GoodType, IPriceFunction> priceFunctions,
+				final double budget) {
+			/*
+			 * buy production factors; maxPricePerUnit is significantly
+			 * important for price equilibrium
+			 */
+			double budgetSpent = 0.0;
+			for (Entry<GoodType, Double> entry : goodsToBuy.entrySet()) {
+				GoodType goodType = entry.getKey();
+				double maxAmount = entry.getValue();
+				// maxPricePerUnit is significantly important for price
+				// equilibrium
+				double[] priceAndAmount = MarketFactory.getInstance().buy(
+						goodType,
+						maxAmount,
+						Double.NaN,
+						Double.NaN,
+						Household.this,
+						Household.this.transactionsBankAccount,
+						Household.this.bankPasswords
+								.get(Household.this.transactionsBankAccount
+										.getManagingBank()));
+				budgetSpent += priceAndAmount[0];
+			}
+			return budgetSpent;
+		}
+
+		protected double consumeGoods(double numberOfLabourHoursToConsume) {
 			/*
 			 * consume goods
 			 */
@@ -527,8 +540,13 @@ public class Household extends Agent implements IShareOwner {
 					.getInputGoodTypes()) {
 				double balance = PropertyRegister.getInstance().getBalance(
 						Household.this, goodType);
-				double amountToConsume = Math.min(balance,
-						plannedConsumptionGoodsBundle.get(goodType));
+				double amountToConsume;
+				if (GoodType.LABOURHOUR.equals(goodType)) {
+					amountToConsume = Math.min(numberOfLabourHoursToConsume,
+							balance);
+				} else {
+					amountToConsume = balance;
+				}
 				effectiveConsumptionGoodsBundle.put(goodType, amountToConsume);
 				PropertyRegister.getInstance().decrementGoodTypeAmount(
 						Household.this, goodType, amountToConsume);
@@ -563,8 +581,8 @@ public class Household extends Agent implements IShareOwner {
 					MarketFactory.getInstance().placeSettlementSellingOffer(
 							GoodType.LABOURHOUR, Household.this,
 							Household.this.transactionsBankAccount,
-							amountOfLabourHours / prices.length, price,
-							new SettlementMarketEvent());
+							amountOfLabourHours / ((double) prices.length),
+							price, new SettlementMarketEvent());
 				}
 				Household.this.pricingBehaviour
 						.registerOfferedAmount(amountOfLabourHours);

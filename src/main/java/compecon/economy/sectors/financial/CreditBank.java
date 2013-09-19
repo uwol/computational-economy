@@ -132,7 +132,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			if (!this.primaryCurrency.equals(foreignCurrency)) {
 				// price of local currency in foreign currency
 				double initialPriceOfLocalCurrencyInForeignCurrency = MarketFactory
-						.getInstance().getMarginalPrice(foreignCurrency,
+						.getInstance().getPrice(foreignCurrency,
 								this.primaryCurrency);
 				if (Double.isNaN(initialPriceOfLocalCurrencyInForeignCurrency))
 					initialPriceOfLocalCurrencyInForeignCurrency = 1.0;
@@ -654,11 +654,11 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 				Currency firstCurrency, Currency secondCurrency) {
 			// e.g. USD_in_EUR = 0.8
 			double priceOfFirstCurrencyInSecondCurrency = MarketFactory
-					.getInstance().getMarginalPrice(secondCurrency,
+					.getInstance().getPrice(secondCurrency,
 							firstCurrency);
 			// e.g. EUR_in_USD = 0.8
 			double priceOfSecondCurrencyInFirstCurrency = MarketFactory
-					.getInstance().getMarginalPrice(firstCurrency,
+					.getInstance().getPrice(firstCurrency,
 							secondCurrency);
 
 			if (Double.isNaN(priceOfSecondCurrencyInFirstCurrency)) {
@@ -727,7 +727,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 								.getValue();
 
 						double realPriceOfForeignCurrencyInLocalCurrency = MarketFactory
-								.getInstance().getMarginalPrice(
+								.getInstance().getPrice(
 										primaryCurrency, foreignCurrency);
 						double correctPriceOfForeignCurrencyInLocalCurrency = calculateCalculatoryPriceOfFirstCurrencyInSecondCurrency(
 								foreignCurrency, primaryCurrency);
@@ -894,7 +894,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						if (Double
 								.isNaN(pricingBehaviourPriceOfLocalCurrencyInForeignCurrency)) {
 							pricingBehaviourPriceOfLocalCurrencyInForeignCurrency = MarketFactory
-									.getInstance().getMarginalPrice(
+									.getInstance().getPrice(
 											foreignCurrency, localCurrency);
 							if (Log.isAgentSelectedByClient(CreditBank.this))
 								Log.log(CreditBank.this,
@@ -949,7 +949,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 					// determine price of foreign currency
 					double priceOfForeignCurrencyInLocalCurrency = MarketFactory
-							.getInstance().getMarginalPrice(localCurrency,
+							.getInstance().getPrice(localCurrency,
 									foreignCurrency);
 					if (Double.isNaN(priceOfForeignCurrencyInLocalCurrency))
 						priceOfForeignCurrencyInLocalCurrency = 1;

@@ -45,6 +45,7 @@ import compecon.engine.time.calendar.MonthType;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
+import compecon.math.price.IPriceFunction;
 import compecon.math.production.IProductionFunction;
 
 /**
@@ -84,7 +85,7 @@ public class Factory extends JointStockCompany {
 				balanceSheetPublicationEvent, -1, MonthType.EVERY,
 				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
-		double marketPrice = MarketFactory.getInstance().getMarginalPrice(
+		double marketPrice = MarketFactory.getInstance().getPrice(
 				this.primaryCurrency, this.producedGoodType);
 		this.pricingBehaviour = new PricingBehaviour(this,
 				this.producedGoodType, this.primaryCurrency, marketPrice);
@@ -146,71 +147,80 @@ public class Factory extends JointStockCompany {
 			Factory.this.assureTransactionsBankAccount();
 			Factory.this.pricingBehaviour.nextPeriod();
 
+			/*
+			 * economic actions
+			 */
 			double budget = Factory.this.budgetingBehaviour
 					.calculateTransmissionBasedBudgetForPeriod(
 							Factory.this.transactionsBankAccount.getCurrency(),
 							Factory.this.transactionsBankAccount.getBalance(),
 							Factory.this.referenceCredit);
 
-			Map<GoodType, Double> productionFactorsToBuy = this
-					.calculateProductionFactorsToBuy(budget);
-
-			this.buyProductionFactors(productionFactorsToBuy, budget);
+			this.buyOptimalProductionFactorsForBudget(budget);
 
 			this.produce();
 
 			this.offerProducedGoodType();
 		}
 
-		protected Map<GoodType, Double> calculateProductionFactorsToBuy(
-				double budget) {
-			/*
-			 * calculate optimal amount of production factors
-			 */
-			Map<GoodType, Double> pricesOfProductionFactors = new HashMap<GoodType, Double>();
-			for (GoodType productionFactor : Factory.this.productionFunction
-					.getInputGoodTypes()) {
-				double price = MarketFactory.getInstance().getMarginalPrice(
-						Factory.this.primaryCurrency, productionFactor);
-				pricesOfProductionFactors.put(productionFactor, price);
-			}
-			double priceOfProducedGoodType = MarketFactory.getInstance()
-					.getMarginalPrice(Factory.this.primaryCurrency,
-							Factory.this.producedGoodType);
+		protected void buyOptimalProductionFactorsForBudget(final double budget) {
+			if (MathUtil.greater(budget, 0.0)) {
+				// get prices for production factors
+				Map<GoodType, IPriceFunction> priceFunctionsOfProductionFactors = MarketFactory
+						.getInstance().getPriceFunctions(
+								Factory.this.primaryCurrency,
+								Factory.this.productionFunction
+										.getInputGoodTypes());
 
-			Log.setAgentCurrentlyActive(Factory.this);
-			Map<GoodType, Double> productionFactorsToBuy = Factory.this.productionFunction
-					.calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
-							priceOfProducedGoodType
-									* (1.0 + ConfigurationUtil.FactoryConfig
-											.getMargin()),
-							pricesOfProductionFactors, budget, Double.NaN);
-			return productionFactorsToBuy;
+				// calculate optimal production plan
+				double priceOfProducedGoodType = MarketFactory.getInstance()
+						.getPrice(Factory.this.primaryCurrency,
+								Factory.this.producedGoodType);
+
+				Log.setAgentCurrentlyActive(Factory.this);
+				Map<GoodType, Double> productionFactorsToBuy = Factory.this.productionFunction
+						.calculateProfitMaximizingProductionFactors(
+								priceOfProducedGoodType
+										* (1.0 + ConfigurationUtil.FactoryConfig
+												.getMargin()),
+								priceFunctionsOfProductionFactors, budget,
+								Double.NaN);
+
+				// buy production factors
+				double budgetSpent = this
+						.buyProductionFactors(productionFactorsToBuy);
+			}
 		}
 
-		protected void buyProductionFactors(
-				Map<GoodType, Double> productionFactorsToBuy, double budget) {
+		protected double buyProductionFactors(
+				final Map<GoodType, Double> productionFactorsToBuy) {
 			/*
-			 * buy production factors
+			 * buy production factors; maxPricePerUnit is significantly
+			 * important for price equilibrium
 			 */
+			double budgetSpent = 0.0;
 			for (Entry<GoodType, Double> entry : productionFactorsToBuy
 					.entrySet()) {
-				MarketFactory.getInstance().buy(
-						entry.getKey(),
-						entry.getValue(),
-						budget,
+				GoodType goodTypeToBuy = entry.getKey();
+				double amountToBuy = entry.getValue();
+				double[] priceAndAmount = MarketFactory.getInstance().buy(
+						goodTypeToBuy,
+						amountToBuy,
+						Double.NaN,
 						Double.NaN,
 						Factory.this,
 						Factory.this.transactionsBankAccount,
 						Factory.this.bankPasswords
 								.get(Factory.this.transactionsBankAccount
 										.getManagingBank()));
+				budgetSpent += priceAndAmount[0];
 			}
+			return budgetSpent;
 		}
 
 		protected void produce() {
 			/*
-			 * produce with production factors machine and labour hour
+			 * produce with production factors
 			 */
 			Map<GoodType, Double> productionFactorsOwned = new HashMap<GoodType, Double>();
 			for (GoodType productionFactor : Factory.this.productionFunction
@@ -261,7 +271,7 @@ public class Factory extends JointStockCompany {
 				MarketFactory.getInstance().placeSettlementSellingOffer(
 						Factory.this.producedGoodType, Factory.this,
 						Factory.this.transactionsBankAccount,
-						amount / prices.length, price,
+						amount / ((double) prices.length), price,
 						new SettlementMarketEvent());
 			}
 			Factory.this.pricingBehaviour.registerOfferedAmount(amount);

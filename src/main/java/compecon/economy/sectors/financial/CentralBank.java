@@ -506,7 +506,7 @@ public class CentralBank extends Bank {
 
 			this.priceIndexWeights.put(GoodType.WHEAT, 0.2);
 			this.priceIndexWeights.put(GoodType.KILOWATT, 0.3);
-			this.priceIndexWeights.put(GoodType.CAR, 0.2);
+			this.priceIndexWeights.put(GoodType.STEEL, 0.2);
 			this.priceIndexWeights.put(GoodType.REALESTATE, 0.3);
 
 			/*
@@ -540,7 +540,7 @@ public class CentralBank extends Bank {
 
 				// fetch and store current price for this good type
 				double marginalPriceForGoodType = MarketFactory.getInstance()
-						.getMarginalPrice(CentralBank.this.primaryCurrency,
+						.getPrice(CentralBank.this.primaryCurrency,
 								entry.getKey());
 
 				if (!Double.isNaN(marginalPriceForGoodType)

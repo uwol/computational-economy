@@ -301,7 +301,7 @@ public abstract class Agent {
 
 		// inventory by value
 		Map<GoodType, Double> prices = MarketFactory.getInstance()
-				.getMarginalPrices(this.primaryCurrency);
+				.getPrices(this.primaryCurrency);
 		for (Entry<GoodType, Double> balanceEntry : PropertyRegister
 				.getInstance().getBalance(Agent.this).entrySet()) {
 			GoodType goodType = balanceEntry.getKey();

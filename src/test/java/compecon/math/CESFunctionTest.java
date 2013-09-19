@@ -24,16 +24,35 @@ import static org.junit.Assert.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import compecon.CompEconTestSupport;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
+import compecon.engine.MarketFactory;
+import compecon.engine.dao.DAOFactory;
 import compecon.materia.GoodType;
+import compecon.math.price.FixedPriceFunction;
+import compecon.math.price.IPriceFunction;
 
-public class CESFunctionTest extends AbstractFunctionTest {
+public class CESFunctionTest extends CompEconTestSupport {
 
-	final double epsilon = 0.01;
+	final int numberOfIterations = 500;
+
+	@Before
+	public void setUp() {
+		super.setUp();
+	}
+
+	@After
+	public void tearDown() {
+		super.tearDown();
+	}
 
 	@Test
-	public void calculateForTwoGoods() {
+	public void testCalculateForTwoGoodsWithFixedPrices() {
 		/*
 		 * prepare function
 		 */
@@ -50,47 +69,61 @@ public class CESFunctionTest extends AbstractFunctionTest {
 		prices.put(GoodType.COAL, Double.NaN);
 		prices.put(GoodType.KILOWATT, 1.0);
 		prices.put(GoodType.WHEAT, 1.0);
+
+		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
+		priceFunctions.put(GoodType.COAL, new FixedPriceFunction(Double.NaN));
+		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
+		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunction(1.0));
+
 		double budget = 10.0;
 
+		Map<GoodType, Double> optimalInputsAnalyticalFixedPrices = cesFunction
+				.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
+						prices, budget);
+		Map<GoodType, Double> optimalInputsAnalyticalPriceFunctions = cesFunction
+				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
+						priceFunctions, budget);
 		Map<GoodType, Double> optimalInputsIterative = cesFunction
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
-						prices, budget);
-		Map<GoodType, Double> optimalInputsAnalytical = cesFunction
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionAnalytical(
-						prices, budget);
+				.calculateOutputMaximizingInputsIterative(priceFunctions,
+						budget, numberOfIterations);
 		Map<GoodType, Double> optimalInputsBruteForce = cesFunction
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
-						prices, budget);
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
+						budget);
 
 		/*
 		 * assert inputs
 		 */
-		for (GoodType goodType : optimalInputsAnalytical.keySet()) {
-			assertEquals(optimalInputsAnalytical.get(goodType),
+		for (GoodType goodType : optimalInputsAnalyticalFixedPrices.keySet()) {
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
+					optimalInputsAnalyticalPriceFunctions.get(goodType),
+					epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
 					optimalInputsIterative.get(goodType), epsilon);
-			assertEquals(optimalInputsAnalytical.get(goodType),
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
 					optimalInputsBruteForce.get(goodType), epsilon);
 		}
 
 		/*
 		 * assert output
 		 */
-		assertOutputIsOptimalUnderBudget(cesFunction, budget, prices,
-				optimalInputsAnalytical);
+		assertOutputIsOptimalUnderBudget(cesFunction, budget, priceFunctions,
+				optimalInputsAnalyticalFixedPrices);
 
 		/*
 		 * assert marginal outputs
 		 */
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
-				optimalInputsIterative, prices);
+				optimalInputsAnalyticalFixedPrices, priceFunctions);
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
-				optimalInputsAnalytical, prices);
+				optimalInputsAnalyticalPriceFunctions, priceFunctions);
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
-				optimalInputsBruteForce, prices);
+				optimalInputsIterative, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cesFunction,
+				optimalInputsBruteForce, priceFunctions);
 	}
 
 	@Test
-	public void calculateForThreeGoods() {
+	public void testCalculateForThreeGoodsWithFixedPrices() {
 		/*
 		 * prepare function
 		 */
@@ -109,55 +142,72 @@ public class CESFunctionTest extends AbstractFunctionTest {
 		prices.put(GoodType.KILOWATT, 1.0);
 		prices.put(GoodType.URANIUM, 3.0);
 		prices.put(GoodType.WHEAT, 2.0);
+
+		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
+		priceFunctions.put(GoodType.COAL, new FixedPriceFunction(Double.NaN));
+		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
+		priceFunctions.put(GoodType.URANIUM, new FixedPriceFunction(3.0));
+		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
+
 		double budget = 10.0;
 
+		Map<GoodType, Double> optimalInputsAnalyticalFixedPrices = cesFunction
+				.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
+						prices, budget);
+		Map<GoodType, Double> optimalInputsAnalyticalPriceFunctions = cesFunction
+				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
+						priceFunctions, budget);
 		Map<GoodType, Double> optimalInputsIterative = cesFunction
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
-						prices, budget);
-		Map<GoodType, Double> optimalInputsAnalytical = cesFunction
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionAnalytical(
-						prices, budget);
+				.calculateOutputMaximizingInputsIterative(priceFunctions,
+						budget, numberOfIterations);
+		// takes some seconds for completion due to large solution space
 		Map<GoodType, Double> optimalInputsBruteForce = cesFunction
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
-						prices, budget);
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
+						budget);
 
 		/*
 		 * assert inputs
 		 */
-		assertEquals(0.373, optimalInputsAnalytical.get(GoodType.KILOWATT),
+		assertEquals(0.373,
+				optimalInputsAnalyticalFixedPrices.get(GoodType.KILOWATT),
 				epsilon);
-		assertEquals(4.565, optimalInputsAnalytical.get(GoodType.WHEAT),
-				epsilon);
-		assertEquals(0.166, optimalInputsAnalytical.get(GoodType.URANIUM),
+		assertEquals(4.565,
+				optimalInputsAnalyticalFixedPrices.get(GoodType.WHEAT), epsilon);
+		assertEquals(0.166,
+				optimalInputsAnalyticalFixedPrices.get(GoodType.URANIUM),
 				epsilon);
 
-		for (GoodType goodType : optimalInputsAnalytical.keySet()) {
-			assertEquals(optimalInputsAnalytical.get(goodType),
+		for (GoodType goodType : optimalInputsAnalyticalFixedPrices.keySet()) {
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
+					optimalInputsAnalyticalPriceFunctions.get(goodType),
+					epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
 					optimalInputsIterative.get(goodType), epsilon);
-			assertEquals(optimalInputsAnalytical.get(goodType),
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
 					optimalInputsBruteForce.get(goodType), epsilon);
 		}
 
 		/*
 		 * assert output
 		 */
-		assertOutputIsOptimalUnderBudget(cesFunction, budget, prices,
-				optimalInputsAnalytical);
+		assertOutputIsOptimalUnderBudget(cesFunction, budget, priceFunctions,
+				optimalInputsAnalyticalFixedPrices);
 
 		/*
 		 * assert marginal outputs
 		 */
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
-				optimalInputsIterative, prices);
+				optimalInputsAnalyticalFixedPrices, priceFunctions);
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
-				optimalInputsAnalytical, prices);
+				optimalInputsAnalyticalPriceFunctions, priceFunctions);
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
-				optimalInputsBruteForce, prices);
-
+				optimalInputsIterative, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cesFunction,
+				optimalInputsBruteForce, priceFunctions);
 	}
 
 	@Test
-	public void calculateForThreeGoodsWithNaNPrices() {
+	public void testCalculateForThreeGoodsWithNaNFixedPrices() {
 		/*
 		 * prepare function
 		 */
@@ -175,17 +225,130 @@ public class CESFunctionTest extends AbstractFunctionTest {
 		prices.put(GoodType.COAL, Double.NaN);
 		prices.put(GoodType.KILOWATT, 1.0);
 		prices.put(GoodType.WHEAT, 2.0);
+
+		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
+		priceFunctions.put(GoodType.COAL, new FixedPriceFunction(Double.NaN));
+		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
+		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
+
 		double budget = 10.0;
 
+		Map<GoodType, Double> optimalInputsAnalyticalFixedPrices = cesFunction
+				.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
+						prices, budget);
+		Map<GoodType, Double> optimalInputsAnalyticalPriceFunctions = cesFunction
+				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
+						priceFunctions, budget);
 		Map<GoodType, Double> optimalInputsIterative = cesFunction
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionIterative(
-						prices, budget);
-		Map<GoodType, Double> optimalInputsAnalytical = cesFunction
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionAnalytical(
-						prices, budget);
+				.calculateOutputMaximizingInputsIterative(priceFunctions,
+						budget, numberOfIterations);
 		Map<GoodType, Double> optimalInputsBruteForce = cesFunction
-				.calculateOutputMaximizingInputsUnderBudgetRestrictionByRangeScan(
-						prices, budget);
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
+						budget);
+
+		/*
+		 * assert inputs
+		 */
+		assertEquals(0.0,
+				optimalInputsAnalyticalFixedPrices.get(GoodType.COAL), epsilon);
+		assertEquals(3.333,
+				optimalInputsAnalyticalFixedPrices.get(GoodType.KILOWATT),
+				epsilon);
+		assertEquals(3.333,
+				optimalInputsAnalyticalFixedPrices.get(GoodType.WHEAT), epsilon);
+
+		for (GoodType goodType : optimalInputsAnalyticalFixedPrices.keySet()) {
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
+					optimalInputsAnalyticalPriceFunctions.get(goodType),
+					epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
+					optimalInputsIterative.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
+					optimalInputsBruteForce.get(goodType), epsilon);
+		}
+
+		/*
+		 * assert output
+		 */
+		assertOutputIsOptimalUnderBudget(cesFunction, budget, priceFunctions,
+				optimalInputsAnalyticalFixedPrices);
+
+		/*
+		 * assert marginal outputs
+		 */
+		assertPartialDerivativesPerPriceAreEqual(cesFunction,
+				optimalInputsAnalyticalFixedPrices, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cesFunction,
+				optimalInputsAnalyticalPriceFunctions, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cesFunction,
+				optimalInputsIterative, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cesFunction,
+				optimalInputsBruteForce, priceFunctions);
+	}
+
+	@Test
+	public void testCalculateForTwoGoodsWithMarketPrices() {
+
+		/*
+		 * prepare market
+		 */
+
+		Currency currency = Currency.EURO;
+
+		Household household1_EUR = DAOFactory.getHouseholdDAO()
+				.findAllByCurrency(currency).get(0);
+		Household household2_EUR = DAOFactory.getHouseholdDAO()
+				.findAllByCurrency(currency).get(1);
+
+		assertEquals(
+				Double.NaN,
+				MarketFactory.getInstance().getPrice(currency,
+						GoodType.KILOWATT), epsilon);
+		assertEquals(Double.NaN,
+				MarketFactory.getInstance().getPrice(currency, GoodType.WHEAT),
+				epsilon);
+
+		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
+				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				2.0, 1.0);
+		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
+				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				5.0, 2.0);
+
+		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
+				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				2.0, 1.0);
+		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
+				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				3.0, 2.0);
+
+		/*
+		 * prepare function
+		 */
+		Map<GoodType, Double> coefficients = new HashMap<GoodType, Double>();
+		coefficients.put(GoodType.KILOWATT, 0.4);
+		coefficients.put(GoodType.WHEAT, 0.6);
+		CESFunction<GoodType> cesFunction = new CESFunction<GoodType>(1.0,
+				coefficients, -0.5, 0.4);
+
+		/*
+		 * maximize output under budget restriction
+		 */
+		Map<GoodType, IPriceFunction> priceFunctions = MarketFactory
+				.getInstance().getPriceFunctions(currency,
+						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT });
+
+		double budget = 10.0;
+
+		Map<GoodType, Double> optimalInputsAnalytical = cesFunction
+				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
+						priceFunctions, budget);
+		Map<GoodType, Double> optimalInputsIterative = cesFunction
+				.calculateOutputMaximizingInputsIterative(priceFunctions,
+						budget, numberOfIterations);
+		Map<GoodType, Double> optimalInputsBruteForce = cesFunction
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
+						budget);
 
 		/*
 		 * assert inputs
@@ -200,17 +363,15 @@ public class CESFunctionTest extends AbstractFunctionTest {
 		/*
 		 * assert output
 		 */
-		assertOutputIsOptimalUnderBudget(cesFunction, budget, prices,
-				optimalInputsAnalytical);
 
 		/*
 		 * assert marginal outputs
 		 */
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
-				optimalInputsIterative, prices);
+				optimalInputsAnalytical, priceFunctions);
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
-				optimalInputsAnalytical, prices);
+				optimalInputsIterative, priceFunctions);
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
-				optimalInputsBruteForce, prices);
+				optimalInputsBruteForce, priceFunctions);
 	}
 }

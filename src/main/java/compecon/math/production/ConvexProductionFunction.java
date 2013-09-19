@@ -23,9 +23,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import compecon.engine.jmx.Log;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 import compecon.math.IFunction;
+import compecon.math.price.IPriceFunction;
 
 public abstract class ConvexProductionFunction extends ProductionFunction {
 
@@ -33,16 +35,29 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		super(delegate);
 	}
 
-	public Map<GoodType, Double> calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
+	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(
 			double priceOfProducedGoodType,
-			Map<GoodType, Double> pricesOfProductionFactors,
+			Map<GoodType, IPriceFunction> priceFunctionsOfInputTypes,
 			final double budget, final double maxOutput) {
+		return this
+				.calculateProfitMaximizingProductionFactorsIterative(
+						priceOfProducedGoodType, priceFunctionsOfInputTypes,
+						budget, maxOutput,
+						ConfigurationUtil.MathConfig.getNumberOfIterations());
+	}
+
+	public Map<GoodType, Double> calculateProfitMaximizingProductionFactorsIterative(
+			double priceOfProducedGoodType,
+			Map<GoodType, IPriceFunction> priceFunctionsOfInputTypes,
+			final double budget, final double maxOutput,
+			final int numberOfIterations) {
 
 		// check if inputs have NaN prices
-		boolean costsAreNaN = false;
+		boolean pricesAreNaN = false;
 		for (GoodType inputType : this.getInputGoodTypes()) {
-			if (Double.isNaN(pricesOfProductionFactors.get(inputType))) {
-				costsAreNaN = true;
+			if (Double.isNaN(priceFunctionsOfInputTypes.get(inputType)
+					.getPrice(0.0))) {
+				pricesAreNaN = true;
 				break;
 			}
 		}
@@ -57,7 +72,7 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		// special case: if some prices are NaN, then not all inputs can be set.
 		// This becomes a problem, if all inputs have to be set -> return zero
 		// input
-		if (costsAreNaN
+		if (pricesAreNaN
 				&& this.delegate
 						.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
 			Log.log("at least one of the prices is Double.NaN, but the production function needs all inputs set");
@@ -97,7 +112,8 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 			for (GoodType inputType : this.getInputGoodTypes()) {
 				bundleOfInputFactors.put(inputType, 0.0000001);
 				moneySpent += bundleOfInputFactors.get(inputType)
-						* pricesOfProductionFactors.get(inputType);
+						* priceFunctionsOfInputTypes.get(inputType).getPrice(
+								bundleOfInputFactors.get(inputType));
 			}
 		} else {
 			for (GoodType inputType : this.getInputGoodTypes())
@@ -105,50 +121,59 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		}
 
 		// maximize profit
-		final int NUMBER_OF_ITERATIONS = this.getInputGoodTypes().size() * 50;
+		final int NUMBER_OF_ITERATIONS = this.getInputGoodTypes().size()
+				* numberOfIterations;
 
-		double lastProfitableMarginalCost = 0.0;
+		double lastProfitableMarginalPrice = 0.0;
 		while (MathUtil.greater(budget, moneySpent)) {
 			GoodType optimalInput = this
-					.calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
-							bundleOfInputFactors, pricesOfProductionFactors);
+					.selectProductionFactorWithHighestMarginalOutputPerPrice(
+							bundleOfInputFactors, priceFunctionsOfInputTypes);
 
-			double marginalCost = pricesOfProductionFactors.get(optimalInput)
-					/ this.calculateMarginalOutput(bundleOfInputFactors,
-							optimalInput);
-			double priceOfGoodType = pricesOfProductionFactors
-					.get(optimalInput);
-			double amount = (budget / NUMBER_OF_ITERATIONS) / priceOfGoodType;
-			bundleOfInputFactors.put(optimalInput,
-					bundleOfInputFactors.get(optimalInput) + amount);
-			double newOutput = this.calculateOutput(bundleOfInputFactors);
+			if (optimalInput == null) {
+				break;
+			} else {
+				double marginalPrice = priceFunctionsOfInputTypes.get(
+						optimalInput).getMarginalPrice(
+						bundleOfInputFactors.get(optimalInput));
+				double priceOfOptimalGoodType = priceFunctionsOfInputTypes.get(
+						optimalInput).getPrice(
+						bundleOfInputFactors.get(optimalInput));
+				double amount = (budget / NUMBER_OF_ITERATIONS)
+						/ priceOfOptimalGoodType;
 
-			if (!Double.isNaN(estMarginalRevenue)
-					&& !Double.isInfinite(estMarginalRevenue)) {
-				// a polypoly is assumed -> price = marginal revenue
-				if (MathUtil.lesser(estMarginalRevenue, marginalCost)) {
-					Log.log(MathUtil.round(lastProfitableMarginalCost)
-							+ " deltaCost" + " <= "
-							+ MathUtil.round(estMarginalRevenue)
-							+ " deltaEstRevenue" + " < "
-							+ MathUtil.round(marginalCost) + " deltaCost"
+				bundleOfInputFactors.put(optimalInput,
+						bundleOfInputFactors.get(optimalInput) + amount);
+				double newOutput = this.calculateOutput(bundleOfInputFactors);
+
+				if (!Double.isNaN(estMarginalRevenue)
+						&& !Double.isInfinite(estMarginalRevenue)) {
+					// a polypoly is assumed -> price = marginal revenue
+					if (MathUtil.lesser(estMarginalRevenue, marginalPrice)) {
+						Log.log(MathUtil.round(lastProfitableMarginalPrice)
+								+ " deltaPrice" + " <= "
+								+ MathUtil.round(estMarginalRevenue)
+								+ " deltaEstRevenue" + " < "
+								+ MathUtil.round(marginalPrice) + " deltaPrice"
+								+ " -> "
+								+ bundleOfInputFactors.entrySet().toString());
+						break;
+					}
+				}
+
+				if (!Double.isNaN(maxOutput)
+						&& MathUtil.greater(newOutput, maxOutput)) {
+					bundleOfInputFactors.put(optimalInput,
+							bundleOfInputFactors.get(optimalInput) - amount);
+					Log.log("output " + newOutput + " > maxOutput " + maxOutput
 							+ " -> "
 							+ bundleOfInputFactors.entrySet().toString());
 					break;
 				}
-			}
 
-			if (!Double.isNaN(maxOutput)
-					&& MathUtil.greater(newOutput, maxOutput)) {
-				bundleOfInputFactors.put(optimalInput,
-						bundleOfInputFactors.get(optimalInput) - amount);
-				Log.log("output " + newOutput + " > maxOutput " + maxOutput
-						+ " -> " + bundleOfInputFactors.entrySet().toString());
-				break;
+				lastProfitableMarginalPrice = marginalPrice;
+				moneySpent += priceOfOptimalGoodType * amount;
 			}
-
-			lastProfitableMarginalCost = marginalCost;
-			moneySpent += priceOfGoodType * amount;
 		}
 
 		return bundleOfInputFactors;

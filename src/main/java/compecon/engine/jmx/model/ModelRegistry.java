@@ -190,6 +190,10 @@ public class ModelRegistry {
 					referenceCurrency.getIso4217Code() + " M1");
 			this.moneySupplyM2Model = new PeriodDataAccumulatorTimeSeriesModel(
 					referenceCurrency.getIso4217Code() + " M2");
+			this.moneyCirculationModel = new PeriodDataAccumulatorTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " money circulation");
+			this.moneyVelocityModel = new PeriodDataQuotientTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " money velocity");
 			this.priceIndexModel = new PeriodDataAccumulatorTimeSeriesModel(
 					referenceCurrency.getIso4217Code() + " price index");
 			this.balanceSheetsModel = new BalanceSheetsModel(referenceCurrency);
@@ -231,6 +235,8 @@ public class ModelRegistry {
 		public final PeriodDataAccumulatorTimeSeriesModel moneySupplyM0Model;
 		public final PeriodDataAccumulatorTimeSeriesModel moneySupplyM1Model;
 		public final PeriodDataAccumulatorTimeSeriesModel moneySupplyM2Model;
+		public final PeriodDataAccumulatorTimeSeriesModel moneyCirculationModel;
+		public final PeriodDataQuotientTimeSeriesModel moneyVelocityModel;
 		public final PeriodDataAccumulatorTimeSeriesModel priceIndexModel;
 
 		// national balances
@@ -239,6 +245,9 @@ public class ModelRegistry {
 		public final MonetaryTransactionsModel monetaryTransactionsModel;
 
 		public void nextPeriod() {
+			moneyVelocityModel.add(moneyCirculationModel.getValue(),
+					moneySupplyM1Model.getValue());
+
 			for (GoodTypeProductionModel goodTypeProductionModel : this.goodTypeProductionModels
 					.values()) {
 				goodTypeProductionModel.nextPeriod();
@@ -257,6 +266,8 @@ public class ModelRegistry {
 			moneySupplyM0Model.nextPeriod();
 			moneySupplyM1Model.nextPeriod();
 			moneySupplyM2Model.nextPeriod();
+			moneyCirculationModel.nextPeriod();
+			moneyVelocityModel.nextPeriod();
 			numberOfAgentsModel.nextPeriod();
 			pricesModel.nextPeriod();
 			priceIndexModel.nextPeriod();
@@ -377,6 +388,16 @@ public class ModelRegistry {
 	public static PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM2Model(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).moneySupplyM2Model;
+	}
+
+	public static PeriodDataAccumulatorTimeSeriesModel getMoneyCirculationModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).moneyCirculationModel;
+	}
+
+	public static PeriodDataQuotientTimeSeriesModel getMoneyVelocityModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).moneyVelocityModel;
 	}
 
 	public static UtilityModel getUtilityModel(Currency currency) {

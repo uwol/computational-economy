@@ -32,6 +32,7 @@
 		<!-- <property name="hibernate.jdbc.batch_size">100</property> -->		
 
 		<mapping class="compecon.economy.markets.ordertypes.MarketOrder" />
+		<mapping class="compecon.economy.sectors.Agent" />
 		<mapping class="compecon.economy.sectors.financial.Currency" />
 		<mapping class="compecon.economy.sectors.financial.Bank" />
 		<mapping class="compecon.economy.sectors.financial.BankAccount" />
@@ -48,7 +49,6 @@
 		<mapping class="compecon.economy.sectors.state.law.security.equity.JointStockCompany" />
 		<mapping class="compecon.economy.sectors.state.law.security.equity.Share" />
 		<mapping class="compecon.economy.sectors.trading.Trader" />
-		<mapping class="compecon.engine.Agent" />
 		<mapping class="compecon.materia.GoodType" />
 	</session-factory>
 </hibernate-configuration>

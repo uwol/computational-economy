@@ -169,9 +169,9 @@ public class PricingBehaviour {
 	protected double calculateHigherPrice(double price) {
 		updatePriceChangeIncrement(true);
 		// if the price is 0, multiplication does not work -> reset price
-		if (MathUtil.lesserEqual(price, 0))
+		if (MathUtil.lesserEqual(price, 0.0))
 			return 0.1;
-		return price * (1 + this.priceChangeIncrement);
+		return price * (1.0 + this.priceChangeIncrement);
 	}
 
 	/*
@@ -179,7 +179,7 @@ public class PricingBehaviour {
 	 */
 	protected double calculateLowerPrice(double price) {
 		updatePriceChangeIncrement(false);
-		return price / (1 + this.priceChangeIncrement);
+		return price / (1.0 + this.priceChangeIncrement);
 	}
 
 	protected void updatePriceChangeIncrement(boolean raisingPrice) {
@@ -241,7 +241,7 @@ public class PricingBehaviour {
 					- this.priceChangeIncrement);
 			double maxPrice = getCurrentPrice() + this.priceChangeIncrement;
 			double maxMinPriceDifference = maxPrice - minPrice;
-			double priceGap = maxMinPriceDifference / (numberOfPrices - 1);
+			double priceGap = maxMinPriceDifference / (numberOfPrices - 1.0);
 
 			for (int i = 0; i < numberOfPrices; i++) {
 				prices[i] = minPrice + priceGap * i;
@@ -285,9 +285,9 @@ public class PricingBehaviour {
 		// copy price from last period to current period; important for having a
 		// non-zero price every period
 		this.prices_InPeriods[0] = this.prices_InPeriods[1];
-		this.offeredAmount_InPeriods[0] = 0;
-		this.soldAmount_InPeriods[0] = 0;
-		this.soldValue_InPeriods[0] = 0;
+		this.offeredAmount_InPeriods[0] = 0.0;
+		this.soldAmount_InPeriods[0] = 0.0;
+		this.soldValue_InPeriods[0] = 0.0;
 
 		this.prices_InPeriods[0] = calculateNewPrice();
 	}

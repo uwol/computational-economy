@@ -129,46 +129,48 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 				/ summaryStatisticalData.ySumAtPercentOfX.length;
 
 		double sum = 0;
-		for (int i = 0; i < valuesAsArray.length; i++) {
-			/*
-			 * xWith..PercentY
-			 */
-			sum += valuesAsArray[i];
-			if (sum > (summaryStatisticalData.yTotalSum * 0.9)
-					&& summaryStatisticalData.xWith90PercentY == 0)
-				summaryStatisticalData.xWith90PercentY = i;
-			else if (sum > (summaryStatisticalData.yTotalSum * 0.8)
-					&& summaryStatisticalData.xWith80PercentY == 0)
-				summaryStatisticalData.xWith80PercentY = i;
-			else if (sum > (summaryStatisticalData.yTotalSum * 0.7)
-					&& summaryStatisticalData.xWith70PercentY == 0)
-				summaryStatisticalData.xWith70PercentY = i;
-			else if (sum > (summaryStatisticalData.yTotalSum * 0.6)
-					&& summaryStatisticalData.xWith60PercentY == 0)
-				summaryStatisticalData.xWith60PercentY = i;
-			else if (sum > (summaryStatisticalData.yTotalSum * 0.5)
-					&& summaryStatisticalData.xWith50PercentY == 0)
-				summaryStatisticalData.xWith50PercentY = i;
-			else if (sum > (summaryStatisticalData.yTotalSum * 0.4)
-					&& summaryStatisticalData.xWith40PercentY == 0)
-				summaryStatisticalData.xWith40PercentY = i;
-			else if (sum > (summaryStatisticalData.yTotalSum * 0.3)
-					&& summaryStatisticalData.xWith30PercentY == 0)
-				summaryStatisticalData.xWith30PercentY = i;
-			else if (sum > (summaryStatisticalData.yTotalSum * 0.2)
-					&& summaryStatisticalData.xWith20PercentY == 0)
-				summaryStatisticalData.xWith20PercentY = i;
-			else if (sum > (summaryStatisticalData.yTotalSum * 0.1)
-					&& summaryStatisticalData.xWith10PercentY == 0)
-				summaryStatisticalData.xWith10PercentY = i;
+		if (bucketWidth != 0) {
+			for (int i = 0; i < valuesAsArray.length; i++) {
+				/*
+				 * xWith..PercentY
+				 */
+				sum += valuesAsArray[i];
+				if (sum > (summaryStatisticalData.yTotalSum * 0.9)
+						&& summaryStatisticalData.xWith90PercentY == 0)
+					summaryStatisticalData.xWith90PercentY = i;
+				else if (sum > (summaryStatisticalData.yTotalSum * 0.8)
+						&& summaryStatisticalData.xWith80PercentY == 0)
+					summaryStatisticalData.xWith80PercentY = i;
+				else if (sum > (summaryStatisticalData.yTotalSum * 0.7)
+						&& summaryStatisticalData.xWith70PercentY == 0)
+					summaryStatisticalData.xWith70PercentY = i;
+				else if (sum > (summaryStatisticalData.yTotalSum * 0.6)
+						&& summaryStatisticalData.xWith60PercentY == 0)
+					summaryStatisticalData.xWith60PercentY = i;
+				else if (sum > (summaryStatisticalData.yTotalSum * 0.5)
+						&& summaryStatisticalData.xWith50PercentY == 0)
+					summaryStatisticalData.xWith50PercentY = i;
+				else if (sum > (summaryStatisticalData.yTotalSum * 0.4)
+						&& summaryStatisticalData.xWith40PercentY == 0)
+					summaryStatisticalData.xWith40PercentY = i;
+				else if (sum > (summaryStatisticalData.yTotalSum * 0.3)
+						&& summaryStatisticalData.xWith30PercentY == 0)
+					summaryStatisticalData.xWith30PercentY = i;
+				else if (sum > (summaryStatisticalData.yTotalSum * 0.2)
+						&& summaryStatisticalData.xWith20PercentY == 0)
+					summaryStatisticalData.xWith20PercentY = i;
+				else if (sum > (summaryStatisticalData.yTotalSum * 0.1)
+						&& summaryStatisticalData.xWith10PercentY == 0)
+					summaryStatisticalData.xWith10PercentY = i;
 
-			/*
-			 * ySumAtPercentOfX
-			 */
-			if (i % bucketWidth == 0) {
-				int position = i / bucketWidth;
-				if (position < summaryStatisticalData.ySumAtPercentOfX.length) {
-					summaryStatisticalData.ySumAtPercentOfX[position] = sum;
+				/*
+				 * ySumAtPercentOfX
+				 */
+				if (i % bucketWidth == 0) {
+					int position = i / bucketWidth;
+					if (position < summaryStatisticalData.ySumAtPercentOfX.length) {
+						summaryStatisticalData.ySumAtPercentOfX[position] = sum;
+					}
 				}
 			}
 		}

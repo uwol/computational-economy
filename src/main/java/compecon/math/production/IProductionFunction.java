@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import compecon.materia.GoodType;
+import compecon.math.price.IPriceFunction;
 
 public interface IProductionFunction {
 
@@ -35,10 +36,13 @@ public interface IProductionFunction {
 			Map<GoodType, Double> bundleOfProductionFactors,
 			GoodType differentialGoodType);
 
-	public Map<GoodType, Double> calculateProfitMaximizingBundleOfProductionFactorsUnderBudgetRestriction(
+	/**
+	 * @return Key: GoodType to buy, Value: Amount to buy
+	 */
+	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(
 			double priceOfProducedGoodType,
-			Map<GoodType, Double> pricesOfProductionFactors, double budget,
-			double maxOutput);
+			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods,
+			double budget, double maxOutput);
 
 	public double getProductivity();
 

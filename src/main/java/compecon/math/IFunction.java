@@ -22,10 +22,17 @@ package compecon.math;
 import java.util.Map;
 import java.util.Set;
 
+import compecon.math.price.IPriceFunction;
+
 public interface IFunction<T> {
 
-	public Map<T, Double> calculateOutputMaximizingInputsUnderBudgetRestriction(
-			final Map<T, Double> costsOfInputs, final double budget);
+	public Map<T, Double> calculateOutputMaximizingInputs(
+			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
+			final double budget);
+
+	public Map<T, Double> calculateOutputMaximizingInputsByRangeScan(
+			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
+			final double budget);
 
 	public Set<T> getInputTypes();
 
@@ -41,5 +48,5 @@ public interface IFunction<T> {
 	public T findLargestPartialDerivate(Map<T, Double> forBundleOfInputs);
 
 	public T findHighestPartialDerivatePerPrice(Map<T, Double> bundleOfInputs,
-			Map<T, Double> pricesOfInputs);
+			Map<T, IPriceFunction> priceFunctionsOfInputTypes);
 }

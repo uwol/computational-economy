@@ -40,6 +40,11 @@ public class PeriodDataQuotientTimeSeriesModel extends
 		this.periodDataDivisorModel.add(divisorAmount);
 	}
 
+	public double getValue() {
+		return this.periodDataDividendModel.getAmount()
+				/ this.periodDataDivisorModel.getAmount();
+	}
+
 	public void nextPeriod() {
 		double dividend = this.periodDataDividendModel.getAmount();
 		double divisor = this.periodDataDivisorModel.getAmount();
