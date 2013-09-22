@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import compecon.engine.util.MathUtil;
-import compecon.math.price.IPriceFunction;
 import compecon.math.price.IPriceFunction.PriceFunctionConfig;
 
 public class CobbDouglasFunction<T> extends AnalyticalConvexFunction<T> {
@@ -110,20 +109,6 @@ public class CobbDouglasFunction<T> extends AnalyticalConvexFunction<T> {
 			return 0.0;
 
 		return constant * differentialFactor;
-	}
-
-	@Override
-	public Map<T, Double> calculateOutputMaximizingInputs(
-			final Map<T, IPriceFunction> priceFunctionsOfInputs,
-			final double budget) {
-		// FIXME analytical solution is not correct for cases, where partial
-		// derivates per price are not equal -> iterative algorithm as temporal
-		// solution
-		return super.calculateOutputMaximizingInputs(priceFunctionsOfInputs,
-				budget);
-		// return this
-		// .calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
-		// priceFunctionsOfInputs, budget);
 	}
 
 	/**

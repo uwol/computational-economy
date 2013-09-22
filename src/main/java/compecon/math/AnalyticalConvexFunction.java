@@ -33,9 +33,30 @@ public abstract class AnalyticalConvexFunction<T> extends ConvexFunction<T> {
 		super(needsAllInputFactorsNonZeroForPartialDerivate);
 	}
 
+	@Override
+	public Map<T, Double> calculateOutputMaximizingInputs(
+			final Map<T, IPriceFunction> priceFunctionsOfInputs,
+			final double budget) {
+		Map<T, Double> validPriceFunctionConfigConstellation = this
+				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
+						priceFunctionsOfInputs, budget);
+		if (validPriceFunctionConfigConstellation != null) {
+			return validPriceFunctionConfigConstellation;
+		} else {
+			// if no analytical solution can be found -> iterative algorithm
+			return super.calculateOutputMaximizingInputs(
+					priceFunctionsOfInputs, budget);
+		}
+	}
+
 	/**
 	 * finds the optimal bundle of inputs under budget constraints and a step
-	 * price function.
+	 * price function. premise for calculation of a solution is that the
+	 * marginal output per price is equal for all input types; this requirement
+	 * is not fulfilled in cases, when the solution lies near to points of
+	 * discontinuity of the price step function, as an immediate price change
+	 * causes gaps between marginal output per marginal price. In these cases
+	 * null is returned.
 	 */
 	public Map<T, Double> calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
 			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
@@ -56,12 +77,19 @@ public abstract class AnalyticalConvexFunction<T> extends ConvexFunction<T> {
 				.searchValidPriceFunctionConfigConstellation(
 						priceConfigsOfInputTypes, budget,
 						new HashMap<T, PriceFunctionConfig>());
+		if (validPriceFunctionConfigConstellation == null)
+			return null;
 		return this
 				.calculatePossiblyValidOutputMaximizingInputsAnalyticalWithMarketPrices(
 						validPriceFunctionConfigConstellation, budget);
 	}
 
-	public Map<T, PriceFunctionConfig> searchValidPriceFunctionConfigConstellation(
+	/**
+	 * @see #calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(Map,
+	 *      double)
+	 * @return null if no valid constellation is found
+	 */
+	protected Map<T, PriceFunctionConfig> searchValidPriceFunctionConfigConstellation(
 			final Map<T, PriceFunctionConfig[]> priceConfigsOfInputs,
 			final double budget,
 			final Map<T, PriceFunctionConfig> currentPriceFunctionConfigConstellation) {
@@ -81,14 +109,14 @@ public abstract class AnalyticalConvexFunction<T> extends ConvexFunction<T> {
 				// if the optimalBundleOfInputs is not valid under the
 				// restrictions of the step price function
 				if (intervalLeftBoundary > optimalAmountOfInputType)
-					return new HashMap<T, PriceFunctionConfig>();
+					return null;
 
 				PriceFunctionConfig[] priceFunctionConfigs = priceConfigsOfInputs
 						.get(priceFunctionConfig.getKey());
 				PriceFunctionConfig lastPriceFunctionConfig = priceFunctionConfigs[priceFunctionConfigs.length - 1];
 				if (intervalRightBoundary < optimalAmountOfInputType) {
 					if (priceFunctionConfig != lastPriceFunctionConfig)
-						return new HashMap<T, PriceFunctionConfig>();
+						return null;
 				}
 			}
 			return currentPriceFunctionConfigConstellation;
@@ -97,7 +125,7 @@ public abstract class AnalyticalConvexFunction<T> extends ConvexFunction<T> {
 		else {
 			// iterate over steps of price step function/configs of this input
 			// type
-			Map<T, PriceFunctionConfig> validPriceFunctionConfigConstellation = new HashMap<T, PriceFunctionConfig>();
+			Map<T, PriceFunctionConfig> validPriceFunctionConfigConstellation = null;
 			for (PriceFunctionConfig currentPriceFunctionConfig : priceConfigsOfInputs
 					.get(currentInputType)) {
 				currentPriceFunctionConfigConstellation.put(currentInputType,
@@ -106,7 +134,7 @@ public abstract class AnalyticalConvexFunction<T> extends ConvexFunction<T> {
 						priceConfigsOfInputs, budget,
 						currentPriceFunctionConfigConstellation);
 				// if the constellation of price function configs is valid
-				if (!priceFunctionConfigConstellation.isEmpty()) {
+				if (priceFunctionConfigConstellation != null) {
 					// clone the map, as the original map will be modified
 					// in next iteration
 					validPriceFunctionConfigConstellation = new HashMap<T, PriceFunctionConfig>(
