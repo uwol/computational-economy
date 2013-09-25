@@ -73,6 +73,10 @@ public class Household extends Agent implements IShareOwner {
 			% ConfigurationUtil.HouseholdConfig
 					.getDaysWithoutUtilityUntilDestructor();
 
+	@Transient
+	protected final double MAX_PRICE_PER_UNIT_MULTIPLIER = ConfigurationUtil.HouseholdConfig
+			.getMaxPricePerUnitMultiplier();
+
 	// dynamic state ------------------------------
 
 	@Column(name = "ageInDays")
@@ -482,7 +486,7 @@ public class Household extends Agent implements IShareOwner {
 			if (MathUtil.greater(budget, 0.0)) {
 				// get prices for good types
 				Map<GoodType, IPriceFunction> priceFunctions = MarketFactory
-						.getInstance().getPriceFunctions(
+						.getInstance().getFixedPriceFunctions(
 								Household.this.primaryCurrency,
 								Household.this.utilityFunction
 										.getInputGoodTypes());
@@ -491,9 +495,11 @@ public class Household extends Agent implements IShareOwner {
 				Map<GoodType, Double> plannedConsumptionGoodsBundle = Household.this.utilityFunction
 						.calculateUtilityMaximizingInputs(priceFunctions,
 								budget);
-
 				numberOfLabourHoursToConsume = plannedConsumptionGoodsBundle
 						.get(GoodType.LABOURHOUR);
+
+				// no labour hours should be bought on markets
+				plannedConsumptionGoodsBundle.remove(GoodType.LABOURHOUR);
 
 				// buy goods
 				double budgetSpent = this.buyGoods(
@@ -512,21 +518,25 @@ public class Household extends Agent implements IShareOwner {
 			 */
 			double budgetSpent = 0.0;
 			for (Entry<GoodType, Double> entry : goodsToBuy.entrySet()) {
-				GoodType goodType = entry.getKey();
-				double maxAmount = entry.getValue();
-				// maxPricePerUnit is significantly important for price
-				// equilibrium
-				double[] priceAndAmount = MarketFactory.getInstance().buy(
-						goodType,
-						maxAmount,
-						Double.NaN,
-						Double.NaN,
-						Household.this,
-						Household.this.transactionsBankAccount,
-						Household.this.bankPasswords
-								.get(Household.this.transactionsBankAccount
-										.getManagingBank()));
-				budgetSpent += priceAndAmount[0];
+				GoodType goodTypeToBuy = entry.getKey();
+				double amountToBuy = entry.getValue();
+				if (MathUtil.greater(amountToBuy, 0.0)) {
+					double marginalPrice = priceFunctions.get(goodTypeToBuy)
+							.getMarginalPrice(0.0);
+					// maxPricePerUnit is significantly important for price
+					// equilibrium
+					double[] priceAndAmount = MarketFactory.getInstance().buy(
+							goodTypeToBuy,
+							amountToBuy,
+							Double.NaN,
+							marginalPrice * MAX_PRICE_PER_UNIT_MULTIPLIER,
+							Household.this,
+							Household.this.transactionsBankAccount,
+							Household.this.bankPasswords
+									.get(Household.this.transactionsBankAccount
+											.getManagingBank()));
+					budgetSpent += priceAndAmount[0];
+				}
 			}
 			return budgetSpent;
 		}

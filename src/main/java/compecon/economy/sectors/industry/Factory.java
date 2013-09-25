@@ -167,7 +167,7 @@ public class Factory extends JointStockCompany {
 			if (MathUtil.greater(budget, 0.0)) {
 				// get prices for production factors
 				Map<GoodType, IPriceFunction> priceFunctionsOfProductionFactors = MarketFactory
-						.getInstance().getPriceFunctions(
+						.getInstance().getMarketPriceFunctions(
 								Factory.this.primaryCurrency,
 								Factory.this.productionFunction
 										.getInputGoodTypes());
@@ -180,11 +180,10 @@ public class Factory extends JointStockCompany {
 				Log.setAgentCurrentlyActive(Factory.this);
 				Map<GoodType, Double> productionFactorsToBuy = Factory.this.productionFunction
 						.calculateProfitMaximizingProductionFactors(
-								priceOfProducedGoodType
-										* (1.0 + ConfigurationUtil.FactoryConfig
-												.getMargin()),
+								priceOfProducedGoodType,
 								priceFunctionsOfProductionFactors, budget,
-								Double.NaN);
+								Double.NaN,
+								ConfigurationUtil.FactoryConfig.getMargin());
 
 				// buy production factors
 				double budgetSpent = this
@@ -203,17 +202,19 @@ public class Factory extends JointStockCompany {
 					.entrySet()) {
 				GoodType goodTypeToBuy = entry.getKey();
 				double amountToBuy = entry.getValue();
-				double[] priceAndAmount = MarketFactory.getInstance().buy(
-						goodTypeToBuy,
-						amountToBuy,
-						Double.NaN,
-						Double.NaN,
-						Factory.this,
-						Factory.this.transactionsBankAccount,
-						Factory.this.bankPasswords
-								.get(Factory.this.transactionsBankAccount
-										.getManagingBank()));
-				budgetSpent += priceAndAmount[0];
+				if (MathUtil.greater(amountToBuy, 0.0)) {
+					double[] priceAndAmount = MarketFactory.getInstance().buy(
+							goodTypeToBuy,
+							amountToBuy,
+							Double.NaN,
+							Double.NaN,
+							Factory.this,
+							Factory.this.transactionsBankAccount,
+							Factory.this.bankPasswords
+									.get(Factory.this.transactionsBankAccount
+											.getManagingBank()));
+					budgetSpent += priceAndAmount[0];
+				}
 			}
 			return budgetSpent;
 		}

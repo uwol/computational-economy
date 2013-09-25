@@ -45,6 +45,11 @@ public abstract class ConvexFunction<T> extends Function<T> {
 	/**
 	 * calculates the output maximizing bundle of inputs under a budget
 	 * restriction and given static markets prices of inputs.
+	 * 
+	 * @param budget
+	 *            determines the granularity of the output, as the budget is
+	 *            divided by the numberOfIterations -> large budget leads to
+	 *            large chunks
 	 */
 	public Map<T, Double> calculateOutputMaximizingInputsIterative(
 			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
@@ -75,7 +80,7 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		}
 
 		// special case: check for budget
-		if (MathUtil.equal(budget, 0.0)) {
+		if (MathUtil.lesserEqual(budget, 0.0)) {
 			final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 			for (T inputType : this.getInputTypes())
 				bundleOfInputs.put(inputType, 0.0);
@@ -89,7 +94,7 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 
 		// initialize
-		if (this.needsAllInputFactorsNonZeroForPartialDerivate) {
+		if (this.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
 			for (T inputType : this.getInputTypes()) {
 				bundleOfInputs.put(inputType, 0.0000001);
 				moneySpent += bundleOfInputs.get(inputType)
@@ -102,23 +107,25 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		}
 
 		// maximize output
-		double NUMBER_OF_ITERATIONS = bundleOfInputs.size()
+		final int NUMBER_OF_ITERATIONS = bundleOfInputs.size()
 				* numberOfIterations;
 
 		while (MathUtil.greater(budget, moneySpent)) {
-			T optimalInput = this.findHighestPartialDerivatePerPrice(
+			T optimalInputType = this.findHighestPartialDerivatePerPrice(
 					bundleOfInputs, priceFunctionsOfInputTypes);
-			if (optimalInput != null) {
-				double priceOfOptimalInputType = priceFunctionsOfInputTypes
-						.get(optimalInput).getMarginalPrice(
-								bundleOfInputs.get(optimalInput));
-				double amount = (budget / NUMBER_OF_ITERATIONS)
-						/ priceOfOptimalInputType;
-				bundleOfInputs.put(optimalInput,
-						bundleOfInputs.get(optimalInput) + amount);
-				moneySpent += priceOfOptimalInputType * amount;
-			} else
+
+			if (optimalInputType == null) {
 				break;
+			} else {
+				double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes.get(
+						optimalInputType).getMarginalPrice(
+						bundleOfInputs.get(optimalInputType));
+				double amount = (budget / (double) NUMBER_OF_ITERATIONS)
+						/ marginalPriceOfOptimalInputType;
+				bundleOfInputs.put(optimalInputType,
+						bundleOfInputs.get(optimalInputType) + amount);
+				moneySpent += marginalPriceOfOptimalInputType * amount;
+			}
 		}
 
 		return bundleOfInputs;

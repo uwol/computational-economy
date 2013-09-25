@@ -24,7 +24,6 @@ import java.util.List;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.industry.Factory;
 import compecon.engine.AgentFactory;
-import compecon.materia.GoodType;
 
 public class ControlModel extends NotificationListenerModel {
 
@@ -43,10 +42,6 @@ public class ControlModel extends NotificationListenerModel {
 	public void initHouseholds(Currency currency) {
 		for (int i = 0; i < 100; i++)
 			AgentFactory.newInstanceHousehold(currency);
-	}
-
-	public void initCarFactory(Currency currency) {
-		AgentFactory.newInstanceFactory(GoodType.STEEL, currency);
 	}
 
 	public void deficitSpending(Currency currency) {

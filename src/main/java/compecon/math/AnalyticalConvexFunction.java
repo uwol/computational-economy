@@ -33,21 +33,26 @@ public abstract class AnalyticalConvexFunction<T> extends ConvexFunction<T> {
 		super(needsAllInputFactorsNonZeroForPartialDerivate);
 	}
 
-	@Override
-	public Map<T, Double> calculateOutputMaximizingInputs(
-			final Map<T, IPriceFunction> priceFunctionsOfInputs,
-			final double budget) {
-		Map<T, Double> validPriceFunctionConfigConstellation = this
-				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
-						priceFunctionsOfInputs, budget);
-		if (validPriceFunctionConfigConstellation != null) {
-			return validPriceFunctionConfigConstellation;
-		} else {
-			// if no analytical solution can be found -> iterative algorithm
-			return super.calculateOutputMaximizingInputs(
-					priceFunctionsOfInputs, budget);
-		}
-	}
+	// commented out for performance reasons: TODO find optimal number and
+	// market depth of price functions for
+	// calculateOutputMaximizingInputsAnalyticalWithPriceFunctions to be
+	// efficient
+	//
+	// @Override
+	// public Map<T, Double> calculateOutputMaximizingInputs(
+	// final Map<T, IPriceFunction> priceFunctionsOfInputs,
+	// final double budget) {
+	// Map<T, Double> validPriceFunctionConfigConstellation = this
+	// .calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
+	// priceFunctionsOfInputs, budget);
+	// if (validPriceFunctionConfigConstellation != null) {
+	// return validPriceFunctionConfigConstellation;
+	// } else {
+	// // if no analytical solution can be found -> iterative algorithm
+	// return super.calculateOutputMaximizingInputs(
+	// priceFunctionsOfInputs, budget);
+	// }
+	// }
 
 	/**
 	 * finds the optimal bundle of inputs under budget constraints and a step
@@ -107,17 +112,10 @@ public abstract class AnalyticalConvexFunction<T> extends ConvexFunction<T> {
 				double intervalRightBoundary = priceFunctionConfig.getValue().intervalRightBoundary;
 
 				// if the optimalBundleOfInputs is not valid under the
-				// restrictions of the step price function
-				if (intervalLeftBoundary > optimalAmountOfInputType)
+				// restrictions of the price function
+				if (intervalLeftBoundary > optimalAmountOfInputType
+						|| (!Double.isInfinite(intervalRightBoundary) && intervalRightBoundary < optimalAmountOfInputType))
 					return null;
-
-				PriceFunctionConfig[] priceFunctionConfigs = priceConfigsOfInputs
-						.get(priceFunctionConfig.getKey());
-				PriceFunctionConfig lastPriceFunctionConfig = priceFunctionConfigs[priceFunctionConfigs.length - 1];
-				if (intervalRightBoundary < optimalAmountOfInputType) {
-					if (priceFunctionConfig != lastPriceFunctionConfig)
-						return null;
-				}
 			}
 			return currentPriceFunctionConfigConstellation;
 		}

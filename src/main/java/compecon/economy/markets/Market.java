@@ -40,6 +40,7 @@ import compecon.engine.jmx.Log;
 import compecon.engine.util.HibernateUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
+import compecon.math.price.FixedPriceFunction;
 import compecon.math.price.IPriceFunction;
 import compecon.math.price.IPriceFunction.PriceFunctionConfig;
 
@@ -383,26 +384,50 @@ public abstract class Market {
 		return getPrices(denominatedInCurrency, GoodType.values());
 	}
 
-	public MarketPriceFunction getPriceFunction(Currency denominatedInCurrency,
-			GoodType goodType) {
-		return new MarketPriceFunction(this, denominatedInCurrency, goodType);
+	public FixedPriceFunction getFixedPriceFunction(
+			Currency denominatedInCurrency, GoodType goodType) {
+		return new FixedPriceFunction(this.getPrice(denominatedInCurrency,
+				goodType));
 	}
 
-	public Map<GoodType, IPriceFunction> getPriceFunctions(
+	public Map<GoodType, IPriceFunction> getFixedPriceFunctions(
 			Currency denominatedInCurrency, GoodType[] goodTypes) {
 		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
 		for (GoodType goodType : goodTypes)
 			priceFunctions.put(goodType,
-					getPriceFunction(denominatedInCurrency, goodType));
+					getFixedPriceFunction(denominatedInCurrency, goodType));
 		return priceFunctions;
 	}
 
-	public Map<GoodType, IPriceFunction> getPriceFunctions(
+	public Map<GoodType, IPriceFunction> getFixedPriceFunctions(
 			Currency denominatedInCurrency, Set<GoodType> goodTypes) {
 		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
 		for (GoodType goodType : goodTypes)
 			priceFunctions.put(goodType,
-					getPriceFunction(denominatedInCurrency, goodType));
+					getFixedPriceFunction(denominatedInCurrency, goodType));
+		return priceFunctions;
+	}
+
+	public MarketPriceFunction getMarketPriceFunction(
+			Currency denominatedInCurrency, GoodType goodType) {
+		return new MarketPriceFunction(this, denominatedInCurrency, goodType);
+	}
+
+	public Map<GoodType, IPriceFunction> getMarketPriceFunctions(
+			Currency denominatedInCurrency, GoodType[] goodTypes) {
+		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
+		for (GoodType goodType : goodTypes)
+			priceFunctions.put(goodType,
+					getMarketPriceFunction(denominatedInCurrency, goodType));
+		return priceFunctions;
+	}
+
+	public Map<GoodType, IPriceFunction> getMarketPriceFunctions(
+			Currency denominatedInCurrency, Set<GoodType> goodTypes) {
+		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
+		for (GoodType goodType : goodTypes)
+			priceFunctions.put(goodType,
+					getMarketPriceFunction(denominatedInCurrency, goodType));
 		return priceFunctions;
 	}
 

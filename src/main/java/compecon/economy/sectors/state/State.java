@@ -220,7 +220,7 @@ public class State extends Agent {
 			 * buy goods for sold bonds -> no hoarding of money
 			 */
 			Map<GoodType, IPriceFunction> priceFunctions = MarketFactory
-					.getInstance().getPriceFunctions(
+					.getInstance().getFixedPriceFunctions(
 							State.this.transactionsBankAccount.getCurrency(),
 							State.this.utilityFunction.getInputGoodTypes());
 			double budget = State.this.transactionsBankAccount.getBalance();

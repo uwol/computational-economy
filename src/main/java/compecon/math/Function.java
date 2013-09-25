@@ -62,11 +62,11 @@ public abstract class Function<T> implements IFunction<T> {
 		for (T inputType : this.getInputTypes()) {
 			double partialDerivative = this.partialDerivative(bundleOfInputs,
 					inputType);
-			double pricePerUnit = priceFunctionsOfInputTypes.get(inputType)
+			double marginalPrice = priceFunctionsOfInputTypes.get(inputType)
 					.getMarginalPrice(bundleOfInputs.get(inputType));
-			if (!Double.isNaN(pricePerUnit)) {
+			if (!Double.isNaN(marginalPrice)) {
 				double partialDerivativePerPrice = partialDerivative
-						/ pricePerUnit;
+						/ marginalPrice;
 				if (Double.isNaN(partialDerivativePerPrice))
 					throw new RuntimeException();
 				if (partialDerivativePerPrice > highestPartialDerivatePerPrice) {

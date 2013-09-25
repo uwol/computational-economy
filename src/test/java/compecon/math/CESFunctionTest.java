@@ -89,6 +89,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 		Map<GoodType, Double> optimalInputsBruteForce = cesFunction
 				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
 						budget);
+		Map<GoodType, Double> optimalInputs = cesFunction
+				.calculateOutputMaximizingInputs(priceFunctions, budget);
 
 		/*
 		 * assert inputs
@@ -101,6 +103,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 					optimalInputsIterative.get(goodType), epsilon);
 			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
 					optimalInputsBruteForce.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
+					optimalInputs.get(goodType), epsilon);
 		}
 
 		/*
@@ -120,6 +124,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 				optimalInputsIterative, priceFunctions);
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
 				optimalInputsBruteForce, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cesFunction, optimalInputs,
+				priceFunctions);
 	}
 
 	@Test
@@ -129,7 +135,7 @@ public class CESFunctionTest extends CompEconTestSupport {
 		 */
 		Map<GoodType, Double> coefficients = new HashMap<GoodType, Double>();
 		coefficients.put(GoodType.KILOWATT, 0.1);
-		coefficients.put(GoodType.URANIUM, 0.2);
+		coefficients.put(GoodType.COTTON, 0.2);
 		coefficients.put(GoodType.WHEAT, 0.7);
 		CESFunction<GoodType> cesFunction = new CESFunction<GoodType>(1.0,
 				coefficients, -0.5, 0.4);
@@ -140,13 +146,13 @@ public class CESFunctionTest extends CompEconTestSupport {
 		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
 		prices.put(GoodType.COAL, Double.NaN);
 		prices.put(GoodType.KILOWATT, 1.0);
-		prices.put(GoodType.URANIUM, 3.0);
+		prices.put(GoodType.COTTON, 3.0);
 		prices.put(GoodType.WHEAT, 2.0);
 
 		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
 		priceFunctions.put(GoodType.COAL, new FixedPriceFunction(Double.NaN));
 		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
-		priceFunctions.put(GoodType.URANIUM, new FixedPriceFunction(3.0));
+		priceFunctions.put(GoodType.COTTON, new FixedPriceFunction(3.0));
 		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
 
 		double budget = 10.0;
@@ -164,6 +170,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 		Map<GoodType, Double> optimalInputsBruteForce = cesFunction
 				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
 						budget);
+		Map<GoodType, Double> optimalInputs = cesFunction
+				.calculateOutputMaximizingInputs(priceFunctions, budget);
 
 		/*
 		 * assert inputs
@@ -174,7 +182,7 @@ public class CESFunctionTest extends CompEconTestSupport {
 		assertEquals(4.565,
 				optimalInputsAnalyticalFixedPrices.get(GoodType.WHEAT), epsilon);
 		assertEquals(0.166,
-				optimalInputsAnalyticalFixedPrices.get(GoodType.URANIUM),
+				optimalInputsAnalyticalFixedPrices.get(GoodType.COTTON),
 				epsilon);
 
 		for (GoodType goodType : optimalInputsAnalyticalFixedPrices.keySet()) {
@@ -185,6 +193,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 					optimalInputsIterative.get(goodType), epsilon);
 			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
 					optimalInputsBruteForce.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
+					optimalInputs.get(goodType), epsilon);
 		}
 
 		/*
@@ -204,6 +214,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 				optimalInputsIterative, priceFunctions);
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
 				optimalInputsBruteForce, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cesFunction, optimalInputs,
+				priceFunctions);
 	}
 
 	@Test
@@ -245,6 +257,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 		Map<GoodType, Double> optimalInputsBruteForce = cesFunction
 				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
 						budget);
+		Map<GoodType, Double> optimalInputs = cesFunction
+				.calculateOutputMaximizingInputs(priceFunctions, budget);
 
 		/*
 		 * assert inputs
@@ -265,6 +279,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 					optimalInputsIterative.get(goodType), epsilon);
 			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
 					optimalInputsBruteForce.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
+					optimalInputs.get(goodType), epsilon);
 		}
 
 		/*
@@ -284,6 +300,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 				optimalInputsIterative, priceFunctions);
 		assertPartialDerivativesPerPriceAreEqual(cesFunction,
 				optimalInputsBruteForce, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cesFunction, optimalInputs,
+				priceFunctions);
 	}
 
 	@Test
@@ -335,7 +353,7 @@ public class CESFunctionTest extends CompEconTestSupport {
 		 * maximize output under budget restriction
 		 */
 		Map<GoodType, IPriceFunction> priceFunctions = MarketFactory
-				.getInstance().getPriceFunctions(currency,
+				.getInstance().getMarketPriceFunctions(currency,
 						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT });
 
 		double budget = 10.0;

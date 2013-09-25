@@ -22,6 +22,8 @@ package compecon.engine.util;
 import java.io.IOException;
 import java.util.Properties;
 
+import compecon.economy.sectors.financial.Currency;
+
 public class ConfigurationUtil {
 
 	public static class BudgetingBehaviour {
@@ -55,9 +57,9 @@ public class ConfigurationUtil {
 	}
 
 	public static class CreditBankConfig {
-		public static int getNumberPerCurrency() {
-			return Integer.parseInt(configFile
-					.getProperty("creditBank.numberPerCurrency"));
+		public static int getNumber(Currency currency) {
+			return Integer.parseInt(configFile.getProperty("creditBank."
+					+ currency + ".number"));
 		}
 
 		public static double getPriceChangeIncrement() {
@@ -91,9 +93,9 @@ public class ConfigurationUtil {
 	}
 
 	public static class FactoryConfig {
-		public static int getNumberPerGoodTypeAndCurrency() {
-			return Integer.parseInt(configFile
-					.getProperty("factory.numberPerGoodTypeAndCurrency"));
+		public static int getNumberPerGoodType(Currency currency) {
+			return Integer.parseInt(configFile.getProperty("factory."
+					+ currency + ".numberPerGoodType"));
 		}
 
 		public static double getReferenceCredit() {
@@ -107,9 +109,9 @@ public class ConfigurationUtil {
 	}
 
 	public static class HouseholdConfig {
-		public static int getNumberPerCurrency() {
-			return Integer.parseInt(configFile
-					.getProperty("household.numberPerCurrency"));
+		public static int getNumber(Currency currency) {
+			return Integer.parseInt(configFile.getProperty("household."
+					+ currency + ".number"));
 		}
 
 		public static int getNumberOfLabourHoursPerDay() {
@@ -146,6 +148,11 @@ public class ConfigurationUtil {
 			return Integer
 					.parseInt(configFile
 							.getProperty("household.daysWithoutUtilityUntilDestructor"));
+		}
+
+		public static double getMaxPricePerUnitMultiplier() {
+			return Double.parseDouble(configFile
+					.getProperty("household.maxPricePerUnitMultiplier"));
 		}
 	}
 
@@ -186,9 +193,9 @@ public class ConfigurationUtil {
 	}
 
 	public static class TraderConfig {
-		public static int getNumberPerCurrency() {
-			return Integer.parseInt(configFile
-					.getProperty("trader.numberPerCurrency"));
+		public static int getNumber(Currency currency) {
+			return Integer.parseInt(configFile.getProperty("trader." + currency
+					+ ".number"));
 		}
 
 		public static double getArbitrageMargin() {

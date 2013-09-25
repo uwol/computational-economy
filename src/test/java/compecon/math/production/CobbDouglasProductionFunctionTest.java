@@ -73,7 +73,8 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 
 		Map<GoodType, Double> optimalInputsIterative = cobbDouglasProductionFunction
 				.calculateProfitMaximizingProductionFactorsIterative(10.0,
-						priceFunctions, budget, Double.NaN, numberOfIterations);
+						priceFunctions, budget, Double.NaN, numberOfIterations,
+						0.0);
 
 		/*
 		 * assert inputs
@@ -133,15 +134,16 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 		 */
 		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
 		priceFunctions.put(GoodType.KILOWATT, MarketFactory.getInstance()
-				.getPriceFunction(currency, GoodType.KILOWATT));
+				.getMarketPriceFunction(currency, GoodType.KILOWATT));
 		priceFunctions.put(GoodType.WHEAT, MarketFactory.getInstance()
-				.getPriceFunction(currency, GoodType.WHEAT));
+				.getMarketPriceFunction(currency, GoodType.WHEAT));
 
 		double budget = 50.0;
 
 		Map<GoodType, Double> optimalInputsIterative = cobbDouglasProductionFunction
 				.calculateProfitMaximizingProductionFactorsIterative(10.0,
-						priceFunctions, budget, Double.NaN, numberOfIterations);
+						priceFunctions, budget, Double.NaN, numberOfIterations,
+						0.0);
 
 		/*
 		 * assert inputs
@@ -154,7 +156,7 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 		/*
 		 * assert output
 		 */
-		assertEquals(13.2065,
+		assertEquals(13.2,
 				cobbDouglasProductionFunction
 						.calculateOutput(optimalInputsIterative), epsilon);
 

@@ -19,12 +19,15 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.math;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import compecon.engine.util.MathUtil;
+import compecon.math.price.FixedPriceFunction;
+import compecon.math.price.IPriceFunction;
 import compecon.math.price.IPriceFunction.PriceFunctionConfig;
 
 public class CESFunction<T> extends AnalyticalConvexFunction<T> {
@@ -91,7 +94,6 @@ public class CESFunction<T> extends AnalyticalConvexFunction<T> {
 	@Override
 	public double partialDerivative(Map<T, Double> forBundleOfInputs,
 			T withRespectToInputType) {
-
 		/*
 		 * exterior derivative
 		 */
@@ -125,6 +127,33 @@ public class CESFunction<T> extends AnalyticalConvexFunction<T> {
 		if (interiorDerivative == 0.0 && Double.isInfinite(exteriorDerivative))
 			return 0.0;
 		return exteriorDerivative * interiorDerivative;
+	}
+
+	@Override
+	public Map<T, Double> calculateOutputMaximizingInputs(
+			final Map<T, IPriceFunction> priceFunctionsOfInputs,
+			final double budget) {
+		// check whether the analytical solution is viable
+		Map<T, Double> fixedPrices = new HashMap<T, Double>();
+		for (Entry<T, IPriceFunction> priceFunctionEntry : priceFunctionsOfInputs
+				.entrySet()) {
+			if (priceFunctionEntry.getValue() instanceof FixedPriceFunction) {
+				fixedPrices.put(priceFunctionEntry.getKey(), priceFunctionEntry
+						.getValue().getPrice(0.0));
+			} else {
+				break;
+			}
+		}
+
+		// dispatch
+		if (fixedPrices.size() == priceFunctionsOfInputs.size()) {
+			return this
+					.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
+							fixedPrices, budget);
+		} else {
+			return super.calculateOutputMaximizingInputs(
+					priceFunctionsOfInputs, budget);
+		}
 	}
 
 	/**

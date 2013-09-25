@@ -92,7 +92,7 @@ public class Simulation {
 
 				// initialize credit banks
 				for (int i = 0; i < ConfigurationUtil.CreditBankConfig
-						.getNumberPerCurrency(); i++) {
+						.getNumber(currency); i++) {
 					AgentFactory.newInstanceCreditBank(offeredCurrencies,
 							currency);
 				}
@@ -103,7 +103,7 @@ public class Simulation {
 				for (GoodType goodType : GoodType.values()) {
 					if (!GoodType.LABOURHOUR.equals(goodType)) {
 						for (int i = 0; i < ConfigurationUtil.FactoryConfig
-								.getNumberPerGoodTypeAndCurrency(); i++) {
+								.getNumberPerGoodType(currency); i++) {
 							AgentFactory.newInstanceFactory(goodType, currency);
 						}
 					}
@@ -113,7 +113,7 @@ public class Simulation {
 			for (Currency currency : Currency.values()) {
 				// initialize traders
 				for (int i = 0; i < ConfigurationUtil.TraderConfig
-						.getNumberPerCurrency(); i++) {
+						.getNumber(currency); i++) {
 					AgentFactory.newInstanceTrader(currency);
 				}
 			}
@@ -121,7 +121,7 @@ public class Simulation {
 			for (Currency currency : Currency.values()) {
 				// initialize households
 				for (int i = 0; i < ConfigurationUtil.HouseholdConfig
-						.getNumberPerCurrency(); i++) {
+						.getNumber(currency); i++) {
 					Household household = AgentFactory
 							.newInstanceHousehold(currency);
 					// division, so that households have time left until

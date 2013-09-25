@@ -504,10 +504,10 @@ public class CentralBank extends Bank {
 			 * set price index weights, must sum up to 1
 			 */
 
-			this.priceIndexWeights.put(GoodType.WHEAT, 0.2);
-			this.priceIndexWeights.put(GoodType.KILOWATT, 0.3);
-			this.priceIndexWeights.put(GoodType.STEEL, 0.2);
-			this.priceIndexWeights.put(GoodType.REALESTATE, 0.3);
+			this.priceIndexWeights.put(GoodType.FOOD, 0.25);
+			this.priceIndexWeights.put(GoodType.CLOTHING, 0.25);
+			this.priceIndexWeights.put(GoodType.KILOWATT, 0.25);
+			this.priceIndexWeights.put(GoodType.REALESTATE, 0.25);
 
 			/*
 			 * GoodType LABOURHOUR is not monitored, as its market price is not

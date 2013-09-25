@@ -166,25 +166,6 @@ public class ControlPanel extends JPanel {
 				}
 			});
 			economicSectorPane.add(init100HouseholdsButton);
-
-			/*
-			 * init car factory
-			 */
-
-			JButton initCarFactoryButton = new JButton("Init car factory");
-			initCarFactoryButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					TimeSystem.getInstance().addExternalEvent(
-							new ITimeSystemEvent() {
-								@Override
-								public void onEvent() {
-									ModelRegistry.getControlModel()
-											.initCarFactory(currency);
-								}
-							});
-				}
-			});
-			economicSectorPane.add(initCarFactoryButton);
 		}
 		return economicSectorsPane;
 	}

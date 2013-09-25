@@ -241,7 +241,8 @@ public class HouseholdPanel extends AbstractChartsPanel implements
 			SummaryStatisticalData summaryStatisticalData = ModelRegistry
 					.getIncomeDistributionModel(currency)
 					.getSummaryStatisticalData();
-			if (summaryStatisticalData.originalValues != null) {
+			if (summaryStatisticalData.originalValues != null
+					&& summaryStatisticalData.originalValues.length > 0) {
 				addValueMarker(
 						chart,
 						summaryStatisticalData.originalValues[summaryStatisticalData.xWith10PercentY],

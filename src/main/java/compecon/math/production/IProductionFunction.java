@@ -42,7 +42,7 @@ public interface IProductionFunction {
 	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(
 			double priceOfProducedGoodType,
 			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods,
-			double budget, double maxOutput);
+			double budget, double maxOutput, double margin);
 
 	public double getProductivity();
 

@@ -85,35 +85,35 @@ public class MarketTest extends CompEconTestSupport {
 				epsilon);
 		assertEquals(MarketFactory.getInstance().getPrice(currency, goodType),
 				MarketFactory.getInstance()
-						.getPriceFunction(currency, goodType).getPrice(0.0),
+						.getMarketPriceFunction(currency, goodType).getPrice(0.0),
 				epsilon);
 		assertEquals(MarketFactory.getInstance().getPrice(currency, goodType),
 				MarketFactory.getInstance()
-						.getPriceFunction(currency, goodType).getPrice(1.0),
+						.getMarketPriceFunction(currency, goodType).getPrice(1.0),
 				epsilon);
 
 		assertEquals(4.5,
 				MarketFactory.getInstance()
-						.getPriceFunction(currency, goodType).getPrice(20.0),
+						.getMarketPriceFunction(currency, goodType).getPrice(20.0),
 				epsilon);
 		assertEquals(4.333333,
 				MarketFactory.getInstance()
-						.getPriceFunction(currency, goodType).getPrice(15.0),
+						.getMarketPriceFunction(currency, goodType).getPrice(15.0),
 				epsilon);
 		assertEquals(
 				4.0,
 				MarketFactory.getInstance()
-						.getPriceFunction(currency, goodType)
+						.getMarketPriceFunction(currency, goodType)
 						.getMarginalPrice(10.0), epsilon);
 		assertEquals(
 				5.0,
 				MarketFactory.getInstance()
-						.getPriceFunction(currency, goodType)
+						.getMarketPriceFunction(currency, goodType)
 						.getMarginalPrice(11.0), epsilon);
 		assertEquals(
 				Double.NaN,
 				MarketFactory.getInstance()
-						.getPriceFunction(currency, goodType)
+						.getMarketPriceFunction(currency, goodType)
 						.getMarginalPrice(21.0), epsilon);
 		assertEquals(
 				Double.NaN,
@@ -363,7 +363,7 @@ public class MarketTest extends CompEconTestSupport {
 				household2_EUR.getTransactionsBankAccount(), 10, 6);
 
 		assertValidPriceFunctionConfig(MarketFactory.getInstance()
-				.getPriceFunction(currency, goodType), 150.0, 3);
+				.getMarketPriceFunction(currency, goodType), 150.0, 3);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
 				household2_EUR.getTransactionsBankAccount(), 100, 2);
@@ -371,7 +371,7 @@ public class MarketTest extends CompEconTestSupport {
 				household2_EUR.getTransactionsBankAccount(), 20, 20);
 
 		assertValidPriceFunctionConfig(MarketFactory.getInstance()
-				.getPriceFunction(currency, goodType), 1500.0, 5);
+				.getMarketPriceFunction(currency, goodType), 1500.0, 5);
 	}
 
 	private void assertValidPriceFunctionConfig(
