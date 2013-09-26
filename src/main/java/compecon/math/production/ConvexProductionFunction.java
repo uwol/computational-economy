@@ -99,14 +99,19 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 
 		// special case: check for estimated revenue per unit being NaN ->
 		// needed for bootstrapping markets
-		if (Double.isNaN(priceOfProducedGoodType)) {
-			Log.log("priceOfProducedGoodType = " + priceOfProducedGoodType
-					+ " -> cautious production");
-			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
-			for (GoodType inputType : this.getInputGoodTypes())
-				bundleOfInputs.put(inputType, 0.001);
-			return bundleOfInputs;
-		}
+		// problem: producing this little leads to a complete sold amount ->
+		// rising prices because of pricingBehaviour; again, Double.NaN price,
+		// as nothing is offered
+		//
+		// if (Double.isNaN(priceOfProducedGoodType)) {
+		// Log.log("priceOfProducedGoodType = " + priceOfProducedGoodType
+		// + " -> cautious production");
+		// final Map<GoodType, Double> bundleOfInputs = new
+		// LinkedHashMap<GoodType, Double>();
+		// for (GoodType inputType : this.getInputGoodTypes())
+		// bundleOfInputs.put(inputType, 0.001);
+		// return bundleOfInputs;
+		// }
 
 		/*
 		 * regular calculation

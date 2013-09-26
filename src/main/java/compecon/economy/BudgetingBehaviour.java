@@ -65,7 +65,7 @@ public class BudgetingBehaviour {
 		double keyInterestRate = AgentFactory.getInstanceCentralBank(currency)
 				.getEffectiveKeyInterestRate();
 		lastMaxCredit = lastMaxCredit
-				* (1 + ((this.internalRateOfReturn - keyInterestRate) / keyInterestRateTransmissionDamper));
+				* (1.0 + ((this.internalRateOfReturn - keyInterestRate) / keyInterestRateTransmissionDamper));
 
 		/*
 		 * transmission mechanism

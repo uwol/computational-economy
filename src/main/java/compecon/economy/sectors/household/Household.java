@@ -523,12 +523,14 @@ public class Household extends Agent implements IShareOwner {
 				if (MathUtil.greater(amountToBuy, 0.0)) {
 					double marginalPrice = priceFunctions.get(goodTypeToBuy)
 							.getMarginalPrice(0.0);
+
 					// maxPricePerUnit is significantly important for price
-					// equilibrium
+					// equilibrium; also budget, as in the depth of the markets,
+					// prices can rise, leading to overspending
 					double[] priceAndAmount = MarketFactory.getInstance().buy(
 							goodTypeToBuy,
 							amountToBuy,
-							Double.NaN,
+							budget,
 							marginalPrice * MAX_PRICE_PER_UNIT_MULTIPLIER,
 							Household.this,
 							Household.this.transactionsBankAccount,

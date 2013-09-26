@@ -119,10 +119,14 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 
 		summaryStatisticalData.originalValues = valuesAsArray;
 		if (valuesAsArray.length > 0) {
-			summaryStatisticalData.quantil5Percent = valuesAsArray[(int) (valuesAsArray.length * 0.05)];
-			summaryStatisticalData.quantil50Percent = valuesAsArray[(int) (valuesAsArray.length * 0.5)];
-			summaryStatisticalData.quantil95Percent = valuesAsArray[(int) (valuesAsArray.length * 0.95)];
-			summaryStatisticalData.quantil99Percent = valuesAsArray[(int) (valuesAsArray.length * 0.99)];
+			summaryStatisticalData.quantil5Percent = Math.max(0.0,
+					valuesAsArray[(int) (valuesAsArray.length * 0.05)]);
+			summaryStatisticalData.quantil50Percent = Math.max(0.0,
+					valuesAsArray[(int) (valuesAsArray.length * 0.5)]);
+			summaryStatisticalData.quantil95Percent = Math.max(0.0,
+					valuesAsArray[(int) (valuesAsArray.length * 0.95)]);
+			summaryStatisticalData.quantil99Percent = Math.max(0.0,
+					valuesAsArray[(int) (valuesAsArray.length * 0.99)]);
 		}
 		for (double value : valuesAsArray)
 			summaryStatisticalData.yTotalSum += value;

@@ -52,7 +52,7 @@ public class InputOutputModel {
 		preferences.put(GoodType.REALESTATE, 0.2);
 		preferences.put(GoodType.KILOWATT, 0.2);
 		preferences.put(GoodType.LABOURHOUR, 0.2);
-		return new CESUtilityFunction(1.0, preferences, -0.9, 0.89);
+		return new CESUtilityFunction(1.0, preferences, -0.7, 0.5);
 	}
 
 	public static IUtilityFunction getUtilityFunctionForState() {
@@ -66,7 +66,7 @@ public class InputOutputModel {
 		preferences.put(GoodType.REALESTATE, 0.2);
 		preferences.put(GoodType.KILOWATT, 0.2);
 		preferences.put(GoodType.LABOURHOUR, 0.2);
-		return new CESUtilityFunction(1.0, preferences, -0.9, 0.89);
+		return new CESUtilityFunction(1.0, preferences, -0.7, 0.5);
 	}
 
 	public static IProductionFunction getProductionFunction(
