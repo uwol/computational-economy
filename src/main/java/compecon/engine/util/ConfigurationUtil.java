@@ -20,6 +20,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.util;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import compecon.economy.sectors.financial.Currency;
@@ -57,7 +59,12 @@ public class ConfigurationUtil {
 	}
 
 	public static class CreditBankConfig {
+
+		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
+
 		public static int getNumber(Currency currency) {
+			if (number.containsKey(currency))
+				return number.get(currency);
 			return Integer.parseInt(configFile.getProperty("creditBank."
 					+ currency + ".number"));
 		}
@@ -79,9 +86,9 @@ public class ConfigurationUtil {
 	}
 
 	public static class DashboardConfig {
-		public static int getLogNumberOfAgents() {
+		public static int getLogNumberOfAgentsLogSize() {
 			return Integer.parseInt(configFile
-					.getProperty("dashboard.log.numberOfAgents"));
+					.getProperty("dashboard.log.numberOfAgentsLogSize"));
 		}
 	}
 
@@ -93,7 +100,14 @@ public class ConfigurationUtil {
 	}
 
 	public static class FactoryConfig {
+
+		public static Map<Currency, Integer> numberPerGoodType = new HashMap<Currency, Integer>();
+
+		public static Double margin;
+
 		public static int getNumberPerGoodType(Currency currency) {
+			if (numberPerGoodType.containsKey(currency))
+				return numberPerGoodType.get(currency);
 			return Integer.parseInt(configFile.getProperty("factory."
 					+ currency + ".numberPerGoodType"));
 		}
@@ -104,12 +118,19 @@ public class ConfigurationUtil {
 		}
 
 		public static double getMargin() {
+			if (margin != null)
+				return margin;
 			return Double.parseDouble(configFile.getProperty("factory.margin"));
 		}
 	}
 
 	public static class HouseholdConfig {
+
+		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
+
 		public static int getNumber(Currency currency) {
+			if (number.containsKey(currency))
+				return number.get(currency);
 			return Integer.parseInt(configFile.getProperty("household."
 					+ currency + ".number"));
 		}
@@ -157,29 +178,43 @@ public class ConfigurationUtil {
 	}
 
 	public static class MathConfig {
+
+		public static Integer numberOfIterations;
+
 		public static int getNumberOfIterations() {
-			int numberOfIterations = Integer.parseInt(configFile
+			if (numberOfIterations != null)
+				return numberOfIterations;
+			return Integer.parseInt(configFile
 					.getProperty("math.numberOfIterations"));
-			assert (numberOfIterations > 0);
-			return numberOfIterations;
 		}
 	}
 
 	public static class PricingBehaviourConfig {
+
+		public static Double defaultPriceChangeIncrement;
+
+		public static Integer defaultNumberOfPrices;
+
+		public static Double defaultInitialPrice;
+
 		public static double getDefaultPriceChangeIncrement() {
+			if (defaultPriceChangeIncrement != null)
+				return defaultPriceChangeIncrement;
 			return Double
 					.parseDouble(configFile
 							.getProperty("pricingBehaviour.defaultPriceChangeIncrement"));
 		}
 
 		public static int getDefaultNumberOfPrices() {
-			int numberOfPrices = Integer.parseInt(configFile
+			if (defaultNumberOfPrices != null)
+				return defaultNumberOfPrices;
+			return Integer.parseInt(configFile
 					.getProperty("pricingBehaviour.defaultNumberOfPrices"));
-			assert (numberOfPrices > 0);
-			return numberOfPrices;
 		}
 
 		public static double getDefaultInitialPrice() {
+			if (defaultInitialPrice != null)
+				return defaultInitialPrice;
 			return Double.parseDouble(configFile
 					.getProperty("pricingBehaviour.defaultInitialPrice"));
 		}
@@ -193,7 +228,12 @@ public class ConfigurationUtil {
 	}
 
 	public static class TraderConfig {
+
+		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
+
 		public static int getNumber(Currency currency) {
+			if (number.containsKey(currency))
+				return number.get(currency);
 			return Integer.parseInt(configFile.getProperty("trader." + currency
 					+ ".number"));
 		}

@@ -50,10 +50,10 @@ import compecon.economy.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
 import compecon.engine.PropertyFactory;
+import compecon.engine.Simulation;
 import compecon.engine.dao.DAOFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
@@ -95,37 +95,57 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		// trade currencies on exchange markets
 		ITimeSystemEvent currencyTradeEvent = new CurrencyTradeEvent();
 		this.timeSystemEvents.add(currencyTradeEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				currencyTradeEvent, -1, MonthType.EVERY, DayType.EVERY,
-				TimeSystem.getInstance().suggestRandomHourType());
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						currencyTradeEvent,
+						-1,
+						MonthType.EVERY,
+						DayType.EVERY,
+						Simulation.getInstance().getTimeSystem()
+								.suggestRandomHourType());
 
 		// calculate interest on customers bank accounts
 		ITimeSystemEvent interestCalculationEvent = new DailyInterestCalculationEvent();
 		this.timeSystemEvents.add(interestCalculationEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				interestCalculationEvent, -1, MonthType.EVERY, DayType.EVERY,
-				HourType.HOUR_02);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(interestCalculationEvent, -1, MonthType.EVERY,
+						DayType.EVERY, HourType.HOUR_02);
 
 		// check money reserves at the central bank
 		ITimeSystemEvent checkMoneyReservesEvent = new CheckMoneyReservesEvent();
 		this.timeSystemEvents.add(checkMoneyReservesEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				checkMoneyReservesEvent, -1, MonthType.EVERY, DayType.EVERY,
-				HourType.HOUR_12);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(checkMoneyReservesEvent, -1, MonthType.EVERY,
+						DayType.EVERY, HourType.HOUR_12);
 
 		// balance sheet publication
 		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
 		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				balanceSheetPublicationEvent, -1, MonthType.EVERY,
-				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
+						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		// bonds trading
 		ITimeSystemEvent bondsTradeEvent = new BondsTradeEvent();
 		this.timeSystemEvents.add(bondsTradeEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(bondsTradeEvent,
-				-1, MonthType.EVERY, DayType.EVERY,
-				TimeSystem.getInstance().suggestRandomHourType());
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						bondsTradeEvent,
+						-1,
+						MonthType.EVERY,
+						DayType.EVERY,
+						Simulation.getInstance().getTimeSystem()
+								.suggestRandomHourType());
 
 		// pricing behaviours
 		for (Currency foreignCurrency : Currency.values()) {
@@ -155,6 +175,12 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			PropertyFactory.deleteProperty(bond);
 		}
 		this.currencyTradeBankAccounts = null;
+
+		// deregister from banks
+		for (Currency currency : Currency.values()) {
+			AgentFactory.getInstanceCentralBank(currency).closeCustomerAccount(
+					this);
+		}
 	}
 
 	/*
@@ -205,9 +231,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			 * own bank account
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency,
-					this.bankPasswords.get(this.primaryBank),
-					"transactions account", BankAccountType.GIRO);
+					this, this.primaryCurrency, "transactions account",
+					BankAccountType.GIRO);
 		}
 	}
 
@@ -219,15 +244,9 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		if (!this.centralBankAccountsInitialized) {
 			// initialize bank accounts at central banks
 			for (Currency currency : offeredCurrencies) {
-				String centralBankPassword = AgentFactory
-						.getInstanceCentralBank(currency).openCustomerAccount(
-								this);
 				AgentFactory.getInstanceCentralBank(currency).openBankAccount(
-						this, currency, centralBankPassword,
-						"central bank account", BankAccountType.GIRO);
-				this.bankPasswords.put(
-						AgentFactory.getInstanceCentralBank(currency),
-						centralBankPassword);
+						this, currency, "central bank account",
+						BankAccountType.GIRO);
 			}
 			this.centralBankAccountsInitialized = true;
 		}
@@ -252,16 +271,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					CreditBank foreignCurrencyCreditBank = AgentFactory
 							.getRandomInstanceCreditBank(currency);
 					if (foreignCurrencyCreditBank != null) {
-						String bankPassword = foreignCurrencyCreditBank
-								.openCustomerAccount(this);
-						this.bankPasswords.put(foreignCurrencyCreditBank,
-								bankPassword);
 						BankAccount bankAccount = foreignCurrencyCreditBank
-								.openBankAccount(
-										this,
-										currency,
-										this.bankPasswords
-												.get(foreignCurrencyCreditBank),
+								.openBankAccount(this, currency,
 										"currency trade (foreign) account",
 										BankAccountType.GIRO);
 						this.currencyTradeBankAccounts.put(currency,
@@ -274,7 +285,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					this.currencyTradeBankAccounts.put(this.primaryCurrency,
 							CreditBank.this.openBankAccount(this,
 									this.primaryCurrency,
-									this.bankPasswords.get(CreditBank.this),
 									"currency trade (local)",
 									BankAccountType.GIRO));
 				}
@@ -283,19 +293,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 	}
 
 	@Transient
-	protected void assertPasswordOk(CentralBank centralBank, String password) {
-		if (this.bankPasswords.get(centralBank) == null)
-			throw new RuntimeException("passwords is null");
-
-		if (this.bankPasswords.get(centralBank) != password)
-			throw new RuntimeException("passwords not equal");
-	}
-
-	@Transient
 	protected void assertCurrencyIsOffered(Currency currency) {
-		if (!this.getOfferedCurrencies().contains(currency))
-			throw new RuntimeException(currency
-					+ " are not offered at this bank");
+		assert (this.getOfferedCurrencies().contains(currency));
 	}
 
 	/*
@@ -304,9 +303,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 	@Transient
 	public void depositCash(Agent client, BankAccount to, double amount,
-			Currency currency, String password) {
+			Currency currency) {
 		this.assertIsCustomerOfThisBank(client);
-		this.assertPasswordOk(client, password);
 		this.assertBankAccountIsManagedByThisBank(to);
 		this.assertCurrencyIsOffered(currency);
 
@@ -317,9 +315,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 	@Transient
 	public double withdrawCash(Agent client, BankAccount from, double amount,
-			Currency currency, String password) {
+			Currency currency) {
 		this.assertIsCustomerOfThisBank(client);
-		this.assertPasswordOk(client, password);
 		this.assertBankAccountIsManagedByThisBank(from);
 		this.assertCurrencyIsOffered(currency);
 
@@ -331,32 +328,23 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 	@Transient
 	public void transferMoney(BankAccount from, BankAccount to, double amount,
-			String password, String subject) {
-		this.transferMoney(from, to, amount, password, subject, false);
+			String subject) {
+		this.transferMoney(from, to, amount, subject, false);
 	}
 
 	@Transient
 	protected void transferMoney(BankAccount from, BankAccount to,
-			double amount, String password, String subject,
-			boolean negativeAmountOK) {
+			double amount, String subject, boolean negativeAmountOK) {
 		this.assureCentralBankAccount();
 		this.assertIsCustomerOfThisBank(from.getOwner());
 		this.assertBankAccountIsManagedByThisBank(from);
 
-		if (!negativeAmountOK && amount < 0)
-			throw new RuntimeException("amount must be >= 0");
+		assert (negativeAmountOK || amount >= 0);
+		assert (from.getCurrency().equals(to.getCurrency()));
+		assert (from.getBalance() - amount >= 0.0 || from
+				.getOverdraftPossible());
 
-		if (!from.getCurrency().equals(to.getCurrency()))
-			throw new RuntimeException(
-					"both bank accounts must have the same currency");
-
-		this.assertPasswordOk(from.getOwner(), password);
-
-		if (from.getBalance() - amount < 0 && !from.getOverdraftPossible())
-			throw new RuntimeException(
-					"amount is too high and bank account cannot be overdraft");
-
-		// no RuntimeException for identical bank accounts, as this correctly
+		// no Exception for identical bank accounts, as this correctly
 		// might happen in case of bonds etc.
 		if (from != to) {
 			Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
@@ -372,17 +360,16 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 				// central bank account of this credit bank
 				BankAccount toCentralBankAccountOfThisBank = centralBank
-						.getBankAccounts(this,
-								this.bankPasswords.get(centralBank)).get(0);
+						.getBankAccounts(this).get(0);
 
 				// transfer money to central bank account of this bank
 				centralBank.transferMoney(from, toCentralBankAccountOfThisBank,
-						amount, this.bankPasswords.get(centralBank), subject);
+						amount, subject);
 
 				// transfer money from central bank account of this bank to bank
 				// account at target bank
 				centralBank.transferMoney(toCentralBankAccountOfThisBank, to,
-						amount, this.bankPasswords.get(centralBank), subject);
+						amount, subject);
 			}
 		}
 	}
@@ -400,25 +387,21 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 	}
 
 	@Transient
-	public void deposit(CentralBank caller, String password,
-			BankAccount bankAccount, double amount) {
+	public void deposit(CentralBank caller, BankAccount bankAccount,
+			double amount) {
 
 		this.assertBankAccountIsManagedByThisBank(bankAccount);
-		this.assertPasswordOk(caller, password);
-		if (amount < 0)
-			throw new RuntimeException("amount must be >= 0");
+		assert (amount >= 0.0);
 
 		bankAccount.deposit(amount);
 	}
 
 	@Transient
-	public void withdraw(CentralBank caller, String password,
-			BankAccount bankAccount, double amount) {
+	public void withdraw(CentralBank caller, BankAccount bankAccount,
+			double amount) {
 
 		this.assertBankAccountIsManagedByThisBank(bankAccount);
-		this.assertPasswordOk(caller, password);
-		if (amount < 0)
-			throw new RuntimeException("amount must be >= 0");
+		assert (amount >= 0.0);
 
 		bankAccount.withdraw(amount);
 	}
@@ -491,32 +474,19 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					// account +
 					// negative interest rate
 					if (dailyInterest > 0) {
-						try {
-							CreditBank.this.transferMoney(
-									CreditBank.this.transactionsBankAccount,
-									bankAccount, dailyInterest,
-									CreditBank.this.customerPasswords
-											.get(CreditBank.this),
-									"interest earned for customer");
-						} catch (Exception e) {
-							throw new RuntimeException(e.getMessage());
-						}
+						CreditBank.this.transferMoney(
+								CreditBank.this.transactionsBankAccount,
+								bankAccount, dailyInterest,
+								"interest earned for customer");
 					}
 					// asset account + positive interest rate or liability
 					// account + negative interest rate
 					else if (dailyInterest < 0) {
-						try {
-							// credit banks add margin on key interest rate
-							dailyInterest = -1 * dailyInterest * 1.5;
-							CreditBank.this.transferMoney(bankAccount,
-									CreditBank.this.transactionsBankAccount,
-									dailyInterest,
-									CreditBank.this.customerPasswords
-											.get(bankAccount.getOwner()),
-									"debt interest from customer");
-						} catch (Exception e) {
-							throw new RuntimeException(e.getMessage());
-						}
+						// credit banks add margin on key interest rate
+						dailyInterest = -1 * dailyInterest * 1.5;
+						CreditBank.this.transferMoney(bankAccount,
+								CreditBank.this.transactionsBankAccount,
+								dailyInterest, "debt interest from customer");
 					}
 				}
 			}
@@ -532,12 +502,9 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			for (Currency currency : CreditBank.this.offeredCurrencies) {
 				CentralBank centralBank = AgentFactory
 						.getInstanceCentralBank(currency);
-				String centralBankPassword = CreditBank.this.bankPasswords
-						.get(centralBank);
 
 				BankAccount bankAccountAtCentralBank = centralBank
-						.getBankAccounts(CreditBank.this, centralBankPassword)
-						.get(0);
+						.getBankAccounts(CreditBank.this).get(0);
 				double sumOfBorrowings = CreditBank.this
 						.getSumOfBorrowings(currency);
 				double moneyReserveGap = sumOfBorrowings
@@ -561,15 +528,12 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 									CreditBank.this,
 									currency,
 									CreditBank.this.transactionsBankAccount,
-									CreditBank.this.customerPasswords
-											.get(CreditBank.this),
 									moneyReserveGap,
 									centralBank.getEffectiveKeyInterestRate() + 0.02);
 					bonds.add(bond);
 
 					// obtain tender for bond
-					centralBank.obtainTender(CreditBank.this, bonds,
-							centralBankPassword);
+					centralBank.obtainTender(CreditBank.this, bonds);
 
 					// remember issued bonds for balance sheet event
 					CreditBank.this.issuedBonds.addAll(bonds);
@@ -591,8 +555,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			// bank accounts managed by this bank
 			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(CreditBank.this)) {
-				if (bankAccount.getCurrency() != CreditBank.this.primaryCurrency)
-					throw new RuntimeException("incorrect currency");
+				assert (bankAccount.getCurrency()
+						.equals(CreditBank.this.primaryCurrency));
 
 				if (bankAccount.getBalance() > 0) // passive account
 					balanceSheet.bankBorrowings += bankAccount.getBalance();
@@ -654,12 +618,10 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 				Currency firstCurrency, Currency secondCurrency) {
 			// e.g. USD_in_EUR = 0.8
 			double priceOfFirstCurrencyInSecondCurrency = MarketFactory
-					.getInstance().getPrice(secondCurrency,
-							firstCurrency);
+					.getInstance().getPrice(secondCurrency, firstCurrency);
 			// e.g. EUR_in_USD = 0.8
 			double priceOfSecondCurrencyInFirstCurrency = MarketFactory
-					.getInstance().getPrice(firstCurrency,
-							secondCurrency);
+					.getInstance().getPrice(firstCurrency, secondCurrency);
 
 			if (Double.isNaN(priceOfSecondCurrencyInFirstCurrency)) {
 				return priceOfFirstCurrencyInSecondCurrency;
@@ -727,8 +689,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 								.getValue();
 
 						double realPriceOfForeignCurrencyInLocalCurrency = MarketFactory
-								.getInstance().getPrice(
-										primaryCurrency, foreignCurrency);
+								.getInstance().getPrice(primaryCurrency,
+										foreignCurrency);
 						double correctPriceOfForeignCurrencyInLocalCurrency = calculateCalculatoryPriceOfFirstCurrencyInSecondCurrency(
 								foreignCurrency, primaryCurrency);
 
@@ -786,9 +748,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 															.getMinArbitrageMargin()),
 											CreditBank.this,
 											localCurrencyTradeBankAccount,
-											CreditBank.this.bankPasswords
-													.get(localCurrencyTradeBankAccount
-															.getManagingBank()),
 											foreignCurrencyBankAccount);
 						}
 					}
@@ -817,16 +776,11 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					if (MathUtil.greater(
 							foreignCurrencyBankAccount.getBalance(), 0)) {
 						// buy local currency for foreign currency
-						MarketFactory.getInstance().buy(
-								localCurrency,
+						MarketFactory.getInstance().buy(localCurrency,
 								Double.NaN,
 								foreignCurrencyBankAccount.getBalance(),
-								Double.NaN,
-								CreditBank.this,
+								Double.NaN, CreditBank.this,
 								foreignCurrencyBankAccount,
-								CreditBank.this.bankPasswords
-										.get(foreignCurrencyBankAccount
-												.getManagingBank()),
 								localCurrencyBankAccount);
 					}
 				}
@@ -894,8 +848,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						if (Double
 								.isNaN(pricingBehaviourPriceOfLocalCurrencyInForeignCurrency)) {
 							pricingBehaviourPriceOfLocalCurrencyInForeignCurrency = MarketFactory
-									.getInstance().getPrice(
-											foreignCurrency, localCurrency);
+									.getInstance().getPrice(foreignCurrency,
+											localCurrency);
 							if (Log.isAgentSelectedByClient(CreditBank.this))
 								Log.log(CreditBank.this,
 										CurrencyTradeEvent.class,
@@ -920,9 +874,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 										partialLocalCurrencyBudgetForCurrency,
 										pricingBehaviourPriceOfLocalCurrencyInForeignCurrency,
 										localCurrencyBankAccount,
-										CreditBank.this.bankPasswords
-												.get(localCurrencyBankAccount
-														.getManagingBank()),
 										new SettlementMarketEvent());
 
 						pricingBehaviour
@@ -960,15 +911,11 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 					// offer money amount on the market
 					MarketFactory.getInstance().placeSettlementSellingOffer(
-							foreignCurrency,
-							CreditBank.this,
+							foreignCurrency, CreditBank.this,
 							localCurrencyBankAccount,
 							foreignCurrencyBankAccount.getBalance(),
 							priceOfForeignCurrencyInLocalCurrency / (1.001),
-							foreignCurrencyBankAccount,
-							CreditBank.this.bankPasswords
-									.get(foreignCurrencyBankAccount
-											.getManagingBank()), null);
+							foreignCurrencyBankAccount, null);
 				}
 			}
 		}
@@ -989,8 +936,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(CreditBank.this)) {
-				if (bankAccount.getCurrency() != CreditBank.this.primaryCurrency)
-					throw new RuntimeException("incorrect currency");
+				assert (bankAccount.getCurrency()
+						.equals(CreditBank.this.primaryCurrency));
 
 				if (!(bankAccount.getOwner() instanceof Bank)) {
 					if (bankAccount.getBalance() > 0
@@ -1005,8 +952,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 			for (Property property : PropertyRegister.getInstance()
 					.getProperties(CreditBank.this, FixedRateBond.class)) {
-				if (!(property instanceof FixedRateBond))
-					throw new RuntimeException("not a bond");
+				assert (property instanceof FixedRateBond);
 
 				faceValueSumOfBonds += ((FixedRateBond) property)
 						.getFaceValue();
@@ -1038,8 +984,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			if (MathUtil.greater(difference, 0.0)) {
 				MarketFactory.getInstance().buy(FixedRateBond.class,
 						Double.NaN, difference, Double.NaN, CreditBank.this,
-						CreditBank.this.transactionsBankAccount,
-						CreditBank.this.bankPasswords.get(CreditBank.this));
+						CreditBank.this.transactionsBankAccount);
 			}
 		}
 	}

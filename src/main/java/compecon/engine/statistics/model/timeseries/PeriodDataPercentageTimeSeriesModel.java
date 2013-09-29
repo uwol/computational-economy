@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model.timeseries;
+package compecon.engine.statistics.model.timeseries;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +25,8 @@ import java.util.Map.Entry;
 
 import org.jfree.data.time.Day;
 
-import compecon.engine.jmx.model.accumulator.PeriodDataAccumulator;
-import compecon.engine.time.TimeSystem;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.model.accumulator.PeriodDataAccumulator;
 
 public class PeriodDataPercentageTimeSeriesModel<I> extends
 		AbstractPeriodDataMultipleTimeSeriesModel<I> {
@@ -62,7 +62,8 @@ public class PeriodDataPercentageTimeSeriesModel<I> extends
 				.entrySet()) {
 			// write into time series
 			this.timeSeries.get(entry.getKey()).addOrUpdate(
-					new Day(TimeSystem.getInstance().getCurrentDate()),
+					new Day(Simulation.getInstance().getTimeSystem()
+							.getCurrentDate()),
 					entry.getValue().getAmount() / sum);
 			entry.getValue();
 		}

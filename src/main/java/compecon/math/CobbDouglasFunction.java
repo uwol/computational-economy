@@ -39,19 +39,18 @@ public class CobbDouglasFunction<T> extends AnalyticalConvexFunction<T> {
 	public CobbDouglasFunction(double coefficient, Map<T, Double> exponents) {
 		super(true);
 
-		if (!MathUtil.greater(coefficient, 0.0))
-			throw new RuntimeException("coefficient has to be > 0");
+		// coefficient has to be > 0
+		assert (MathUtil.greater(coefficient, 0.0));
 
 		double sumOfExponents = 0.0;
 		for (Double exponent : exponents.values()) {
-			if (exponent >= 1.0 || exponent <= 0.0)
-				throw new RuntimeException(
-						"each exponent has to be in interval ]0, 1[");
+			// each exponent has to be in interval ]0, 1[
+			assert (exponent < 1.0 && exponent > 0.0);
 			sumOfExponents += exponent;
 		}
 
-		if (!MathUtil.equal(sumOfExponents, 1.0))
-			throw new RuntimeException("sum of exponents must equal 1");
+		// sum of exponents must equal 1
+		assert (MathUtil.equal(sumOfExponents, 1.0));
 
 		this.exponents = exponents;
 		this.coefficient = coefficient;

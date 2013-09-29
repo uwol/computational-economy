@@ -44,9 +44,7 @@ public class ModiglianiIntertemporalConsumptionFunction implements
 			consumption = averageIncomePerPeriod + currentAssets;
 		}
 
-		if (Double.isNaN(consumption)) {
-			throw new RuntimeException("consumption is " + consumption);
-		}
+		assert (!Double.isNaN(consumption));
 
 		Map<Period, Double> optimalConsumptionPlan = new HashMap<Period, Double>();
 		for (Period period : Period.values()) {

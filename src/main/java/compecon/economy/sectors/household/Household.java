@@ -44,9 +44,9 @@ import compecon.economy.sectors.state.law.security.equity.IShareOwner;
 import compecon.economy.sectors.state.law.security.equity.Share;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.engine.util.ConfigurationUtil;
@@ -116,16 +116,25 @@ public class Household extends Agent implements IShareOwner {
 		// daily life at random HourType
 		ITimeSystemEvent dailyLifeEvent = new DailyLifeEvent();
 		this.timeSystemEvents.add(dailyLifeEvent);
-		TimeSystem.getInstance()
-				.addEvent(dailyLifeEvent, -1, MonthType.EVERY, DayType.EVERY,
-						TimeSystem.getInstance().suggestRandomHourType());
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						dailyLifeEvent,
+						-1,
+						MonthType.EVERY,
+						DayType.EVERY,
+						Simulation.getInstance().getTimeSystem()
+								.suggestRandomHourType());
 
 		// balance sheet publication
 		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
 		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		TimeSystem.getInstance().addEvent(balanceSheetPublicationEvent, -1,
-				MonthType.EVERY, DayType.EVERY,
-				BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
+						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		double marketPrice = MarketFactory.getInstance().getPrice(
 				this.primaryCurrency, GoodType.LABOURHOUR);
@@ -221,9 +230,8 @@ public class Household extends Agent implements IShareOwner {
 		// initialize bank account
 		if (this.savingsBankAccount == null) {
 			this.savingsBankAccount = this.primaryBank.openBankAccount(this,
-					this.primaryCurrency,
-					this.bankPasswords.get(this.primaryBank),
-					"savings account", BankAccountType.SAVINGS);
+					this.primaryCurrency, "savings account",
+					BankAccountType.SAVINGS);
 		}
 	}
 
@@ -302,9 +310,7 @@ public class Household extends Agent implements IShareOwner {
 
 		@Override
 		public void onEvent() {
-			if (Household.this.isDeconstructed)
-				throw new RuntimeException(Household.this
-						+ " is deconstructed, but not removed from TimeSystem");
+			assert (!Household.this.isDeconstructed);
 
 			/*
 			 * potentially call destructor
@@ -382,7 +388,8 @@ public class Household extends Agent implements IShareOwner {
 			 * potentially, call destructor
 			 */
 			if (Household.this.daysWithoutUtility > Household.this.DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR)
-				if (!TimeSystem.getInstance().isInitializationPhase())
+				if (!Simulation.getInstance().getTimeSystem()
+						.isInitializationPhase())
 					Household.this.deconstruct();
 		}
 
@@ -442,15 +449,12 @@ public class Household extends Agent implements IShareOwner {
 											.getCurrency().getIso4217Code()
 									+ " income");
 				if (MathUtil.greater(moneySumToSave, 0.0)) {
-					Household.this.transactionsBankAccount
-							.getManagingBank()
+					Household.this.transactionsBankAccount.getManagingBank()
 							.transferMoney(
 									Household.this.transactionsBankAccount,
 									Household.this.savingsBankAccount,
 									moneySumToSave,
-									Household.this.bankPasswords
-											.get(Household.this.transactionsBankAccount
-													.getManagingBank()),
+
 									"retirement savings");
 				}
 			}
@@ -467,13 +471,9 @@ public class Household extends Agent implements IShareOwner {
 									+ Household.this.transactionsBankAccount
 											.getCurrency().getIso4217Code());
 				Household.this.savingsBankAccount.getManagingBank()
-						.transferMoney(
-								Household.this.savingsBankAccount,
-								Household.this.transactionsBankAccount,
-								budget,
-								Household.this.bankPasswords
-										.get(Household.this.savingsBankAccount
-												.getManagingBank()),
+						.transferMoney(Household.this.savingsBankAccount,
+								Household.this.transactionsBankAccount, budget,
+
 								"retirement dissavings");
 			}
 
@@ -528,15 +528,10 @@ public class Household extends Agent implements IShareOwner {
 					// equilibrium; also budget, as in the depth of the markets,
 					// prices can rise, leading to overspending
 					double[] priceAndAmount = MarketFactory.getInstance().buy(
-							goodTypeToBuy,
-							amountToBuy,
-							budget,
+							goodTypeToBuy, amountToBuy, budget,
 							marginalPrice * MAX_PRICE_PER_UNIT_MULTIPLIER,
 							Household.this,
-							Household.this.transactionsBankAccount,
-							Household.this.bankPasswords
-									.get(Household.this.transactionsBankAccount
-											.getManagingBank()));
+							Household.this.transactionsBankAccount);
 					budgetSpent += priceAndAmount[0];
 				}
 			}
@@ -605,15 +600,8 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * buy shares / capital -> equity savings
 			 */
-			MarketFactory.getInstance().buy(
-					Share.class,
-					1,
-					0,
-					0,
-					Household.this,
-					Household.this.transactionsBankAccount,
-					Household.this.bankPasswords
-							.get(Household.this.primaryBank));
+			MarketFactory.getInstance().buy(Share.class, 1.0, 0.0, 0.0,
+					Household.this, Household.this.transactionsBankAccount);
 
 			/*
 			 * sell shares that are denominated in an incorrect currency

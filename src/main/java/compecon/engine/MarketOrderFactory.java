@@ -48,8 +48,7 @@ public class MarketOrderFactory {
 	public static MarketOrder newInstanceCurrencyMarketOrder(
 			Currency currencyToBeOffered, Agent offeror,
 			BankAccount offerorsBankAcount, double amount, double pricePerUnit,
-			BankAccount commodityCurrencyOfferorsBankAcount,
-			String commodityCurrencyOfferorsBankAcountPassword) {
+			BankAccount commodityCurrencyOfferorsBankAcount) {
 
 		MarketOrder marketOrder = new MarketOrder();
 		marketOrder.setCommodityCurrency(currencyToBeOffered);
@@ -59,8 +58,6 @@ public class MarketOrderFactory {
 		marketOrder.setPricePerUnit(pricePerUnit);
 		marketOrder
 				.setCommodityCurrencyOfferorsBankAccount(commodityCurrencyOfferorsBankAcount);
-		marketOrder
-				.setCommodityCurrencyOfferorsBankAccountPassword(commodityCurrencyOfferorsBankAcountPassword);
 
 		DAOFactory.getMarketOrderDAO().save(marketOrder);
 		HibernateUtil.flushSession();

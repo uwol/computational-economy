@@ -43,8 +43,9 @@ import compecon.economy.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
 import compecon.engine.PropertyFactory;
+import compecon.engine.Simulation;
 import compecon.engine.dao.DAOFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -74,15 +75,20 @@ public class State extends Agent {
 		// balance sheet publication
 		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
 		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				balanceSheetPublicationEvent, -1, MonthType.EVERY,
-				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
+						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		// offer bonds
 		ITimeSystemEvent offerBondsEvent = new OfferBondsEvent();
 		this.timeSystemEvents.add(offerBondsEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(offerBondsEvent,
-				-1, MonthType.EVERY, DayType.EVERY, HourType.HOUR_12);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(offerBondsEvent, -1, MonthType.EVERY, DayType.EVERY,
+						HourType.HOUR_12);
 
 		double initialInterestRate = AgentFactory.getInstanceCentralBank(
 				primaryCurrency).getEffectiveKeyInterestRate() + 0.02;
@@ -126,7 +132,7 @@ public class State extends Agent {
 				if (bankAccount.getOwner() != this) {
 					this.primaryBank.transferMoney(transactionsBankAccount,
 							bankAccount, 5000,
-							this.bankPasswords.get(this.primaryBank),
+
 							"deficit spending");
 				}
 			}
@@ -178,10 +184,15 @@ public class State extends Agent {
 			MarketFactory.getInstance().removeAllSellingOffers(State.this,
 					State.this.primaryCurrency, FixedRateBond.class);
 
+			// bonds that have not been sold by definition have to be owned by
+			// this agent
 			for (Property property : PropertyRegister.getInstance()
 					.getProperties(State.this, FixedRateBond.class)) {
-				((FixedRateBond) property).deconstruct();
-				PropertyFactory.deleteProperty(property);
+				FixedRateBond bond = (FixedRateBond) property;
+
+				bond.deconstruct();
+				State.this.issuedBonds.remove(bond);
+				PropertyFactory.deleteProperty(bond);
 			}
 
 			/*
@@ -197,11 +208,9 @@ public class State extends Agent {
 			for (int i = 0; i < numberOfBondsToIsue; i++) {
 				FixedRateBond bond = PropertyFactory.newInstanceFixedRateBond(
 						State.this, State.this.primaryCurrency,
-						State.this.transactionsBankAccount,
-						State.this.bankPasswords
-								.get(State.this.transactionsBankAccount
-										.getManagingBank()), faceValuePerBond,
+						State.this.transactionsBankAccount, faceValuePerBond,
 						State.this.pricingBehaviour.getCurrentPrice());
+				State.this.issuedBonds.add(bond);
 			}
 
 			/*
@@ -233,16 +242,9 @@ public class State extends Agent {
 						.entrySet()) {
 					GoodType goodType = entry.getKey();
 					double maxAmount = entry.getValue();
-					MarketFactory.getInstance().buy(
-							goodType,
-							maxAmount,
-							Double.NaN,
-							Double.NaN,
-							State.this,
-							State.this.transactionsBankAccount,
-							State.this.bankPasswords
-									.get(State.this.transactionsBankAccount
-											.getManagingBank()));
+					MarketFactory.getInstance().buy(goodType, maxAmount,
+							Double.NaN, Double.NaN, State.this,
+							State.this.transactionsBankAccount);
 				}
 			}
 		}

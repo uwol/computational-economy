@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model.timeseries;
+package compecon.engine.statistics.model.timeseries;
 
 import org.jfree.data.time.Day;
 
-import compecon.engine.jmx.model.accumulator.PeriodDataAccumulator;
-import compecon.engine.time.TimeSystem;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.model.accumulator.PeriodDataAccumulator;
 
 public class PeriodDataQuotientTimeSeriesModel extends
 		AbstractPeriodDataSingleTimeSeriesModel {
@@ -49,8 +49,8 @@ public class PeriodDataQuotientTimeSeriesModel extends
 		double dividend = this.periodDataDividendModel.getAmount();
 		double divisor = this.periodDataDivisorModel.getAmount();
 
-		this.timeSeries.addOrUpdate(new Day(TimeSystem.getInstance()
-				.getCurrentDate()), dividend / divisor);
+		this.timeSeries.addOrUpdate(new Day(Simulation.getInstance()
+				.getTimeSystem().getCurrentDate()), dividend / divisor);
 
 		this.periodDataDividendModel.reset();
 		this.periodDataDivisorModel.reset();

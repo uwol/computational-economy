@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model.timeseries;
+package compecon.engine.statistics.model.timeseries;
 
 import java.util.HashMap;
 import java.util.Map;

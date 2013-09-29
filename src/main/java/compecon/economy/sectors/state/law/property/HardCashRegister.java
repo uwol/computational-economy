@@ -54,8 +54,8 @@ public class HardCashRegister {
 	public double increment(Agent agent, Currency currency, double amount) {
 		this.assureAgentHasBalances(agent);
 
-		if (amount <= 0)
-			throw new RuntimeException("amount is too small");
+		assert (amount > 0.0);
+
 		double oldBalance = this.getBalance(agent, currency);
 		double newBalance = oldBalance + amount;
 		this.balances.get(agent).put(currency, newBalance);
@@ -65,13 +65,11 @@ public class HardCashRegister {
 	public double decrement(Agent agent, Currency currency, double amount) {
 		this.assureAgentHasBalances(agent);
 
-		if (amount < 0)
-			throw new RuntimeException("amount is negative");
+		assert (amount >= 0.0);
 
 		double oldBalance = this.getBalance(agent, currency);
 
-		if (oldBalance < amount)
-			throw new RuntimeException("not enough cash, amount is too large");
+		assert (oldBalance >= amount);
 
 		double newBalance = oldBalance - amount;
 		this.balances.get(agent).put(currency, newBalance);

@@ -55,8 +55,7 @@ public class PropertyRegister {
 	 */
 
 	protected GoodTypeOwnership assureGoodTypeOwnership(Agent agent) {
-		if (agent == null)
-			throw new RuntimeException("agent is " + agent);
+		assert (agent != null);
 
 		GoodTypeOwnership goodTypeOwnership = DAOFactory
 				.getGoodTypeOwnershipDAO().findFirstByAgent(agent);
@@ -112,8 +111,7 @@ public class PropertyRegister {
 	 */
 	public double incrementGoodTypeAmount(Agent propertyOwner,
 			GoodType goodType, double amount) {
-		if (amount < 0)
-			throw new RuntimeException("amount is too small");
+		assert (amount >= 0.0);
 
 		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
 		double newBalance = goodTypeOwnership.getOwnedGoodTypes().get(goodType)
@@ -127,15 +125,12 @@ public class PropertyRegister {
 
 	public double decrementGoodTypeAmount(Agent propertyOwner,
 			GoodType goodType, double amount) {
-		if (amount < 0)
-			throw new RuntimeException("amount is negative");
+		assert (amount >= 0.0);
 
 		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
 		double oldBalance = goodTypeOwnership.getOwnedGoodTypes().get(goodType);
-		if (oldBalance < amount && !MathUtil.equal(oldBalance, amount))
-			throw new RuntimeException("not enough ressources of " + goodType
-					+ " to remove " + amount + " units, amount in balance is "
-					+ oldBalance);
+
+		assert (oldBalance >= amount || MathUtil.equal(oldBalance, amount));
 
 		double newBalance = Math.max(oldBalance - amount, 0);
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, newBalance);
@@ -165,8 +160,7 @@ public class PropertyRegister {
 	public void transferProperty(Agent oldOwner, Agent newOwner,
 			Property property) {
 		// consistency check
-		if (oldOwner != property.getOwner())
-			throw new RuntimeException("oldOwner is not correct");
+		assert (oldOwner == property.getOwner());
 
 		DAOFactory.getPropertyDAO().transferProperty(oldOwner, newOwner,
 				property);
@@ -183,12 +177,9 @@ public class PropertyRegister {
 			newOwnerHousehold = DAOFactory.getHouseholdDAO().findRandom();
 		}
 
-		if (newOwnerHousehold == oldOwner)
-			throw new RuntimeException("invalid state");
-
-		if (newOwnerHousehold != null && newOwnerHousehold.isDeconstructed())
-			throw new RuntimeException(
-					"invalid household selected as new owner");
+		assert (newOwnerHousehold != oldOwner);
+		assert (newOwnerHousehold == null || !newOwnerHousehold
+				.isDeconstructed());
 
 		// transfer all goods
 		if (newOwnerHousehold != null) {

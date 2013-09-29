@@ -44,20 +44,20 @@ public class CESFunction<T> extends AnalyticalConvexFunction<T> {
 			double substitutionFactor, double homogenityFactor) {
 		super(false);
 
-		if (!MathUtil.greater(mainCoefficient, 0.0))
-			throw new RuntimeException("mainCoefficient has to be > 0");
+		// mainCoefficient has to be > 0
+		assert (MathUtil.greater(mainCoefficient, 0.0));
 
-		if (substitutionFactor <= -1.0 || substitutionFactor >= 0.0)
-			throw new RuntimeException(
-					"interior exponent has to be in interval ]-1, 0[ for a convex maximization problem");
+		// interior exponent has to be in interval ]-1, 0[ for a convex
+		// maximization problem
+		assert (substitutionFactor > -1.0 && substitutionFactor < 0.0);
 
-		if (!MathUtil.greater(homogenityFactor, 0.0))
-			throw new RuntimeException("homogenityFactor has to be > 0");
+		// homogenityFactor has to be > 0
+		assert (MathUtil.greater(homogenityFactor, 0.0));
 
 		double exteriorExponent = -homogenityFactor / substitutionFactor;
-		if (exteriorExponent <= 0.0 || exteriorExponent >= 1.0)
-			throw new RuntimeException(
-					"exterior exponent has to be in interval ]0, 1[ for a convex function");
+
+		// exterior exponent has to be in interval ]0, 1[ for a convex function
+		assert (exteriorExponent > 0.0 && exteriorExponent < 1.0);
 
 		this.mainCoefficient = mainCoefficient;
 		this.coefficients = coefficients;

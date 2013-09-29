@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import compecon.Simulation;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
@@ -60,7 +59,7 @@ public class AgentFactory {
 		if (state == null) {
 			state = new State();
 			if (!ConfigurationUtil.DbConfig.getActivateDb())
-				state.setId(Simulation.getNextId());
+				state.setId(Simulation.getInstance().getNextId());
 
 			state.setUtilityFunction(InputOutputModel
 					.getUtilityFunctionForState());
@@ -79,7 +78,7 @@ public class AgentFactory {
 		if (centralBank == null) {
 			centralBank = new CentralBank();
 			if (!ConfigurationUtil.DbConfig.getActivateDb())
-				centralBank.setId(Simulation.getNextId());
+				centralBank.setId(Simulation.getInstance().getNextId());
 			centralBank.setPrimaryCurrency(currency);
 			DAOFactory.getCentralBankDAO().save(centralBank);
 			centralBank.initialize();
@@ -96,13 +95,12 @@ public class AgentFactory {
 
 	public static CreditBank newInstanceCreditBank(
 			Set<Currency> offeredCurrencies, Currency primaryCurrency) {
-		if (!offeredCurrencies.contains(primaryCurrency))
-			throw new RuntimeException("primaryCurrency " + primaryCurrency
-					+ " not contained in offeredCurrencies");
+
+		assert (offeredCurrencies.contains(primaryCurrency));
 
 		CreditBank creditBank = new CreditBank();
 		if (!ConfigurationUtil.DbConfig.getActivateDb())
-			creditBank.setId(Simulation.getNextId());
+			creditBank.setId(Simulation.getInstance().getNextId());
 		creditBank.setOfferedCurrencies(offeredCurrencies);
 		creditBank.setPrimaryCurrency(primaryCurrency);
 		DAOFactory.getCreditBankDAO().save(creditBank);
@@ -123,7 +121,7 @@ public class AgentFactory {
 			Currency primaryCurrency) {
 		Factory factory = new Factory();
 		if (!ConfigurationUtil.DbConfig.getActivateDb())
-			factory.setId(Simulation.getNextId());
+			factory.setId(Simulation.getInstance().getNextId());
 		factory.setProducedGoodType(goodType);
 		factory.setPrimaryCurrency(primaryCurrency);
 		factory.setReferenceCredit(ConfigurationUtil.FactoryConfig
@@ -146,7 +144,7 @@ public class AgentFactory {
 	public static Household newInstanceHousehold(Currency primaryCurrency) {
 		Household household = new Household();
 		if (!ConfigurationUtil.DbConfig.getActivateDb())
-			household.setId(Simulation.getNextId());
+			household.setId(Simulation.getInstance().getNextId());
 		household.setPrimaryCurrency(primaryCurrency);
 
 		household.setUtilityFunction(InputOutputModel
@@ -175,7 +173,7 @@ public class AgentFactory {
 	public static Trader newInstanceTrader(Currency primaryCurrency) {
 		Trader trader = new Trader();
 		if (!ConfigurationUtil.DbConfig.getActivateDb())
-			trader.setId(Simulation.getNextId());
+			trader.setId(Simulation.getInstance().getNextId());
 		trader.setPrimaryCurrency(primaryCurrency);
 		trader.setReferenceCredit(10000);
 

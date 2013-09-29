@@ -17,22 +17,11 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model.timeseries;
+package compecon.engine.statistics.jmx;
 
-import org.jfree.data.time.TimeSeries;
+import java.util.Date;
 
-public abstract class AbstractPeriodDataSingleTimeSeriesModel extends
-		AbstractPeriodDataTimeSeriesModel {
+public interface JmxTimeSystemModelMBean {
 
-	protected final TimeSeries timeSeries;
-
-	protected String titleSuffix;
-
-	public AbstractPeriodDataSingleTimeSeriesModel(String title) {
-		this.timeSeries = createTimeSeries(title);
-	}
-
-	public TimeSeries getTimeSeries() {
-		return this.timeSeries;
-	}
+	public Date getCurrentDate();
 }

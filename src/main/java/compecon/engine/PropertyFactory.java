@@ -31,12 +31,11 @@ import compecon.engine.util.HibernateUtil;
 
 public class PropertyFactory {
 	public static FixedRateBond newInstanceFixedRateBond(Agent owner,
-			Currency currency, BankAccount issuerBankAccount,
-			String issuerBankAccountPassword, double faceValue, double coupon) {
+			Currency currency, BankAccount issuerBankAccount, double faceValue,
+			double coupon) {
 		FixedRateBond fixedRateBond = new FixedRateBond();
 		fixedRateBond.setOwner(owner);
 		fixedRateBond.setIssuerBankAccount(issuerBankAccount);
-		fixedRateBond.setIssuerBankAccountPassword(issuerBankAccountPassword);
 		fixedRateBond.setFaceValue(faceValue);
 		fixedRateBond.setCoupon(coupon);
 		fixedRateBond.setIssuedInCurrency(currency);

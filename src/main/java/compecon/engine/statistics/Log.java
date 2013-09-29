@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx;
+package compecon.engine.statistics;
 
 import java.util.Date;
 import java.util.Map;
@@ -30,10 +30,9 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.engine.jmx.model.ModelRegistry;
-import compecon.engine.jmx.model.ModelRegistry.IncomeSource;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.model.ModelRegistry.IncomeSource;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 
@@ -64,7 +63,7 @@ public class Log {
 	// --------
 
 	public static void notifyTimeSystem_nextDay(Date date) {
-		ModelRegistry.nextPeriod();
+		Simulation.getInstance().getModelRegistry().nextPeriod();
 	}
 
 	// --------
@@ -83,36 +82,55 @@ public class Log {
 	public static void log(String message) {
 		if (agentCurrentlyActive != null
 				&& agentSelectedByClient == agentCurrentlyActive)
-			ModelRegistry.getAgentDetailModel().logAgentEvent(
-					TimeSystem.getInstance().getCurrentDate(), message);
+			Simulation
+					.getInstance()
+					.getModelRegistry()
+					.getAgentDetailModel()
+					.logAgentEvent(
+							Simulation.getInstance().getTimeSystem()
+									.getCurrentDate(), message);
 	}
 
 	public static void agent_onConstruct(Agent agent) {
-		ModelRegistry.getAgentDetailModel().agent_onConstruct(agent);
+		Simulation.getInstance().getModelRegistry().getAgentDetailModel()
+				.agent_onConstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " constructed");
-		ModelRegistry.getNumberOfAgentsModel(agent.getPrimaryCurrency())
+		Simulation.getInstance().getModelRegistry()
+				.getNumberOfAgentsModel(agent.getPrimaryCurrency())
 				.agent_onConstruct(agent.getClass());
 	}
 
 	public static void agent_onDeconstruct(Agent agent) {
-		ModelRegistry.getAgentDetailModel().agent_onDeconstruct(agent);
+		Simulation.getInstance().getModelRegistry().getAgentDetailModel()
+				.agent_onDeconstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " deconstructed");
-		ModelRegistry.getNumberOfAgentsModel(agent.getPrimaryCurrency())
+		Simulation.getInstance().getModelRegistry()
+				.getNumberOfAgentsModel(agent.getPrimaryCurrency())
 				.agent_onDeconstruct(agent.getClass());
+		if (agentCurrentlyActive == agent)
+			agentCurrentlyActive = null;
+		if (agentSelectedByClient == agent)
+			agentSelectedByClient = null;
 	}
 
 	public static void agent_onPublishBalanceSheet(Agent agent,
 			BalanceSheet balanceSheet) {
-		ModelRegistry.getBalanceSheetsModel(balanceSheet.referenceCurrency)
+		Simulation.getInstance().getModelRegistry()
+				.getBalanceSheetsModel(balanceSheet.referenceCurrency)
 				.agent_onPublishBalanceSheet(agent, balanceSheet);
 		if (!(agent instanceof Bank)) {
-			ModelRegistry.getMoneySupplyM0Model(balanceSheet.referenceCurrency)
+			Simulation.getInstance().getModelRegistry()
+					.getMoneySupplyM0Model(balanceSheet.referenceCurrency)
 					.add(balanceSheet.hardCash);
-			ModelRegistry.getMoneySupplyM1Model(balanceSheet.referenceCurrency)
+			Simulation.getInstance().getModelRegistry()
+					.getMoneySupplyM1Model(balanceSheet.referenceCurrency)
 					.add(balanceSheet.cashShortTerm + balanceSheet.hardCash);
-			ModelRegistry.getMoneySupplyM2Model(balanceSheet.referenceCurrency)
+			Simulation
+					.getInstance()
+					.getModelRegistry()
+					.getMoneySupplyM2Model(balanceSheet.referenceCurrency)
 					.add(balanceSheet.hardCash + balanceSheet.cashShortTerm
 							+ balanceSheet.cashLongTerm);
 		}
@@ -124,21 +142,31 @@ public class Log {
 			Currency currency, double income, double consumptionAmount,
 			double savingAmount, double wage, double dividend) {
 
-		ModelRegistry.getConsumptionModel(currency).add(consumptionAmount);
-		ModelRegistry.getIncomeModel(currency).add(income);
-		ModelRegistry.getConsumptionRateModel(currency).add(consumptionAmount,
-				income);
-		ModelRegistry.getConsumptionIncomeRatioModel(currency).add(
-				consumptionAmount, income);
-		ModelRegistry.getSavingModel(currency).add(savingAmount);
-		ModelRegistry.getSavingRateModel(currency).add(savingAmount, income);
-		ModelRegistry.getWageModel(currency).add(wage);
-		ModelRegistry.getDividendModel(currency).add(dividend);
-		ModelRegistry.getIncomeSourceModel(currency).add(IncomeSource.WAGE,
-				wage);
-		ModelRegistry.getIncomeSourceModel(currency).add(IncomeSource.DIVIDEND,
-				dividend);
-		ModelRegistry.getIncomeDistributionModel(currency).add(income);
+		Simulation.getInstance().getModelRegistry()
+				.getConsumptionModel(currency).add(consumptionAmount);
+		Simulation.getInstance().getModelRegistry().getIncomeModel(currency)
+				.add(income);
+		Simulation.getInstance().getModelRegistry()
+				.getConsumptionRateModel(currency)
+				.add(consumptionAmount, income);
+		Simulation.getInstance().getModelRegistry()
+				.getConsumptionIncomeRatioModel(currency)
+				.add(consumptionAmount, income);
+		Simulation.getInstance().getModelRegistry().getSavingModel(currency)
+				.add(savingAmount);
+		Simulation.getInstance().getModelRegistry()
+				.getSavingRateModel(currency).add(savingAmount, income);
+		Simulation.getInstance().getModelRegistry().getWageModel(currency)
+				.add(wage);
+		Simulation.getInstance().getModelRegistry().getDividendModel(currency)
+				.add(dividend);
+		Simulation.getInstance().getModelRegistry()
+				.getIncomeSourceModel(currency).add(IncomeSource.WAGE, wage);
+		Simulation.getInstance().getModelRegistry()
+				.getIncomeSourceModel(currency)
+				.add(IncomeSource.DIVIDEND, dividend);
+		Simulation.getInstance().getModelRegistry()
+				.getIncomeDistributionModel(currency).add(income);
 	}
 
 	public static void household_onUtility(Household household,
@@ -158,22 +186,30 @@ public class Log {
 
 			Log.log(household, log);
 		}
-		ModelRegistry.getUtilityModel(currency).getOutputModel().add(utility);
+		Simulation.getInstance().getModelRegistry().getUtilityModel(currency)
+				.getOutputModel().add(utility);
+		if (!Simulation.getInstance().getTimeSystem().isInitializationPhase()) {
+			Simulation.getInstance().getModelRegistry()
+					.getUtilityModel(currency).getTotalOutputModel()
+					.add(utility);
+		}
 		for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume.entrySet()) {
-			ModelRegistry.getUtilityModel(currency)
-					.getInputModel(entry.getKey()).add(entry.getValue());
+			Simulation.getInstance().getModelRegistry()
+					.getUtilityModel(currency).getInputModel(entry.getKey())
+					.add(entry.getValue());
 		}
 	}
 
 	public static void household_LabourHourCapacity(Currency currency,
 			double labourHourCapacity) {
-		ModelRegistry.getLabourHourCapacityModel(currency).add(
-				labourHourCapacity);
+		Simulation.getInstance().getModelRegistry()
+				.getLabourHourCapacityModel(currency).add(labourHourCapacity);
 	}
 
 	public static void household_onLabourHourExhaust(Currency currency,
 			double amount) {
-		ModelRegistry.getGoodTypeProductionModel(currency, GoodType.LABOURHOUR)
+		Simulation.getInstance().getModelRegistry()
+				.getGoodTypeProductionModel(currency, GoodType.LABOURHOUR)
 				.getOutputModel().add(amount);
 	}
 
@@ -181,10 +217,12 @@ public class Log {
 
 	public static void factory_onProduction(Factory factory, Currency currency,
 			GoodType outputGoodType, double output, Map<GoodType, Double> inputs) {
-		ModelRegistry.getGoodTypeProductionModel(currency, outputGoodType)
+		Simulation.getInstance().getModelRegistry()
+				.getGoodTypeProductionModel(currency, outputGoodType)
 				.getOutputModel().add(output);
 		for (Entry<GoodType, Double> input : inputs.entrySet()) {
-			ModelRegistry.getGoodTypeProductionModel(currency, outputGoodType)
+			Simulation.getInstance().getModelRegistry()
+					.getGoodTypeProductionModel(currency, outputGoodType)
 					.getInputModel(input.getKey()).add(input.getValue());
 		}
 	}
@@ -193,23 +231,37 @@ public class Log {
 
 	public static void bank_onTransfer(BankAccount from, BankAccount to,
 			Currency currency, double value, String subject) {
-		ModelRegistry.getMonetaryTransactionsModel(currency).bank_onTransfer(
-				from.getOwner().getClass(), to.getOwner().getClass(), currency,
-				value);
-		ModelRegistry.getMoneyCirculationModel(currency).add(value);
+		Simulation
+				.getInstance()
+				.getModelRegistry()
+				.getMonetaryTransactionsModel(currency)
+				.bank_onTransfer(from.getOwner().getClass(),
+						to.getOwner().getClass(), currency, value);
+		Simulation.getInstance().getModelRegistry()
+				.getMoneyCirculationModel(currency).add(value);
 		if (isAgentSelectedByClient(from.getOwner())) {
 			String message = " --- " + Currency.formatMoneySum(value) + " "
 					+ currency.getIso4217Code() + " ---> " + to + ": "
 					+ subject;
-			ModelRegistry.getAgentDetailModel().logBankAccountEvent(
-					TimeSystem.getInstance().getCurrentDate(), from, message);
+			Simulation
+					.getInstance()
+					.getModelRegistry()
+					.getAgentDetailModel()
+					.logBankAccountEvent(
+							Simulation.getInstance().getTimeSystem()
+									.getCurrentDate(), from, message);
 		}
 		if (isAgentSelectedByClient(to.getOwner())) {
 			String message = " <--- " + Currency.formatMoneySum(value) + " "
 					+ currency.getIso4217Code() + " --- " + from + ": "
 					+ subject;
-			ModelRegistry.getAgentDetailModel().logBankAccountEvent(
-					TimeSystem.getInstance().getCurrentDate(), to, message);
+			Simulation
+					.getInstance()
+					.getModelRegistry()
+					.getAgentDetailModel()
+					.logBankAccountEvent(
+							Simulation.getInstance().getTimeSystem()
+									.getCurrentDate(), to, message);
 		}
 	}
 
@@ -217,25 +269,31 @@ public class Log {
 
 	public static void centralBank_KeyInterestRate(Currency currency,
 			double keyInterestRate) {
-		ModelRegistry.getKeyInterestRateModel(currency).add(keyInterestRate);
+		Simulation.getInstance().getModelRegistry()
+				.getKeyInterestRateModel(currency).add(keyInterestRate);
 	}
 
 	public static void centralBank_PriceIndex(Currency currency,
 			double priceIndex) {
-		ModelRegistry.getPriceIndexModel(currency).add(priceIndex);
+		Simulation.getInstance().getModelRegistry()
+				.getPriceIndexModel(currency).add(priceIndex);
 	}
 
 	// --------
 
 	public static void market_onTick(double pricePerUnit, GoodType goodType,
 			Currency currency, double amount) {
-		ModelRegistry.getPricesModel(currency).market_onTick(pricePerUnit,
-				goodType, currency, amount);
+		Simulation.getInstance().getModelRegistry().getPricesModel(currency)
+				.market_onTick(pricePerUnit, goodType, currency, amount);
 	}
 
 	public static void market_onTick(double pricePerUnit,
 			Currency commodityCurrency, Currency currency, double amount) {
-		ModelRegistry.getPricesModel(currency).market_onTick(pricePerUnit,
-				commodityCurrency, currency, amount);
+		Simulation
+				.getInstance()
+				.getModelRegistry()
+				.getPricesModel(currency)
+				.market_onTick(pricePerUnit, commodityCurrency, currency,
+						amount);
 	}
 }

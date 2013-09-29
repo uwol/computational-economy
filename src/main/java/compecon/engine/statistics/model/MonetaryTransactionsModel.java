@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model;
+package compecon.engine.statistics.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.Map;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.AgentFactory;
-import compecon.engine.jmx.model.accumulator.PeriodDataAccumulator;
+import compecon.engine.statistics.model.accumulator.PeriodDataAccumulator;
 
 public class MonetaryTransactionsModel extends NotificationListenerModel {
 

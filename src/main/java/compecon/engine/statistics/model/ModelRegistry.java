@@ -17,18 +17,18 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model;
+package compecon.engine.statistics.model;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.jmx.model.ModelRegistry.NationalEconomyModel.GoodTypeProductionModel;
-import compecon.engine.jmx.model.ModelRegistry.NationalEconomyModel.UtilityModel;
-import compecon.engine.jmx.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
-import compecon.engine.jmx.model.timeseries.PeriodDataPercentageTimeSeriesModel;
-import compecon.engine.jmx.model.timeseries.PeriodDataQuotientTimeSeriesModel;
+import compecon.engine.statistics.model.ModelRegistry.NationalEconomyModel.GoodTypeProductionModel;
+import compecon.engine.statistics.model.ModelRegistry.NationalEconomyModel.UtilityModel;
+import compecon.engine.statistics.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
+import compecon.engine.statistics.model.timeseries.PeriodDataPercentageTimeSeriesModel;
+import compecon.engine.statistics.model.timeseries.PeriodDataQuotientTimeSeriesModel;
 import compecon.materia.GoodType;
 import compecon.materia.InputOutputModel;
 import compecon.math.production.IProductionFunction;
@@ -39,13 +39,13 @@ public class ModelRegistry {
 		WAGE, DIVIDEND
 	}
 
-	public static class NationalEconomyModel {
+	public class NationalEconomyModel {
 
 		/**
 		 * model for collecting statistics about production input and output of
 		 * factories
 		 */
-		public static class GoodTypeProductionModel {
+		public class GoodTypeProductionModel {
 			protected final Currency referenceCurrency;
 
 			protected final GoodType outputGoodType;
@@ -102,11 +102,18 @@ public class ModelRegistry {
 		/**
 		 * model for collecting statistics about utiltiy of households
 		 */
-		public static class UtilityModel {
+		public class UtilityModel {
 
 			protected final Currency referenceCurrency;
 
 			protected final PeriodDataAccumulatorTimeSeriesModel utilityOutputModel;
+
+			/**
+			 * total utility sum of all periods; measurement starts after
+			 * initialization phase; FIXME double overflow possible, group
+			 * statistical models that are filled after initialization phase
+			 */
+			protected final PeriodDataAccumulatorTimeSeriesModel totalUtilityOutputModel;
 
 			protected final Map<GoodType, PeriodDataAccumulatorTimeSeriesModel> utilityInputModels = new HashMap<GoodType, PeriodDataAccumulatorTimeSeriesModel>();
 
@@ -114,6 +121,8 @@ public class ModelRegistry {
 				this.referenceCurrency = referenceCurrency;
 				this.utilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
 						referenceCurrency.getIso4217Code() + " utility");
+				this.totalUtilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
+						referenceCurrency.getIso4217Code() + " total utility");
 				for (GoodType goodType : InputOutputModel
 						.getUtilityFunctionForHousehold().getInputGoodTypes()) {
 					this.utilityInputModels.put(goodType,
@@ -125,6 +134,10 @@ public class ModelRegistry {
 
 			public PeriodDataAccumulatorTimeSeriesModel getOutputModel() {
 				return this.utilityOutputModel;
+			}
+
+			public PeriodDataAccumulatorTimeSeriesModel getTotalOutputModel() {
+				return this.totalUtilityOutputModel;
 			}
 
 			public Set<GoodType> getInputGoodTypes() {
@@ -278,13 +291,13 @@ public class ModelRegistry {
 		}
 	}
 
-	protected final static ControlModel controlModel = new ControlModel();
+	protected final ControlModel controlModel = new ControlModel();
 
-	protected final static AgentDetailModel agentDetailModel = new AgentDetailModel();
+	protected final AgentDetailModel agentDetailModel = new AgentDetailModel();
 
-	protected final static Map<Currency, NationalEconomyModel> nationalEconomyModels = new HashMap<Currency, NationalEconomyModel>();
+	protected final Map<Currency, NationalEconomyModel> nationalEconomyModels = new HashMap<Currency, NationalEconomyModel>();
 
-	static {
+	public ModelRegistry() {
 		for (Currency currency : Currency.values())
 			nationalEconomyModels.put(currency, new NationalEconomyModel(
 					currency));
@@ -294,7 +307,7 @@ public class ModelRegistry {
 	 * next period
 	 */
 
-	public static void nextPeriod() {
+	public void nextPeriod() {
 		agentDetailModel.notifyListeners();
 
 		for (NationalEconomyModel nationalEconomyModel : nationalEconomyModels
@@ -307,128 +320,125 @@ public class ModelRegistry {
 	 * accessors
 	 */
 
-	public static AgentDetailModel getAgentDetailModel() {
+	public AgentDetailModel getAgentDetailModel() {
 		return agentDetailModel;
 	}
 
-	public static BalanceSheetsModel getBalanceSheetsModel(Currency currency) {
+	public BalanceSheetsModel getBalanceSheetsModel(Currency currency) {
 		return nationalEconomyModels.get(currency).balanceSheetsModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getLabourHourCapacityModel(
+	public PeriodDataAccumulatorTimeSeriesModel getLabourHourCapacityModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).labourHourCapacityModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getConsumptionModel(
+	public PeriodDataAccumulatorTimeSeriesModel getConsumptionModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).consumptionModel;
 	}
 
-	public static PeriodDataQuotientTimeSeriesModel getConsumptionRateModel(
+	public PeriodDataQuotientTimeSeriesModel getConsumptionRateModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).consumptionRateModel;
 	}
 
-	public static PeriodDataQuotientTimeSeriesModel getConsumptionIncomeRatioModel(
+	public PeriodDataQuotientTimeSeriesModel getConsumptionIncomeRatioModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).consumptionIncomeRatioModel;
 	}
 
-	public static ControlModel getControlModel() {
+	public ControlModel getControlModel() {
 		return controlModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getDividendModel(
+	public PeriodDataAccumulatorTimeSeriesModel getDividendModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).dividendModel;
 	}
 
-	public static GoodTypeProductionModel getGoodTypeProductionModel(
+	public GoodTypeProductionModel getGoodTypeProductionModel(
 			Currency currency, GoodType outputGoodType) {
 		return nationalEconomyModels.get(currency).goodTypeProductionModels
 				.get(outputGoodType);
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getIncomeModel(
-			Currency currency) {
+	public PeriodDataAccumulatorTimeSeriesModel getIncomeModel(Currency currency) {
 		return nationalEconomyModels.get(currency).incomeModel;
 	}
 
-	public static PeriodDataDistributionModel getIncomeDistributionModel(
+	public PeriodDataDistributionModel getIncomeDistributionModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).incomeDistributionModel;
 	}
 
-	public static PeriodDataPercentageTimeSeriesModel<IncomeSource> getIncomeSourceModel(
+	public PeriodDataPercentageTimeSeriesModel<IncomeSource> getIncomeSourceModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).incomeSourceModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getKeyInterestRateModel(
+	public PeriodDataAccumulatorTimeSeriesModel getKeyInterestRateModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).keyInterestRateModel;
 	}
 
-	public static MonetaryTransactionsModel getMonetaryTransactionsModel(
+	public MonetaryTransactionsModel getMonetaryTransactionsModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).monetaryTransactionsModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM0Model(
+	public PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM0Model(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).moneySupplyM0Model;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM1Model(
+	public PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM1Model(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).moneySupplyM1Model;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM2Model(
+	public PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM2Model(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).moneySupplyM2Model;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getMoneyCirculationModel(
+	public PeriodDataAccumulatorTimeSeriesModel getMoneyCirculationModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).moneyCirculationModel;
 	}
 
-	public static PeriodDataQuotientTimeSeriesModel getMoneyVelocityModel(
+	public PeriodDataQuotientTimeSeriesModel getMoneyVelocityModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).moneyVelocityModel;
 	}
 
-	public static UtilityModel getUtilityModel(Currency currency) {
+	public UtilityModel getUtilityModel(Currency currency) {
 		return nationalEconomyModels.get(currency).utilityModel;
 	}
 
-	public static NumberOfAgentsModel getNumberOfAgentsModel(Currency currency) {
+	public NumberOfAgentsModel getNumberOfAgentsModel(Currency currency) {
 		return nationalEconomyModels.get(currency).numberOfAgentsModel;
 	}
 
-	public static PricesModel getPricesModel(Currency currency) {
+	public PricesModel getPricesModel(Currency currency) {
 		return nationalEconomyModels.get(currency).pricesModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getPriceIndexModel(
+	public PeriodDataAccumulatorTimeSeriesModel getPriceIndexModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).priceIndexModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getSavingModel(
-			Currency currency) {
+	public PeriodDataAccumulatorTimeSeriesModel getSavingModel(Currency currency) {
 		return nationalEconomyModels.get(currency).savingModel;
 	}
 
-	public static PeriodDataQuotientTimeSeriesModel getSavingRateModel(
+	public PeriodDataQuotientTimeSeriesModel getSavingRateModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).savingRateModel;
 	}
 
-	public static PeriodDataAccumulatorTimeSeriesModel getWageModel(
-			Currency currency) {
+	public PeriodDataAccumulatorTimeSeriesModel getWageModel(Currency currency) {
 		return nationalEconomyModels.get(currency).wageModel;
 	}
 

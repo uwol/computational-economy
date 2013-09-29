@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
@@ -43,7 +43,6 @@ import compecon.engine.util.HibernateUtil;
  * pattern).
  */
 public class TimeSystem {
-	private static TimeSystem timeSystem;
 
 	private final int startYear;
 
@@ -62,17 +61,11 @@ public class TimeSystem {
 
 	private List<ITimeSystemEvent> externalEvents = new ArrayList<ITimeSystemEvent>();
 
-	protected TimeSystem(int year) {
+	public TimeSystem(int year) {
 		gregorianCalendar = new GregorianCalendar(year,
 				MonthType.JANUARY.getMonthNumber(),
 				DayType.DAY_01.getDayNumber());
 		startYear = year;
-	}
-
-	public static TimeSystem getInstance() {
-		if (TimeSystem.timeSystem == null)
-			timeSystem = new TimeSystem(2000);
-		return timeSystem;
 	}
 
 	public Date getCurrentDate() {
@@ -182,7 +175,7 @@ public class TimeSystem {
 		this.gregorianCalendar.add(GregorianCalendar.HOUR_OF_DAY, 1);
 		if (HourType.getHourType(this.gregorianCalendar
 				.get(GregorianCalendar.HOUR_OF_DAY)) == HourType.HOUR_00) {
-			Log.notifyTimeSystem_nextDay(timeSystem.getCurrentDate());
+			Log.notifyTimeSystem_nextDay(getCurrentDate());
 			this.dayNumber++;
 		}
 		this.triggerEvents();

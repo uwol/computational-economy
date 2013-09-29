@@ -36,7 +36,7 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.engine.MarketOrderFactory;
 import compecon.engine.dao.DAOFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.engine.util.HibernateUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
@@ -146,12 +146,12 @@ public abstract class Market {
 			final GoodType goodType, Currency commodityCurrency,
 			final Class<? extends Property> propertyClass) {
 
-		if (MathUtil.lesser(maxAmount, 0.0))
-			throw new RuntimeException("maxAmount is " + maxAmount);
-		if (MathUtil.lesser(maxTotalPrice, 0.0))
-			throw new RuntimeException("maxTotalPrice is " + maxTotalPrice);
-		if (MathUtil.lesser(maxPricePerUnit, 0.0))
-			throw new RuntimeException("maxPricePerUnit is " + maxPricePerUnit);
+		assert (MathUtil.greaterEqual(maxAmount, 0.0) || Double
+				.isNaN(maxAmount));
+		assert (MathUtil.greaterEqual(maxTotalPrice, 0.0) || Double
+				.isNaN(maxTotalPrice));
+		assert (MathUtil.greaterEqual(maxPricePerUnit, 0.0) || Double
+				.isNaN(maxPricePerUnit));
 
 		// MarketOrder, Amount
 		SortedMap<MarketOrder, Double> selectedOffers = new TreeMap<MarketOrder, Double>();
@@ -199,15 +199,11 @@ public abstract class Market {
 				break;
 
 			// is the amount correct?
-			if (marketOrder.getAmount() <= 0)
-				throw new RuntimeException("amount of offer is "
-						+ marketOrder.getAmount());
+			assert (marketOrder.getAmount() > 0);
 
 			// is the currency correct?
-			if (marketOrder.getOfferorsBankAcount().getCurrency() != denominatedInCurrency) {
-				throw new RuntimeException("wrong currency "
-						+ denominatedInCurrency);
-			}
+			assert (marketOrder.getOfferorsBankAcount().getCurrency()
+					.equals(denominatedInCurrency));
 
 			double amountToTakeByMaxAmountRestriction;
 			double amountToTakeByTotalPriceRestriction;
@@ -251,25 +247,20 @@ public abstract class Market {
 
 			double totalPrice = amountToTake * marketOrder.getPricePerUnit();
 
+			assert (!Double.isNaN(amountToTake) && !Double
+					.isInfinite(amountToTake));
+
 			if (amountToTake == 0) {
 				break;
-			} else if (Double.isNaN(amountToTake)
-					|| Double.isInfinite(amountToTake)) {
-				throw new RuntimeException("amount to take is " + amountToTake);
 			} else {
 				selectedOffers.put(marketOrder, amountToTake);
 				selectedAmount += amountToTake;
 				spentMoney += totalPrice;
 
-				if (spentMoney != 0 && restrictTotalPrice
-						&& (MathUtil.greater(spentMoney, maxTotalPrice)))
-					throw new RuntimeException(
-							"Market calculated incorrect amount: spent too much money");
-				if (restrictMaxAmount
-						&& !MathUtil.equal(selectedAmount, maxAmount)
-						&& (selectedAmount > maxAmount))
-					throw new RuntimeException(
-							"Market calculated incorrect amount: selected too much units");
+				assert (!(spentMoney != 0 && restrictTotalPrice && (MathUtil
+						.greater(spentMoney, maxTotalPrice))));
+				assert (!(restrictMaxAmount
+						&& !MathUtil.equal(selectedAmount, maxAmount) && (selectedAmount > maxAmount)));
 			}
 		}
 		return selectedOffers;
@@ -314,8 +305,8 @@ public abstract class Market {
 			return Double.NaN;
 
 		// case 3: regular case
-		if (!MathUtil.equal(atAmount, totalAmountSum))
-			throw new RuntimeException();
+		assert (MathUtil.equal(atAmount, totalAmountSum));
+
 		return totalPriceSum / atAmount;
 	}
 
@@ -493,69 +484,54 @@ public abstract class Market {
 	 */
 	public void placeSellingOffer(GoodType goodType, Agent offeror,
 			BankAccount offerorsBankAcount, double amount, double pricePerUnit) {
-		if (goodType != null && !Double.isNaN(amount)
-				&& !Double.isNaN(pricePerUnit) && amount > 0) {
-			MarketOrderFactory.newInstanceGoodTypeMarketOrder(goodType,
-					offeror, offerorsBankAcount, amount, pricePerUnit);
-			if (Log.isAgentSelectedByClient(offeror))
-				Log.log(offeror,
-						"offering "
-								+ MathUtil.round(amount)
-								+ " units of "
-								+ goodType
-								+ " for "
-								+ Currency.formatMoneySum(pricePerUnit)
-								+ " "
-								+ offerorsBankAcount.getCurrency()
-										.getIso4217Code() + " per unit");
-		} else
-			throw new RuntimeException("error placing selling offer");
+
+		assert (goodType != null && !Double.isNaN(amount)
+				&& !Double.isNaN(pricePerUnit) && amount > 0);
+
+		MarketOrderFactory.newInstanceGoodTypeMarketOrder(goodType, offeror,
+				offerorsBankAcount, amount, pricePerUnit);
+		if (Log.isAgentSelectedByClient(offeror))
+			Log.log(offeror,
+					"offering " + MathUtil.round(amount) + " units of "
+							+ goodType + " for "
+							+ Currency.formatMoneySum(pricePerUnit) + " "
+							+ offerorsBankAcount.getCurrency().getIso4217Code()
+							+ " per unit");
 	}
 
 	public void placeSellingOffer(Currency commodityCurrency, Agent offeror,
 			BankAccount offerorsBankAcount, double amount, double pricePerUnit,
-			BankAccount commodityCurrencyOfferorsBankAcount,
-			String commodityCurrencyOfferorsBankAcountPassword) {
-		if (commodityCurrency != null && !Double.isNaN(amount)
-				&& !Double.isNaN(pricePerUnit) && amount > 0
-				&& commodityCurrencyOfferorsBankAcountPassword != null) {
-			commodityCurrencyOfferorsBankAcount.getManagingBank()
-					.assertPasswordOk(offeror,
-							commodityCurrencyOfferorsBankAcountPassword);
+			BankAccount commodityCurrencyOfferorsBankAcount) {
 
-			MarketOrderFactory.newInstanceCurrencyMarketOrder(
-					commodityCurrency, offeror, offerorsBankAcount, amount,
-					pricePerUnit, commodityCurrencyOfferorsBankAcount,
-					commodityCurrencyOfferorsBankAcountPassword);
-			if (Log.isAgentSelectedByClient(offeror))
-				Log.log(offeror,
-						"offering "
-								+ MathUtil.round(amount)
-								+ " units of "
-								+ commodityCurrency
-								+ " for "
-								+ Currency.formatMoneySum(pricePerUnit)
-								+ " "
-								+ offerorsBankAcount.getCurrency()
-										.getIso4217Code() + " per unit");
-		} else
-			throw new RuntimeException("error placing selling offer");
+		assert (commodityCurrency != null && !Double.isNaN(amount)
+				&& !Double.isNaN(pricePerUnit) && amount > 0);
+
+		MarketOrderFactory.newInstanceCurrencyMarketOrder(commodityCurrency,
+				offeror, offerorsBankAcount, amount, pricePerUnit,
+				commodityCurrencyOfferorsBankAcount);
+		if (Log.isAgentSelectedByClient(offeror))
+			Log.log(offeror,
+					"offering " + MathUtil.round(amount) + " units of "
+							+ commodityCurrency + " for "
+							+ Currency.formatMoneySum(pricePerUnit) + " "
+							+ offerorsBankAcount.getCurrency().getIso4217Code()
+							+ " per unit");
 	}
 
 	public void placeSellingOffer(Property property, Agent offeror,
 			BankAccount offerorsBankAcount, double pricePerUnit) {
-		if (property != null && !Double.isNaN(pricePerUnit)) {
-			MarketOrderFactory.newInstancePropertyMarketOrder(property,
-					offeror, offerorsBankAcount, pricePerUnit);
 
-			if (Log.isAgentSelectedByClient(offeror))
-				Log.log(offeror, "offering 1 unit of "
-						+ property.getClass().getSimpleName() + " for "
-						+ Currency.formatMoneySum(pricePerUnit) + " "
-						+ offerorsBankAcount.getCurrency().getIso4217Code()
-						+ " per unit");
-		} else
-			throw new RuntimeException("error placing selling offer");
+		assert (property != null && !Double.isNaN(pricePerUnit));
+
+		MarketOrderFactory.newInstancePropertyMarketOrder(property, offeror,
+				offerorsBankAcount, pricePerUnit);
+		if (Log.isAgentSelectedByClient(offeror))
+			Log.log(offeror,
+					"offering 1 unit of " + property.getClass().getSimpleName()
+							+ " for " + Currency.formatMoneySum(pricePerUnit)
+							+ " "
+							+ offerorsBankAcount.getCurrency().getIso4217Code()
+							+ " per unit");
 	}
 
 	/*

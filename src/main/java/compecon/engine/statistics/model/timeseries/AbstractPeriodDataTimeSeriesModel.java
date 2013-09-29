@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model.timeseries;
+package compecon.engine.statistics.model.timeseries;
 
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 
-import compecon.engine.time.TimeSystem;
+import compecon.engine.Simulation;
 
 public abstract class AbstractPeriodDataTimeSeriesModel {
 
@@ -31,7 +31,8 @@ public abstract class AbstractPeriodDataTimeSeriesModel {
 	protected TimeSeries createTimeSeries(String title) {
 		TimeSeries timeSeries = new TimeSeries(title, Day.class);
 		timeSeries.setMaximumItemAge(this.NUMBER_OF_DAYS);
-		timeSeries.add(new Day(TimeSystem.getInstance().getCurrentDate()), 0);
+		timeSeries.add(new Day(Simulation.getInstance().getTimeSystem()
+				.getCurrentDate()), 0);
 		return timeSeries;
 	}
 

@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model;
+package compecon.engine.statistics.model;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,7 +33,7 @@ import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.engine.dao.DAOFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.materia.GoodType;
 
 public class AgentDetailModel extends NotificationListenerModel {

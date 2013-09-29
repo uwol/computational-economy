@@ -60,7 +60,6 @@ public class BankTest extends CompEconTestSupport {
 		for (int i = 1; i < 1000; i++) {
 			source.transferMoney(household1_EUR.getTransactionsBankAccount(),
 					household2_EUR.getTransactionsBankAccount(), 10,
-					household1_EUR.getBankPasswords().get(source),
 					"Transaction" + i);
 			assertEquals(-10.0 * i, household1_EUR.getTransactionsBankAccount()
 					.getBalance(), epsilon);

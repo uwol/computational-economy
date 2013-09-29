@@ -37,10 +37,10 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultHighLowDataset;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.jmx.model.ModelRegistry;
-import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
-import compecon.engine.jmx.model.PricesModel;
-import compecon.engine.jmx.model.PricesModel.PriceModel;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.model.PricesModel;
+import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
+import compecon.engine.statistics.model.PricesModel.PriceModel;
 import compecon.materia.GoodType;
 
 public class PricesPanel extends AbstractChartsPanel implements IModelListener {
@@ -64,7 +64,8 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 			this.panelsForCurrencies.put(currency, panelForPricesInCurrency);
 			jTabbedPane_Prices.addTab(currency.getIso4217Code(),
 					panelForPricesInCurrency);
-			ModelRegistry.getPricesModel(currency).registerListener(this);
+			Simulation.getInstance().getModelRegistry()
+					.getPricesModel(currency).registerListener(this);
 		}
 
 		jTabbedPane_Prices.addChangeListener(new ChangeListener() {
@@ -155,7 +156,8 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 
 	public DefaultHighLowDataset getDefaultHighLowDataset(Currency currency,
 			GoodType goodType) {
-		PricesModel pricesModel = ModelRegistry.getPricesModel(currency);
+		PricesModel pricesModel = Simulation.getInstance().getModelRegistry()
+				.getPricesModel(currency);
 		if (pricesModel.getPriceModelsForGoodTypes().containsKey(currency)) {
 			Map<GoodType, PriceModel> priceModelsForGoodType = pricesModel
 					.getPriceModelsForGoodTypes().get(currency);
@@ -171,7 +173,8 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 
 	public DefaultHighLowDataset getDefaultHighLowDataset(Currency currency,
 			Currency commodityCurrency) {
-		PricesModel pricesModel = ModelRegistry.getPricesModel(currency);
+		PricesModel pricesModel = Simulation.getInstance().getModelRegistry()
+				.getPricesModel(currency);
 		if (pricesModel.getPriceModelsForCurrencies().containsKey(currency)) {
 			Map<Currency, PriceModel> priceModelsForCurrencies = pricesModel
 					.getPriceModelsForCurrencies().get(currency);

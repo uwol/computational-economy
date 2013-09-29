@@ -36,9 +36,9 @@ import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.AgentFactory;
-import compecon.engine.jmx.model.ModelRegistry;
-import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
-import compecon.engine.jmx.model.accumulator.PeriodDataAccumulator;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
+import compecon.engine.statistics.model.accumulator.PeriodDataAccumulator;
 import compecon.materia.GoodType;
 
 public class NationalAccountsPanel extends JPanel {
@@ -76,7 +76,8 @@ public class NationalAccountsPanel extends JPanel {
 
 		public NationalAccountsTableModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
-			ModelRegistry.getBalanceSheetsModel(referenceCurrency)
+			Simulation.getInstance().getModelRegistry()
+					.getBalanceSheetsModel(referenceCurrency)
 					.registerListener(this);
 
 			this.activePositionNames = new String[STARTPOSITION_GOODTYPES
@@ -175,7 +176,8 @@ public class NationalAccountsPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			Map<Class<? extends Agent>, BalanceSheet> balanceSheetsForAgentTypes = ModelRegistry
+			Map<Class<? extends Agent>, BalanceSheet> balanceSheetsForAgentTypes = Simulation
+					.getInstance().getModelRegistry()
 					.getBalanceSheetsModel(referenceCurrency)
 					.getNationalAccountsBalanceSheets();
 
@@ -250,7 +252,8 @@ public class NationalAccountsPanel extends JPanel {
 
 		public MonetaryTransactionsTableModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
-			ModelRegistry.getMonetaryTransactionsModel(referenceCurrency)
+			Simulation.getInstance().getModelRegistry()
+					.getMonetaryTransactionsModel(referenceCurrency)
 					.registerListener(this);
 		}
 
@@ -279,7 +282,8 @@ public class NationalAccountsPanel extends JPanel {
 		@Override
 		public void notifyListener() {
 			// source data model
-			Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrixForCurrency = ModelRegistry
+			Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrixForCurrency = Simulation
+					.getInstance().getModelRegistry()
 					.getMonetaryTransactionsModel(referenceCurrency)
 					.getAdjacencyMatrix();
 

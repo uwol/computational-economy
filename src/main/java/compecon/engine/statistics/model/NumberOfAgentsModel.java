@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model;
+package compecon.engine.statistics.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +29,8 @@ import org.jfree.data.time.TimeSeries;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.AgentFactory;
-import compecon.engine.jmx.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
-import compecon.engine.time.TimeSystem;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 
 public class NumberOfAgentsModel extends NotificationListenerModel {
 
@@ -89,8 +89,8 @@ public class NumberOfAgentsModel extends NotificationListenerModel {
 					.get(entry.getKey())
 					.getTimeSeries()
 					.addOrUpdate(
-							new Day(TimeSystem.getInstance().getCurrentDate()),
-							entry.getValue());
+							new Day(Simulation.getInstance().getTimeSystem()
+									.getCurrentDate()), entry.getValue());
 		}
 	}
 }

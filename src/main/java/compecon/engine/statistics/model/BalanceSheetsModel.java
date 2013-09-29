@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model;
+package compecon.engine.statistics.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,9 +57,9 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 
 	public void agent_onPublishBalanceSheet(Agent agent,
 			BalanceSheet balanceSheet) {
-		if (!referenceCurrency.equals(agent.getPrimaryCurrency())
-				|| !referenceCurrency.equals(balanceSheet.referenceCurrency))
-			throw new RuntimeException("mismatching currencies");
+
+		assert (referenceCurrency.equals(agent.getPrimaryCurrency()) && referenceCurrency
+				.equals(balanceSheet.referenceCurrency));
 
 		if (agent instanceof Household)
 			this.householdBalanceSheets.put((Household) agent, balanceSheet);

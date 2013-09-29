@@ -29,8 +29,8 @@ import javax.swing.table.AbstractTableModel;
 
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.engine.jmx.model.ModelRegistry;
-import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 
 public class BalanceSheetPanel extends JPanel {
 
@@ -66,7 +66,8 @@ public class BalanceSheetPanel extends JPanel {
 
 		public BalanceSheetTableModel(Currency referenceCurrency) {
 			this.referenceCurrency = referenceCurrency;
-			ModelRegistry.getBalanceSheetsModel(referenceCurrency)
+			Simulation.getInstance().getModelRegistry()
+					.getBalanceSheetsModel(referenceCurrency)
 					.registerListener(this);
 
 			this.activePositionNames = new String[8];

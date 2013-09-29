@@ -35,8 +35,8 @@ import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.engine.Simulation;
 import compecon.engine.dashboard.panel.BalanceSheetPanel.BalanceSheetTableModel;
-import compecon.engine.jmx.model.ModelRegistry;
 import compecon.materia.GoodType;
 import compecon.materia.GoodType.Sector;
 import compecon.materia.InputOutputModel;
@@ -113,12 +113,16 @@ public class IndustryPanel extends AbstractChartsPanel {
 			GoodType outputGoodType) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(ModelRegistry
+		timeSeriesCollection.addSeries(Simulation.getInstance()
+				.getModelRegistry()
 				.getGoodTypeProductionModel(currency, outputGoodType)
 				.getOutputModel().getTimeSeries());
-		for (GoodType inputGoodType : ModelRegistry.getGoodTypeProductionModel(
-				currency, outputGoodType).getInputGoodTypes()) {
-			timeSeriesCollection.addSeries(ModelRegistry
+		for (GoodType inputGoodType : Simulation.getInstance()
+				.getModelRegistry()
+				.getGoodTypeProductionModel(currency, outputGoodType)
+				.getInputGoodTypes()) {
+			timeSeriesCollection.addSeries(Simulation.getInstance()
+					.getModelRegistry()
 					.getGoodTypeProductionModel(currency, outputGoodType)
 					.getInputModel(inputGoodType).getTimeSeries());
 		}
@@ -139,7 +143,8 @@ public class IndustryPanel extends AbstractChartsPanel {
 				currency) {
 			@Override
 			protected BalanceSheet getModelData() {
-				return ModelRegistry.getBalanceSheetsModel(referenceCurrency)
+				return Simulation.getInstance().getModelRegistry()
+						.getBalanceSheetsModel(referenceCurrency)
 						.getFactoryNationalAccountsBalanceSheet(goodType);
 			}
 		};

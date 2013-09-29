@@ -34,10 +34,10 @@ import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.security.debt.Bond;
 import compecon.economy.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.MarketFactory;
+import compecon.engine.Simulation;
 import compecon.engine.dao.DAOFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
@@ -70,40 +70,54 @@ public class CentralBank extends Bank {
 		// calculate interest
 		ITimeSystemEvent interestCalculationEvent = new DailyInterestCalculationEvent();
 		this.timeSystemEvents.add(interestCalculationEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				interestCalculationEvent, -1, MonthType.EVERY, DayType.EVERY,
-				HourType.HOUR_01);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(interestCalculationEvent, -1, MonthType.EVERY,
+						DayType.EVERY, HourType.HOUR_01);
 
 		// take snapshots of marginal prices multiple times a day
 		// -> market situation differs over the day !!!
 		ITimeSystemEvent recalculateAveragePriceIndexEvent = new MarginalPriceSnapshotEvent();
 		this.timeSystemEvents.add(recalculateAveragePriceIndexEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				recalculateAveragePriceIndexEvent, -1, MonthType.EVERY,
-				DayType.EVERY, HourType.HOUR_03);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				recalculateAveragePriceIndexEvent, -1, MonthType.EVERY,
-				DayType.EVERY, HourType.HOUR_09);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				recalculateAveragePriceIndexEvent, -1, MonthType.EVERY,
-				DayType.EVERY, HourType.HOUR_15);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				recalculateAveragePriceIndexEvent, -1, MonthType.EVERY,
-				DayType.EVERY, HourType.HOUR_21);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(recalculateAveragePriceIndexEvent, -1,
+						MonthType.EVERY, DayType.EVERY, HourType.HOUR_03);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(recalculateAveragePriceIndexEvent, -1,
+						MonthType.EVERY, DayType.EVERY, HourType.HOUR_09);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(recalculateAveragePriceIndexEvent, -1,
+						MonthType.EVERY, DayType.EVERY, HourType.HOUR_15);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(recalculateAveragePriceIndexEvent, -1,
+						MonthType.EVERY, DayType.EVERY, HourType.HOUR_21);
 
 		// recalculate key interest rate every day
 		ITimeSystemEvent keyInterestRateCalculationEvent = new KeyInterestRateCalculationEvent();
 		this.timeSystemEvents.add(keyInterestRateCalculationEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				keyInterestRateCalculationEvent, -1, MonthType.EVERY,
-				DayType.EVERY, HourType.HOUR_01);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(keyInterestRateCalculationEvent, -1, MonthType.EVERY,
+						DayType.EVERY, HourType.HOUR_01);
 
 		// balance sheet publication
 		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
 		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				balanceSheetPublicationEvent, -1, MonthType.EVERY,
-				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
+						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		// count number of snapshots that are taken per day
 		int numberOfSnapshotsPerDay = 0;
@@ -156,17 +170,14 @@ public class CentralBank extends Bank {
 			 * own bank account
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency,
-					this.bankPasswords.get(this.primaryBank),
-					"transactions account", BankAccountType.GIRO);
+					this, this.primaryCurrency, "transactions account",
+					BankAccountType.GIRO);
 		}
 	}
 
 	@Transient
 	protected void assertCurrencyIsOffered(Currency currency) {
-		if (this.primaryCurrency != currency)
-			throw new RuntimeException(currency
-					+ " are not offered at this bank");
+		assert (this.primaryCurrency == currency);
 	}
 
 	/*
@@ -175,56 +186,44 @@ public class CentralBank extends Bank {
 
 	@Transient
 	public void transferMoney(BankAccount from, BankAccount to, double amount,
-			String password, String subject) {
-		this.transferMoney(from, to, amount, password, subject, false);
+			String subject) {
+		this.transferMoney(from, to, amount, subject, false);
 	}
 
 	@Transient
 	protected void transferMoney(BankAccount from, BankAccount to,
-			double amount, String password, String subject,
-			boolean negativeAmountOK) {
+			double amount, String subject, boolean negativeAmountOK) {
 
-		if (!negativeAmountOK && amount < 0)
-			throw new RuntimeException("amount must be larger than 0");
-
-		if (from == to)
-			throw new RuntimeException("the bank accounts are identical");
+		assert (amount >= 0.0 || negativeAmountOK);
+		assert (from != to);
 
 		if (from.getManagingBank() instanceof CentralBank
 				&& to.getManagingBank() instanceof CentralBank) {
 			Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
-			this.transferMoneyInternally(from, to, amount, password);
+			this.transferMoneyInternally(from, to, amount);
 		} else if (from.getManagingBank() instanceof CreditBank
 				&& to.getManagingBank() instanceof CentralBank)
 			this.transferMoneyFromCreditBankAccountToCentralBankAccount(from,
-					to, amount, password);
+					to, amount);
 		else if (from.getManagingBank() instanceof CentralBank
 				&& to.getManagingBank() instanceof CreditBank) {
 			Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
 			this.transferMoneyFromCentralBankAccountToCreditBankAccount(from,
-					to, amount, password);
+					to, amount);
 		} else
 			throw new RuntimeException("uncovered case");
 	}
 
 	@Transient
 	private void transferMoneyInternally(BankAccount from, BankAccount to,
-			double amount, String password) {
-		this.assertPasswordOk(from.getOwner(), password);
+			double amount) {
 		this.assertBankAccountIsManagedByThisBank(from);
 		this.assertBankAccountIsManagedByThisBank(to);
 
-		if (amount < 0)
-			throw new RuntimeException("amount must be larger than 0");
-
-		if (from.getCurrency() != to.getCurrency())
-			throw new RuntimeException(
-					"both bank accounts must have the same currency");
-
+		assert (amount >= 0);
+		assert (from.getCurrency().equals(to.getCurrency()));
 		// unusual at the central bank
-		if (from.getBalance() - amount < 0 && !from.getOverdraftPossible())
-			throw new RuntimeException(
-					"amount is too high and bank account cannot be overdraft");
+		assert (from.getBalance() - amount >= 0 || from.getOverdraftPossible());
 
 		// transfer money internally
 		from.withdraw(amount);
@@ -233,28 +232,20 @@ public class CentralBank extends Bank {
 
 	@Transient
 	private void transferMoneyFromCentralBankAccountToCreditBankAccount(
-			BankAccount from, BankAccount to, double amount, String password) {
+			BankAccount from, BankAccount to, double amount) {
 		/*
 		 * Checks
 		 */
-		this.assertPasswordOk(from.getOwner(), password);
 		this.assertBankAccountIsManagedByThisBank(from);
 
-		if (amount < 0)
-			throw new RuntimeException("amount must be larger than 0");
-
-		if (from.getCurrency() != to.getCurrency())
-			throw new RuntimeException(
-					"both bank accounts must have the same currency");
+		assert (amount >= 0.0);
+		assert (from.getCurrency().equals(to.getCurrency()));
 
 		// unusual at the central bank
-		if (from.getBalance() - amount < 0 && !from.getOverdraftPossible())
-			throw new RuntimeException(
-					"amount is too high and bank account cannot be overdraft");
+		assert (from.getBalance() - amount >= 0.0 || from
+				.getOverdraftPossible());
 
-		if (!(to.getManagingBank() instanceof CreditBank))
-			throw new RuntimeException(
-					"managing bank of target bank account is not a credit bank");
+		assert (to.getManagingBank() instanceof CreditBank);
 
 		/*
 		 * Transaction
@@ -262,52 +253,38 @@ public class CentralBank extends Bank {
 		CreditBank creditBank = (CreditBank) to.getManagingBank();
 		from.withdraw(amount);
 		creditBank.assureCentralBankAccount();
-		creditBank.deposit(this, this.customerPasswords.get(creditBank), to,
-				amount);
+		creditBank.deposit(this, to, amount);
 	}
 
 	@Transient
 	private void transferMoneyFromCreditBankAccountToCentralBankAccount(
-			BankAccount from, BankAccount to, double amount, String password) {
+			BankAccount from, BankAccount to, double amount) {
 		/*
 		 * Checks
 		 */
 		this.assertBankAccountIsManagedByThisBank(to);
 
-		if (amount < 0)
-			throw new RuntimeException("amount must be larger than 0");
-
-		if (from.getCurrency() != to.getCurrency())
-			throw new RuntimeException(
-					"both bank accounts must have the same currency");
-
+		assert (amount >= 0);
+		assert (from.getCurrency().equals(to.getCurrency()));
 		// unusual at the central bank
-		if (from.getBalance() - amount < 0 && !from.getOverdraftPossible())
-			throw new RuntimeException(
-					"amount is too high and bank account cannot be overdraft");
-
-		if (!(from.getManagingBank() instanceof CreditBank))
-			throw new RuntimeException(
-					"managing bank of source bank account is not a credit bank");
+		assert (from.getBalance() - amount >= 0 || from.getOverdraftPossible());
+		assert (from.getManagingBank() instanceof CreditBank);
 
 		/*
 		 * Transaction
 		 */
 		CreditBank creditBank = (CreditBank) from.getManagingBank();
-		creditBank.withdraw(this, this.customerPasswords.get(creditBank), from,
-				amount);
+		creditBank.withdraw(this, from, amount);
 		to.deposit(amount);
 	}
 
 	@Transient
-	public void obtainTender(CreditBank creditBank, List<FixedRateBond> bonds,
-			String password) {
-		this.assertPasswordOk(creditBank, password);
+	public void obtainTender(CreditBank creditBank, List<FixedRateBond> bonds) {
 		this.assertIsCustomerOfThisBank(creditBank);
 
 		for (Bond bond : bonds) {
-			BankAccount bankAccount = this.getBankAccounts(creditBank,
-					this.customerPasswords.get(creditBank)).get(0);
+			BankAccount bankAccount = DAOFactory.getBankAccountDAO()
+					.findAll(this, creditBank).get(0);
 			bankAccount.deposit(bond.getFaceValue());
 			if (Log.isAgentSelectedByClient(creditBank))
 				Log.log(creditBank,
@@ -334,8 +311,9 @@ public class CentralBank extends Bank {
 
 	@Transient
 	protected double calculateTargetPriceIndexForPeriod() {
-		int yearNumber = TimeSystem.getInstance().getCurrentYear()
-				- TimeSystem.getInstance().getStartYear();
+		int yearNumber = Simulation.getInstance().getTimeSystem()
+				.getCurrentYear()
+				- Simulation.getInstance().getTimeSystem().getStartYear();
 		double targetPriceLevelForYear = Math.pow(
 				(1 + ConfigurationUtil.CentralBankConfig.getInflationTarget()),
 				yearNumber);
@@ -345,10 +323,11 @@ public class CentralBank extends Bank {
 						.getInflationTarget());
 
 		double targetPriceLevelForMonth = Math.pow(
-				1.0 + monthlyNominalInflationTarget, TimeSystem.getInstance()
-						.getCurrentMonthNumberInYear() - 1) - 1.0;
+				1.0 + monthlyNominalInflationTarget, Simulation.getInstance()
+						.getTimeSystem().getCurrentMonthNumberInYear() - 1) - 1.0;
 		double targetPriceLevelForDay = (monthlyNominalInflationTarget / 30)
-				* TimeSystem.getInstance().getCurrentDayNumberInMonth();
+				* Simulation.getInstance().getTimeSystem()
+						.getCurrentDayNumberInMonth();
 
 		double combinedTargetPriceLevel = (targetPriceLevelForYear
 				+ targetPriceLevelForMonth + targetPriceLevelForDay);
@@ -370,7 +349,7 @@ public class CentralBank extends Bank {
 	protected double calculateTotalDividend() {
 		// central banks transfer their profit to the state, not arbitrary
 		// agents -> deactivate dividends, transfer money in separate event
-		return 0;
+		return 0.0;
 	}
 
 	public class DailyInterestCalculationEvent implements ITimeSystemEvent {
@@ -388,29 +367,17 @@ public class CentralBank extends Bank {
 				// liability account + positive interest rate or asset account +
 				// negative interest rate
 				if (dailyInterest > 0) {
-					try {
-						CentralBank.this.transferMoneyInternally(
-								CentralBank.this.transactionsBankAccount,
-								bankAccount, dailyInterest,
-								CentralBank.this.customerPasswords
-										.get(CentralBank.this));
-					} catch (Exception e) {
-						throw new RuntimeException(e.getMessage());
-					}
+					CentralBank.this.transferMoneyInternally(
+							CentralBank.this.transactionsBankAccount,
+							bankAccount, dailyInterest);
 				}
 				// asset account + positive interest rate or liability
 				// account + negative interest rate
 				else if (dailyInterest < 0) {
-					try {
-						dailyInterest = -1 * dailyInterest;
-						CentralBank.this.transferMoneyInternally(bankAccount,
-								CentralBank.this.transactionsBankAccount,
-								dailyInterest,
-								CentralBank.this.customerPasswords
-										.get(bankAccount.getOwner()));
-					} catch (Exception e) {
-						throw new RuntimeException(e.getMessage());
-					}
+					dailyInterest = -1 * dailyInterest;
+					CentralBank.this.transferMoneyInternally(bankAccount,
+							CentralBank.this.transactionsBankAccount,
+							dailyInterest);
 				}
 			}
 
@@ -421,7 +388,6 @@ public class CentralBank extends Bank {
 						CentralBank.this.transactionsBankAccount,
 						state.getTransactionsBankAccount(),
 						CentralBank.this.transactionsBankAccount.getBalance(),
-						CentralBank.this.bankPasswords.get(CentralBank.this),
 						"national interest");
 			}
 		}

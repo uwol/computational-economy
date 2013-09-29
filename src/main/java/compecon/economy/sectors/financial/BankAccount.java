@@ -148,18 +148,16 @@ public class BankAccount {
 
 	@Transient
 	protected void deposit(double amount) {
-		if (Double.isNaN(amount) || Double.isInfinite(amount))
-			throw new RuntimeException("amount is " + amount);
+		assert (!Double.isNaN(amount) && !Double.isInfinite(amount));
+
 		this.balance = this.balance + amount;
 	}
 
 	@Transient
 	protected void withdraw(double amount) {
-		if (Double.isNaN(amount) || Double.isInfinite(amount))
-			throw new RuntimeException("amount is " + amount);
-		if (!this.overdraftPossible && amount > this.balance)
-			throw new RuntimeException(
-					"overdraft not allowed and not enough money to withdraw");
+		assert (!Double.isNaN(amount) && !Double.isInfinite(amount));
+		assert (amount <= this.balance || this.overdraftPossible);
+
 		this.balance = this.balance - amount;
 	}
 

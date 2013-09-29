@@ -31,7 +31,7 @@ import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 
@@ -83,13 +83,11 @@ public class SettlementMarket extends Market {
 			Agent offeror, BankAccount offerorsBankAcount, double amount,
 			double pricePerUnit,
 			BankAccount commodityCurrencyOfferorsBankAcount,
-			String commodityCurrencyOfferorsBankAcountPassword,
 			ISettlementEvent settlementEvent) {
 		if (amount > 0) {
 			this.placeSellingOffer(commodityCurrency, offeror,
 					offerorsBankAcount, amount, pricePerUnit,
-					commodityCurrencyOfferorsBankAcount,
-					commodityCurrencyOfferorsBankAcountPassword);
+					commodityCurrencyOfferorsBankAcount);
 			if (settlementEvent != null)
 				this.settlementEventListeners.put(offeror, settlementEvent);
 		}
@@ -111,11 +109,10 @@ public class SettlementMarket extends Market {
 
 	public double[] buy(final GoodType goodType, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
-			final Agent buyer, final BankAccount buyersBankAccount,
-			final String buyersBankAccountPassword) {
+			final Agent buyer, final BankAccount buyersBankAccount) {
 		return this.buy(goodType, null, null, maxAmount, maxTotalPrice,
 				maxPricePerUnit, goodType.getWholeNumber(), buyer,
-				buyersBankAccount, buyersBankAccountPassword, null);
+				buyersBankAccount, null);
 	}
 
 	/**
@@ -131,7 +128,6 @@ public class SettlementMarket extends Market {
 	 *            Max price of foreign currency in local currency
 	 * @param buyer
 	 * @param buyersBankAccount
-	 * @param buyersBankAccountPassword
 	 * @param buyersBankAccountForCommodityCurrency
 	 *            Bank account that should receive the bought foreign currency
 	 */
@@ -139,22 +135,18 @@ public class SettlementMarket extends Market {
 			final double maxAmount, final double maxTotalPrice,
 			final double maxPricePerUnit, final Agent buyer,
 			final BankAccount buyersBankAccount,
-			final String buyersBankAccountPassword,
 			final BankAccount buyersBankAccountForCommodityCurrency) {
 		return this.buy(null, commodityCurrency, null, maxAmount,
 				maxTotalPrice, maxPricePerUnit, false, buyer,
-				buyersBankAccount, buyersBankAccountPassword,
-				buyersBankAccountForCommodityCurrency);
+				buyersBankAccount, buyersBankAccountForCommodityCurrency);
 	}
 
 	public double[] buy(final Class<? extends Property> propertyClass,
 			final double maxAmount, final double maxTotalPrice,
 			final double maxPricePerUnit, final Agent buyer,
-			final BankAccount buyersBankAccount,
-			final String buyersBankAccountPassword) {
+			final BankAccount buyersBankAccount) {
 		return this.buy(null, null, propertyClass, maxAmount, maxTotalPrice,
-				maxPricePerUnit, true, buyer, buyersBankAccount,
-				buyersBankAccountPassword, null);
+				maxPricePerUnit, true, buyer, buyersBankAccount, null);
 	}
 
 	/**
@@ -166,7 +158,6 @@ public class SettlementMarket extends Market {
 			final double maxAmount, final double maxTotalPrice,
 			final double maxPricePerUnit, final boolean wholeNumber,
 			final Agent buyer, final BankAccount buyersBankAccount,
-			final String buyersBankAccountPassword,
 			final BankAccount buyersBankAccountForCommodityCurrency) {
 
 		SortedMap<MarketOrder, Double> marketOffers = this
@@ -200,9 +191,8 @@ public class SettlementMarket extends Market {
 			// transfer money
 			buyersBank.transferMoney(buyersBankAccount,
 					marketOffer.getOfferorsBankAcount(),
-					amount * marketOffer.getPricePerUnit(),
-					buyersBankAccountPassword,
-					"price for " + MathUtil.round(amount) + " units of "
+					amount * marketOffer.getPricePerUnit(), "price for "
+							+ MathUtil.round(amount) + " units of "
 							+ marketOffer.getCommodity());
 
 			// transfer ownership
@@ -234,8 +224,6 @@ public class SettlementMarket extends Market {
 						marketOffer.getCommodityCurrencyOfferorsBankAccount(),
 						buyersBankAccountForCommodityCurrency,
 						amount,
-						marketOffer
-								.getCommodityCurrencyOfferorsBankAccountPassword(),
 						"transfer of " + Currency.formatMoneySum(amount)
 								+ " units of commoditycurrency "
 								+ marketOffer.getCommodity());

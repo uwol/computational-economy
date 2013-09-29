@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model;
+package compecon.engine.statistics.model;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.time.TimeSystem;
+import compecon.engine.Simulation;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.materia.GoodType;
@@ -50,11 +50,12 @@ public class PricesModel extends NotificationListenerModel {
 
 		public void tick(double price, double volume) {
 			// current day?
-			if (this.lastDate_year == TimeSystem.getInstance().getCurrentYear()
-					&& this.lastDate_monthType == TimeSystem.getInstance()
-							.getCurrentMonthType()
-					&& this.lastDate_dayType == TimeSystem.getInstance()
-							.getCurrentDayType()) {
+			if (this.lastDate_year == Simulation.getInstance().getTimeSystem()
+					.getCurrentYear()
+					&& this.lastDate_monthType == Simulation.getInstance()
+							.getTimeSystem().getCurrentMonthType()
+					&& this.lastDate_dayType == Simulation.getInstance()
+							.getTimeSystem().getCurrentDayType()) {
 				this.volume[i] += volume;
 				if (price > this.high[i])
 					this.high[i] = price;
@@ -79,18 +80,20 @@ public class PricesModel extends NotificationListenerModel {
 							this.NUMBER_OF_DAYS - 1);
 				}
 
-				this.date[i] = TimeSystem.getInstance().getCurrentDate();
+				this.date[i] = Simulation.getInstance().getTimeSystem()
+						.getCurrentDate();
 				this.high[i] = price;
 				this.low[i] = price;
 				this.open[i] = price;
 				this.close[i] = price;
 				this.volume[i] = volume;
 
-				this.lastDate_year = TimeSystem.getInstance().getCurrentYear();
-				this.lastDate_monthType = TimeSystem.getInstance()
-						.getCurrentMonthType();
-				this.lastDate_dayType = TimeSystem.getInstance()
-						.getCurrentDayType();
+				this.lastDate_year = Simulation.getInstance().getTimeSystem()
+						.getCurrentYear();
+				this.lastDate_monthType = Simulation.getInstance()
+						.getTimeSystem().getCurrentMonthType();
+				this.lastDate_dayType = Simulation.getInstance()
+						.getTimeSystem().getCurrentDayType();
 			}
 		}
 

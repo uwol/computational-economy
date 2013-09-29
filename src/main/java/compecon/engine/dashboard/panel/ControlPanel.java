@@ -33,11 +33,9 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import compecon.Simulation;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.jmx.model.ModelRegistry;
+import compecon.engine.Simulation;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 
 public class ControlPanel extends JPanel {
 
@@ -71,13 +69,13 @@ public class ControlPanel extends JPanel {
 					double sliderValue = (int) source.getValue();
 					double invertedSliderValue = SLIDER_MAX - sliderValue;
 					double millisecondsToSleep = ((invertedSliderValue * invertedSliderValue) / (SLIDER_MAX * SLIDER_MAX)) * 3000 / 24;
-					Simulation
-							.setMillisecondsToSleepPerHourType((int) millisecondsToSleep);
+					Simulation.getInstance().setMillisecondsToSleepPerHourType(
+							(int) millisecondsToSleep);
 					if (invertedSliderValue >= SLIDER_MAX - 10) {
-						Simulation.setPaused(true);
+						Simulation.getInstance().setPaused(true);
 						singleStepButton.setEnabled(true);
 					} else {
-						Simulation.setPaused(false);
+						Simulation.getInstance().setPaused(false);
 						singleStepButton.setEnabled(false);
 					}
 				}
@@ -93,7 +91,7 @@ public class ControlPanel extends JPanel {
 		singleStepButton.setEnabled(false);
 		singleStepButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Simulation.setSingleStep();
+				Simulation.getInstance().setSingleStep();
 			}
 		});
 		speedSliderPanel.add(singleStepButton);
@@ -117,11 +115,12 @@ public class ControlPanel extends JPanel {
 			JButton initEconomicGrowthButton = new JButton("Economic growth");
 			initEconomicGrowthButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					TimeSystem.getInstance().addExternalEvent(
-							new ITimeSystemEvent() {
+					Simulation.getInstance().getTimeSystem()
+							.addExternalEvent(new ITimeSystemEvent() {
 								@Override
 								public void onEvent() {
-									ModelRegistry.getControlModel()
+									Simulation.getInstance().getModelRegistry()
+											.getControlModel()
 											.initEconomicGrowth(currency);
 								}
 							});
@@ -136,11 +135,12 @@ public class ControlPanel extends JPanel {
 			JButton doDeficitSpendingButton = new JButton("Deficit spending");
 			doDeficitSpendingButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					TimeSystem.getInstance().addExternalEvent(
-							new ITimeSystemEvent() {
+					Simulation.getInstance().getTimeSystem()
+							.addExternalEvent(new ITimeSystemEvent() {
 								@Override
 								public void onEvent() {
-									ModelRegistry.getControlModel()
+									Simulation.getInstance().getModelRegistry()
+											.getControlModel()
 											.deficitSpending(currency);
 								}
 							});
@@ -155,11 +155,12 @@ public class ControlPanel extends JPanel {
 			JButton init100HouseholdsButton = new JButton("Init 100 Households");
 			init100HouseholdsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					TimeSystem.getInstance().addExternalEvent(
-							new ITimeSystemEvent() {
+					Simulation.getInstance().getTimeSystem()
+							.addExternalEvent(new ITimeSystemEvent() {
 								@Override
 								public void onEvent() {
-									ModelRegistry.getControlModel()
+									Simulation.getInstance().getModelRegistry()
+											.getControlModel()
 											.initHouseholds(currency);
 								}
 							});

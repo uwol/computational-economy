@@ -17,12 +17,14 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.sectors.financial;
+package compecon.engine.statistics.jmx;
 
-public interface ICentralBankCustomer {
-	public void deposit(CentralBank caller, BankAccount bankAccount,
-			double amount);
+public interface JmxNumberOfAgentsModelMBean {
 
-	public void withdraw(CentralBank caller, BankAccount bankAccount,
-			double amount);
+	public int getNumberOfHouseholdsEuro();
+
+	public int getNumberOfHouseholdsUsdollar();
+
+	public int getNumberOfHouseholdsYen();
+
 }

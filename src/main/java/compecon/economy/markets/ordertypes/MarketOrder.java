@@ -97,9 +97,6 @@ public class MarketOrder implements Comparable<MarketOrder> {
 	@JoinColumn(name = "commodityCurrencyOfferorsBankAcount_id")
 	protected BankAccount commodityCurrencyOfferorsBankAcount;
 
-	@Column(name = "commodityCurrencyOfferorsBankAcountPassword")
-	protected String commodityCurrencyOfferorsBankAcountPassword;
-
 	// market offer type 3: market offer for property (e.g. shares)
 
 	@ManyToOne
@@ -131,10 +128,6 @@ public class MarketOrder implements Comparable<MarketOrder> {
 
 	public BankAccount getCommodityCurrencyOfferorsBankAccount() {
 		return this.commodityCurrencyOfferorsBankAcount;
-	}
-
-	public String getCommodityCurrencyOfferorsBankAccountPassword() {
-		return this.commodityCurrencyOfferorsBankAcountPassword;
 	}
 
 	public GoodType getGoodType() {
@@ -182,10 +175,6 @@ public class MarketOrder implements Comparable<MarketOrder> {
 
 	public void setCommodityCurrencyOfferorsBankAccount(BankAccount bankAccount) {
 		this.commodityCurrencyOfferorsBankAcount = bankAccount;
-	}
-
-	public void setCommodityCurrencyOfferorsBankAccountPassword(String password) {
-		this.commodityCurrencyOfferorsBankAcountPassword = password;
 	}
 
 	public void setOfferorsBankAcount(BankAccount offerorsBankAcount) {

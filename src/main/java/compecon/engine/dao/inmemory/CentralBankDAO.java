@@ -40,9 +40,9 @@ public class CentralBankDAO extends CurrencyIndexedInMemoryDAO<CentralBank>
 				.getInstancesForCurrency(currency);
 		if (centralBanksForCurrency == null)
 			return null;
-		if (centralBanksForCurrency.size() > 1)
-			throw new RuntimeException(
-					"more than one central bank per currency");
+
+		assert (centralBanksForCurrency.size() <= 1);
+
 		return centralBanksForCurrency.get(0);
 	}
 

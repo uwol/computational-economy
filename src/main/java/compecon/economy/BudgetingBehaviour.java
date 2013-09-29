@@ -22,7 +22,7 @@ package compecon.economy;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.AgentFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.engine.util.ConfigurationUtil;
 
 /**

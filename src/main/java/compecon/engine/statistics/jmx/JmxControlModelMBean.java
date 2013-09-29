@@ -17,9 +17,9 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.mbean;
+package compecon.engine.statistics.jmx;
 
-public interface JmxControlMBean {
+public interface JmxControlModelMBean {
 
 	public void deficitSpending();
 

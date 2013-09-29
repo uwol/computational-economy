@@ -17,23 +17,22 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model.accumulator;
+package compecon.engine.statistics.jmx;
 
-public class PeriodDataAccumulator {
-	double sumPerPeriod = 0;
+import compecon.economy.sectors.financial.Currency;
+import compecon.engine.Simulation;
 
-	public void add(double amount) {
-		this.sumPerPeriod += amount;
+public class JmxControlModel implements JmxControlModelMBean {
+
+	@Override
+	public void deficitSpending() {
+		Simulation.getInstance().getModelRegistry().getControlModel()
+				.deficitSpending(Currency.EURO);
 	}
 
-	public double getAmount() {
-		return this.sumPerPeriod;
-	}
-
-	/**
-	 * Reset values to zero
-	 */
-	public void reset() {
-		this.sumPerPeriod = 0;
+	@Override
+	public void initHouseholds() {
+		Simulation.getInstance().getModelRegistry().getControlModel()
+				.initHouseholds(Currency.EURO);
 	}
 }

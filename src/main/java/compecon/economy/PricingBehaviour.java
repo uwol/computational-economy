@@ -21,7 +21,7 @@ package compecon.economy;
 
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 
@@ -232,6 +232,7 @@ public class PricingBehaviour {
 	public double[] getCurrentPriceArray() {
 		int numberOfPrices = ConfigurationUtil.PricingBehaviourConfig
 				.getDefaultNumberOfPrices();
+		assert (numberOfPrices > 0);
 		double[] prices = new double[numberOfPrices];
 
 		if (numberOfPrices == 1) {
@@ -248,9 +249,7 @@ public class PricingBehaviour {
 			}
 		}
 
-		if (this.getCurrentPrice() < prices[0]
-				|| this.getCurrentPrice() > prices[prices.length - 1])
-			throw new RuntimeException("error in calculation");
+		assert (this.getCurrentPrice() >= prices[0] && this.getCurrentPrice() <= prices[prices.length - 1]);
 
 		return prices;
 	}

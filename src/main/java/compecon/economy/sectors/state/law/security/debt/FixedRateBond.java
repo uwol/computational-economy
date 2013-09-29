@@ -26,8 +26,8 @@ import javax.persistence.Transient;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
+import compecon.engine.Simulation;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
 
 @Entity
@@ -43,9 +43,16 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 		// payed before possible deconstruction at HOUR_01
 		ITimeSystemEvent transferCouponEvent = new TransferCouponEvent();
 		this.timeSystemEvents.add(transferCouponEvent);
-		TimeSystem.getInstance().addEvent(transferCouponEvent, -1,
-				TimeSystem.getInstance().getCurrentMonthType(),
-				TimeSystem.getInstance().getCurrentDayType(), HourType.HOUR_00);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						transferCouponEvent,
+						-1,
+						Simulation.getInstance().getTimeSystem()
+								.getCurrentMonthType(),
+						Simulation.getInstance().getTimeSystem()
+								.getCurrentDayType(), HourType.HOUR_00);
 	}
 
 	/*
@@ -91,7 +98,6 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 								owner.getTransactionsBankAccount(),
 								FixedRateBond.this.coupon
 										* FixedRateBond.this.faceValue,
-								FixedRateBond.this.issuerBankAccountPassword,
 								"bond coupon");
 			}
 		}

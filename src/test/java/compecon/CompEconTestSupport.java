@@ -32,6 +32,7 @@ import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.trading.Trader;
 import compecon.engine.AgentFactory;
+import compecon.engine.Simulation;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.materia.GoodType;
@@ -59,10 +60,9 @@ public abstract class CompEconTestSupport {
 					inputEntry.getKey()).getPrice(inputEntry.getValue())
 					* inputEntry.getValue();
 		}
-		if (sumOfCostsOfOptimalBundleOfInputs > budgetRestriction) {
-			throw new RuntimeException(
-					"optimalBundleOfInputs violates the budget restriction");
-		}
+
+		// optimalBundleOfInputs violates the budget restriction
+		assert (sumOfCostsOfOptimalBundleOfInputs <= budgetRestriction);
 
 		// check that budget restriction is not violated
 		double sumOfCostsOfReferenceBundleOfInputs = 0.0;
@@ -72,10 +72,9 @@ public abstract class CompEconTestSupport {
 					inputEntry.getKey()).getPrice(inputEntry.getValue())
 					* inputEntry.getValue();
 		}
-		if (sumOfCostsOfReferenceBundleOfInputs > budgetRestriction) {
-			throw new RuntimeException(
-					"referenceBundleOfInputs violates the budget restriction");
-		}
+
+		// referenceBundleOfInputs violates the budget restriction?
+		assert (sumOfCostsOfReferenceBundleOfInputs <= budgetRestriction);
 
 		assertTrue(function.f(rangeScanBundleOfInputs) <= function
 				.f(referenceBundleOfInputs));
@@ -119,8 +118,11 @@ public abstract class CompEconTestSupport {
 	}
 
 	protected void setUp() {
-		// init database connection
+		// init global (non-running) simulation object, so that models, log etc.
+		// exist
+		new Simulation(false, null);
 
+		// init database connection
 		HibernateUtil.openSession();
 
 		for (Currency currency : Currency.values()) {

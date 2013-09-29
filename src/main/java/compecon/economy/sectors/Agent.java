@@ -19,16 +19,13 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.sectors;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -39,7 +36,6 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -57,9 +53,9 @@ import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.debt.Bond;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
 import compecon.materia.GoodType;
 
@@ -79,13 +75,6 @@ public abstract class Agent {
 
 	@Transient
 	protected Set<ITimeSystemEvent> timeSystemEvents = new HashSet<ITimeSystemEvent>();
-
-	@ElementCollection
-	@CollectionTable(name = "Agent_BankPassword", joinColumns = @JoinColumn(name = "agent_id"))
-	@MapKeyJoinColumn(name = "bank_id")
-	@Column(name = "bankPassword")
-	// CREATE INDEX bank_id ON TABLE Agent
-	protected Map<Bank, String> bankPasswords = new HashMap<Bank, String>();
 
 	@Column(name = "primaryCurrency")
 	@Enumerated(EnumType.STRING)
@@ -126,26 +115,26 @@ public abstract class Agent {
 		this.isDeconstructed = true;
 		Log.agent_onDeconstruct(this);
 
-		// deregister from TimeSystem
+		// deregister from time system
 		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
-			TimeSystem.getInstance().removeEvent(timeSystemEvent);
+			Simulation.getInstance().getTimeSystem()
+					.removeEvent(timeSystemEvent);
 
 		// remove selling offers from primary market
 		MarketFactory.getInstance().removeAllSellingOffers(this);
 
-		// deregister from PropertyRegister
+		// deregister from poperty register
 		PropertyRegister.getInstance().transferEverythingToRandomAgent(this);
 
-		// deregister from CashRegister
+		// deregister from cash register
 		HardCashRegister.getInstance().deregister(this);
 
-		// deregister from Banks
-		for (Entry<Bank, String> entry : new HashMap<Bank, String>(
-				this.bankPasswords).entrySet()) {
-			entry.getKey().closeCustomerAccount(this, entry.getValue());
+		// deregister from banks
+		if (this.transactionsBankAccount != null) {
+			this.transactionsBankAccount.getManagingBank()
+					.closeCustomerAccount(this);
 		}
 
-		this.bankPasswords = null;
 		this.primaryBank = null;
 		this.transactionsBankAccount = null;
 		this.timeSystemEvents = null;
@@ -169,10 +158,6 @@ public abstract class Agent {
 
 	public Set<ITimeSystemEvent> getTimeSystemEvents() {
 		return timeSystemEvents;
-	}
-
-	public Map<Bank, String> getBankPasswords() {
-		return bankPasswords;
 	}
 
 	public Bank getPrimaryBank() {
@@ -203,10 +188,6 @@ public abstract class Agent {
 		this.timeSystemEvents = timeSystemEvents;
 	}
 
-	public void setBankPasswords(Map<Bank, String> bankPasswords) {
-		this.bankPasswords = bankPasswords;
-	}
-
 	public void setPrimaryBank(Bank primaryBank) {
 		this.primaryBank = primaryBank;
 	}
@@ -235,8 +216,6 @@ public abstract class Agent {
 		if (this.primaryBank == null) {
 			this.primaryBank = AgentFactory
 					.getRandomInstanceCreditBank(this.primaryCurrency);
-			String bankPassword = this.primaryBank.openCustomerAccount(this);
-			this.bankPasswords.put(this.primaryBank, bankPassword);
 		}
 	}
 
@@ -250,17 +229,19 @@ public abstract class Agent {
 		// initialize bank account
 		if (this.transactionsBankAccount == null) {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency,
-					this.bankPasswords.get(this.primaryBank),
-					"transactions account", BankAccountType.GIRO);
+					this, this.primaryCurrency, "transactions account",
+					BankAccountType.GIRO);
 		}
 	}
 
+	/**
+	 * this method is triggered in the event that the bank of the bank account
+	 * closes the bank account, so that the customer agent can react.
+	 */
 	@Transient
 	public void onBankCloseBankAccount(BankAccount bankAccount) {
 		if (this.transactionsBankAccount == bankAccount)
 			this.transactionsBankAccount = null;
-		this.bankPasswords.remove(bankAccount.getManagingBank());
 	}
 
 	/*
@@ -274,9 +255,7 @@ public abstract class Agent {
 		Currency referenceCurrency = Agent.this.transactionsBankAccount
 				.getCurrency();
 
-		if (referenceCurrency == null)
-			throw new RuntimeException("referenceCurrency is "
-					+ referenceCurrency);
+		assert (referenceCurrency != null);
 
 		BalanceSheet balanceSheet = new BalanceSheet(referenceCurrency);
 
@@ -300,8 +279,8 @@ public abstract class Agent {
 		}
 
 		// inventory by value
-		Map<GoodType, Double> prices = MarketFactory.getInstance()
-				.getPrices(this.primaryCurrency);
+		Map<GoodType, Double> prices = MarketFactory.getInstance().getPrices(
+				this.primaryCurrency);
 		for (Entry<GoodType, Double> balanceEntry : PropertyRegister
 				.getInstance().getBalance(Agent.this).entrySet()) {
 			GoodType goodType = balanceEntry.getKey();

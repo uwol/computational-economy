@@ -40,7 +40,7 @@ import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.trading.Trader;
-import compecon.engine.jmx.model.ModelRegistry;
+import compecon.engine.Simulation;
 
 public class AgentsPanel extends AbstractChartsPanel {
 
@@ -77,8 +77,9 @@ public class AgentsPanel extends AbstractChartsPanel {
 			Class<? extends Agent> agentType) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(ModelRegistry.getNumberOfAgentsModel(
-				currency).getNumberOfAgentsTimeSeries(agentType));
+		timeSeriesCollection.addSeries(Simulation.getInstance()
+				.getModelRegistry().getNumberOfAgentsModel(currency)
+				.getNumberOfAgentsTimeSeries(agentType));
 
 		JFreeChart chart = ChartFactory
 				.createTimeSeriesChart("# " + agentType.getSimpleName()

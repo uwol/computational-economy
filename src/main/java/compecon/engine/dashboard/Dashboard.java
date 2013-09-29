@@ -37,7 +37,6 @@ import compecon.engine.dashboard.panel.NationalAccountsPanel;
 import compecon.engine.dashboard.panel.PricesPanel;
 
 public class Dashboard extends JFrame {
-	private static Dashboard instance;
 
 	protected final JTabbedPane jTabbedPane;
 
@@ -55,7 +54,7 @@ public class Dashboard extends JFrame {
 
 	protected final LogPanel logPanel = new LogPanel();
 
-	private Dashboard() {
+	public Dashboard() {
 
 		/*
 		 * panels
@@ -110,11 +109,5 @@ public class Dashboard extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
 		setVisible(true);
-	}
-
-	public static Dashboard getInstance() {
-		if (instance == null)
-			instance = new Dashboard();
-		return instance;
 	}
 }

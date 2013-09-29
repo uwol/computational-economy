@@ -17,12 +17,23 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.sectors.financial;
+package compecon.engine.statistics.model.accumulator;
 
-public interface ICentralBankCustomer {
-	public void deposit(CentralBank caller, BankAccount bankAccount,
-			double amount);
+public class PeriodDataAccumulator {
+	double sumPerPeriod = 0;
 
-	public void withdraw(CentralBank caller, BankAccount bankAccount,
-			double amount);
+	public void add(double amount) {
+		this.sumPerPeriod += amount;
+	}
+
+	public double getAmount() {
+		return this.sumPerPeriod;
+	}
+
+	/**
+	 * Reset values to zero
+	 */
+	public void reset() {
+		this.sumPerPeriod = 0;
+	}
 }

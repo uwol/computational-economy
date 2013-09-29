@@ -19,12 +19,11 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine;
 
-import compecon.Simulation;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.HibernateUtil;
@@ -36,7 +35,7 @@ public class BankAccountFactory {
 			final BankAccountType bankAccountType) {
 		BankAccount bankAccount = new BankAccount();
 		if (!ConfigurationUtil.DbConfig.getActivateDb())
-			bankAccount.setId(Simulation.getNextId());
+			bankAccount.setId(Simulation.getInstance().getNextId());
 
 		bankAccount.setOwner(owner);
 		bankAccount.setOverdraftPossible(overdraftPossible);

@@ -34,7 +34,8 @@ import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.engine.MarketFactory;
 import compecon.engine.PropertyFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -67,16 +68,20 @@ public abstract class JointStockCompany extends Agent {
 		// bank account is null
 		ITimeSystemEvent offerSharesEvent = new OfferSharesEvent();
 		this.timeSystemEvents.add(offerSharesEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				offerSharesEvent, -1, MonthType.EVERY, DayType.EVERY,
-				HourType.HOUR_00);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(offerSharesEvent, -1, MonthType.EVERY, DayType.EVERY,
+						HourType.HOUR_00);
 
 		// pay dividend at 00:00
 		ITimeSystemEvent payDividendEvent = new PayDividendEvent();
 		this.timeSystemEvents.add(payDividendEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				payDividendEvent, -1, MonthType.EVERY, DayType.EVERY,
-				HourType.HOUR_00);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(payDividendEvent, -1, MonthType.EVERY, DayType.EVERY,
+						HourType.HOUR_00);
 	}
 
 	@Transient
@@ -170,8 +175,6 @@ public abstract class JointStockCompany extends Agent {
 													((IShareOwner) owner)
 															.getDividendBankAccount(),
 													dividendPerOwner,
-													JointStockCompany.this.bankPasswords
-															.get(JointStockCompany.this.primaryBank),
 													"dividend");
 									((IShareOwner) owner)
 											.onDividendTransfer(dividendPerOwner);

@@ -42,11 +42,11 @@ import javax.swing.table.AbstractTableModel;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.jmx.Log;
-import compecon.engine.jmx.model.AgentDetailModel;
-import compecon.engine.jmx.model.AgentDetailModel.AgentLog;
-import compecon.engine.jmx.model.ModelRegistry;
-import compecon.engine.jmx.model.NotificationListenerModel.IModelListener;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.Log;
+import compecon.engine.statistics.model.AgentDetailModel;
+import compecon.engine.statistics.model.AgentDetailModel.AgentLog;
+import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
@@ -57,7 +57,8 @@ public class LogPanel extends JPanel {
 			IModelListener {
 
 		public AgentListModel() {
-			ModelRegistry.getAgentDetailModel().registerListener(this);
+			Simulation.getInstance().getModelRegistry().getAgentDetailModel()
+					.registerListener(this);
 		}
 
 		@Override
@@ -81,14 +82,14 @@ public class LogPanel extends JPanel {
 	public class AgentLogSelectionModel extends DefaultComboBoxModel<AgentLog> {
 		@Override
 		public int getSize() {
-			return ModelRegistry.getAgentDetailModel().getLogsOfCurrentAgent()
-					.size();
+			return Simulation.getInstance().getModelRegistry()
+					.getAgentDetailModel().getLogsOfCurrentAgent().size();
 		}
 
 		@Override
 		public AgentLog getElementAt(int i) {
-			return ModelRegistry.getAgentDetailModel().getLogsOfCurrentAgent()
-					.get(i);
+			return Simulation.getInstance().getModelRegistry()
+					.getAgentDetailModel().getLogsOfCurrentAgent().get(i);
 		}
 	}
 
@@ -98,7 +99,8 @@ public class LogPanel extends JPanel {
 		protected final String columnNames[] = { "Message" };
 
 		public AgentLogsTableModel() {
-			ModelRegistry.getAgentDetailModel().registerListener(this);
+			Simulation.getInstance().getModelRegistry().getAgentDetailModel()
+					.registerListener(this);
 		}
 
 		@Override
@@ -140,7 +142,8 @@ public class LogPanel extends JPanel {
 		protected final String columnNames[] = { "Name", "Balance", "Currency" };
 
 		public AgentBankAccountsTableModel() {
-			ModelRegistry.getAgentDetailModel().registerListener(this);
+			Simulation.getInstance().getModelRegistry().getAgentDetailModel()
+					.registerListener(this);
 		}
 
 		@Override
@@ -191,7 +194,8 @@ public class LogPanel extends JPanel {
 		protected final String columnNames[] = { "Name", "Balance" };
 
 		public AgentGoodsTableModel() {
-			ModelRegistry.getAgentDetailModel().registerListener(this);
+			Simulation.getInstance().getModelRegistry().getAgentDetailModel()
+					.registerListener(this);
 		}
 
 		@Override
@@ -241,7 +245,8 @@ public class LogPanel extends JPanel {
 		protected final String columnNames[] = { "Name" };
 
 		public AgentPropertyTableModel() {
-			ModelRegistry.getAgentDetailModel().registerListener(this);
+			Simulation.getInstance().getModelRegistry().getAgentDetailModel()
+					.registerListener(this);
 		}
 
 		@Override
@@ -281,10 +286,10 @@ public class LogPanel extends JPanel {
 	}
 
 	protected final int NUMBER_OF_AGENTS_TO_SHOW = ConfigurationUtil.DashboardConfig
-			.getLogNumberOfAgents();
+			.getLogNumberOfAgentsLogSize();
 
-	protected final AgentDetailModel agentDetailModel = ModelRegistry
-			.getAgentDetailModel();
+	protected final AgentDetailModel agentDetailModel = Simulation
+			.getInstance().getModelRegistry().getAgentDetailModel();
 
 	protected AgentListModel agentLogsListModel = new AgentListModel();
 
@@ -314,8 +319,12 @@ public class LogPanel extends JPanel {
 		logSelection.setPreferredSize(new Dimension(400, 30));
 		logSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ModelRegistry.getAgentDetailModel().setCurrentLog(
-						(AgentLog) logSelection.getSelectedItem());
+				Simulation
+						.getInstance()
+						.getModelRegistry()
+						.getAgentDetailModel()
+						.setCurrentLog(
+								(AgentLog) logSelection.getSelectedItem());
 			}
 		});
 		controlPanel.add(logSelection);

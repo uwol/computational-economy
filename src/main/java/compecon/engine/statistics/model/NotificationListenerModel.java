@@ -17,12 +17,28 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.sectors.financial;
+package compecon.engine.statistics.model;
 
-public interface ICentralBankCustomer {
-	public void deposit(CentralBank caller, BankAccount bankAccount,
-			double amount);
+import java.util.ArrayList;
+import java.util.List;
 
-	public void withdraw(CentralBank caller, BankAccount bankAccount,
-			double amount);
+public abstract class NotificationListenerModel {
+
+	public interface IModelListener {
+		public void notifyListener();
+	}
+
+	protected List<IModelListener> listeners = new ArrayList<IModelListener>();
+
+	protected NotificationListenerModel() {
+	}
+
+	public void registerListener(IModelListener listener) {
+		this.listeners.add(listener);
+	}
+
+	public void notifyListeners() {
+		for (IModelListener listener : this.listeners)
+			listener.notifyListener();
+	}
 }

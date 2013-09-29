@@ -37,9 +37,9 @@ import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.MarketFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.engine.util.ConfigurationUtil;
@@ -74,16 +74,25 @@ public class Factory extends JointStockCompany {
 		// production event at random HourType
 		ITimeSystemEvent productionEvent = new ProductionEvent();
 		this.timeSystemEvents.add(productionEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(productionEvent,
-				-1, MonthType.EVERY, DayType.EVERY,
-				TimeSystem.getInstance().suggestRandomHourType());
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						productionEvent,
+						-1,
+						MonthType.EVERY,
+						DayType.EVERY,
+						Simulation.getInstance().getTimeSystem()
+								.suggestRandomHourType());
 
 		// balance sheet publication
 		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
 		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				balanceSheetPublicationEvent, -1, MonthType.EVERY,
-				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
+						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		double marketPrice = MarketFactory.getInstance().getPrice(
 				this.primaryCurrency, this.producedGoodType);
@@ -204,15 +213,8 @@ public class Factory extends JointStockCompany {
 				double amountToBuy = entry.getValue();
 				if (MathUtil.greater(amountToBuy, 0.0)) {
 					double[] priceAndAmount = MarketFactory.getInstance().buy(
-							goodTypeToBuy,
-							amountToBuy,
-							Double.NaN,
-							Double.NaN,
-							Factory.this,
-							Factory.this.transactionsBankAccount,
-							Factory.this.bankPasswords
-									.get(Factory.this.transactionsBankAccount
-											.getManagingBank()));
+							goodTypeToBuy, amountToBuy, Double.NaN, Double.NaN,
+							Factory.this, Factory.this.transactionsBankAccount);
 					budgetSpent += priceAndAmount[0];
 				}
 			}

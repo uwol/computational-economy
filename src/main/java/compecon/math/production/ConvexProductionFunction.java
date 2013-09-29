@@ -22,7 +22,7 @@ package compecon.math.production;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import compecon.engine.jmx.Log;
+import compecon.engine.statistics.Log;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
@@ -50,6 +50,8 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 			Map<GoodType, IPriceFunction> priceFunctionsOfInputTypes,
 			final double budget, final double maxOutput,
 			final int numberOfIterations, final double margin) {
+
+		assert (numberOfIterations > 0);
 
 		// check if inputs have NaN prices
 		boolean pricesAreNaN = false;

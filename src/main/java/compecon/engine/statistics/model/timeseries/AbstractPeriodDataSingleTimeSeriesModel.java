@@ -17,20 +17,22 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.mbean;
+package compecon.engine.statistics.model.timeseries;
 
-import compecon.economy.sectors.financial.Currency;
-import compecon.engine.jmx.model.ModelRegistry;
+import org.jfree.data.time.TimeSeries;
 
-public class JmxControl implements JmxControlMBean {
+public abstract class AbstractPeriodDataSingleTimeSeriesModel extends
+		AbstractPeriodDataTimeSeriesModel {
 
-	@Override
-	public void deficitSpending() {
-		ModelRegistry.getControlModel().deficitSpending(Currency.EURO);
+	protected final TimeSeries timeSeries;
+
+	protected String titleSuffix;
+
+	public AbstractPeriodDataSingleTimeSeriesModel(String title) {
+		this.timeSeries = createTimeSeries(title);
 	}
 
-	@Override
-	public void initHouseholds() {
-		ModelRegistry.getControlModel().initHouseholds(Currency.EURO);
+	public TimeSeries getTimeSeries() {
+		return this.timeSeries;
 	}
 }

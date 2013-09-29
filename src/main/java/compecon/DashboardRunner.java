@@ -17,28 +17,18 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.jmx.model;
+package compecon;
 
-import java.util.ArrayList;
-import java.util.List;
+import compecon.engine.Simulation;
 
-public abstract class NotificationListenerModel {
+/**
+ * This is the regular main method for starting a simulation with a dashboard.
+ */
+public class DashboardRunner {
 
-	public interface IModelListener {
-		public void notifyListener();
+	public static void main(String[] args) {
+		Simulation simulation = new Simulation(true, null);
+		simulation.run();
 	}
 
-	protected List<IModelListener> listeners = new ArrayList<IModelListener>();
-
-	protected NotificationListenerModel() {
-	}
-
-	public void registerListener(IModelListener listener) {
-		this.listeners.add(listener);
-	}
-
-	public void notifyListeners() {
-		for (IModelListener listener : this.listeners)
-			listener.notifyListener();
-	}
 }

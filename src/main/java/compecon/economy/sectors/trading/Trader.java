@@ -43,9 +43,9 @@ import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
-import compecon.engine.jmx.Log;
+import compecon.engine.Simulation;
+import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.engine.util.ConfigurationUtil;
@@ -76,22 +76,31 @@ public class Trader extends JointStockCompany {
 		// arbitrage trading event every hour
 		ITimeSystemEvent arbitrageTradingEvent = new ArbitrageTradingEvent();
 		this.timeSystemEvents.add(arbitrageTradingEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				arbitrageTradingEvent, -1, MonthType.EVERY, DayType.EVERY,
-				TimeSystem.getInstance().suggestRandomHourType());
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						arbitrageTradingEvent,
+						-1,
+						MonthType.EVERY,
+						DayType.EVERY,
+						Simulation.getInstance().getTimeSystem()
+								.suggestRandomHourType());
 
 		// balance sheet publication
 		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
 		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		compecon.engine.time.TimeSystem.getInstance().addEvent(
-				balanceSheetPublicationEvent, -1, MonthType.EVERY,
-				DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
+						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		// pricing behaviours
 		for (GoodType goodType : GoodType.values()) {
 			if (!this.excludedGoodTypes.contains(goodType)) {
-				double marketPrice = MarketFactory.getInstance()
-						.getPrice(this.primaryCurrency, goodType);
+				double marketPrice = MarketFactory.getInstance().getPrice(
+						this.primaryCurrency, goodType);
 				this.goodTypePricingBehaviours.put(goodType,
 						new PricingBehaviour(this, goodType,
 								this.primaryCurrency, marketPrice));
@@ -137,16 +146,12 @@ public class Trader extends JointStockCompany {
 			return;
 
 		for (Currency currency : Currency.values()) {
-			if (currency != this.primaryCurrency
+			if (!currency.equals(this.primaryCurrency)
 					&& !this.goodsTradeBankAccounts.containsKey(currency)) {
 				CreditBank foreignCurrencyCreditBank = AgentFactory
 						.getRandomInstanceCreditBank(currency);
-				String bankPassword = foreignCurrencyCreditBank
-						.openCustomerAccount(this);
-				this.bankPasswords.put(foreignCurrencyCreditBank, bankPassword);
 				BankAccount bankAccount = foreignCurrencyCreditBank
-						.openBankAccount(this, currency, this.bankPasswords
-								.get(foreignCurrencyCreditBank),
+						.openBankAccount(this, currency,
 								"foreign currency account",
 								BankAccountType.GIRO);
 				this.goodsTradeBankAccounts.put(currency, bankAccount);
@@ -232,16 +237,16 @@ public class Trader extends JointStockCompany {
 
 							// e.g. CAR_in_EUR = 10
 							double priceOfGoodTypeInLocalCurrency = MarketFactory
-									.getInstance().getPrice(
-											primaryCurrency, goodType);
+									.getInstance().getPrice(primaryCurrency,
+											goodType);
 							// e.g. CAR_in_USD = 11
 							double priceOfGoodTypeInForeignCurrency = MarketFactory
-									.getInstance().getPrice(
-											foreignCurrency, goodType);
+									.getInstance().getPrice(foreignCurrency,
+											goodType);
 							// e.g. exchange rate for EUR/USD = 1.0
 							double priceOfForeignCurrencyInLocalCurrency = MarketFactory
-									.getInstance().getPrice(
-											primaryCurrency, foreignCurrency);
+									.getInstance().getPrice(primaryCurrency,
+											foreignCurrency);
 
 							if (Double.isNaN(priceOfGoodTypeInForeignCurrency)) {
 								if (Log.isAgentSelectedByClient(Trader.this))
@@ -324,9 +329,6 @@ public class Trader extends JointStockCompany {
 													priceOfForeignCurrencyInLocalCurrency,
 													Trader.this,
 													Trader.this.transactionsBankAccount,
-													Trader.this.bankPasswords
-															.get(Trader.this.transactionsBankAccount
-																	.getManagingBank()),
 													Trader.this.goodsTradeBankAccounts
 															.get(foreignCurrency));
 
@@ -334,19 +336,14 @@ public class Trader extends JointStockCompany {
 									 * buy goods of good type with foreign
 									 * currency
 									 */
-									MarketFactory
-											.getInstance()
-											.buy(goodType,
-													Double.NaN,
-													foreignCurrencyBankAccount
-															.getBalance(),
-													priceOfGoodTypeInForeignCurrency,
-													Trader.this,
-													foreignCurrencyBankAccount,
-													Trader.this
-															.getBankPasswords()
-															.get(foreignCurrencyBankAccount
-																	.getManagingBank()));
+									MarketFactory.getInstance().buy(
+											goodType,
+											Double.NaN,
+											foreignCurrencyBankAccount
+													.getBalance(),
+											priceOfGoodTypeInForeignCurrency,
+											Trader.this,
+											foreignCurrencyBankAccount);
 								}
 							}
 						}

@@ -17,12 +17,16 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.sectors.financial;
+package compecon.engine.statistics.jmx;
 
-public interface ICentralBankCustomer {
-	public void deposit(CentralBank caller, BankAccount bankAccount,
-			double amount);
+import java.util.Date;
 
-	public void withdraw(CentralBank caller, BankAccount bankAccount,
-			double amount);
+import compecon.engine.Simulation;
+
+public class JmxTimeSystemModel implements JmxTimeSystemModelMBean {
+
+	@Override
+	public Date getCurrentDate() {
+		return Simulation.getInstance().getTimeSystem().getCurrentDate();
+	}
 }

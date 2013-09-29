@@ -37,8 +37,8 @@ import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
+import compecon.engine.Simulation;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.TimeSystem;
 import compecon.engine.time.calendar.HourType;
 
 @Entity
@@ -51,9 +51,6 @@ public abstract class Bond extends Property {
 	@JoinColumn(name = "issuerBankAccount_id")
 	@Index(name = "issuerBankAccount")
 	protected BankAccount issuerBankAccount;
-
-	@Column(name = "issuerBankAccountPassword")
-	protected String issuerBankAccountPassword;
 
 	@Enumerated(value = EnumType.STRING)
 	protected Currency issuedInCurrency;
@@ -70,10 +67,18 @@ public abstract class Bond extends Property {
 		// has to be at HOUR_01, so that at HOUR_00 the last coupon can be payed
 		ITimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
 		this.timeSystemEvents.add(transferFaceValueEvent);
-		TimeSystem.getInstance().addEvent(transferFaceValueEvent,
-				TimeSystem.getInstance().getCurrentYear() + termInYears,
-				TimeSystem.getInstance().getCurrentMonthType(),
-				TimeSystem.getInstance().getCurrentDayType(), HourType.HOUR_01);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						transferFaceValueEvent,
+						Simulation.getInstance().getTimeSystem()
+								.getCurrentYear()
+								+ termInYears,
+						Simulation.getInstance().getTimeSystem()
+								.getCurrentMonthType(),
+						Simulation.getInstance().getTimeSystem()
+								.getCurrentDayType(), HourType.HOUR_01);
 	}
 
 	/*
@@ -86,10 +91,6 @@ public abstract class Bond extends Property {
 
 	public BankAccount getIssuerBankAccount() {
 		return issuerBankAccount;
-	}
-
-	public String getIssuerBankAccountPassword() {
-		return issuerBankAccountPassword;
 	}
 
 	public Currency getIssuedInCurrency() {
@@ -108,10 +109,6 @@ public abstract class Bond extends Property {
 		this.issuerBankAccount = issuerBankAccount;
 	}
 
-	public void setIssuerBankAccountPassword(String issuerBankAccountPassword) {
-		this.issuerBankAccountPassword = issuerBankAccountPassword;
-	}
-
 	public void setIssuedInCurrency(Currency issuedInCurrency) {
 		this.issuedInCurrency = issuedInCurrency;
 	}
@@ -128,7 +125,8 @@ public abstract class Bond extends Property {
 	public void deconstruct() {
 		// deregister from TimeSystem
 		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
-			TimeSystem.getInstance().removeEvent(timeSystemEvent);
+			Simulation.getInstance().getTimeSystem()
+					.removeEvent(timeSystemEvent);
 	}
 
 	public class TransferFaceValueEvent implements ITimeSystemEvent {
@@ -138,7 +136,7 @@ public abstract class Bond extends Property {
 			Bond.this.issuerBankAccount.getManagingBank().transferMoney(
 					Bond.this.issuerBankAccount,
 					owner.getTransactionsBankAccount(), Bond.this.faceValue,
-					Bond.this.issuerBankAccountPassword, "bond face value");
+					"bond face value");
 			Bond.this.deconstruct(); // delete bond from simulation
 		}
 	}

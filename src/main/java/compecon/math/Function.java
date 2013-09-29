@@ -67,8 +67,9 @@ public abstract class Function<T> implements IFunction<T> {
 			if (!Double.isNaN(marginalPrice)) {
 				double partialDerivativePerPrice = partialDerivative
 						/ marginalPrice;
-				if (Double.isNaN(partialDerivativePerPrice))
-					throw new RuntimeException();
+
+				assert (!Double.isNaN(partialDerivativePerPrice));
+
 				if (partialDerivativePerPrice > highestPartialDerivatePerPrice) {
 					optimalInputType = inputType;
 					highestPartialDerivatePerPrice = partialDerivativePerPrice;

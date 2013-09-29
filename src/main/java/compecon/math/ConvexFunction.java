@@ -55,6 +55,8 @@ public abstract class ConvexFunction<T> extends Function<T> {
 			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
 			final double budget, final int numberOfIterations) {
 
+		assert (numberOfIterations > 0);
+
 		// check if inputs have NaN prices
 		boolean pricesAreNaN = false;
 		for (T inputType : this.getInputTypes()) {
@@ -117,9 +119,9 @@ public abstract class ConvexFunction<T> extends Function<T> {
 			if (optimalInputType == null) {
 				break;
 			} else {
-				double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes.get(
-						optimalInputType).getMarginalPrice(
-						bundleOfInputs.get(optimalInputType));
+				double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
+						.get(optimalInputType).getMarginalPrice(
+								bundleOfInputs.get(optimalInputType));
 				double amount = (budget / (double) NUMBER_OF_ITERATIONS)
 						/ marginalPriceOfOptimalInputType;
 				bundleOfInputs.put(optimalInputType,

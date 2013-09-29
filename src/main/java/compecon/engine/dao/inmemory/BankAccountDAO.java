@@ -51,32 +51,35 @@ public class BankAccountDAO extends AgentIndexedInMemoryDAO<BankAccount>
 
 	@Override
 	public synchronized void delete(BankAccount bankAccount) {
-		assureInitializedDataStructure(bankAccount.getManagingBank());
-
-		this.bankAccounts.get(bankAccount.getManagingBank())
-				.remove(bankAccount);
+		if (this.bankAccounts.containsKey(bankAccount.getManagingBank())) {
+			this.bankAccounts.get(bankAccount.getManagingBank()).remove(
+					bankAccount);
+		}
 		super.delete(bankAccount);
 	}
 
 	@Override
 	public void deleteAllBankAccounts(Bank managingBank) {
-		assureInitializedDataStructure(managingBank);
-
-		for (BankAccount bankAccount : new HashSet<BankAccount>(
-				this.bankAccounts.get(managingBank))) {
-			this.delete(bankAccount);
+		if (this.bankAccounts.containsKey(managingBank)) {
+			for (BankAccount bankAccount : new HashSet<BankAccount>(
+					this.bankAccounts.get(managingBank))) {
+				this.delete(bankAccount);
+			}
 		}
 		this.bankAccounts.remove(managingBank);
 	}
 
 	@Override
 	public void deleteAllBankAccounts(Bank managingBank, Agent owner) {
-		assureInitializedDataStructure(managingBank);
-
-		for (BankAccount bankAccount : new HashSet<BankAccount>(
-				this.getInstancesForAgent(owner))) {
-			if (bankAccount.getManagingBank() == managingBank)
-				this.delete(bankAccount);
+		if (this.bankAccounts.containsKey(managingBank)) {
+			List<BankAccount> bankAccounts = this.getInstancesForAgent(owner);
+			if (bankAccounts != null) {
+				for (BankAccount bankAccount : new HashSet<BankAccount>(
+						bankAccounts)) {
+					if (bankAccount.getManagingBank() == managingBank)
+						this.delete(bankAccount);
+				}
+			}
 		}
 	}
 
