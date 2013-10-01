@@ -60,7 +60,7 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 			double periodIncome = averageIncomePerPeriod;
 			int periodNumber = period.ordinal();
 			discountedBudget += periodIncome
-					/ Math.pow(1 + keyInterestRate, periodNumber);
+					/ Math.pow(1.0 + keyInterestRate, periodNumber);
 		}
 
 		// resulting consumption plan
@@ -72,7 +72,7 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 			double periodConsumption = entry.getValue();
 			int periodNumber = entry.getKey().ordinal();
 			double discountedValue = periodConsumption
-					* Math.pow(1 + keyInterestRate, periodNumber);
+					* Math.pow(1.0 + keyInterestRate, periodNumber);
 			intermediateResult.put(entry.getKey(), discountedValue);
 		}
 

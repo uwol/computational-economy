@@ -45,15 +45,15 @@ public class OptimizationRunner {
 		ConfigurationUtil.TraderConfig.number.put(Currency.YEN, 0);
 
 		double highestTotalUtility = 0.0;
-		int optimalI = -1;
+		double optimalI = -1;
 
-		for (int i = 1; i < 30; i++) {
+		for (double i = 0.01; i < 0.5; i += 0.03) {
 			for (int repetition = 0; repetition < 3; repetition++) {
-				ConfigurationUtil.PricingBehaviourConfig.defaultNumberOfPrices = i;
+				ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrement = i;
 
 				System.out
-						.println("starting simulation run for defaultNumberOfPrices: "
-								+ ConfigurationUtil.PricingBehaviourConfig.defaultNumberOfPrices);
+						.println("starting simulation run for defaultPriceChangeIncrement: "
+								+ ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrement);
 
 				Simulation simulation = new Simulation(false,
 						new GregorianCalendar(2001, 7, 1).getTime());
@@ -63,20 +63,20 @@ public class OptimizationRunner {
 						.getValue();
 
 				System.out
-						.println("simulation run finished for defaultNumberOfPrices: "
-								+ ConfigurationUtil.PricingBehaviourConfig.defaultNumberOfPrices
+						.println("simulation run finished for defaultPriceChangeIncrement: "
+								+ ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrement
 								+ " with totalUtility: " + totalUtility);
 
 				if (totalUtility > highestTotalUtility) {
 					System.out.println("total utility improved");
 					highestTotalUtility = totalUtility;
-					optimalI = ConfigurationUtil.PricingBehaviourConfig.defaultNumberOfPrices;
+					optimalI = ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrement;
 				}
 			}
 		}
 
 		System.out.println("best simulation run had total utility: "
-				+ highestTotalUtility + " with defaultNumberOfPrices: "
+				+ highestTotalUtility + " with defaultPriceChangeIncrement: "
 				+ optimalI);
 	}
 }

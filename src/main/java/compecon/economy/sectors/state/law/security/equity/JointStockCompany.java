@@ -148,8 +148,8 @@ public abstract class JointStockCompany extends Agent {
 						.calculateTotalDividend();
 
 				// dividend to be payed?
-				if (totalDividend > 0) {
-					double totalDividendPayed = 0;
+				if (totalDividend > 0.0) {
+					double totalDividendPayed = 0.0;
 
 					Currency currency = JointStockCompany.this.transactionsBankAccount
 							.getCurrency();
@@ -211,8 +211,8 @@ public abstract class JointStockCompany extends Agent {
 					JointStockCompany.this.issuedShares.add(initialShare);
 					MarketFactory.getInstance().placeSettlementSellingOffer(
 							initialShare, JointStockCompany.this,
-							JointStockCompany.this.transactionsBankAccount, 0,
-							new SettlementMarketEvent());
+							JointStockCompany.this.transactionsBankAccount,
+							0.0, new SettlementMarketEvent());
 				}
 			}
 		}
