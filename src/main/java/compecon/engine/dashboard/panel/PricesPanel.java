@@ -38,8 +38,8 @@ import org.jfree.data.xy.DefaultHighLowDataset;
 
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Simulation;
-import compecon.engine.statistics.model.PricesModel;
 import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
+import compecon.engine.statistics.model.PricesModel;
 import compecon.engine.statistics.model.PricesModel.PriceModel;
 import compecon.materia.GoodType;
 
@@ -82,6 +82,8 @@ public class PricesPanel extends AbstractChartsPanel implements IModelListener {
 							selectedCurrency = panelForCurrency.getKey();
 						}
 					}
+
+					notifyListener();
 				}
 			}
 		});

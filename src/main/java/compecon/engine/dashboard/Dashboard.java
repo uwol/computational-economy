@@ -86,16 +86,19 @@ public class Dashboard extends JFrame {
 					Component selectecComponent = pane.getSelectedComponent();
 
 					// log panel
-					if (selectecComponent.equals(Dashboard.this.logPanel))
+					if (selectecComponent.equals(Dashboard.this.logPanel)) {
 						Dashboard.this.logPanel.setRefresh(true);
-					else
+					} else {
 						Dashboard.this.logPanel.setRefresh(false);
+					}
 
 					// prices panel
 					if (selectecComponent.equals(Dashboard.this.pricesPanel)) {
 						Dashboard.this.pricesPanel.setRefresh(true);
-					} else
+						Dashboard.this.pricesPanel.notifyListener();
+					} else {
 						Dashboard.this.pricesPanel.setRefresh(false);
+					}
 				}
 			}
 		});
