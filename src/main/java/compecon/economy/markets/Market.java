@@ -422,6 +422,25 @@ public abstract class Market {
 		return priceFunctions;
 	}
 
+	public Iterator<MarketOrder> getMarketOrderIterator(
+			Currency denominatedInCurrency, GoodType goodType) {
+		return DAOFactory.getMarketOrderDAO().getIterator(
+				denominatedInCurrency, goodType);
+	}
+
+	public Iterator<MarketOrder> getMarketOrderIterator(
+			Currency denominatedInCurrency, Currency commodityCurrency) {
+		return DAOFactory.getMarketOrderDAO().getIterator(
+				denominatedInCurrency, commodityCurrency);
+	}
+
+	public Iterator<MarketOrder> getMarketOrderIterator(
+			Currency denominatedInCurrency,
+			Class<? extends Property> propertyClass) {
+		return DAOFactory.getMarketOrderDAO().getIterator(
+				denominatedInCurrency, propertyClass);
+	}
+
 	/**
 	 * p(x) = p_1 * x | 0 <= x < a_1 <br />
 	 * p(x) = [p_1 * a_1 + p_2 * (x - a_1)] / [a_1 + (x - a_1)] | a_1 <= x < a_2 <br />

@@ -176,67 +176,75 @@ public class NationalAccountsPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			Map<Class<? extends Agent>, BalanceSheet> balanceSheetsForAgentTypes = Simulation
-					.getInstance().getModelRegistry()
-					.getBalanceSheetsModel(referenceCurrency)
-					.getNationalAccountsBalanceSheets();
+			if (NationalAccountsPanel.this.isShowing()) {
 
-			for (Entry<Class<? extends Agent>, BalanceSheet> balanceSheetEntry : balanceSheetsForAgentTypes
-					.entrySet()) {
-				Class<? extends Agent> agentType = balanceSheetEntry.getKey();
-				BalanceSheet balanceSheet = balanceSheetEntry.getValue();
+				Map<Class<? extends Agent>, BalanceSheet> balanceSheetsForAgentTypes = Simulation
+						.getInstance().getModelRegistry()
+						.getBalanceSheetsModel(referenceCurrency)
+						.getNationalAccountsBalanceSheets();
 
-				if (balanceSheet != null) {
-					int agentTypeNr = AgentFactory.agentTypes
-							.indexOf(agentType);
+				for (Entry<Class<? extends Agent>, BalanceSheet> balanceSheetEntry : balanceSheetsForAgentTypes
+						.entrySet()) {
+					Class<? extends Agent> agentType = balanceSheetEntry
+							.getKey();
+					BalanceSheet balanceSheet = balanceSheetEntry.getValue();
 
-					// active
-					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-							POSITION_HARD_CASH, agentTypeNr, referenceCurrency,
-							Currency.round(balanceSheet.hardCash));
-					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-							POSITION_CASH_SHORT_TERM, agentTypeNr,
-							referenceCurrency,
-							Currency.round(balanceSheet.cashShortTerm));
-					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-							POSITION_CASH_LONG_TERM, agentTypeNr,
-							referenceCurrency,
-							Currency.round(balanceSheet.cashLongTerm));
-					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-							POSITION_BONDS, agentTypeNr, referenceCurrency,
-							Currency.round(balanceSheet.bonds));
-					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-							POSITION_BANK_LOANS, agentTypeNr,
-							referenceCurrency,
-							Currency.round(balanceSheet.bankLoans));
-					this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
-							POSITION_INVENTORY, agentTypeNr, referenceCurrency,
-							Currency.round(balanceSheet.inventoryValue));
+					if (balanceSheet != null) {
+						int agentTypeNr = AgentFactory.agentTypes
+								.indexOf(agentType);
 
-					for (GoodType goodType : GoodType.values()) {
-						if (balanceSheet.inventoryQuantitative
-								.containsKey(goodType))
-							this.setValue(
-									NationalAccountsTableModel.SIDE_ACTIVE,
-									NationalAccountsTableModel.STARTPOSITION_GOODTYPES
-											+ goodType.ordinal(), agentTypeNr,
-									referenceCurrency,
-									balanceSheet.inventoryQuantitative
-											.get(goodType));
+						// active
+						this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+								POSITION_HARD_CASH, agentTypeNr,
+								referenceCurrency,
+								Currency.round(balanceSheet.hardCash));
+						this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+								POSITION_CASH_SHORT_TERM, agentTypeNr,
+								referenceCurrency,
+								Currency.round(balanceSheet.cashShortTerm));
+						this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+								POSITION_CASH_LONG_TERM, agentTypeNr,
+								referenceCurrency,
+								Currency.round(balanceSheet.cashLongTerm));
+						this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+								POSITION_BONDS, agentTypeNr, referenceCurrency,
+								Currency.round(balanceSheet.bonds));
+						this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+								POSITION_BANK_LOANS, agentTypeNr,
+								referenceCurrency,
+								Currency.round(balanceSheet.bankLoans));
+						this.setValue(NationalAccountsTableModel.SIDE_ACTIVE,
+								POSITION_INVENTORY, agentTypeNr,
+								referenceCurrency,
+								Currency.round(balanceSheet.inventoryValue));
+
+						for (GoodType goodType : GoodType.values()) {
+							if (balanceSheet.inventoryQuantitative
+									.containsKey(goodType))
+								this.setValue(
+										NationalAccountsTableModel.SIDE_ACTIVE,
+										NationalAccountsTableModel.STARTPOSITION_GOODTYPES
+												+ goodType.ordinal(),
+										agentTypeNr, referenceCurrency,
+										balanceSheet.inventoryQuantitative
+												.get(goodType));
+						}
+
+						// passive
+						this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
+								POSITION_LOANS, agentTypeNr, referenceCurrency,
+								Currency.round(balanceSheet.loans));
+						this.setValue(
+								NationalAccountsTableModel.SIDE_PASSIVE,
+								POSITION_FIN_LIABLITIES,
+								agentTypeNr,
+								referenceCurrency,
+								Currency.round(balanceSheet.financialLiabilities));
+						this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
+								POSITION_BANK_BORROWINGS, agentTypeNr,
+								referenceCurrency,
+								Currency.round(balanceSheet.bankBorrowings));
 					}
-
-					// passive
-					this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
-							POSITION_LOANS, agentTypeNr, referenceCurrency,
-							Currency.round(balanceSheet.loans));
-					this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
-							POSITION_FIN_LIABLITIES, agentTypeNr,
-							referenceCurrency,
-							Currency.round(balanceSheet.financialLiabilities));
-					this.setValue(NationalAccountsTableModel.SIDE_PASSIVE,
-							POSITION_BANK_BORROWINGS, agentTypeNr,
-							referenceCurrency,
-							Currency.round(balanceSheet.bankBorrowings));
 				}
 			}
 		}
@@ -281,38 +289,43 @@ public class NationalAccountsPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			// source data model
-			Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrixForCurrency = Simulation
-					.getInstance().getModelRegistry()
-					.getMonetaryTransactionsModel(referenceCurrency)
-					.getAdjacencyMatrix();
+			if (NationalAccountsPanel.this.isShowing()) {
 
-			// for all agent types as sources of monetary transactions ->
-			// rows
-			for (int i = 0; i < AgentFactory.agentTypes.size(); i++) {
-				Class<? extends Agent> agentTypeFrom = AgentFactory.agentTypes
-						.get(i);
-				Map<Class<? extends Agent>, PeriodDataAccumulator> adjacencyMatrixForCurrencyAndFromAgentType = adjacencyMatrixForCurrency
-						.get(agentTypeFrom);
+				// source data model
+				Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrixForCurrency = Simulation
+						.getInstance().getModelRegistry()
+						.getMonetaryTransactionsModel(referenceCurrency)
+						.getAdjacencyMatrix();
 
-				// row name
-				this.transientTableData[i][0] = agentTypeFrom.getSimpleName();
+				// for all agent types as sources of monetary transactions ->
+				// rows
+				for (int i = 0; i < AgentFactory.agentTypes.size(); i++) {
+					Class<? extends Agent> agentTypeFrom = AgentFactory.agentTypes
+							.get(i);
+					Map<Class<? extends Agent>, PeriodDataAccumulator> adjacencyMatrixForCurrencyAndFromAgentType = adjacencyMatrixForCurrency
+							.get(agentTypeFrom);
 
-				// for all agent types as destinations of monetary
-				// transactions
-				// ->
-				// columns
-				for (int j = 0; j < AgentFactory.agentTypes.size(); j++) {
-					Class<? extends Agent> agentTypeTo = AgentFactory.agentTypes
-							.get(j);
-					PeriodDataAccumulator periodTransactionVolume = adjacencyMatrixForCurrencyAndFromAgentType
-							.get(agentTypeTo);
-					this.transientTableData[i][j + 1] = Currency
-							.formatMoneySum(periodTransactionVolume.getAmount());
-					periodTransactionVolume.reset();
+					// row name
+					this.transientTableData[i][0] = agentTypeFrom
+							.getSimpleName();
+
+					// for all agent types as destinations of monetary
+					// transactions
+					// ->
+					// columns
+					for (int j = 0; j < AgentFactory.agentTypes.size(); j++) {
+						Class<? extends Agent> agentTypeTo = AgentFactory.agentTypes
+								.get(j);
+						PeriodDataAccumulator periodTransactionVolume = adjacencyMatrixForCurrencyAndFromAgentType
+								.get(agentTypeTo);
+						this.transientTableData[i][j + 1] = Currency
+								.formatMoneySum(periodTransactionVolume
+										.getAmount());
+						periodTransactionVolume.reset();
+					}
 				}
+				this.fireTableDataChanged();
 			}
-			this.fireTableDataChanged();
 		}
 	}
 

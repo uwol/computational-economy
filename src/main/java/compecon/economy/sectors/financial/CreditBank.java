@@ -512,7 +512,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						- bankAccountAtCentralBank.getBalance();
 
 				// not enough money deposited at central bank
-				if (moneyReserveGap > 0) {
+				if (moneyReserveGap > 0.0) {
 					// calculate number of bonds needed to deposit them at
 					// central bank for credit
 
@@ -558,11 +558,11 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 				assert (bankAccount.getCurrency()
 						.equals(CreditBank.this.primaryCurrency));
 
-				if (bankAccount.getBalance() > 0) // passive account
+				if (bankAccount.getBalance() > 0.0) // passive account
 					balanceSheet.bankBorrowings += bankAccount.getBalance();
 				else
 					// active account
-					balanceSheet.bankLoans += bankAccount.getBalance() * -1;
+					balanceSheet.bankLoans += bankAccount.getBalance() * -1.0;
 			}
 
 			// TODO: bank accounts of banks

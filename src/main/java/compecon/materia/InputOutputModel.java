@@ -95,14 +95,14 @@ public class InputOutputModel {
 		case REALESTATE:
 			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
 
-		case CRAFT:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		case EDUCATION:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		case ADMINISTRATION:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		case CONSULTING:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
+			// case CRAFT:
+			// return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
+			// case EDUCATION:
+			// return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
+			// case ADMINISTRATION:
+			// return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
+			// case CONSULTING:
+			// return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
 		default:
 			return null;
 		}
@@ -152,29 +152,34 @@ public class InputOutputModel {
 			return new CESProductionFunction(1.0, parametersRealEstate, -0.8,
 					0.7);
 
-		case CRAFT:
-			Map<GoodType, Double> parametersCraft = new LinkedHashMap<GoodType, Double>();
-			parametersCraft.put(GoodType.LABOURHOUR, 0.9);
-			parametersCraft.put(GoodType.KILOWATT, 0.1);
-			return new CESProductionFunction(1.0, parametersCraft, -0.9, 0.8);
-		case EDUCATION:
-			Map<GoodType, Double> parametersEducation = new LinkedHashMap<GoodType, Double>();
-			parametersEducation.put(GoodType.LABOURHOUR, 0.9);
-			parametersEducation.put(GoodType.KILOWATT, 0.1);
-			return new CESProductionFunction(1.0, parametersEducation, -0.9,
-					0.8);
-		case ADMINISTRATION:
-			Map<GoodType, Double> parametersAdministration = new LinkedHashMap<GoodType, Double>();
-			parametersAdministration.put(GoodType.LABOURHOUR, 0.9);
-			parametersAdministration.put(GoodType.KILOWATT, 0.1);
-			return new CESProductionFunction(1.0, parametersAdministration,
-					-0.9, 0.8);
-		case CONSULTING:
-			Map<GoodType, Double> parametersConsulting = new LinkedHashMap<GoodType, Double>();
-			parametersConsulting.put(GoodType.LABOURHOUR, 0.9);
-			parametersConsulting.put(GoodType.KILOWATT, 0.1);
-			return new CESProductionFunction(1.0, parametersConsulting, -0.9,
-					0.8);
+			// case CRAFT:
+			// Map<GoodType, Double> parametersCraft = new
+			// LinkedHashMap<GoodType, Double>();
+			// parametersCraft.put(GoodType.LABOURHOUR, 0.9);
+			// parametersCraft.put(GoodType.KILOWATT, 0.1);
+			// return new CESProductionFunction(1.0, parametersCraft, -0.9,
+			// 0.8);
+			// case EDUCATION:
+			// Map<GoodType, Double> parametersEducation = new
+			// LinkedHashMap<GoodType, Double>();
+			// parametersEducation.put(GoodType.LABOURHOUR, 0.9);
+			// parametersEducation.put(GoodType.KILOWATT, 0.1);
+			// return new CESProductionFunction(1.0, parametersEducation, -0.9,
+			// 0.8);
+			// case ADMINISTRATION:
+			// Map<GoodType, Double> parametersAdministration = new
+			// LinkedHashMap<GoodType, Double>();
+			// parametersAdministration.put(GoodType.LABOURHOUR, 0.9);
+			// parametersAdministration.put(GoodType.KILOWATT, 0.1);
+			// return new CESProductionFunction(1.0, parametersAdministration,
+			// -0.9, 0.8);
+			// case CONSULTING:
+			// Map<GoodType, Double> parametersConsulting = new
+			// LinkedHashMap<GoodType, Double>();
+			// parametersConsulting.put(GoodType.LABOURHOUR, 0.9);
+			// parametersConsulting.put(GoodType.KILOWATT, 0.1);
+			// return new CESProductionFunction(1.0, parametersConsulting, -0.9,
+			// 0.8);
 		default:
 			return null;
 		}

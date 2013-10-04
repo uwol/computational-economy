@@ -31,6 +31,7 @@ import javax.persistence.Transient;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.debt.Bond;
 import compecon.economy.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.MarketFactory;
@@ -285,7 +286,11 @@ public class CentralBank extends Bank {
 		for (Bond bond : bonds) {
 			BankAccount bankAccount = DAOFactory.getBankAccountDAO()
 					.findAll(this, creditBank).get(0);
+
 			bankAccount.deposit(bond.getFaceValue());
+			PropertyRegister.getInstance().transferProperty(creditBank, this,
+					bond);
+
 			if (Log.isAgentSelectedByClient(creditBank))
 				Log.log(creditBank,
 						"obtained a tender of "
@@ -347,8 +352,12 @@ public class CentralBank extends Bank {
 	}
 
 	protected double calculateTotalDividend() {
-		// central banks transfer their profit to the state, not arbitrary
-		// agents -> deactivate dividends, transfer money in separate event
+		/**
+		 * central banks transfer their profit to the state, not arbitrary
+		 * agents -> deactivate dividends, transfer money in separate event
+		 * 
+		 * @see DailyInterestCalculationEvent
+		 */
 		return 0.0;
 	}
 
@@ -362,26 +371,26 @@ public class CentralBank extends Bank {
 				double monthlyInterest = bankAccount.getBalance()
 						* CentralBank.this
 								.calculateMonthlyNominalInterestRate(CentralBank.this.effectiveKeyInterestRate);
-				double dailyInterest = monthlyInterest / 30;
+				double dailyInterest = monthlyInterest / 30.0;
 
 				// liability account + positive interest rate or asset account +
 				// negative interest rate
-				if (dailyInterest > 0) {
+				if (dailyInterest > 0.0) {
 					CentralBank.this.transferMoneyInternally(
 							CentralBank.this.transactionsBankAccount,
 							bankAccount, dailyInterest);
 				}
 				// asset account + positive interest rate or liability
 				// account + negative interest rate
-				else if (dailyInterest < 0) {
-					dailyInterest = -1 * dailyInterest;
+				else if (dailyInterest < 0.0) {
+					dailyInterest = -1.0 * dailyInterest;
 					CentralBank.this.transferMoneyInternally(bankAccount,
 							CentralBank.this.transactionsBankAccount,
 							dailyInterest);
 				}
 			}
 
-			if (CentralBank.this.transactionsBankAccount.getBalance() > 0) {
+			if (CentralBank.this.transactionsBankAccount.getBalance() > 0.0) {
 				State state = DAOFactory.getStateDAO().findByCurrency(
 						primaryCurrency);
 				CentralBank.this.transferMoney(
@@ -429,11 +438,11 @@ public class CentralBank extends Bank {
 			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(CentralBank.this)) {
 				// TODO compare with referenceCurrency of balance sheet
-				if (bankAccount.getBalance() > 0) // passive account
+				if (bankAccount.getBalance() > 0.0) // passive account
 					balanceSheet.bankBorrowings += bankAccount.getBalance();
 				else
 					// active account
-					balanceSheet.bankLoans += bankAccount.getBalance() * -1;
+					balanceSheet.bankLoans += bankAccount.getBalance() * -1.0;
 			}
 
 			// --------------
@@ -463,7 +472,7 @@ public class CentralBank extends Bank {
 
 		protected Map<GoodType, Double> averageMarginalPricesForGoodTypes = new HashMap<GoodType, Double>();
 
-		protected double priceIndex = 0;
+		protected double priceIndex = 0.0;
 
 		public StatisticalOffice() {
 			/*

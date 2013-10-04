@@ -30,7 +30,7 @@ public class PropertyDAO extends AgentIndexedInMemoryDAO<Property> implements
 		IPropertyDAO {
 
 	@Override
-	public List<Property> findAllByAgent(Agent agent) {
+	public synchronized List<Property> findAllByAgent(Agent agent) {
 		if (this.getInstancesForAgent(agent) != null)
 			return new ArrayList<Property>(this.getInstancesForAgent(agent));
 		return new ArrayList<Property>();
@@ -42,7 +42,7 @@ public class PropertyDAO extends AgentIndexedInMemoryDAO<Property> implements
 	}
 
 	@Override
-	public void transferProperty(Agent oldOwner, Agent newOwner,
+	public synchronized void transferProperty(Agent oldOwner, Agent newOwner,
 			Property property) {
 		// the property is deleted and re-saved, so that the
 		// agent-property-index is updated

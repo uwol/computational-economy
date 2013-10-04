@@ -34,7 +34,7 @@ import compecon.engine.statistics.model.NotificationListenerModel.IModelListener
 
 public class BalanceSheetPanel extends JPanel {
 
-	public static abstract class BalanceSheetTableModel extends
+	public abstract static class BalanceSheetTableModel extends
 			AbstractTableModel implements IModelListener {
 		public final Currency referenceCurrency;
 

@@ -59,7 +59,7 @@ public class BankAccountDAO extends AgentIndexedInMemoryDAO<BankAccount>
 	}
 
 	@Override
-	public void deleteAllBankAccounts(Bank managingBank) {
+	public synchronized void deleteAllBankAccounts(Bank managingBank) {
 		if (this.bankAccounts.containsKey(managingBank)) {
 			for (BankAccount bankAccount : new HashSet<BankAccount>(
 					this.bankAccounts.get(managingBank))) {
@@ -70,7 +70,8 @@ public class BankAccountDAO extends AgentIndexedInMemoryDAO<BankAccount>
 	}
 
 	@Override
-	public void deleteAllBankAccounts(Bank managingBank, Agent owner) {
+	public synchronized void deleteAllBankAccounts(Bank managingBank,
+			Agent owner) {
 		if (this.bankAccounts.containsKey(managingBank)) {
 			List<BankAccount> bankAccounts = this.getInstancesForAgent(owner);
 			if (bankAccounts != null) {
@@ -84,7 +85,8 @@ public class BankAccountDAO extends AgentIndexedInMemoryDAO<BankAccount>
 	}
 
 	@Override
-	public List<BankAccount> findAllBankAccountsManagedByBank(Bank managingBank) {
+	public synchronized List<BankAccount> findAllBankAccountsManagedByBank(
+			Bank managingBank) {
 		assureInitializedDataStructure(managingBank);
 
 		List<BankAccount> bankAccountManagedByBank = this.bankAccounts
@@ -93,7 +95,7 @@ public class BankAccountDAO extends AgentIndexedInMemoryDAO<BankAccount>
 	}
 
 	@Override
-	public List<BankAccount> findAllBankAccountsOfAgent(Agent owner) {
+	public synchronized List<BankAccount> findAllBankAccountsOfAgent(Agent owner) {
 		List<BankAccount> bankAccounts = this.getInstancesForAgent(owner);
 		if (bankAccounts != null)
 			return new ArrayList<BankAccount>(bankAccounts);
@@ -101,7 +103,7 @@ public class BankAccountDAO extends AgentIndexedInMemoryDAO<BankAccount>
 	}
 
 	@Override
-	public List<BankAccount> findAll(Bank managingBank, Agent owner) {
+	public synchronized List<BankAccount> findAll(Bank managingBank, Agent owner) {
 		List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank)
@@ -111,8 +113,8 @@ public class BankAccountDAO extends AgentIndexedInMemoryDAO<BankAccount>
 	}
 
 	@Override
-	public List<BankAccount> findAll(Bank managingBank, Agent owner,
-			Currency currency) {
+	public synchronized List<BankAccount> findAll(Bank managingBank,
+			Agent owner, Currency currency) {
 		List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank

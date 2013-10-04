@@ -31,7 +31,7 @@ public class GoodTypeOwnershipDAO extends
 		IGoodTypeOwnershipDAO {
 
 	@Override
-	public List<GoodTypeOwnership> findAllByAgent(Agent agent) {
+	public synchronized List<GoodTypeOwnership> findAllByAgent(Agent agent) {
 		if (this.getInstancesForAgent(agent) != null)
 			return new ArrayList<GoodTypeOwnership>(
 					this.getInstancesForAgent(agent));
@@ -39,7 +39,7 @@ public class GoodTypeOwnershipDAO extends
 	}
 
 	@Override
-	public GoodTypeOwnership findFirstByAgent(Agent agent) {
+	public synchronized GoodTypeOwnership findFirstByAgent(Agent agent) {
 		List<GoodTypeOwnership> goodTypeOwnerships = this
 				.getInstancesForAgent(agent);
 		if (goodTypeOwnerships != null && !goodTypeOwnerships.isEmpty())

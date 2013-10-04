@@ -74,8 +74,10 @@ public class LogPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			this.fireContentsChanged(this, 0, LogPanel.this.agentDetailModel
-					.getAgents().size());
+			if (LogPanel.this.isShowing()) {
+				this.fireContentsChanged(this, 0,
+						LogPanel.this.agentDetailModel.getAgents().size());
+			}
 		}
 	}
 
@@ -129,7 +131,7 @@ public class LogPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			if (LogPanel.this.refresh) {
+			if (LogPanel.this.isShowing()) {
 				if (Log.getAgentSelectedByClient() != null)
 					this.fireTableDataChanged();
 			}
@@ -181,7 +183,7 @@ public class LogPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			if (LogPanel.this.refresh) {
+			if (LogPanel.this.isShowing()) {
 				if (Log.getAgentSelectedByClient() != null)
 					this.fireTableDataChanged();
 			}
@@ -232,7 +234,7 @@ public class LogPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			if (LogPanel.this.refresh) {
+			if (LogPanel.this.isShowing()) {
 				if (Log.getAgentSelectedByClient() != null)
 					this.fireTableDataChanged();
 			}
@@ -278,7 +280,7 @@ public class LogPanel extends JPanel {
 
 		@Override
 		public void notifyListener() {
-			if (LogPanel.this.refresh) {
+			if (LogPanel.this.isShowing()) {
 				if (Log.getAgentSelectedByClient() != null)
 					this.fireTableDataChanged();
 			}
@@ -302,8 +304,6 @@ public class LogPanel extends JPanel {
 	protected AgentGoodsTableModel agentGoodsTableModel = new AgentGoodsTableModel();
 
 	protected AgentPropertyTableModel agentPropertyTableModel = new AgentPropertyTableModel();
-
-	protected boolean refresh = false;
 
 	protected final JList<Agent> agentsList;
 
@@ -388,7 +388,4 @@ public class LogPanel extends JPanel {
 		setVisible(true);
 	}
 
-	public void setRefresh(boolean refresh) {
-		this.refresh = refresh;
-	}
 }

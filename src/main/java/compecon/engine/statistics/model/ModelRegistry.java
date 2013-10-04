@@ -194,6 +194,7 @@ public class ModelRegistry {
 					referenceCurrency.getIso4217Code() + " "
 							+ GoodType.LABOURHOUR + " cap.");
 			this.pricesModel = new PricesModel();
+			this.marketDepthModel = new MarketDepthModel();
 			this.utilityModel = new UtilityModel(this.referenceCurrency);
 			this.keyInterestRateModel = new PeriodDataAccumulatorTimeSeriesModel(
 					referenceCurrency.getIso4217Code() + " key interest rate");
@@ -242,6 +243,8 @@ public class ModelRegistry {
 
 		public final PricesModel pricesModel;
 
+		public final MarketDepthModel marketDepthModel;
+
 		// money
 
 		public final PeriodDataAccumulatorTimeSeriesModel keyInterestRateModel;
@@ -275,6 +278,7 @@ public class ModelRegistry {
 			incomeSourceModel.nextPeriod();
 			incomeDistributionModel.nextPeriod();
 			keyInterestRateModel.nextPeriod();
+			marketDepthModel.nextPeriod();
 			monetaryTransactionsModel.nextPeriod();
 			moneySupplyM0Model.nextPeriod();
 			moneySupplyM1Model.nextPeriod();
@@ -385,6 +389,10 @@ public class ModelRegistry {
 	public MonetaryTransactionsModel getMonetaryTransactionsModel(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).monetaryTransactionsModel;
+	}
+
+	public MarketDepthModel getMarketDepthModel(Currency currency) {
+		return nationalEconomyModels.get(currency).marketDepthModel;
 	}
 
 	public PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM0Model(

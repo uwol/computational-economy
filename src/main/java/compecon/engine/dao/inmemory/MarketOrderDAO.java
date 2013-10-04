@@ -289,6 +289,20 @@ public class MarketOrderDAO extends AgentIndexedInMemoryDAO<MarketOrder>
 	}
 
 	@Override
+	public synchronized Iterator<MarketOrder> getIteratorThreadsafe(
+			Currency currency, GoodType goodType) {
+		return new TreeSet<MarketOrder>(
+				this.getMarketOrders(currency, goodType)).iterator();
+	}
+
+	@Override
+	public synchronized Iterator<MarketOrder> getIteratorThreadsafe(
+			Currency currency, Currency commodityCurrency) {
+		return new TreeSet<MarketOrder>(this.getMarketOrders(currency,
+				commodityCurrency)).iterator();
+	}
+
+	@Override
 	public synchronized double getAmountSum(Currency currency, GoodType goodType) {
 		Iterator<MarketOrder> iterator = DAOFactory.getMarketOrderDAO()
 				.getIterator(currency, goodType);

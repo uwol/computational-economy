@@ -274,8 +274,12 @@ public abstract class Agent {
 		// bonds
 		for (Property property : PropertyRegister.getInstance().getProperties(
 				Agent.this)) {
-			if (property instanceof Bond)
-				balanceSheet.bonds += ((Bond) property).getFaceValue();
+			if (property instanceof Bond) {
+				Bond bond = ((Bond) property);
+				if (!bond.isDeconstructed()) {
+					balanceSheet.bonds += ((Bond) property).getFaceValue();
+				}
+			}
 		}
 
 		// inventory by value

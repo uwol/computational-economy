@@ -28,13 +28,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import compecon.engine.dashboard.panel.AgentsPanel;
+import compecon.engine.dashboard.panel.BanksPanel;
 import compecon.engine.dashboard.panel.ControlPanel;
-import compecon.engine.dashboard.panel.HouseholdPanel;
-import compecon.engine.dashboard.panel.IndustryPanel;
+import compecon.engine.dashboard.panel.HouseholdsPanel;
+import compecon.engine.dashboard.panel.IndustriesPanel;
 import compecon.engine.dashboard.panel.LogPanel;
 import compecon.engine.dashboard.panel.MoneyPanel;
 import compecon.engine.dashboard.panel.NationalAccountsPanel;
-import compecon.engine.dashboard.panel.PricesPanel;
 
 public class Dashboard extends JFrame {
 
@@ -42,13 +42,13 @@ public class Dashboard extends JFrame {
 
 	protected final AgentsPanel agentsPanel = new AgentsPanel();
 
-	protected final HouseholdPanel householdPanel = new HouseholdPanel();
+	protected final HouseholdsPanel householdsPanel = new HouseholdsPanel();
 
-	protected final IndustryPanel industryPanel = new IndustryPanel();
+	protected final IndustriesPanel industriesPanel = new IndustriesPanel();
+
+	protected final BanksPanel banksPanel = new BanksPanel();
 
 	protected final MoneyPanel moneyPanel = new MoneyPanel();
-
-	protected final PricesPanel pricesPanel = new PricesPanel();
 
 	protected final NationalAccountsPanel nationalAccountsPanel = new NationalAccountsPanel();
 
@@ -72,10 +72,10 @@ public class Dashboard extends JFrame {
 		 */
 		this.jTabbedPane = new JTabbedPane();
 		this.jTabbedPane.addTab("Agents", this.agentsPanel);
-		this.jTabbedPane.addTab("Households", this.householdPanel);
-		this.jTabbedPane.addTab("Industries", this.industryPanel);
+		this.jTabbedPane.addTab("Households", this.householdsPanel);
+		this.jTabbedPane.addTab("Industries", this.industriesPanel);
+		this.jTabbedPane.addTab("Banks", this.banksPanel);
 		this.jTabbedPane.addTab("Money", this.moneyPanel);
-		this.jTabbedPane.addTab("Prices", this.pricesPanel);
 		this.jTabbedPane.addTab("National Accounts", nationalAccountsPanel);
 		this.jTabbedPane.addTab("Logs", this.logPanel);
 
@@ -83,21 +83,21 @@ public class Dashboard extends JFrame {
 			public void stateChanged(ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
 					JTabbedPane pane = (JTabbedPane) e.getSource();
-					Component selectecComponent = pane.getSelectedComponent();
+					Component selectedComponent = pane.getSelectedComponent();
 
-					// log panel
-					if (selectecComponent.equals(Dashboard.this.logPanel)) {
-						Dashboard.this.logPanel.setRefresh(true);
-					} else {
-						Dashboard.this.logPanel.setRefresh(false);
+					// industryPanel panel
+					if (selectedComponent.equals(Dashboard.this.industriesPanel)) {
+						Dashboard.this.industriesPanel.notifyListener();
 					}
 
-					// prices panel
-					if (selectecComponent.equals(Dashboard.this.pricesPanel)) {
-						Dashboard.this.pricesPanel.setRefresh(true);
-						Dashboard.this.pricesPanel.notifyListener();
-					} else {
-						Dashboard.this.pricesPanel.setRefresh(false);
+					// householdPanel panel
+					if (selectedComponent.equals(Dashboard.this.householdsPanel)) {
+						Dashboard.this.householdsPanel.notifyListener();
+					}
+
+					// banks panel
+					if (selectedComponent.equals(Dashboard.this.banksPanel)) {
+						Dashboard.this.banksPanel.notifyListener();
 					}
 				}
 			}

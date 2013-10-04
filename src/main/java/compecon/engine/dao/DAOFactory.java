@@ -200,6 +200,12 @@ public class DAOFactory {
 		public Iterator<MarketOrder> getIterator(Currency currency,
 				Class<? extends Property> propertyClass);
 
+		public Iterator<MarketOrder> getIteratorThreadsafe(Currency currency,
+				GoodType goodType);
+
+		public Iterator<MarketOrder> getIteratorThreadsafe(Currency currency,
+				Currency commodityCurrency);
+
 		public double getAmountSum(Currency currency, GoodType goodType);
 
 		public double getAmountSum(Currency currency, Currency commodityCurrency);

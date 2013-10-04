@@ -165,6 +165,18 @@ public class MarketOrderDAO extends HibernateDAO<MarketOrder> implements
 	}
 
 	@Override
+	public Iterator<MarketOrder> getIteratorThreadsafe(Currency currency,
+			GoodType goodType) {
+		return this.getIterator(currency, goodType);
+	}
+
+	@Override
+	public Iterator<MarketOrder> getIteratorThreadsafe(Currency currency,
+			Currency commodityCurrency) {
+		return this.getIterator(currency, commodityCurrency);
+	}
+
+	@Override
 	public double getAmountSum(Currency currency, GoodType goodType) {
 		String queryString = "SUM(m.pricePerUnit * m.amount) FROM MarketOrder m "
 				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.goodType = :goodType";
