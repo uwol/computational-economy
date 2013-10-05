@@ -36,6 +36,7 @@ import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.debt.Bond;
@@ -165,8 +166,23 @@ public class State extends Agent {
 		public void onEvent() {
 			State.this.assureTransactionsBankAccount();
 
-			Log.agent_onPublishBalanceSheet(State.this,
-					State.this.issueBasicBalanceSheet());
+			BalanceSheet balanceSheet = State.this.issueBasicBalanceSheet();
+
+			// --------------
+
+			// list issued bonds on balance sheet
+			Set<Bond> bondsToDelete = new HashSet<Bond>();
+			for (Bond bond : State.this.issuedBonds) {
+				if (bond.isDeconstructed()) {
+					bondsToDelete.add(bond);
+				} else if (!bond.getOwner().equals(State.this)) {
+					balanceSheet.financialLiabilities += bond.getFaceValue();
+				}
+			}
+			State.this.issuedBonds.removeAll(bondsToDelete);
+
+			// publish
+			Log.agent_onPublishBalanceSheet(State.this, balanceSheet);
 		}
 	}
 
@@ -184,15 +200,17 @@ public class State extends Agent {
 			MarketFactory.getInstance().removeAllSellingOffers(State.this,
 					State.this.primaryCurrency, FixedRateBond.class);
 
-			// bonds that have not been sold by definition have to be owned by
-			// this agent
+			// bonds that have not been sold by definition have to be issued AND
+			// owned by this agent
 			for (Property property : PropertyRegister.getInstance()
 					.getProperties(State.this, FixedRateBond.class)) {
 				FixedRateBond bond = (FixedRateBond) property;
-
-				bond.deconstruct();
-				State.this.issuedBonds.remove(bond);
-				PropertyFactory.deleteProperty(bond);
+				assert (bond.getOwner() == State.this);
+				if (bond.getIssuerBankAccount().getOwner() == State.this) {
+					bond.deconstruct();
+					State.this.issuedBonds.remove(bond);
+					PropertyFactory.deleteProperty(bond);
+				}
 			}
 
 			/*
@@ -246,6 +264,14 @@ public class State extends Agent {
 							Double.NaN, Double.NaN, State.this,
 							State.this.transactionsBankAccount);
 				}
+			}
+
+			/*
+			 * consume bought goods
+			 */
+			for (GoodType goodType : GoodType.values()) {
+				PropertyRegister.getInstance().resetGoodTypeAmount(State.this,
+						goodType);
 			}
 		}
 	}

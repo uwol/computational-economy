@@ -148,14 +148,14 @@ public class BankAccount {
 
 	@Transient
 	protected void deposit(double amount) {
-		assert (!Double.isNaN(amount) && !Double.isInfinite(amount));
+		assert (!Double.isNaN(amount) && !Double.isInfinite(amount) && amount >= 0.0);
 
 		this.balance = this.balance + amount;
 	}
 
 	@Transient
 	protected void withdraw(double amount) {
-		assert (!Double.isNaN(amount) && !Double.isInfinite(amount));
+		assert (!Double.isNaN(amount) && !Double.isInfinite(amount) && amount >= 0.0);
 		assert (amount <= this.balance || this.overdraftPossible);
 
 		this.balance = this.balance - amount;

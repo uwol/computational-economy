@@ -301,46 +301,6 @@ public class CentralBank extends Bank {
 	}
 
 	@Transient
-	protected double calculateEffectiveKeyInterestRate() {
-		double targetPriceIndexForCurrentPeriod = this
-				.calculateTargetPriceIndexForPeriod();
-		double currentPriceIndex = this.statisticalOffice.getPriceIndex();
-		double newEffectiveKeyInterestRate = 0.03 + (((currentPriceIndex - targetPriceIndexForCurrentPeriod) / currentPriceIndex) / 10);
-
-		if (!Double.isNaN(newEffectiveKeyInterestRate)
-				&& !Double.isInfinite(newEffectiveKeyInterestRate)) {
-			return newEffectiveKeyInterestRate;
-		}
-		return this.effectiveKeyInterestRate;
-	}
-
-	@Transient
-	protected double calculateTargetPriceIndexForPeriod() {
-		int yearNumber = Simulation.getInstance().getTimeSystem()
-				.getCurrentYear()
-				- Simulation.getInstance().getTimeSystem().getStartYear();
-		double targetPriceLevelForYear = Math.pow(
-				(1 + ConfigurationUtil.CentralBankConfig.getInflationTarget()),
-				yearNumber);
-
-		double monthlyNominalInflationTarget = this
-				.calculateMonthlyNominalInterestRate(ConfigurationUtil.CentralBankConfig
-						.getInflationTarget());
-
-		double targetPriceLevelForMonth = Math.pow(
-				1.0 + monthlyNominalInflationTarget, Simulation.getInstance()
-						.getTimeSystem().getCurrentMonthNumberInYear() - 1) - 1.0;
-		double targetPriceLevelForDay = (monthlyNominalInflationTarget / 30)
-				* Simulation.getInstance().getTimeSystem()
-						.getCurrentDayNumberInMonth();
-
-		double combinedTargetPriceLevel = (targetPriceLevelForYear
-				+ targetPriceLevelForMonth + targetPriceLevelForDay);
-		return ConfigurationUtil.CentralBankConfig.getTargetPriceIndex()
-				* combinedTargetPriceLevel;
-	}
-
-	@Transient
 	public double getAverageMarginalPriceForGoodType(GoodType goodType) {
 		return this.statisticalOffice
 				.getAverageMarginalPriceForGoodType(goodType);
@@ -421,10 +381,57 @@ public class CentralBank extends Bank {
 					priceIndex);
 
 			// calculate key interest rate
-			CentralBank.this.effectiveKeyInterestRate = CentralBank.this
-					.calculateEffectiveKeyInterestRate();
+			CentralBank.this.effectiveKeyInterestRate = calculateEffectiveKeyInterestRate();
 			Log.centralBank_KeyInterestRate(CentralBank.this.primaryCurrency,
 					CentralBank.this.effectiveKeyInterestRate);
+		}
+
+		@Transient
+		protected double calculateEffectiveKeyInterestRate() {
+			double targetPriceIndexForCurrentPeriod = this
+					.calculateTargetPriceIndexForPeriod();
+			double currentPriceIndex = CentralBank.this.statisticalOffice
+					.getPriceIndex();
+			double newEffectiveKeyInterestRate = 0.03 + (((currentPriceIndex - targetPriceIndexForCurrentPeriod) / currentPriceIndex) / 10.0);
+
+			if (!Double.isNaN(newEffectiveKeyInterestRate)
+					&& !Double.isInfinite(newEffectiveKeyInterestRate)) {
+				if (ConfigurationUtil.CentralBankConfig
+						.getAllowNegativeKeyInterestRate()) {
+					return newEffectiveKeyInterestRate;
+				} else {
+					return Math.max(0.0, newEffectiveKeyInterestRate);
+				}
+			} else {
+				return CentralBank.this.effectiveKeyInterestRate;
+			}
+		}
+
+		@Transient
+		protected double calculateTargetPriceIndexForPeriod() {
+			int yearNumber = Simulation.getInstance().getTimeSystem()
+					.getCurrentYear()
+					- Simulation.getInstance().getTimeSystem().getStartYear();
+			double targetPriceLevelForYear = Math.pow(
+					(1 + ConfigurationUtil.CentralBankConfig
+							.getInflationTarget()), yearNumber);
+
+			double monthlyNominalInflationTarget = CentralBank.this
+					.calculateMonthlyNominalInterestRate(ConfigurationUtil.CentralBankConfig
+							.getInflationTarget());
+
+			double targetPriceLevelForMonth = Math.pow(
+					1.0 + monthlyNominalInflationTarget, (double) Simulation
+							.getInstance().getTimeSystem()
+							.getCurrentMonthNumberInYear() - 1.0) - 1.0;
+			double targetPriceLevelForDay = (monthlyNominalInflationTarget / 30.0)
+					* Simulation.getInstance().getTimeSystem()
+							.getCurrentDayNumberInMonth();
+
+			double combinedTargetPriceLevel = (targetPriceLevelForYear
+					+ targetPriceLevelForMonth + targetPriceLevelForDay);
+			return ConfigurationUtil.CentralBankConfig.getTargetPriceIndex()
+					* combinedTargetPriceLevel;
 		}
 	}
 
@@ -534,17 +541,17 @@ public class CentralBank extends Bank {
 					.entrySet()) {
 				double[] monitoredMarginalPricesForGoodType = entry.getValue();
 
-				double priceSumForGoodType = 0;
-				int totalWeight = 0;
+				double priceSumForGoodType = 0.0;
+				double totalWeight = 0;
 
 				// recalculate average price
 				for (int i = 0; i < monitoredMarginalPricesForGoodType.length; i++) {
 					double marginalPriceForGoodType = monitoredMarginalPricesForGoodType[i];
-					if (marginalPriceForGoodType != 0
+					if (marginalPriceForGoodType != 0.0
 							&& !Double.isNaN(marginalPriceForGoodType)
 							&& !Double.isInfinite(marginalPriceForGoodType)) {
 						// weight period by age
-						int weight = monitoredMarginalPricesForGoodType.length
+						double weight = monitoredMarginalPricesForGoodType.length
 								- i;
 						priceSumForGoodType += marginalPriceForGoodType
 								* weight;
@@ -553,7 +560,7 @@ public class CentralBank extends Bank {
 				}
 
 				double averagePriceForGoodType = priceSumForGoodType
-						/ totalWeight;
+						/ (double) totalWeight;
 				if (!Double.isNaN(totalWeight)
 						&& !Double.isInfinite(totalWeight))
 					this.averageMarginalPricesForGoodTypes.put(entry.getKey(),

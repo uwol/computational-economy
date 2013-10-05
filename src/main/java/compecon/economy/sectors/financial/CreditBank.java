@@ -339,7 +339,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		this.assertIsCustomerOfThisBank(from.getOwner());
 		this.assertBankAccountIsManagedByThisBank(from);
 
-		assert (negativeAmountOK || amount >= 0);
+		assert (negativeAmountOK || amount >= 0.0);
 		assert (from.getCurrency().equals(to.getCurrency()));
 		assert (from.getBalance() - amount >= 0.0 || from
 				.getOverdraftPossible());
@@ -380,7 +380,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		for (BankAccount creditBankAccount : DAOFactory.getBankAccountDAO()
 				.findAllBankAccountsManagedByBank(CreditBank.this)) {
 			if (creditBankAccount.getCurrency() == currency)
-				if (creditBankAccount.getBalance() > 0)
+				if (creditBankAccount.getBalance() > 0.0)
 					sumOfBorrowings += creditBankAccount.getBalance();
 		}
 		return sumOfBorrowings;
@@ -428,7 +428,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		// quote on the currency markets
 		return (ConfigurationUtil.CreditBankConfig
 				.getMaxCreditForCurrencyTrading() + this.currencyTradeBankAccounts
-				.get(this.primaryCurrency).getBalance()) / 2;
+				.get(this.primaryCurrency).getBalance()) / 2.0;
 	}
 
 	protected class SettlementMarketEvent implements ISettlementEvent {
@@ -468,12 +468,12 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 											bankAccount.getCurrency())
 											.getEffectiveKeyInterestRate());
-					double dailyInterest = monthlyInterest / 30;
+					double dailyInterest = monthlyInterest / 30.0;
 
 					// liability account + positive interest rate or asset
 					// account +
 					// negative interest rate
-					if (dailyInterest > 0) {
+					if (dailyInterest > 0.0) {
 						CreditBank.this.transferMoney(
 								CreditBank.this.transactionsBankAccount,
 								bankAccount, dailyInterest,
@@ -481,9 +481,9 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					}
 					// asset account + positive interest rate or liability
 					// account + negative interest rate
-					else if (dailyInterest < 0) {
+					else if (dailyInterest < 0.0) {
 						// credit banks add margin on key interest rate
-						dailyInterest = -1 * dailyInterest * 1.5;
+						dailyInterest = -1.0 * dailyInterest * 1.5;
 						CreditBank.this.transferMoney(bankAccount,
 								CreditBank.this.transactionsBankAccount,
 								dailyInterest, "debt interest from customer");
@@ -567,6 +567,19 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 			// TODO: bank accounts of banks
 
+			// bank deposits
+			BankAccount bankAccountAtCentralBank = AgentFactory
+					.getInstanceCentralBank(CreditBank.this.primaryCurrency)
+					.getBankAccounts(CreditBank.this).get(0);
+
+			if (bankAccountAtCentralBank.getBalance() > 0.0) {
+				balanceSheet.cashLongTerm += bankAccountAtCentralBank
+						.getBalance();
+			} else {
+				balanceSheet.loans += -1.0
+						* bankAccountAtCentralBank.getBalance();
+			}
+
 			// TODO: bank accounts of this bank at other banks including foreign
 			// currency
 
@@ -575,13 +588,12 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			// list issued bonds on balance sheet
 			Set<Bond> bondsToDelete = new HashSet<Bond>();
 			for (Bond bond : CreditBank.this.issuedBonds) {
-				if (!bond.isDeconstructed())
-					balanceSheet.financialLiabilities += bond.getFaceValue();
-				else
+				if (bond.isDeconstructed()) {
 					bondsToDelete.add(bond);
+				} else if (!bond.getOwner().equals(CreditBank.this)) {
+					balanceSheet.financialLiabilities += bond.getFaceValue();
+				}
 			}
-
-			// clean up list of bonds
 			CreditBank.this.issuedBonds.removeAll(bondsToDelete);
 
 			// publish
@@ -599,7 +611,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			// bank accounts -> -1
 			int numberOfForeignCurrencies = CreditBank.this.currencyTradeBankAccounts
 					.keySet().size() - 1;
-			if (numberOfForeignCurrencies > 0) {
+			if (numberOfForeignCurrencies > 0.0) {
 				this.buyForeignCurrencyForArbitrage();
 				this.rebuyLocalCurrency();
 				this.offerLocalCurrency();
@@ -717,7 +729,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 											+ correctPriceOfForeignCurrencyInLocalCurrency);
 						} else if (MathUtil
 								.lesser(correctPriceOfForeignCurrencyInLocalCurrency
-										/ (1 + ConfigurationUtil.CreditBankConfig
+										/ (1.0 + ConfigurationUtil.CreditBankConfig
 												.getMinArbitrageMargin()),
 										realPriceOfForeignCurrencyInLocalCurrency)) {
 							if (Log.isAgentSelectedByClient(CreditBank.this))
@@ -744,7 +756,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 											Double.NaN,
 											budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
 											correctPriceOfForeignCurrencyInLocalCurrency
-													/ (1 + ConfigurationUtil.CreditBankConfig
+													/ (1.0 + ConfigurationUtil.CreditBankConfig
 															.getMinArbitrageMargin()),
 											CreditBank.this,
 											localCurrencyTradeBankAccount,
@@ -903,7 +915,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							.getInstance().getPrice(localCurrency,
 									foreignCurrency);
 					if (Double.isNaN(priceOfForeignCurrencyInLocalCurrency))
-						priceOfForeignCurrencyInLocalCurrency = 1;
+						priceOfForeignCurrencyInLocalCurrency = 1.0;
 
 					// remove existing offers
 					MarketFactory.getInstance().removeAllSellingOffers(
@@ -940,7 +952,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						.equals(CreditBank.this.primaryCurrency));
 
 				if (!(bankAccount.getOwner() instanceof Bank)) {
-					if (bankAccount.getBalance() > 0
+					if (bankAccount.getBalance() > 0.0
 							&& BankAccountType.SAVINGS.equals(bankAccount
 									.getBankAccountType())) // passive account
 						sumOfPassiveBankAccounts += bankAccount.getBalance();

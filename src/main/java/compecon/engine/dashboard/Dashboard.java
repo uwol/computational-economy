@@ -20,7 +20,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.dashboard;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -35,6 +34,7 @@ import compecon.engine.dashboard.panel.IndustriesPanel;
 import compecon.engine.dashboard.panel.LogPanel;
 import compecon.engine.dashboard.panel.MoneyPanel;
 import compecon.engine.dashboard.panel.NationalAccountsPanel;
+import compecon.engine.dashboard.panel.StatesPanel;
 import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 
 public class Dashboard extends JFrame implements IModelListener {
@@ -51,6 +51,8 @@ public class Dashboard extends JFrame implements IModelListener {
 
 	protected final BanksPanel banksPanel = new BanksPanel();
 
+	protected final StatesPanel statesPanel = new StatesPanel();
+
 	protected final MoneyPanel moneyPanel = new MoneyPanel();
 
 	protected final NationalAccountsPanel nationalAccountsPanel = new NationalAccountsPanel();
@@ -58,7 +60,6 @@ public class Dashboard extends JFrame implements IModelListener {
 	protected final LogPanel logPanel = new LogPanel();
 
 	public Dashboard() {
-
 		/*
 		 * panels
 		 */
@@ -78,6 +79,7 @@ public class Dashboard extends JFrame implements IModelListener {
 		this.jTabbedPane.addTab("Households", this.householdsPanel);
 		this.jTabbedPane.addTab("Industries", this.industriesPanel);
 		this.jTabbedPane.addTab("Banks", this.banksPanel);
+		this.jTabbedPane.addTab("States", this.statesPanel);
 		this.jTabbedPane.addTab("Money", this.moneyPanel);
 		this.jTabbedPane.addTab("National Accounts", nationalAccountsPanel);
 		this.jTabbedPane.addTab("Logs", this.logPanel);
@@ -86,24 +88,9 @@ public class Dashboard extends JFrame implements IModelListener {
 			public void stateChanged(ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
 					JTabbedPane pane = (JTabbedPane) e.getSource();
-					Component selectedComponent = pane.getSelectedComponent();
-
-					// industryPanel panel
-					if (selectedComponent
-							.equals(Dashboard.this.industriesPanel)) {
-						Dashboard.this.industriesPanel.notifyListener();
-					}
-
-					// householdPanel panel
-					if (selectedComponent
-							.equals(Dashboard.this.householdsPanel)) {
-						Dashboard.this.householdsPanel.notifyListener();
-					}
-
-					// banks panel
-					if (selectedComponent.equals(Dashboard.this.banksPanel)) {
-						Dashboard.this.banksPanel.notifyListener();
-					}
+					IModelListener selectedComponent = (IModelListener) pane
+							.getSelectedComponent();
+					selectedComponent.notifyListener();
 				}
 			}
 		});

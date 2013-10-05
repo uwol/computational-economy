@@ -53,6 +53,7 @@ import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.debt.Bond;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
+import compecon.engine.PropertyFactory;
 import compecon.engine.Simulation;
 import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
@@ -259,25 +260,35 @@ public abstract class Agent {
 
 		BalanceSheet balanceSheet = new BalanceSheet(referenceCurrency);
 
-		// hard cash, TODO convert other currencies
+		// hard cash
+		// TODO convert other currencies
 		balanceSheet.hardCash = HardCashRegister.getInstance().getBalance(
 				Agent.this, referenceCurrency);
 
 		// bank deposits
-		if (Agent.this.transactionsBankAccount.getBalance() > 0)
+		if (Agent.this.transactionsBankAccount.getBalance() > 0.0) {
 			balanceSheet.cashShortTerm += Agent.this.transactionsBankAccount
 					.getBalance();
-		else
-			balanceSheet.loans += -1
+		} else {
+			balanceSheet.loans += -1.0
 					* Agent.this.transactionsBankAccount.getBalance();
+		}
 
 		// bonds
 		for (Property property : PropertyRegister.getInstance().getProperties(
 				Agent.this)) {
 			if (property instanceof Bond) {
 				Bond bond = ((Bond) property);
-				if (!bond.isDeconstructed()) {
-					balanceSheet.bonds += ((Bond) property).getFaceValue();
+				assert (bond.getOwner() == Agent.this);
+
+				if (bond.isDeconstructed()) {
+					PropertyFactory.deleteProperty(bond);
+				} else {
+					// important, so that agents do not count bonds that have
+					// not been sold, yet
+					if (bond.getIssuerBankAccount().getOwner() != this) {
+						balanceSheet.bonds += ((Bond) property).getFaceValue();
+					}
 				}
 			}
 		}

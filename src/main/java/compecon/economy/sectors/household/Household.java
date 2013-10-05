@@ -295,12 +295,13 @@ public class Household extends Agent implements IShareOwner {
 			BalanceSheet balanceSheet = Household.this.issueBasicBalanceSheet();
 
 			// bank deposits
-			if (Household.this.savingsBankAccount.getBalance() > 0)
+			if (Household.this.savingsBankAccount.getBalance() > 0.0) {
 				balanceSheet.cashLongTerm += Household.this.savingsBankAccount
 						.getBalance();
-			else
-				balanceSheet.loans += -1
+			} else {
+				balanceSheet.loans += -1.0
 						* Household.this.savingsBankAccount.getBalance();
+			}
 
 			Log.agent_onPublishBalanceSheet(Household.this, balanceSheet);
 		}
@@ -453,9 +454,7 @@ public class Household extends Agent implements IShareOwner {
 							.transferMoney(
 									Household.this.transactionsBankAccount,
 									Household.this.savingsBankAccount,
-									moneySumToSave,
-
-									"retirement savings");
+									moneySumToSave, "retirement savings");
 				}
 			}
 			// retired
@@ -473,7 +472,6 @@ public class Household extends Agent implements IShareOwner {
 				Household.this.savingsBankAccount.getManagingBank()
 						.transferMoney(Household.this.savingsBankAccount,
 								Household.this.transactionsBankAccount, budget,
-
 								"retirement dissavings");
 			}
 

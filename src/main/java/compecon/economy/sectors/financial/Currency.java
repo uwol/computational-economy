@@ -44,9 +44,9 @@ public enum Currency {
 
 		if (Double.isNaN(value) || Double.isInfinite(value))
 			return "" + value;
-		if (value < million)
+		if (Math.abs(value) < million)
 			return String.format("%.2f", value);
-		else if (value < billion)
+		else if (Math.abs(value) < billion)
 			return String.format("%.2f M", value / million);
 		else
 			return String.format("%.2f B", value / billion);

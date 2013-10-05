@@ -32,7 +32,6 @@ import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
-import compecon.economy.PricingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
@@ -53,16 +52,14 @@ import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 
 /**
- * Agent type Trader buys and sells goods
+ * Agent type Trader imports goods and sells them on his domestic market.
+ * Traders are price takers.
  */
 @Entity
 public class Trader extends JointStockCompany {
 
 	@Transient
 	protected Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
-
-	@Transient
-	protected final Map<GoodType, PricingBehaviour> goodTypePricingBehaviours = new HashMap<GoodType, PricingBehaviour>();
 
 	@OneToMany
 	@JoinTable(name = "Trader_ForeignCurrencyBankAccounts", joinColumns = @JoinColumn(name = "trader_id"), inverseJoinColumns = @JoinColumn(name = "bankAccount_id"))
@@ -95,17 +92,6 @@ public class Trader extends JointStockCompany {
 				.getTimeSystem()
 				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
 						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
-
-		// pricing behaviours
-		for (GoodType goodType : GoodType.values()) {
-			if (!this.excludedGoodTypes.contains(goodType)) {
-				double marketPrice = MarketFactory.getInstance().getPrice(
-						this.primaryCurrency, goodType);
-				this.goodTypePricingBehaviours.put(goodType,
-						new PricingBehaviour(this, goodType,
-								this.primaryCurrency, marketPrice));
-			}
-		}
 	}
 
 	@Transient
@@ -181,8 +167,6 @@ public class Trader extends JointStockCompany {
 		public void onEvent(GoodType goodType, double amount,
 				double pricePerUnit, Currency currency) {
 			Trader.this.assureTransactionsBankAccount();
-			Trader.this.goodTypePricingBehaviours.get(goodType)
-					.registerSelling(amount, amount * pricePerUnit);
 		}
 
 		@Override
@@ -354,35 +338,22 @@ public class Trader extends JointStockCompany {
 
 		protected void offerGoods() {
 			/*
-			 * prepare pricing behaviours
+			 * for each good type offer owned goods at market price -> price
+			 * taker
 			 */
-			for (PricingBehaviour pricingBehaviour : Trader.this.goodTypePricingBehaviours
-					.values()) {
-				pricingBehaviour.nextPeriod();
-			}
-
-			/*
-			 * refresh prices / offer in local currency
-			 */
-			for (Entry<GoodType, PricingBehaviour> entry : Trader.this.goodTypePricingBehaviours
-					.entrySet()) {
-				GoodType goodType = entry.getKey();
-				PricingBehaviour pricingBehaviour = entry.getValue();
-
-				MarketFactory.getInstance().removeAllSellingOffers(Trader.this,
-						Trader.this.primaryCurrency, goodType);
-				double amount = PropertyRegister.getInstance().getBalance(
-						Trader.this, goodType);
-				double[] prices = pricingBehaviour.getCurrentPriceArray();
-				for (double price : prices) {
+			for (GoodType goodType : GoodType.values()) {
+				if (!Trader.this.excludedGoodTypes.contains(goodType)) {
+					MarketFactory.getInstance().removeAllSellingOffers(
+							Trader.this, Trader.this.primaryCurrency, goodType);
+					double amount = PropertyRegister.getInstance().getBalance(
+							Trader.this, goodType);
+					double marketPrice = MarketFactory.getInstance().getPrice(
+							Trader.this.primaryCurrency, goodType);
 					MarketFactory.getInstance().placeSettlementSellingOffer(
 							goodType, Trader.this,
-							Trader.this.transactionsBankAccount,
-							amount / prices.length, price,
-							new SettlementMarketEvent());
+							Trader.this.transactionsBankAccount, amount,
+							marketPrice, new SettlementMarketEvent());
 				}
-				Trader.this.goodTypePricingBehaviours.get(goodType)
-						.registerOfferedAmount(amount);
 			}
 		}
 	}

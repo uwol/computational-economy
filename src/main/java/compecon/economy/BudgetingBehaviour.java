@@ -71,7 +71,7 @@ public class BudgetingBehaviour {
 		 * transmission mechanism
 		 */
 
-		double creditBasedBudget = Math.max(0, bankAccountBalance
+		double creditBasedBudget = Math.max(0.0, bankAccountBalance
 				+ this.lastMaxCredit);
 
 		if (Log.isAgentSelectedByClient(BudgetingBehaviour.this.agent))

@@ -56,6 +56,11 @@ public class ConfigurationUtil {
 			return Double.parseDouble(configFile
 					.getProperty("centralBank.targetPriceIndex"));
 		}
+
+		public static boolean getAllowNegativeKeyInterestRate() {
+			return Boolean.parseBoolean(configFile
+					.getProperty("centralBank.allowNegativeKeyInterestRate"));
+		}
 	}
 
 	public static class CreditBankConfig {
