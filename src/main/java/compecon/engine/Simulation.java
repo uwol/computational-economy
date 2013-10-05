@@ -95,7 +95,9 @@ public class Simulation {
 					timeSystem.nextHour();
 					if (HourType.HOUR_00
 							.equals(timeSystem.getCurrentHourType())) {
-						this.dashboard.getControlPanel().refreshDateTime();
+						if (this.dashboard != null) {
+							this.dashboard.getControlPanel().refreshDateTime();
+						}
 					}
 					Thread.sleep(millisecondsToSleepPerHourType);
 				}
@@ -106,7 +108,9 @@ public class Simulation {
 					if (HourType.HOUR_00
 							.equals(timeSystem.getCurrentHourType())) {
 						singleDayStep = false;
-						this.dashboard.getControlPanel().refreshDateTime();
+						if (this.dashboard != null) {
+							this.dashboard.getControlPanel().refreshDateTime();
+						}
 					}
 				}
 				// paused mode, only proceeding with singleHourStep interaction
@@ -114,10 +118,12 @@ public class Simulation {
 				else if (paused && singleHourStep) {
 					singleHourStep = false;
 					timeSystem.nextHour();
-					this.dashboard.getControlPanel().refreshDateTime();
-					// normally, the dashboard is redrawn at HOUR_00 only ->
-					// trigger redrawing
-					Simulation.getInstance().getDashboard().notifyListener();
+					if (this.dashboard != null) {
+						this.dashboard.getControlPanel().refreshDateTime();
+						// normally, the dashboard is redrawn at HOUR_00 only ->
+						// trigger redrawing
+						this.dashboard.notifyListener();
+					}
 				}
 				// wait until next iteration
 				else {
