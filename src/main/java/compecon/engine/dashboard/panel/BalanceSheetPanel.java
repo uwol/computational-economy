@@ -32,7 +32,7 @@ import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Simulation;
 import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 
-public class BalanceSheetPanel extends JPanel {
+public class BalanceSheetPanel extends JPanel implements IModelListener {
 
 	public abstract static class BalanceSheetTableModel extends
 			AbstractTableModel implements IModelListener {
@@ -187,5 +187,9 @@ public class BalanceSheetPanel extends JPanel {
 		this.setBorder(titleBorder);
 		JTable balanceSheetTable = new JTable(balanceSheetTableModel);
 		this.add(new JScrollPane(balanceSheetTable));
+	}
+
+	@Override
+	public void notifyListener() {
 	}
 }

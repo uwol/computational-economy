@@ -41,8 +41,9 @@ import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.trading.Trader;
 import compecon.engine.Simulation;
+import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 
-public class AgentsPanel extends AbstractChartsPanel {
+public class AgentsPanel extends AbstractChartsPanel implements IModelListener {
 
 	public AgentsPanel() {
 
@@ -87,5 +88,9 @@ public class AgentsPanel extends AbstractChartsPanel {
 						(XYDataset) timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
+	}
+
+	@Override
+	public void notifyListener() {
 	}
 }

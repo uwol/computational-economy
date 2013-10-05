@@ -41,7 +41,7 @@ import compecon.engine.statistics.model.NotificationListenerModel.IModelListener
 import compecon.engine.statistics.model.accumulator.PeriodDataAccumulator;
 import compecon.materia.GoodType;
 
-public class NationalAccountsPanel extends JPanel {
+public class NationalAccountsPanel extends JPanel implements IModelListener {
 
 	public class NationalAccountsTableModel extends AbstractTableModel
 			implements IModelListener {
@@ -381,5 +381,9 @@ public class NationalAccountsPanel extends JPanel {
 			jTabbedPane.addTab(currency.getIso4217Code(), currencyJPanel);
 		}
 		add(jTabbedPane, BorderLayout.CENTER);
+	}
+
+	@Override
+	public void notifyListener() {
 	}
 }

@@ -35,12 +35,15 @@ import compecon.engine.dashboard.panel.IndustriesPanel;
 import compecon.engine.dashboard.panel.LogPanel;
 import compecon.engine.dashboard.panel.MoneyPanel;
 import compecon.engine.dashboard.panel.NationalAccountsPanel;
+import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 
-public class Dashboard extends JFrame {
+public class Dashboard extends JFrame implements IModelListener {
 
 	protected final JTabbedPane jTabbedPane;
 
 	protected final AgentsPanel agentsPanel = new AgentsPanel();
+
+	protected final ControlPanel controlPanel = new ControlPanel();
 
 	protected final HouseholdsPanel householdsPanel = new HouseholdsPanel();
 
@@ -65,7 +68,7 @@ public class Dashboard extends JFrame {
 		/*
 		 * border panel
 		 */
-		this.add(new ControlPanel(), BorderLayout.WEST);
+		this.add(controlPanel, BorderLayout.WEST);
 
 		/*
 		 * tabbed content panel
@@ -86,12 +89,14 @@ public class Dashboard extends JFrame {
 					Component selectedComponent = pane.getSelectedComponent();
 
 					// industryPanel panel
-					if (selectedComponent.equals(Dashboard.this.industriesPanel)) {
+					if (selectedComponent
+							.equals(Dashboard.this.industriesPanel)) {
 						Dashboard.this.industriesPanel.notifyListener();
 					}
 
 					// householdPanel panel
-					if (selectedComponent.equals(Dashboard.this.householdsPanel)) {
+					if (selectedComponent
+							.equals(Dashboard.this.householdsPanel)) {
 						Dashboard.this.householdsPanel.notifyListener();
 					}
 
@@ -112,5 +117,18 @@ public class Dashboard extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
 		setVisible(true);
+	}
+
+	public ControlPanel getControlPanel() {
+		return this.controlPanel;
+	}
+
+	@Override
+	public void notifyListener() {
+		if (this.isShowing()) {
+			IModelListener panel = (IModelListener) jTabbedPane
+					.getSelectedComponent();
+			panel.notifyListener();
+		}
 	}
 }

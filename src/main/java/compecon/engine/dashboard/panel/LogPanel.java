@@ -51,7 +51,7 @@ import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 
-public class LogPanel extends JPanel {
+public class LogPanel extends JPanel implements IModelListener {
 
 	public class AgentListModel extends AbstractListModel<Agent> implements
 			IModelListener {
@@ -386,6 +386,10 @@ public class LogPanel extends JPanel {
 		agentBankAccountsAndGoodsPanel.add(agentPropertyTablePane);
 
 		setVisible(true);
+	}
+
+	@Override
+	public void notifyListener() {
 	}
 
 }

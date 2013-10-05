@@ -54,7 +54,9 @@ public class Simulation {
 
 	protected boolean paused = false;
 
-	protected boolean singleStep = false;
+	protected boolean singleDayStep = false;
+
+	protected boolean singleHourStep = false;
 
 	protected final Date endDate;
 
@@ -91,16 +93,31 @@ public class Simulation {
 				else if (!paused) {
 					// step hour-wise; triggers events in time system
 					timeSystem.nextHour();
+					if (HourType.HOUR_00
+							.equals(timeSystem.getCurrentHourType())) {
+						this.dashboard.getControlPanel().refreshDateTime();
+					}
 					Thread.sleep(millisecondsToSleepPerHourType);
 				}
-				// paused mode, only proceeding with singleStep interaction by
-				// user
-				else if (paused && singleStep) {
+				// paused mode, only proceeding with singleDayStep interaction
+				// by user
+				else if (paused && singleDayStep) {
 					timeSystem.nextHour();
 					if (HourType.HOUR_00
 							.equals(timeSystem.getCurrentHourType())) {
-						singleStep = false;
+						singleDayStep = false;
+						this.dashboard.getControlPanel().refreshDateTime();
 					}
+				}
+				// paused mode, only proceeding with singleHourStep interaction
+				// by user
+				else if (paused && singleHourStep) {
+					singleHourStep = false;
+					timeSystem.nextHour();
+					this.dashboard.getControlPanel().refreshDateTime();
+					// normally, the dashboard is redrawn at HOUR_00 only ->
+					// trigger redrawing
+					Simulation.getInstance().getDashboard().notifyListener();
 				}
 				// wait until next iteration
 				else {
@@ -227,6 +244,10 @@ public class Simulation {
 		return instance;
 	}
 
+	public Dashboard getDashboard() {
+		return this.dashboard;
+	}
+
 	public TimeSystem getTimeSystem() {
 		return this.timeSystem;
 	}
@@ -249,7 +270,11 @@ public class Simulation {
 		this.paused = paused;
 	}
 
-	public void setSingleStep() {
-		this.singleStep = true;
+	public void setSingleDayStep() {
+		this.singleDayStep = true;
+	}
+
+	public void setSingleHourStep() {
+		this.singleHourStep = true;
 	}
 }

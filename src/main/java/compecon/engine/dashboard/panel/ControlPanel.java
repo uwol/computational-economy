@@ -22,9 +22,11 @@ package compecon.engine.dashboard.panel;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
@@ -41,7 +43,7 @@ public class ControlPanel extends JPanel {
 
 	private final int SLIDER_MAX = 100;
 
-	JButton singleStepButton;
+	protected final JLabel dateTimeLabel = new JLabel();
 
 	public ControlPanel() {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -53,11 +55,15 @@ public class ControlPanel extends JPanel {
 		this.add(new JSeparator(SwingConstants.HORIZONTAL));
 
 		this.add(createEconomicSectorsPane());
-
 	}
 
 	protected JPanel createSpeedSliderPanel() {
 		JPanel speedSliderPanel = new JPanel();
+
+		final JButton dayStepButton = new JButton("+ 1 Day");
+		final JButton hourStepButton = new JButton("+ 1 Hour");
+
+		speedSliderPanel.add(this.dateTimeLabel);
 
 		JSlider millisecondsToSleepPerHourType = new JSlider(
 				JSlider.HORIZONTAL, 0, SLIDER_MAX, SLIDER_MAX);
@@ -68,15 +74,17 @@ public class ControlPanel extends JPanel {
 				if (!source.getValueIsAdjusting()) {
 					double sliderValue = (int) source.getValue();
 					double invertedSliderValue = SLIDER_MAX - sliderValue;
-					double millisecondsToSleep = ((invertedSliderValue * invertedSliderValue) / (SLIDER_MAX * SLIDER_MAX)) * 3000 / 24;
+					double millisecondsToSleep = ((invertedSliderValue * invertedSliderValue) / (SLIDER_MAX * SLIDER_MAX)) * 3000.0 / 24.0;
 					Simulation.getInstance().setMillisecondsToSleepPerHourType(
 							(int) millisecondsToSleep);
-					if (invertedSliderValue >= SLIDER_MAX - 10) {
+					if (invertedSliderValue >= SLIDER_MAX - 10.0) {
 						Simulation.getInstance().setPaused(true);
-						singleStepButton.setEnabled(true);
+						dayStepButton.setEnabled(true);
+						hourStepButton.setEnabled(true);
 					} else {
 						Simulation.getInstance().setPaused(false);
-						singleStepButton.setEnabled(false);
+						dayStepButton.setEnabled(false);
+						hourStepButton.setEnabled(false);
 					}
 				}
 			}
@@ -85,16 +93,24 @@ public class ControlPanel extends JPanel {
 		millisecondsToSleepPerHourType.setMajorTickSpacing(10);
 		millisecondsToSleepPerHourType.setPaintTicks(true);
 		millisecondsToSleepPerHourType.setPaintLabels(true);
-
 		speedSliderPanel.add(millisecondsToSleepPerHourType);
-		singleStepButton = new JButton("Step");
-		singleStepButton.setEnabled(false);
-		singleStepButton.addActionListener(new ActionListener() {
+
+		dayStepButton.setEnabled(false);
+		dayStepButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Simulation.getInstance().setSingleStep();
+				Simulation.getInstance().setSingleDayStep();
 			}
 		});
-		speedSliderPanel.add(singleStepButton);
+		speedSliderPanel.add(dayStepButton);
+
+		hourStepButton.setEnabled(false);
+		hourStepButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Simulation.getInstance().setSingleHourStep();
+			}
+		});
+		speedSliderPanel.add(hourStepButton);
+
 		return speedSliderPanel;
 	}
 
@@ -171,4 +187,8 @@ public class ControlPanel extends JPanel {
 		return economicSectorsPane;
 	}
 
+	public void refreshDateTime() {
+		this.dateTimeLabel.setText(new SimpleDateFormat().format(Simulation
+				.getInstance().getTimeSystem().getCurrentDate()));
+	}
 }

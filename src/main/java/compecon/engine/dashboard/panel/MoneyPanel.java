@@ -29,8 +29,9 @@ import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Simulation;
+import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 
-public class MoneyPanel extends AbstractChartsPanel {
+public class MoneyPanel extends AbstractChartsPanel implements IModelListener {
 
 	public MoneyPanel() {
 		this.setLayout(new GridLayout(0, 2));
@@ -124,5 +125,9 @@ public class MoneyPanel extends AbstractChartsPanel {
 				timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
+	}
+
+	@Override
+	public void notifyListener() {
 	}
 }
