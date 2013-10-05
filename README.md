@@ -35,3 +35,5 @@ Technical platform:
 ![screenshot6](http://img.literaturedb.com/compecon6.png)
 
 ![screenshot7](http://img.literaturedb.com/compecon7.png)
+
+![screenshot8](http://img.literaturedb.com/compecon8.png)
