@@ -85,4 +85,8 @@ public class BudgetingBehaviour {
 							+ currency.getIso4217Code() + " maxCredit)");
 		return creditBasedBudget;
 	}
+
+	public double getCreditBasedBudgetCapacity() {
+		return lastMaxCredit;
+	}
 }

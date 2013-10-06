@@ -41,6 +41,22 @@ public class MoneyPanel extends AbstractChartsPanel implements IModelListener {
 		this.add(createMoneySupplyPanel());
 		this.add(createMoneyCirculationPanel());
 		this.add(createMoneyVelocityPanel());
+		this.add(createCreditUtilizationRatePanel());
+	}
+
+	protected ChartPanel createCreditUtilizationRatePanel() {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		for (Currency currency : Currency.values())
+			timeSeriesCollection.addSeries(Simulation.getInstance()
+					.getModelRegistry().getCreditUtilizationRateModel(currency)
+					.getTimeSeries());
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				"Credit Utilization Rate", "Date", "Credit Utilization Rate",
+				timeSeriesCollection, true, true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
 	}
 
 	protected ChartPanel createKeyInterestRatesPanel() {

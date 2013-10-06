@@ -230,7 +230,7 @@ public class Household extends Agent implements IShareOwner {
 		// initialize bank account
 		if (this.savingsBankAccount == null) {
 			this.savingsBankAccount = this.primaryBank.openBankAccount(this,
-					this.primaryCurrency, "savings account",
+					this.primaryCurrency, false, "savings account",
 					BankAccountType.SAVINGS);
 		}
 	}
@@ -352,6 +352,12 @@ public class Household extends Agent implements IShareOwner {
 
 			this.buyAndOfferShares();
 
+			// TODO: currently, households make no debt -> broaden simulation
+			assert (MathUtil.greaterEqual(
+					Household.this.transactionsBankAccount.getBalance(), 0.0));
+			assert (MathUtil.greaterEqual(
+					Household.this.savingsBankAccount.getBalance(), 0.0));
+
 			/*
 			 * check for required utility
 			 */
@@ -414,8 +420,9 @@ public class Household extends Agent implements IShareOwner {
 									.getLifespanInDays()
 									- Household.this.ageInDays);
 			double budget = intertemporalConsumptionPlan.get(Period.CURRENT);
+
+			double moneySumToSave = income - budget;
 			double moneySumToConsume = budget;
-			double moneySumToSave = income - moneySumToConsume;
 
 			/*
 			 * logging
@@ -427,12 +434,14 @@ public class Household extends Agent implements IShareOwner {
 
 			Household.this.dividendSinceLastPeriod = 0;
 
-			// if not retired
-			if (Household.this.ageInDays < ConfigurationUtil.HouseholdConfig
-					.getRetirementAgeInDays()) {
+			if (moneySumToSave > 0.0) {
 				/*
 				 * save money for retirement
 				 */
+				Household.this.transactionsBankAccount.getManagingBank()
+						.transferMoney(Household.this.transactionsBankAccount,
+								Household.this.savingsBankAccount,
+								moneySumToSave, "retirement savings");
 				if (Log.isAgentSelectedByClient(Household.this))
 					Log.log(Household.this,
 							DailyLifeEvent.class,
@@ -449,30 +458,28 @@ public class Household extends Agent implements IShareOwner {
 									+ Household.this.transactionsBankAccount
 											.getCurrency().getIso4217Code()
 									+ " income");
-				if (MathUtil.greater(moneySumToSave, 0.0)) {
-					Household.this.transactionsBankAccount.getManagingBank()
-							.transferMoney(
-									Household.this.transactionsBankAccount,
-									Household.this.savingsBankAccount,
-									moneySumToSave, "retirement savings");
-				}
-			}
-			// retired
-			else {
+			} else if (moneySumToSave < 0.0) {
+				/*
+				 * dissavings can happen also when not retired, yet, in case of
+				 * no income due to average conmption premise (e. g. Modigliani
+				 * intertemporal consumption function)
+				 */
+
 				/*
 				 * spend saved retirement money
 				 */
+				Household.this.transactionsBankAccount.getManagingBank()
+						.transferMoney(Household.this.savingsBankAccount,
+								Household.this.transactionsBankAccount,
+								-1.0 * moneySumToSave, "retirement dissavings");
 				if (Log.isAgentSelectedByClient(Household.this))
 					Log.log(Household.this,
 							"unsaving "
-									+ Currency.formatMoneySum(budget)
+									+ Currency.formatMoneySum(-1.0
+											* moneySumToSave)
 									+ " "
 									+ Household.this.transactionsBankAccount
 											.getCurrency().getIso4217Code());
-				Household.this.savingsBankAccount.getManagingBank()
-						.transferMoney(Household.this.savingsBankAccount,
-								Household.this.transactionsBankAccount, budget,
-								"retirement dissavings");
 			}
 
 			return budget;
@@ -502,12 +509,14 @@ public class Household extends Agent implements IShareOwner {
 				// buy goods
 				double budgetSpent = this.buyGoods(
 						plannedConsumptionGoodsBundle, priceFunctions, budget);
+
+				assert (MathUtil.lesserEqual(budgetSpent, budget * 1.1));
 			}
 
 			return numberOfLabourHoursToConsume;
 		}
 
-		protected double buyGoods(final Map<GoodType, Double> goodsToBuy,
+		private double buyGoods(final Map<GoodType, Double> goodsToBuy,
 				final Map<GoodType, IPriceFunction> priceFunctions,
 				final double budget) {
 			/*

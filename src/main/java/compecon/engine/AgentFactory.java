@@ -175,7 +175,8 @@ public class AgentFactory {
 		if (!ConfigurationUtil.DbConfig.getActivateDb())
 			trader.setId(Simulation.getInstance().getNextId());
 		trader.setPrimaryCurrency(primaryCurrency);
-		trader.setReferenceCredit(10000);
+		trader.setReferenceCredit(ConfigurationUtil.TraderConfig
+				.getReferenceCredit());
 
 		// excluded good types
 		trader.getExcludedGoodTypes().add(GoodType.LABOURHOUR);

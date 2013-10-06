@@ -35,20 +35,25 @@ public class ModiglianiIntertemporalConsumptionFunction implements
 		int remainingDaysUntilRetirement = Math.max(retirementAgeInDays
 				- ageInDays, 0);
 
-		double consumption;
+		double dailyConsumption;
 		if (averageRemainingLifeDays > 0) {
-			consumption = (currentAssets + remainingDaysUntilRetirement
-					* averageIncomePerPeriod)
-					/ (float) averageRemainingLifeDays;
+			double lifeConsumption = currentAssets + averageIncomePerPeriod
+					* (double) remainingDaysUntilRetirement;
+			dailyConsumption = lifeConsumption
+					/ (double) averageRemainingLifeDays;
 		} else {
-			consumption = averageIncomePerPeriod + currentAssets;
+			// household is deconstructed -> spend everything
+			dailyConsumption = averageIncomePerPeriod + currentAssets;
 		}
 
-		assert (!Double.isNaN(consumption));
+		// TODO: check, whether dailyConsumption > 0 when not retired and income
+		// = 0 is valid according to Modigliani
+
+		assert (!Double.isNaN(dailyConsumption));
 
 		Map<Period, Double> optimalConsumptionPlan = new HashMap<Period, Double>();
 		for (Period period : Period.values()) {
-			optimalConsumptionPlan.put(period, consumption);
+			optimalConsumptionPlan.put(period, dailyConsumption);
 		}
 		return optimalConsumptionPlan;
 	}

@@ -171,7 +171,7 @@ public class CentralBank extends Bank {
 			 * own bank account
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency, "transactions account",
+					this, this.primaryCurrency, true, "transactions account",
 					BankAccountType.GIRO);
 		}
 	}

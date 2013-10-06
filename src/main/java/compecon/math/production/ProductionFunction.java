@@ -53,6 +53,9 @@ public abstract class ProductionFunction implements IProductionFunction {
 				differentialGoodType);
 	}
 
+	/**
+	 * @return null, if markets are sold out
+	 */
 	protected GoodType selectProductionFactorWithHighestMarginalOutputPerPrice(
 			Map<GoodType, Double> bundleOfInputGoods,
 			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods) {

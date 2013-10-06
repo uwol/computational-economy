@@ -231,7 +231,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			 * own bank account
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency, "transactions account",
+					this, this.primaryCurrency, true, "transactions account",
 					BankAccountType.GIRO);
 		}
 	}
@@ -245,7 +245,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			// initialize bank accounts at central banks
 			for (Currency currency : offeredCurrencies) {
 				AgentFactory.getInstanceCentralBank(currency).openBankAccount(
-						this, currency, "central bank account",
+						this, currency, true, "central bank account",
 						BankAccountType.GIRO);
 			}
 			this.centralBankAccountsInitialized = true;
@@ -272,7 +272,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							.getRandomInstanceCreditBank(currency);
 					if (foreignCurrencyCreditBank != null) {
 						BankAccount bankAccount = foreignCurrencyCreditBank
-								.openBankAccount(this, currency,
+								.openBankAccount(this, currency, true,
 										"currency trade (foreign) account",
 										BankAccountType.GIRO);
 						this.currencyTradeBankAccounts.put(currency,
@@ -284,7 +284,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 				else {
 					this.currencyTradeBankAccounts.put(this.primaryCurrency,
 							CreditBank.this.openBankAccount(this,
-									this.primaryCurrency,
+									this.primaryCurrency, true,
 									"currency trade (local)",
 									BankAccountType.GIRO));
 				}
@@ -418,17 +418,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		}
 
 		super.onBankCloseBankAccount(bankAccount);
-	}
-
-	protected double calculateLocalCurrencyBudgetForCurrencyTrading() {
-		this.assureCurrencyTradeBankAccounts();
-
-		// division by 2 so that the period-wise the budget converges to max
-		// credit. This ensures, that in each period there is budget left to
-		// quote on the currency markets
-		return (ConfigurationUtil.CreditBankConfig
-				.getMaxCreditForCurrencyTrading() + this.currencyTradeBankAccounts
-				.get(this.primaryCurrency).getBalance()) / 2.0;
 	}
 
 	protected class SettlementMarketEvent implements ISettlementEvent {
@@ -597,6 +586,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			CreditBank.this.issuedBonds.removeAll(bondsToDelete);
 
 			// publish
+			// TODO: include budget capacity for currency trading, as soon as
+			// that money has a nexus with the regular monetary system
 			Log.agent_onPublishBalanceSheet(CreditBank.this, balanceSheet);
 		}
 	}
@@ -679,8 +670,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					.keySet().size() - 1;
 			if (numberOfForeignCurrencies > 0) {
 
-				double budgetForCurrencyTradingPerCurrency_InPrimaryCurrency = CreditBank.this
-						.calculateLocalCurrencyBudgetForCurrencyTrading()
+				double budgetForCurrencyTradingPerCurrency_InPrimaryCurrency = calculateLocalCurrencyBudgetForCurrencyTrading()
 						/ (double) numberOfForeignCurrencies;
 
 				/*
@@ -813,8 +803,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			 * currency
 			 */
 
-			double totalLocalCurrencyBudgetForCurrencyTrading = CreditBank.this
-					.calculateLocalCurrencyBudgetForCurrencyTrading();
+			double totalLocalCurrencyBudgetForCurrencyTrading = calculateLocalCurrencyBudgetForCurrencyTrading();
 
 			// if there is no budget in local currency left for offering
 			// against foreign currency
@@ -930,6 +919,17 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							foreignCurrencyBankAccount, null);
 				}
 			}
+		}
+
+		private double calculateLocalCurrencyBudgetForCurrencyTrading() {
+			CreditBank.this.assureCurrencyTradeBankAccounts();
+
+			// division by 2 so that the period-wise the budget converges to max
+			// credit. This ensures, that in each period there is budget left to
+			// quote on the currency markets
+			return (ConfigurationUtil.CreditBankConfig
+					.getMaxCreditForCurrencyTrading() + CreditBank.this.currencyTradeBankAccounts
+					.get(CreditBank.this.primaryCurrency).getBalance()) / 2.0;
 		}
 	}
 

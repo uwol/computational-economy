@@ -23,17 +23,20 @@ public class MathUtil {
 
 	private static final double epsilon = 0.00001;
 
-	private static final double precision = Math.round(1 / epsilon);
+	private static final double defaultRoundPrecision = Math
+			.round(1.0 / epsilon);
 
-	public static boolean equal(double value1, double value2) {
+	public static boolean equal(final double value1, final double value2) {
 		if (Double.isNaN(value1) && Double.isNaN(value2))
 			return true;
 		if (Double.isInfinite(value1) && Double.isInfinite(value2))
 			return true;
-		return Math.abs(value1 - value2) < epsilon;
+		// value1 - value2 are equal, if they differ minimally; has to hold
+		// under value1 = 0
+		return Math.abs(value1 - value2) <= epsilon;
 	}
 
-	public static boolean greater(double value1, double value2) {
+	public static boolean greater(final double value1, final double value2) {
 		if (Double.isNaN(value1) || Double.isNaN(value2))
 			return false;
 		if (!Double.isInfinite(value1) && Double.isInfinite(value2))
@@ -42,14 +45,15 @@ public class MathUtil {
 			return true;
 		if (Double.isInfinite(value1) && Double.isInfinite(value2))
 			return false;
+		// value1 has to be significantly greater than value2
 		return value1 - epsilon > value2;
 	}
 
-	public static boolean greaterEqual(double value1, double value2) {
+	public static boolean greaterEqual(final double value1, final double value2) {
 		return equal(value1, value2) || greater(value1, value2);
 	}
 
-	public static boolean lesser(double value1, double value2) {
+	public static boolean lesser(final double value1, final double value2) {
 		if (Double.isNaN(value1) || Double.isNaN(value2))
 			return false;
 		if (Double.isInfinite(value1) && !Double.isInfinite(value2))
@@ -58,20 +62,22 @@ public class MathUtil {
 			return true;
 		if (Double.isInfinite(value1) && Double.isInfinite(value2))
 			return false;
+		// value1 has to be significantly lesser than value2
 		return value1 + epsilon < value2;
 	}
 
-	public static boolean lesserEqual(double value1, double value2) {
+	public static boolean lesserEqual(final double value1, final double value2) {
 		return equal(value1, value2) || lesser(value1, value2);
 	}
 
-	public static double round(double value) {
+	public static double round(final double value) {
 		if (Double.isNaN(value) || Double.isInfinite(value))
 			return value;
-		return Math.round(value * precision) / precision;
+		return Math.round(value * defaultRoundPrecision)
+				/ defaultRoundPrecision;
 	}
 
-	public static double log(double num, double base) {
+	public static double log(final double num, final double base) {
 		return Math.log(num) / Math.log(base);
 	}
 

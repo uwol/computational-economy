@@ -210,6 +210,8 @@ public class ModelRegistry {
 					referenceCurrency.getIso4217Code() + " money velocity");
 			this.priceIndexModel = new PeriodDataAccumulatorTimeSeriesModel(
 					referenceCurrency.getIso4217Code() + " price index");
+			this.creditUtilizationRateModel = new PeriodDataQuotientTimeSeriesModel(
+					referenceCurrency.getIso4217Code() + " credit util. rate");
 			this.balanceSheetsModel = new BalanceSheetsModel(referenceCurrency);
 			this.monetaryTransactionsModel = new MonetaryTransactionsModel();
 		}
@@ -254,6 +256,7 @@ public class ModelRegistry {
 		public final PeriodDataAccumulatorTimeSeriesModel moneyCirculationModel;
 		public final PeriodDataQuotientTimeSeriesModel moneyVelocityModel;
 		public final PeriodDataAccumulatorTimeSeriesModel priceIndexModel;
+		public final PeriodDataQuotientTimeSeriesModel creditUtilizationRateModel;
 
 		// national balances
 
@@ -273,6 +276,7 @@ public class ModelRegistry {
 			labourHourCapacityModel.nextPeriod();
 			consumptionModel.nextPeriod();
 			consumptionRateModel.nextPeriod();
+			creditUtilizationRateModel.nextPeriod();
 			dividendModel.nextPeriod();
 			incomeModel.nextPeriod();
 			incomeSourceModel.nextPeriod();
@@ -403,6 +407,11 @@ public class ModelRegistry {
 	public PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM1Model(
 			Currency currency) {
 		return nationalEconomyModels.get(currency).moneySupplyM1Model;
+	}
+
+	public PeriodDataQuotientTimeSeriesModel getCreditUtilizationRateModel(
+			Currency currency) {
+		return nationalEconomyModels.get(currency).creditUtilizationRateModel;
 	}
 
 	public PeriodDataAccumulatorTimeSeriesModel getMoneySupplyM2Model(

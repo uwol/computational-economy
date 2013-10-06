@@ -230,7 +230,7 @@ public abstract class Agent {
 		// initialize bank account
 		if (this.transactionsBankAccount == null) {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency, "transactions account",
+					this, this.primaryCurrency, true, "transactions account",
 					BankAccountType.GIRO);
 		}
 	}

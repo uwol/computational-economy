@@ -32,6 +32,7 @@ import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import compecon.economy.BudgetingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
@@ -57,6 +58,9 @@ import compecon.materia.GoodType;
  */
 @Entity
 public class Trader extends JointStockCompany {
+
+	@Transient
+	protected BudgetingBehaviour budgetingBehaviour;
 
 	@Transient
 	protected Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
@@ -92,6 +96,8 @@ public class Trader extends JointStockCompany {
 				.getTimeSystem()
 				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
 						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
+
+		this.budgetingBehaviour = new BudgetingBehaviour(this);
 	}
 
 	@Transient
@@ -137,7 +143,7 @@ public class Trader extends JointStockCompany {
 				CreditBank foreignCurrencyCreditBank = AgentFactory
 						.getRandomInstanceCreditBank(currency);
 				BankAccount bankAccount = foreignCurrencyCreditBank
-						.openBankAccount(this, currency,
+						.openBankAccount(this, currency, true,
 								"foreign currency account",
 								BankAccountType.GIRO);
 				this.goodsTradeBankAccounts.put(currency, bankAccount);
@@ -193,8 +199,15 @@ public class Trader extends JointStockCompany {
 		protected void buyGoodsForArbitrage() {
 			int numberOfForeignCurrencies = Trader.this.goodsTradeBankAccounts
 					.keySet().size();
-			double budgetPerForeignCurrencyInLocalCurrency = (Trader.this.referenceCredit + Trader.this.transactionsBankAccount
-					.getBalance()) / (double) numberOfForeignCurrencies;
+
+			double budget = Trader.this.budgetingBehaviour
+					.calculateTransmissionBasedBudgetForPeriod(
+							Trader.this.transactionsBankAccount.getCurrency(),
+							Trader.this.transactionsBankAccount.getBalance(),
+							Trader.this.referenceCredit);
+
+			double budgetPerForeignCurrencyInLocalCurrency = budget
+					/ (double) numberOfForeignCurrencies;
 
 			if (MathUtil.greater(budgetPerForeignCurrencyInLocalCurrency, 0.0)) {
 				/*

@@ -55,6 +55,9 @@ import compecon.math.production.IProductionFunction;
 @Entity
 public class Factory extends JointStockCompany {
 
+	@Transient
+	protected BudgetingBehaviour budgetingBehaviour;
+
 	@Enumerated(EnumType.STRING)
 	protected GoodType producedGoodType;
 
@@ -63,9 +66,6 @@ public class Factory extends JointStockCompany {
 
 	@Transient
 	protected PricingBehaviour pricingBehaviour;
-
-	@Transient
-	protected BudgetingBehaviour budgetingBehaviour;
 
 	@Override
 	public void initialize() {
@@ -197,10 +197,12 @@ public class Factory extends JointStockCompany {
 				// buy production factors
 				double budgetSpent = this
 						.buyProductionFactors(productionFactorsToBuy);
+
+				assert (MathUtil.lesserEqual(budgetSpent, budget * 1.1));
 			}
 		}
 
-		protected double buyProductionFactors(
+		private double buyProductionFactors(
 				final Map<GoodType, Double> productionFactorsToBuy) {
 			/*
 			 * buy production factors; maxPricePerUnit is significantly
@@ -290,9 +292,16 @@ public class Factory extends JointStockCompany {
 		@Override
 		public void onEvent() {
 			Factory.this.assureTransactionsBankAccount();
+
 			BalanceSheet balanceSheet = Factory.this.issueBasicBalanceSheet();
 			balanceSheet.issuedCapital = Factory.this.issuedShares;
+			double creditBudgetCapacity = Factory.this.budgetingBehaviour
+					.getCreditBasedBudgetCapacity();
+
 			Log.agent_onPublishBalanceSheet(Factory.this, balanceSheet);
+			Log.agent_CreditUtilization(Factory.this, -1.0
+					* Factory.this.getTransactionsBankAccount().getBalance(),
+					creditBudgetCapacity);
 		}
 	}
 

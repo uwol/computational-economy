@@ -247,6 +247,11 @@ public class ConfigurationUtil {
 			return Double.parseDouble(configFile
 					.getProperty("trader.arbitrageMargin"));
 		}
+
+		public static double getReferenceCredit() {
+			return Double.parseDouble(configFile
+					.getProperty("trader.referenceCredit"));
+		}
 	}
 
 	protected static Properties configFile = new Properties();

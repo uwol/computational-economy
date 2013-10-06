@@ -104,13 +104,23 @@ public abstract class Bank extends JointStockCompany {
 	public void closeCustomerAccount(Agent customer) {
 		this.assureTransactionsBankAccount();
 
+		// each customer bank account ...
 		for (BankAccount bankAccount : DAOFactory.getBankAccountDAO().findAll(
 				this, customer)) {
 			if (this.transactionsBankAccount != null
 					&& bankAccount != this.transactionsBankAccount) {
-				this.transferMoney(bankAccount, this.transactionsBankAccount,
-						bankAccount.getBalance(),
-						"evening-up of closed bank account", true);
+				// on closing has to be evened up to 0, so that no money is lost
+				// in the monetary system
+				if (bankAccount.getBalance() >= 0) {
+					this.transferMoney(bankAccount,
+							this.transactionsBankAccount,
+							bankAccount.getBalance(),
+							"evening-up of closed bank account", true);
+				} else {
+					this.transferMoney(this.transactionsBankAccount,
+							bankAccount, -1.0 * bankAccount.getBalance(),
+							"evening-up of closed bank account", true);
+				}
 			}
 			customer.onBankCloseBankAccount(bankAccount);
 		}
@@ -119,11 +129,13 @@ public abstract class Bank extends JointStockCompany {
 
 	@Transient
 	public BankAccount openBankAccount(Agent customer, Currency currency,
-			String name, BankAccountType bankAccountType) {
+			boolean overdraftPossible, String name,
+			BankAccountType bankAccountType) {
 		this.assertCurrencyIsOffered(currency);
 
 		BankAccount bankAccount = BankAccountFactory.newInstanceBankAccount(
-				customer, true, currency, this, name, bankAccountType);
+				customer, currency, overdraftPossible, this, name,
+				bankAccountType);
 		return bankAccount;
 	}
 

@@ -147,6 +147,7 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 					.selectProductionFactorWithHighestMarginalOutputPerPrice(
 							bundleOfInputFactors, priceFunctionsOfInputTypes);
 
+			// no optimal input type could be found, i. e. markets are sold out
 			if (optimalInputType == null) {
 				break;
 			} else {

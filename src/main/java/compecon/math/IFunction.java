@@ -47,6 +47,9 @@ public interface IFunction<T> {
 
 	public T findLargestPartialDerivate(Map<T, Double> forBundleOfInputs);
 
+	/**
+	 * @return null, if markets are sold out
+	 */
 	public T findHighestPartialDerivatePerPrice(Map<T, Double> bundleOfInputs,
 			Map<T, IPriceFunction> priceFunctionsOfInputTypes);
 }
