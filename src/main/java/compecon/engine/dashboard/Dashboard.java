@@ -35,6 +35,7 @@ import compecon.engine.dashboard.panel.LogPanel;
 import compecon.engine.dashboard.panel.MoneyPanel;
 import compecon.engine.dashboard.panel.NationalAccountsPanel;
 import compecon.engine.dashboard.panel.StatesPanel;
+import compecon.engine.dashboard.panel.TradersPanel;
 import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 
 public class Dashboard extends JFrame implements IModelListener {
@@ -48,6 +49,8 @@ public class Dashboard extends JFrame implements IModelListener {
 	protected final HouseholdsPanel householdsPanel = new HouseholdsPanel();
 
 	protected final IndustriesPanel industriesPanel = new IndustriesPanel();
+
+	protected final TradersPanel tradersPanel = new TradersPanel();
 
 	protected final BanksPanel banksPanel = new BanksPanel();
 
@@ -78,6 +81,7 @@ public class Dashboard extends JFrame implements IModelListener {
 		this.jTabbedPane.addTab("Agents", this.agentsPanel);
 		this.jTabbedPane.addTab("Households", this.householdsPanel);
 		this.jTabbedPane.addTab("Industries", this.industriesPanel);
+		this.jTabbedPane.addTab("Traders", this.tradersPanel);
 		this.jTabbedPane.addTab("Banks", this.banksPanel);
 		this.jTabbedPane.addTab("States", this.statesPanel);
 		this.jTabbedPane.addTab("Money", this.moneyPanel);

@@ -271,7 +271,7 @@ public class Trader extends JointStockCompany {
 								if (MathUtil
 										.greater(
 												priceOfGoodTypeInLocalCurrency
-														/ (1 + ConfigurationUtil.TraderConfig
+														/ (1.0 + ConfigurationUtil.TraderConfig
 																.getArbitrageMargin()),
 												importPriceOfGoodTypeInLocalCurrency)) {
 
