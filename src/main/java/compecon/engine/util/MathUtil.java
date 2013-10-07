@@ -21,6 +21,7 @@ package compecon.engine.util;
 
 public class MathUtil {
 
+	// epsilon for absolute values, not deviation from quotient etc.
 	private static final double epsilon = 0.00001;
 
 	private static final double defaultRoundPrecision = Math

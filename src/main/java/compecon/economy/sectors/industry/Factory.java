@@ -198,7 +198,18 @@ public class Factory extends JointStockCompany {
 				double budgetSpent = this
 						.buyProductionFactors(productionFactorsToBuy);
 
-				assert (MathUtil.lesserEqual(budgetSpent, budget * 1.1));
+				assert (MathUtil.lesserEqual(budgetSpent, budget * 1.2));
+
+				// log credit capacity utilization
+				double creditBudgetCapacity = Factory.this.budgetingBehaviour
+						.getCreditBasedBudgetCapacity();
+				double creditUtilization = -1.0
+						* Factory.this.getTransactionsBankAccount()
+								.getBalance();
+				Log.agent_CreditUtilization(Factory.this, creditUtilization,
+						creditBudgetCapacity);
+				assert (MathUtil.lesserEqual(creditUtilization,
+						creditBudgetCapacity * 1.1));
 			}
 		}
 
@@ -295,13 +306,8 @@ public class Factory extends JointStockCompany {
 
 			BalanceSheet balanceSheet = Factory.this.issueBasicBalanceSheet();
 			balanceSheet.issuedCapital = Factory.this.issuedShares;
-			double creditBudgetCapacity = Factory.this.budgetingBehaviour
-					.getCreditBasedBudgetCapacity();
 
 			Log.agent_onPublishBalanceSheet(Factory.this, balanceSheet);
-			Log.agent_CreditUtilization(Factory.this, -1.0
-					* Factory.this.getTransactionsBankAccount().getBalance(),
-					creditBudgetCapacity);
 		}
 	}
 
