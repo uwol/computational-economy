@@ -209,6 +209,7 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 		// assets
 		to.hardCash += from.hardCash;
 		to.cashShortTerm += from.cashShortTerm;
+		to.cashShortTermForeignCurrency += from.cashShortTermForeignCurrency;
 		to.cashLongTerm += from.cashLongTerm;
 		to.bonds += from.bonds;
 		to.bankLoans += from.bankLoans;

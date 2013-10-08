@@ -43,17 +43,18 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 
 		public final static int POSITION_HARD_CASH = 0;
 		public final static int POSITION_CASH_SHORT_TERM = 1;
-		public final static int POSITION_CASH_LONG_TERM = 2;
-		public final static int POSITION_BONDS = 3;
-		public final static int POSITION_BANK_LOANS = 4;
-		public final static int POSITION_INVENTORY = 5;
+		public final static int POSITION_CASH_SHORT_TERM_FOREIGN_CURRENCY = 2;
+		public final static int POSITION_CASH_LONG_TERM = 3;
+		public final static int POSITION_BONDS = 4;
+		public final static int POSITION_BANK_LOANS = 5;
+		public final static int POSITION_INVENTORY = 6;
 
 		public final static int POSITION_LOANS = 1;
-		public final static int POSITION_FIN_LIABLITIES = 3;
-		public final static int POSITION_BANK_BORROWINGS = 4;
-		public final static int POSITION_EQUITY = 5;
+		public final static int POSITION_FIN_LIABLITIES = 4;
+		public final static int POSITION_BANK_BORROWINGS = 5;
+		public final static int POSITION_EQUITY = 6;
 
-		public final static int POSITION_BALANCE = 7;
+		public final static int POSITION_BALANCE = 8;
 
 		protected final String columnNames[] = { "Active Account", "Value",
 				"Passive Account", "Value" };
@@ -70,11 +71,12 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 					.getBalanceSheetsModel(referenceCurrency)
 					.registerListener(this);
 
-			this.activePositionNames = new String[8];
-			this.passivePositionNames = new String[8];
+			this.activePositionNames = new String[POSITION_BALANCE + 1];
+			this.passivePositionNames = new String[POSITION_BALANCE + 1];
 
 			this.activePositionNames[POSITION_HARD_CASH] = "Hard Cash";
 			this.activePositionNames[POSITION_CASH_SHORT_TERM] = "Cash Short Term";
+			this.activePositionNames[POSITION_CASH_SHORT_TERM_FOREIGN_CURRENCY] = "Cash Short Term Foreign";
 			this.activePositionNames[POSITION_CASH_LONG_TERM] = "Cash Long Term";
 			this.activePositionNames[POSITION_BONDS] = "Fin. Assets (Bonds)";
 			this.activePositionNames[POSITION_BANK_LOANS] = "Bank Loans";
@@ -144,6 +146,11 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 				this.setValue(SIDE_ACTIVE, POSITION_CASH_SHORT_TERM,
 						referenceCurrency,
 						Currency.round(balanceSheet.cashShortTerm));
+				this.setValue(
+						SIDE_ACTIVE,
+						POSITION_CASH_SHORT_TERM_FOREIGN_CURRENCY,
+						referenceCurrency,
+						Currency.round(balanceSheet.cashShortTermForeignCurrency));
 				this.setValue(SIDE_ACTIVE, POSITION_CASH_LONG_TERM,
 						referenceCurrency,
 						Currency.round(balanceSheet.cashLongTerm));

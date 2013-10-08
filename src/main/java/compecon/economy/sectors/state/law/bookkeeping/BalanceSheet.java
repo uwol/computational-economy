@@ -42,6 +42,10 @@ public class BalanceSheet {
 	// cash in bank deposits, demand deposits
 	public double cashShortTerm;
 
+	// cash in bank foreign currency deposits, demand deposits; denominated in
+	// local currency
+	public double cashShortTermForeignCurrency;
+
 	// cash in bank deposits, savings deposits
 	public double cashLongTerm;
 
@@ -67,7 +71,8 @@ public class BalanceSheet {
 	public final Map<GoodType, Double> inventoryQuantitative = new HashMap<GoodType, Double>();
 
 	public double getBalanceActive() {
-		return this.hardCash + this.cashShortTerm + this.cashLongTerm
+		return this.hardCash + this.cashShortTerm
+				+ this.cashShortTermForeignCurrency + this.cashLongTerm
 				+ this.bankLoans + this.bonds + this.inventoryValue;
 	}
 
@@ -78,8 +83,8 @@ public class BalanceSheet {
 	public Set<Share> issuedCapital = new HashSet<Share>();
 
 	public double getEquity() {
-		return this.getBalanceActive() - this.loans
-				- this.financialLiabilities - this.bankBorrowings;
+		return this.getBalanceActive() - this.loans - this.financialLiabilities
+				- this.bankBorrowings;
 	}
 
 	/*

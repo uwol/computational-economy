@@ -38,6 +38,7 @@ import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
@@ -223,7 +224,7 @@ public class Trader extends JointStockCompany {
 					 * that can be spent for buying foreign currency
 					 */
 					double budgetPerGoodTypeAndForeignCurrencyInLocalCurrency = budgetPerForeignCurrencyInLocalCurrency
-							/ (GoodType.values().length - Trader.this.excludedGoodTypes
+							/ (double) (GoodType.values().length - Trader.this.excludedGoodTypes
 									.size());
 
 					/*
@@ -376,8 +377,23 @@ public class Trader extends JointStockCompany {
 		public void onEvent() {
 			Trader.this.assureTransactionsBankAccount();
 
-			Log.agent_onPublishBalanceSheet(Trader.this,
-					Trader.this.issueBasicBalanceSheet());
+			BalanceSheet balanceSheet = Trader.this.issueBasicBalanceSheet();
+
+			// add balances of foreign currency bank accounts
+			for (Entry<Currency, BankAccount> bankAccountEntry : Trader.this.goodsTradeBankAccounts
+					.entrySet()) {
+				double priceOfForeignCurrencyInLocalCurrency = MarketFactory
+						.getInstance().getPrice(primaryCurrency,
+								bankAccountEntry.getKey());
+				if (!Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
+					double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry
+							.getValue().getBalance()
+							* priceOfForeignCurrencyInLocalCurrency;
+					balanceSheet.cashShortTermForeignCurrency += valueOfForeignCurrencyInLocalCurrency;
+				}
+			}
+
+			Log.agent_onPublishBalanceSheet(Trader.this, balanceSheet);
 		}
 	}
 

@@ -554,8 +554,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					balanceSheet.bankLoans += bankAccount.getBalance() * -1.0;
 			}
 
-			// TODO: bank accounts of banks
-
 			// bank deposits
 			BankAccount bankAccountAtCentralBank = AgentFactory
 					.getInstanceCentralBank(CreditBank.this.primaryCurrency)
@@ -569,8 +567,19 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						* bankAccountAtCentralBank.getBalance();
 			}
 
-			// TODO: bank accounts of this bank at other banks including foreign
-			// currency
+			// add balances of foreign currency bank accounts
+			for (Entry<Currency, BankAccount> bankAccountEntry : CreditBank.this.currencyTradeBankAccounts
+					.entrySet()) {
+				double priceOfForeignCurrencyInLocalCurrency = MarketFactory
+						.getInstance().getPrice(primaryCurrency,
+								bankAccountEntry.getKey());
+				if (!Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
+					double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry
+							.getValue().getBalance()
+							* priceOfForeignCurrencyInLocalCurrency;
+					balanceSheet.cashShortTermForeignCurrency += valueOfForeignCurrencyInLocalCurrency;
+				}
+			}
 
 			// --------------
 
@@ -586,8 +595,6 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			CreditBank.this.issuedBonds.removeAll(bondsToDelete);
 
 			// publish
-			// TODO: include budget capacity for currency trading, as soon as
-			// that money has a nexus with the regular monetary system
 			Log.agent_onPublishBalanceSheet(CreditBank.this, balanceSheet);
 		}
 	}
@@ -915,7 +922,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							foreignCurrency, CreditBank.this,
 							localCurrencyBankAccount,
 							foreignCurrencyBankAccount.getBalance(),
-							priceOfForeignCurrencyInLocalCurrency / (1.001),
+							priceOfForeignCurrencyInLocalCurrency / 1.001,
 							foreignCurrencyBankAccount, null);
 				}
 			}
