@@ -30,6 +30,12 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.RectangleInsets;
 
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
+import compecon.engine.Simulation;
+import compecon.engine.dashboard.panel.BalanceSheetPanel.BalanceSheetTableModel;
+import compecon.materia.GoodType;
+
 public abstract class AbstractChartsPanel extends JPanel {
 
 	protected static void configureChart(JFreeChart chart) {
@@ -47,5 +53,108 @@ public abstract class AbstractChartsPanel extends JPanel {
 		valueAxis.setAutoRangeIncludesZero(true);
 		valueAxis.setUpperMargin(0.15);
 		valueAxis.setLowerMargin(0.15);
+	}
+
+	protected JPanel createHouseholdBalanceSheetPanel(Currency currency) {
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
+				currency) {
+			@Override
+			protected BalanceSheet getModelData() {
+				return Simulation.getInstance().getModelRegistry()
+						.getBalanceSheetsModel(referenceCurrency)
+						.getHouseholdNationalAccountsBalanceSheet();
+			}
+		};
+		return new BalanceSheetPanel(currency, balanceSheetTableModel,
+				"Balance Sheet for " + currency.getIso4217Code()
+						+ " Households");
+	}
+
+	protected JPanel createFactoryBalanceSheetPanel(final Currency currency,
+			final GoodType goodType) {
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
+				currency) {
+			@Override
+			protected BalanceSheet getModelData() {
+				return Simulation.getInstance().getModelRegistry()
+						.getBalanceSheetsModel(referenceCurrency)
+						.getFactoryNationalAccountsBalanceSheet(goodType);
+			}
+		};
+		return new BalanceSheetPanel(currency, balanceSheetTableModel,
+				"Balance Sheet for " + currency.getIso4217Code() + " "
+						+ goodType + " Factories");
+	}
+
+	protected JPanel createFactoryBalanceSheetPanel(final Currency currency) {
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
+				currency) {
+			@Override
+			protected BalanceSheet getModelData() {
+				return Simulation.getInstance().getModelRegistry()
+						.getBalanceSheetsModel(referenceCurrency)
+						.getFactoryNationalAccountsBalanceSheet();
+			}
+		};
+		return new BalanceSheetPanel(currency, balanceSheetTableModel,
+				"Balance Sheet for " + currency.getIso4217Code() + " Factories");
+	}
+
+	protected JPanel createCreditBankBalanceSheetPanel(final Currency currency) {
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
+				currency) {
+			@Override
+			protected BalanceSheet getModelData() {
+				return Simulation.getInstance().getModelRegistry()
+						.getBalanceSheetsModel(referenceCurrency)
+						.getCreditBankNationalAccountsBalanceSheet();
+			}
+		};
+		return new BalanceSheetPanel(currency, balanceSheetTableModel,
+				"Balance Sheet for " + currency.getIso4217Code()
+						+ " Credit Banks");
+	}
+
+	protected JPanel createCentralBankBalanceSheetPanel(final Currency currency) {
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
+				currency) {
+			@Override
+			protected BalanceSheet getModelData() {
+				return Simulation.getInstance().getModelRegistry()
+						.getBalanceSheetsModel(referenceCurrency)
+						.getCentralBankNationalAccountsBalanceSheet();
+			}
+		};
+		return new BalanceSheetPanel(currency, balanceSheetTableModel,
+				"Balance Sheet for " + currency.getIso4217Code()
+						+ " Central Bank");
+	}
+
+	protected JPanel createTraderBalanceSheetPanel(Currency currency) {
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
+				currency) {
+			@Override
+			protected BalanceSheet getModelData() {
+				return Simulation.getInstance().getModelRegistry()
+						.getBalanceSheetsModel(referenceCurrency)
+						.getTraderNationalAccountsBalanceSheet();
+			}
+		};
+		return new BalanceSheetPanel(currency, balanceSheetTableModel,
+				"Balance Sheet for " + currency.getIso4217Code() + " Traders");
+	}
+
+	protected JPanel createStateBalanceSheetPanel(Currency currency) {
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
+				currency) {
+			@Override
+			protected BalanceSheet getModelData() {
+				return Simulation.getInstance().getModelRegistry()
+						.getBalanceSheetsModel(referenceCurrency)
+						.getStateNationalAccountsBalanceSheet();
+			}
+		};
+		return new BalanceSheetPanel(currency, balanceSheetTableModel,
+				"Balance Sheet for " + currency.getIso4217Code() + " State");
 	}
 }

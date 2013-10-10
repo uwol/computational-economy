@@ -38,9 +38,7 @@ import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Simulation;
-import compecon.engine.dashboard.panel.BalanceSheetPanel.BalanceSheetTableModel;
 import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 import compecon.engine.statistics.model.PricesModel;
 import compecon.engine.statistics.model.PricesModel.PriceModel;
@@ -129,36 +127,6 @@ public class BanksPanel extends AbstractChartsPanel implements IModelListener {
 		});
 
 		add(jTabbedPaneCurrency, BorderLayout.CENTER);
-	}
-
-	protected JPanel createCreditBankBalanceSheetPanel(final Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
-			@Override
-			protected BalanceSheet getModelData() {
-				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
-						.getCreditBankNationalAccountsBalanceSheet();
-			}
-		};
-		return new BalanceSheetPanel(currency, balanceSheetTableModel,
-				"Balance Sheet for " + currency.getIso4217Code()
-						+ " Credit Banks");
-	}
-
-	protected JPanel createCentralBankBalanceSheetPanel(final Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
-			@Override
-			protected BalanceSheet getModelData() {
-				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
-						.getCentralBankNationalAccountsBalanceSheet();
-			}
-		};
-		return new BalanceSheetPanel(currency, balanceSheetTableModel,
-				"Balance Sheet for " + currency.getIso4217Code()
-						+ " Central Bank");
 	}
 
 	protected ChartPanel createPriceTimeSeriesChartPanel(Currency currency,

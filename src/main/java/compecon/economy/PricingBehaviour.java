@@ -170,7 +170,7 @@ public class PricingBehaviour {
 		updatePriceChangeIncrement(true);
 		// if the price is 0, multiplication does not work -> reset price
 		if (MathUtil.lesserEqual(price, 0.0))
-			return 0.1;
+			return 0.01;
 		return price * (1.0 + this.priceChangeIncrement);
 	}
 

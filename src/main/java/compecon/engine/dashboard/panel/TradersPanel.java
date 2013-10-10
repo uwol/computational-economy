@@ -28,9 +28,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
-import compecon.engine.Simulation;
-import compecon.engine.dashboard.panel.BalanceSheetPanel.BalanceSheetTableModel;
 import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 
 public class TradersPanel extends AbstractChartsPanel implements IModelListener {
@@ -80,20 +77,6 @@ public class TradersPanel extends AbstractChartsPanel implements IModelListener 
 		});
 
 		add(jTabbedPaneCurrency, BorderLayout.CENTER);
-	}
-
-	protected JPanel createTraderBalanceSheetPanel(Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
-			@Override
-			protected BalanceSheet getModelData() {
-				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
-						.getTraderNationalAccountsBalanceSheet();
-			}
-		};
-		return new BalanceSheetPanel(currency, balanceSheetTableModel,
-				"Balance Sheet for " + currency.getIso4217Code() + " Trader");
 	}
 
 	@Override

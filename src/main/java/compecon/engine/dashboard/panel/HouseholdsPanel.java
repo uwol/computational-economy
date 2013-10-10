@@ -41,9 +41,7 @@ import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Simulation;
-import compecon.engine.dashboard.panel.BalanceSheetPanel.BalanceSheetTableModel;
 import compecon.engine.statistics.model.ModelRegistry.IncomeSource;
 import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 import compecon.engine.statistics.model.PeriodDataDistributionModel.SummaryStatisticalData;
@@ -168,7 +166,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 		}
 	}
 
-	JTabbedPane jTabbedPaneCurrency = new JTabbedPane();
+	protected JTabbedPane jTabbedPaneCurrency = new JTabbedPane();
 
 	public HouseholdsPanel() {
 		this.setLayout(new BorderLayout());
@@ -330,21 +328,6 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 				"Lorenz Curve", "% of Households", "% of Income", dataset,
 				PlotOrientation.VERTICAL, true, true, false);
 		return new ChartPanel(lorenzCurveChart);
-	}
-
-	protected JPanel createHouseholdBalanceSheetPanel(Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
-			@Override
-			protected BalanceSheet getModelData() {
-				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
-						.getHouseholdNationalAccountsBalanceSheet();
-			}
-		};
-		return new BalanceSheetPanel(currency, balanceSheetTableModel,
-				"Balance Sheet for " + currency.getIso4217Code()
-						+ " Households");
 	}
 
 	protected ChartPanel createPriceTimeSeriesChartPanel(Currency currency) {

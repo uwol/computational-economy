@@ -38,9 +38,7 @@ import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Simulation;
-import compecon.engine.dashboard.panel.BalanceSheetPanel.BalanceSheetTableModel;
 import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
 import compecon.engine.statistics.model.PricesModel;
 import compecon.engine.statistics.model.PricesModel.PriceModel;
@@ -194,22 +192,6 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 				+ InputOutputModel.getProductionFunction(outputGoodType)
 						.getInputGoodTypes().toString()));
 		return new ChartPanel(chart);
-	}
-
-	protected JPanel createFactoryBalanceSheetPanel(final Currency currency,
-			final GoodType goodType) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
-			@Override
-			protected BalanceSheet getModelData() {
-				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
-						.getFactoryNationalAccountsBalanceSheet(goodType);
-			}
-		};
-		return new BalanceSheetPanel(currency, balanceSheetTableModel,
-				"Balance Sheet for " + currency.getIso4217Code() + " "
-						+ goodType + " Factories");
 	}
 
 	protected ChartPanel createPriceTimeSeriesChartPanel(Currency currency,
