@@ -201,13 +201,13 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 		add(jTabbedPaneCurrency, BorderLayout.CENTER);
 	}
 
-	protected JPanel createNationalBalanceSheetPanel(Currency currency) {
+	protected JPanel createNationalBalanceSheetPanel(final Currency currency) {
 		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
 				currency) {
 			@Override
-			protected BalanceSheet getModelData() {
+			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
+						.getBalanceSheetsModel(currency)
 						.getNationalAccountsBalanceSheet();
 			}
 		};

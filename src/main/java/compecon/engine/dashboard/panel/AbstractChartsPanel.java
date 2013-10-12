@@ -55,13 +55,13 @@ public abstract class AbstractChartsPanel extends JPanel {
 		valueAxis.setLowerMargin(0.15);
 	}
 
-	protected JPanel createHouseholdBalanceSheetPanel(Currency currency) {
+	protected JPanel createHouseholdBalanceSheetPanel(final Currency currency) {
 		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
 				currency) {
 			@Override
-			protected BalanceSheet getModelData() {
+			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
+						.getBalanceSheetsModel(currency)
 						.getHouseholdNationalAccountsBalanceSheet();
 			}
 		};
@@ -75,9 +75,9 @@ public abstract class AbstractChartsPanel extends JPanel {
 		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
 				currency) {
 			@Override
-			protected BalanceSheet getModelData() {
+			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
+						.getBalanceSheetsModel(currency)
 						.getFactoryNationalAccountsBalanceSheet(goodType);
 			}
 		};
@@ -90,9 +90,9 @@ public abstract class AbstractChartsPanel extends JPanel {
 		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
 				currency) {
 			@Override
-			protected BalanceSheet getModelData() {
+			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
+						.getBalanceSheetsModel(currency)
 						.getFactoryNationalAccountsBalanceSheet();
 			}
 		};
@@ -104,9 +104,9 @@ public abstract class AbstractChartsPanel extends JPanel {
 		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
 				currency) {
 			@Override
-			protected BalanceSheet getModelData() {
+			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
+						.getBalanceSheetsModel(currency)
 						.getCreditBankNationalAccountsBalanceSheet();
 			}
 		};
@@ -119,9 +119,9 @@ public abstract class AbstractChartsPanel extends JPanel {
 		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
 				currency) {
 			@Override
-			protected BalanceSheet getModelData() {
+			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
+						.getBalanceSheetsModel(currency)
 						.getCentralBankNationalAccountsBalanceSheet();
 			}
 		};
@@ -130,13 +130,13 @@ public abstract class AbstractChartsPanel extends JPanel {
 						+ " Central Bank");
 	}
 
-	protected JPanel createTraderBalanceSheetPanel(Currency currency) {
+	protected JPanel createTraderBalanceSheetPanel(final Currency currency) {
 		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
 				currency) {
 			@Override
-			protected BalanceSheet getModelData() {
+			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
+						.getBalanceSheetsModel(currency)
 						.getTraderNationalAccountsBalanceSheet();
 			}
 		};
@@ -144,13 +144,13 @@ public abstract class AbstractChartsPanel extends JPanel {
 				"Balance Sheet for " + currency.getIso4217Code() + " Traders");
 	}
 
-	protected JPanel createStateBalanceSheetPanel(Currency currency) {
+	protected JPanel createStateBalanceSheetPanel(final Currency currency) {
 		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
 				currency) {
 			@Override
-			protected BalanceSheet getModelData() {
+			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(referenceCurrency)
+						.getBalanceSheetsModel(currency)
 						.getStateNationalAccountsBalanceSheet();
 			}
 		};
