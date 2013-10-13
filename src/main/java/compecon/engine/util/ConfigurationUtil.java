@@ -29,37 +29,65 @@ import compecon.economy.sectors.financial.Currency;
 public class ConfigurationUtil {
 
 	public static class BudgetingBehaviour {
+
+		public static Double internalRateOfReturn;
+
+		public static Double keyInterestRateTransmissionDamper;
+
 		public static double getInternalRateOfReturn() {
-			return Double.parseDouble(configFile
-					.getProperty("budgetingBehaviour.internalRateOfReturn"));
+			if (internalRateOfReturn == null)
+				internalRateOfReturn = Double
+						.parseDouble(configFile
+								.getProperty("budgetingBehaviour.internalRateOfReturn"));
+			return internalRateOfReturn;
 		}
 
 		public static double getKeyInterestRateTransmissionDamper() {
-			return Double
-					.parseDouble(configFile
-							.getProperty("budgetingBehaviour.keyInterestRateTransmissionDamper"));
+			if (keyInterestRateTransmissionDamper == null)
+				keyInterestRateTransmissionDamper = Double
+						.parseDouble(configFile
+								.getProperty("budgetingBehaviour.keyInterestRateTransmissionDamper"));
+			return keyInterestRateTransmissionDamper;
 		}
 	}
 
 	public static class CentralBankConfig {
+
+		public static Double reserveRatio;
+
+		public static Double inflationTarget;
+
+		public static Double targetPriceIndex;
+
+		public static Boolean allowNegativeKeyInterestRate;
+
 		public static double getReserveRatio() {
-			return Double.parseDouble(configFile
-					.getProperty("centralBank.reserveRatio"));
+			if (reserveRatio == null)
+				reserveRatio = Double.parseDouble(configFile
+						.getProperty("centralBank.reserveRatio"));
+			return reserveRatio;
 		}
 
 		public static double getInflationTarget() {
-			return Double.parseDouble(configFile
-					.getProperty("centralBank.inflationTarget"));
+			if (inflationTarget == null)
+				inflationTarget = Double.parseDouble(configFile
+						.getProperty("centralBank.inflationTarget"));
+			return inflationTarget;
 		}
 
 		public static double getTargetPriceIndex() {
-			return Double.parseDouble(configFile
-					.getProperty("centralBank.targetPriceIndex"));
+			if (targetPriceIndex == null)
+				targetPriceIndex = Double.parseDouble(configFile
+						.getProperty("centralBank.targetPriceIndex"));
+			return targetPriceIndex;
 		}
 
 		public static boolean getAllowNegativeKeyInterestRate() {
-			return Boolean.parseBoolean(configFile
-					.getProperty("centralBank.allowNegativeKeyInterestRate"));
+			if (allowNegativeKeyInterestRate == null)
+				allowNegativeKeyInterestRate = Boolean
+						.parseBoolean(configFile
+								.getProperty("centralBank.allowNegativeKeyInterestRate"));
+			return allowNegativeKeyInterestRate;
 		}
 	}
 
@@ -67,65 +95,95 @@ public class ConfigurationUtil {
 
 		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
 
+		public static Double priceChangeIncrement;
+
+		public static Double maxCreditForCurrencyTrading;
+
+		public static Double minArbitrageMargin;
+
 		public static int getNumber(Currency currency) {
-			if (number.containsKey(currency))
-				return number.get(currency);
-			return Integer.parseInt(configFile.getProperty("creditBank."
-					+ currency + ".number"));
+			if (!number.containsKey(currency))
+				number.put(
+						currency,
+						Integer.parseInt(configFile.getProperty("creditBank."
+								+ currency + ".number")));
+			return number.get(currency);
 		}
 
 		public static double getPriceChangeIncrement() {
-			return Double.parseDouble(configFile
-					.getProperty("creditBank.priceChangeIncrement"));
+			if (priceChangeIncrement == null)
+				priceChangeIncrement = Double.parseDouble(configFile
+						.getProperty("creditBank.priceChangeIncrement"));
+			return priceChangeIncrement;
 		}
 
 		public static double getMaxCreditForCurrencyTrading() {
-			return Double.parseDouble(configFile
-					.getProperty("creditBank.maxCreditForCurrencyTrading"));
+			if (maxCreditForCurrencyTrading == null)
+				maxCreditForCurrencyTrading = Double.parseDouble(configFile
+						.getProperty("creditBank.maxCreditForCurrencyTrading"));
+			return maxCreditForCurrencyTrading;
 		}
 
 		public static double getMinArbitrageMargin() {
-			return Double.parseDouble(configFile
-					.getProperty("creditBank.minArbitrageMargin"));
+			if (minArbitrageMargin == null)
+				minArbitrageMargin = Double.parseDouble(configFile
+						.getProperty("creditBank.minArbitrageMargin"));
+			return minArbitrageMargin;
 		}
 	}
 
 	public static class DashboardConfig {
+		public static Integer logNumberOfAgentsLogSize;
+
 		public static int getLogNumberOfAgentsLogSize() {
-			return Integer.parseInt(configFile
-					.getProperty("dashboard.log.numberOfAgentsLogSize"));
+			if (logNumberOfAgentsLogSize == null)
+				logNumberOfAgentsLogSize = Integer.parseInt(configFile
+						.getProperty("dashboard.log.numberOfAgentsLogSize"));
+			return logNumberOfAgentsLogSize;
 		}
 	}
 
 	public static class DbConfig {
+
+		public static Boolean activateDb;
+
 		public static boolean getActivateDb() {
-			return Boolean
-					.parseBoolean(configFile.getProperty("db.activatedb"));
+			if (activateDb == null)
+				activateDb = Boolean.parseBoolean(configFile
+						.getProperty("db.activatedb"));
+			return activateDb;
 		}
 	}
 
 	public static class FactoryConfig {
 
-		public static Map<Currency, Integer> numberPerGoodType = new HashMap<Currency, Integer>();
-
 		public static Double margin;
 
+		public static Map<Currency, Integer> numberPerGoodType = new HashMap<Currency, Integer>();
+
+		public static Double referenceCredit;
+
+		public static double getMargin() {
+			if (margin == null)
+				margin = Double.parseDouble(configFile
+						.getProperty("factory.margin"));
+			return margin;
+		}
+
 		public static int getNumberPerGoodType(Currency currency) {
-			if (numberPerGoodType.containsKey(currency))
-				return numberPerGoodType.get(currency);
-			return Integer.parseInt(configFile.getProperty("factory."
-					+ currency + ".numberPerGoodType"));
+			if (!numberPerGoodType.containsKey(currency))
+				numberPerGoodType.put(
+						currency,
+						Integer.parseInt(configFile.getProperty("factory."
+								+ currency + ".numberPerGoodType")));
+			return numberPerGoodType.get(currency);
 		}
 
 		public static double getReferenceCredit() {
-			return Double.parseDouble(configFile
-					.getProperty("factory.referenceCredit"));
-		}
-
-		public static double getMargin() {
-			if (margin != null)
-				return margin;
-			return Double.parseDouble(configFile.getProperty("factory.margin"));
+			if (referenceCredit == null)
+				referenceCredit = Double.parseDouble(configFile
+						.getProperty("factory.referenceCredit"));
+			return referenceCredit;
 		}
 	}
 
@@ -133,52 +191,86 @@ public class ConfigurationUtil {
 
 		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
 
+		public static Integer numberOfLabourHoursPerDay;
+
+		public static Integer lifespanInDays;
+
+		public static Integer retirementAgeInDays;
+
+		public static Integer newHouseholdFromAgeInDays;
+
+		public static Integer newHouseholdEveryXDays;
+
+		public static Double requiredUtilityPerDay;
+
+		public static Integer daysWithoutUtilityUntilDestructor;
+
+		public static Double maxPricePerUnitMultiplier;
+
 		public static int getNumber(Currency currency) {
-			if (number.containsKey(currency))
-				return number.get(currency);
-			return Integer.parseInt(configFile.getProperty("household."
-					+ currency + ".number"));
+			if (!number.containsKey(currency))
+				number.put(
+						currency,
+						Integer.parseInt(configFile.getProperty("household."
+								+ currency + ".number")));
+			return number.get(currency);
 		}
 
 		public static int getNumberOfLabourHoursPerDay() {
-			return Integer.parseInt(configFile
-					.getProperty("household.numberOfLabourHoursPerDay"));
+			if (numberOfLabourHoursPerDay == null)
+				numberOfLabourHoursPerDay = Integer.parseInt(configFile
+						.getProperty("household.numberOfLabourHoursPerDay"));
+			return numberOfLabourHoursPerDay;
 		}
 
 		public static int getLifespanInDays() {
-			return Integer.parseInt(configFile
-					.getProperty("household.lifespanInDays"));
+			if (lifespanInDays == null)
+				lifespanInDays = Integer.parseInt(configFile
+						.getProperty("household.lifespanInDays"));
+			return lifespanInDays;
 		}
 
 		public static int getRetirementAgeInDays() {
-			return Integer.parseInt(configFile
-					.getProperty("household.retirementAgeInDays"));
+			if (retirementAgeInDays == null)
+				retirementAgeInDays = Integer.parseInt(configFile
+						.getProperty("household.retirementAgeInDays"));
+			return retirementAgeInDays;
 		}
 
 		public static int getNewHouseholdFromAgeInDays() {
-			return Integer.parseInt(configFile
-					.getProperty("household.newHouseholdFromAgeInDays"));
+			if (newHouseholdFromAgeInDays == null)
+				newHouseholdFromAgeInDays = Integer.parseInt(configFile
+						.getProperty("household.newHouseholdFromAgeInDays"));
+			return newHouseholdFromAgeInDays;
 		}
 
 		public static int getNewHouseholdEveryXDays() {
-			return Integer.parseInt(configFile
-					.getProperty("household.newHouseholdEveryXDays"));
+			if (newHouseholdEveryXDays == null)
+				newHouseholdEveryXDays = Integer.parseInt(configFile
+						.getProperty("household.newHouseholdEveryXDays"));
+			return newHouseholdEveryXDays;
 		}
 
 		public static double getRequiredUtilityPerDay() {
-			return Double.parseDouble(configFile
-					.getProperty("household.requiredUtilityPerDay"));
+			if (requiredUtilityPerDay == null)
+				requiredUtilityPerDay = Double.parseDouble(configFile
+						.getProperty("household.requiredUtilityPerDay"));
+			return requiredUtilityPerDay;
 		}
 
 		public static int getDaysWithoutUtilityUntilDestructor() {
-			return Integer
-					.parseInt(configFile
-							.getProperty("household.daysWithoutUtilityUntilDestructor"));
+			if (daysWithoutUtilityUntilDestructor == null)
+				daysWithoutUtilityUntilDestructor = Integer
+						.parseInt(configFile
+								.getProperty("household.daysWithoutUtilityUntilDestructor"));
+			return daysWithoutUtilityUntilDestructor;
 		}
 
 		public static double getMaxPricePerUnitMultiplier() {
-			return Double.parseDouble(configFile
-					.getProperty("household.maxPricePerUnitMultiplier"));
+			if (maxPricePerUnitMultiplier == null)
+				maxPricePerUnitMultiplier = Double.parseDouble(configFile
+						.getProperty("household.maxPricePerUnitMultiplier"));
+			return maxPricePerUnitMultiplier;
 		}
 	}
 
@@ -187,10 +279,10 @@ public class ConfigurationUtil {
 		public static Integer numberOfIterations;
 
 		public static int getNumberOfIterations() {
-			if (numberOfIterations != null)
-				return numberOfIterations;
-			return Integer.parseInt(configFile
-					.getProperty("math.numberOfIterations"));
+			if (numberOfIterations == null)
+				numberOfIterations = Integer.parseInt(configFile
+						.getProperty("math.numberOfIterations"));
+			return numberOfIterations;
 		}
 	}
 
@@ -203,32 +295,37 @@ public class ConfigurationUtil {
 		public static Double defaultInitialPrice;
 
 		public static double getDefaultPriceChangeIncrement() {
-			if (defaultPriceChangeIncrement != null)
-				return defaultPriceChangeIncrement;
-			return Double
-					.parseDouble(configFile
-							.getProperty("pricingBehaviour.defaultPriceChangeIncrement"));
+			if (defaultPriceChangeIncrement == null)
+				defaultPriceChangeIncrement = Double
+						.parseDouble(configFile
+								.getProperty("pricingBehaviour.defaultPriceChangeIncrement"));
+			return defaultPriceChangeIncrement;
 		}
 
 		public static int getDefaultNumberOfPrices() {
-			if (defaultNumberOfPrices != null)
-				return defaultNumberOfPrices;
-			return Integer.parseInt(configFile
-					.getProperty("pricingBehaviour.defaultNumberOfPrices"));
+			if (defaultNumberOfPrices == null)
+				defaultNumberOfPrices = Integer.parseInt(configFile
+						.getProperty("pricingBehaviour.defaultNumberOfPrices"));
+			return defaultNumberOfPrices;
 		}
 
 		public static double getDefaultInitialPrice() {
-			if (defaultInitialPrice != null)
-				return defaultInitialPrice;
-			return Double.parseDouble(configFile
-					.getProperty("pricingBehaviour.defaultInitialPrice"));
+			if (defaultInitialPrice == null)
+				defaultInitialPrice = Double.parseDouble(configFile
+						.getProperty("pricingBehaviour.defaultInitialPrice"));
+			return defaultInitialPrice;
 		}
 	}
 
 	public static class TimeSystemConfig {
+
+		public static Integer initializationPhaseInDays;
+
 		public static int getInitializationPhaseInDays() {
-			return Integer.parseInt(configFile
-					.getProperty("timeSystem.initializationPhaseInDays"));
+			if (initializationPhaseInDays == null)
+				initializationPhaseInDays = Integer.parseInt(configFile
+						.getProperty("timeSystem.initializationPhaseInDays"));
+			return initializationPhaseInDays;
 		}
 	}
 
@@ -236,21 +333,31 @@ public class ConfigurationUtil {
 
 		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
 
+		public static Double arbitrageMargin;
+
+		public static Double referenceCredit;
+
 		public static int getNumber(Currency currency) {
-			if (number.containsKey(currency))
-				return number.get(currency);
-			return Integer.parseInt(configFile.getProperty("trader." + currency
-					+ ".number"));
+			if (!number.containsKey(currency))
+				number.put(
+						currency,
+						Integer.parseInt(configFile.getProperty("trader."
+								+ currency + ".number")));
+			return number.get(currency);
 		}
 
 		public static double getArbitrageMargin() {
-			return Double.parseDouble(configFile
-					.getProperty("trader.arbitrageMargin"));
+			if (arbitrageMargin == null)
+				arbitrageMargin = Double.parseDouble(configFile
+						.getProperty("trader.arbitrageMargin"));
+			return arbitrageMargin;
 		}
 
 		public static double getReferenceCredit() {
-			return Double.parseDouble(configFile
-					.getProperty("trader.referenceCredit"));
+			if (referenceCredit == null)
+				referenceCredit = Double.parseDouble(configFile
+						.getProperty("trader.referenceCredit"));
+			return referenceCredit;
 		}
 	}
 
