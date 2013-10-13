@@ -54,9 +54,33 @@ public class ConfigurationUtil {
 
 	public static class CentralBankConfig {
 
+		public static class StatisticalOfficeConfig {
+			/**
+			 * constraint: sum of weights has to be 1.0
+			 */
+			public static Map<GoodType, Double> priceIndexWeights = new HashMap<GoodType, Double>();
+
+			public static double getPriceIndexWeight(GoodType goodType) {
+				if (!priceIndexWeights.containsKey(goodType)) {
+					String priceIndexWeightProperty = configFile
+							.getProperty("centralBank.statisticalOffice.priceIndexWeights."
+									+ goodType);
+					if (priceIndexWeightProperty != null) {
+						priceIndexWeights.put(goodType,
+								Double.parseDouble(priceIndexWeightProperty));
+					} else {
+						priceIndexWeights.put(goodType, 0.0);
+					}
+				}
+				return priceIndexWeights.get(goodType);
+			}
+		}
+
 		public static Double reserveRatio;
 
 		public static Double inflationTarget;
+
+		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
 
 		public static Double targetPriceIndex;
 
@@ -74,6 +98,16 @@ public class ConfigurationUtil {
 				inflationTarget = Double.parseDouble(configFile
 						.getProperty("centralBank.inflationTarget"));
 			return inflationTarget;
+		}
+
+		public static int getNumber(Currency currency) {
+			if (!number.containsKey(currency))
+				number.put(
+						currency,
+						Integer.parseInt(configFile.getProperty("centralBank."
+								+ currency + ".number")));
+			assert (number.get(currency) == 0 || number.get(currency) == 1);
+			return number.get(currency);
 		}
 
 		public static double getTargetPriceIndex() {
@@ -323,6 +357,20 @@ public class ConfigurationUtil {
 		}
 	}
 
+	public static class StateConfig {
+		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
+
+		public static int getNumber(Currency currency) {
+			if (!number.containsKey(currency))
+				number.put(
+						currency,
+						Integer.parseInt(configFile.getProperty("state."
+								+ currency + ".number")));
+			assert (number.get(currency) == 0 || number.get(currency) == 1);
+			return number.get(currency);
+		}
+	}
+
 	public static class TimeSystemConfig {
 
 		public static Integer initializationPhaseInDays;
@@ -371,8 +419,17 @@ public class ConfigurationUtil {
 
 	static {
 		try {
+			String configurationProperties = System
+					.getProperty("configuration.properties");
+			if (configurationProperties == null
+					|| configurationProperties.isEmpty()) {
+				// if no configuration properties are set via VM args use
+				// default configuration properties
+				configurationProperties = "configuration.properties";
+			}
+			System.out.println("Configuration: " + configurationProperties);
 			configFile.load(ConfigurationUtil.class.getClassLoader()
-					.getResourceAsStream("configuration.properties"));
+					.getResourceAsStream(configurationProperties));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

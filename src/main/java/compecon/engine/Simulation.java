@@ -145,13 +145,17 @@ public class Simulation {
 		// events
 
 		for (Currency currency : Currency.values()) {
-			// initialize states
-			AgentFactory.getInstanceState(currency);
+			if (ConfigurationUtil.StateConfig.getNumber(currency) == 1) {
+				// initialize states
+				AgentFactory.getInstanceState(currency);
+			}
 		}
 
 		for (Currency currency : Currency.values()) {
-			// initialize central banks
-			AgentFactory.getInstanceCentralBank(currency);
+			if (ConfigurationUtil.CentralBankConfig.getNumber(currency) == 1) {
+				// initialize central banks
+				AgentFactory.getInstanceCentralBank(currency);
+			}
 		}
 
 		for (Currency currency : Currency.values()) {

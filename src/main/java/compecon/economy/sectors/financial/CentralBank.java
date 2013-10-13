@@ -483,13 +483,18 @@ public class CentralBank extends Bank {
 
 		public StatisticalOffice() {
 			/*
-			 * set price index weights, must sum up to 1
+			 * set price index weights, must sum up to 1.0
 			 */
 
-			this.priceIndexWeights.put(GoodType.FOOD, 0.25);
-			this.priceIndexWeights.put(GoodType.CLOTHING, 0.25);
-			this.priceIndexWeights.put(GoodType.KILOWATT, 0.25);
-			this.priceIndexWeights.put(GoodType.REALESTATE, 0.25);
+			double priceIndexWeightSum = 0.0;
+			for (GoodType goodType : GoodType.values()) {
+				double priceIndexWeight = ConfigurationUtil.CentralBankConfig.StatisticalOfficeConfig
+						.getPriceIndexWeight(goodType);
+				this.priceIndexWeights.put(goodType, priceIndexWeight);
+				priceIndexWeightSum += priceIndexWeight;
+			}
+
+			assert (priceIndexWeightSum == 1.0);
 
 			/*
 			 * GoodType LABOURHOUR is not monitored, as its market price is not

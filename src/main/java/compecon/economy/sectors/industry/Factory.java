@@ -284,11 +284,6 @@ public class Factory extends JointStockCompany {
 			double[] prices = Factory.this.pricingBehaviour
 					.getCurrentPriceArray();
 			for (double price : prices) {
-
-				if (price > MarketFactory.getInstance().getPrice(
-						primaryCurrency, producedGoodType) * 3.0)
-					System.out.println();
-
 				MarketFactory.getInstance().placeSettlementSellingOffer(
 						Factory.this.producedGoodType, Factory.this,
 						Factory.this.transactionsBankAccount,

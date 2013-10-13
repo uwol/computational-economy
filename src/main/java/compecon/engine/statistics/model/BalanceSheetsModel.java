@@ -71,12 +71,13 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 			this.traderBalanceSheets.put((Trader) agent, balanceSheet);
 		else if (agent instanceof CreditBank)
 			this.creditBankBalanceSheets.put((CreditBank) agent, balanceSheet);
-		else if (agent instanceof CentralBank
-				&& this.centralBankBalanceSheet == null)
+		else if (agent instanceof CentralBank) {
+			assert (this.centralBankBalanceSheet == null);
 			this.centralBankBalanceSheet = balanceSheet;
-		else if (agent instanceof State && this.stateBalanceSheet == null)
+		} else if (agent instanceof State) {
+			assert (this.stateBalanceSheet == null);
 			this.stateBalanceSheet = balanceSheet;
-		else
+		} else
 			throw new RuntimeException("unexpected agent type");
 	}
 
@@ -152,20 +153,28 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 	 * aggregates balance sheets of credit banks
 	 */
 	public BalanceSheet getCreditBankNationalAccountsBalanceSheet() {
-		BalanceSheet creaditBankationalAccountsBalanceSheet = new BalanceSheet(
+		BalanceSheet creditBankNationalAccountsBalanceSheet = new BalanceSheet(
 				this.referenceCurrency);
 		for (BalanceSheet balanceSheet : this.creditBankBalanceSheets.values())
 			copyBalanceSheetValues(balanceSheet,
-					creaditBankationalAccountsBalanceSheet);
-		return creaditBankationalAccountsBalanceSheet;
+					creditBankNationalAccountsBalanceSheet);
+		return creditBankNationalAccountsBalanceSheet;
 	}
 
 	public BalanceSheet getCentralBankNationalAccountsBalanceSheet() {
-		return this.centralBankBalanceSheet;
+		BalanceSheet centralBankNationalAccountsBalanceSheet = new BalanceSheet(
+				this.referenceCurrency);
+		copyBalanceSheetValues(this.centralBankBalanceSheet,
+				centralBankNationalAccountsBalanceSheet);
+		return centralBankNationalAccountsBalanceSheet;
 	}
 
 	public BalanceSheet getStateNationalAccountsBalanceSheet() {
-		return this.stateBalanceSheet;
+		BalanceSheet stateNationalAccountsBalanceSheet = new BalanceSheet(
+				this.referenceCurrency);
+		copyBalanceSheetValues(this.stateBalanceSheet,
+				stateNationalAccountsBalanceSheet);
+		return stateNationalAccountsBalanceSheet;
 	}
 
 	/**
@@ -206,6 +215,9 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 	}
 
 	private void copyBalanceSheetValues(BalanceSheet from, BalanceSheet to) {
+		if (from == null)
+			return;
+
 		// assets
 		to.hardCash += from.hardCash;
 		to.cashShortTerm += from.cashShortTerm;
