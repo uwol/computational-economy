@@ -170,7 +170,7 @@ public class Simulation {
 			for (GoodType goodType : GoodType.values()) {
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
 					for (int i = 0; i < ConfigurationUtil.FactoryConfig
-							.getNumberPerGoodType(currency); i++) {
+							.getNumber(currency, goodType); i++) {
 						AgentFactory.newInstanceFactory(goodType, currency);
 					}
 				}

@@ -24,6 +24,7 @@ import java.util.GregorianCalendar;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Simulation;
 import compecon.engine.util.ConfigurationUtil;
+import compecon.materia.GoodType;
 
 /**
  * This is a main method for sequently starting multiple simulations without a
@@ -37,9 +38,12 @@ public class OptimizationRunner {
 		ConfigurationUtil.HouseholdConfig.number.put(Currency.USDOLLAR, 0);
 		ConfigurationUtil.HouseholdConfig.number.put(Currency.YEN, 0);
 
-		ConfigurationUtil.FactoryConfig.numberPerGoodType.put(
-				Currency.USDOLLAR, 0);
-		ConfigurationUtil.FactoryConfig.numberPerGoodType.put(Currency.YEN, 0);
+		for (GoodType goodType : GoodType.values()) {
+			ConfigurationUtil.FactoryConfig.number.get(Currency.USDOLLAR).put(
+					goodType, 0);
+			ConfigurationUtil.FactoryConfig.number.get(Currency.YEN).put(
+					goodType, 0);
+		}
 
 		ConfigurationUtil.TraderConfig.number.put(Currency.USDOLLAR, 0);
 		ConfigurationUtil.TraderConfig.number.put(Currency.YEN, 0);

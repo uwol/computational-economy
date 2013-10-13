@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import compecon.economy.sectors.financial.Currency;
+import compecon.materia.GoodType;
 
 public class ConfigurationUtil {
 
@@ -159,9 +160,14 @@ public class ConfigurationUtil {
 
 		public static Double margin;
 
-		public static Map<Currency, Integer> numberPerGoodType = new HashMap<Currency, Integer>();
+		public static Map<Currency, Map<GoodType, Integer>> number = new HashMap<Currency, Map<GoodType, Integer>>();
 
 		public static Double referenceCredit;
+
+		static {
+			for (Currency currency : Currency.values())
+				number.put(currency, new HashMap<GoodType, Integer>());
+		}
 
 		public static double getMargin() {
 			if (margin == null)
@@ -170,13 +176,13 @@ public class ConfigurationUtil {
 			return margin;
 		}
 
-		public static int getNumberPerGoodType(Currency currency) {
-			if (!numberPerGoodType.containsKey(currency))
-				numberPerGoodType.put(
-						currency,
+		public static int getNumber(Currency currency, GoodType goodType) {
+			if (!number.get(currency).containsKey(goodType))
+				number.get(currency).put(
+						goodType,
 						Integer.parseInt(configFile.getProperty("factory."
-								+ currency + ".numberPerGoodType")));
-			return numberPerGoodType.get(currency);
+								+ currency + "." + goodType + ".number")));
+			return number.get(currency).get(goodType);
 		}
 
 		public static double getReferenceCredit() {
