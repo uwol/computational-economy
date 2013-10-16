@@ -56,9 +56,13 @@ public abstract class CompEconTestSupport {
 		double sumOfCostsOfOptimalBundleOfInputs = 0.0;
 		for (Entry<GoodType, Double> inputEntry : rangeScanBundleOfInputs
 				.entrySet()) {
-			sumOfCostsOfOptimalBundleOfInputs += priceFunctions.get(
-					inputEntry.getKey()).getPrice(inputEntry.getValue())
-					* inputEntry.getValue();
+			double priceOfGoodType = priceFunctions.get(inputEntry.getKey())
+					.getPrice(inputEntry.getValue());
+			if (!Double.isNaN(priceOfGoodType)) {
+				sumOfCostsOfOptimalBundleOfInputs += priceFunctions.get(
+						inputEntry.getKey()).getPrice(inputEntry.getValue())
+						* inputEntry.getValue();
+			}
 		}
 
 		// optimalBundleOfInputs violates the budget restriction
@@ -68,9 +72,12 @@ public abstract class CompEconTestSupport {
 		double sumOfCostsOfReferenceBundleOfInputs = 0.0;
 		for (Entry<GoodType, Double> inputEntry : referenceBundleOfInputs
 				.entrySet()) {
-			sumOfCostsOfReferenceBundleOfInputs += priceFunctions.get(
-					inputEntry.getKey()).getPrice(inputEntry.getValue())
-					* inputEntry.getValue();
+			double priceOfGoodType = priceFunctions.get(inputEntry.getKey())
+					.getPrice(inputEntry.getValue());
+			if (!Double.isNaN(priceOfGoodType)) {
+				sumOfCostsOfReferenceBundleOfInputs += priceOfGoodType
+						* inputEntry.getValue();
+			}
 		}
 
 		// referenceBundleOfInputs violates the budget restriction?

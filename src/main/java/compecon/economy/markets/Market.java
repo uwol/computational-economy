@@ -35,6 +35,7 @@ import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.engine.MarketOrderFactory;
+import compecon.engine.Simulation;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.statistics.Log;
 import compecon.engine.util.HibernateUtil;
@@ -509,8 +510,9 @@ public abstract class Market {
 
 		MarketOrderFactory.newInstanceGoodTypeMarketOrder(goodType, offeror,
 				offerorsBankAcount, amount, pricePerUnit);
-		if (Log.isAgentSelectedByClient(offeror))
-			Log.log(offeror,
+		if (getLog().isAgentSelectedByClient(offeror))
+			getLog().log(
+					offeror,
 					"offering " + MathUtil.round(amount) + " units of "
 							+ goodType + " for "
 							+ Currency.formatMoneySum(pricePerUnit) + " "
@@ -528,8 +530,9 @@ public abstract class Market {
 		MarketOrderFactory.newInstanceCurrencyMarketOrder(commodityCurrency,
 				offeror, offerorsBankAcount, amount, pricePerUnit,
 				commodityCurrencyOfferorsBankAcount);
-		if (Log.isAgentSelectedByClient(offeror))
-			Log.log(offeror,
+		if (getLog().isAgentSelectedByClient(offeror))
+			getLog().log(
+					offeror,
 					"offering " + MathUtil.round(amount) + " units of "
 							+ commodityCurrency + " for "
 							+ Currency.formatMoneySum(pricePerUnit) + " "
@@ -544,8 +547,9 @@ public abstract class Market {
 
 		MarketOrderFactory.newInstancePropertyMarketOrder(property, offeror,
 				offerorsBankAcount, pricePerUnit);
-		if (Log.isAgentSelectedByClient(offeror))
-			Log.log(offeror,
+		if (getLog().isAgentSelectedByClient(offeror))
+			getLog().log(
+					offeror,
 					"offering 1 unit of " + property.getClass().getSimpleName()
 							+ " for " + Currency.formatMoneySum(pricePerUnit)
 							+ " "
@@ -586,5 +590,9 @@ public abstract class Market {
 	protected void removeSellingOffer(MarketOrder marketOrder) {
 		DAOFactory.getMarketOrderDAO().delete(marketOrder);
 		HibernateUtil.flushSession();
+	}
+
+	protected Log getLog() {
+		return Simulation.getInstance().getLog();
 	}
 }

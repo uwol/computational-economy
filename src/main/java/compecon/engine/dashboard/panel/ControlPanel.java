@@ -135,8 +135,7 @@ public class ControlPanel extends JPanel {
 							.addExternalEvent(new ITimeSystemEvent() {
 								@Override
 								public void onEvent() {
-									Simulation.getInstance().getModelRegistry()
-											.getControlModel()
+									Simulation.getInstance().getModelRegistry().controlModel
 											.initEconomicGrowth(currency);
 								}
 							});
@@ -155,8 +154,7 @@ public class ControlPanel extends JPanel {
 							.addExternalEvent(new ITimeSystemEvent() {
 								@Override
 								public void onEvent() {
-									Simulation.getInstance().getModelRegistry()
-											.getControlModel()
+									Simulation.getInstance().getModelRegistry().controlModel
 											.deficitSpending(currency);
 								}
 							});
@@ -175,8 +173,7 @@ public class ControlPanel extends JPanel {
 							.addExternalEvent(new ITimeSystemEvent() {
 								@Override
 								public void onEvent() {
-									Simulation.getInstance().getModelRegistry()
-											.getControlModel()
+									Simulation.getInstance().getModelRegistry().controlModel
 											.initHouseholds(currency);
 								}
 							});

@@ -46,7 +46,6 @@ import compecon.engine.MarketFactory;
 import compecon.engine.PropertyFactory;
 import compecon.engine.Simulation;
 import compecon.engine.dao.DAOFactory;
-import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -182,7 +181,7 @@ public class State extends Agent {
 			State.this.issuedBonds.removeAll(bondsToDelete);
 
 			// publish
-			Log.agent_onPublishBalanceSheet(State.this, balanceSheet);
+			getLog().agent_onPublishBalanceSheet(State.this, balanceSheet);
 		}
 	}
 

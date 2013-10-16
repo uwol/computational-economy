@@ -35,7 +35,6 @@ import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.engine.MarketFactory;
 import compecon.engine.PropertyFactory;
 import compecon.engine.Simulation;
-import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -183,8 +182,10 @@ public abstract class JointStockCompany extends Agent {
 							}
 						}
 					}
-					if (Log.isAgentSelectedByClient(JointStockCompany.this)) {
-						Log.log(JointStockCompany.this,
+					if (getLog()
+							.isAgentSelectedByClient(JointStockCompany.this)) {
+						getLog().log(
+								JointStockCompany.this,
 								PayDividendEvent.class,
 								"payed dividend of "
 										+ Currency

@@ -22,11 +22,17 @@ package compecon.math;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import compecon.engine.Simulation;
+import compecon.engine.statistics.Log;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.math.price.IPriceFunction;
 
 public abstract class ConvexFunction<T> extends Function<T> {
+
+	public enum ConvexFunctionTerminationCause {
+		INPUT_FACTOR_UNAVAILABLE, NO_OPTIMAL_INPUT, BUDGET_SPENT;
+	}
 
 	protected ConvexFunction(
 			boolean needsAllInputFactorsNonZeroForPartialDerivate) {
@@ -75,6 +81,12 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		// This becomes a problem, if all inputs have to be set -> return zero
 		// input
 		if (pricesAreNaN && this.needsAllInputFactorsNonZeroForPartialDerivate) {
+			getLog().log(
+					"at least one of the prices is Double.NaN, but the function needs all inputs set -> no calculation");
+			getLog().agent_onCalculateOutputMaximizingInputsIterative(budget,
+					0.0,
+					ConvexFunctionTerminationCause.INPUT_FACTOR_UNAVAILABLE);
+
 			final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 			for (T inputType : this.getInputTypes())
 				bundleOfInputs.put(inputType, 0.0);
@@ -83,6 +95,10 @@ public abstract class ConvexFunction<T> extends Function<T> {
 
 		// special case: check for budget
 		if (MathUtil.lesserEqual(budget, 0.0)) {
+			getLog().log("budget is " + budget + " -> no calculation");
+			getLog().agent_onCalculateOutputMaximizingInputsIterative(budget,
+					0.0, ConvexFunctionTerminationCause.BUDGET_SPENT);
+
 			final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 			for (T inputType : this.getInputTypes())
 				bundleOfInputs.put(inputType, 0.0);
@@ -112,11 +128,25 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		final int NUMBER_OF_ITERATIONS = bundleOfInputs.size()
 				* numberOfIterations;
 
-		while (MathUtil.greater(budget, moneySpent)) {
+		while (true) {
+			// if the budget is spent
+			if (MathUtil.greater(moneySpent, budget)) {
+				getLog().log("budget spent completely");
+				getLog().agent_onCalculateOutputMaximizingInputsIterative(
+						budget, moneySpent,
+						ConvexFunctionTerminationCause.BUDGET_SPENT);
+				break;
+			}
+
 			T optimalInputType = this.findHighestPartialDerivatePerPrice(
 					bundleOfInputs, priceFunctionsOfInputTypes);
 
+			// no optimal input type could be found, i. e. markets are sold out
 			if (optimalInputType == null) {
+				getLog().log("no optimal input found -> terminating");
+				getLog().agent_onCalculateOutputMaximizingInputsIterative(
+						budget, moneySpent,
+						ConvexFunctionTerminationCause.NO_OPTIMAL_INPUT);
 				break;
 			} else {
 				double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
@@ -131,5 +161,9 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		}
 
 		return bundleOfInputs;
+	}
+
+	private Log getLog() {
+		return Simulation.getInstance().getLog();
 	}
 }

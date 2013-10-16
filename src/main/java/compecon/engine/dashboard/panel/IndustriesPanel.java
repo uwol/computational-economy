@@ -44,6 +44,7 @@ import compecon.engine.statistics.model.PricesModel;
 import compecon.engine.statistics.model.PricesModel.PriceModel;
 import compecon.materia.GoodType;
 import compecon.materia.InputOutputModel;
+import compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
 
 public class IndustriesPanel extends AbstractChartsPanel implements
 		IModelListener {
@@ -71,6 +72,7 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 
 				this.add(createProductionPanel(currency, goodType));
 				this.add(createFactoryBalanceSheetPanel(currency, goodType));
+				this.add(createBudgetSpendingPanel(currency, goodType));
 
 				Simulation.getInstance().getModelRegistry()
 						.getPricesModel(currency).registerListener(this);
@@ -170,18 +172,20 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 			GoodType outputGoodType) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry()
-				.getGoodTypeProductionModel(currency, outputGoodType)
-				.getOutputModel().getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getFactoryProductionModel(currency, outputGoodType).outputModel
+						.getTimeSeries());
 		for (GoodType inputGoodType : Simulation.getInstance()
 				.getModelRegistry()
-				.getGoodTypeProductionModel(currency, outputGoodType)
-				.getInputGoodTypes()) {
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry()
-					.getGoodTypeProductionModel(currency, outputGoodType)
-					.getInputModel(inputGoodType).getTimeSeries());
+				.getFactoryProductionModel(currency, outputGoodType).inputModels
+				.keySet()) {
+			timeSeriesCollection
+					.addSeries(Simulation
+							.getInstance()
+							.getModelRegistry()
+							.getFactoryProductionModel(currency, outputGoodType).inputModels
+							.get(inputGoodType).getTimeSeries());
 		}
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
@@ -197,7 +201,7 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 	protected ChartPanel createPriceTimeSeriesChartPanel(Currency currency,
 			GoodType goodType) {
 		JFreeChart priceChart = ChartFactory.createCandlestickChart(
-				"Price Chart for " + goodType, "Time",
+				"Prices for " + goodType, "Time",
 				"Price in " + currency.getIso4217Code(),
 				this.getDefaultHighLowDataset(currency, goodType), false);
 		ChartPanel chartPanel = new ChartPanel(priceChart);
@@ -214,6 +218,32 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 		JFreeChart chart = ChartFactory.createXYStepAreaChart(
 				"Market Depth for " + goodType, "Price", "Volume", dataset,
 				PlotOrientation.VERTICAL, true, true, false);
+		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createBudgetSpendingPanel(Currency currency,
+			GoodType outputGoodType) {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getFactoryProductionModel(currency, outputGoodType).budgetModel
+						.getTimeSeries());
+		for (ConvexProductionFunctionTerminationCause terminationCause : ConvexProductionFunctionTerminationCause
+				.values()) {
+			timeSeriesCollection
+					.addSeries(Simulation
+							.getInstance()
+							.getModelRegistry()
+							.getFactoryProductionModel(currency, outputGoodType).convexProductionFunctionTerminationCauseModels
+							.get(terminationCause).getTimeSeries());
+		}
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				outputGoodType.toString() + " Production Function Mechanics",
+				"Date", "Budget Spent", (XYDataset) timeSeriesCollection, true,
+				true, false);
+		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 

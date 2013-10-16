@@ -52,7 +52,6 @@ import compecon.engine.MarketFactory;
 import compecon.engine.PropertyFactory;
 import compecon.engine.Simulation;
 import compecon.engine.dao.DAOFactory;
-import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -347,7 +346,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		// no Exception for identical bank accounts, as this correctly
 		// might happen in case of bonds etc.
 		if (from != to) {
-			Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
+			getLog().bank_onTransfer(from, to, from.getCurrency(), amount,
+					subject);
 
 			// is the money flowing internally in this bank?
 			if (to.getManagingBank() == this && from.getManagingBank() == this) {
@@ -595,7 +595,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			CreditBank.this.issuedBonds.removeAll(bondsToDelete);
 
 			// publish
-			Log.agent_onPublishBalanceSheet(CreditBank.this, balanceSheet);
+			getLog().agent_onPublishBalanceSheet(CreditBank.this, balanceSheet);
 		}
 	}
 
@@ -641,8 +641,9 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 				// inverse_EUR_in_USD -> correct_USD_in_EUR = 1.25
 				double correctPriceOfFirstCurrencyInSecondCurrency = 1.0 / priceOfSecondCurrencyInFirstCurrency;
 
-				if (Log.isAgentSelectedByClient(CreditBank.this))
-					Log.log(CreditBank.this,
+				if (getLog().isAgentSelectedByClient(CreditBank.this))
+					getLog().log(
+							CreditBank.this,
 							CurrencyTradeEvent.class,
 							"on markets 1 "
 									+ secondCurrency.getIso4217Code()
@@ -707,8 +708,10 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 								.lesserEqual(
 										budgetForCurrencyTradingPerCurrency_InPrimaryCurrency,
 										0)) {
-							if (Log.isAgentSelectedByClient(CreditBank.this))
-								Log.log(CreditBank.this,
+							if (getLog().isAgentSelectedByClient(
+									CreditBank.this))
+								getLog().log(
+										CreditBank.this,
 										CurrencyTradeEvent.class,
 										"-> no arbitrage with "
 												+ foreignCurrency
@@ -718,7 +721,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 														.round(budgetForCurrencyTradingPerCurrency_InPrimaryCurrency));
 						} else if (Double
 								.isNaN(correctPriceOfForeignCurrencyInLocalCurrency)) {
-							Log.log(CreditBank.this,
+							getLog().log(
+									CreditBank.this,
 									CurrencyTradeEvent.class,
 									"-> no arbitrage with "
 											+ foreignCurrency.getIso4217Code()
@@ -729,8 +733,10 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 										/ (1.0 + ConfigurationUtil.CreditBankConfig
 												.getMinArbitrageMargin()),
 										realPriceOfForeignCurrencyInLocalCurrency)) {
-							if (Log.isAgentSelectedByClient(CreditBank.this))
-								Log.log(CreditBank.this,
+							if (getLog().isAgentSelectedByClient(
+									CreditBank.this))
+								getLog().log(
+										CreditBank.this,
 										CurrencyTradeEvent.class,
 										"-> no arbitrage with "
 												+ foreignCurrency
@@ -816,8 +822,9 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			// against foreign currency
 			if (MathUtil.lesserEqual(
 					totalLocalCurrencyBudgetForCurrencyTrading, 0)) {
-				if (Log.isAgentSelectedByClient(CreditBank.this))
-					Log.log(CreditBank.this,
+				if (getLog().isAgentSelectedByClient(CreditBank.this))
+					getLog().log(
+							CreditBank.this,
 							CurrencyTradeEvent.class,
 							"not offering "
 									+ CreditBank.this.primaryCurrency
@@ -858,8 +865,10 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							pricingBehaviourPriceOfLocalCurrencyInForeignCurrency = MarketFactory
 									.getInstance().getPrice(foreignCurrency,
 											localCurrency);
-							if (Log.isAgentSelectedByClient(CreditBank.this))
-								Log.log(CreditBank.this,
+							if (getLog().isAgentSelectedByClient(
+									CreditBank.this))
+								getLog().log(
+										CreditBank.this,
 										CurrencyTradeEvent.class,
 										"could not calculate price for "
 												+ localCurrency + " in "
@@ -980,8 +989,9 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			// TODO money reserves; Basel 3
 			double difference = sumOfPassiveBankAccounts - faceValueSumOfBonds;
 
-			if (Log.isAgentSelectedByClient(CreditBank.this))
-				Log.log(CreditBank.this,
+			if (getLog().isAgentSelectedByClient(CreditBank.this))
+				getLog().log(
+						CreditBank.this,
 						BondsTradeEvent.class,
 						"sumOfPassiveBankAccounts = "
 								+ Currency

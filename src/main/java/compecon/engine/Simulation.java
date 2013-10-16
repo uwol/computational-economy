@@ -32,6 +32,7 @@ import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.trading.Trader;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.dashboard.Dashboard;
+import compecon.engine.statistics.Log;
 import compecon.engine.statistics.jmx.JMXRegistration;
 import compecon.engine.statistics.model.ModelRegistry;
 import compecon.engine.time.TimeSystem;
@@ -45,6 +46,8 @@ public class Simulation {
 	protected static Simulation instance;
 
 	protected final Dashboard dashboard;
+
+	protected final Log log;
 
 	protected final ModelRegistry modelRegistry;
 
@@ -68,6 +71,7 @@ public class Simulation {
 		instance = this;
 		this.timeSystem = new TimeSystem(2000);
 		this.modelRegistry = new ModelRegistry();
+		this.log = new Log(this.modelRegistry, this.timeSystem);
 		this.endDate = endDate;
 
 		if (showDashboard) {
@@ -260,6 +264,10 @@ public class Simulation {
 
 	public TimeSystem getTimeSystem() {
 		return this.timeSystem;
+	}
+
+	public Log getLog() {
+		return this.log;
 	}
 
 	public ModelRegistry getModelRegistry() {

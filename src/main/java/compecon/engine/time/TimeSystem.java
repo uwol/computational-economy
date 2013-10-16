@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import compecon.engine.statistics.Log;
+import compecon.engine.Simulation;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
@@ -175,7 +175,8 @@ public class TimeSystem {
 		this.gregorianCalendar.add(GregorianCalendar.HOUR_OF_DAY, 1);
 		if (HourType.getHourType(this.gregorianCalendar
 				.get(GregorianCalendar.HOUR_OF_DAY)) == HourType.HOUR_00) {
-			Log.notifyTimeSystem_nextDay(getCurrentDate());
+			Simulation.getInstance().getLog()
+					.notifyTimeSystem_nextDay(getCurrentDate());
 			this.dayNumber++;
 		}
 		this.triggerEvents();

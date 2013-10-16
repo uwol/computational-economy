@@ -31,7 +31,6 @@ import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
-import compecon.engine.statistics.Log;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 
@@ -212,9 +211,10 @@ public class SettlementMarket extends Market {
 									marketOffer.getOfferorsBankAcount()
 											.getCurrency());
 				// register market tick
-				Log.market_onTick(marketOffer.getPricePerUnit(), marketOffer
-						.getGoodType(), marketOffer.getOfferorsBankAcount()
-						.getCurrency(), amount);
+				getLog().market_onTick(marketOffer.getPricePerUnit(),
+						marketOffer.getGoodType(),
+						marketOffer.getOfferorsBankAcount().getCurrency(),
+						amount);
 				break;
 			case CURRENCY:
 				Bank bank = marketOffer
@@ -239,9 +239,10 @@ public class SettlementMarket extends Market {
 									marketOffer.getOfferorsBankAcount()
 											.getCurrency());
 				// register market tick
-				Log.market_onTick(marketOffer.getPricePerUnit(), marketOffer
-						.getCommodityCurrency(), marketOffer
-						.getOfferorsBankAcount().getCurrency(), amount);
+				getLog().market_onTick(marketOffer.getPricePerUnit(),
+						marketOffer.getCommodityCurrency(),
+						marketOffer.getOfferorsBankAcount().getCurrency(),
+						amount);
 				break;
 			case PROPERTY:
 				register.transferProperty(marketOffer.getOfferor(), buyer,
@@ -272,9 +273,10 @@ public class SettlementMarket extends Market {
 		priceAndAmount[0] = moneySpentSum;
 		priceAndAmount[1] = amountSum;
 
-		if (Log.isAgentSelectedByClient(buyer)) {
+		if (getLog().isAgentSelectedByClient(buyer)) {
 			if (priceAndAmount[1] > 0) {
-				Log.log(buyer,
+				getLog().log(
+						buyer,
 						"bought "
 								+ MathUtil.round(priceAndAmount[1])
 								+ " units of "
@@ -298,7 +300,8 @@ public class SettlementMarket extends Market {
 								+ buyersBankAccount.getCurrency()
 										.getIso4217Code() + "]");
 			} else {
-				Log.log(buyer,
+				getLog().log(
+						buyer,
 						"cannot buy "
 								+ this.determineCommodityName(goodType,
 										commodityCurrency, propertyClass)

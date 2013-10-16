@@ -38,7 +38,6 @@ import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.MarketFactory;
 import compecon.engine.Simulation;
-import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
@@ -186,7 +185,7 @@ public class Factory extends JointStockCompany {
 						.getPrice(Factory.this.primaryCurrency,
 								Factory.this.producedGoodType);
 
-				Log.setAgentCurrentlyActive(Factory.this);
+				getLog().setAgentCurrentlyActive(Factory.this);
 				Map<GoodType, Double> productionFactorsToBuy = Factory.this.productionFunction
 						.calculateProfitMaximizingProductionFactors(
 								priceOfProducedGoodType,
@@ -206,8 +205,8 @@ public class Factory extends JointStockCompany {
 				double creditUtilization = -1.0
 						* Factory.this.getTransactionsBankAccount()
 								.getBalance();
-				Log.agent_CreditUtilization(Factory.this, creditUtilization,
-						creditBudgetCapacity);
+				getLog().agent_CreditUtilization(Factory.this,
+						creditUtilization, creditBudgetCapacity);
 				assert (MathUtil.lesserEqual(creditUtilization,
 						creditBudgetCapacity * 1.1));
 			}
@@ -249,17 +248,19 @@ public class Factory extends JointStockCompany {
 
 			double producedOutput = Factory.this.productionFunction
 					.calculateOutput(productionFactorsOwned);
-			Log.factory_onProduction(Factory.this,
+			getLog().factory_onProduction(Factory.this,
 					Factory.this.primaryCurrency,
 					Factory.this.producedGoodType, producedOutput,
 					productionFactorsOwned);
 			PropertyRegister.getInstance()
 					.incrementGoodTypeAmount(Factory.this,
 							Factory.this.producedGoodType, producedOutput);
-			if (Log.isAgentSelectedByClient(Factory.this))
-				Log.log(Factory.this, ProductionEvent.class, "produced "
-						+ MathUtil.round(producedOutput) + " "
-						+ Factory.this.producedGoodType);
+			if (getLog().isAgentSelectedByClient(Factory.this))
+				getLog().log(
+						Factory.this,
+						ProductionEvent.class,
+						"produced " + MathUtil.round(producedOutput) + " "
+								+ Factory.this.producedGoodType);
 
 			/*
 			 * deregister production factors from property register
@@ -302,7 +303,7 @@ public class Factory extends JointStockCompany {
 			BalanceSheet balanceSheet = Factory.this.issueBasicBalanceSheet();
 			balanceSheet.issuedCapital = Factory.this.issuedShares;
 
-			Log.agent_onPublishBalanceSheet(Factory.this, balanceSheet);
+			getLog().agent_onPublishBalanceSheet(Factory.this, balanceSheet);
 		}
 	}
 

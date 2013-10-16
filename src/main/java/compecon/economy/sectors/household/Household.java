@@ -45,7 +45,6 @@ import compecon.economy.sectors.state.law.security.equity.Share;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
 import compecon.engine.Simulation;
-import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
@@ -72,10 +71,6 @@ public class Household extends Agent implements IShareOwner {
 			+ this.hashCode()
 			% ConfigurationUtil.HouseholdConfig
 					.getDaysWithoutUtilityUntilDestructor();
-
-	@Transient
-	protected final double MAX_PRICE_PER_UNIT_MULTIPLIER = ConfigurationUtil.HouseholdConfig
-			.getMaxPricePerUnitMultiplier();
 
 	// dynamic state ------------------------------
 
@@ -303,7 +298,7 @@ public class Household extends Agent implements IShareOwner {
 						* Household.this.savingsBankAccount.getBalance();
 			}
 
-			Log.agent_onPublishBalanceSheet(Household.this, balanceSheet);
+			getLog().agent_onPublishBalanceSheet(Household.this, balanceSheet);
 		}
 	}
 
@@ -329,10 +324,12 @@ public class Household extends Agent implements IShareOwner {
 			Household.this.labourPower.refresh();
 			Household.this.pricingBehaviour.nextPeriod();
 
-			Log.household_LabourHourCapacity(Household.this.primaryCurrency,
+			getLog().household_LabourHourCapacity(
+					Household.this.primaryCurrency,
 					Household.this.labourPower
 							.getNumberOfLabourHoursAvailable());
-			Log.household_onLabourHourExhaust(Household.this.primaryCurrency,
+			getLog().household_onLabourHourExhaust(
+					Household.this.primaryCurrency,
 					Household.this.pricingBehaviour.getLastSoldAmount());
 
 			/*
@@ -365,8 +362,9 @@ public class Household extends Agent implements IShareOwner {
 					.getRequiredUtilityPerDay()) {
 				Household.this.daysWithoutUtility++;
 				Household.this.continuousDaysWithUtility = 0;
-				if (Log.isAgentSelectedByClient(Household.this))
-					Log.log(Household.this,
+				if (getLog().isAgentSelectedByClient(Household.this))
+					getLog().log(
+							Household.this,
 							DailyLifeEvent.class,
 							"does not have required utility of "
 									+ ConfigurationUtil.HouseholdConfig
@@ -427,7 +425,7 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * logging
 			 */
-			Log.household_onIncomeWageDividendConsumptionSaving(
+			getLog().household_onIncomeWageDividendConsumptionSaving(
 					primaryCurrency, income, moneySumToConsume, moneySumToSave,
 					Household.this.pricingBehaviour.getLastSoldValue(),
 					Household.this.dividendSinceLastPeriod);
@@ -442,8 +440,9 @@ public class Household extends Agent implements IShareOwner {
 						.transferMoney(Household.this.transactionsBankAccount,
 								Household.this.savingsBankAccount,
 								moneySumToSave, "retirement savings");
-				if (Log.isAgentSelectedByClient(Household.this))
-					Log.log(Household.this,
+				if (getLog().isAgentSelectedByClient(Household.this))
+					getLog().log(
+							Household.this,
 							DailyLifeEvent.class,
 							"saving "
 									+ Currency.formatMoneySum(moneySumToSave)
@@ -472,8 +471,9 @@ public class Household extends Agent implements IShareOwner {
 						.transferMoney(Household.this.savingsBankAccount,
 								Household.this.transactionsBankAccount,
 								-1.0 * moneySumToSave, "retirement dissavings");
-				if (Log.isAgentSelectedByClient(Household.this))
-					Log.log(Household.this,
+				if (getLog().isAgentSelectedByClient(Household.this))
+					getLog().log(
+							Household.this,
 							"unsaving "
 									+ Currency.formatMoneySum(-1.0
 											* moneySumToSave)
@@ -497,6 +497,7 @@ public class Household extends Agent implements IShareOwner {
 										.getInputGoodTypes());
 
 				// calculate optimal consumption plan
+				getLog().setAgentCurrentlyActive(Household.this);
 				Map<GoodType, Double> plannedConsumptionGoodsBundle = Household.this.utilityFunction
 						.calculateUtilityMaximizingInputs(priceFunctions,
 								budget);
@@ -535,8 +536,12 @@ public class Household extends Agent implements IShareOwner {
 					// equilibrium; also budget, as in the depth of the markets,
 					// prices can rise, leading to overspending
 					double[] priceAndAmount = MarketFactory.getInstance().buy(
-							goodTypeToBuy, amountToBuy, budget,
-							marginalPrice * MAX_PRICE_PER_UNIT_MULTIPLIER,
+							goodTypeToBuy,
+							amountToBuy,
+							budget,
+							marginalPrice
+									* ConfigurationUtil.HouseholdConfig
+											.getMaxPricePerUnitMultiplier(),
 							Household.this,
 							Household.this.transactionsBankAccount);
 					budgetSpent += priceAndAmount[0];
@@ -567,7 +572,7 @@ public class Household extends Agent implements IShareOwner {
 			}
 			double utility = Household.this.utilityFunction
 					.calculateUtility(effectiveConsumptionGoodsBundle);
-			Log.household_onUtility(Household.this,
+			getLog().household_onUtility(Household.this,
 					Household.this.transactionsBankAccount.getCurrency(),
 					effectiveConsumptionGoodsBundle, utility);
 			return utility;

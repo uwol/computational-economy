@@ -26,13 +26,13 @@ public class JmxControlModel implements JmxControlModelMBean {
 
 	@Override
 	public void deficitSpending() {
-		Simulation.getInstance().getModelRegistry().getControlModel()
+		Simulation.getInstance().getModelRegistry().controlModel
 				.deficitSpending(Currency.EURO);
 	}
 
 	@Override
 	public void initHouseholds() {
-		Simulation.getInstance().getModelRegistry().getControlModel()
+		Simulation.getInstance().getModelRegistry().controlModel
 				.initHouseholds(Currency.EURO);
 	}
 }

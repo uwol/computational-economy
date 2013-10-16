@@ -48,6 +48,7 @@ import compecon.engine.statistics.model.PeriodDataDistributionModel.SummaryStati
 import compecon.engine.statistics.model.PricesModel;
 import compecon.engine.statistics.model.PricesModel.PriceModel;
 import compecon.materia.GoodType;
+import compecon.math.ConvexFunction.ConvexFunctionTerminationCause;
 
 public class HouseholdsPanel extends AbstractChartsPanel implements
 		IModelListener {
@@ -80,6 +81,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 			this.add(new ChartPanel(incomeDistributionChart));
 			this.add(createLorenzCurvePanel(currency));
 			this.add(createHouseholdBalanceSheetPanel(currency));
+			this.add(createBudgetSpendingPanel(currency));
 
 			Simulation.getInstance().getModelRegistry()
 					.getIncomeDistributionModel(currency)
@@ -196,10 +198,13 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 	protected ChartPanel createLabourPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry()
-				.getGoodTypeProductionModel(currency, GoodType.LABOURHOUR)
-				.getOutputModel().getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation
+						.getInstance()
+						.getModelRegistry()
+						.getFactoryProductionModel(currency,
+								GoodType.LABOURHOUR).outputModel
+						.getTimeSeries());
 		timeSeriesCollection.addSeries(Simulation.getInstance()
 				.getModelRegistry().getLabourHourCapacityModel(currency)
 				.getTimeSeries());
@@ -215,16 +220,18 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 	protected ChartPanel createUtilityPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getUtilityModel(currency).getOutputModel()
-				.getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getUtilityModel(currency).utilityOutputModel
+						.getTimeSeries());
 
 		for (GoodType inputGoodType : Simulation.getInstance()
-				.getModelRegistry().getUtilityModel(currency)
-				.getInputGoodTypes()) {
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getUtilityModel(currency)
-					.getInputModel(inputGoodType).getTimeSeries());
+				.getModelRegistry().getUtilityModel(currency).utilityInputModels
+				.keySet()) {
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getUtilityModel(currency).utilityInputModels.get(
+							inputGoodType).getTimeSeries());
 		}
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Utility",
@@ -332,7 +339,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 	protected ChartPanel createPriceTimeSeriesChartPanel(Currency currency) {
 		JFreeChart priceChart = ChartFactory.createCandlestickChart(
-				"Price Chart for " + GoodType.LABOURHOUR, "Time", "Price in "
+				"Prices for " + GoodType.LABOURHOUR, "Time", "Price in "
 						+ currency.getIso4217Code(),
 				this.getDefaultHighLowDataset(currency), false);
 		ChartPanel chartPanel = new ChartPanel(priceChart);
@@ -348,6 +355,27 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 		JFreeChart chart = ChartFactory.createXYStepAreaChart(
 				"Market Depth for " + GoodType.LABOURHOUR, "Price", "Volume",
 				dataset, PlotOrientation.VERTICAL, true, true, false);
+		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createBudgetSpendingPanel(Currency currency) {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+	
+		timeSeriesCollection.addSeries(Simulation.getInstance()
+				.getModelRegistry().getHouseholdModel(currency).budgetModel
+				.getTimeSeries());
+		for (ConvexFunctionTerminationCause terminationCause : ConvexFunctionTerminationCause
+				.values()) {
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getHouseholdModel(currency).convexFunctionTerminationCauseModels
+							.get(terminationCause).getTimeSeries());
+		}
+	
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				"Utility Function Mechanics", "Date", "Budget Spent",
+				(XYDataset) timeSeriesCollection, true, true, false);
+		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 

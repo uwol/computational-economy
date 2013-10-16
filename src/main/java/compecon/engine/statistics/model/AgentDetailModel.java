@@ -32,6 +32,7 @@ import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
+import compecon.engine.Simulation;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.statistics.Log;
 import compecon.materia.GoodType;
@@ -122,7 +123,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 	}
 
 	public List<BankAccount> getBankAccountsOfCurrentAgent() {
-		Agent agent = Log.getAgentSelectedByClient();
+		Agent agent = getLog().getAgentSelectedByClient();
 		if (agent != null)
 			return DAOFactory.getBankAccountDAO().findAllBankAccountsOfAgent(
 					agent);
@@ -130,14 +131,14 @@ public class AgentDetailModel extends NotificationListenerModel {
 	}
 
 	public Map<GoodType, Double> getGoodsOfCurrentAgent() {
-		Agent agent = Log.getAgentSelectedByClient();
+		Agent agent = getLog().getAgentSelectedByClient();
 		if (agent != null)
 			return PropertyRegister.getInstance().getBalance(agent);
 		return new HashMap<GoodType, Double>();
 	}
 
 	public List<Property> getPropertiesOfCurrentAgent() {
-		Agent agent = Log.getAgentSelectedByClient();
+		Agent agent = getLog().getAgentSelectedByClient();
 		if (agent != null)
 			return PropertyRegister.getInstance().getProperties(agent);
 		return new ArrayList<Property>();
@@ -157,7 +158,11 @@ public class AgentDetailModel extends NotificationListenerModel {
 		this.agentLog = new AgentLog("Agent");
 		this.bankAccountLogs.clear();
 		this.currentLog = agentLog;
-		Log.setAgentSelectedByClient(selectedAgent);
+		getLog().setAgentSelectedByClient(selectedAgent);
 		this.notifyListeners();
+	}
+
+	private Log getLog() {
+		return Simulation.getInstance().getLog();
 	}
 }

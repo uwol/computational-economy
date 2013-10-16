@@ -37,7 +37,6 @@ import compecon.economy.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.MarketFactory;
 import compecon.engine.Simulation;
 import compecon.engine.dao.DAOFactory;
-import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
@@ -200,7 +199,8 @@ public class CentralBank extends Bank {
 
 		if (from.getManagingBank() instanceof CentralBank
 				&& to.getManagingBank() instanceof CentralBank) {
-			Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
+			getLog().bank_onTransfer(from, to, from.getCurrency(), amount,
+					subject);
 			this.transferMoneyInternally(from, to, amount);
 		} else if (from.getManagingBank() instanceof CreditBank
 				&& to.getManagingBank() instanceof CentralBank)
@@ -208,7 +208,8 @@ public class CentralBank extends Bank {
 					to, amount);
 		else if (from.getManagingBank() instanceof CentralBank
 				&& to.getManagingBank() instanceof CreditBank) {
-			Log.bank_onTransfer(from, to, from.getCurrency(), amount, subject);
+			getLog().bank_onTransfer(from, to, from.getCurrency(), amount,
+					subject);
 			this.transferMoneyFromCentralBankAccountToCreditBankAccount(from,
 					to, amount);
 		} else
@@ -291,8 +292,9 @@ public class CentralBank extends Bank {
 			PropertyRegister.getInstance().transferProperty(creditBank, this,
 					bond);
 
-			if (Log.isAgentSelectedByClient(creditBank))
-				Log.log(creditBank,
+			if (getLog().isAgentSelectedByClient(creditBank))
+				getLog().log(
+						creditBank,
 						"obtained a tender of "
 								+ Currency.formatMoneySum(bond.getFaceValue())
 								+ " " + this.getPrimaryCurrency()
@@ -377,12 +379,13 @@ public class CentralBank extends Bank {
 			CentralBank.this.statisticalOffice.recalculatePriceIndex();
 			double priceIndex = CentralBank.this.statisticalOffice
 					.getPriceIndex();
-			Log.centralBank_PriceIndex(CentralBank.this.primaryCurrency,
+			getLog().centralBank_PriceIndex(CentralBank.this.primaryCurrency,
 					priceIndex);
 
 			// calculate key interest rate
 			CentralBank.this.effectiveKeyInterestRate = calculateEffectiveKeyInterestRate();
-			Log.centralBank_KeyInterestRate(CentralBank.this.primaryCurrency,
+			getLog().centralBank_KeyInterestRate(
+					CentralBank.this.primaryCurrency,
 					CentralBank.this.effectiveKeyInterestRate);
 		}
 
@@ -413,7 +416,7 @@ public class CentralBank extends Bank {
 					.getCurrentYear()
 					- Simulation.getInstance().getTimeSystem().getStartYear();
 			double targetPriceLevelForYear = Math.pow(
-					(1 + ConfigurationUtil.CentralBankConfig
+					(1.0 + ConfigurationUtil.CentralBankConfig
 							.getInflationTarget()), yearNumber);
 
 			double monthlyNominalInflationTarget = CentralBank.this
@@ -455,7 +458,7 @@ public class CentralBank extends Bank {
 			// --------------
 
 			// publish
-			Log.agent_onPublishBalanceSheet(CentralBank.this, balanceSheet);
+			getLog().agent_onPublishBalanceSheet(CentralBank.this, balanceSheet);
 		}
 	}
 

@@ -21,6 +21,7 @@ package compecon.economy;
 
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
+import compecon.engine.Simulation;
 import compecon.engine.statistics.Log;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
@@ -101,8 +102,9 @@ public class PricingBehaviour {
 		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0)
 				&& MathUtil.lesserEqual(this.soldAmount_InPeriods[1], 0)) {
 			double newPrice = calculateLowerPrice(oldPrice);
-			if (Log.isAgentSelectedByClient(this.agent))
-				Log.log(this.agent,
+			if (getLog().isAgentSelectedByClient(this.agent))
+				getLog().log(
+						this.agent,
 						prefix + "sold nothing -> lowering price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
@@ -114,8 +116,9 @@ public class PricingBehaviour {
 				&& MathUtil.equal(this.soldAmount_InPeriods[1],
 						this.offeredAmount_InPeriods[1])) {
 			double newPrice = calculateHigherPrice(oldPrice);
-			if (Log.isAgentSelectedByClient(this.agent))
-				Log.log(this.agent,
+			if (getLog().isAgentSelectedByClient(this.agent))
+				getLog().log(
+						this.agent,
 						prefix + "sold everything -> raising price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
@@ -130,8 +133,9 @@ public class PricingBehaviour {
 				&& (MathUtil.greaterEqual(this.offeredAmount_InPeriods[1],
 						this.soldAmount_InPeriods[2]))) {
 			double newPrice = calculateLowerPrice(oldPrice);
-			if (Log.isAgentSelectedByClient(this.agent))
-				Log.log(this.agent,
+			if (getLog().isAgentSelectedByClient(this.agent))
+				getLog().log(
+						this.agent,
 						prefix + "sold less (before: "
 								+ MathUtil.round(this.soldAmount_InPeriods[2])
 								+ ") -> lowering price to "
@@ -148,8 +152,9 @@ public class PricingBehaviour {
 				&& (MathUtil.greaterEqual(this.offeredAmount_InPeriods[2],
 						this.soldAmount_InPeriods[1]))) {
 			double newPrice = calculateHigherPrice(oldPrice);
-			if (Log.isAgentSelectedByClient(this.agent))
-				Log.log(this.agent,
+			if (getLog().isAgentSelectedByClient(this.agent))
+				getLog().log(
+						this.agent,
 						prefix + "sold more (before: "
 								+ MathUtil.round(this.soldAmount_InPeriods[2])
 								+ ") -> raising price to "
@@ -158,8 +163,9 @@ public class PricingBehaviour {
 			return newPrice;
 		}
 
-		if (Log.isAgentSelectedByClient(this.agent))
-			Log.log(this.agent,
+		if (getLog().isAgentSelectedByClient(this.agent))
+			getLog().log(
+					this.agent,
 					prefix + " newPrice := oldPrice = "
 							+ Currency.formatMoneySum(oldPrice) + " "
 							+ this.denominatedInCurrency.getIso4217Code());
@@ -303,5 +309,9 @@ public class PricingBehaviour {
 		if (!Double.isNaN(numberOfProducts)
 				&& !Double.isInfinite(numberOfProducts))
 			this.offeredAmount_InPeriods[0] += numberOfProducts;
+	}
+
+	private Log getLog() {
+		return Simulation.getInstance().getLog();
 	}
 }

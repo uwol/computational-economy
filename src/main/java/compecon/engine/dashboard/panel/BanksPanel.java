@@ -132,8 +132,8 @@ public class BanksPanel extends AbstractChartsPanel implements IModelListener {
 	protected ChartPanel createPriceTimeSeriesChartPanel(Currency currency,
 			Currency commodityCurrency) {
 		JFreeChart priceChart = ChartFactory.createCandlestickChart(
-				"Price Chart for " + commodityCurrency.getIso4217Code(),
-				"Time", "Price in " + currency.getIso4217Code(),
+				"Prices for " + commodityCurrency.getIso4217Code(), "Time",
+				"Price in " + currency.getIso4217Code(),
 				this.getDefaultHighLowDataset(currency, commodityCurrency),
 				false);
 		ChartPanel chartPanel = new ChartPanel(priceChart);

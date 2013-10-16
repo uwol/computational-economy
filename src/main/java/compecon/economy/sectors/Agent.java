@@ -105,7 +105,7 @@ public abstract class Agent {
 	private final String agentTypeName = this.getClass().getSimpleName();
 
 	public void initialize() {
-		Log.agent_onConstruct(this);
+		getLog().agent_onConstruct(this);
 	}
 
 	/**
@@ -114,7 +114,7 @@ public abstract class Agent {
 	@Transient
 	public void deconstruct() {
 		this.isDeconstructed = true;
-		Log.agent_onDeconstruct(this);
+		getLog().agent_onDeconstruct(this);
 
 		// deregister from time system
 		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
@@ -311,6 +311,10 @@ public abstract class Agent {
 				.getInstance().getBalance(Agent.this));
 
 		return balanceSheet;
+	}
+
+	protected Log getLog() {
+		return Simulation.getInstance().getLog();
 	}
 
 	@Override

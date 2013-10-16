@@ -22,6 +22,7 @@ package compecon.economy;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.AgentFactory;
+import compecon.engine.Simulation;
 import compecon.engine.statistics.Log;
 import compecon.engine.util.ConfigurationUtil;
 
@@ -34,12 +35,6 @@ import compecon.engine.util.ConfigurationUtil;
 public class BudgetingBehaviour {
 
 	protected final Agent agent;
-
-	protected final double internalRateOfReturn = ConfigurationUtil.BudgetingBehaviour
-			.getInternalRateOfReturn();
-
-	protected final double keyInterestRateTransmissionDamper = ConfigurationUtil.BudgetingBehaviour
-			.getKeyInterestRateTransmissionDamper();
 
 	protected double lastMaxCredit = Double.NaN;
 
@@ -64,8 +59,12 @@ public class BudgetingBehaviour {
 
 		double keyInterestRate = AgentFactory.getInstanceCentralBank(currency)
 				.getEffectiveKeyInterestRate();
+		double internalRateOfReturn = ConfigurationUtil.BudgetingBehaviour
+				.getInternalRateOfReturn();
+		double keyInterestRateTransmissionDamper = ConfigurationUtil.BudgetingBehaviour
+				.getKeyInterestRateTransmissionDamper();
 		lastMaxCredit = lastMaxCredit
-				* (1.0 + ((this.internalRateOfReturn - keyInterestRate) / keyInterestRateTransmissionDamper));
+				* (1.0 + ((internalRateOfReturn - keyInterestRate) / keyInterestRateTransmissionDamper));
 
 		/*
 		 * transmission mechanism
@@ -74,8 +73,9 @@ public class BudgetingBehaviour {
 		double creditBasedBudget = Math.max(0.0, bankAccountBalance
 				+ this.lastMaxCredit);
 
-		if (Log.isAgentSelectedByClient(BudgetingBehaviour.this.agent))
-			Log.log(BudgetingBehaviour.this.agent,
+		if (getLog().isAgentSelectedByClient(BudgetingBehaviour.this.agent))
+			getLog().log(
+					BudgetingBehaviour.this.agent,
 					Currency.formatMoneySum(creditBasedBudget) + " "
 							+ currency.getIso4217Code() + " budget = ("
 							+ Currency.formatMoneySum(bankAccountBalance) + " "
@@ -88,5 +88,9 @@ public class BudgetingBehaviour {
 
 	public double getCreditBasedBudgetCapacity() {
 		return lastMaxCredit;
+	}
+
+	private Log getLog() {
+		return Simulation.getInstance().getLog();
 	}
 }

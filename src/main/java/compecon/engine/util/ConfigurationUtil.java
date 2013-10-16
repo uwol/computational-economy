@@ -427,7 +427,6 @@ public class ConfigurationUtil {
 				// default configuration properties
 				configurationProperties = "configuration.properties";
 			}
-			System.out.println("Configuration: " + configurationProperties);
 			configFile.load(ConfigurationUtil.class.getClassLoader()
 					.getResourceAsStream(configurationProperties));
 		} catch (IOException e) {

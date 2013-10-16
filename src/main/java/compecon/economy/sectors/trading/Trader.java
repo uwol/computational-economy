@@ -45,7 +45,6 @@ import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.AgentFactory;
 import compecon.engine.MarketFactory;
 import compecon.engine.Simulation;
-import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.MonthType;
@@ -247,20 +246,26 @@ public class Trader extends JointStockCompany {
 											foreignCurrency);
 
 							if (Double.isNaN(priceOfGoodTypeInForeignCurrency)) {
-								if (Log.isAgentSelectedByClient(Trader.this))
-									Log.log(Trader.this,
+								if (getLog().isAgentSelectedByClient(
+										Trader.this))
+									getLog().log(
+											Trader.this,
 											"priceOfGoodTypeInForeignCurrency is "
 													+ priceOfGoodTypeInForeignCurrency);
 							} else if (Double
 									.isNaN(priceOfGoodTypeInLocalCurrency)) {
-								if (Log.isAgentSelectedByClient(Trader.this))
-									Log.log(Trader.this,
+								if (getLog().isAgentSelectedByClient(
+										Trader.this))
+									getLog().log(
+											Trader.this,
 											"priceOfGoodTypeInLocalCurrency is "
 													+ priceOfGoodTypeInLocalCurrency);
 							} else if (Double
 									.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
-								if (Log.isAgentSelectedByClient(Trader.this))
-									Log.log(Trader.this,
+								if (getLog().isAgentSelectedByClient(
+										Trader.this))
+									getLog().log(
+											Trader.this,
 											"priceOfForeignCurrencyInLocalCurrency is "
 													+ priceOfForeignCurrencyInLocalCurrency);
 							} else {
@@ -276,8 +281,10 @@ public class Trader extends JointStockCompany {
 																.getArbitrageMargin()),
 												importPriceOfGoodTypeInLocalCurrency)) {
 
-									if (Log.isAgentSelectedByClient(Trader.this))
-										Log.log(Trader.this,
+									if (getLog().isAgentSelectedByClient(
+											Trader.this))
+										getLog().log(
+												Trader.this,
 												"1 "
 														+ goodType
 														+ " = "
@@ -393,7 +400,7 @@ public class Trader extends JointStockCompany {
 				}
 			}
 
-			Log.agent_onPublishBalanceSheet(Trader.this, balanceSheet);
+			getLog().agent_onPublishBalanceSheet(Trader.this, balanceSheet);
 		}
 	}
 

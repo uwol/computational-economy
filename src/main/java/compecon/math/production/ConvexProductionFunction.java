@@ -22,6 +22,7 @@ package compecon.math.production;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import compecon.engine.Simulation;
 import compecon.engine.statistics.Log;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
@@ -30,6 +31,10 @@ import compecon.math.IFunction;
 import compecon.math.price.IPriceFunction;
 
 public abstract class ConvexProductionFunction extends ProductionFunction {
+
+	public enum ConvexProductionFunctionTerminationCause {
+		INPUT_FACTOR_UNAVAILABLE, ESTIMATED_REVENUE_PER_UNIT_ZERO, NO_OPTIMAL_INPUT, MARGINAL_REVENUE_EXCEEDED, MAX_OUTPUT_EXCEEDED, BUDGET_SPENT;
+	}
 
 	protected ConvexProductionFunction(IFunction<GoodType> delegate) {
 		super(delegate);
@@ -73,29 +78,48 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		if (pricesAreNaN
 				&& this.delegate
 						.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
-			Log.log("at least one of the prices is Double.NaN, but the production function needs all inputs set");
+			getLog().log(
+					"at least one of the prices is Double.NaN, but the production function needs all inputs set -> no calculation");
+			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
+					budget,
+					0.0,
+					ConvexProductionFunctionTerminationCause.INPUT_FACTOR_UNAVAILABLE);
+
 			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
-			for (GoodType inputType : this.getInputGoodTypes())
+			for (GoodType inputType : this.getInputGoodTypes()) {
 				bundleOfInputs.put(inputType, 0.0);
+			}
 			return bundleOfInputs;
 		}
 
 		// special case: check for budget
 		if (MathUtil.lesserEqual(budget, 0.0)) {
-			Log.log("budget is " + budget);
+			getLog().log("budget is " + budget + " -> no calculation");
+			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
+					budget, 0.0,
+					ConvexProductionFunctionTerminationCause.BUDGET_SPENT);
+
 			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
-			for (GoodType inputType : this.getInputGoodTypes())
+			for (GoodType inputType : this.getInputGoodTypes()) {
 				bundleOfInputs.put(inputType, 0.0);
+			}
 			return bundleOfInputs;
 		}
 
-		// special case: check for estimated revenue per unit being 0
-		if (MathUtil.equal(priceOfProducedGoodType, 0.0)) {
-			Log.log("priceOfProducedGoodType = " + priceOfProducedGoodType
-					+ " -> no production");
+		// special case: check for estimated revenue per unit being 0.0
+		if (MathUtil.lesserEqual(priceOfProducedGoodType, 0.0)) {
+			getLog().log(
+					"priceOfProducedGoodType = " + priceOfProducedGoodType
+							+ " -> no production");
+			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
+					budget,
+					0.0,
+					ConvexProductionFunctionTerminationCause.ESTIMATED_REVENUE_PER_UNIT_ZERO);
+
 			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
-			for (GoodType inputType : this.getInputGoodTypes())
+			for (GoodType inputType : this.getInputGoodTypes()) {
 				bundleOfInputs.put(inputType, 0.0);
+			}
 			return bundleOfInputs;
 		}
 
@@ -106,7 +130,8 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		// as nothing is offered
 		//
 		// if (Double.isNaN(priceOfProducedGoodType)) {
-		// Log.log("priceOfProducedGoodType = " + priceOfProducedGoodType
+		// getLog().log("priceOfProducedGoodType = " +
+		// priceOfProducedGoodType
 		// + " -> cautious production");
 		// final Map<GoodType, Double> bundleOfInputs = new
 		// LinkedHashMap<GoodType, Double>();
@@ -142,13 +167,27 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		double estimatedMarginalRevenueOfGoodType = priceOfProducedGoodType
 				/ (1.0 + margin);
 
-		while (MathUtil.greater(budget, moneySpent)) {
+		while (true) {
+			// if the budget is spent
+			if (MathUtil.greater(moneySpent, budget)) {
+				getLog().log("budget spent completely");
+				getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
+						budget, moneySpent,
+						ConvexProductionFunctionTerminationCause.BUDGET_SPENT);
+				break;
+			}
+
 			GoodType optimalInputType = this
 					.selectProductionFactorWithHighestMarginalOutputPerPrice(
 							bundleOfInputFactors, priceFunctionsOfInputTypes);
 
 			// no optimal input type could be found, i. e. markets are sold out
 			if (optimalInputType == null) {
+				getLog().log("no optimal input found -> terminating");
+				getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
+						budget,
+						moneySpent,
+						ConvexProductionFunctionTerminationCause.NO_OPTIMAL_INPUT);
 				break;
 			} else {
 				double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
@@ -165,15 +204,20 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 					// a polypoly is assumed -> price = marginal revenue
 					if (MathUtil.lesser(estimatedMarginalRevenueOfGoodType,
 							marginalPriceOfOptimalInputTypePerOutput)) {
-						Log.log(MathUtil
-								.round(estimatedMarginalRevenueOfGoodType)
-								+ " estimatedMarginalRevenue"
-								+ " < "
-								+ MathUtil
-										.round(marginalPriceOfOptimalInputTypePerOutput)
-								+ " currentMarginalPriceOfInputPerOutput"
-								+ " -> "
-								+ bundleOfInputFactors.entrySet().toString());
+						getLog().log(
+								MathUtil.round(estimatedMarginalRevenueOfGoodType)
+										+ " estimatedMarginalRevenue"
+										+ " < "
+										+ MathUtil
+												.round(marginalPriceOfOptimalInputTypePerOutput)
+										+ " currentMarginalPriceOfInputPerOutput"
+										+ " -> "
+										+ bundleOfInputFactors.entrySet()
+												.toString());
+						getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
+								budget,
+								moneySpent,
+								ConvexProductionFunctionTerminationCause.MARGINAL_REVENUE_EXCEEDED);
 						break;
 					}
 				}
@@ -191,9 +235,18 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 							.put(optimalInputType,
 									bundleOfInputFactors.get(optimalInputType)
 											- amount);
-					Log.log("output " + newOutput + " > maxOutput " + maxOutput
-							+ " -> "
-							+ bundleOfInputFactors.entrySet().toString());
+					getLog().log(
+							"output "
+									+ newOutput
+									+ " > maxOutput "
+									+ maxOutput
+									+ " -> "
+									+ bundleOfInputFactors.entrySet()
+											.toString());
+					getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
+							budget,
+							moneySpent,
+							ConvexProductionFunctionTerminationCause.MAX_OUTPUT_EXCEEDED);
 					break;
 				}
 
@@ -202,5 +255,9 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		}
 
 		return bundleOfInputFactors;
+	}
+
+	private Log getLog() {
+		return Simulation.getInstance().getLog();
 	}
 }
