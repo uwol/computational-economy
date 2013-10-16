@@ -127,10 +127,12 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		// maximize output
 		final int NUMBER_OF_ITERATIONS = bundleOfInputs.size()
 				* numberOfIterations;
+		final double budgetPerIteration = budget
+				/ (double) NUMBER_OF_ITERATIONS;
 
 		while (true) {
-			// if the budget is spent
-			if (MathUtil.greater(moneySpent, budget)) {
+			// would this iteration lead to overspending of the budget?
+			if (MathUtil.greater(moneySpent + budgetPerIteration, budget)) {
 				getLog().log("budget spent completely");
 				getLog().agent_onCalculateOutputMaximizingInputsIterative(
 						budget, moneySpent,
@@ -152,7 +154,7 @@ public abstract class ConvexFunction<T> extends Function<T> {
 				double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
 						.get(optimalInputType).getMarginalPrice(
 								bundleOfInputs.get(optimalInputType));
-				double amount = (budget / (double) NUMBER_OF_ITERATIONS)
+				double amount = budgetPerIteration
 						/ marginalPriceOfOptimalInputType;
 				bundleOfInputs.put(optimalInputType,
 						bundleOfInputs.get(optimalInputType) + amount);

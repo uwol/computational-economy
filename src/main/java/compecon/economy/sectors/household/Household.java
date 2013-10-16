@@ -349,7 +349,8 @@ public class Household extends Agent implements IShareOwner {
 
 			this.buyAndOfferShares();
 
-			// TODO: currently, households make no debt -> broaden simulation
+			// households make no debt; safety epsilon due to iterative
+			// deviations
 			assert (MathUtil.greaterEqual(
 					Household.this.transactionsBankAccount.getBalance(), 0.0));
 			assert (MathUtil.greaterEqual(

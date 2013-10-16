@@ -162,14 +162,16 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		// maximize profit
 		final int NUMBER_OF_ITERATIONS = this.getInputGoodTypes().size()
 				* numberOfIterations;
+		final double budgetPerIteration = budget
+				/ (double) NUMBER_OF_ITERATIONS;
 
 		// determine estimatedMarginalRevenueOfGoodType
 		double estimatedMarginalRevenueOfGoodType = priceOfProducedGoodType
 				/ (1.0 + margin);
 
 		while (true) {
-			// if the budget is spent
-			if (MathUtil.greater(moneySpent, budget)) {
+			// would this iteration lead to overspending of the budget?
+			if (MathUtil.greater(moneySpent + budgetPerIteration, budget)) {
 				getLog().log("budget spent completely");
 				getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
 						budget, moneySpent,
@@ -222,7 +224,7 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 					}
 				}
 
-				double amount = (budget / (double) NUMBER_OF_ITERATIONS)
+				double amount = budgetPerIteration
 						/ marginalPriceOfOptimalInputType;
 				bundleOfInputFactors.put(optimalInputType,
 						bundleOfInputFactors.get(optimalInputType) + amount);

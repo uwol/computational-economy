@@ -92,11 +92,11 @@ public class Log {
 	}
 
 	public void log(final String message) {
-		assert (agentCurrentlyActive != null);
-
-		if (agentSelectedByClient == agentCurrentlyActive)
+		if (agentCurrentlyActive != null
+				&& agentSelectedByClient == agentCurrentlyActive) {
 			modelRegistry.agentDetailModel.logAgentEvent(
 					timeSystem.getCurrentDate(), message);
+		}
 	}
 
 	public void agent_onConstruct(final Agent agent) {
@@ -147,9 +147,10 @@ public class Log {
 		if (agentCurrentlyActive != null) {
 			assert (agentCurrentlyActive instanceof Household);
 
-			modelRegistry.getConvexFunctionTerminationCauseModel(
-					agentCurrentlyActive.getPrimaryCurrency(),
-					terminationCause).add(budget - moneySpent);
+			modelRegistry
+					.getConvexFunctionTerminationCauseModel(
+							agentCurrentlyActive.getPrimaryCurrency(),
+							terminationCause).add(budget - moneySpent);
 			modelRegistry.getHouseholdModel(agentCurrentlyActive
 					.getPrimaryCurrency()).budgetModel.add(budget);
 		}
@@ -234,8 +235,7 @@ public class Log {
 	}
 
 	public void factory_onCalculateProfitMaximizingProductionFactorsIterative(
-			final double budget,
-			final double moneySpent,
+			final double budget, final double moneySpent,
 			final ConvexProductionFunctionTerminationCause terminationCause) {
 		if (agentCurrentlyActive != null) {
 			assert (agentCurrentlyActive instanceof Factory);
