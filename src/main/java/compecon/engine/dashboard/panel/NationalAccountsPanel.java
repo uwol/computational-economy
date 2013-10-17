@@ -61,7 +61,7 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 			public MonetaryTransactionsTableModel(Currency referenceCurrency) {
 				this.referenceCurrency = referenceCurrency;
 				Simulation.getInstance().getModelRegistry()
-						.getMonetaryTransactionsModel(referenceCurrency)
+						.getNationalEconomyModel(referenceCurrency).monetaryTransactionsModel
 						.registerListener(this);
 			}
 
@@ -93,7 +93,7 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 				// source data model
 				Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrixForCurrency = Simulation
 						.getInstance().getModelRegistry()
-						.getMonetaryTransactionsModel(referenceCurrency)
+						.getNationalEconomyModel(referenceCurrency).monetaryTransactionsModel
 						.getAdjacencyMatrix();
 
 				// for all agent types as sources of monetary transactions
@@ -207,7 +207,7 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 			@Override
 			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(currency)
+						.getNationalEconomyModel(currency).balanceSheetsModel
 						.getNationalAccountsBalanceSheet();
 			}
 		};

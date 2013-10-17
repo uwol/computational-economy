@@ -48,9 +48,10 @@ public class MoneyPanel extends AbstractChartsPanel implements IModelListener {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : Currency.values())
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getCreditUtilizationRateModel(currency)
-					.getTimeSeries());
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).creditUtilizationRateModel
+							.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Credit Utilization Rate", "Date", "Credit Utilization Rate",
@@ -63,9 +64,10 @@ public class MoneyPanel extends AbstractChartsPanel implements IModelListener {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : Currency.values())
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getKeyInterestRateModel(currency)
-					.getTimeSeries());
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).keyInterestRateModel
+							.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Key Interest Rate", "Date", "Key Interest Rate",
@@ -78,9 +80,10 @@ public class MoneyPanel extends AbstractChartsPanel implements IModelListener {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : Currency.values())
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getPriceIndexModel(currency)
-					.getTimeSeries());
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).priceIndexModel
+							.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Price Index",
 				"Date", "Price Index", timeSeriesCollection, true, true, false);
@@ -92,19 +95,22 @@ public class MoneyPanel extends AbstractChartsPanel implements IModelListener {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : Currency.values())
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getMoneySupplyM0Model(currency)
-					.getTimeSeries());
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).moneySupplyM0Model
+							.getTimeSeries());
 
 		for (Currency currency : Currency.values())
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getMoneySupplyM1Model(currency)
-					.getTimeSeries());
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).moneySupplyM1Model
+							.getTimeSeries());
 
 		for (Currency currency : Currency.values())
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getMoneySupplyM2Model(currency)
-					.getTimeSeries());
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).moneySupplyM2Model
+							.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Money Supply to Non-Banks", "Date", "Money Supply",
@@ -117,9 +123,10 @@ public class MoneyPanel extends AbstractChartsPanel implements IModelListener {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : Currency.values())
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getMoneyCirculationModel(currency)
-					.getTimeSeries());
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).moneyCirculationModel
+							.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Money Circulation", "Date", "Money Circulation",
@@ -132,9 +139,10 @@ public class MoneyPanel extends AbstractChartsPanel implements IModelListener {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (Currency currency : Currency.values())
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getMoneyVelocityModel(currency)
-					.getTimeSeries());
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).moneyVelocityModel
+							.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Velocity of Money", "Date", "Velocity of Money",

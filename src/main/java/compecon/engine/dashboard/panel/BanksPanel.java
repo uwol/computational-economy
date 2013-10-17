@@ -62,7 +62,8 @@ public class BanksPanel extends AbstractChartsPanel implements IModelListener {
 			this.add(createCentralBankBalanceSheetPanel(currency));
 
 			Simulation.getInstance().getModelRegistry()
-					.getPricesModel(currency).registerListener(this);
+					.getNationalEconomyModel(currency).pricesModel
+					.registerListener(this);
 			// no registration with the market depth model, as they call
 			// listeners synchronously
 
@@ -145,7 +146,7 @@ public class BanksPanel extends AbstractChartsPanel implements IModelListener {
 	protected ChartPanel createMarketDepthPanel(Currency currency,
 			Currency commodityCurrency) {
 		XYDataset dataset = Simulation.getInstance().getModelRegistry()
-				.getMarketDepthModel(currency)
+				.getNationalEconomyModel(currency).marketDepthModel
 				.getMarketDepthDataset(currency, commodityCurrency);
 		JFreeChart chart = ChartFactory.createXYStepAreaChart(
 				"Market Depth for " + commodityCurrency.getIso4217Code(),
@@ -157,7 +158,7 @@ public class BanksPanel extends AbstractChartsPanel implements IModelListener {
 	protected DefaultHighLowDataset getDefaultHighLowDataset(Currency currency,
 			Currency commodityCurrency) {
 		PricesModel pricesModel = Simulation.getInstance().getModelRegistry()
-				.getPricesModel(currency);
+				.getNationalEconomyModel(currency).pricesModel;
 		if (pricesModel.getPriceModelsForCurrencies().containsKey(currency)) {
 			Map<Currency, PriceModel> priceModelsForCurrencies = pricesModel
 					.getPriceModelsForCurrencies().get(currency);

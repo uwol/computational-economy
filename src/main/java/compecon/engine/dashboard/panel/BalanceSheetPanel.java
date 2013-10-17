@@ -44,7 +44,8 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 
 		public BalanceSheetTableModel(Currency currency) {
 			Simulation.getInstance().getModelRegistry()
-					.getBalanceSheetsModel(currency).registerListener(this);
+					.getNationalEconomyModel(currency).balanceSheetsModel
+					.registerListener(this);
 		}
 
 		@Override

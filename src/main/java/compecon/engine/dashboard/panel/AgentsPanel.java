@@ -78,9 +78,10 @@ public class AgentsPanel extends AbstractChartsPanel implements IModelListener {
 			Class<? extends Agent> agentType) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getNumberOfAgentsModel(currency)
-				.getNumberOfAgentsTimeSeries(agentType));
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).numberOfAgentsModel
+						.getNumberOfAgentsTimeSeries(agentType));
 
 		JFreeChart chart = ChartFactory
 				.createTimeSeriesChart("# " + agentType.getSimpleName()

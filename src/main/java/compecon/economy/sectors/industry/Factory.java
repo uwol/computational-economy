@@ -255,12 +255,13 @@ public class Factory extends JointStockCompany {
 			PropertyRegister.getInstance()
 					.incrementGoodTypeAmount(Factory.this,
 							Factory.this.producedGoodType, producedOutput);
-			if (getLog().isAgentSelectedByClient(Factory.this))
+			if (getLog().isAgentSelectedByClient(Factory.this)) {
 				getLog().log(
 						Factory.this,
 						ProductionEvent.class,
 						"produced " + MathUtil.round(producedOutput) + " "
 								+ Factory.this.producedGoodType);
+			}
 
 			/*
 			 * deregister production factors from property register
@@ -292,6 +293,8 @@ public class Factory extends JointStockCompany {
 						new SettlementMarketEvent());
 			}
 			Factory.this.pricingBehaviour.registerOfferedAmount(amount);
+			getLog().factory_GoodTypeOffer(Factory.this.primaryCurrency,
+					Factory.this.producedGoodType, amount);
 		}
 	}
 

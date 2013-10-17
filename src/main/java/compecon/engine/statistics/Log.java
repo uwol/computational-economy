@@ -103,7 +103,7 @@ public class Log {
 		modelRegistry.agentDetailModel.agent_onConstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " constructed");
-		modelRegistry.getNumberOfAgentsModel(agent.getPrimaryCurrency())
+		modelRegistry.getNationalEconomyModel(agent.getPrimaryCurrency()).numberOfAgentsModel
 				.agent_onConstruct(agent.getClass());
 	}
 
@@ -111,7 +111,7 @@ public class Log {
 		modelRegistry.agentDetailModel.agent_onDeconstruct(agent);
 		if (isAgentSelectedByClient(agent))
 			log(agent, agent + " deconstructed");
-		modelRegistry.getNumberOfAgentsModel(agent.getPrimaryCurrency())
+		modelRegistry.getNationalEconomyModel(agent.getPrimaryCurrency()).numberOfAgentsModel
 				.agent_onDeconstruct(agent.getClass());
 		if (agentCurrentlyActive == agent)
 			agentCurrentlyActive = null;
@@ -121,23 +121,23 @@ public class Log {
 
 	public void agent_onPublishBalanceSheet(final Agent agent,
 			final BalanceSheet balanceSheet) {
-		modelRegistry.getBalanceSheetsModel(balanceSheet.referenceCurrency)
+		modelRegistry.getNationalEconomyModel(balanceSheet.referenceCurrency).balanceSheetsModel
 				.agent_onPublishBalanceSheet(agent, balanceSheet);
 
-		modelRegistry.getMoneySupplyM0Model(balanceSheet.referenceCurrency)
+		modelRegistry.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM0Model
 				.add(balanceSheet.hardCash);
 		// TODO: what about money in the private banking system? -> M1
 		// definition
-		modelRegistry.getMoneySupplyM1Model(balanceSheet.referenceCurrency)
+		modelRegistry.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM1Model
 				.add(balanceSheet.cashShortTerm + balanceSheet.hardCash);
-		modelRegistry.getMoneySupplyM2Model(balanceSheet.referenceCurrency)
+		modelRegistry.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM2Model
 				.add(balanceSheet.hardCash + balanceSheet.cashShortTerm
 						+ balanceSheet.cashLongTerm);
 	}
 
 	public void agent_CreditUtilization(final Agent agent,
 			final double creditUtilization, final double creditCapacity) {
-		modelRegistry.getCreditUtilizationRateModel(agent.getPrimaryCurrency())
+		modelRegistry.getNationalEconomyModel(agent.getPrimaryCurrency()).creditUtilizationRateModel
 				.add(creditUtilization, creditCapacity);
 	}
 
@@ -147,12 +147,12 @@ public class Log {
 		if (agentCurrentlyActive != null) {
 			assert (agentCurrentlyActive instanceof Household);
 
-			modelRegistry
-					.getConvexFunctionTerminationCauseModel(
-							agentCurrentlyActive.getPrimaryCurrency(),
-							terminationCause).add(budget - moneySpent);
-			modelRegistry.getHouseholdModel(agentCurrentlyActive
-					.getPrimaryCurrency()).budgetModel.add(budget);
+			modelRegistry.getNationalEconomyModel(agentCurrentlyActive
+					.getPrimaryCurrency()).householdsModel.convexFunctionTerminationCauseModels
+					.get(terminationCause).add(budget - moneySpent);
+			modelRegistry.getNationalEconomyModel(agentCurrentlyActive
+					.getPrimaryCurrency()).householdsModel.budgetModel
+					.add(budget);
 		}
 	}
 
@@ -163,21 +163,28 @@ public class Log {
 			final double consumptionAmount, final double savingAmount,
 			final double wage, final double dividend) {
 
-		modelRegistry.getConsumptionModel(currency).add(consumptionAmount);
-		modelRegistry.getIncomeModel(currency).add(income);
-		modelRegistry.getConsumptionRateModel(currency).add(consumptionAmount,
-				income);
-		modelRegistry.getConsumptionIncomeRatioModel(currency).add(
-				consumptionAmount, income);
-		modelRegistry.getSavingModel(currency).add(savingAmount);
-		modelRegistry.getSavingRateModel(currency).add(savingAmount, income);
-		modelRegistry.getWageModel(currency).add(wage);
-		modelRegistry.getDividendModel(currency).add(dividend);
-		modelRegistry.getIncomeSourceModel(currency).add(IncomeSource.WAGE,
-				wage);
-		modelRegistry.getIncomeSourceModel(currency).add(IncomeSource.DIVIDEND,
-				dividend);
-		modelRegistry.getIncomeDistributionModel(currency).add(income);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.consumptionModel
+				.add(consumptionAmount);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.incomeModel
+				.add(income);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.consumptionRateModel
+				.add(consumptionAmount, income);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.consumptionIncomeRatioModel
+				.add(consumptionAmount, income);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.savingModel
+				.add(savingAmount);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.savingRateModel
+				.add(savingAmount, income);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.wageModel
+				.add(wage);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.dividendModel
+				.add(dividend);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.incomeSourceModel
+				.add(IncomeSource.WAGE, wage);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.incomeSourceModel
+				.add(IncomeSource.DIVIDEND, dividend);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
+				.add(income);
 	}
 
 	public void household_onUtility(final Household household,
@@ -209,15 +216,21 @@ public class Log {
 		}
 	}
 
-	public void household_LabourHourCapacity(final Currency currency,
-			final double labourHourCapacity) {
-		modelRegistry.getLabourHourCapacityModel(currency).add(
-				labourHourCapacity);
+	public void household_LabourHourOffer(final Currency currency,
+			final double labourHoursOffered) {
+		modelRegistry.getIndustryModel(currency, GoodType.LABOURHOUR).offerModel
+				.add(labourHoursOffered);
 	}
 
-	public void household_onLabourHourExhaust(final Currency currency,
+	public void household_LabourHourCapacity(final Currency currency,
+			final double labourHourCapacity) {
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.labourHourCapacityModel
+				.add(labourHourCapacity);
+	}
+
+	public void household_LabourHourExhaust(final Currency currency,
 			final double amount) {
-		modelRegistry.getFactoryProductionModel(currency, GoodType.LABOURHOUR).outputModel
+		modelRegistry.getIndustryModel(currency, GoodType.LABOURHOUR).outputModel
 				.add(amount);
 	}
 
@@ -226,12 +239,18 @@ public class Log {
 	public void factory_onProduction(final Factory factory,
 			final Currency currency, final GoodType outputGoodType,
 			final double output, final Map<GoodType, Double> inputs) {
-		modelRegistry.getFactoryProductionModel(currency, outputGoodType).outputModel
+		modelRegistry.getIndustryModel(currency, outputGoodType).outputModel
 				.add(output);
 		for (Entry<GoodType, Double> input : inputs.entrySet()) {
-			modelRegistry.getFactoryProductionModel(currency, outputGoodType).inputModels
+			modelRegistry.getIndustryModel(currency, outputGoodType).inputModels
 					.get(input.getKey()).add(input.getValue());
 		}
+	}
+
+	public void factory_GoodTypeOffer(final Currency currency,
+			final GoodType outputGoodType, final double amountOffered) {
+		modelRegistry.getIndustryModel(currency, outputGoodType).offerModel
+				.add(amountOffered);
 	}
 
 	public void factory_onCalculateProfitMaximizingProductionFactorsIterative(
@@ -240,11 +259,11 @@ public class Log {
 		if (agentCurrentlyActive != null) {
 			assert (agentCurrentlyActive instanceof Factory);
 
-			modelRegistry.getFactoryProductionModel(
+			modelRegistry.getIndustryModel(
 					agentCurrentlyActive.getPrimaryCurrency(),
 					((Factory) agentCurrentlyActive).getProducedGoodType()).convexProductionFunctionTerminationCauseModels
 					.get(terminationCause).add(budget - moneySpent);
-			modelRegistry.getFactoryProductionModel(
+			modelRegistry.getIndustryModel(
 					agentCurrentlyActive.getPrimaryCurrency(),
 					((Factory) agentCurrentlyActive).getProducedGoodType()).budgetModel
 					.add(budget);
@@ -255,10 +274,11 @@ public class Log {
 
 	public void bank_onTransfer(final BankAccount from, final BankAccount to,
 			final Currency currency, final double value, final String subject) {
-		modelRegistry.getMonetaryTransactionsModel(currency).bank_onTransfer(
-				from.getOwner().getClass(), to.getOwner().getClass(), currency,
-				value);
-		modelRegistry.getMoneyCirculationModel(currency).add(value);
+		modelRegistry.getNationalEconomyModel(currency).monetaryTransactionsModel
+				.bank_onTransfer(from.getOwner().getClass(), to.getOwner()
+						.getClass(), currency, value);
+		modelRegistry.getNationalEconomyModel(currency).moneyCirculationModel
+				.add(value);
 		if (isAgentSelectedByClient(from.getOwner())) {
 			String message = " --- " + Currency.formatMoneySum(value) + " "
 					+ currency.getIso4217Code() + " ---> " + to + ": "
@@ -279,12 +299,14 @@ public class Log {
 
 	public void centralBank_KeyInterestRate(final Currency currency,
 			final double keyInterestRate) {
-		modelRegistry.getKeyInterestRateModel(currency).add(keyInterestRate);
+		modelRegistry.getNationalEconomyModel(currency).keyInterestRateModel
+				.add(keyInterestRate);
 	}
 
 	public void centralBank_PriceIndex(final Currency currency,
 			final double priceIndex) {
-		modelRegistry.getPriceIndexModel(currency).add(priceIndex);
+		modelRegistry.getNationalEconomyModel(currency).priceIndexModel
+				.add(priceIndex);
 	}
 
 	// --------
@@ -292,14 +314,15 @@ public class Log {
 	public void market_onTick(final double pricePerUnit,
 			final GoodType goodType, final Currency currency,
 			final double amount) {
-		modelRegistry.getPricesModel(currency).market_onTick(pricePerUnit,
-				goodType, currency, amount);
+		modelRegistry.getNationalEconomyModel(currency).pricesModel
+				.market_onTick(pricePerUnit, goodType, currency, amount);
 	}
 
 	public void market_onTick(final double pricePerUnit,
 			final Currency commodityCurrency, final Currency currency,
 			final double amount) {
-		modelRegistry.getPricesModel(currency).market_onTick(pricePerUnit,
-				commodityCurrency, currency, amount);
+		modelRegistry.getNationalEconomyModel(currency).pricesModel
+				.market_onTick(pricePerUnit, commodityCurrency, currency,
+						amount);
 	}
 }

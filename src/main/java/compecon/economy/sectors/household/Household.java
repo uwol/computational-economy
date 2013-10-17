@@ -328,7 +328,9 @@ public class Household extends Agent implements IShareOwner {
 					Household.this.primaryCurrency,
 					Household.this.labourPower
 							.getNumberOfLabourHoursAvailable());
-			getLog().household_onLabourHourExhaust(
+			getLog().household_LabourHourOffer(Household.this.primaryCurrency,
+					Household.this.pricingBehaviour.getLastOfferedAmount());
+			getLog().household_LabourHourExhaust(
 					Household.this.primaryCurrency,
 					Household.this.pricingBehaviour.getLastSoldAmount());
 

@@ -61,7 +61,7 @@ public abstract class AbstractChartsPanel extends JPanel {
 			@Override
 			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(currency)
+						.getNationalEconomyModel(currency).balanceSheetsModel
 						.getHouseholdNationalAccountsBalanceSheet();
 			}
 		};
@@ -77,7 +77,7 @@ public abstract class AbstractChartsPanel extends JPanel {
 			@Override
 			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(currency)
+						.getNationalEconomyModel(currency).balanceSheetsModel
 						.getFactoryNationalAccountsBalanceSheet(goodType);
 			}
 		};
@@ -92,7 +92,7 @@ public abstract class AbstractChartsPanel extends JPanel {
 			@Override
 			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(currency)
+						.getNationalEconomyModel(currency).balanceSheetsModel
 						.getFactoryNationalAccountsBalanceSheet();
 			}
 		};
@@ -106,7 +106,7 @@ public abstract class AbstractChartsPanel extends JPanel {
 			@Override
 			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(currency)
+						.getNationalEconomyModel(currency).balanceSheetsModel
 						.getCreditBankNationalAccountsBalanceSheet();
 			}
 		};
@@ -121,7 +121,7 @@ public abstract class AbstractChartsPanel extends JPanel {
 			@Override
 			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(currency)
+						.getNationalEconomyModel(currency).balanceSheetsModel
 						.getCentralBankNationalAccountsBalanceSheet();
 			}
 		};
@@ -136,7 +136,7 @@ public abstract class AbstractChartsPanel extends JPanel {
 			@Override
 			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(currency)
+						.getNationalEconomyModel(currency).balanceSheetsModel
 						.getTraderNationalAccountsBalanceSheet();
 			}
 		};
@@ -150,7 +150,7 @@ public abstract class AbstractChartsPanel extends JPanel {
 			@Override
 			protected BalanceSheet getBalanceSheet() {
 				return Simulation.getInstance().getModelRegistry()
-						.getBalanceSheetsModel(currency)
+						.getNationalEconomyModel(currency).balanceSheetsModel
 						.getStateNationalAccountsBalanceSheet();
 			}
 		};

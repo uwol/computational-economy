@@ -84,7 +84,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 			this.add(createBudgetSpendingPanel(currency));
 
 			Simulation.getInstance().getModelRegistry()
-					.getIncomeDistributionModel(currency)
+					.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
 					.registerListener(this);
 			// no registration with the price and market depth model, as they
 			// call listeners synchronously
@@ -101,13 +101,13 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 				XYPlot plot = ((XYPlot) incomeDistributionChart.getPlot());
 				plot.setDataset(Simulation.getInstance().getModelRegistry()
-						.getIncomeDistributionModel(currency)
+						.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
 						.getHistogramDataset());
 
 				plot.clearDomainMarkers();
 				SummaryStatisticalData summaryStatisticalData = Simulation
 						.getInstance().getModelRegistry()
-						.getIncomeDistributionModel(currency)
+						.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
 						.getSummaryStatisticalData();
 				if (summaryStatisticalData.originalValues != null
 						&& summaryStatisticalData.originalValues.length > 0) {
@@ -198,15 +198,17 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 	protected ChartPanel createLabourPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
+		timeSeriesCollection.addSeries(Simulation.getInstance()
+				.getModelRegistry()
+				.getIndustryModel(currency, GoodType.LABOURHOUR).outputModel
+				.getTimeSeries());
 		timeSeriesCollection
-				.addSeries(Simulation
-						.getInstance()
-						.getModelRegistry()
-						.getFactoryProductionModel(currency,
-								GoodType.LABOURHOUR).outputModel
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.labourHourCapacityModel
 						.getTimeSeries());
 		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getLabourHourCapacityModel(currency)
+				.getModelRegistry()
+				.getIndustryModel(currency, GoodType.LABOURHOUR).offerModel
 				.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
@@ -244,13 +246,18 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 	protected ChartPanel createIncomeConsumptionSavingPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getIncomeModel(currency).getTimeSeries());
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getConsumptionModel(currency)
-				.getTimeSeries());
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getSavingModel(currency).getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.incomeModel
+						.getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.consumptionModel
+						.getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.savingModel
+						.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Consumption & Saving", "Date", "Consumption & Saving",
@@ -262,12 +269,14 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 	protected ChartPanel createConsumptionSavingRatePanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getConsumptionRateModel(currency)
-				.getTimeSeries());
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getSavingRateModel(currency)
-				.getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.consumptionRateModel
+						.getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.savingRateModel
+						.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Consumption & Saving Rate", "Date",
@@ -280,10 +289,14 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 	protected ChartPanel createWageDividendPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getWageModel(currency).getTimeSeries());
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getDividendModel(currency).getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.wageModel
+						.getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.dividendModel
+						.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Wage & Dividend", "Date", "Wage & Dividend",
@@ -296,11 +309,12 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (IncomeSource incomeSource : Simulation.getInstance()
-				.getModelRegistry().getIncomeSourceModel(currency)
+				.getModelRegistry().getNationalEconomyModel(currency).householdsModel.incomeSourceModel
 				.getIndexTypes()) {
-			timeSeriesCollection.addSeries(Simulation.getInstance()
-					.getModelRegistry().getIncomeSourceModel(currency)
-					.getTimeSeries(incomeSource));
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).householdsModel.incomeSourceModel
+							.getTimeSeries(incomeSource));
 		}
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Income Source",
@@ -312,7 +326,8 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 	protected JFreeChart createIncomeDistributionPanel(Currency currency) {
 		IntervalXYDataset dataset = Simulation.getInstance().getModelRegistry()
-				.getIncomeDistributionModel(currency).getHistogramDataset();
+				.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
+				.getHistogramDataset();
 		JFreeChart incomeDistributionChart = ChartFactory.createHistogram(
 				"Income Distribution", "Income", "% Households at Income",
 				dataset, PlotOrientation.VERTICAL, true, false, false);
@@ -330,7 +345,8 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 	protected ChartPanel createLorenzCurvePanel(Currency currency) {
 		XYDataset dataset = Simulation.getInstance().getModelRegistry()
-				.getIncomeDistributionModel(currency).getLorenzCurveDataset();
+				.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
+				.getLorenzCurveDataset();
 		JFreeChart lorenzCurveChart = ChartFactory.createXYLineChart(
 				"Lorenz Curve", "% of Households", "% of Income", dataset,
 				PlotOrientation.VERTICAL, true, true, false);
@@ -350,7 +366,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 	protected ChartPanel createMarketDepthPanel(Currency currency) {
 		XYDataset dataset = Simulation.getInstance().getModelRegistry()
-				.getMarketDepthModel(currency)
+				.getNationalEconomyModel(currency).marketDepthModel
 				.getMarketDepthDataset(currency, GoodType.LABOURHOUR);
 		JFreeChart chart = ChartFactory.createXYStepAreaChart(
 				"Market Depth for " + GoodType.LABOURHOUR, "Price", "Volume",
@@ -360,18 +376,19 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 	protected ChartPanel createBudgetSpendingPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-	
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry().getHouseholdModel(currency).budgetModel
-				.getTimeSeries());
+
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.budgetModel
+						.getTimeSeries());
 		for (ConvexFunctionTerminationCause terminationCause : ConvexFunctionTerminationCause
 				.values()) {
 			timeSeriesCollection
 					.addSeries(Simulation.getInstance().getModelRegistry()
-							.getHouseholdModel(currency).convexFunctionTerminationCauseModels
+							.getNationalEconomyModel(currency).householdsModel.convexFunctionTerminationCauseModels
 							.get(terminationCause).getTimeSeries());
 		}
-	
+
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Utility Function Mechanics", "Date", "Budget Spent",
 				(XYDataset) timeSeriesCollection, true, true, false);
@@ -381,7 +398,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 	protected DefaultHighLowDataset getDefaultHighLowDataset(Currency currency) {
 		PricesModel pricesModel = Simulation.getInstance().getModelRegistry()
-				.getPricesModel(currency);
+				.getNationalEconomyModel(currency).pricesModel;
 		if (pricesModel.getPriceModelsForGoodTypes().containsKey(currency)) {
 			Map<GoodType, PriceModel> priceModelsForGoodType = pricesModel
 					.getPriceModelsForGoodTypes().get(currency);

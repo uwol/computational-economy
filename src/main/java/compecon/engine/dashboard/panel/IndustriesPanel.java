@@ -75,7 +75,8 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 				this.add(createBudgetSpendingPanel(currency, goodType));
 
 				Simulation.getInstance().getModelRegistry()
-						.getPricesModel(currency).registerListener(this);
+						.getNationalEconomyModel(currency).pricesModel
+						.registerListener(this);
 				// no registration with the market depth model, as they call
 				// listeners synchronously
 
@@ -174,22 +175,23 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 
 		timeSeriesCollection
 				.addSeries(Simulation.getInstance().getModelRegistry()
-						.getFactoryProductionModel(currency, outputGoodType).outputModel
+						.getIndustryModel(currency, outputGoodType).outputModel
+						.getTimeSeries());
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getIndustryModel(currency, outputGoodType).offerModel
 						.getTimeSeries());
 		for (GoodType inputGoodType : Simulation.getInstance()
-				.getModelRegistry()
-				.getFactoryProductionModel(currency, outputGoodType).inputModels
+				.getModelRegistry().getIndustryModel(currency, outputGoodType).inputModels
 				.keySet()) {
-			timeSeriesCollection
-					.addSeries(Simulation
-							.getInstance()
-							.getModelRegistry()
-							.getFactoryProductionModel(currency, outputGoodType).inputModels
-							.get(inputGoodType).getTimeSeries());
+			timeSeriesCollection.addSeries(Simulation.getInstance()
+					.getModelRegistry()
+					.getIndustryModel(currency, outputGoodType).inputModels
+					.get(inputGoodType).getTimeSeries());
 		}
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				outputGoodType.toString() + " Output", "Date", "Output",
+				outputGoodType.toString() + " Production", "Date", "Output",
 				(XYDataset) timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		chart.addSubtitle(new TextTitle("Inputs: "
@@ -213,7 +215,7 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 	protected ChartPanel createMarketDepthPanel(Currency currency,
 			GoodType goodType) {
 		XYDataset dataset = Simulation.getInstance().getModelRegistry()
-				.getMarketDepthModel(currency)
+				.getNationalEconomyModel(currency).marketDepthModel
 				.getMarketDepthDataset(currency, goodType);
 		JFreeChart chart = ChartFactory.createXYStepAreaChart(
 				"Market Depth for " + goodType, "Price", "Volume", dataset,
@@ -227,15 +229,13 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 
 		timeSeriesCollection
 				.addSeries(Simulation.getInstance().getModelRegistry()
-						.getFactoryProductionModel(currency, outputGoodType).budgetModel
+						.getIndustryModel(currency, outputGoodType).budgetModel
 						.getTimeSeries());
 		for (ConvexProductionFunctionTerminationCause terminationCause : ConvexProductionFunctionTerminationCause
 				.values()) {
 			timeSeriesCollection
-					.addSeries(Simulation
-							.getInstance()
-							.getModelRegistry()
-							.getFactoryProductionModel(currency, outputGoodType).convexProductionFunctionTerminationCauseModels
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getIndustryModel(currency, outputGoodType).convexProductionFunctionTerminationCauseModels
 							.get(terminationCause).getTimeSeries());
 		}
 
@@ -250,7 +250,7 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 	protected DefaultHighLowDataset getDefaultHighLowDataset(Currency currency,
 			GoodType goodType) {
 		PricesModel pricesModel = Simulation.getInstance().getModelRegistry()
-				.getPricesModel(currency);
+				.getNationalEconomyModel(currency).pricesModel;
 		if (pricesModel.getPriceModelsForGoodTypes().containsKey(currency)) {
 			Map<GoodType, PriceModel> priceModelsForGoodType = pricesModel
 					.getPriceModelsForGoodTypes().get(currency);
