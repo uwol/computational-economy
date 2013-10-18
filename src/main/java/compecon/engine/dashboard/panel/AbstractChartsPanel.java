@@ -24,12 +24,17 @@ import java.text.SimpleDateFormat;
 
 import javax.swing.JPanel;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 
+import compecon.economy.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Simulation;
@@ -156,5 +161,25 @@ public abstract class AbstractChartsPanel extends JPanel {
 		};
 		return new BalanceSheetPanel(currency, balanceSheetTableModel,
 				"Balance Sheet for " + currency.getIso4217Code() + " State");
+	}
+
+	protected ChartPanel createPricingBehaviourMechanicsPanel(
+			Currency currency, GoodType goodType) {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		for (PricingBehaviourNewPriceDecisionCause decisionCause : PricingBehaviourNewPriceDecisionCause
+				.values()) {
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).pricingBehaviourModels
+							.get(goodType).pricingBehaviourNewPriceDecisionCauseModels
+							.get(decisionCause).getTimeSeries());
+		}
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(goodType
+				+ " Pricing Behaviour Mechanics", "Date", "Budget Spent",
+				(XYDataset) timeSeriesCollection, true, true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
 	}
 }

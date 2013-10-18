@@ -75,6 +75,8 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 						goodType));
 				this.add(createFactoryBalanceSheetPanel(currency, goodType));
 				this.add(createGoodTypeSupplyPanel(currency, goodType));
+				this.add(createPricingBehaviourMechanicsPanel(currency,
+						goodType));
 
 				Simulation.getInstance().getModelRegistry()
 						.getNationalEconomyModel(currency).pricesModel
@@ -262,6 +264,8 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 							.get(terminationCause).getTimeSeries());
 		}
 
+		// budget is correct here, as the chart illustrates budget
+		// emergence from these causes
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				outputGoodType.toString() + " Production Function Mechanics",
 				"Date", "Budget Spent", (XYDataset) timeSeriesCollection, true,

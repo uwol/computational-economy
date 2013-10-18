@@ -32,6 +32,10 @@ import compecon.engine.util.MathUtil;
  */
 public class PricingBehaviour {
 
+	public enum PricingBehaviourNewPriceDecisionCause {
+		SOLD_NOTHING, SOLD_EVERYTHING, SOLD_LESS, SOLD_MORE, NO_CHANGE;
+	}
+
 	protected final Agent agent;
 
 	protected final double initialPrice;
@@ -108,6 +112,8 @@ public class PricingBehaviour {
 						prefix + "sold nothing -> lowering price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
+			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+					PricingBehaviourNewPriceDecisionCause.SOLD_NOTHING);
 			return newPrice;
 		}
 
@@ -122,6 +128,8 @@ public class PricingBehaviour {
 						prefix + "sold everything -> raising price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
+			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+					PricingBehaviourNewPriceDecisionCause.SOLD_EVERYTHING);
 			return newPrice;
 		}
 
@@ -141,6 +149,8 @@ public class PricingBehaviour {
 								+ ") -> lowering price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
+			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+					PricingBehaviourNewPriceDecisionCause.SOLD_LESS);
 			return newPrice;
 		}
 
@@ -160,6 +170,8 @@ public class PricingBehaviour {
 								+ ") -> raising price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
+			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+					PricingBehaviourNewPriceDecisionCause.SOLD_MORE);
 			return newPrice;
 		}
 
@@ -169,6 +181,8 @@ public class PricingBehaviour {
 					prefix + " newPrice := oldPrice = "
 							+ Currency.formatMoneySum(oldPrice) + " "
 							+ this.denominatedInCurrency.getIso4217Code());
+		getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+				PricingBehaviourNewPriceDecisionCause.NO_CHANGE);
 		return oldPrice;
 	}
 

@@ -22,6 +22,7 @@ package compecon.engine.statistics.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import compecon.economy.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.statistics.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.statistics.model.timeseries.PeriodDataPercentageTimeSeriesModel;
@@ -253,6 +254,12 @@ public class ModelRegistry {
 
 			public final PeriodDataAccumulatorTimeSeriesModel soldModel;
 
+			/**
+			 * Models metering causes of terminations in convex production
+			 * functions, e. g. marginal costs exceeding marginal revenue.
+			 */
+			public final Map<PricingBehaviourNewPriceDecisionCause, PeriodDataAccumulatorTimeSeriesModel> pricingBehaviourNewPriceDecisionCauseModels = new HashMap<PricingBehaviourNewPriceDecisionCause, PeriodDataAccumulatorTimeSeriesModel>();
+
 			public PricingBehaviourModel(final Currency currency,
 					final GoodType goodType) {
 				this.currency = currency;
@@ -263,11 +270,24 @@ public class ModelRegistry {
 				this.soldModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " " + goodType + " sold");
 
+				for (PricingBehaviourNewPriceDecisionCause cause : PricingBehaviourNewPriceDecisionCause
+						.values()) {
+					pricingBehaviourNewPriceDecisionCauseModels.put(
+							cause,
+							new PeriodDataAccumulatorTimeSeriesModel(cause
+									.toString()));
+				}
+
 			}
 
 			public void nextPeriod() {
 				this.offerModel.nextPeriod();
 				this.soldModel.nextPeriod();
+
+				for (PeriodDataAccumulatorTimeSeriesModel periodDataAccumulatorTimeSeriesModel : this.pricingBehaviourNewPriceDecisionCauseModels
+						.values()) {
+					periodDataAccumulatorTimeSeriesModel.nextPeriod();
+				}
 			}
 		}
 

@@ -70,7 +70,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 			this.setLayout(new GridLayout(0, 3));
 
 			this.add(createUtilityPanel(currency));
-			this.add(createUtilityFunctionMechanicsPanel(currency));
+			// this.add(createUtilityFunctionMechanicsPanel(currency));
 			this.add(createIncomeConsumptionSavingPanel(currency));
 			this.add(createConsumptionSavingRatePanel(currency));
 			this.add(createWageDividendPanel(currency));
@@ -80,6 +80,8 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 			this.add(createLorenzCurvePanel(currency));
 			this.add(createHouseholdBalanceSheetPanel(currency));
 			this.add(createLabourHourSupplyPanel(currency));
+			this.add(createPricingBehaviourMechanicsPanel(currency,
+					GoodType.LABOURHOUR));
 
 			Simulation.getInstance().getModelRegistry()
 					.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
@@ -387,6 +389,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 							.get(terminationCause).getTimeSeries());
 		}
 
+		// budget is correct here
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				"Utility Function Mechanics", "Date", "Budget Spent",
 				(XYDataset) timeSeriesCollection, true, true, false);

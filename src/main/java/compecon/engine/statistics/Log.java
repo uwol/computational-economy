@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import compecon.economy.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
@@ -153,6 +154,25 @@ public class Log {
 			modelRegistry.getNationalEconomyModel(agentCurrentlyActive
 					.getPrimaryCurrency()).householdsModel.budgetModel
 					.add(budget);
+		}
+	}
+
+	public void pricingBehaviour_onCalculateNewPrice(final Agent agent,
+			final PricingBehaviourNewPriceDecisionCause decisionCause) {
+		GoodType goodType;
+		if (agent instanceof Household) {
+			goodType = GoodType.LABOURHOUR;
+		} else if (agent instanceof Factory) {
+			goodType = ((Factory) agent).getProducedGoodType();
+		} else {
+			goodType = null;
+		}
+
+		if (goodType != null) {
+			Currency currency = agent.getPrimaryCurrency();
+			modelRegistry.getNationalEconomyModel(currency)
+					.getPricingBehaviourModel(goodType).pricingBehaviourNewPriceDecisionCauseModels
+					.get(decisionCause).add(1.0);
 		}
 	}
 
