@@ -57,6 +57,9 @@ public class Factory extends JointStockCompany {
 	@Transient
 	protected BudgetingBehaviour budgetingBehaviour;
 
+	@Transient
+	protected double lastGoodTypeInventoryAmount;
+
 	@Enumerated(EnumType.STRING)
 	protected GoodType producedGoodType;
 
@@ -153,7 +156,17 @@ public class Factory extends JointStockCompany {
 		@Override
 		public void onEvent() {
 			Factory.this.assureTransactionsBankAccount();
+
+			/*
+			 * simulation mechanics
+			 */
 			Factory.this.pricingBehaviour.nextPeriod();
+
+			getLog().factory_onOfferResult(Factory.this.primaryCurrency,
+					Factory.this.producedGoodType,
+					Factory.this.pricingBehaviour.getLastOfferedAmount(),
+					Factory.this.pricingBehaviour.getLastSoldAmount(),
+					Factory.this.lastGoodTypeInventoryAmount);
 
 			/*
 			 * economic actions
@@ -166,9 +179,16 @@ public class Factory extends JointStockCompany {
 
 			this.buyOptimalProductionFactorsForBudget(budget);
 
-			this.produce();
+			double producedOutput = this.produce();
 
-			this.offerProducedGoodType();
+			this.offerProducedGoodType(producedOutput);
+
+			/*
+			 * memorize inventory for logging in next period
+			 */
+			Factory.this.lastGoodTypeInventoryAmount = PropertyRegister
+					.getInstance().getBalance(Factory.this,
+							Factory.this.producedGoodType);
 		}
 
 		protected void buyOptimalProductionFactorsForBudget(final double budget) {
@@ -233,7 +253,7 @@ public class Factory extends JointStockCompany {
 			return budgetSpent;
 		}
 
-		protected void produce() {
+		protected double produce() {
 			/*
 			 * produce with production factors
 			 */
@@ -271,9 +291,11 @@ public class Factory extends JointStockCompany {
 				PropertyRegister.getInstance().decrementGoodTypeAmount(
 						Factory.this, entry.getKey(), entry.getValue());
 			}
+
+			return producedOutput;
 		}
 
-		protected void offerProducedGoodType() {
+		protected void offerProducedGoodType(double producedOutput) {
 			/*
 			 * refresh prices / offer
 			 */
@@ -281,20 +303,19 @@ public class Factory extends JointStockCompany {
 					.removeAllSellingOffers(Factory.this,
 							Factory.this.primaryCurrency,
 							Factory.this.producedGoodType);
-			double amount = PropertyRegister.getInstance().getBalance(
-					Factory.this, Factory.this.producedGoodType);
+			double amountInInventory = PropertyRegister.getInstance()
+					.getBalance(Factory.this, Factory.this.producedGoodType);
 			double[] prices = Factory.this.pricingBehaviour
 					.getCurrentPriceArray();
 			for (double price : prices) {
 				MarketFactory.getInstance().placeSettlementSellingOffer(
 						Factory.this.producedGoodType, Factory.this,
 						Factory.this.transactionsBankAccount,
-						amount / ((double) prices.length), price,
+						amountInInventory / ((double) prices.length), price,
 						new SettlementMarketEvent());
 			}
-			Factory.this.pricingBehaviour.registerOfferedAmount(amount);
-			getLog().factory_GoodTypeOffer(Factory.this.primaryCurrency,
-					Factory.this.producedGoodType, amount);
+			Factory.this.pricingBehaviour
+					.registerOfferedAmount(amountInInventory);
 		}
 	}
 

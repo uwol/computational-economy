@@ -324,15 +324,13 @@ public class Household extends Agent implements IShareOwner {
 			Household.this.labourPower.refresh();
 			Household.this.pricingBehaviour.nextPeriod();
 
-			getLog().household_LabourHourCapacity(
+			// NumberOfLabourHoursPerDay is identical each period
+			getLog().household_onOfferResult(
 					Household.this.primaryCurrency,
-					Household.this.labourPower
-							.getNumberOfLabourHoursAvailable());
-			getLog().household_LabourHourOffer(Household.this.primaryCurrency,
-					Household.this.pricingBehaviour.getLastOfferedAmount());
-			getLog().household_LabourHourExhaust(
-					Household.this.primaryCurrency,
-					Household.this.pricingBehaviour.getLastSoldAmount());
+					Household.this.pricingBehaviour.getLastOfferedAmount(),
+					Household.this.pricingBehaviour.getLastSoldAmount(),
+					ConfigurationUtil.HouseholdConfig
+							.getNumberOfLabourHoursPerDay());
 
 			/*
 			 * economic actions

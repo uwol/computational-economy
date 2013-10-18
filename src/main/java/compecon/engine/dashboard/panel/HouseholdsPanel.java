@@ -69,10 +69,8 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 			this.setLayout(new GridLayout(0, 3));
 
-			// panelForCurrency.add(AgentsPanel.createAgentNumberPanel(currency,
-			// Household.class));
-			this.add(createLabourPanel(currency));
 			this.add(createUtilityPanel(currency));
+			this.add(createUtilityFunctionMechanicsPanel(currency));
 			this.add(createIncomeConsumptionSavingPanel(currency));
 			this.add(createConsumptionSavingRatePanel(currency));
 			this.add(createWageDividendPanel(currency));
@@ -81,7 +79,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 			this.add(new ChartPanel(incomeDistributionChart));
 			this.add(createLorenzCurvePanel(currency));
 			this.add(createHouseholdBalanceSheetPanel(currency));
-			this.add(createBudgetSpendingPanel(currency));
+			this.add(createLabourHourSupplyPanel(currency));
 
 			Simulation.getInstance().getModelRegistry()
 					.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
@@ -195,24 +193,33 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 		add(jTabbedPaneCurrency, BorderLayout.CENTER);
 	}
 
-	protected ChartPanel createLabourPanel(Currency currency) {
+	protected void addValueMarker(JFreeChart chart, double position,
+			String label) {
+		ValueMarker marker = new ValueMarker(position);
+		marker.setPaint(Color.black);
+		marker.setLabel(label);
+		XYPlot plot = (XYPlot) chart.getPlot();
+		plot.addDomainMarker(marker);
+	}
+
+	protected ChartPanel createLabourHourSupplyPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry()
-				.getIndustryModel(currency, GoodType.LABOURHOUR).outputModel
-				.getTimeSeries());
 		timeSeriesCollection
 				.addSeries(Simulation.getInstance().getModelRegistry()
 						.getNationalEconomyModel(currency).householdsModel.labourHourCapacityModel
 						.getTimeSeries());
 		timeSeriesCollection.addSeries(Simulation.getInstance()
-				.getModelRegistry()
-				.getIndustryModel(currency, GoodType.LABOURHOUR).offerModel
+				.getModelRegistry().getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(GoodType.LABOURHOUR).offerModel
+				.getTimeSeries());
+		timeSeriesCollection.addSeries(Simulation.getInstance()
+				.getModelRegistry().getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(GoodType.LABOURHOUR).soldModel
 				.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				GoodType.LABOURHOUR.toString() + " Output", "Date",
+				GoodType.LABOURHOUR.toString() + " Supply", "Date",
 				"Capacity & Output", (XYDataset) timeSeriesCollection, true,
 				true, false);
 		configureChart(chart);
@@ -224,16 +231,16 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 		timeSeriesCollection
 				.addSeries(Simulation.getInstance().getModelRegistry()
-						.getUtilityModel(currency).utilityOutputModel
+						.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityOutputModel
 						.getTimeSeries());
 
 		for (GoodType inputGoodType : Simulation.getInstance()
-				.getModelRegistry().getUtilityModel(currency).utilityInputModels
+				.getModelRegistry().getNationalEconomyModel(currency).householdsModel.utilityModel.utilityInputModels
 				.keySet()) {
 			timeSeriesCollection
 					.addSeries(Simulation.getInstance().getModelRegistry()
-							.getUtilityModel(currency).utilityInputModels.get(
-							inputGoodType).getTimeSeries());
+							.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityInputModels
+							.get(inputGoodType).getTimeSeries());
 		}
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("Utility",
@@ -334,15 +341,6 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 		return incomeDistributionChart;
 	}
 
-	protected void addValueMarker(JFreeChart chart, double position,
-			String label) {
-		ValueMarker marker = new ValueMarker(position);
-		marker.setPaint(Color.black);
-		marker.setLabel(label);
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.addDomainMarker(marker);
-	}
-
 	protected ChartPanel createLorenzCurvePanel(Currency currency) {
 		XYDataset dataset = Simulation.getInstance().getModelRegistry()
 				.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
@@ -355,8 +353,8 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 
 	protected ChartPanel createPriceTimeSeriesChartPanel(Currency currency) {
 		JFreeChart priceChart = ChartFactory.createCandlestickChart(
-				"Prices for " + GoodType.LABOURHOUR, "Time", "Price in "
-						+ currency.getIso4217Code(),
+				GoodType.LABOURHOUR + " Prices", "Time",
+				"Price in " + currency.getIso4217Code(),
 				this.getDefaultHighLowDataset(currency), false);
 		ChartPanel chartPanel = new ChartPanel(priceChart);
 		chartPanel.setDomainZoomable(true);
@@ -369,12 +367,12 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 				.getNationalEconomyModel(currency).marketDepthModel
 				.getMarketDepthDataset(currency, GoodType.LABOURHOUR);
 		JFreeChart chart = ChartFactory.createXYStepAreaChart(
-				"Market Depth for " + GoodType.LABOURHOUR, "Price", "Volume",
+				GoodType.LABOURHOUR + " Market Depth", "Price", "Volume",
 				dataset, PlotOrientation.VERTICAL, true, true, false);
 		return new ChartPanel(chart);
 	}
 
-	protected ChartPanel createBudgetSpendingPanel(Currency currency) {
+	protected ChartPanel createUtilityFunctionMechanicsPanel(Currency currency) {
 		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		timeSeriesCollection

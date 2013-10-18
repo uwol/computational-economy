@@ -133,7 +133,7 @@ public class BanksPanel extends AbstractChartsPanel implements IModelListener {
 	protected ChartPanel createPriceTimeSeriesChartPanel(Currency currency,
 			Currency commodityCurrency) {
 		JFreeChart priceChart = ChartFactory.createCandlestickChart(
-				"Prices for " + commodityCurrency.getIso4217Code(), "Time",
+				commodityCurrency.getIso4217Code() + " Prices", "Time",
 				"Price in " + currency.getIso4217Code(),
 				this.getDefaultHighLowDataset(currency, commodityCurrency),
 				false);
@@ -149,9 +149,8 @@ public class BanksPanel extends AbstractChartsPanel implements IModelListener {
 				.getNationalEconomyModel(currency).marketDepthModel
 				.getMarketDepthDataset(currency, commodityCurrency);
 		JFreeChart chart = ChartFactory.createXYStepAreaChart(
-				"Market Depth for " + commodityCurrency.getIso4217Code(),
-				"Price", "Volume", dataset, PlotOrientation.VERTICAL, true,
-				true, false);
+				commodityCurrency.getIso4217Code() + " Market Depth", "Price",
+				"Volume", dataset, PlotOrientation.VERTICAL, true, true, false);
 		return new ChartPanel(chart);
 	}
 

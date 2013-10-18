@@ -205,33 +205,29 @@ public class Log {
 
 			this.log(household, log);
 		}
-		modelRegistry.getUtilityModel(currency).utilityOutputModel.add(utility);
+		modelRegistry.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityOutputModel
+				.add(utility);
 		if (!timeSystem.isInitializationPhase()) {
-			modelRegistry.getUtilityModel(currency).totalUtilityOutputModel
+			modelRegistry.getNationalEconomyModel(currency).householdsModel.utilityModel.totalUtilityOutputModel
 					.add(utility);
 		}
 		for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume.entrySet()) {
-			modelRegistry.getUtilityModel(currency).utilityInputModels.get(
-					entry.getKey()).add(entry.getValue());
+			modelRegistry.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityInputModels
+					.get(entry.getKey()).add(entry.getValue());
 		}
 	}
 
-	public void household_LabourHourOffer(final Currency currency,
-			final double labourHoursOffered) {
-		modelRegistry.getIndustryModel(currency, GoodType.LABOURHOUR).offerModel
-				.add(labourHoursOffered);
-	}
-
-	public void household_LabourHourCapacity(final Currency currency,
+	public void household_onOfferResult(final Currency currency,
+			final double labourHoursOffered, final double labourHoursSold,
 			final double labourHourCapacity) {
+		modelRegistry.getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(GoodType.LABOURHOUR).offerModel
+				.add(labourHoursOffered);
+		modelRegistry.getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(GoodType.LABOURHOUR).soldModel
+				.add(labourHoursSold);
 		modelRegistry.getNationalEconomyModel(currency).householdsModel.labourHourCapacityModel
 				.add(labourHourCapacity);
-	}
-
-	public void household_LabourHourExhaust(final Currency currency,
-			final double amount) {
-		modelRegistry.getIndustryModel(currency, GoodType.LABOURHOUR).outputModel
-				.add(amount);
 	}
 
 	// --------
@@ -239,18 +235,26 @@ public class Log {
 	public void factory_onProduction(final Factory factory,
 			final Currency currency, final GoodType outputGoodType,
 			final double output, final Map<GoodType, Double> inputs) {
-		modelRegistry.getIndustryModel(currency, outputGoodType).outputModel
-				.add(output);
+		modelRegistry.getNationalEconomyModel(currency).getIndustryModel(
+				outputGoodType).outputModel.add(output);
 		for (Entry<GoodType, Double> input : inputs.entrySet()) {
-			modelRegistry.getIndustryModel(currency, outputGoodType).inputModels
-					.get(input.getKey()).add(input.getValue());
+			modelRegistry.getNationalEconomyModel(currency).getIndustryModel(
+					outputGoodType).inputModels.get(input.getKey()).add(
+					input.getValue());
 		}
 	}
 
-	public void factory_GoodTypeOffer(final Currency currency,
-			final GoodType outputGoodType, final double amountOffered) {
-		modelRegistry.getIndustryModel(currency, outputGoodType).offerModel
+	public void factory_onOfferResult(final Currency currency,
+			final GoodType outputGoodType, final double amountOffered,
+			final double amountSold, final double inventory) {
+		modelRegistry.getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(outputGoodType).offerModel
 				.add(amountOffered);
+		modelRegistry.getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(outputGoodType).soldModel
+				.add(amountSold);
+		modelRegistry.getNationalEconomyModel(currency).getIndustryModel(
+				outputGoodType).inventoryModel.add(inventory);
 	}
 
 	public void factory_onCalculateProfitMaximizingProductionFactorsIterative(
@@ -259,12 +263,11 @@ public class Log {
 		if (agentCurrentlyActive != null) {
 			assert (agentCurrentlyActive instanceof Factory);
 
-			modelRegistry.getIndustryModel(
-					agentCurrentlyActive.getPrimaryCurrency(),
+			Currency currency = agentCurrentlyActive.getPrimaryCurrency();
+			modelRegistry.getNationalEconomyModel(currency).getIndustryModel(
 					((Factory) agentCurrentlyActive).getProducedGoodType()).convexProductionFunctionTerminationCauseModels
 					.get(terminationCause).add(budget - moneySpent);
-			modelRegistry.getIndustryModel(
-					agentCurrentlyActive.getPrimaryCurrency(),
+			modelRegistry.getNationalEconomyModel(currency).getIndustryModel(
 					((Factory) agentCurrentlyActive).getProducedGoodType()).budgetModel
 					.add(budget);
 		}

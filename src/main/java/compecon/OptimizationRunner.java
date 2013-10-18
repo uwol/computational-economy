@@ -63,7 +63,7 @@ public class OptimizationRunner {
 						new GregorianCalendar(2001, 7, 1).getTime());
 				simulation.run();
 				double totalUtility = simulation.getModelRegistry()
-						.getUtilityModel(Currency.EURO).totalUtilityOutputModel
+						.getNationalEconomyModel(Currency.EURO).householdsModel.utilityModel.totalUtilityOutputModel
 						.getValue();
 
 				System.out
