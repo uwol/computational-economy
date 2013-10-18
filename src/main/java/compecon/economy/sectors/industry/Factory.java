@@ -57,9 +57,6 @@ public class Factory extends JointStockCompany {
 	@Transient
 	protected BudgetingBehaviour budgetingBehaviour;
 
-	@Transient
-	protected double lastGoodTypeInventoryAmount;
-
 	@Enumerated(EnumType.STRING)
 	protected GoodType producedGoodType;
 
@@ -157,16 +154,14 @@ public class Factory extends JointStockCompany {
 		public void onEvent() {
 			Factory.this.assureTransactionsBankAccount();
 
+			getLog().factory_AmountSold(Factory.this.primaryCurrency,
+					Factory.this.producedGoodType,
+					Factory.this.pricingBehaviour.getLastSoldAmount());
+
 			/*
 			 * simulation mechanics
 			 */
 			Factory.this.pricingBehaviour.nextPeriod();
-
-			getLog().factory_onOfferResult(Factory.this.primaryCurrency,
-					Factory.this.producedGoodType,
-					Factory.this.pricingBehaviour.getLastOfferedAmount(),
-					Factory.this.pricingBehaviour.getLastSoldAmount(),
-					Factory.this.lastGoodTypeInventoryAmount);
 
 			/*
 			 * economic actions
@@ -182,13 +177,6 @@ public class Factory extends JointStockCompany {
 			double producedOutput = this.produce();
 
 			this.offerProducedGoodType(producedOutput);
-
-			/*
-			 * memorize inventory for logging in next period
-			 */
-			Factory.this.lastGoodTypeInventoryAmount = PropertyRegister
-					.getInstance().getBalance(Factory.this,
-							Factory.this.producedGoodType);
 		}
 
 		protected void buyOptimalProductionFactorsForBudget(final double budget) {
@@ -268,13 +256,14 @@ public class Factory extends JointStockCompany {
 
 			double producedOutput = Factory.this.productionFunction
 					.calculateOutput(productionFactorsOwned);
+			PropertyRegister.getInstance()
+					.incrementGoodTypeAmount(Factory.this,
+							Factory.this.producedGoodType, producedOutput);
+
 			getLog().factory_onProduction(Factory.this,
 					Factory.this.primaryCurrency,
 					Factory.this.producedGoodType, producedOutput,
 					productionFactorsOwned);
-			PropertyRegister.getInstance()
-					.incrementGoodTypeAmount(Factory.this,
-							Factory.this.producedGoodType, producedOutput);
 			if (getLog().isAgentSelectedByClient(Factory.this)) {
 				getLog().log(
 						Factory.this,
@@ -316,6 +305,10 @@ public class Factory extends JointStockCompany {
 			}
 			Factory.this.pricingBehaviour
 					.registerOfferedAmount(amountInInventory);
+
+			getLog().factory_onOfferGoodType(Factory.this.primaryCurrency,
+					Factory.this.producedGoodType, amountInInventory,
+					amountInInventory);
 		}
 	}
 

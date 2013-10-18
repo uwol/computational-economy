@@ -237,15 +237,18 @@ public class Log {
 		}
 	}
 
-	public void household_onOfferResult(final Currency currency,
-			final double labourHoursOffered, final double labourHoursSold,
-			final double labourHourCapacity) {
-		modelRegistry.getNationalEconomyModel(currency)
-				.getPricingBehaviourModel(GoodType.LABOURHOUR).offerModel
-				.add(labourHoursOffered);
+	public void household_AmountSold(final Currency currency,
+			final double labourHoursSold) {
 		modelRegistry.getNationalEconomyModel(currency)
 				.getPricingBehaviourModel(GoodType.LABOURHOUR).soldModel
 				.add(labourHoursSold);
+	}
+
+	public void household_onOfferResult(final Currency currency,
+			final double labourHoursOffered, final double labourHourCapacity) {
+		modelRegistry.getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(GoodType.LABOURHOUR).offerModel
+				.add(labourHoursOffered);
 		modelRegistry.getNationalEconomyModel(currency).householdsModel.labourHourCapacityModel
 				.add(labourHourCapacity);
 	}
@@ -264,15 +267,19 @@ public class Log {
 		}
 	}
 
-	public void factory_onOfferResult(final Currency currency,
-			final GoodType outputGoodType, final double amountOffered,
-			final double amountSold, final double inventory) {
-		modelRegistry.getNationalEconomyModel(currency)
-				.getPricingBehaviourModel(outputGoodType).offerModel
-				.add(amountOffered);
+	public void factory_AmountSold(final Currency currency,
+			final GoodType outputGoodType, final double amountSold) {
 		modelRegistry.getNationalEconomyModel(currency)
 				.getPricingBehaviourModel(outputGoodType).soldModel
 				.add(amountSold);
+	}
+
+	public void factory_onOfferGoodType(final Currency currency,
+			final GoodType outputGoodType, final double amountOffered,
+			final double inventory) {
+		modelRegistry.getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(outputGoodType).offerModel
+				.add(amountOffered);
 		modelRegistry.getNationalEconomyModel(currency).getIndustryModel(
 				outputGoodType).inventoryModel.add(inventory);
 	}

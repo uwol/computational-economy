@@ -317,20 +317,16 @@ public class Household extends Agent implements IShareOwner {
 				return;
 			}
 
+			// NumberOfLabourHoursPerDay is identical each period
+			getLog().household_AmountSold(Household.this.primaryCurrency,
+					Household.this.pricingBehaviour.getLastSoldAmount());
+
 			/*
 			 * simulation mechanics
 			 */
 			Household.this.ageInDays++;
 			Household.this.labourPower.refresh();
 			Household.this.pricingBehaviour.nextPeriod();
-
-			// NumberOfLabourHoursPerDay is identical each period
-			getLog().household_onOfferResult(
-					Household.this.primaryCurrency,
-					Household.this.pricingBehaviour.getLastOfferedAmount(),
-					Household.this.pricingBehaviour.getLastSoldAmount(),
-					ConfigurationUtil.HouseholdConfig
-							.getNumberOfLabourHoursPerDay());
 
 			/*
 			 * economic actions
@@ -393,10 +389,12 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * potentially, call destructor
 			 */
-			if (Household.this.daysWithoutUtility > Household.this.DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR)
+			if (Household.this.daysWithoutUtility > Household.this.DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR) {
 				if (!Simulation.getInstance().getTimeSystem()
-						.isInitializationPhase())
+						.isInitializationPhase()) {
 					Household.this.deconstruct();
+				}
+			}
 		}
 
 		protected double saveMoney() {
@@ -606,6 +604,12 @@ public class Household extends Agent implements IShareOwner {
 				}
 				Household.this.pricingBehaviour
 						.registerOfferedAmount(amountOfLabourHours);
+
+				getLog().household_onOfferResult(
+						Household.this.primaryCurrency,
+						Household.this.pricingBehaviour.getLastOfferedAmount(),
+						ConfigurationUtil.HouseholdConfig
+								.getNumberOfLabourHoursPerDay());
 			}
 		}
 

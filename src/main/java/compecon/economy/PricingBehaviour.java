@@ -103,8 +103,8 @@ public class PricingBehaviour {
 				+ MathUtil.round(soldAmount_InPeriods[1]) + " units -> ";
 
 		// nothing sold?
-		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0)
-				&& MathUtil.lesserEqual(this.soldAmount_InPeriods[1], 0)) {
+		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
+				&& MathUtil.lesserEqual(this.soldAmount_InPeriods[1], 0.0)) {
 			double newPrice = calculateLowerPrice(oldPrice);
 			if (getLog().isAgentSelectedByClient(this.agent))
 				getLog().log(
@@ -118,7 +118,7 @@ public class PricingBehaviour {
 		}
 
 		// everything sold?
-		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0)
+		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
 				&& MathUtil.equal(this.soldAmount_InPeriods[1],
 						this.offeredAmount_InPeriods[1])) {
 			double newPrice = calculateHigherPrice(oldPrice);
@@ -133,13 +133,22 @@ public class PricingBehaviour {
 			return newPrice;
 		}
 
-		// sold less?
-		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0)
-				&& MathUtil.greater(this.soldAmount_InPeriods[2], 0)
+		// sold less?:
+		if (
+		// something was offered last period
+		MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
+		// and something was sold in the penultimate period
+				&& MathUtil.greater(this.soldAmount_InPeriods[2], 0.0)
+				// and there was sold less in last period than in the
+				// penultimate period
 				&& MathUtil.lesser(this.soldAmount_InPeriods[1],
 						this.soldAmount_InPeriods[2])
-				&& (MathUtil.greaterEqual(this.offeredAmount_InPeriods[1],
-						this.soldAmount_InPeriods[2]))) {
+				// and there was offered more in last period than sold in
+				// penultimate period -> there was a chance in the last period
+				// to outperform the sold amount in the penultimate
+				// period
+				&& MathUtil.greaterEqual(this.offeredAmount_InPeriods[1],
+						this.soldAmount_InPeriods[2])) {
 			double newPrice = calculateLowerPrice(oldPrice);
 			if (getLog().isAgentSelectedByClient(this.agent))
 				getLog().log(
@@ -155,12 +164,21 @@ public class PricingBehaviour {
 		}
 
 		// sold more?
-		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0)
-				&& MathUtil.greater(this.soldAmount_InPeriods[2], 0)
+		if (
+		// something was offered last period
+		MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
+		// and something was sold in the penultimate period
+				&& MathUtil.greater(this.soldAmount_InPeriods[2], 0.0)
+				// and there was sold more in last period than in the
+				// penultimate period
 				&& MathUtil.greater(this.soldAmount_InPeriods[1],
 						this.soldAmount_InPeriods[2])
-				&& (MathUtil.greaterEqual(this.offeredAmount_InPeriods[2],
-						this.soldAmount_InPeriods[1]))) {
+				// and there was offered more in the penultimate period than
+				// sold in the last period -> there was a chance in the
+				// penultimate period to outperform the sold amount in the last
+				// period
+				&& MathUtil.greaterEqual(this.offeredAmount_InPeriods[2],
+						this.soldAmount_InPeriods[1])) {
 			double newPrice = calculateHigherPrice(oldPrice);
 			if (getLog().isAgentSelectedByClient(this.agent))
 				getLog().log(

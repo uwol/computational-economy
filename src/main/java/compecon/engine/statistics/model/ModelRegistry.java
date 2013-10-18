@@ -268,7 +268,8 @@ public class ModelRegistry {
 				this.offerModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " " + goodType + " offered");
 				this.soldModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " " + goodType + " sold");
+						currency.getIso4217Code() + " " + goodType
+								+ " sold (+1 period)");
 
 				for (PricingBehaviourNewPriceDecisionCause cause : PricingBehaviourNewPriceDecisionCause
 						.values()) {
