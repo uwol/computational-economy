@@ -144,9 +144,9 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 			this.add(createNationalBalanceSheetPanel(currency));
 			this.add(createHouseholdBalanceSheetPanel(currency));
 			this.add(createFactoryBalanceSheetPanel(currency));
+			this.add(createTraderBalanceSheetPanel(currency));
 			this.add(createCreditBankBalanceSheetPanel(currency));
 			this.add(createCentralBankBalanceSheetPanel(currency));
-			this.add(createTraderBalanceSheetPanel(currency));
 			this.add(createStateBalanceSheetPanel(currency));
 
 			// panel for monetary transactions

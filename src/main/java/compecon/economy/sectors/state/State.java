@@ -19,6 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.sectors.state;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -90,6 +91,20 @@ public class State extends Agent {
 				.addEvent(offerBondsEvent, -1, MonthType.EVERY, DayType.EVERY,
 						HourType.HOUR_12);
 
+		/*
+		 * buy and consume goods: has to happen every hour, so that not all
+		 * money is spent on one distinct hour a day! else this would lead to
+		 * significant distortions on markets, as the savings of the whole
+		 * economy flow through the state via state bonds
+		 */
+		ITimeSystemEvent buyAndConsumeGoodsEvent = new BuyAndConsumeGoodsEvent();
+		this.timeSystemEvents.add(buyAndConsumeGoodsEvent);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEventEvery(buyAndConsumeGoodsEvent, -1, MonthType.EVERY,
+						DayType.EVERY, this.BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
+
 		double initialInterestRate = AgentFactory.getInstanceCentralBank(
 				primaryCurrency).getEffectiveKeyInterestRate() + 0.02;
 		this.pricingBehaviour = new PricingBehaviour(this, FixedRateBond.class,
@@ -139,6 +154,35 @@ public class State extends Agent {
 		}
 	}
 
+	@Transient
+	public FixedRateBond obtainBond(final double faceValue,
+			final BankAccount buyerBankAccount) {
+		FixedRateBond fixedRateBond = issueNewFixedRateBond(faceValue);
+
+		buyerBankAccount.getManagingBank().transferMoney(buyerBankAccount,
+				this.transactionsBankAccount, faceValue,
+				"payment for " + fixedRateBond);
+		PropertyRegister.getInstance().transferProperty(State.this,
+				buyerBankAccount.getOwner(), fixedRateBond);
+		fixedRateBond.setOwnerBankAccount(buyerBankAccount);
+
+		return fixedRateBond;
+	}
+
+	@Transient
+	private FixedRateBond issueNewFixedRateBond(final double faceValue) {
+		State.this.assureTransactionsBankAccount();
+
+		// FIXME: price := State.this.pricingBehaviour.getCurrentPrice(); price
+		// diagram
+		FixedRateBond bond = PropertyFactory.newInstanceFixedRateBond(
+				State.this, State.this.primaryCurrency,
+				State.this.transactionsBankAccount,
+				State.this.transactionsBankAccount, faceValue, 0.0);
+		State.this.issuedBonds.add(bond);
+		return bond;
+	}
+
 	protected class SettlementMarketEvent implements ISettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
@@ -170,12 +214,18 @@ public class State extends Agent {
 			// --------------
 
 			// list issued bonds on balance sheet
-			Set<Bond> bondsToDelete = new HashSet<Bond>();
+			for (Bond bond : State.this.issuedBonds) {
+				if (!bond.isDeconstructed()
+						&& !bond.getOwner().equals(State.this)) {
+					balanceSheet.financialLiabilities += bond.getFaceValue();
+				}
+			}
+
+			// remove deconstructed bonds
+			final Set<Bond> bondsToDelete = new HashSet<Bond>();
 			for (Bond bond : State.this.issuedBonds) {
 				if (bond.isDeconstructed()) {
 					bondsToDelete.add(bond);
-				} else if (!bond.getOwner().equals(State.this)) {
-					balanceSheet.financialLiabilities += bond.getFaceValue();
 				}
 			}
 			State.this.issuedBonds.removeAll(bondsToDelete);
@@ -188,10 +238,14 @@ public class State extends Agent {
 	public class OfferBondsEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			State.this.assureTransactionsBankAccount();
-
 			State.this.pricingBehaviour.nextPeriod();
 
+			destroyUnsoldBonds();
+			issueNewBonds();
+			offerBonds();
+		}
+
+		private void destroyUnsoldBonds() {
 			/*
 			 * destroy bonds, that have been offered, but not sold in last
 			 * periods
@@ -199,37 +253,40 @@ public class State extends Agent {
 			MarketFactory.getInstance().removeAllSellingOffers(State.this,
 					State.this.primaryCurrency, FixedRateBond.class);
 
-			// bonds that have not been sold by definition have to be issued AND
-			// owned by this agent
+			// by definition bonds that have not been sold have owned AND to be
+			// issued by this agent
 			for (Property property : PropertyRegister.getInstance()
 					.getProperties(State.this, FixedRateBond.class)) {
+				assert (property instanceof FixedRateBond);
 				FixedRateBond bond = (FixedRateBond) property;
+
 				assert (bond.getOwner() == State.this);
+				assert (bond.getOwnerBankAccount().getOwner() == State.this);
+
+				// if the bond is issued by this state -> it is an unsold bond
 				if (bond.getIssuerBankAccount().getOwner() == State.this) {
 					bond.deconstruct();
-					State.this.issuedBonds.remove(bond);
-					PropertyFactory.deleteProperty(bond);
 				}
 			}
+		}
 
+		private void issueNewBonds() {
 			/*
 			 * issue new bonds
 			 */
-			int numberOfBondsToIsue = 10;
-			double totalFaceValueToBeOffered = Math
-					.max(100, (int) State.this.pricingBehaviour
-							.getLastSoldAmount() * 10.0);
-			double faceValuePerBond = totalFaceValueToBeOffered
-					/ (double) numberOfBondsToIsue;
+			final int numberOfBondsToIssue = 10;
+			final double totalFaceValueToBeOffered = Math.max(100,
+					(int) State.this.pricingBehaviour.getLastSoldAmount()
+							* (double) numberOfBondsToIssue);
+			final double faceValuePerBond = totalFaceValueToBeOffered
+					/ (double) numberOfBondsToIssue;
 
-			for (int i = 0; i < numberOfBondsToIsue; i++) {
-				FixedRateBond bond = PropertyFactory.newInstanceFixedRateBond(
-						State.this, State.this.primaryCurrency,
-						State.this.transactionsBankAccount, faceValuePerBond,
-						State.this.pricingBehaviour.getCurrentPrice());
-				State.this.issuedBonds.add(bond);
+			for (int i = 0; i < numberOfBondsToIssue; i++) {
+				State.this.issueNewFixedRateBond(faceValuePerBond);
 			}
+		}
 
+		private void offerBonds() {
 			/*
 			 * offer bonds
 			 */
@@ -241,16 +298,31 @@ public class State extends Agent {
 						((FixedRateBond) property).getFaceValue(),
 						new SettlementMarketEvent());
 			}
+		}
+	}
+
+	public class BuyAndConsumeGoodsEvent implements ITimeSystemEvent {
+
+		@Override
+		public void onEvent() {
+			buyAndConsumeGoods();
+		}
+
+		@Transient
+		private double buyAndConsumeGoods() {
+			State.this.assureTransactionsBankAccount();
 
 			/*
-			 * buy goods for sold bonds -> no hoarding of money
+			 * buy goods for sold bonds -> prevent hoarding of money
 			 */
 			Map<GoodType, IPriceFunction> priceFunctions = MarketFactory
-					.getInstance().getFixedPriceFunctions(
+					.getInstance().getMarketPriceFunctions(
 							State.this.transactionsBankAccount.getCurrency(),
 							State.this.utilityFunction.getInputGoodTypes());
-			double budget = State.this.transactionsBankAccount.getBalance();
-			if (MathUtil.greater(budget, 0)) {
+			final double budget = State.this.transactionsBankAccount
+					.getBalance();
+			if (MathUtil.greater(budget, 0.0)) {
+				getLog().setAgentCurrentlyActive(State.this);
 				Map<GoodType, Double> optimalBundleOfGoods = State.this.utilityFunction
 						.calculateUtilityMaximizingInputs(priceFunctions,
 								budget);
@@ -268,10 +340,21 @@ public class State extends Agent {
 			/*
 			 * consume bought goods
 			 */
-			for (GoodType goodType : GoodType.values()) {
-				PropertyRegister.getInstance().resetGoodTypeAmount(State.this,
-						goodType);
+			final Map<GoodType, Double> effectiveConsumptionGoodsBundle = new HashMap<GoodType, Double>();
+			for (GoodType goodType : State.this.utilityFunction
+					.getInputGoodTypes()) {
+				double amountToConsume = PropertyRegister.getInstance()
+						.getBalance(State.this, goodType);
+				effectiveConsumptionGoodsBundle.put(goodType, amountToConsume);
+				PropertyRegister.getInstance().decrementGoodTypeAmount(
+						State.this, goodType, amountToConsume);
 			}
+			double utility = State.this.utilityFunction
+					.calculateUtility(effectiveConsumptionGoodsBundle);
+			getLog().state_onUtility(State.this,
+					State.this.transactionsBankAccount.getCurrency(),
+					effectiveConsumptionGoodsBundle, utility);
+			return utility;
 		}
 	}
 }

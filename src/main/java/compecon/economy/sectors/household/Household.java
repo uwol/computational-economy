@@ -36,6 +36,7 @@ import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.Property;
@@ -226,7 +227,7 @@ public class Household extends Agent implements IShareOwner {
 		if (this.savingsBankAccount == null) {
 			this.savingsBankAccount = this.primaryBank.openBankAccount(this,
 					this.primaryCurrency, false, "savings account",
-					BankAccountType.SAVINGS);
+					BankAccountType.LONG_TERM, EconomicSphere.REAL_ECONOMY);
 		}
 	}
 
@@ -291,11 +292,13 @@ public class Household extends Agent implements IShareOwner {
 
 			// bank deposits
 			if (Household.this.savingsBankAccount.getBalance() > 0.0) {
-				balanceSheet.cashLongTerm += Household.this.savingsBankAccount
-						.getBalance();
+				balanceSheet.addCash(
+						Household.this.savingsBankAccount.getBankAccountType(),
+						Household.this.savingsBankAccount.getBalance());
 			} else {
-				balanceSheet.loans += -1.0
-						* Household.this.savingsBankAccount.getBalance();
+				balanceSheet.addLoan(
+						Household.this.savingsBankAccount.getBankAccountType(),
+						-1.0 * Household.this.savingsBankAccount.getBalance());
 			}
 
 			getLog().agent_onPublishBalanceSheet(Household.this, balanceSheet);
@@ -401,25 +404,33 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * calculate budget
 			 */
-			double keyInterestRate = AgentFactory.getInstanceCentralBank(
+			final double keyInterestRate = AgentFactory.getInstanceCentralBank(
 					Household.this.primaryCurrency)
 					.getEffectiveKeyInterestRate();
-			double income = Household.this.transactionsBankAccount.getBalance();
-			Map<Period, Double> intertemporalConsumptionPlan = Household.this.intertemporalConsumptionFunction
-					.calculateUtilityMaximizingConsumptionPlan(
-							income,
-							Household.this.savingsBankAccount.getBalance(),
-							keyInterestRate,
-							Household.this.ageInDays,
-							ConfigurationUtil.HouseholdConfig
-									.getRetirementAgeInDays(),
-							ConfigurationUtil.HouseholdConfig
-									.getLifespanInDays()
-									- Household.this.ageInDays);
-			double budget = intertemporalConsumptionPlan.get(Period.CURRENT);
+			final double income = Household.this.transactionsBankAccount
+					.getBalance();
 
-			double moneySumToSave = income - budget;
-			double moneySumToConsume = budget;
+			final double budget;
+			// do households save for retirement?
+			if (ConfigurationUtil.HouseholdConfig.getRetirementSaving()) {
+				Map<Period, Double> intertemporalConsumptionPlan = Household.this.intertemporalConsumptionFunction
+						.calculateUtilityMaximizingConsumptionPlan(
+								income,
+								Household.this.savingsBankAccount.getBalance(),
+								keyInterestRate,
+								Household.this.ageInDays,
+								ConfigurationUtil.HouseholdConfig
+										.getRetirementAgeInDays(),
+								ConfigurationUtil.HouseholdConfig
+										.getLifespanInDays()
+										- Household.this.ageInDays);
+				budget = intertemporalConsumptionPlan.get(Period.CURRENT);
+			} else {
+				budget = income;
+			}
+
+			final double moneySumToSave = income - budget;
+			final double moneySumToConsume = budget;
 
 			/*
 			 * logging
@@ -477,7 +488,7 @@ public class Household extends Agent implements IShareOwner {
 									+ Currency.formatMoneySum(-1.0
 											* moneySumToSave)
 									+ " "
-									+ Household.this.transactionsBankAccount
+									+ Household.this.savingsBankAccount
 											.getCurrency().getIso4217Code());
 			}
 
@@ -553,7 +564,7 @@ public class Household extends Agent implements IShareOwner {
 			/*
 			 * consume goods
 			 */
-			Map<GoodType, Double> effectiveConsumptionGoodsBundle = new HashMap<GoodType, Double>();
+			final Map<GoodType, Double> effectiveConsumptionGoodsBundle = new HashMap<GoodType, Double>();
 			for (GoodType goodType : Household.this.utilityFunction
 					.getInputGoodTypes()) {
 				double balance = PropertyRegister.getInstance().getBalance(

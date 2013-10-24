@@ -40,7 +40,11 @@ import compecon.economy.sectors.Agent;
 public class BankAccount {
 
 	public enum BankAccountType {
-		GIRO, SAVINGS;
+		SHORT_TERM, LONG_TERM, CENTRAL_BANK_TRANSACTION, CENTRAL_BANK_MONEY_RESERVES;
+	}
+
+	public enum EconomicSphere {
+		REAL_ECONOMY, PAPER_ECONOMY
 	}
 
 	@Column(name = "balance")
@@ -53,6 +57,9 @@ public class BankAccount {
 	@Column(name = "currency")
 	@Index(name = "IDX_BA_CURRENCY")
 	protected Currency currency;
+
+	@Enumerated(EnumType.STRING)
+	protected EconomicSphere economicSphere;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -94,6 +101,10 @@ public class BankAccount {
 		return id;
 	}
 
+	public EconomicSphere getEconomicSphere() {
+		return this.economicSphere;
+	}
+
 	public Bank getManagingBank() {
 		return this.managingBank;
 	}
@@ -120,6 +131,10 @@ public class BankAccount {
 
 	public void setCurrency(Currency currency) {
 		this.currency = currency;
+	}
+
+	public void setEconomicSphere(EconomicSphere economicSphere) {
+		this.economicSphere = economicSphere;
 	}
 
 	public void setId(int id) {

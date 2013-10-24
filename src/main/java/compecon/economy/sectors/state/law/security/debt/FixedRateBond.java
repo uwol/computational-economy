@@ -23,9 +23,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
-import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.engine.Simulation;
 import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.HourType;
@@ -87,17 +85,14 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 	public class TransferCouponEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			Agent owner = PropertyRegister.getInstance().getOwner(
-					FixedRateBond.this);
-			double amount = FixedRateBond.this.coupon
+			double couponValue = FixedRateBond.this.coupon
 					* FixedRateBond.this.faceValue;
-			if (amount > 0) {
+			if (couponValue > 0) {
+				assertValidOwner();
+
 				FixedRateBond.this.issuerBankAccount.getManagingBank()
-						.transferMoney(
-								FixedRateBond.this.issuerBankAccount,
-								owner.getTransactionsBankAccount(),
-								FixedRateBond.this.coupon
-										* FixedRateBond.this.faceValue,
+						.transferMoney(FixedRateBond.this.issuerBankAccount,
+								FixedRateBond.this.ownerBankAccount, couponValue,
 								"bond coupon");
 			}
 		}

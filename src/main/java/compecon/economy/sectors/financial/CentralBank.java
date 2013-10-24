@@ -26,9 +26,15 @@ import java.util.Map.Entry;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Index;
+
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
 import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
@@ -59,6 +65,12 @@ public class CentralBank extends Bank {
 	protected StatisticalOffice statisticalOffice;
 
 	// state
+
+	@OneToOne
+	@JoinColumn(name = "centralBankMoneyBankAccount_id")
+	@Index(name = "IDX_A_CENTRALBANKMONEYBANKACCOUNT")
+	// bank account for central bank money
+	protected BankAccount centralBankMoneyBankAccount;
 
 	@Column(name = "effectiveKeyInterestRate")
 	protected double effectiveKeyInterestRate = 0.1;
@@ -171,7 +183,28 @@ public class CentralBank extends Bank {
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency, true, "transactions account",
-					BankAccountType.GIRO);
+					BankAccountType.SHORT_TERM, EconomicSphere.REAL_ECONOMY);
+		}
+	}
+
+	@Transient
+	public void assureCentralBankMoneyAccount() {
+		if (this.isDeconstructed)
+			return;
+
+		this.assureSelfCustomerAccount();
+
+		if (this.centralBankMoneyBankAccount == null) {
+			/*
+			 * initialize the banks own bank account and open a customer account
+			 * at this new bank, so that this bank can transfer money from its
+			 * own bank account
+			 */
+			this.centralBankMoneyBankAccount = this.primaryBank
+					.openBankAccount(this, this.primaryCurrency, true,
+							"central bank money account",
+							BankAccountType.CENTRAL_BANK_MONEY_RESERVES,
+							EconomicSphere.PAPER_ECONOMY);
 		}
 	}
 
@@ -183,6 +216,53 @@ public class CentralBank extends Bank {
 	/*
 	 * business logic
 	 */
+
+	@Transient
+	public void closeCustomerAccount(Agent customer) {
+		this.assureCentralBankMoneyAccount();
+
+		// each customer bank account ...
+		for (BankAccount bankAccount : DAOFactory.getBankAccountDAO().findAll(
+				this, customer)) {
+			// on closing has to be evened up to 0, so that no money is
+			// lost in the monetary system
+			switch (bankAccount.getEconomicSphere()) {
+			case REAL_ECONOMY:
+				if (this.transactionsBankAccount != null
+						&& bankAccount != this.transactionsBankAccount) {
+					if (bankAccount.getBalance() >= 0) {
+						this.transferMoney(bankAccount,
+								this.transactionsBankAccount,
+								bankAccount.getBalance(),
+								"evening-up of closed bank account", true);
+					} else {
+						this.transferMoney(this.transactionsBankAccount,
+								bankAccount, -1.0 * bankAccount.getBalance(),
+								"evening-up of closed bank account", true);
+					}
+				}
+				break;
+			case PAPER_ECONOMY:
+				if (this.centralBankMoneyBankAccount != null
+						&& bankAccount != this.centralBankMoneyBankAccount) {
+
+					if (bankAccount.getBalance() >= 0) {
+						this.transferMoney(bankAccount,
+								this.centralBankMoneyBankAccount,
+								bankAccount.getBalance(),
+								"evening-up of closed bank account", true);
+					} else {
+						this.transferMoney(this.centralBankMoneyBankAccount,
+								bankAccount, -1.0 * bankAccount.getBalance(),
+								"evening-up of closed bank account", true);
+					}
+				}
+				break;
+			}
+			customer.onBankCloseBankAccount(bankAccount);
+		}
+		DAOFactory.getBankAccountDAO().deleteAllBankAccounts(this, customer);
+	}
 
 	@Transient
 	public void transferMoney(BankAccount from, BankAccount to, double amount,
@@ -197,6 +277,11 @@ public class CentralBank extends Bank {
 		assert (amount >= 0.0 || negativeAmountOK);
 		assert (from != to);
 
+		final double fromBalanceBefore = from.getBalance();
+		final double toBalanceBefore = to.getBalance();
+
+		this.assertIdenticalEconomicSphere(from, to);
+
 		if (from.getManagingBank() instanceof CentralBank
 				&& to.getManagingBank() instanceof CentralBank) {
 			getLog().bank_onTransfer(from, to, from.getCurrency(), amount,
@@ -208,12 +293,13 @@ public class CentralBank extends Bank {
 					to, amount);
 		else if (from.getManagingBank() instanceof CentralBank
 				&& to.getManagingBank() instanceof CreditBank) {
-			getLog().bank_onTransfer(from, to, from.getCurrency(), amount,
-					subject);
 			this.transferMoneyFromCentralBankAccountToCreditBankAccount(from,
 					to, amount);
 		} else
 			throw new RuntimeException("uncovered case");
+
+		assert (fromBalanceBefore - amount == from.getBalance());
+		assert (toBalanceBefore + amount == to.getBalance());
 	}
 
 	@Transient
@@ -227,9 +313,15 @@ public class CentralBank extends Bank {
 		// unusual at the central bank
 		assert (from.getBalance() - amount >= 0 || from.getOverdraftPossible());
 
+		final double fromBalanceBefore = from.getBalance();
+		final double toBalanceBefore = to.getBalance();
+
 		// transfer money internally
 		from.withdraw(amount);
 		to.deposit(amount);
+
+		assert (fromBalanceBefore - amount == from.getBalance());
+		assert (toBalanceBefore + amount == to.getBalance());
 	}
 
 	@Transient
@@ -252,10 +344,16 @@ public class CentralBank extends Bank {
 		/*
 		 * Transaction
 		 */
+		final double fromBalanceBefore = from.getBalance();
+		final double toBalanceBefore = to.getBalance();
+
 		CreditBank creditBank = (CreditBank) to.getManagingBank();
 		from.withdraw(amount);
-		creditBank.assureCentralBankAccount();
-		creditBank.deposit(this, to, amount);
+		creditBank.assureCentralBankTransactionsAccount();
+		creditBank.deposit(to, amount);
+
+		assert (fromBalanceBefore - amount == from.getBalance());
+		assert (toBalanceBefore + amount == to.getBalance());
 	}
 
 	@Transient
@@ -275,26 +373,37 @@ public class CentralBank extends Bank {
 		/*
 		 * Transaction
 		 */
+		final double fromBalanceBefore = from.getBalance();
+		final double toBalanceBefore = to.getBalance();
+
 		CreditBank creditBank = (CreditBank) from.getManagingBank();
-		creditBank.withdraw(this, from, amount);
+		creditBank.withdraw(from, amount);
 		to.deposit(amount);
+
+		assert (fromBalanceBefore - amount == from.getBalance());
+		assert (toBalanceBefore + amount == to.getBalance());
 	}
 
 	@Transient
-	public void obtainTender(CreditBank creditBank, List<FixedRateBond> bonds) {
-		this.assertIsCustomerOfThisBank(creditBank);
+	public void obtainTender(final BankAccount moneyReservesBankAccount,
+			List<FixedRateBond> bonds) {
+		this.assureCentralBankMoneyAccount();
+
+		this.assertIsCustomerOfThisBank(moneyReservesBankAccount.getOwner());
 
 		for (Bond bond : bonds) {
-			BankAccount bankAccount = DAOFactory.getBankAccountDAO()
-					.findAll(this, creditBank).get(0);
+			// bank money creation; fiat money!
+			assert (EconomicSphere.PAPER_ECONOMY
+					.equals(moneyReservesBankAccount.getEconomicSphere()));
+			moneyReservesBankAccount.deposit(bond.getFaceValue());
+			PropertyRegister.getInstance().transferProperty(
+					moneyReservesBankAccount.getOwner(), this, bond);
+			bond.setOwnerBankAccount(CentralBank.this.centralBankMoneyBankAccount);
 
-			bankAccount.deposit(bond.getFaceValue());
-			PropertyRegister.getInstance().transferProperty(creditBank, this,
-					bond);
-
-			if (getLog().isAgentSelectedByClient(creditBank))
+			if (getLog().isAgentSelectedByClient(
+					moneyReservesBankAccount.getOwner()))
 				getLog().log(
-						creditBank,
+						moneyReservesBankAccount.getOwner(),
 						"obtained a tender of "
 								+ Currency.formatMoneySum(bond.getFaceValue())
 								+ " " + this.getPrimaryCurrency()
@@ -441,6 +550,8 @@ public class CentralBank extends Bank {
 	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
+			CentralBank.this.assureCentralBankMoneyAccount();
+
 			BalanceSheet balanceSheet = CentralBank.this
 					.issueBasicBalanceSheet();
 
@@ -456,6 +567,23 @@ public class CentralBank extends Bank {
 			}
 
 			// --------------
+
+			// bank account for interactions with central bank money accounts of
+			// credit banks
+			if (CentralBank.this.centralBankMoneyBankAccount.getBalance() > 0.0) {
+				balanceSheet.addCash(
+						CentralBank.this.centralBankMoneyBankAccount
+								.getBankAccountType(),
+						CentralBank.this.centralBankMoneyBankAccount
+								.getBalance());
+			} else {
+				balanceSheet.addLoan(
+						CentralBank.this.centralBankMoneyBankAccount
+								.getBankAccountType(),
+						-1.0
+								* CentralBank.this.centralBankMoneyBankAccount
+										.getBalance());
+			}
 
 			// publish
 			getLog().agent_onPublishBalanceSheet(CentralBank.this, balanceSheet);

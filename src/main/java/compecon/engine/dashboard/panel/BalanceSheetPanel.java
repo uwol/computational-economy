@@ -27,6 +27,7 @@ import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.AbstractTableModel;
 
+import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Simulation;
@@ -60,31 +61,39 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 
 		@Override
 		public int getRowCount() {
-			return 9;
+			return 11;
 		}
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
+
 			// active accounts
 			if (columnIndex == 0) {
 				switch (rowIndex) {
 				case 0:
 					return "Hard Cash";
+
 				case 1:
-					return "Cash Short Term";
+					return "Cash " + BankAccountType.SHORT_TERM;
 				case 2:
-					return "Cash Short Term Foreign";
+					return "Cash " + BankAccountType.LONG_TERM;
 				case 3:
-					return "Cash Long Term";
+					return "Cash " + BankAccountType.CENTRAL_BANK_TRANSACTION;
 				case 4:
-					return "Fin. Assets (Bonds)";
+					return "Cash "
+							+ BankAccountType.CENTRAL_BANK_MONEY_RESERVES;
+
 				case 5:
-					return "Bank Loans";
+					return "Cash Foreign Currency";
 				case 6:
-					return "Inventory";
+					return "Fin. Assets (Bonds)";
 				case 7:
-					return "--------";
+					return "Bank Loans";
 				case 8:
+					return "Inventory";
+				case 9:
+					return "--------";
+				case 10:
 					return "Balance";
 				default:
 					return null;
@@ -95,20 +104,30 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 				switch (rowIndex) {
 				case 0:
 					return Currency.formatMoneySum(balanceSheet.hardCash);
+
 				case 1:
-					return Currency.formatMoneySum(balanceSheet.cashShortTerm);
+					return Currency.formatMoneySum(balanceSheet.cash
+							.get(BankAccountType.SHORT_TERM));
 				case 2:
-					return Currency
-							.formatMoneySum(balanceSheet.cashShortTermForeignCurrency);
+					return Currency.formatMoneySum(balanceSheet.cash
+							.get(BankAccountType.LONG_TERM));
 				case 3:
-					return Currency.formatMoneySum(balanceSheet.cashLongTerm);
+					return Currency.formatMoneySum(balanceSheet.cash
+							.get(BankAccountType.CENTRAL_BANK_TRANSACTION));
 				case 4:
-					return Currency.formatMoneySum(balanceSheet.bonds);
+					return Currency.formatMoneySum(balanceSheet.cash
+							.get(BankAccountType.CENTRAL_BANK_MONEY_RESERVES));
+
 				case 5:
-					return Currency.formatMoneySum(balanceSheet.bankLoans);
+					return Currency
+							.formatMoneySum(balanceSheet.cashForeignCurrency);
 				case 6:
-					return Currency.formatMoneySum(balanceSheet.inventoryValue);
+					return Currency.formatMoneySum(balanceSheet.bonds);
+				case 7:
+					return Currency.formatMoneySum(balanceSheet.bankLoans);
 				case 8:
+					return Currency.formatMoneySum(balanceSheet.inventoryValue);
+				case 10:
 					return Currency.formatMoneySum(balanceSheet
 							.getBalanceActive());
 				default:
@@ -119,16 +138,24 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 			else if (columnIndex == 2) {
 				switch (rowIndex) {
 				case 1:
-					return "Loans";
+					return "Loans " + BankAccountType.SHORT_TERM;
+				case 2:
+					return "Loans " + BankAccountType.LONG_TERM;
+				case 3:
+					return "Loans " + BankAccountType.CENTRAL_BANK_TRANSACTION;
 				case 4:
-					return "Fin. Liabilities (Bonds)";
-				case 5:
-					return "Bank Borrowings";
+					return "Loans "
+							+ BankAccountType.CENTRAL_BANK_MONEY_RESERVES;
+
 				case 6:
-					return "Equity";
+					return "Fin. Liabilities (Bonds)";
 				case 7:
-					return "--------";
+					return "Bank Borrowings";
 				case 8:
+					return "Equity";
+				case 9:
+					return "--------";
+				case 10:
 					return "Balance";
 				default:
 					return null;
@@ -138,15 +165,26 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 			else if (columnIndex == 3) {
 				switch (rowIndex) {
 				case 1:
-					return Currency.formatMoneySum(balanceSheet.loans);
+					return Currency.formatMoneySum(balanceSheet.loans
+							.get(BankAccountType.SHORT_TERM));
+				case 2:
+					return Currency.formatMoneySum(balanceSheet.loans
+							.get(BankAccountType.LONG_TERM));
+				case 3:
+					return Currency.formatMoneySum(balanceSheet.loans
+							.get(BankAccountType.CENTRAL_BANK_TRANSACTION));
 				case 4:
+					return Currency.formatMoneySum(balanceSheet.loans
+							.get(BankAccountType.CENTRAL_BANK_MONEY_RESERVES));
+
+				case 6:
 					return Currency
 							.formatMoneySum(balanceSheet.financialLiabilities);
-				case 5:
+				case 7:
 					return Currency.formatMoneySum(balanceSheet.bankBorrowings);
-				case 6:
-					return Currency.formatMoneySum(balanceSheet.getEquity());
 				case 8:
+					return Currency.formatMoneySum(balanceSheet.getEquity());
+				case 10:
 					return Currency.formatMoneySum(balanceSheet
 							.getBalancePassive());
 				default:

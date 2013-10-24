@@ -245,9 +245,9 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 							.get(inputGoodType).getTimeSeries());
 		}
 
-		JFreeChart chart = ChartFactory.createTimeSeriesChart("Utility",
-				"Date", "Total Utility", (XYDataset) timeSeriesCollection,
-				true, true, false);
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				"Households Utility", "Date", "Utility",
+				(XYDataset) timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}

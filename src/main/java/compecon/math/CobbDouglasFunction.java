@@ -371,4 +371,5 @@ public class CobbDouglasFunction<T> extends AnalyticalConvexFunction<T> {
 	public void setCoefficient(double coefficient) {
 		this.coefficient = coefficient;
 	}
+
 }

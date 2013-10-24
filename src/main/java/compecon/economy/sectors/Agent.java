@@ -45,6 +45,7 @@ import org.hibernate.annotations.Index;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.HardCashRegister;
@@ -87,15 +88,19 @@ public abstract class Agent {
 	@Index(name = "IDX_A_PRIMARYBANK")
 	protected Bank primaryBank;
 
-	// maxCredit limits the demand for money when buying production input
-	// factors, thus limiting M1 in the monetary system
+	/**
+	 * maxCredit limits the demand for money when buying production input
+	 * factors, thus limiting M1 in the monetary system
+	 */
 	@Column(name = "referenceCredit")
 	protected double referenceCredit;
 
+	/**
+	 * bank account for basic daily transactions
+	 */
 	@OneToOne
 	@JoinColumn(name = "transactionsBankAccount_id")
 	@Index(name = "IDX_A_TRANSACTIONSBANKACCOUNT")
-	// bank account for basic daily transactions
 	protected BankAccount transactionsBankAccount;
 
 	@Transient
@@ -231,7 +236,7 @@ public abstract class Agent {
 		if (this.transactionsBankAccount == null) {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency, true, "transactions account",
-					BankAccountType.GIRO);
+					BankAccountType.SHORT_TERM, EconomicSphere.REAL_ECONOMY);
 		}
 	}
 
@@ -267,11 +272,13 @@ public abstract class Agent {
 
 		// bank deposits
 		if (Agent.this.transactionsBankAccount.getBalance() > 0.0) {
-			balanceSheet.cashShortTerm += Agent.this.transactionsBankAccount
-					.getBalance();
+			balanceSheet.addCash(
+					Agent.this.transactionsBankAccount.getBankAccountType(),
+					Agent.this.transactionsBankAccount.getBalance());
 		} else {
-			balanceSheet.loans += -1.0
-					* Agent.this.transactionsBankAccount.getBalance();
+			balanceSheet.addLoan(
+					Agent.this.transactionsBankAccount.getBankAccountType(),
+					-1.0 * Agent.this.transactionsBankAccount.getBalance());
 		}
 
 		// bonds
@@ -319,7 +326,8 @@ public abstract class Agent {
 
 	@Override
 	public String toString() {
-		return this.agentTypeName + " [ID: " + this.id + ", "
-				+ this.primaryCurrency.getIso4217Code() + "]";
+		return this.agentTypeName + " ["
+				+ this.primaryCurrency.getIso4217Code() + ", ID: " + this.id
+				+ "]";
 	}
 }

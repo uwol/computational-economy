@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.security.equity.Share;
 import compecon.materia.GoodType;
@@ -39,15 +40,12 @@ public class BalanceSheet {
 	// cash in notes and coins
 	public double hardCash;
 
-	// cash in bank deposits, demand deposits
-	public double cashShortTerm;
+	// cash on bank accounts -> passive accounts
+	public Map<BankAccountType, Double> cash = new HashMap<BankAccountType, Double>();
 
 	// cash in bank foreign currency deposits, demand deposits; denominated in
 	// local currency
-	public double cashShortTermForeignCurrency;
-
-	// cash in bank deposits, savings deposits
-	public double cashLongTerm;
+	public double cashForeignCurrency;
 
 	// Accounts receivable also known as Debtors, is money owed to a business by
 	// its clients (customers) and shown on its balance sheet as an asset. ->
@@ -71,9 +69,8 @@ public class BalanceSheet {
 	public final Map<GoodType, Double> inventoryQuantitative = new HashMap<GoodType, Double>();
 
 	public double getBalanceActive() {
-		return this.hardCash + this.cashShortTerm
-				+ this.cashShortTermForeignCurrency + this.cashLongTerm
-				+ this.bankLoans + this.bonds + this.inventoryValue;
+		return this.hardCash + this.getCashSum() + this.bankLoans + this.bonds
+				+ this.inventoryValue;
 	}
 
 	/*
@@ -83,8 +80,8 @@ public class BalanceSheet {
 	public Set<Share> issuedCapital = new HashSet<Share>();
 
 	public double getEquity() {
-		return this.getBalanceActive() - this.loans - this.financialLiabilities
-				- this.bankBorrowings;
+		return this.getBalanceActive() - this.getLoansSum()
+				- this.financialLiabilities - this.bankBorrowings;
 	}
 
 	/*
@@ -96,8 +93,9 @@ public class BalanceSheet {
 	// http://en.wikipedia.org/wiki/Accounts_payable
 	// public double accountsPayable;
 
-	// money borrowed from other agents as loans from them
-	public double loans;
+	// money given as loans to other agents in banking context -> active
+	// accounts
+	public Map<BankAccountType, Double> loans = new HashMap<BankAccountType, Double>();
 
 	// issued bonds
 	public double financialLiabilities;
@@ -106,11 +104,42 @@ public class BalanceSheet {
 	public double bankBorrowings;
 
 	public double getBalancePassive() {
-		return this.loans + this.financialLiabilities + this.bankBorrowings
-				+ this.getEquity();
+		return this.getLoansSum() + this.financialLiabilities
+				+ this.bankBorrowings + this.getEquity();
 	}
 
 	public BalanceSheet(Currency referenceCurrency) {
 		this.referenceCurrency = referenceCurrency;
+
+		for (BankAccountType bankAccountType : BankAccountType.values()) {
+			this.cash.put(bankAccountType, 0.0);
+			this.loans.put(bankAccountType, 0.0);
+		}
+	}
+
+	public void addCash(final BankAccountType bankAccountType,
+			final double value) {
+		this.cash.put(bankAccountType, this.cash.get(bankAccountType) + value);
+	}
+
+	public void addLoan(final BankAccountType bankAccountType,
+			final double value) {
+		this.loans
+				.put(bankAccountType, this.loans.get(bankAccountType) + value);
+	}
+
+	public double getCashSum() {
+		double sum = 0.0;
+		for (double cash : this.cash.values())
+			sum += cash;
+		sum += this.cashForeignCurrency;
+		return sum;
+	}
+
+	public double getLoansSum() {
+		double sum = 0.0;
+		for (double loan : this.loans.values())
+			sum += loan;
+		return sum;
 	}
 }

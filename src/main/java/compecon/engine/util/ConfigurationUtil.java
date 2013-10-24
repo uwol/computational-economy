@@ -229,23 +229,61 @@ public class ConfigurationUtil {
 
 	public static class HouseholdConfig {
 
+		public static Integer daysWithoutUtilityUntilDestructor;
+
+		public static Integer lifespanInDays;
+
+		public static Double maxPricePerUnitMultiplier;
+
+		public static Integer newHouseholdEveryXDays;
+
+		public static Integer newHouseholdFromAgeInDays;
+
 		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
 
 		public static Integer numberOfLabourHoursPerDay;
 
-		public static Integer lifespanInDays;
+		public static Double requiredUtilityPerDay;
 
 		public static Integer retirementAgeInDays;
 
-		public static Integer newHouseholdFromAgeInDays;
+		public static Boolean retirementSaving;
 
-		public static Integer newHouseholdEveryXDays;
+		public static int getDaysWithoutUtilityUntilDestructor() {
+			if (daysWithoutUtilityUntilDestructor == null)
+				daysWithoutUtilityUntilDestructor = Integer
+						.parseInt(configFile
+								.getProperty("household.daysWithoutUtilityUntilDestructor"));
+			return daysWithoutUtilityUntilDestructor;
+		}
 
-		public static Double requiredUtilityPerDay;
+		public static int getLifespanInDays() {
+			if (lifespanInDays == null)
+				lifespanInDays = Integer.parseInt(configFile
+						.getProperty("household.lifespanInDays"));
+			return lifespanInDays;
+		}
 
-		public static Integer daysWithoutUtilityUntilDestructor;
+		public static double getMaxPricePerUnitMultiplier() {
+			if (maxPricePerUnitMultiplier == null)
+				maxPricePerUnitMultiplier = Double.parseDouble(configFile
+						.getProperty("household.maxPricePerUnitMultiplier"));
+			return maxPricePerUnitMultiplier;
+		}
 
-		public static Double maxPricePerUnitMultiplier;
+		public static int getNewHouseholdEveryXDays() {
+			if (newHouseholdEveryXDays == null)
+				newHouseholdEveryXDays = Integer.parseInt(configFile
+						.getProperty("household.newHouseholdEveryXDays"));
+			return newHouseholdEveryXDays;
+		}
+
+		public static int getNewHouseholdFromAgeInDays() {
+			if (newHouseholdFromAgeInDays == null)
+				newHouseholdFromAgeInDays = Integer.parseInt(configFile
+						.getProperty("household.newHouseholdFromAgeInDays"));
+			return newHouseholdFromAgeInDays;
+		}
 
 		public static int getNumber(Currency currency) {
 			if (!number.containsKey(currency))
@@ -263,11 +301,11 @@ public class ConfigurationUtil {
 			return numberOfLabourHoursPerDay;
 		}
 
-		public static int getLifespanInDays() {
-			if (lifespanInDays == null)
-				lifespanInDays = Integer.parseInt(configFile
-						.getProperty("household.lifespanInDays"));
-			return lifespanInDays;
+		public static double getRequiredUtilityPerDay() {
+			if (requiredUtilityPerDay == null)
+				requiredUtilityPerDay = Double.parseDouble(configFile
+						.getProperty("household.requiredUtilityPerDay"));
+			return requiredUtilityPerDay;
 		}
 
 		public static int getRetirementAgeInDays() {
@@ -277,46 +315,27 @@ public class ConfigurationUtil {
 			return retirementAgeInDays;
 		}
 
-		public static int getNewHouseholdFromAgeInDays() {
-			if (newHouseholdFromAgeInDays == null)
-				newHouseholdFromAgeInDays = Integer.parseInt(configFile
-						.getProperty("household.newHouseholdFromAgeInDays"));
-			return newHouseholdFromAgeInDays;
-		}
-
-		public static int getNewHouseholdEveryXDays() {
-			if (newHouseholdEveryXDays == null)
-				newHouseholdEveryXDays = Integer.parseInt(configFile
-						.getProperty("household.newHouseholdEveryXDays"));
-			return newHouseholdEveryXDays;
-		}
-
-		public static double getRequiredUtilityPerDay() {
-			if (requiredUtilityPerDay == null)
-				requiredUtilityPerDay = Double.parseDouble(configFile
-						.getProperty("household.requiredUtilityPerDay"));
-			return requiredUtilityPerDay;
-		}
-
-		public static int getDaysWithoutUtilityUntilDestructor() {
-			if (daysWithoutUtilityUntilDestructor == null)
-				daysWithoutUtilityUntilDestructor = Integer
-						.parseInt(configFile
-								.getProperty("household.daysWithoutUtilityUntilDestructor"));
-			return daysWithoutUtilityUntilDestructor;
-		}
-
-		public static double getMaxPricePerUnitMultiplier() {
-			if (maxPricePerUnitMultiplier == null)
-				maxPricePerUnitMultiplier = Double.parseDouble(configFile
-						.getProperty("household.maxPricePerUnitMultiplier"));
-			return maxPricePerUnitMultiplier;
+		public static boolean getRetirementSaving() {
+			if (retirementSaving == null)
+				retirementSaving = Boolean.parseBoolean(configFile
+						.getProperty("household.retirementSaving"));
+			return retirementSaving;
 		}
 	}
 
 	public static class MathConfig {
 
+		public static Double initializationValueForInputFactorsNonZero;
+
 		public static Integer numberOfIterations;
+
+		public static double getInitializationValueForInputFactorsNonZero() {
+			if (initializationValueForInputFactorsNonZero == null)
+				initializationValueForInputFactorsNonZero = Double
+						.parseDouble(configFile
+								.getProperty("math.initializationValueForInputFactorsNonZero"));
+			return initializationValueForInputFactorsNonZero;
+		}
 
 		public static int getNumberOfIterations() {
 			if (numberOfIterations == null)
@@ -328,18 +347,28 @@ public class ConfigurationUtil {
 
 	public static class PricingBehaviourConfig {
 
-		public static Double defaultPriceChangeIncrement;
+		public static Double defaultPriceChangeIncrementExplicit;
+
+		public static Double defaultPriceChangeIncrementImplicit;
 
 		public static Integer defaultNumberOfPrices;
 
 		public static Double defaultInitialPrice;
 
-		public static double getDefaultPriceChangeIncrement() {
-			if (defaultPriceChangeIncrement == null)
-				defaultPriceChangeIncrement = Double
+		public static double getDefaultPriceChangeIncrementExplicit() {
+			if (defaultPriceChangeIncrementExplicit == null)
+				defaultPriceChangeIncrementExplicit = Double
 						.parseDouble(configFile
-								.getProperty("pricingBehaviour.defaultPriceChangeIncrement"));
-			return defaultPriceChangeIncrement;
+								.getProperty("pricingBehaviour.defaultPriceChangeIncrementExplicit"));
+			return defaultPriceChangeIncrementExplicit;
+		}
+
+		public static double getDefaultPriceChangeIncrementImplicit() {
+			if (defaultPriceChangeIncrementImplicit == null)
+				defaultPriceChangeIncrementImplicit = Double
+						.parseDouble(configFile
+								.getProperty("pricingBehaviour.defaultPriceChangeIncrementImplicit"));
+			return defaultPriceChangeIncrementImplicit;
 		}
 
 		public static int getDefaultNumberOfPrices() {

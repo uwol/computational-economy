@@ -53,28 +53,28 @@ public class OptimizationRunner {
 
 		for (double i = 0.01; i < 0.5; i += 0.03) {
 			for (int repetition = 0; repetition < 3; repetition++) {
-				ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrement = i;
+				ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
 
 				System.out
 						.println("starting simulation run for defaultPriceChangeIncrement: "
-								+ ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrement);
+								+ ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrementExplicit);
 
 				Simulation simulation = new Simulation(false,
 						new GregorianCalendar(2001, 7, 1).getTime());
 				simulation.run();
 				double totalUtility = simulation.getModelRegistry()
-						.getNationalEconomyModel(Currency.EURO).householdsModel.utilityModel.totalUtilityOutputModel
+						.getNationalEconomyModel(Currency.EURO).totalUtilityOutputModel
 						.getValue();
 
 				System.out
 						.println("simulation run finished for defaultPriceChangeIncrement: "
-								+ ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrement
+								+ ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrementExplicit
 								+ " with totalUtility: " + totalUtility);
 
 				if (totalUtility > highestTotalUtility) {
 					System.out.println("total utility improved");
 					highestTotalUtility = totalUtility;
-					optimalI = ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrement;
+					optimalI = ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrementExplicit;
 				}
 			}
 		}

@@ -27,8 +27,16 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.XYDataset;
+
 import compecon.economy.sectors.financial.Currency;
+import compecon.engine.Simulation;
 import compecon.engine.statistics.model.NotificationListenerModel.IModelListener;
+import compecon.materia.GoodType;
 
 public class StatesPanel extends AbstractChartsPanel implements IModelListener {
 
@@ -39,6 +47,7 @@ public class StatesPanel extends AbstractChartsPanel implements IModelListener {
 			this.currency = currency;
 
 			this.add(createStateBalanceSheetPanel(currency));
+			this.add(createUtilityPanel(currency));
 
 			this.setLayout(new GridLayout(0, 2));
 		}
@@ -71,6 +80,30 @@ public class StatesPanel extends AbstractChartsPanel implements IModelListener {
 		});
 
 		add(jTabbedPaneCurrency, BorderLayout.CENTER);
+	}
+
+	protected ChartPanel createUtilityPanel(Currency currency) {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).stateModel.utilityModel.utilityOutputModel
+						.getTimeSeries());
+
+		for (GoodType inputGoodType : Simulation.getInstance()
+				.getModelRegistry().getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels
+				.keySet()) {
+			timeSeriesCollection
+					.addSeries(Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels
+							.get(inputGoodType).getTimeSeries());
+		}
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart("State Utility",
+				"Date", "Utility", (XYDataset) timeSeriesCollection, true,
+				true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
 	}
 
 	@Override

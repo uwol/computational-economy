@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import compecon.economy.sectors.Agent;
+import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -220,9 +221,10 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 
 		// assets
 		to.hardCash += from.hardCash;
-		to.cashShortTerm += from.cashShortTerm;
-		to.cashShortTermForeignCurrency += from.cashShortTermForeignCurrency;
-		to.cashLongTerm += from.cashLongTerm;
+		for (BankAccountType bankAccountType : BankAccountType.values()) {
+			to.addCash(bankAccountType, from.cash.get(bankAccountType));
+		}
+		to.cashForeignCurrency += from.cashForeignCurrency;
 		to.bonds += from.bonds;
 		to.bankLoans += from.bankLoans;
 		to.inventoryValue += from.inventoryValue;
@@ -240,7 +242,9 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 		}
 
 		// liabilities
-		to.loans += from.loans;
+		for (BankAccountType bankAccountType : BankAccountType.values()) {
+			to.addLoan(bankAccountType, from.loans.get(bankAccountType));
+		}
 		to.financialLiabilities += from.financialLiabilities;
 		to.bankBorrowings += from.bankBorrowings;
 

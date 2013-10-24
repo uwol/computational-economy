@@ -307,12 +307,12 @@ public class MarketTest extends CompEconTestSupport {
 				8,
 				trader1_EUR,
 				trader1_EUR.getTransactionsBankAccount(),
-				trader1_EUR.getTransactionForeignCurrencyAccounts().get(
+				trader1_EUR.getGoodTradeBankAccounts().get(
 						commodityCurrency));
 
 		assertEquals(-5.0, trader1_EUR.getTransactionsBankAccount()
 				.getBalance(), epsilon);
-		assertEquals(5.0, trader1_EUR.getTransactionForeignCurrencyAccounts()
+		assertEquals(5.0, trader1_EUR.getGoodTradeBankAccounts()
 				.get(commodityCurrency).getBalance(), epsilon);
 	}
 

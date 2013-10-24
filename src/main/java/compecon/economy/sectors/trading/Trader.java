@@ -36,6 +36,7 @@ import compecon.economy.BudgetingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
@@ -115,7 +116,7 @@ public class Trader extends JointStockCompany {
 		return excludedGoodTypes;
 	}
 
-	public Map<Currency, BankAccount> getTransactionForeignCurrencyAccounts() {
+	public Map<Currency, BankAccount> getGoodTradeBankAccounts() {
 		return goodsTradeBankAccounts;
 	}
 
@@ -123,9 +124,9 @@ public class Trader extends JointStockCompany {
 		this.excludedGoodTypes = excludedGoodTypes;
 	}
 
-	public void setTransactionForeignCurrencyAccounts(
-			Map<Currency, BankAccount> transactionForeignCurrencyAccounts) {
-		this.goodsTradeBankAccounts = transactionForeignCurrencyAccounts;
+	public void setGoodTradeBankAccounts(
+			Map<Currency, BankAccount> goodsTradeBankAccounts) {
+		this.goodsTradeBankAccounts = goodsTradeBankAccounts;
 	}
 
 	/*
@@ -145,7 +146,8 @@ public class Trader extends JointStockCompany {
 				BankAccount bankAccount = foreignCurrencyCreditBank
 						.openBankAccount(this, currency, true,
 								"foreign currency account",
-								BankAccountType.GIRO);
+								BankAccountType.SHORT_TERM,
+								EconomicSphere.REAL_ECONOMY);
 				this.goodsTradeBankAccounts.put(currency, bankAccount);
 			}
 		}
@@ -396,7 +398,7 @@ public class Trader extends JointStockCompany {
 					double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry
 							.getValue().getBalance()
 							* priceOfForeignCurrencyInLocalCurrency;
-					balanceSheet.cashShortTermForeignCurrency += valueOfForeignCurrencyInLocalCurrency;
+					balanceSheet.cashForeignCurrency += valueOfForeignCurrencyInLocalCurrency;
 				}
 			}
 

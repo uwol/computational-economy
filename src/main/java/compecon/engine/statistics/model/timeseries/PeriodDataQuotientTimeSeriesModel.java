@@ -41,16 +41,16 @@ public class PeriodDataQuotientTimeSeriesModel extends
 	}
 
 	public double getValue() {
+		// Double.NaN or Double.Infinite leads to blank JFreeChart diagrams
+		if (this.periodDataDivisorModel.getAmount() == 0.0)
+			return 0.0;
 		return this.periodDataDividendModel.getAmount()
 				/ this.periodDataDivisorModel.getAmount();
 	}
 
 	public void nextPeriod() {
-		double dividend = this.periodDataDividendModel.getAmount();
-		double divisor = this.periodDataDivisorModel.getAmount();
-
 		this.timeSeries.addOrUpdate(new Day(Simulation.getInstance()
-				.getTimeSystem().getCurrentDate()), dividend / divisor);
+				.getTimeSystem().getCurrentDate()), getValue());
 
 		this.periodDataDividendModel.reset();
 		this.periodDataDivisorModel.reset();

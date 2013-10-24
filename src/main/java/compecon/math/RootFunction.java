@@ -55,7 +55,7 @@ public class RootFunction<T> extends ConvexFunction<T> implements IFunction<T> {
 		if (this.inputType.equals(withRespectToInputType))
 			return this.coefficient * 0.5
 					* Math.pow(forBundleOfInputs.get(this.inputType), -0.5);
-		return 0;
+		return 0.0;
 	}
 
 	public double getCoefficient() {

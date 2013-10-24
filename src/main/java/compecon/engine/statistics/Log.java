@@ -26,9 +26,11 @@ import java.util.Map.Entry;
 import compecon.economy.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
+import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.statistics.model.ModelRegistry;
 import compecon.engine.statistics.model.ModelRegistry.IncomeSource;
@@ -130,10 +132,12 @@ public class Log {
 		// TODO: what about money in the private banking system? -> M1
 		// definition
 		modelRegistry.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM1Model
-				.add(balanceSheet.cashShortTerm + balanceSheet.hardCash);
+				.add(balanceSheet.hardCash
+						+ balanceSheet.cash.get(BankAccountType.SHORT_TERM));
 		modelRegistry.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM2Model
-				.add(balanceSheet.hardCash + balanceSheet.cashShortTerm
-						+ balanceSheet.cashLongTerm);
+				.add(balanceSheet.hardCash
+						+ balanceSheet.cash.get(BankAccountType.SHORT_TERM)
+						+ balanceSheet.cash.get(BankAccountType.LONG_TERM));
 	}
 
 	public void agent_CreditUtilization(final Agent agent,
@@ -146,37 +150,42 @@ public class Log {
 			final double budget, final double moneySpent,
 			final ConvexFunctionTerminationCause terminationCause) {
 		if (agentCurrentlyActive != null) {
-			assert (agentCurrentlyActive instanceof Household);
+			assert (agentCurrentlyActive instanceof Household || agentCurrentlyActive instanceof State);
 
 			modelRegistry.getNationalEconomyModel(agentCurrentlyActive
 					.getPrimaryCurrency()).householdsModel.convexFunctionTerminationCauseModels
-					.get(terminationCause).add(budget - moneySpent);
+					.get(terminationCause).add(moneySpent);
 			modelRegistry.getNationalEconomyModel(agentCurrentlyActive
 					.getPrimaryCurrency()).householdsModel.budgetModel
 					.add(budget);
 		}
 	}
 
-	public void pricingBehaviour_onCalculateNewPrice(final Agent agent,
-			final PricingBehaviourNewPriceDecisionCause decisionCause) {
-		GoodType goodType;
-		if (agent instanceof Household) {
-			goodType = GoodType.LABOURHOUR;
-		} else if (agent instanceof Factory) {
-			goodType = ((Factory) agent).getProducedGoodType();
-		} else {
-			goodType = null;
+	// --------
+
+	private void agent_onUtility(final Agent agent, final Currency currency,
+			final Map<GoodType, Double> bundleOfGoodsToConsume,
+			final double utility) {
+		if (this.isAgentSelectedByClient(agent)) {
+			String log = "consumed ";
+			int i = 0;
+			for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume
+					.entrySet()) {
+				log += MathUtil.round(entry.getValue()) + " " + entry.getKey();
+				if (i < bundleOfGoodsToConsume.size() - 1)
+					log += ", ";
+				i++;
+			}
+			log += " -> " + MathUtil.round(utility) + " utility";
+
+			this.log(agent, log);
 		}
 
-		if (goodType != null) {
-			Currency currency = agent.getPrimaryCurrency();
-			modelRegistry.getNationalEconomyModel(currency)
-					.getPricingBehaviourModel(goodType).pricingBehaviourNewPriceDecisionCauseModels
-					.get(decisionCause).add(1.0);
+		if (!timeSystem.isInitializationPhase()) {
+			modelRegistry.getNationalEconomyModel(currency).totalUtilityOutputModel
+					.add(utility);
 		}
 	}
-
-	// --------
 
 	public void household_onIncomeWageDividendConsumptionSaving(
 			final Currency currency, final double income,
@@ -211,26 +220,10 @@ public class Log {
 			final Currency currency,
 			final Map<GoodType, Double> bundleOfGoodsToConsume,
 			final double utility) {
-		if (this.isAgentSelectedByClient(household)) {
-			String log = "consumed ";
-			int i = 0;
-			for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume
-					.entrySet()) {
-				log += MathUtil.round(entry.getValue()) + " " + entry.getKey();
-				if (i < bundleOfGoodsToConsume.size() - 1)
-					log += ", ";
-				i++;
-			}
-			log += " -> " + MathUtil.round(utility) + " utility";
-
-			this.log(household, log);
-		}
+		this.agent_onUtility(household, currency, bundleOfGoodsToConsume,
+				utility);
 		modelRegistry.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityOutputModel
 				.add(utility);
-		if (!timeSystem.isInitializationPhase()) {
-			modelRegistry.getNationalEconomyModel(currency).householdsModel.utilityModel.totalUtilityOutputModel
-					.add(utility);
-		}
 		for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume.entrySet()) {
 			modelRegistry.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityInputModels
 					.get(entry.getKey()).add(entry.getValue());
@@ -293,7 +286,7 @@ public class Log {
 			Currency currency = agentCurrentlyActive.getPrimaryCurrency();
 			modelRegistry.getNationalEconomyModel(currency).getIndustryModel(
 					((Factory) agentCurrentlyActive).getProducedGoodType()).convexProductionFunctionTerminationCauseModels
-					.get(terminationCause).add(budget - moneySpent);
+					.get(terminationCause).add(moneySpent);
 			modelRegistry.getNationalEconomyModel(currency).getIndustryModel(
 					((Factory) agentCurrentlyActive).getProducedGoodType()).budgetModel
 					.add(budget);
@@ -301,6 +294,18 @@ public class Log {
 	}
 
 	// --------
+
+	public void state_onUtility(final State state, final Currency currency,
+			final Map<GoodType, Double> bundleOfGoodsToConsume,
+			final double utility) {
+		this.agent_onUtility(state, currency, bundleOfGoodsToConsume, utility);
+		modelRegistry.getNationalEconomyModel(currency).stateModel.utilityModel.utilityOutputModel
+				.add(utility);
+		for (Entry<GoodType, Double> entry : bundleOfGoodsToConsume.entrySet()) {
+			modelRegistry.getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels
+					.get(entry.getKey()).add(entry.getValue());
+		}
+	}
 
 	public void bank_onTransfer(final BankAccount from, final BankAccount to,
 			final Currency currency, final double value, final String subject) {
@@ -354,5 +359,30 @@ public class Log {
 		modelRegistry.getNationalEconomyModel(currency).pricesModel
 				.market_onTick(pricePerUnit, commodityCurrency, currency,
 						amount);
+	}
+
+	// --------
+
+	public void pricingBehaviour_onCalculateNewPrice(final Agent agent,
+			final PricingBehaviourNewPriceDecisionCause decisionCause,
+			final double weight) {
+		GoodType goodType;
+		if (agent instanceof Household) {
+			goodType = GoodType.LABOURHOUR;
+		} else if (agent instanceof Factory) {
+			goodType = ((Factory) agent).getProducedGoodType();
+		} else {
+			goodType = null;
+		}
+
+		if (goodType != null) {
+			Currency currency = agent.getPrimaryCurrency();
+			modelRegistry.getNationalEconomyModel(currency)
+					.getPricingBehaviourModel(goodType).pricingBehaviourPriceDecisionCauseModels
+					.get(decisionCause).add(weight);
+			modelRegistry.getNationalEconomyModel(currency)
+					.getPricingBehaviourModel(goodType).pricingBehaviourAveragePriceDecisionCauseModel
+					.add(weight);
+		}
 	}
 }

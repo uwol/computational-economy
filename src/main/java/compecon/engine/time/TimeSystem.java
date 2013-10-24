@@ -132,6 +132,21 @@ public class TimeSystem {
 		this.years.get(year).addEvent(event, monthType, dayType, hourType);
 	}
 
+	public void addEventEvery(ITimeSystemEvent event, int year,
+			MonthType monthType, DayType dayType, HourType excepthourType) {
+		assert (excepthourType != null);
+
+		if (!this.years.containsKey(year))
+			this.years.put(year, new Year());
+		for (HourType hourType : HourType.values()) {
+			if (!HourType.EVERY.equals(hourType)
+					&& !excepthourType.equals(hourType)) {
+				this.years.get(year).addEvent(event, monthType, dayType,
+						hourType);
+			}
+		}
+	}
+
 	public void addEventForEveryDay(ITimeSystemEvent event) {
 		this.addEvent(event, -1, MonthType.EVERY, DayType.EVERY,
 				HourType.HOUR_12);

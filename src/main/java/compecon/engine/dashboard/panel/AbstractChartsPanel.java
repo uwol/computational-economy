@@ -172,9 +172,15 @@ public abstract class AbstractChartsPanel extends JPanel {
 			timeSeriesCollection
 					.addSeries(Simulation.getInstance().getModelRegistry()
 							.getNationalEconomyModel(currency).pricingBehaviourModels
-							.get(goodType).pricingBehaviourNewPriceDecisionCauseModels
+							.get(goodType).pricingBehaviourPriceDecisionCauseModels
 							.get(decisionCause).getTimeSeries());
 		}
+
+		timeSeriesCollection
+				.addSeries(Simulation.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).pricingBehaviourModels
+						.get(goodType).pricingBehaviourAveragePriceDecisionCauseModel
+						.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(goodType
 				+ " Pricing Behaviour Mechanics", "Date", "Budget Spent",

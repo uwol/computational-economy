@@ -101,7 +101,6 @@ public class AgentFactory {
 		CreditBank creditBank = new CreditBank();
 		if (!ConfigurationUtil.DbConfig.getActivateDb())
 			creditBank.setId(Simulation.getInstance().getNextId());
-		creditBank.setOfferedCurrencies(offeredCurrencies);
 		creditBank.setPrimaryCurrency(primaryCurrency);
 		DAOFactory.getCreditBankDAO().save(creditBank);
 		creditBank.initialize();

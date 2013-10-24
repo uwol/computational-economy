@@ -73,8 +73,8 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 
 		Map<GoodType, Double> optimalInputsIterative = cobbDouglasProductionFunction
 				.calculateProfitMaximizingProductionFactorsIterative(10.0,
-						priceFunctions, budget, Double.NaN, numberOfIterations,
-						0.0);
+						priceFunctions, budget, Double.NaN, 0.0,
+						numberOfIterations);
 
 		/*
 		 * assert inputs
@@ -142,8 +142,8 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 
 		Map<GoodType, Double> optimalInputsIterative = cobbDouglasProductionFunction
 				.calculateProfitMaximizingProductionFactorsIterative(10.0,
-						priceFunctions, budget, Double.NaN, numberOfIterations,
-						0.0);
+						priceFunctions, budget, Double.NaN, 0.0,
+						numberOfIterations);
 
 		/*
 		 * assert inputs

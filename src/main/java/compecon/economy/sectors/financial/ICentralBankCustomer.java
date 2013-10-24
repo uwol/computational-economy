@@ -20,9 +20,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.economy.sectors.financial;
 
 public interface ICentralBankCustomer {
-	public void deposit(CentralBank caller, BankAccount bankAccount,
-			double amount);
+	public void deposit(BankAccount bankAccount, double amount);
 
-	public void withdraw(CentralBank caller, BankAccount bankAccount,
-			double amount);
+	public void withdraw(BankAccount bankAccount, double amount);
 }

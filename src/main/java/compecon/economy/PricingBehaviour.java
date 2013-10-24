@@ -33,7 +33,7 @@ import compecon.engine.util.MathUtil;
 public class PricingBehaviour {
 
 	public enum PricingBehaviourNewPriceDecisionCause {
-		SOLD_NOTHING, SOLD_EVERYTHING, SOLD_LESS, SOLD_MORE, NO_CHANGE;
+		SOLD_NOTHING, SOLD_EVERYTHING, SOLD_LESS, SOLD_MORE, IMPLICIT_RAISE;
 	}
 
 	protected final Agent agent;
@@ -77,16 +77,17 @@ public class PricingBehaviour {
 			Currency denominatedInCurrency, double initialPrice) {
 		this(agent, offeredObject, denominatedInCurrency, initialPrice,
 				ConfigurationUtil.PricingBehaviourConfig
-						.getDefaultPriceChangeIncrement());
+						.getDefaultPriceChangeIncrementExplicit());
 	}
 
 	public void assurePeriodDataInitialized() {
 		if (!this.periodDataInitialized) {
-			if (!Double.isNaN(initialPrice) && !Double.isInfinite(initialPrice))
+			if (!Double.isNaN(initialPrice) && !Double.isInfinite(initialPrice)) {
 				this.prices_InPeriods[0] = initialPrice;
-			else
+			} else {
 				this.prices_InPeriods[0] = ConfigurationUtil.PricingBehaviourConfig
 						.getDefaultInitialPrice();
+			}
 
 			this.periodDataInitialized = true;
 		}
@@ -105,15 +106,16 @@ public class PricingBehaviour {
 		// nothing sold?
 		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
 				&& MathUtil.lesserEqual(this.soldAmount_InPeriods[1], 0.0)) {
-			double newPrice = calculateLowerPrice(oldPrice);
+			double newPrice = calculateLowerPriceExplicit(oldPrice);
+			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+					PricingBehaviourNewPriceDecisionCause.SOLD_NOTHING,
+					-1.0 * this.priceChangeIncrement);
 			if (getLog().isAgentSelectedByClient(this.agent))
 				getLog().log(
 						this.agent,
 						prefix + "sold nothing -> lowering price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
-			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
-					PricingBehaviourNewPriceDecisionCause.SOLD_NOTHING);
 			return newPrice;
 		}
 
@@ -121,15 +123,16 @@ public class PricingBehaviour {
 		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
 				&& MathUtil.equal(this.soldAmount_InPeriods[1],
 						this.offeredAmount_InPeriods[1])) {
-			double newPrice = calculateHigherPrice(oldPrice);
+			double newPrice = calculateHigherPriceExplicit(oldPrice);
+			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+					PricingBehaviourNewPriceDecisionCause.SOLD_EVERYTHING,
+					this.priceChangeIncrement);
 			if (getLog().isAgentSelectedByClient(this.agent))
 				getLog().log(
 						this.agent,
 						prefix + "sold everything -> raising price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
-			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
-					PricingBehaviourNewPriceDecisionCause.SOLD_EVERYTHING);
 			return newPrice;
 		}
 
@@ -149,7 +152,10 @@ public class PricingBehaviour {
 				// period
 				&& MathUtil.greaterEqual(this.offeredAmount_InPeriods[1],
 						this.soldAmount_InPeriods[2])) {
-			double newPrice = calculateLowerPrice(oldPrice);
+			double newPrice = calculateLowerPriceExplicit(oldPrice);
+			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+					PricingBehaviourNewPriceDecisionCause.SOLD_LESS,
+					-1.0 * this.priceChangeIncrement);
 			if (getLog().isAgentSelectedByClient(this.agent))
 				getLog().log(
 						this.agent,
@@ -158,8 +164,6 @@ public class PricingBehaviour {
 								+ ") -> lowering price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
-			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
-					PricingBehaviourNewPriceDecisionCause.SOLD_LESS);
 			return newPrice;
 		}
 
@@ -179,7 +183,10 @@ public class PricingBehaviour {
 				// period
 				&& MathUtil.greaterEqual(this.offeredAmount_InPeriods[2],
 						this.soldAmount_InPeriods[1])) {
-			double newPrice = calculateHigherPrice(oldPrice);
+			double newPrice = calculateHigherPriceExplicit(oldPrice);
+			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+					PricingBehaviourNewPriceDecisionCause.SOLD_MORE,
+					this.priceChangeIncrement);
 			if (getLog().isAgentSelectedByClient(this.agent))
 				getLog().log(
 						this.agent,
@@ -188,8 +195,6 @@ public class PricingBehaviour {
 								+ ") -> raising price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
-			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
-					PricingBehaviourNewPriceDecisionCause.SOLD_MORE);
 			return newPrice;
 		}
 
@@ -199,23 +204,33 @@ public class PricingBehaviour {
 					prefix + " newPrice := oldPrice = "
 							+ Currency.formatMoneySum(oldPrice) + " "
 							+ this.denominatedInCurrency.getIso4217Code());
-		getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
-				PricingBehaviourNewPriceDecisionCause.NO_CHANGE);
-		return oldPrice;
+		getLog().pricingBehaviour_onCalculateNewPrice(
+				this.agent,
+				PricingBehaviourNewPriceDecisionCause.IMPLICIT_RAISE,
+				ConfigurationUtil.PricingBehaviourConfig
+						.getDefaultPriceChangeIncrementImplicit());
+		// implicit pricing pressure -> inducing 100% credit utilization
+		return calculateHigherPriceImplicit(oldPrice);
 	}
 
-	protected double calculateHigherPrice(double price) {
+	protected double calculateHigherPriceExplicit(final double price) {
 		updatePriceChangeIncrement(true);
-		// if the price is 0, multiplication does not work -> reset price
+		// if the price is 0.0, multiplication does not work -> reset price
 		if (MathUtil.lesserEqual(price, 0.0))
-			return 0.01;
+			return 0.0001;
 		return price * (1.0 + this.priceChangeIncrement);
+	}
+
+	protected double calculateHigherPriceImplicit(final double price) {
+		return price
+				* (1.0 + ConfigurationUtil.PricingBehaviourConfig
+						.getDefaultPriceChangeIncrementImplicit());
 	}
 
 	/*
 	 * {@link #calculateHigherPrice(double)}
 	 */
-	protected double calculateLowerPrice(double price) {
+	protected double calculateLowerPriceExplicit(final double price) {
 		updatePriceChangeIncrement(false);
 		return price / (1.0 + this.priceChangeIncrement);
 	}

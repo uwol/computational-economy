@@ -29,6 +29,7 @@ import javax.persistence.Transient;
 
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
 import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.BankAccountFactory;
 import compecon.engine.dao.DAOFactory;
@@ -74,6 +75,13 @@ public abstract class Bank extends JointStockCompany {
 	}
 
 	@Transient
+	protected void assertIdenticalEconomicSphere(BankAccount from,
+			BankAccount to) {
+		assert (from.getEconomicSphere() != null);
+		assert (from.getEconomicSphere().equals(to.getEconomicSphere()));
+	}
+
+	@Transient
 	protected abstract void assertCurrencyIsOffered(Currency currency);
 
 	/*
@@ -101,41 +109,18 @@ public abstract class Bank extends JointStockCompany {
 	}
 
 	@Transient
-	public void closeCustomerAccount(Agent customer) {
-		this.assureTransactionsBankAccount();
-
-		// each customer bank account ...
-		for (BankAccount bankAccount : DAOFactory.getBankAccountDAO().findAll(
-				this, customer)) {
-			if (this.transactionsBankAccount != null
-					&& bankAccount != this.transactionsBankAccount) {
-				// on closing has to be evened up to 0, so that no money is lost
-				// in the monetary system
-				if (bankAccount.getBalance() >= 0) {
-					this.transferMoney(bankAccount,
-							this.transactionsBankAccount,
-							bankAccount.getBalance(),
-							"evening-up of closed bank account", true);
-				} else {
-					this.transferMoney(this.transactionsBankAccount,
-							bankAccount, -1.0 * bankAccount.getBalance(),
-							"evening-up of closed bank account", true);
-				}
-			}
-			customer.onBankCloseBankAccount(bankAccount);
-		}
-		DAOFactory.getBankAccountDAO().deleteAllBankAccounts(this, customer);
-	}
+	public abstract void closeCustomerAccount(Agent customer);
 
 	@Transient
-	public BankAccount openBankAccount(Agent customer, Currency currency,
-			boolean overdraftPossible, String name,
-			BankAccountType bankAccountType) {
+	public BankAccount openBankAccount(final Agent customer,
+			final Currency currency, final boolean overdraftPossible,
+			final String name, final BankAccountType bankAccountType,
+			final EconomicSphere economicSphere) {
 		this.assertCurrencyIsOffered(currency);
 
 		BankAccount bankAccount = BankAccountFactory.newInstanceBankAccount(
 				customer, currency, overdraftPossible, this, name,
-				bankAccountType);
+				bankAccountType, economicSphere);
 		return bankAccount;
 	}
 

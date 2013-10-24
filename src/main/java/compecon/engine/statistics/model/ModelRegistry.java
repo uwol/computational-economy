@@ -46,49 +46,6 @@ public class ModelRegistry {
 		 */
 		public class HouseholdsModel {
 
-			/**
-			 * model for collecting statistics about utiltiy of households
-			 */
-			public class UtilityModel {
-
-				public final Currency currency;
-
-				public final PeriodDataAccumulatorTimeSeriesModel utilityOutputModel;
-
-				/**
-				 * total utility sum of all periods; measurement starts after
-				 * initialization phase; FIXME double overflow possible, group
-				 * statistical models that are filled after initialization phase
-				 */
-				public final PeriodDataAccumulatorTimeSeriesModel totalUtilityOutputModel;
-
-				public final Map<GoodType, PeriodDataAccumulatorTimeSeriesModel> utilityInputModels = new HashMap<GoodType, PeriodDataAccumulatorTimeSeriesModel>();
-
-				public UtilityModel(Currency currency) {
-					this.currency = currency;
-					this.utilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
-							currency.getIso4217Code() + " utility");
-					this.totalUtilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
-							currency.getIso4217Code() + " total utility");
-					for (GoodType goodType : InputOutputModel
-							.getUtilityFunctionForHousehold()
-							.getInputGoodTypes()) {
-						this.utilityInputModels.put(goodType,
-								new PeriodDataAccumulatorTimeSeriesModel(
-										currency.getIso4217Code() + " "
-												+ goodType + " input"));
-					}
-				}
-
-				public void nextPeriod() {
-					this.utilityOutputModel.nextPeriod();
-					for (PeriodDataAccumulatorTimeSeriesModel periodDataAccumulatorTimeSeriesModel : this.utilityInputModels
-							.values()) {
-						periodDataAccumulatorTimeSeriesModel.nextPeriod();
-					}
-				}
-			}
-
 			public final Currency currency;
 
 			public final PeriodDataAccumulatorTimeSeriesModel budgetModel = new PeriodDataAccumulatorTimeSeriesModel(
@@ -244,6 +201,64 @@ public class ModelRegistry {
 			}
 		}
 
+		/**
+		 * model for collecting statistics about the state of this national
+		 * economy
+		 */
+		public class StateModel {
+
+			public final Currency currency;
+
+			public final UtilityModel utilityModel;
+
+			public StateModel(Currency currency) {
+				this.currency = currency;
+
+				this.utilityModel = new UtilityModel(this.currency);
+			}
+
+			public void nextPeriod() {
+				this.utilityModel.nextPeriod();
+			}
+		}
+
+		/**
+		 * model for collecting statistics about utility of households and
+		 * states
+		 */
+		public class UtilityModel {
+
+			public final Currency currency;
+
+			public final PeriodDataAccumulatorTimeSeriesModel utilityOutputModel;
+
+			public final Map<GoodType, PeriodDataAccumulatorTimeSeriesModel> utilityInputModels = new HashMap<GoodType, PeriodDataAccumulatorTimeSeriesModel>();
+
+			public UtilityModel(Currency currency) {
+				this.currency = currency;
+				this.utilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
+						currency.getIso4217Code() + " utility");
+				for (GoodType goodType : InputOutputModel
+						.getUtilityFunctionForHousehold().getInputGoodTypes()) {
+					this.utilityInputModels.put(
+							goodType,
+							new PeriodDataAccumulatorTimeSeriesModel(currency
+									.getIso4217Code()
+									+ " "
+									+ goodType
+									+ " input"));
+				}
+			}
+
+			public void nextPeriod() {
+				this.utilityOutputModel.nextPeriod();
+				for (PeriodDataAccumulatorTimeSeriesModel periodDataAccumulatorTimeSeriesModel : this.utilityInputModels
+						.values()) {
+					periodDataAccumulatorTimeSeriesModel.nextPeriod();
+				}
+			}
+		}
+
 		public class PricingBehaviourModel {
 
 			public final Currency currency;
@@ -252,13 +267,15 @@ public class ModelRegistry {
 
 			public final PeriodDataAccumulatorTimeSeriesModel offerModel;
 
+			public final PeriodDataAccumulatorTimeSeriesModel pricingBehaviourAveragePriceDecisionCauseModel;
+
 			public final PeriodDataAccumulatorTimeSeriesModel soldModel;
 
 			/**
 			 * Models metering causes of terminations in convex production
 			 * functions, e. g. marginal costs exceeding marginal revenue.
 			 */
-			public final Map<PricingBehaviourNewPriceDecisionCause, PeriodDataAccumulatorTimeSeriesModel> pricingBehaviourNewPriceDecisionCauseModels = new HashMap<PricingBehaviourNewPriceDecisionCause, PeriodDataAccumulatorTimeSeriesModel>();
+			public final Map<PricingBehaviourNewPriceDecisionCause, PeriodDataAccumulatorTimeSeriesModel> pricingBehaviourPriceDecisionCauseModels = new HashMap<PricingBehaviourNewPriceDecisionCause, PeriodDataAccumulatorTimeSeriesModel>();
 
 			public PricingBehaviourModel(final Currency currency,
 					final GoodType goodType) {
@@ -270,10 +287,12 @@ public class ModelRegistry {
 				this.soldModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " " + goodType
 								+ " sold (+1 period)");
+				this.pricingBehaviourAveragePriceDecisionCauseModel = new PeriodDataAccumulatorTimeSeriesModel(
+						"Average Decision");
 
 				for (PricingBehaviourNewPriceDecisionCause cause : PricingBehaviourNewPriceDecisionCause
 						.values()) {
-					pricingBehaviourNewPriceDecisionCauseModels.put(
+					pricingBehaviourPriceDecisionCauseModels.put(
 							cause,
 							new PeriodDataAccumulatorTimeSeriesModel(cause
 									.toString()));
@@ -282,10 +301,12 @@ public class ModelRegistry {
 			}
 
 			public void nextPeriod() {
+				this.pricingBehaviourAveragePriceDecisionCauseModel
+						.nextPeriod();
 				this.offerModel.nextPeriod();
 				this.soldModel.nextPeriod();
 
-				for (PeriodDataAccumulatorTimeSeriesModel periodDataAccumulatorTimeSeriesModel : this.pricingBehaviourNewPriceDecisionCauseModels
+				for (PeriodDataAccumulatorTimeSeriesModel periodDataAccumulatorTimeSeriesModel : this.pricingBehaviourPriceDecisionCauseModels
 						.values()) {
 					periodDataAccumulatorTimeSeriesModel.nextPeriod();
 				}
@@ -311,6 +332,12 @@ public class ModelRegistry {
 		 */
 
 		public final Map<GoodType, IndustryModel> industryModels = new HashMap<GoodType, IndustryModel>();
+
+		/*
+		 * state
+		 */
+
+		public final StateModel stateModel;
 
 		/*
 		 * prices
@@ -344,6 +371,13 @@ public class ModelRegistry {
 		public final BalanceSheetsModel balanceSheetsModel;
 		public final MonetaryTransactionsModel monetaryTransactionsModel;
 
+		/**
+		 * total utility sum of all periods; measurement starts after
+		 * initialization phase; FIXME double overflow possible, group
+		 * statistical models that are filled after initialization phase
+		 */
+		public final PeriodDataAccumulatorTimeSeriesModel totalUtilityOutputModel;
+
 		public NationalEconomyModel(Currency currency) {
 			this.currency = currency;
 
@@ -361,6 +395,7 @@ public class ModelRegistry {
 			}
 
 			this.householdsModel = new HouseholdsModel(currency);
+			this.stateModel = new StateModel(currency);
 			this.numberOfAgentsModel = new NumberOfAgentsModel(currency);
 			this.pricesModel = new PricesModel();
 			this.marketDepthModel = new MarketDepthModel();
@@ -382,6 +417,9 @@ public class ModelRegistry {
 					currency.getIso4217Code() + " credit util. rate");
 			this.balanceSheetsModel = new BalanceSheetsModel(currency);
 			this.monetaryTransactionsModel = new MonetaryTransactionsModel();
+
+			this.totalUtilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
+					currency.getIso4217Code() + " total utility");
 		}
 
 		public IndustryModel getIndustryModel(GoodType goodType) {
@@ -420,6 +458,7 @@ public class ModelRegistry {
 			this.numberOfAgentsModel.nextPeriod();
 			this.pricesModel.nextPeriod();
 			this.priceIndexModel.nextPeriod();
+			this.stateModel.nextPeriod();
 		}
 	}
 

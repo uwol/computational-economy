@@ -105,7 +105,6 @@ public abstract class Property {
 	@Transient
 	protected void deconstruct() {
 		this.isDeconstructed = true;
-
 		PropertyFactory.deleteProperty(this);
 	}
 }

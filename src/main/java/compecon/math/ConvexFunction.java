@@ -31,7 +31,7 @@ import compecon.math.price.IPriceFunction;
 public abstract class ConvexFunction<T> extends Function<T> {
 
 	public enum ConvexFunctionTerminationCause {
-		INPUT_FACTOR_UNAVAILABLE, NO_OPTIMAL_INPUT, BUDGET_SPENT;
+		INPUT_FACTOR_UNAVAILABLE, NO_INPUT_AVAILABLE, BUDGET_PLANNED;
 	}
 
 	protected ConvexFunction(
@@ -45,7 +45,9 @@ public abstract class ConvexFunction<T> extends Function<T> {
 			final double budget) {
 		return this.calculateOutputMaximizingInputsIterative(
 				priceFunctionsOfInputGoods, budget,
-				ConfigurationUtil.MathConfig.getNumberOfIterations());
+				ConfigurationUtil.MathConfig.getNumberOfIterations(),
+				ConfigurationUtil.MathConfig
+						.getInitializationValueForInputFactorsNonZero());
 	}
 
 	/**
@@ -60,6 +62,23 @@ public abstract class ConvexFunction<T> extends Function<T> {
 	public Map<T, Double> calculateOutputMaximizingInputsIterative(
 			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
 			final double budget, final int numberOfIterations) {
+		if (this.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
+			return this.calculateOutputMaximizingInputsIterative(
+					priceFunctionsOfInputTypes, budget, numberOfIterations,
+					ConfigurationUtil.MathConfig
+							.getInitializationValueForInputFactorsNonZero());
+		} else {
+			return this
+					.calculateOutputMaximizingInputsIterative(
+							priceFunctionsOfInputTypes, budget,
+							numberOfIterations, 0.0);
+		}
+	}
+
+	protected Map<T, Double> calculateOutputMaximizingInputsIterative(
+			final Map<T, IPriceFunction> priceFunctionsOfInputTypes,
+			final double budget, final int numberOfIterations,
+			final double initializationValueForInputs) {
 
 		assert (numberOfIterations > 0);
 
@@ -97,7 +116,7 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		if (MathUtil.lesserEqual(budget, 0.0)) {
 			getLog().log("budget is " + budget + " -> no calculation");
 			getLog().agent_onCalculateOutputMaximizingInputsIterative(budget,
-					0.0, ConvexFunctionTerminationCause.BUDGET_SPENT);
+					0.0, ConvexFunctionTerminationCause.BUDGET_PLANNED);
 
 			final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 			for (T inputType : this.getInputTypes())
@@ -112,16 +131,8 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 
 		// initialize
-		if (this.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
-			for (T inputType : this.getInputTypes()) {
-				bundleOfInputs.put(inputType, 0.0000001);
-				moneySpent += bundleOfInputs.get(inputType)
-						* priceFunctionsOfInputTypes.get(inputType).getPrice(
-								bundleOfInputs.get(inputType));
-			}
-		} else {
-			for (T inputType : this.getInputTypes())
-				bundleOfInputs.put(inputType, 0.0);
+		for (T inputType : this.getInputTypes()) {
+			bundleOfInputs.put(inputType, initializationValueForInputs);
 		}
 
 		// maximize output
@@ -133,10 +144,10 @@ public abstract class ConvexFunction<T> extends Function<T> {
 		while (true) {
 			// would this iteration lead to overspending of the budget?
 			if (MathUtil.greater(moneySpent + budgetPerIteration, budget)) {
-				getLog().log("budget spent completely");
+				getLog().log("budget planned completely");
 				getLog().agent_onCalculateOutputMaximizingInputsIterative(
 						budget, moneySpent,
-						ConvexFunctionTerminationCause.BUDGET_SPENT);
+						ConvexFunctionTerminationCause.BUDGET_PLANNED);
 				break;
 			}
 
@@ -148,18 +159,33 @@ public abstract class ConvexFunction<T> extends Function<T> {
 				getLog().log("no optimal input found -> terminating");
 				getLog().agent_onCalculateOutputMaximizingInputsIterative(
 						budget, moneySpent,
-						ConvexFunctionTerminationCause.NO_OPTIMAL_INPUT);
+						ConvexFunctionTerminationCause.NO_INPUT_AVAILABLE);
 				break;
 			} else {
 				double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
 						.get(optimalInputType).getMarginalPrice(
 								bundleOfInputs.get(optimalInputType));
-				double amount = budgetPerIteration
-						/ marginalPriceOfOptimalInputType;
+				// additional amounts have to grow slowly, so that the solution
+				// space is not left
+				double additionalAmountOfInputType = Math
+						.min(budgetPerIteration
+								/ marginalPriceOfOptimalInputType,
+								Math.max(
+										bundleOfInputs.get(optimalInputType),
+										ConfigurationUtil.MathConfig
+												.getInitializationValueForInputFactorsNonZero()));
 				bundleOfInputs.put(optimalInputType,
-						bundleOfInputs.get(optimalInputType) + amount);
-				moneySpent += marginalPriceOfOptimalInputType * amount;
+						bundleOfInputs.get(optimalInputType)
+								+ additionalAmountOfInputType);
+				moneySpent += marginalPriceOfOptimalInputType
+						* additionalAmountOfInputType;
 			}
+		}
+
+		// reset initialization values
+		for (T inputType : this.getInputTypes()) {
+			bundleOfInputs.put(inputType, bundleOfInputs.get(inputType)
+					- initializationValueForInputs);
 		}
 
 		return bundleOfInputs;

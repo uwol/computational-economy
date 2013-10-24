@@ -32,7 +32,6 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
@@ -51,6 +50,11 @@ public abstract class Bond extends Property {
 	@JoinColumn(name = "issuerBankAccount_id")
 	@Index(name = "issuerBankAccount")
 	protected BankAccount issuerBankAccount;
+
+	@ManyToOne
+	@JoinColumn(name = "ownerBankAccount_id")
+	@Index(name = "ownerBankAccount")
+	protected BankAccount ownerBankAccount;
 
 	@Enumerated(value = EnumType.STRING)
 	protected Currency issuedInCurrency;
@@ -74,7 +78,7 @@ public abstract class Bond extends Property {
 						transferFaceValueEvent,
 						Simulation.getInstance().getTimeSystem()
 								.getCurrentYear()
-								+ termInYears,
+								+ this.termInYears,
 						Simulation.getInstance().getTimeSystem()
 								.getCurrentMonthType(),
 						Simulation.getInstance().getTimeSystem()
@@ -97,6 +101,10 @@ public abstract class Bond extends Property {
 		return issuedInCurrency;
 	}
 
+	public BankAccount getOwnerBankAccount() {
+		return ownerBankAccount;
+	}
+
 	public int getTermInYears() {
 		return termInYears;
 	}
@@ -113,8 +121,22 @@ public abstract class Bond extends Property {
 		this.issuedInCurrency = issuedInCurrency;
 	}
 
+	public void setOwnerBankAccount(BankAccount ownerBankAccount) {
+		this.ownerBankAccount = ownerBankAccount;
+	}
+
 	public void setTermInYears(int termInYears) {
 		this.termInYears = termInYears;
+	}
+
+	/*
+	 * assertions
+	 */
+
+	protected void assertValidOwner() {
+		assert (this.owner.equals(PropertyRegister.getInstance().getOwner(
+				Bond.this)));
+		assert (this.owner.equals(this.ownerBankAccount.getOwner()));
 	}
 
 	/*
@@ -123,6 +145,8 @@ public abstract class Bond extends Property {
 
 	@Transient
 	public void deconstruct() {
+		super.deconstruct();
+
 		// deregister from TimeSystem
 		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
 			Simulation.getInstance().getTimeSystem()
@@ -132,11 +156,11 @@ public abstract class Bond extends Property {
 	public class TransferFaceValueEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			Agent owner = PropertyRegister.getInstance().getOwner(Bond.this);
+			assertValidOwner();
+
 			Bond.this.issuerBankAccount.getManagingBank().transferMoney(
-					Bond.this.issuerBankAccount,
-					owner.getTransactionsBankAccount(), Bond.this.faceValue,
-					"bond face value");
+					Bond.this.issuerBankAccount, Bond.this.ownerBankAccount,
+					Bond.this.faceValue, "bond face value");
 			Bond.this.deconstruct(); // delete bond from simulation
 		}
 	}

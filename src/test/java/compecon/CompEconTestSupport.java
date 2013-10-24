@@ -147,7 +147,8 @@ public abstract class CompEconTestSupport {
 		}
 
 		for (CreditBank creditBank : DAOFactory.getCreditBankDAO().findAll()) {
-			creditBank.assureCentralBankAccount();
+			creditBank.assureCentralBankMoneyReservesAccount();
+			creditBank.assureCentralBankTransactionsAccount();
 			creditBank.assureTransactionsBankAccount();
 			creditBank.assureCurrencyTradeBankAccounts();
 		}
