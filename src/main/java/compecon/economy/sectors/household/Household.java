@@ -35,8 +35,8 @@ import compecon.economy.PricingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
-import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.Property;
@@ -227,7 +227,7 @@ public class Household extends Agent implements IShareOwner {
 		if (this.savingsBankAccount == null) {
 			this.savingsBankAccount = this.primaryBank.openBankAccount(this,
 					this.primaryCurrency, false, "savings account",
-					BankAccountType.LONG_TERM, EconomicSphere.REAL_ECONOMY);
+					TermType.LONG_TERM, MoneyType.GIRO_MONEY);
 		}
 	}
 
@@ -293,11 +293,13 @@ public class Household extends Agent implements IShareOwner {
 			// bank deposits
 			if (Household.this.savingsBankAccount.getBalance() > 0.0) {
 				balanceSheet.addCash(
-						Household.this.savingsBankAccount.getBankAccountType(),
+						Household.this.savingsBankAccount.getMoneyType(),
+						Household.this.savingsBankAccount.getTermType(),
 						Household.this.savingsBankAccount.getBalance());
 			} else {
 				balanceSheet.addLoan(
-						Household.this.savingsBankAccount.getBankAccountType(),
+						Household.this.savingsBankAccount.getMoneyType(),
+						Household.this.savingsBankAccount.getTermType(),
 						-1.0 * Household.this.savingsBankAccount.getBalance());
 			}
 

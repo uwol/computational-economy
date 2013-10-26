@@ -22,8 +22,8 @@ package compecon.engine;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
-import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
+import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.ConfigurationUtil;
@@ -33,8 +33,8 @@ public class BankAccountFactory {
 	public static BankAccount newInstanceBankAccount(final Agent owner,
 			final Currency currency, boolean overdraftPossible,
 			final Bank managingBank, final String name,
-			final BankAccountType bankAccountType,
-			final EconomicSphere economicSphere) {
+			final TermType termType,
+			final MoneyType moneyType) {
 		BankAccount bankAccount = new BankAccount();
 		if (!ConfigurationUtil.DbConfig.getActivateDb())
 			bankAccount.setId(Simulation.getInstance().getNextId());
@@ -44,8 +44,8 @@ public class BankAccountFactory {
 		bankAccount.setCurrency(currency);
 		bankAccount.setManagingBank(managingBank);
 		bankAccount.setName(name);
-		bankAccount.setBankAccountType(bankAccountType);
-		bankAccount.setEconomicSphere(economicSphere);
+		bankAccount.setTermType(termType);
+		bankAccount.setMoneyType(moneyType);
 
 		DAOFactory.getBankAccountDAO().save(bankAccount);
 		HibernateUtil.flushSession();

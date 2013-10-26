@@ -44,8 +44,8 @@ import org.hibernate.annotations.Index;
 
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
-import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.HardCashRegister;
@@ -236,7 +236,7 @@ public abstract class Agent {
 		if (this.transactionsBankAccount == null) {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency, true, "transactions account",
-					BankAccountType.SHORT_TERM, EconomicSphere.REAL_ECONOMY);
+					TermType.SHORT_TERM, MoneyType.GIRO_MONEY);
 		}
 	}
 
@@ -273,12 +273,14 @@ public abstract class Agent {
 		// bank deposits
 		if (Agent.this.transactionsBankAccount.getBalance() > 0.0) {
 			balanceSheet.addCash(
-					Agent.this.transactionsBankAccount.getBankAccountType(),
+					Agent.this.transactionsBankAccount.getMoneyType(),
+					Agent.this.transactionsBankAccount.getTermType(),
 					Agent.this.transactionsBankAccount.getBalance());
 		} else {
 			balanceSheet.addLoan(
-					Agent.this.transactionsBankAccount.getBankAccountType(),
-					-1.0 * Agent.this.transactionsBankAccount.getBalance());
+					Agent.this.transactionsBankAccount.getMoneyType(),
+					Agent.this.transactionsBankAccount.getTermType(), -1.0
+							* Agent.this.transactionsBankAccount.getBalance());
 		}
 
 		// bonds

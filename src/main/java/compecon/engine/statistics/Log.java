@@ -26,7 +26,6 @@ import java.util.Map.Entry;
 import compecon.economy.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
@@ -132,12 +131,10 @@ public class Log {
 		// TODO: what about money in the private banking system? -> M1
 		// definition
 		modelRegistry.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM1Model
-				.add(balanceSheet.hardCash
-						+ balanceSheet.cash.get(BankAccountType.SHORT_TERM));
+				.add(balanceSheet.hardCash + balanceSheet.cashGiroShortTerm);
 		modelRegistry.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM2Model
-				.add(balanceSheet.hardCash
-						+ balanceSheet.cash.get(BankAccountType.SHORT_TERM)
-						+ balanceSheet.cash.get(BankAccountType.LONG_TERM));
+				.add(balanceSheet.hardCash + balanceSheet.cashGiroShortTerm
+						+ balanceSheet.cashGiroLongTerm);
 	}
 
 	public void agent_CreditUtilization(final Agent agent,

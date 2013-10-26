@@ -40,8 +40,8 @@ import org.hibernate.annotations.Index;
 import compecon.economy.PricingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.Agent;
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
-import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
@@ -272,7 +272,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency, true, "transactions account",
-					BankAccountType.SHORT_TERM, EconomicSphere.REAL_ECONOMY);
+					TermType.SHORT_TERM, MoneyType.GIRO_MONEY);
 		}
 	}
 
@@ -287,8 +287,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					.getInstanceCentralBank(this.primaryCurrency)
 					.openBankAccount(this, this.primaryCurrency, true,
 							"central bank money reserves account",
-							BankAccountType.CENTRAL_BANK_MONEY_RESERVES,
-							EconomicSphere.PAPER_ECONOMY);
+							TermType.LONG_TERM, MoneyType.CENTRALBANK_MONEY);
 		}
 	}
 
@@ -303,8 +302,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					.getInstanceCentralBank(this.primaryCurrency)
 					.openBankAccount(this, this.primaryCurrency, true,
 							"central bank transactions account",
-							BankAccountType.CENTRAL_BANK_TRANSACTION,
-							EconomicSphere.REAL_ECONOMY);
+							TermType.SHORT_TERM, MoneyType.GIRO_MONEY);
 		}
 	}
 
@@ -330,8 +328,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						BankAccount bankAccount = foreignCurrencyCreditBank
 								.openBankAccount(this, currency, true,
 										"currency trade (foreign) account",
-										BankAccountType.SHORT_TERM,
-										EconomicSphere.REAL_ECONOMY);
+										TermType.SHORT_TERM,
+										MoneyType.GIRO_MONEY);
 						this.currencyTradeBankAccounts.put(currency,
 								bankAccount);
 					}
@@ -343,8 +341,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							CreditBank.this.openBankAccount(this,
 									this.primaryCurrency, true,
 									"currency trade (local)",
-									BankAccountType.SHORT_TERM,
-									EconomicSphere.REAL_ECONOMY));
+									TermType.SHORT_TERM, MoneyType.GIRO_MONEY));
 				}
 			}
 		}
@@ -365,7 +362,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			 */
 			this.longTermBankAccount = this.primaryBank.openBankAccount(this,
 					this.primaryCurrency, true, "long term bank account",
-					BankAccountType.LONG_TERM, EconomicSphere.REAL_ECONOMY);
+					TermType.LONG_TERM, MoneyType.GIRO_MONEY);
 		}
 	}
 
@@ -448,7 +445,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		assert (from.getBalance() - amount >= 0.0 || from
 				.getOverdraftPossible());
 
-		this.assertIdenticalEconomicSphere(from, to);
+		this.assertIdenticalMoneyType(from, to);
 
 		assert (MathUtil.equal(
 				this.centralBankTransactionsBankAccount.getBalance(), 0.0));
@@ -673,13 +670,20 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 
 			// bank deposits
 			if (CreditBank.this.longTermBankAccount.getBalance() > 0.0) {
-				balanceSheet.addCash(CreditBank.this.longTermBankAccount
-						.getBankAccountType(),
+				balanceSheet.addCash(
+						CreditBank.this.longTermBankAccount.getMoneyType(),
+						CreditBank.this.longTermBankAccount.getTermType(),
 						CreditBank.this.longTermBankAccount.getBalance());
 			} else {
-				balanceSheet.addLoan(CreditBank.this.longTermBankAccount
-						.getBankAccountType(), -1.0
-						* CreditBank.this.longTermBankAccount.getBalance());
+				balanceSheet
+						.addLoan(
+								CreditBank.this.longTermBankAccount
+										.getMoneyType(),
+								CreditBank.this.longTermBankAccount
+										.getTermType(),
+								-1.0
+										* CreditBank.this.longTermBankAccount
+												.getBalance());
 			}
 
 			// deposits owned by this credit bank in the central bank for
@@ -687,14 +691,18 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			if (CreditBank.this.centralBankTransactionsBankAccount.getBalance() > 0.0) {
 				balanceSheet.addCash(
 						CreditBank.this.centralBankTransactionsBankAccount
-								.getBankAccountType(),
+								.getMoneyType(),
+						CreditBank.this.centralBankTransactionsBankAccount
+								.getTermType(),
 						CreditBank.this.centralBankTransactionsBankAccount
 								.getBalance());
 			} else {
 				balanceSheet
 						.addLoan(
 								CreditBank.this.centralBankTransactionsBankAccount
-										.getBankAccountType(),
+										.getMoneyType(),
+								CreditBank.this.centralBankTransactionsBankAccount
+										.getTermType(),
 								-1.0
 										* CreditBank.this.centralBankTransactionsBankAccount
 												.getBalance());
@@ -706,14 +714,18 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					.getBalance() > 0.0) {
 				balanceSheet.addCash(
 						CreditBank.this.centralBankMoneyReservesBankAccount
-								.getBankAccountType(),
+								.getMoneyType(),
+						CreditBank.this.centralBankMoneyReservesBankAccount
+								.getTermType(),
 						CreditBank.this.centralBankMoneyReservesBankAccount
 								.getBalance());
 			} else {
 				balanceSheet
 						.addLoan(
 								CreditBank.this.centralBankMoneyReservesBankAccount
-										.getBankAccountType(),
+										.getMoneyType(),
+								CreditBank.this.centralBankMoneyReservesBankAccount
+										.getTermType(),
 								-1.0
 										* CreditBank.this.centralBankMoneyReservesBankAccount
 												.getBalance());
@@ -1174,8 +1186,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						.equals(CreditBank.this.primaryCurrency));
 
 				if (bankAccount.getBalance() > 0.0
-						&& BankAccountType.LONG_TERM.equals(bankAccount
-								.getBankAccountType())) { // passive account
+						&& TermType.LONG_TERM.equals(bankAccount.getTermType())) { // passive
+																					// account
 					// temporary assertion; TODO remove
 					assert (bankAccount.getOwner() instanceof Household);
 					balanceSumOfPassiveBankAccounts += bankAccount.getBalance();

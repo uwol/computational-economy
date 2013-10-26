@@ -28,8 +28,8 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import compecon.economy.sectors.Agent;
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
-import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.BankAccountFactory;
 import compecon.engine.dao.DAOFactory;
@@ -55,7 +55,8 @@ public abstract class Bank extends JointStockCompany {
 	 */
 
 	@Transient
-	protected void assertBankAccountIsManagedByThisBank(BankAccount bankAccount) {
+	protected void assertBankAccountIsManagedByThisBank(
+			final BankAccount bankAccount) {
 		assert (bankAccount.getManagingBank() == this);
 	}
 
@@ -70,19 +71,19 @@ public abstract class Bank extends JointStockCompany {
 	}
 
 	@Transient
-	protected void assertIsCustomerOfThisBank(Agent agent) {
+	protected void assertIsCustomerOfThisBank(final Agent agent) {
 		assert (DAOFactory.getBankAccountDAO().findAll(this, agent).size() > 0);
 	}
 
 	@Transient
-	protected void assertIdenticalEconomicSphere(BankAccount from,
-			BankAccount to) {
-		assert (from.getEconomicSphere() != null);
-		assert (from.getEconomicSphere().equals(to.getEconomicSphere()));
+	protected void assertIdenticalMoneyType(final BankAccount from,
+			final BankAccount to) {
+		assert (from.getMoneyType() != null);
+		assert (from.getMoneyType().equals(to.getMoneyType()));
 	}
 
 	@Transient
-	protected abstract void assertCurrencyIsOffered(Currency currency);
+	protected abstract void assertCurrencyIsOffered(final Currency currency);
 
 	/*
 	 * business logic
@@ -99,42 +100,44 @@ public abstract class Bank extends JointStockCompany {
 	}
 
 	@Transient
-	public List<BankAccount> getBankAccounts(Agent customer) {
+	public List<BankAccount> getBankAccounts(final Agent customer) {
 		return DAOFactory.getBankAccountDAO().findAll(this, customer);
 	}
 
 	@Transient
-	public List<BankAccount> getBankAccounts(Agent customer, Currency currency) {
+	public List<BankAccount> getBankAccounts(final Agent customer,
+			final Currency currency) {
 		return DAOFactory.getBankAccountDAO().findAll(this, customer, currency);
 	}
 
 	@Transient
-	public abstract void closeCustomerAccount(Agent customer);
+	public abstract void closeCustomerAccount(final Agent customer);
 
 	@Transient
 	public BankAccount openBankAccount(final Agent customer,
 			final Currency currency, final boolean overdraftPossible,
-			final String name, final BankAccountType bankAccountType,
-			final EconomicSphere economicSphere) {
+			final String name, final TermType termType,
+			final MoneyType moneyType) {
 		this.assertCurrencyIsOffered(currency);
 
 		BankAccount bankAccount = BankAccountFactory.newInstanceBankAccount(
-				customer, currency, overdraftPossible, this, name,
-				bankAccountType, economicSphere);
+				customer, currency, overdraftPossible, this, name, termType,
+				moneyType);
 		return bankAccount;
 	}
 
 	@Transient
-	public abstract void transferMoney(BankAccount from, BankAccount to,
-			double amount, String subject);
+	public abstract void transferMoney(final BankAccount from,
+			final BankAccount to, final double amount, final String subject);
 
 	@Transient
-	protected abstract void transferMoney(BankAccount from, BankAccount to,
-			double amount, String subject, boolean negativeAmountOK);
+	protected abstract void transferMoney(final BankAccount from,
+			final BankAccount to, final double amount, final String subject,
+			final boolean negativeAmountOK);
 
 	@Transient
 	public double calculateMonthlyNominalInterestRate(
-			double effectiveInterestRate) {
+			final double effectiveInterestRate) {
 		// http://en.wikipedia.org/wiki/Effective_interest_rate
 		return effectiveInterestRate / (1 + 11 / 24 * effectiveInterestRate)
 				/ 12;

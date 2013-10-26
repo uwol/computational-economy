@@ -33,8 +33,8 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Index;
 
 import compecon.economy.sectors.Agent;
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
-import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
@@ -183,7 +183,7 @@ public class CentralBank extends Bank {
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency, true, "transactions account",
-					BankAccountType.SHORT_TERM, EconomicSphere.REAL_ECONOMY);
+					TermType.SHORT_TERM, MoneyType.GIRO_MONEY);
 		}
 	}
 
@@ -202,9 +202,8 @@ public class CentralBank extends Bank {
 			 */
 			this.centralBankMoneyBankAccount = this.primaryBank
 					.openBankAccount(this, this.primaryCurrency, true,
-							"central bank money account",
-							BankAccountType.CENTRAL_BANK_MONEY_RESERVES,
-							EconomicSphere.PAPER_ECONOMY);
+							"central bank money account", TermType.LONG_TERM,
+							MoneyType.CENTRALBANK_MONEY);
 		}
 	}
 
@@ -226,8 +225,8 @@ public class CentralBank extends Bank {
 				this, customer)) {
 			// on closing has to be evened up to 0, so that no money is
 			// lost in the monetary system
-			switch (bankAccount.getEconomicSphere()) {
-			case REAL_ECONOMY:
+			switch (bankAccount.getMoneyType()) {
+			case GIRO_MONEY:
 				if (this.transactionsBankAccount != null
 						&& bankAccount != this.transactionsBankAccount) {
 					if (bankAccount.getBalance() >= 0) {
@@ -242,7 +241,7 @@ public class CentralBank extends Bank {
 					}
 				}
 				break;
-			case PAPER_ECONOMY:
+			case CENTRALBANK_MONEY:
 				if (this.centralBankMoneyBankAccount != null
 						&& bankAccount != this.centralBankMoneyBankAccount) {
 
@@ -280,7 +279,7 @@ public class CentralBank extends Bank {
 		final double fromBalanceBefore = from.getBalance();
 		final double toBalanceBefore = to.getBalance();
 
-		this.assertIdenticalEconomicSphere(from, to);
+		this.assertIdenticalMoneyType(from, to);
 
 		if (from.getManagingBank() instanceof CentralBank
 				&& to.getManagingBank() instanceof CentralBank) {
@@ -393,8 +392,8 @@ public class CentralBank extends Bank {
 
 		for (Bond bond : bonds) {
 			// bank money creation; fiat money!
-			assert (EconomicSphere.PAPER_ECONOMY
-					.equals(moneyReservesBankAccount.getEconomicSphere()));
+			assert (MoneyType.CENTRALBANK_MONEY.equals(moneyReservesBankAccount
+					.getMoneyType()));
 			moneyReservesBankAccount.deposit(bond.getFaceValue());
 			PropertyRegister.getInstance().transferProperty(
 					moneyReservesBankAccount.getOwner(), this, bond);
@@ -573,13 +572,17 @@ public class CentralBank extends Bank {
 			if (CentralBank.this.centralBankMoneyBankAccount.getBalance() > 0.0) {
 				balanceSheet.addCash(
 						CentralBank.this.centralBankMoneyBankAccount
-								.getBankAccountType(),
+								.getMoneyType(),
+						CentralBank.this.centralBankMoneyBankAccount
+								.getTermType(),
 						CentralBank.this.centralBankMoneyBankAccount
 								.getBalance());
 			} else {
 				balanceSheet.addLoan(
 						CentralBank.this.centralBankMoneyBankAccount
-								.getBankAccountType(),
+								.getMoneyType(),
+						CentralBank.this.centralBankMoneyBankAccount
+								.getTermType(),
 						-1.0
 								* CentralBank.this.centralBankMoneyBankAccount
 										.getBalance());

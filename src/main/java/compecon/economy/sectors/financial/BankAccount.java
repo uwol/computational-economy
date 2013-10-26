@@ -39,19 +39,19 @@ import compecon.economy.sectors.Agent;
 @Table(name = "BankAccount")
 public class BankAccount {
 
-	public enum BankAccountType {
-		SHORT_TERM, LONG_TERM, CENTRAL_BANK_TRANSACTION, CENTRAL_BANK_MONEY_RESERVES;
+	public enum TermType {
+		SHORT_TERM, LONG_TERM;
 	}
 
-	public enum EconomicSphere {
-		REAL_ECONOMY, PAPER_ECONOMY
+	public enum MoneyType {
+		GIRO_MONEY, CENTRALBANK_MONEY
 	}
 
 	@Column(name = "balance")
 	protected double balance;
 
 	@Enumerated(EnumType.STRING)
-	protected BankAccountType bankAccountType;
+	protected TermType termType;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "currency")
@@ -59,7 +59,7 @@ public class BankAccount {
 	protected Currency currency;
 
 	@Enumerated(EnumType.STRING)
-	protected EconomicSphere economicSphere;
+	protected MoneyType moneyType;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -89,8 +89,8 @@ public class BankAccount {
 		return this.balance;
 	}
 
-	public BankAccountType getBankAccountType() {
-		return bankAccountType;
+	public TermType getTermType() {
+		return termType;
 	}
 
 	public Currency getCurrency() {
@@ -101,8 +101,8 @@ public class BankAccount {
 		return id;
 	}
 
-	public EconomicSphere getEconomicSphere() {
-		return this.economicSphere;
+	public MoneyType getMoneyType() {
+		return this.moneyType;
 	}
 
 	public Bank getManagingBank() {
@@ -125,16 +125,16 @@ public class BankAccount {
 		this.balance = balance;
 	}
 
-	public void setBankAccountType(BankAccountType bankAccountType) {
-		this.bankAccountType = bankAccountType;
+	public void setTermType(TermType termType) {
+		this.termType = termType;
 	}
 
 	public void setCurrency(Currency currency) {
 		this.currency = currency;
 	}
 
-	public void setEconomicSphere(EconomicSphere economicSphere) {
-		this.economicSphere = economicSphere;
+	public void setMoneyType(MoneyType moneyType) {
+		this.moneyType = moneyType;
 	}
 
 	public void setId(int id) {

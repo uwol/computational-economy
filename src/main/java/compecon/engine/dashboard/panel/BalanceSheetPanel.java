@@ -27,7 +27,8 @@ import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.AbstractTableModel;
 
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.engine.Simulation;
@@ -74,14 +75,17 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 					return "Hard Cash";
 
 				case 1:
-					return "Cash " + BankAccountType.SHORT_TERM;
+					return "Cash " + MoneyType.GIRO_MONEY + " "
+							+ TermType.SHORT_TERM;
 				case 2:
-					return "Cash " + BankAccountType.LONG_TERM;
+					return "Cash " + MoneyType.GIRO_MONEY + " "
+							+ TermType.LONG_TERM;
 				case 3:
-					return "Cash " + BankAccountType.CENTRAL_BANK_TRANSACTION;
+					return "Cash " + MoneyType.CENTRALBANK_MONEY + " "
+							+ TermType.SHORT_TERM;
 				case 4:
-					return "Cash "
-							+ BankAccountType.CENTRAL_BANK_MONEY_RESERVES;
+					return "Cash " + MoneyType.CENTRALBANK_MONEY + " "
+							+ TermType.LONG_TERM;
 
 				case 5:
 					return "Cash Foreign Currency";
@@ -106,17 +110,17 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 					return Currency.formatMoneySum(balanceSheet.hardCash);
 
 				case 1:
-					return Currency.formatMoneySum(balanceSheet.cash
-							.get(BankAccountType.SHORT_TERM));
+					return Currency
+							.formatMoneySum(balanceSheet.cashGiroShortTerm);
 				case 2:
-					return Currency.formatMoneySum(balanceSheet.cash
-							.get(BankAccountType.LONG_TERM));
+					return Currency
+							.formatMoneySum(balanceSheet.cashGiroLongTerm);
 				case 3:
-					return Currency.formatMoneySum(balanceSheet.cash
-							.get(BankAccountType.CENTRAL_BANK_TRANSACTION));
+					return Currency
+							.formatMoneySum(balanceSheet.cashCentralBankShortTerm);
 				case 4:
-					return Currency.formatMoneySum(balanceSheet.cash
-							.get(BankAccountType.CENTRAL_BANK_MONEY_RESERVES));
+					return Currency
+							.formatMoneySum(balanceSheet.cashCentralBankLongTerm);
 
 				case 5:
 					return Currency
@@ -138,14 +142,17 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 			else if (columnIndex == 2) {
 				switch (rowIndex) {
 				case 1:
-					return "Loans " + BankAccountType.SHORT_TERM;
+					return "Loans " + MoneyType.GIRO_MONEY + " "
+							+ TermType.SHORT_TERM;
 				case 2:
-					return "Loans " + BankAccountType.LONG_TERM;
+					return "Loans " + MoneyType.GIRO_MONEY + " "
+							+ TermType.LONG_TERM;
 				case 3:
-					return "Loans " + BankAccountType.CENTRAL_BANK_TRANSACTION;
+					return "Loans " + MoneyType.CENTRALBANK_MONEY + " "
+							+ TermType.SHORT_TERM;
 				case 4:
-					return "Loans "
-							+ BankAccountType.CENTRAL_BANK_MONEY_RESERVES;
+					return "Loans " + MoneyType.CENTRALBANK_MONEY + " "
+							+ TermType.LONG_TERM;
 
 				case 6:
 					return "Fin. Liabilities (Bonds)";
@@ -165,17 +172,17 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 			else if (columnIndex == 3) {
 				switch (rowIndex) {
 				case 1:
-					return Currency.formatMoneySum(balanceSheet.loans
-							.get(BankAccountType.SHORT_TERM));
+					return Currency
+							.formatMoneySum(balanceSheet.loansGiroShortTerm);
 				case 2:
-					return Currency.formatMoneySum(balanceSheet.loans
-							.get(BankAccountType.LONG_TERM));
+					return Currency
+							.formatMoneySum(balanceSheet.loansGiroLongTerm);
 				case 3:
-					return Currency.formatMoneySum(balanceSheet.loans
-							.get(BankAccountType.CENTRAL_BANK_TRANSACTION));
+					return Currency
+							.formatMoneySum(balanceSheet.loansCentralBankShortTerm);
 				case 4:
-					return Currency.formatMoneySum(balanceSheet.loans
-							.get(BankAccountType.CENTRAL_BANK_MONEY_RESERVES));
+					return Currency
+							.formatMoneySum(balanceSheet.loansCentralBankLongTerm);
 
 				case 6:
 					return Currency

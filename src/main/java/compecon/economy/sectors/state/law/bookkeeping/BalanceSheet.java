@@ -24,7 +24,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.security.equity.Share;
 import compecon.materia.GoodType;
@@ -41,7 +42,13 @@ public class BalanceSheet {
 	public double hardCash;
 
 	// cash on bank accounts -> passive accounts
-	public Map<BankAccountType, Double> cash = new HashMap<BankAccountType, Double>();
+	public double cashGiroShortTerm;
+
+	public double cashGiroLongTerm;
+
+	public double cashCentralBankShortTerm;
+
+	public double cashCentralBankLongTerm;
 
 	// cash in bank foreign currency deposits, demand deposits; denominated in
 	// local currency
@@ -69,7 +76,9 @@ public class BalanceSheet {
 	public final Map<GoodType, Double> inventoryQuantitative = new HashMap<GoodType, Double>();
 
 	public double getBalanceActive() {
-		return this.hardCash + this.getCashSum() + this.bankLoans + this.bonds
+		return this.hardCash + this.cashGiroShortTerm + this.cashGiroLongTerm
+				+ this.cashCentralBankShortTerm + this.cashCentralBankLongTerm
+				+ this.cashForeignCurrency + this.bankLoans + this.bonds
 				+ this.inventoryValue;
 	}
 
@@ -80,8 +89,10 @@ public class BalanceSheet {
 	public Set<Share> issuedCapital = new HashSet<Share>();
 
 	public double getEquity() {
-		return this.getBalanceActive() - this.getLoansSum()
-				- this.financialLiabilities - this.bankBorrowings;
+		return this.getBalanceActive() - this.loansGiroShortTerm
+				- this.loansGiroLongTerm - this.loansCentralBankShortTerm
+				- this.loansCentralBankLongTerm - this.financialLiabilities
+				- this.bankBorrowings;
 	}
 
 	/*
@@ -95,7 +106,13 @@ public class BalanceSheet {
 
 	// money given as loans to other agents in banking context -> active
 	// accounts
-	public Map<BankAccountType, Double> loans = new HashMap<BankAccountType, Double>();
+	public double loansGiroShortTerm;
+
+	public double loansGiroLongTerm;
+
+	public double loansCentralBankShortTerm;
+
+	public double loansCentralBankLongTerm;
 
 	// issued bonds
 	public double financialLiabilities;
@@ -104,42 +121,65 @@ public class BalanceSheet {
 	public double bankBorrowings;
 
 	public double getBalancePassive() {
-		return this.getLoansSum() + this.financialLiabilities
+		return this.loansGiroShortTerm + this.loansGiroLongTerm
+				+ this.loansCentralBankShortTerm
+				+ this.loansCentralBankLongTerm + this.financialLiabilities
 				+ this.bankBorrowings + this.getEquity();
 	}
 
 	public BalanceSheet(Currency referenceCurrency) {
 		this.referenceCurrency = referenceCurrency;
+	}
 
-		for (BankAccountType bankAccountType : BankAccountType.values()) {
-			this.cash.put(bankAccountType, 0.0);
-			this.loans.put(bankAccountType, 0.0);
+	public void addCash(final MoneyType moneyType, final TermType termType,
+			final double value) {
+		switch (moneyType) {
+		case GIRO_MONEY:
+			switch (termType) {
+			case SHORT_TERM:
+				this.cashGiroShortTerm += value;
+				break;
+			case LONG_TERM:
+				this.cashGiroLongTerm += value;
+				break;
+			}
+			break;
+		case CENTRALBANK_MONEY:
+			switch (termType) {
+			case SHORT_TERM:
+				this.cashCentralBankShortTerm += value;
+				break;
+			case LONG_TERM:
+				this.cashCentralBankLongTerm += value;
+				break;
+			}
+			break;
 		}
 	}
 
-	public void addCash(final BankAccountType bankAccountType,
+	public void addLoan(final MoneyType moneyType, final TermType termType,
 			final double value) {
-		this.cash.put(bankAccountType, this.cash.get(bankAccountType) + value);
-	}
-
-	public void addLoan(final BankAccountType bankAccountType,
-			final double value) {
-		this.loans
-				.put(bankAccountType, this.loans.get(bankAccountType) + value);
-	}
-
-	public double getCashSum() {
-		double sum = 0.0;
-		for (double cash : this.cash.values())
-			sum += cash;
-		sum += this.cashForeignCurrency;
-		return sum;
-	}
-
-	public double getLoansSum() {
-		double sum = 0.0;
-		for (double loan : this.loans.values())
-			sum += loan;
-		return sum;
+		switch (moneyType) {
+		case GIRO_MONEY:
+			switch (termType) {
+			case SHORT_TERM:
+				this.loansGiroShortTerm += value;
+				break;
+			case LONG_TERM:
+				this.loansGiroLongTerm += value;
+				break;
+			}
+			break;
+		case CENTRALBANK_MONEY:
+			switch (termType) {
+			case SHORT_TERM:
+				this.loansCentralBankShortTerm += value;
+				break;
+			case LONG_TERM:
+				this.loansCentralBankLongTerm += value;
+				break;
+			}
+			break;
+		}
 	}
 }

@@ -35,8 +35,8 @@ import javax.persistence.Transient;
 import compecon.economy.BudgetingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
-import compecon.economy.sectors.financial.BankAccount.EconomicSphere;
+import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
@@ -146,8 +146,8 @@ public class Trader extends JointStockCompany {
 				BankAccount bankAccount = foreignCurrencyCreditBank
 						.openBankAccount(this, currency, true,
 								"foreign currency account",
-								BankAccountType.SHORT_TERM,
-								EconomicSphere.REAL_ECONOMY);
+								TermType.SHORT_TERM,
+								MoneyType.GIRO_MONEY);
 				this.goodsTradeBankAccounts.put(currency, bankAccount);
 			}
 		}

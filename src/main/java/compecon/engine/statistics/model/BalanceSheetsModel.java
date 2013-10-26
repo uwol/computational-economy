@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import compecon.economy.sectors.Agent;
-import compecon.economy.sectors.financial.BankAccount.BankAccountType;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -221,9 +220,10 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 
 		// assets
 		to.hardCash += from.hardCash;
-		for (BankAccountType bankAccountType : BankAccountType.values()) {
-			to.addCash(bankAccountType, from.cash.get(bankAccountType));
-		}
+		to.cashGiroShortTerm += from.cashGiroShortTerm;
+		to.cashGiroLongTerm += from.cashGiroLongTerm;
+		to.cashCentralBankShortTerm += from.cashCentralBankShortTerm;
+		to.cashCentralBankLongTerm += from.cashCentralBankLongTerm;
 		to.cashForeignCurrency += from.cashForeignCurrency;
 		to.bonds += from.bonds;
 		to.bankLoans += from.bankLoans;
@@ -242,9 +242,10 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 		}
 
 		// liabilities
-		for (BankAccountType bankAccountType : BankAccountType.values()) {
-			to.addLoan(bankAccountType, from.loans.get(bankAccountType));
-		}
+		to.loansGiroShortTerm += from.loansGiroShortTerm;
+		to.loansGiroLongTerm += from.loansGiroLongTerm;
+		to.loansCentralBankShortTerm += from.loansCentralBankShortTerm;
+		to.loansCentralBankLongTerm += from.loansCentralBankLongTerm;
 		to.financialLiabilities += from.financialLiabilities;
 		to.bankBorrowings += from.bankBorrowings;
 
