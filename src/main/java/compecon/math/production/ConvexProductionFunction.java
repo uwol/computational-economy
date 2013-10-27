@@ -68,6 +68,13 @@ public abstract class ConvexProductionFunction extends ProductionFunction {
 		}
 	}
 
+	/**
+	 * Calculates the profit maximizing production plan based on the common
+	 * microeconomical marginal calculus. This function has a time complexity of
+	 * O(inputGoodTypes.length), as each input type has to be evaluated in each
+	 * iteration.
+	 * 
+	 */
 	protected Map<GoodType, Double> calculateProfitMaximizingProductionFactorsIterative(
 			double priceOfProducedGoodType,
 			Map<GoodType, IPriceFunction> priceFunctionsOfInputTypes,

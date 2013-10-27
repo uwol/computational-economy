@@ -40,6 +40,10 @@ import compecon.engine.time.calendar.HourType;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.HibernateUtil;
 import compecon.materia.GoodType;
+import compecon.materia.IInputOutputModel;
+import compecon.materia.InputOutputModelInterdependencies;
+import compecon.materia.InputOutputModelMinimal;
+import compecon.materia.InputOutputModelSegemented;
 
 public class Simulation {
 
@@ -50,6 +54,8 @@ public class Simulation {
 	protected final Log log;
 
 	protected final ModelRegistry modelRegistry;
+
+	protected final IInputOutputModel inputOutputModel;
 
 	protected final TimeSystem timeSystem;
 
@@ -70,6 +76,24 @@ public class Simulation {
 	public Simulation(boolean showDashboard, Date endDate) {
 		instance = this;
 		this.timeSystem = new TimeSystem(2000);
+
+		// has to happen before initialization of model registry
+		switch (ConfigurationUtil.InputOutputModelConfig
+				.getInputOutputModelSetup()) {
+		case InputOutputModelMinimal:
+			inputOutputModel = new InputOutputModelMinimal();
+			break;
+		case InputOutputModelSegmented:
+			inputOutputModel = new InputOutputModelSegemented();
+			break;
+		case InputOutputModelInterdependencies:
+			inputOutputModel = new InputOutputModelInterdependencies();
+			break;
+		default:
+			inputOutputModel = null;
+			break;
+		}
+
 		this.modelRegistry = new ModelRegistry();
 		this.log = new Log(this.modelRegistry, this.timeSystem);
 		this.endDate = endDate;
@@ -268,6 +292,10 @@ public class Simulation {
 
 	public Log getLog() {
 		return this.log;
+	}
+
+	public IInputOutputModel getInputOutputModel() {
+		return this.inputOutputModel;
 	}
 
 	public ModelRegistry getModelRegistry() {

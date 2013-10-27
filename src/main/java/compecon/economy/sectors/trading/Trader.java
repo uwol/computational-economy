@@ -147,7 +147,7 @@ public class Trader extends JointStockCompany {
 						.openBankAccount(this, currency, true,
 								"foreign currency account",
 								TermType.SHORT_TERM,
-								MoneyType.GIRO_MONEY);
+								MoneyType.DEPOSITS);
 				this.goodsTradeBankAccounts.put(currency, bankAccount);
 			}
 		}

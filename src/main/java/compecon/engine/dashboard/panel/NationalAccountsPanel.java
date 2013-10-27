@@ -216,7 +216,7 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 	}
 
 	@Override
-	public void notifyListener() {
+	public synchronized void notifyListener() {
 		if (this.isShowing()) {
 			NationalAccountsPanelForCurrency accountsPanel = (NationalAccountsPanelForCurrency) jTabbedPaneCurrency
 					.getSelectedComponent();

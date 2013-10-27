@@ -93,7 +93,7 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 		}
 
 		@Override
-		public void notifyListener() {
+		public synchronized void notifyListener() {
 			if (this.isShowing()) {
 				/*
 				 * income distribution chart
@@ -149,14 +149,13 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 							"90 %");
 				}
 
-				/*
-				 * price panel & market depth panel
-				 */
+				// prices panel
 				if (this.priceTimeSeriesPanel != null)
 					this.remove(this.priceTimeSeriesPanel);
 				this.priceTimeSeriesPanel = createPriceTimeSeriesChartPanel(currency);
 				this.add(this.priceTimeSeriesPanel);
 
+				// market depth panel
 				if (this.marketDepthPanel != null)
 					this.remove(this.marketDepthPanel);
 				this.marketDepthPanel = createMarketDepthPanel(currency);

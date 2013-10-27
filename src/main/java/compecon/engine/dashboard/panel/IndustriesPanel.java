@@ -43,7 +43,6 @@ import compecon.engine.statistics.model.NotificationListenerModel.IModelListener
 import compecon.engine.statistics.model.PricesModel;
 import compecon.engine.statistics.model.PricesModel.PriceModel;
 import compecon.materia.GoodType;
-import compecon.materia.InputOutputModel;
 import compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
 
 public class IndustriesPanel extends AbstractChartsPanel implements
@@ -88,14 +87,16 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 			}
 
 			@Override
-			public void notifyListener() {
+			public synchronized void notifyListener() {
 				if (this.isShowing()) {
+					// prices panel
 					if (this.priceTimeSeriesPanel != null)
 						this.remove(this.priceTimeSeriesPanel);
 					this.priceTimeSeriesPanel = createPriceTimeSeriesChartPanel(
 							currency, goodType);
 					this.add(priceTimeSeriesPanel);
 
+					// market depth panel
 					if (this.marketDepthPanel != null)
 						this.remove(this.marketDepthPanel);
 					this.marketDepthPanel = createMarketDepthPanel(currency,
@@ -118,11 +119,17 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 			this.currency = currency;
 			this.add(jTabbedPaneGoodType, BorderLayout.CENTER);
 			for (GoodType outputGoodType : GoodType.values()) {
-				if (!outputGoodType.equals(GoodType.LABOURHOUR)) {
-					IndustriesPanelForGoodTypeInCurrency panelForGoodType = new IndustriesPanelForGoodTypeInCurrency(
-							currency, outputGoodType);
-					jTabbedPaneGoodType.addTab(outputGoodType.name(),
-							panelForGoodType);
+				if (!GoodType.LABOURHOUR.equals(outputGoodType)) {
+					// a model has to exist for this panel; might be not the
+					// case when certain good types are unused in simulation
+					if (Simulation.getInstance().getModelRegistry()
+							.getNationalEconomyModel(currency)
+							.getIndustryModel(outputGoodType) != null) {
+						IndustriesPanelForGoodTypeInCurrency panelForGoodType = new IndustriesPanelForGoodTypeInCurrency(
+								currency, outputGoodType);
+						jTabbedPaneGoodType.addTab(outputGoodType.name(),
+								panelForGoodType);
+					}
 				}
 			}
 
@@ -194,7 +201,8 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 				(XYDataset) timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		chart.addSubtitle(new TextTitle("Inputs: "
-				+ InputOutputModel.getProductionFunction(outputGoodType)
+				+ Simulation.getInstance().getInputOutputModel()
+						.getProductionFunction(outputGoodType)
 						.getInputGoodTypes().toString()));
 		return new ChartPanel(chart);
 	}

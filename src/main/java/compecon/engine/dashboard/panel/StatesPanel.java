@@ -107,7 +107,7 @@ public class StatesPanel extends AbstractChartsPanel implements IModelListener {
 	}
 
 	@Override
-	public void notifyListener() {
+	public synchronized void notifyListener() {
 		if (this.isShowing()) {
 			StatePanelForCurrency statePanelForCurrency = (StatePanelForCurrency) jTabbedPaneCurrency
 					.getSelectedComponent();

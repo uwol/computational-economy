@@ -71,18 +71,21 @@ public class BanksPanel extends AbstractChartsPanel implements IModelListener {
 		}
 
 		@Override
-		public void notifyListener() {
+		public synchronized void notifyListener() {
 			if (this.isShowing()) {
+				// remove prices panels
 				for (Entry<Currency, JPanel> pricePanel : priceTimeSeriesPanels
 						.entrySet()) {
 					this.remove(pricePanel.getValue());
 				}
 
+				// remove market depth panels
 				for (Entry<Currency, JPanel> priceFunctionPanel : marketDepthPanel
 						.entrySet()) {
 					this.remove(priceFunctionPanel.getValue());
 				}
 
+				// add prices & market depth panels
 				for (Currency commodityCurrency : Currency.values()) {
 					if (!commodityCurrency.equals(currency)) {
 						priceTimeSeriesPanels.put(

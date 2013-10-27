@@ -183,7 +183,7 @@ public class CentralBank extends Bank {
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency, true, "transactions account",
-					TermType.SHORT_TERM, MoneyType.GIRO_MONEY);
+					TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
@@ -226,7 +226,7 @@ public class CentralBank extends Bank {
 			// on closing has to be evened up to 0, so that no money is
 			// lost in the monetary system
 			switch (bankAccount.getMoneyType()) {
-			case GIRO_MONEY:
+			case DEPOSITS:
 				if (this.transactionsBankAccount != null
 						&& bankAccount != this.transactionsBankAccount) {
 					if (bankAccount.getBalance() >= 0) {

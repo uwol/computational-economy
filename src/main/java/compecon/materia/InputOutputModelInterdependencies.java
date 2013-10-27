@@ -24,25 +24,13 @@ import java.util.Map;
 
 import compecon.math.production.CESProductionFunction;
 import compecon.math.production.IProductionFunction;
-import compecon.math.production.RootProductionFunction;
 import compecon.math.utility.CESUtilityFunction;
 import compecon.math.utility.IUtilityFunction;
 
-/**
- * Factory class for production functions, which relates inputs / production
- * factors to outputs.
- * 
- * http://en.wikipedia.org/wiki/Input-output_model
- */
-public class InputOutputModel {
+public class InputOutputModelInterdependencies implements IInputOutputModel {
 
-	public static IUtilityFunction getUtilityFunctionForHousehold() {
-		// consumption preferences; each GoodType has to be contained here (at
-		// least transitively via the input-output-model), so that the
-		// corresponding price on the market
-		// can come to an equilibrium; preference for labour hour has to be high
-		// enough, so that labour hour prices do not fall endlessly
-		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
+	public IUtilityFunction getUtilityFunctionOfHousehold() {
+		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
 		preferences.put(GoodType.IRON, 0.2);
 		preferences.put(GoodType.COAL, 0.2);
 		preferences.put(GoodType.COTTON, 0.2);
@@ -55,8 +43,8 @@ public class InputOutputModel {
 		return new CESUtilityFunction(1.0, preferences, -0.7, 0.5);
 	}
 
-	public static IUtilityFunction getUtilityFunctionForState() {
-		Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
+	public IUtilityFunction getUtilityFunctionOfState() {
+		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
 		preferences.put(GoodType.IRON, 0.2);
 		preferences.put(GoodType.COAL, 0.2);
 		preferences.put(GoodType.COTTON, 0.2);
@@ -69,47 +57,7 @@ public class InputOutputModel {
 		return new CESUtilityFunction(1.0, preferences, -0.7, 0.5);
 	}
 
-	public static IProductionFunction getProductionFunction(
-			GoodType outputGoodType) {
-		return getProductionFunctionCobbDouglasBased(outputGoodType);
-	}
-
-	public static IProductionFunction getProductionFunctionCobbDouglasBased(
-			GoodType outputGoodType) {
-		switch (outputGoodType) {
-		case IRON:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		case COAL:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		case COTTON:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		case WHEAT:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-
-		case KILOWATT:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		case CLOTHING:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		case FOOD:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		case REALESTATE:
-			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-
-			// case CRAFT:
-			// return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-			// case EDUCATION:
-			// return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-			// case ADMINISTRATION:
-			// return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-			// case CONSULTING:
-			// return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
-		default:
-			return null;
-		}
-	}
-
-	public static IProductionFunction getProductionFunctionCESBased(
-			GoodType outputGoodType) {
+	public IProductionFunction getProductionFunction(GoodType outputGoodType) {
 		switch (outputGoodType) {
 		case IRON:
 			Map<GoodType, Double> parametersIron = new LinkedHashMap<GoodType, Double>();
@@ -152,34 +100,6 @@ public class InputOutputModel {
 			return new CESProductionFunction(1.0, parametersRealEstate, -0.8,
 					0.7);
 
-			// case CRAFT:
-			// Map<GoodType, Double> parametersCraft = new
-			// LinkedHashMap<GoodType, Double>();
-			// parametersCraft.put(GoodType.LABOURHOUR, 0.9);
-			// parametersCraft.put(GoodType.KILOWATT, 0.1);
-			// return new CESProductionFunction(1.0, parametersCraft, -0.9,
-			// 0.8);
-			// case EDUCATION:
-			// Map<GoodType, Double> parametersEducation = new
-			// LinkedHashMap<GoodType, Double>();
-			// parametersEducation.put(GoodType.LABOURHOUR, 0.9);
-			// parametersEducation.put(GoodType.KILOWATT, 0.1);
-			// return new CESProductionFunction(1.0, parametersEducation, -0.9,
-			// 0.8);
-			// case ADMINISTRATION:
-			// Map<GoodType, Double> parametersAdministration = new
-			// LinkedHashMap<GoodType, Double>();
-			// parametersAdministration.put(GoodType.LABOURHOUR, 0.9);
-			// parametersAdministration.put(GoodType.KILOWATT, 0.1);
-			// return new CESProductionFunction(1.0, parametersAdministration,
-			// -0.9, 0.8);
-			// case CONSULTING:
-			// Map<GoodType, Double> parametersConsulting = new
-			// LinkedHashMap<GoodType, Double>();
-			// parametersConsulting.put(GoodType.LABOURHOUR, 0.9);
-			// parametersConsulting.put(GoodType.KILOWATT, 0.1);
-			// return new CESProductionFunction(1.0, parametersConsulting, -0.9,
-			// 0.8);
 		default:
 			return null;
 		}

@@ -272,7 +272,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			 */
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency, true, "transactions account",
-					TermType.SHORT_TERM, MoneyType.GIRO_MONEY);
+					TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
@@ -302,7 +302,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 					.getInstanceCentralBank(this.primaryCurrency)
 					.openBankAccount(this, this.primaryCurrency, true,
 							"central bank transactions account",
-							TermType.SHORT_TERM, MoneyType.GIRO_MONEY);
+							TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
@@ -329,7 +329,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 								.openBankAccount(this, currency, true,
 										"currency trade (foreign) account",
 										TermType.SHORT_TERM,
-										MoneyType.GIRO_MONEY);
+										MoneyType.DEPOSITS);
 						this.currencyTradeBankAccounts.put(currency,
 								bankAccount);
 					}
@@ -341,7 +341,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 							CreditBank.this.openBankAccount(this,
 									this.primaryCurrency, true,
 									"currency trade (local)",
-									TermType.SHORT_TERM, MoneyType.GIRO_MONEY));
+									TermType.SHORT_TERM, MoneyType.DEPOSITS));
 				}
 			}
 		}
@@ -362,7 +362,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 			 */
 			this.longTermBankAccount = this.primaryBank.openBankAccount(this,
 					this.primaryCurrency, true, "long term bank account",
-					TermType.LONG_TERM, MoneyType.GIRO_MONEY);
+					TermType.LONG_TERM, MoneyType.DEPOSITS);
 		}
 	}
 

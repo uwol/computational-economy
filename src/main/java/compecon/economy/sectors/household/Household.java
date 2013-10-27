@@ -227,7 +227,7 @@ public class Household extends Agent implements IShareOwner {
 		if (this.savingsBankAccount == null) {
 			this.savingsBankAccount = this.primaryBank.openBankAccount(this,
 					this.primaryCurrency, false, "savings account",
-					TermType.LONG_TERM, MoneyType.GIRO_MONEY);
+					TermType.LONG_TERM, MoneyType.DEPOSITS);
 		}
 	}
 

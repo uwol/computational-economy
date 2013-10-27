@@ -73,7 +73,7 @@ public class LogPanel extends JPanel implements IModelListener {
 		}
 
 		@Override
-		public void notifyListener() {
+		public synchronized void notifyListener() {
 			if (LogPanel.this.isShowing()) {
 				this.fireContentsChanged(this, 0,
 						LogPanel.this.agentDetailModel.getAgents().size());
@@ -130,7 +130,7 @@ public class LogPanel extends JPanel implements IModelListener {
 		}
 
 		@Override
-		public void notifyListener() {
+		public synchronized void notifyListener() {
 			if (LogPanel.this.isShowing()) {
 				if (Simulation.getInstance().getLog()
 						.getAgentSelectedByClient() != null)
@@ -183,7 +183,7 @@ public class LogPanel extends JPanel implements IModelListener {
 		}
 
 		@Override
-		public void notifyListener() {
+		public synchronized void notifyListener() {
 			if (LogPanel.this.isShowing()) {
 				if (Simulation.getInstance().getLog()
 						.getAgentSelectedByClient() != null)
@@ -235,7 +235,7 @@ public class LogPanel extends JPanel implements IModelListener {
 		}
 
 		@Override
-		public void notifyListener() {
+		public synchronized void notifyListener() {
 			if (LogPanel.this.isShowing()) {
 				if (Simulation.getInstance().getLog()
 						.getAgentSelectedByClient() != null)
@@ -282,7 +282,7 @@ public class LogPanel extends JPanel implements IModelListener {
 		}
 
 		@Override
-		public void notifyListener() {
+		public synchronized void notifyListener() {
 			if (LogPanel.this.isShowing()) {
 				if (Simulation.getInstance().getLog()
 						.getAgentSelectedByClient() != null)

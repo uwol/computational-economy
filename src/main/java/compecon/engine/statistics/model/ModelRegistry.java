@@ -24,11 +24,11 @@ import java.util.Map;
 
 import compecon.economy.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.sectors.financial.Currency;
+import compecon.engine.Simulation;
 import compecon.engine.statistics.model.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.statistics.model.timeseries.PeriodDataPercentageTimeSeriesModel;
 import compecon.engine.statistics.model.timeseries.PeriodDataQuotientTimeSeriesModel;
 import compecon.materia.GoodType;
-import compecon.materia.InputOutputModel;
 import compecon.math.ConvexFunction.ConvexFunctionTerminationCause;
 import compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
 import compecon.math.production.IProductionFunction;
@@ -165,7 +165,8 @@ public class ModelRegistry {
 								+ " inventory");
 
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
-					IProductionFunction productionFunction = InputOutputModel
+					IProductionFunction productionFunction = Simulation
+							.getInstance().getInputOutputModel()
 							.getProductionFunction(goodType);
 					for (GoodType inputGoodType : productionFunction
 							.getInputGoodTypes()) {
@@ -238,8 +239,9 @@ public class ModelRegistry {
 				this.currency = currency;
 				this.utilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " utility");
-				for (GoodType goodType : InputOutputModel
-						.getUtilityFunctionForHousehold().getInputGoodTypes()) {
+				for (GoodType goodType : Simulation.getInstance()
+						.getInputOutputModel().getUtilityFunctionOfHousehold()
+						.getInputGoodTypes()) {
 					this.utilityInputModels.put(
 							goodType,
 							new PeriodDataAccumulatorTimeSeriesModel(currency
@@ -384,8 +386,11 @@ public class ModelRegistry {
 			for (GoodType goodType : GoodType.values()) {
 				// labour hours are collected via household model
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
-					this.industryModels.put(goodType, new IndustryModel(
-							currency, goodType));
+					if (Simulation.getInstance().getInputOutputModel()
+							.getProductionFunction(goodType) != null) {
+						this.industryModels.put(goodType, new IndustryModel(
+								currency, goodType));
+					}
 				}
 			}
 

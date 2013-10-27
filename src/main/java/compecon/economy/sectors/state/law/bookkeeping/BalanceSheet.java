@@ -134,7 +134,7 @@ public class BalanceSheet {
 	public void addCash(final MoneyType moneyType, final TermType termType,
 			final double value) {
 		switch (moneyType) {
-		case GIRO_MONEY:
+		case DEPOSITS:
 			switch (termType) {
 			case SHORT_TERM:
 				this.cashGiroShortTerm += value;
@@ -160,7 +160,7 @@ public class BalanceSheet {
 	public void addLoan(final MoneyType moneyType, final TermType termType,
 			final double value) {
 		switch (moneyType) {
-		case GIRO_MONEY:
+		case DEPOSITS:
 			switch (termType) {
 			case SHORT_TERM:
 				this.loansGiroShortTerm += value;

@@ -36,7 +36,6 @@ import compecon.engine.dao.DAOFactory;
 import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.HibernateUtil;
 import compecon.materia.GoodType;
-import compecon.materia.InputOutputModel;
 import compecon.math.intertemporal.IntertemporalConsumptionFunction;
 import compecon.math.intertemporal.ModiglianiIntertemporalConsumptionFunction;
 import compecon.math.production.IProductionFunction;
@@ -61,8 +60,8 @@ public class AgentFactory {
 			if (!ConfigurationUtil.DbConfig.getActivateDb())
 				state.setId(Simulation.getInstance().getNextId());
 
-			state.setUtilityFunction(InputOutputModel
-					.getUtilityFunctionForState());
+			state.setUtilityFunction(Simulation.getInstance()
+					.getInputOutputModel().getUtilityFunctionOfState());
 
 			state.setPrimaryCurrency(currency);
 			DAOFactory.getStateDAO().save(state);
@@ -126,8 +125,8 @@ public class AgentFactory {
 		factory.setReferenceCredit(ConfigurationUtil.FactoryConfig
 				.getReferenceCredit());
 
-		IProductionFunction productionFunction = InputOutputModel
-				.getProductionFunction(goodType);
+		IProductionFunction productionFunction = Simulation.getInstance()
+				.getInputOutputModel().getProductionFunction(goodType);
 		factory.setProductionFunction(productionFunction);
 
 		DAOFactory.getFactoryDAO().save(factory);
@@ -146,17 +145,17 @@ public class AgentFactory {
 			household.setId(Simulation.getInstance().getNextId());
 		household.setPrimaryCurrency(primaryCurrency);
 
-		household.setUtilityFunction(InputOutputModel
-				.getUtilityFunctionForHousehold());
+		household.setUtilityFunction(Simulation.getInstance()
+				.getInputOutputModel().getUtilityFunctionOfHousehold());
 
 		// intertemporal preferences
 		/*
-		 * Map<Period, Double> intermeporalPreferences = new HashMap<Period,
-		 * Double>(); intermeporalPreferences.put(Period.CURRENT, 0.5);
+		 * Map<Period, Double> intertemeporalPreferences = new HashMap<Period,
+		 * Double>(); intertemeporalPreferences.put(Period.CURRENT, 0.5);
 		 * intermeporalPreferences.put(Period.NEXT, 0.5);
 		 * IntertemporalConsumptionFunction intertemporalConsumptionFunction =
 		 * new CobbDouglasIntertemporalConsumptionFunction(
-		 * intermeporalPreferences);
+		 * intertemeporalPreferences);
 		 */
 
 		IntertemporalConsumptionFunction intertemporalConsumptionFunction = new ModiglianiIntertemporalConsumptionFunction();

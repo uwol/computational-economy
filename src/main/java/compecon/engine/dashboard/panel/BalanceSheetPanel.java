@@ -75,10 +75,10 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 					return "Hard Cash";
 
 				case 1:
-					return "Cash " + MoneyType.GIRO_MONEY + " "
+					return "Cash " + MoneyType.DEPOSITS + " "
 							+ TermType.SHORT_TERM;
 				case 2:
-					return "Cash " + MoneyType.GIRO_MONEY + " "
+					return "Cash " + MoneyType.DEPOSITS + " "
 							+ TermType.LONG_TERM;
 				case 3:
 					return "Cash " + MoneyType.CENTRALBANK_MONEY + " "
@@ -142,10 +142,10 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 			else if (columnIndex == 2) {
 				switch (rowIndex) {
 				case 1:
-					return "Loans " + MoneyType.GIRO_MONEY + " "
+					return "Loans " + MoneyType.DEPOSITS + " "
 							+ TermType.SHORT_TERM;
 				case 2:
-					return "Loans " + MoneyType.GIRO_MONEY + " "
+					return "Loans " + MoneyType.DEPOSITS + " "
 							+ TermType.LONG_TERM;
 				case 3:
 					return "Loans " + MoneyType.CENTRALBANK_MONEY + " "
@@ -204,7 +204,7 @@ public class BalanceSheetPanel extends JPanel implements IModelListener {
 		protected abstract BalanceSheet getBalanceSheet();
 
 		@Override
-		public void notifyListener() {
+		public synchronized void notifyListener() {
 			this.balanceSheet = getBalanceSheet();
 			this.fireTableDataChanged();
 		}

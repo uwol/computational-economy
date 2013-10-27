@@ -236,7 +236,7 @@ public abstract class Agent {
 		if (this.transactionsBankAccount == null) {
 			this.transactionsBankAccount = this.primaryBank.openBankAccount(
 					this, this.primaryCurrency, true, "transactions account",
-					TermType.SHORT_TERM, MoneyType.GIRO_MONEY);
+					TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		}
 	}
 

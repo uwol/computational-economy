@@ -80,7 +80,7 @@ public class TradersPanel extends AbstractChartsPanel implements IModelListener 
 	}
 
 	@Override
-	public void notifyListener() {
+	public synchronized void notifyListener() {
 		if (this.isShowing()) {
 			TraderPanelForCurrency traderPanelForCurrency = (TraderPanelForCurrency) jTabbedPaneCurrency
 					.getSelectedComponent();

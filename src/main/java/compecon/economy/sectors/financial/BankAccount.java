@@ -44,7 +44,7 @@ public class BankAccount {
 	}
 
 	public enum MoneyType {
-		GIRO_MONEY, CENTRALBANK_MONEY
+		DEPOSITS, CENTRALBANK_MONEY
 	}
 
 	@Column(name = "balance")

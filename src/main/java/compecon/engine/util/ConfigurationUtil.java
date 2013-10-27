@@ -323,6 +323,24 @@ public class ConfigurationUtil {
 		}
 	}
 
+	public static class InputOutputModelConfig {
+
+		public enum InputOutputModelConfigSetting {
+			InputOutputModelMinimal, InputOutputModelSegmented, InputOutputModelInterdependencies
+		}
+
+		public static InputOutputModelConfigSetting inputOutputModelSetup;
+
+		public static InputOutputModelConfigSetting getInputOutputModelSetup() {
+			if (inputOutputModelSetup == null)
+				inputOutputModelSetup = InputOutputModelConfigSetting
+						.valueOf(configFile
+								.getProperty("inputOutputModel.setup"));
+			assert (inputOutputModelSetup != null);
+			return inputOutputModelSetup;
+		}
+	}
+
 	public static class MathConfig {
 
 		public static Double initializationValueForInputFactorsNonZero;
