@@ -48,6 +48,7 @@ import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
 import compecon.engine.util.ConfigurationUtil;
+import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 
 /**
@@ -319,8 +320,9 @@ public class CentralBank extends Bank {
 		from.withdraw(amount);
 		to.deposit(amount);
 
-		assert (fromBalanceBefore - amount == from.getBalance());
-		assert (toBalanceBefore + amount == to.getBalance());
+		// from and to can be the same
+		assert (MathUtil.equal(fromBalanceBefore + toBalanceBefore,
+				from.getBalance() + to.getBalance()));
 	}
 
 	@Transient
