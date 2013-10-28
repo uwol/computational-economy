@@ -35,6 +35,7 @@ import compecon.economy.PricingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
@@ -51,6 +52,7 @@ import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 import compecon.math.price.IPriceFunction;
@@ -157,28 +159,32 @@ public class State extends Agent {
 	@Transient
 	public FixedRateBond obtainBond(final double faceValue,
 			final BankAccount buyerBankAccount) {
-		FixedRateBond fixedRateBond = issueNewFixedRateBond(faceValue);
+		this.assureTransactionsBankAccount();
 
+		FixedRateBond fixedRateBond = issueNewFixedRateBond(faceValue);
 		buyerBankAccount.getManagingBank().transferMoney(buyerBankAccount,
 				this.transactionsBankAccount, faceValue,
 				"payment for " + fixedRateBond);
 		PropertyRegister.getInstance().transferProperty(State.this,
 				buyerBankAccount.getOwner(), fixedRateBond);
-		fixedRateBond.setOwnerBankAccount(buyerBankAccount);
-
 		return fixedRateBond;
 	}
 
 	@Transient
 	private FixedRateBond issueNewFixedRateBond(final double faceValue) {
-		State.this.assureTransactionsBankAccount();
+		this.assureTransactionsBankAccount();
 
-		// FIXME: price := State.this.pricingBehaviour.getCurrentPrice(); price
+		// TODO alternative: price :=
+		// State.this.pricingBehaviour.getCurrentPrice(); price
 		// diagram
-		FixedRateBond bond = PropertyFactory.newInstanceFixedRateBond(
+		final CentralBank centralBank = DAOFactory.getCentralBankDAO()
+				.findByCurrency(this.primaryCurrency);
+		final double coupon = centralBank.getEffectiveKeyInterestRate()
+				+ ConfigurationUtil.StateConfig.getBondMargin();
+		final FixedRateBond bond = PropertyFactory.newInstanceFixedRateBond(
 				State.this, State.this.primaryCurrency,
 				State.this.transactionsBankAccount,
-				State.this.transactionsBankAccount, faceValue, 0.0);
+				State.this.transactionsBankAccount, faceValue, coupon);
 		State.this.issuedBonds.add(bond);
 		return bond;
 	}
@@ -261,7 +267,7 @@ public class State extends Agent {
 				FixedRateBond bond = (FixedRateBond) property;
 
 				assert (bond.getOwner() == State.this);
-				assert (bond.getOwnerBankAccount().getOwner() == State.this);
+				assert (bond.getFaceValueToBankAccount().getOwner() == State.this);
 
 				// if the bond is issued by this state -> it is an unsold bond
 				if (bond.getIssuerBankAccount().getOwner() == State.this) {

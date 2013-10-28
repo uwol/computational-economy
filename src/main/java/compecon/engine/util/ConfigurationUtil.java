@@ -405,7 +405,17 @@ public class ConfigurationUtil {
 	}
 
 	public static class StateConfig {
+
+		public static Double bondMargin;
+
 		public static Map<Currency, Integer> number = new HashMap<Currency, Integer>();
+
+		public static double getBondMargin() {
+			if (bondMargin == null)
+				bondMargin = Double.parseDouble(configFile
+						.getProperty("state.bondMargin"));
+			return bondMargin;
+		}
 
 		public static int getNumber(Currency currency) {
 			if (!number.containsKey(currency))

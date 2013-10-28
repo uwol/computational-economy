@@ -153,6 +153,8 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		// bonds trading
+		// should happen every hour, so that money flow is distributed over the
+		// period, leading to less volatility on markets
 		ITimeSystemEvent bondsTradingEvent = new BondsTradingEvent();
 		this.timeSystemEvents.add(bondsTradingEvent);
 		Simulation
@@ -328,8 +330,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 						BankAccount bankAccount = foreignCurrencyCreditBank
 								.openBankAccount(this, currency, true,
 										"currency trade (foreign) account",
-										TermType.SHORT_TERM,
-										MoneyType.DEPOSITS);
+										TermType.SHORT_TERM, MoneyType.DEPOSITS);
 						this.currencyTradeBankAccounts.put(currency,
 								bankAccount);
 					}
@@ -1122,6 +1123,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 	public class BondsTradingEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
+			CreditBank.this.assureTransactionsBankAccount();
 			CreditBank.this.assureLongTermBankAccount();
 
 			/*
@@ -1159,13 +1161,19 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 										.getIso4217Code());
 
 			if (MathUtil.greater(difference, 0.0)) {
-				double balanceBeforeTransaction = CreditBank.this.longTermBankAccount
+				final double balanceBeforeTransaction = CreditBank.this.longTermBankAccount
 						.getBalance();
-				DAOFactory
+				final FixedRateBond fixedRateBond = DAOFactory
 						.getStateDAO()
 						.findByCurrency(CreditBank.this.primaryCurrency)
 						.obtainBond(difference,
 								CreditBank.this.longTermBankAccount);
+				assert (fixedRateBond.getOwner() == CreditBank.this);
+				fixedRateBond
+						.setFaceValueToBankAccount(CreditBank.this.longTermBankAccount);
+				fixedRateBond
+						.setCouponToBankAccount(CreditBank.this.transactionsBankAccount);
+
 				assert (balanceBeforeTransaction - difference == CreditBank.this.longTermBankAccount
 						.getBalance());
 

@@ -38,7 +38,6 @@ import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
-import compecon.economy.sectors.state.law.security.debt.Bond;
 import compecon.economy.sectors.state.law.security.debt.FixedRateBond;
 import compecon.engine.MarketFactory;
 import compecon.engine.Simulation;
@@ -275,6 +274,8 @@ public class CentralBank extends Bank {
 			double amount, String subject, boolean negativeAmountOK) {
 
 		assert (amount >= 0.0 || negativeAmountOK);
+		assert (from != null);
+		assert (to != null);
 		assert (from != to);
 
 		final double fromBalanceBefore = from.getBalance();
@@ -392,14 +393,16 @@ public class CentralBank extends Bank {
 
 		this.assertIsCustomerOfThisBank(moneyReservesBankAccount.getOwner());
 
-		for (Bond bond : bonds) {
+		for (FixedRateBond bond : bonds) {
 			// bank money creation; fiat money!
 			assert (MoneyType.CENTRALBANK_MONEY.equals(moneyReservesBankAccount
 					.getMoneyType()));
+
 			moneyReservesBankAccount.deposit(bond.getFaceValue());
 			PropertyRegister.getInstance().transferProperty(
 					moneyReservesBankAccount.getOwner(), this, bond);
-			bond.setOwnerBankAccount(CentralBank.this.centralBankMoneyBankAccount);
+			bond.setFaceValueToBankAccount(CentralBank.this.centralBankMoneyBankAccount);
+			bond.setCouponToBankAccount(CentralBank.this.centralBankMoneyBankAccount);
 
 			if (getLog().isAgentSelectedByClient(
 					moneyReservesBankAccount.getOwner()))

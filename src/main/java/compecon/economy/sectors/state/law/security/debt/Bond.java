@@ -51,10 +51,13 @@ public abstract class Bond extends Property {
 	@Index(name = "issuerBankAccount")
 	protected BankAccount issuerBankAccount;
 
+	/**
+	 * receiver bank account for the final face value retransfer
+	 */
 	@ManyToOne
-	@JoinColumn(name = "ownerBankAccount_id")
-	@Index(name = "ownerBankAccount")
-	protected BankAccount ownerBankAccount;
+	@JoinColumn(name = "faceValueToBankAccount_id")
+	@Index(name = "faceValueToBankAccount")
+	protected BankAccount faceValueToBankAccount;
 
 	@Enumerated(value = EnumType.STRING)
 	protected Currency issuedInCurrency;
@@ -93,6 +96,10 @@ public abstract class Bond extends Property {
 		return faceValue;
 	}
 
+	public BankAccount getFaceValueToBankAccount() {
+		return faceValueToBankAccount;
+	}
+
 	public BankAccount getIssuerBankAccount() {
 		return issuerBankAccount;
 	}
@@ -101,31 +108,33 @@ public abstract class Bond extends Property {
 		return issuedInCurrency;
 	}
 
-	public BankAccount getOwnerBankAccount() {
-		return ownerBankAccount;
-	}
-
 	public int getTermInYears() {
 		return termInYears;
 	}
 
-	public void setFaceValue(double faceValue) {
+	public void setFaceValue(final double faceValue) {
+		assert (faceValue >= 0.0);
 		this.faceValue = faceValue;
 	}
 
-	public void setIssuerBankAccount(BankAccount issuerBankAccount) {
+	public void setFaceValueToBankAccount(
+			final BankAccount faceValueToBankAccount) {
+		assert (faceValueToBankAccount != null);
+		this.faceValueToBankAccount = faceValueToBankAccount;
+	}
+
+	public void setIssuerBankAccount(final BankAccount issuerBankAccount) {
+		assert (issuerBankAccount != null);
 		this.issuerBankAccount = issuerBankAccount;
 	}
 
-	public void setIssuedInCurrency(Currency issuedInCurrency) {
+	public void setIssuedInCurrency(final Currency issuedInCurrency) {
+		assert (issuedInCurrency != null);
 		this.issuedInCurrency = issuedInCurrency;
 	}
 
-	public void setOwnerBankAccount(BankAccount ownerBankAccount) {
-		this.ownerBankAccount = ownerBankAccount;
-	}
-
-	public void setTermInYears(int termInYears) {
+	public void setTermInYears(final int termInYears) {
+		assert (termInYears >= 0);
 		this.termInYears = termInYears;
 	}
 
@@ -136,7 +145,7 @@ public abstract class Bond extends Property {
 	protected void assertValidOwner() {
 		assert (this.owner.equals(PropertyRegister.getInstance().getOwner(
 				Bond.this)));
-		assert (this.owner.equals(this.ownerBankAccount.getOwner()));
+		assert (this.owner.equals(this.faceValueToBankAccount.getOwner()));
 	}
 
 	/*
@@ -159,8 +168,9 @@ public abstract class Bond extends Property {
 			assertValidOwner();
 
 			Bond.this.issuerBankAccount.getManagingBank().transferMoney(
-					Bond.this.issuerBankAccount, Bond.this.ownerBankAccount,
-					Bond.this.faceValue, "bond face value");
+					Bond.this.issuerBankAccount,
+					Bond.this.faceValueToBankAccount, Bond.this.faceValue,
+					"bond face value");
 			Bond.this.deconstruct(); // delete bond from simulation
 		}
 	}
@@ -171,5 +181,4 @@ public abstract class Bond extends Property {
 				+ Currency.formatMoneySum(this.faceValue) + " "
 				+ this.issuedInCurrency.getIso4217Code() + "]";
 	}
-
 }

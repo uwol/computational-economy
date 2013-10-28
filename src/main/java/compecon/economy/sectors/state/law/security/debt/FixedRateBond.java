@@ -21,8 +21,13 @@ package compecon.economy.sectors.state.law.security.debt;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Index;
+
+import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Simulation;
 import compecon.engine.time.ITimeSystemEvent;
@@ -33,6 +38,14 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 
 	@Column(name = "coupon")
 	protected double coupon; // interest rate in percent
+
+	/**
+	 * receiver bank account for the periodical coupon
+	 */
+	@ManyToOne
+	@JoinColumn(name = "couponToBankAccount_id")
+	@Index(name = "couponToBankAccount")
+	protected BankAccount couponToBankAccount;
 
 	public void initialize() {
 		super.initialize();
@@ -58,11 +71,21 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 	 */
 
 	public double getCoupon() {
-		return coupon;
+		return this.coupon;
 	}
 
-	public void setCoupon(double coupon) {
+	public BankAccount getCouponToBankAccount() {
+		return this.couponToBankAccount;
+	}
+
+	public void setCoupon(final double coupon) {
+		assert (coupon >= 0.0);
 		this.coupon = coupon;
+	}
+
+	public void setCouponToBankAccount(final BankAccount couponToBankAccount) {
+		assert (couponToBankAccount != null);
+		this.couponToBankAccount = couponToBankAccount;
 	}
 
 	/*
@@ -85,15 +108,18 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 	public class TransferCouponEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			double couponValue = FixedRateBond.this.coupon
+			assert (FixedRateBond.this.couponToBankAccount != null);
+			assert (FixedRateBond.this.issuerBankAccount != null);
+
+			final double couponValue = FixedRateBond.this.coupon
 					* FixedRateBond.this.faceValue;
 			if (couponValue > 0) {
 				assertValidOwner();
 
 				FixedRateBond.this.issuerBankAccount.getManagingBank()
 						.transferMoney(FixedRateBond.this.issuerBankAccount,
-								FixedRateBond.this.ownerBankAccount, couponValue,
-								"bond coupon");
+								FixedRateBond.this.couponToBankAccount,
+								couponValue, "bond coupon");
 			}
 		}
 	}

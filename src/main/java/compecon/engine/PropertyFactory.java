@@ -36,7 +36,7 @@ public class PropertyFactory {
 			final double coupon) {
 		FixedRateBond fixedRateBond = new FixedRateBond();
 		fixedRateBond.setOwner(owner);
-		fixedRateBond.setOwnerBankAccount(ownerBankAccount);
+		fixedRateBond.setFaceValueToBankAccount(ownerBankAccount);
 		fixedRateBond.setIssuerBankAccount(issuerBankAccount);
 		fixedRateBond.setFaceValue(faceValue);
 		fixedRateBond.setCoupon(coupon);
