@@ -18,7 +18,7 @@ Features:
 * Stand-alone high-performance calculation engine; separate from visualization dashboard.
 
 Technical platform:
-* Java 1.6
+* Java 1.7
 * Maven
 * Optional: Database server 
 
