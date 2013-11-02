@@ -32,16 +32,18 @@ public class InputOutputModelMinimal implements IInputOutputModel {
 	@Override
 	public IUtilityFunction getUtilityFunctionOfHousehold() {
 		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.IRON, 0.5);
-		preferences.put(GoodType.LABOURHOUR, 0.5);
+		preferences.put(GoodType.IRON, 0.3);
+		preferences.put(GoodType.COAL, 0.3);
+		preferences.put(GoodType.LABOURHOUR, 0.3);
 		return new CESUtilityFunction(1.0, preferences, -0.7, 0.5);
 	}
 
 	@Override
 	public IUtilityFunction getUtilityFunctionOfState() {
 		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.IRON, 0.5);
-		preferences.put(GoodType.LABOURHOUR, 0.5);
+		preferences.put(GoodType.IRON, 0.3);
+		preferences.put(GoodType.COAL, 0.3);
+		preferences.put(GoodType.LABOURHOUR, 0.3);
 		return new CESUtilityFunction(1.0, preferences, -0.7, 0.5);
 	}
 
@@ -50,6 +52,8 @@ public class InputOutputModelMinimal implements IInputOutputModel {
 			final GoodType outputGoodType) {
 		switch (outputGoodType) {
 		case IRON:
+			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
+		case COAL:
 			return new RootProductionFunction(GoodType.LABOURHOUR, 100.0);
 		default:
 			return null;
