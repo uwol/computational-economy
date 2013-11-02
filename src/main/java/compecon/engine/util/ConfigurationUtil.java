@@ -508,7 +508,7 @@ public class ConfigurationUtil {
 					|| configurationProperties.isEmpty()) {
 				// if no configuration properties are set via VM args use
 				// default configuration properties
-				configurationProperties = "configuration.properties";
+				configurationProperties = "interdependencies.configuration.properties";
 			}
 			configFile.load(ConfigurationUtil.class.getClassLoader()
 					.getResourceAsStream(configurationProperties));
