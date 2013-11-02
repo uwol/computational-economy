@@ -23,13 +23,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Index;
 
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.Agent;
+import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.property.Property;
 import compecon.economy.sectors.state.law.property.PropertyRegister;
 import compecon.engine.MarketFactory;
@@ -39,6 +47,8 @@ import compecon.engine.time.ITimeSystemEvent;
 import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
 import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.ConfigurationUtil;
+import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 
 /**
@@ -48,15 +58,17 @@ import compecon.materia.GoodType;
 @Entity
 public abstract class JointStockCompany extends Agent {
 
+	/**
+	 * bank account for dividends to be payed to share holders
+	 */
+	@OneToOne
+	@JoinColumn(name = "bankAccountDividends_id")
+	@Index(name = "IDX_A_BA_DIVIDENDSS")
+	protected BankAccount bankAccountDividends;
+
 	@OneToMany
 	@JoinTable(name = "JointStockCompany_IssuedShares")
 	protected Set<Share> issuedShares = new HashSet<Share>();
-
-	@Transient
-	protected double MONEY_TO_RETAIN = 0.0;
-
-	@Transient
-	protected final int INITIAL_NUMBER_OF_SHARES = 100;
 
 	@Override
 	public void initialize() {
@@ -65,7 +77,7 @@ public abstract class JointStockCompany extends Agent {
 		// offer shares at 00:00î
 		// has to happen as an event, as at constructor time the transaction
 		// bank account is null
-		ITimeSystemEvent offerSharesEvent = new OfferSharesEvent();
+		final ITimeSystemEvent offerSharesEvent = new OfferSharesEvent();
 		this.timeSystemEvents.add(offerSharesEvent);
 		Simulation
 				.getInstance()
@@ -73,14 +85,14 @@ public abstract class JointStockCompany extends Agent {
 				.addEvent(offerSharesEvent, -1, MonthType.EVERY, DayType.EVERY,
 						HourType.HOUR_00);
 
-		// pay dividend at 00:00
-		ITimeSystemEvent payDividendEvent = new PayDividendEvent();
+		// pay dividend
+		final ITimeSystemEvent payDividendEvent = new PayDividendEvent();
 		this.timeSystemEvents.add(payDividendEvent);
 		Simulation
 				.getInstance()
 				.getTimeSystem()
 				.addEvent(payDividendEvent, -1, MonthType.EVERY, DayType.EVERY,
-						HourType.HOUR_00);
+						HourType.EVERY);
 	}
 
 	@Transient
@@ -90,18 +102,24 @@ public abstract class JointStockCompany extends Agent {
 		for (Share share : this.issuedShares) {
 			PropertyFactory.deleteProperty(share);
 		}
+
+		this.bankAccountDividends = null;
 	}
 
 	/*
-	 * Accessors
+	 * accessors
 	 */
+
+	public BankAccount getBankAccountDividends() {
+		return bankAccountDividends;
+	}
 
 	public Set<Share> getIssuedShares() {
 		return issuedShares;
 	}
 
-	public int getInitialNumberOfShares() {
-		return INITIAL_NUMBER_OF_SHARES;
+	public void setBankAccountDividends(BankAccount bankAccountDividends) {
+		this.bankAccountDividends = bankAccountDividends;
 	}
 
 	public void setIssuedShares(Set<Share> issuedShares) {
@@ -109,15 +127,68 @@ public abstract class JointStockCompany extends Agent {
 	}
 
 	/*
-	 * Business logic
+	 * assertions
 	 */
 
 	@Transient
-	protected double calculateTotalDividend() {
-		this.assureTransactionsBankAccount();
+	public void assureBankAccountDividends() {
+		if (this.isDeconstructed)
+			return;
 
-		return Math.max(0.0, this.transactionsBankAccount.getBalance()
-				- this.MONEY_TO_RETAIN);
+		this.assureBankCustomerAccount();
+
+		// initialize bank account
+		if (this.bankAccountDividends == null) {
+			// overdraft not allowed
+			this.bankAccountDividends = this.primaryBank.openBankAccount(this,
+					this.primaryCurrency, false, "dividends",
+					TermType.SHORT_TERM, MoneyType.DEPOSITS);
+		}
+	}
+
+	/*
+	 * business logic
+	 */
+
+	@Override
+	@Transient
+	protected BalanceSheet issueBalanceSheet() {
+		this.assureBankAccountDividends();
+
+		final BalanceSheet balanceSheet = super.issueBalanceSheet();
+
+		// bank account for paying dividends
+		balanceSheet.addBankAccountBalance(this.bankAccountDividends);
+
+		return balanceSheet;
+	}
+
+	@Override
+	@Transient
+	public void onBankCloseBankAccount(BankAccount bankAccount) {
+		if (this.bankAccountDividends != null
+				&& this.bankAccountDividends == bankAccount) {
+			this.bankAccountDividends = null;
+		}
+
+		super.onBankCloseBankAccount(bankAccount);
+	}
+
+	/**
+	 * Transfers money on account to dividend account, so that on the next
+	 * dividend event the money is transfered to share holders.
+	 * 
+	 * @param bankAccount
+	 */
+	protected void transferBankAccountBalanceToDividendBankAccount(
+			final BankAccount bankAccount) {
+		this.assureBankAccountDividends();
+
+		if (MathUtil.greater(bankAccount.getBalance(), 0.0)) {
+			bankAccount.getManagingBank().transferMoney(bankAccount,
+					JointStockCompany.this.bankAccountDividends,
+					bankAccount.getBalance(), "converting profit to dividend");
+		}
 	}
 
 	public class SettlementMarketEvent implements ISettlementEvent {
@@ -138,44 +209,48 @@ public abstract class JointStockCompany extends Agent {
 	}
 
 	public class PayDividendEvent implements ITimeSystemEvent {
+
 		@Override
 		public void onEvent() {
 			if (JointStockCompany.this.issuedShares.size() > 0) {
-				JointStockCompany.this.assureTransactionsBankAccount();
+				JointStockCompany.this.assureBankAccountDividends();
 
-				double totalDividend = JointStockCompany.this
-						.calculateTotalDividend();
+				final double totalDividend = JointStockCompany.this.bankAccountDividends
+						.getBalance();
 
 				// dividend to be payed?
 				if (totalDividend > 0.0) {
 					double totalDividendPayed = 0.0;
 
-					Currency currency = JointStockCompany.this.transactionsBankAccount
+					final Currency currency = JointStockCompany.this.bankAccountDividends
 							.getCurrency();
-					double dividendPerOwner = totalDividend
+					final double dividendPerOwner = totalDividend
 							/ JointStockCompany.this.issuedShares.size();
 
 					// pay dividend for each share
 					for (Share share : JointStockCompany.this.issuedShares) {
-						Agent owner = PropertyRegister.getInstance().getOwner(
-								share);
+						final Agent owner = PropertyRegister.getInstance()
+								.getOwner(share);
 						if (owner != null && owner != JointStockCompany.this) {
 							if (owner instanceof IShareOwner) {
-								IShareOwner shareOwner = (IShareOwner) owner;
+								final IShareOwner shareOwner = (IShareOwner) owner;
 								shareOwner.assureDividendBankAccount();
 								if (currency
 										.equals(shareOwner
 												.getDividendBankAccount()
 												.getCurrency())) {
-									JointStockCompany.this.transactionsBankAccount
+									final double dividend = Math
+											.min(dividendPerOwner,
+													JointStockCompany.this.bankAccountDividends
+															.getBalance());
+									JointStockCompany.this.bankAccountDividends
 											.getManagingBank()
 											.transferMoney(
-													JointStockCompany.this.transactionsBankAccount,
-													((IShareOwner) owner)
+													JointStockCompany.this.bankAccountDividends,
+													shareOwner
 															.getDividendBankAccount(),
-													dividendPerOwner,
-													"dividend");
-									((IShareOwner) owner)
+													dividend, "dividend");
+									shareOwner
 											.onDividendTransfer(dividendPerOwner);
 									totalDividendPayed += dividendPerOwner;
 								}
@@ -191,7 +266,7 @@ public abstract class JointStockCompany extends Agent {
 										+ Currency
 												.formatMoneySum(totalDividendPayed)
 										+ " "
-										+ JointStockCompany.this.transactionsBankAccount
+										+ JointStockCompany.this.bankAccountTransactions
 												.getCurrency().getIso4217Code());
 					}
 				}
@@ -203,16 +278,18 @@ public abstract class JointStockCompany extends Agent {
 		@Override
 		public void onEvent() {
 			if (JointStockCompany.this.issuedShares.size() == 0) {
-				JointStockCompany.this.assureTransactionsBankAccount();
+				JointStockCompany.this.assureBankAccountTransactions();
 
 				// issue initial shares
-				for (int i = 0; i < INITIAL_NUMBER_OF_SHARES; i++) {
-					Share initialShare = PropertyFactory.newInstanceShare(
-							JointStockCompany.this, JointStockCompany.this);
+				for (int i = 0; i < ConfigurationUtil.JointStockCompanyConfig
+						.getInitialNumberOfShares(); i++) {
+					final Share initialShare = PropertyFactory
+							.newInstanceShare(JointStockCompany.this,
+									JointStockCompany.this);
 					JointStockCompany.this.issuedShares.add(initialShare);
 					MarketFactory.getInstance().placeSettlementSellingOffer(
 							initialShare, JointStockCompany.this,
-							JointStockCompany.this.transactionsBankAccount,
+							JointStockCompany.this.bankAccountTransactions,
 							0.0, new SettlementMarketEvent());
 				}
 			}

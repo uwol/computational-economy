@@ -71,7 +71,7 @@ public class Factory extends JointStockCompany {
 		super.initialize();
 
 		// production event at random HourType
-		ITimeSystemEvent productionEvent = new ProductionEvent();
+		final ITimeSystemEvent productionEvent = new ProductionEvent();
 		this.timeSystemEvents.add(productionEvent);
 		Simulation
 				.getInstance()
@@ -84,16 +84,7 @@ public class Factory extends JointStockCompany {
 						Simulation.getInstance().getTimeSystem()
 								.suggestRandomHourType());
 
-		// balance sheet publication
-		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
-		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		Simulation
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
-						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
-
-		double marketPrice = MarketFactory.getInstance().getPrice(
+		final double marketPrice = MarketFactory.getInstance().getPrice(
 				this.primaryCurrency, this.producedGoodType);
 		this.pricingBehaviour = new PricingBehaviour(this,
 				this.producedGoodType, this.primaryCurrency, marketPrice);
@@ -126,11 +117,26 @@ public class Factory extends JointStockCompany {
 	 * business logic
 	 */
 
+	@Override
+	@Transient
+	protected BalanceSheet issueBalanceSheet() {
+		final BalanceSheet balanceSheet = super.issueBalanceSheet();
+
+		balanceSheet.issuedCapital = this.issuedShares;
+
+		return balanceSheet;
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + " [" + this.producedGoodType + "]";
+	}
+
 	protected class SettlementMarketEvent implements ISettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
 				double pricePerUnit, Currency currency) {
-			Factory.this.assureTransactionsBankAccount();
+			Factory.this.assureBankAccountTransactions();
 			if (Factory.this.producedGoodType.equals(goodType)) {
 				Factory.this.pricingBehaviour.registerSelling(amount, amount
 						* pricePerUnit);
@@ -152,7 +158,7 @@ public class Factory extends JointStockCompany {
 
 		@Override
 		public void onEvent() {
-			Factory.this.assureTransactionsBankAccount();
+			Factory.this.assureBankAccountTransactions();
 
 			getLog().factory_AmountSold(Factory.this.primaryCurrency,
 					Factory.this.producedGoodType,
@@ -166,10 +172,13 @@ public class Factory extends JointStockCompany {
 			/*
 			 * economic actions
 			 */
+			Factory.this
+					.transferBankAccountBalanceToDividendBankAccount(Factory.this.bankAccountTransactions);
+
 			double budget = Factory.this.budgetingBehaviour
 					.calculateTransmissionBasedBudgetForPeriod(
-							Factory.this.transactionsBankAccount.getCurrency(),
-							Factory.this.transactionsBankAccount.getBalance(),
+							Factory.this.bankAccountTransactions.getCurrency(),
+							Factory.this.bankAccountTransactions.getBalance(),
 							Factory.this.referenceCredit);
 
 			this.buyOptimalProductionFactorsForBudget(budget);
@@ -211,7 +220,7 @@ public class Factory extends JointStockCompany {
 				double creditBudgetCapacity = Factory.this.budgetingBehaviour
 						.getCreditBasedBudgetCapacity();
 				double creditUtilization = -1.0
-						* Factory.this.getTransactionsBankAccount()
+						* Factory.this.getBankAccountTransactions()
 								.getBalance();
 				getLog().agent_CreditUtilization(Factory.this,
 						creditUtilization, creditBudgetCapacity);
@@ -234,7 +243,7 @@ public class Factory extends JointStockCompany {
 				if (MathUtil.greater(amountToBuy, 0.0)) {
 					double[] priceAndAmount = MarketFactory.getInstance().buy(
 							goodTypeToBuy, amountToBuy, Double.NaN, Double.NaN,
-							Factory.this, Factory.this.transactionsBankAccount);
+							Factory.this, Factory.this.bankAccountTransactions);
 					budgetSpent += priceAndAmount[0];
 				}
 			}
@@ -299,7 +308,7 @@ public class Factory extends JointStockCompany {
 			for (double price : prices) {
 				MarketFactory.getInstance().placeSettlementSellingOffer(
 						Factory.this.producedGoodType, Factory.this,
-						Factory.this.transactionsBankAccount,
+						Factory.this.bankAccountTransactions,
 						amountInInventory / ((double) prices.length), price,
 						new SettlementMarketEvent());
 			}
@@ -310,23 +319,6 @@ public class Factory extends JointStockCompany {
 					Factory.this.producedGoodType, amountInInventory,
 					amountInInventory);
 		}
-	}
-
-	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
-		@Override
-		public void onEvent() {
-			Factory.this.assureTransactionsBankAccount();
-
-			BalanceSheet balanceSheet = Factory.this.issueBasicBalanceSheet();
-			balanceSheet.issuedCapital = Factory.this.issuedShares;
-
-			getLog().agent_onPublishBalanceSheet(Factory.this, balanceSheet);
-		}
-	}
-
-	@Override
-	public String toString() {
-		return super.toString() + " [" + this.producedGoodType + "]";
 	}
 
 }

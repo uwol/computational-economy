@@ -111,13 +111,13 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 				.findAllByCurrency(currency).get(1);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				10, 2);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				10, 1);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				10, 1);
 
 		/*

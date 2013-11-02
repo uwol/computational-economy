@@ -50,20 +50,20 @@ public class BankTest extends CompEconTestSupport {
 		Household household2_EUR = DAOFactory.getHouseholdDAO()
 				.findAllByCurrency(currency).get(1);
 
-		assertEquals(0.0, household1_EUR.getTransactionsBankAccount()
+		assertEquals(0.0, household1_EUR.getBankAccountTransactions()
 				.getBalance(), epsilon);
 
-		Bank source = household1_EUR.getTransactionsBankAccount()
+		Bank source = household1_EUR.getBankAccountTransactions()
 				.getManagingBank();
-		Bank target = household2_EUR.getTransactionsBankAccount()
+		Bank target = household2_EUR.getBankAccountTransactions()
 				.getManagingBank();
 		for (int i = 1; i < 1000; i++) {
-			source.transferMoney(household1_EUR.getTransactionsBankAccount(),
-					household2_EUR.getTransactionsBankAccount(), 10,
+			source.transferMoney(household1_EUR.getBankAccountTransactions(),
+					household2_EUR.getBankAccountTransactions(), 10,
 					"Transaction" + i);
-			assertEquals(-10.0 * i, household1_EUR.getTransactionsBankAccount()
+			assertEquals(-10.0 * i, household1_EUR.getBankAccountTransactions()
 					.getBalance(), epsilon);
-			assertEquals(10.0 * i, household2_EUR.getTransactionsBankAccount()
+			assertEquals(10.0 * i, household2_EUR.getBankAccountTransactions()
 					.getBalance(), epsilon);
 		}
 	}

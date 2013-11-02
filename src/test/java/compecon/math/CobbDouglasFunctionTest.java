@@ -261,17 +261,17 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				5.0, 2.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				5.0, 1.0);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				3.0, 2.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				2.0, 1.0);
 
 		/*
@@ -350,17 +350,17 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				20.0, 2.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				5.0, 1.0);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				20.0, 2.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				4.0, 1.0);
 
 		/*
@@ -448,31 +448,31 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				200.0, 2.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				50.0, 1.0);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				200.0, 4.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				40.0, 1.0);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.COAL,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				150.0, 5.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.COAL,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				60.0, 1.0);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.IRON,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				220.0, 3.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.IRON,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				770.0, 1.0);
 
 		/*

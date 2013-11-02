@@ -56,7 +56,14 @@ import compecon.materia.GoodType;
 @Entity
 public class CentralBank extends Bank {
 
-	// constants
+	@OneToOne
+	@JoinColumn(name = "bankAccountCentralBankMoney_id")
+	@Index(name = "IDX_A_BA_CENTRALBANKMONEY")
+	// bank account for central bank money
+	protected BankAccount bankAccountCentralBankMoney;
+
+	@Column(name = "effectiveKeyInterestRate")
+	protected double effectiveKeyInterestRate = 0.1;
 
 	@Transient
 	protected int NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
@@ -64,23 +71,12 @@ public class CentralBank extends Bank {
 	@Transient
 	protected StatisticalOffice statisticalOffice;
 
-	// state
-
-	@OneToOne
-	@JoinColumn(name = "centralBankMoneyBankAccount_id")
-	@Index(name = "IDX_A_CENTRALBANKMONEYBANKACCOUNT")
-	// bank account for central bank money
-	protected BankAccount centralBankMoneyBankAccount;
-
-	@Column(name = "effectiveKeyInterestRate")
-	protected double effectiveKeyInterestRate = 0.1;
-
 	@Override
 	public void initialize() {
 		super.initialize();
 
 		// calculate interest
-		ITimeSystemEvent interestCalculationEvent = new DailyInterestCalculationEvent();
+		final ITimeSystemEvent interestCalculationEvent = new DailyInterestCalculationEvent();
 		this.timeSystemEvents.add(interestCalculationEvent);
 		Simulation
 				.getInstance()
@@ -90,7 +86,7 @@ public class CentralBank extends Bank {
 
 		// take snapshots of marginal prices multiple times a day
 		// -> market situation differs over the day !!!
-		ITimeSystemEvent recalculateAveragePriceIndexEvent = new MarginalPriceSnapshotEvent();
+		final ITimeSystemEvent recalculateAveragePriceIndexEvent = new MarginalPriceSnapshotEvent();
 		this.timeSystemEvents.add(recalculateAveragePriceIndexEvent);
 		Simulation
 				.getInstance()
@@ -114,22 +110,13 @@ public class CentralBank extends Bank {
 						MonthType.EVERY, DayType.EVERY, HourType.HOUR_21);
 
 		// recalculate key interest rate every day
-		ITimeSystemEvent keyInterestRateCalculationEvent = new KeyInterestRateCalculationEvent();
+		final ITimeSystemEvent keyInterestRateCalculationEvent = new KeyInterestRateCalculationEvent();
 		this.timeSystemEvents.add(keyInterestRateCalculationEvent);
 		Simulation
 				.getInstance()
 				.getTimeSystem()
 				.addEvent(keyInterestRateCalculationEvent, -1, MonthType.EVERY,
 						DayType.EVERY, HourType.HOUR_01);
-
-		// balance sheet publication
-		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
-		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		Simulation
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
-						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
 
 		// count number of snapshots that are taken per day
 		int numberOfSnapshotsPerDay = 0;
@@ -147,20 +134,29 @@ public class CentralBank extends Bank {
 	 * accessors
 	 */
 
-	public Currency getPrimaryCurrency() {
-		return this.primaryCurrency;
+	public BankAccount getBankAccountCentralBankMoney() {
+		return bankAccountCentralBankMoney;
 	}
 
 	public double getEffectiveKeyInterestRate() {
 		return this.effectiveKeyInterestRate;
 	}
 
-	public void setPrimaryCurrency(final Currency primaryCurrency) {
-		this.primaryCurrency = primaryCurrency;
+	public Currency getPrimaryCurrency() {
+		return this.primaryCurrency;
+	}
+
+	public void setBankAccountCentralBankMoney(
+			BankAccount bankAccountCentralBankMoney) {
+		this.bankAccountCentralBankMoney = bankAccountCentralBankMoney;
 	}
 
 	public void setEffectiveKeyInterestRate(double effectiveKeyInterestRate) {
 		this.effectiveKeyInterestRate = effectiveKeyInterestRate;
+	}
+
+	public void setPrimaryCurrency(final Currency primaryCurrency) {
+		this.primaryCurrency = primaryCurrency;
 	}
 
 	/*
@@ -168,48 +164,48 @@ public class CentralBank extends Bank {
 	 */
 
 	@Transient
+	protected void assertCurrencyIsOffered(Currency currency) {
+		assert (this.primaryCurrency == currency);
+	}
+
+	@Transient
 	@Override
-	public void assureTransactionsBankAccount() {
+	public void assureBankAccountTransactions() {
 		if (this.isDeconstructed)
 			return;
 
 		this.assureSelfCustomerAccount();
 
-		if (this.transactionsBankAccount == null) {
+		if (this.bankAccountTransactions == null) {
 			/*
 			 * initialize the banks own bank account and open a customer account
 			 * at this new bank, so that this bank can transfer money from its
 			 * own bank account
 			 */
-			this.transactionsBankAccount = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency, true, "transactions account",
+			this.bankAccountTransactions = this.primaryBank.openBankAccount(
+					this, this.primaryCurrency, true, "transactions",
 					TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
 	@Transient
-	public void assureCentralBankMoneyAccount() {
+	public void assureBankAccountCentralBankMoney() {
 		if (this.isDeconstructed)
 			return;
 
 		this.assureSelfCustomerAccount();
 
-		if (this.centralBankMoneyBankAccount == null) {
+		if (this.bankAccountCentralBankMoney == null) {
 			/*
 			 * initialize the banks own bank account and open a customer account
 			 * at this new bank, so that this bank can transfer money from its
 			 * own bank account
 			 */
-			this.centralBankMoneyBankAccount = this.primaryBank
+			this.bankAccountCentralBankMoney = this.primaryBank
 					.openBankAccount(this, this.primaryCurrency, true,
-							"central bank money account", TermType.LONG_TERM,
+							"central bank money", TermType.LONG_TERM,
 							MoneyType.CENTRALBANK_MONEY);
 		}
-	}
-
-	@Transient
-	protected void assertCurrencyIsOffered(Currency currency) {
-		assert (this.primaryCurrency == currency);
 	}
 
 	/*
@@ -218,7 +214,7 @@ public class CentralBank extends Bank {
 
 	@Transient
 	public void closeCustomerAccount(Agent customer) {
-		this.assureCentralBankMoneyAccount();
+		this.assureBankAccountCentralBankMoney();
 
 		// each customer bank account ...
 		for (BankAccount bankAccount : DAOFactory.getBankAccountDAO().findAll(
@@ -227,31 +223,31 @@ public class CentralBank extends Bank {
 			// lost in the monetary system
 			switch (bankAccount.getMoneyType()) {
 			case DEPOSITS:
-				if (this.transactionsBankAccount != null
-						&& bankAccount != this.transactionsBankAccount) {
+				if (this.bankAccountTransactions != null
+						&& bankAccount != this.bankAccountTransactions) {
 					if (bankAccount.getBalance() >= 0) {
 						this.transferMoney(bankAccount,
-								this.transactionsBankAccount,
+								this.bankAccountTransactions,
 								bankAccount.getBalance(),
 								"evening-up of closed bank account", true);
 					} else {
-						this.transferMoney(this.transactionsBankAccount,
+						this.transferMoney(this.bankAccountTransactions,
 								bankAccount, -1.0 * bankAccount.getBalance(),
 								"evening-up of closed bank account", true);
 					}
 				}
 				break;
 			case CENTRALBANK_MONEY:
-				if (this.centralBankMoneyBankAccount != null
-						&& bankAccount != this.centralBankMoneyBankAccount) {
+				if (this.bankAccountCentralBankMoney != null
+						&& bankAccount != this.bankAccountCentralBankMoney) {
 
 					if (bankAccount.getBalance() >= 0) {
 						this.transferMoney(bankAccount,
-								this.centralBankMoneyBankAccount,
+								this.bankAccountCentralBankMoney,
 								bankAccount.getBalance(),
 								"evening-up of closed bank account", true);
 					} else {
-						this.transferMoney(this.centralBankMoneyBankAccount,
+						this.transferMoney(this.bankAccountCentralBankMoney,
 								bankAccount, -1.0 * bankAccount.getBalance(),
 								"evening-up of closed bank account", true);
 					}
@@ -261,6 +257,71 @@ public class CentralBank extends Bank {
 			customer.onBankCloseBankAccount(bankAccount);
 		}
 		DAOFactory.getBankAccountDAO().deleteAllBankAccounts(this, customer);
+	}
+
+	@Transient
+	public double getAverageMarginalPriceForGoodType(GoodType goodType) {
+		return this.statisticalOffice
+				.getAverageMarginalPriceForGoodType(goodType);
+	}
+
+	@Transient
+	public double getReserveRatio() {
+		return ConfigurationUtil.CentralBankConfig.getReserveRatio();
+	}
+
+	@Override
+	@Transient
+	protected BalanceSheet issueBalanceSheet() {
+		this.assureBankAccountCentralBankMoney();
+
+		final BalanceSheet balanceSheet = super.issueBalanceSheet();
+
+		// bank account for interactions with central bank money accounts of
+		// credit banks
+		balanceSheet.addBankAccountBalance(this.bankAccountCentralBankMoney);
+
+		return balanceSheet;
+	}
+
+	@Transient
+	public void obtainTender(final BankAccount moneyReservesBankAccount,
+			List<FixedRateBond> bonds) {
+		this.assureBankAccountCentralBankMoney();
+
+		this.assertIsCustomerOfThisBank(moneyReservesBankAccount.getOwner());
+
+		for (FixedRateBond bond : bonds) {
+			// bank money creation; fiat money!
+			assert (MoneyType.CENTRALBANK_MONEY.equals(moneyReservesBankAccount
+					.getMoneyType()));
+
+			moneyReservesBankAccount.deposit(bond.getFaceValue());
+			PropertyRegister.getInstance().transferProperty(
+					moneyReservesBankAccount.getOwner(), this, bond);
+			bond.setFaceValueToBankAccount(CentralBank.this.bankAccountCentralBankMoney);
+			bond.setCouponToBankAccount(CentralBank.this.bankAccountCentralBankMoney);
+
+			if (getLog().isAgentSelectedByClient(
+					moneyReservesBankAccount.getOwner()))
+				getLog().log(
+						moneyReservesBankAccount.getOwner(),
+						"obtained a tender of "
+								+ Currency.formatMoneySum(bond.getFaceValue())
+								+ " " + this.getPrimaryCurrency()
+								+ " of central bank money from " + this);
+		}
+	}
+
+	@Override
+	@Transient
+	public void onBankCloseBankAccount(BankAccount bankAccount) {
+		if (this.bankAccountCentralBankMoney != null
+				&& this.bankAccountCentralBankMoney == bankAccount) {
+			this.bankAccountCentralBankMoney = null;
+		}
+
+		super.onBankCloseBankAccount(bankAccount);
 	}
 
 	@Transient
@@ -351,7 +412,7 @@ public class CentralBank extends Bank {
 
 		CreditBank creditBank = (CreditBank) to.getManagingBank();
 		from.withdraw(amount);
-		creditBank.assureCentralBankTransactionsAccount();
+		creditBank.assureBankAccountCentralBankTransactions();
 		creditBank.deposit(to, amount);
 
 		assert (fromBalanceBefore - amount == from.getBalance());
@@ -386,92 +447,52 @@ public class CentralBank extends Bank {
 		assert (toBalanceBefore + amount == to.getBalance());
 	}
 
-	@Transient
-	public void obtainTender(final BankAccount moneyReservesBankAccount,
-			List<FixedRateBond> bonds) {
-		this.assureCentralBankMoneyAccount();
-
-		this.assertIsCustomerOfThisBank(moneyReservesBankAccount.getOwner());
-
-		for (FixedRateBond bond : bonds) {
-			// bank money creation; fiat money!
-			assert (MoneyType.CENTRALBANK_MONEY.equals(moneyReservesBankAccount
-					.getMoneyType()));
-
-			moneyReservesBankAccount.deposit(bond.getFaceValue());
-			PropertyRegister.getInstance().transferProperty(
-					moneyReservesBankAccount.getOwner(), this, bond);
-			bond.setFaceValueToBankAccount(CentralBank.this.centralBankMoneyBankAccount);
-			bond.setCouponToBankAccount(CentralBank.this.centralBankMoneyBankAccount);
-
-			if (getLog().isAgentSelectedByClient(
-					moneyReservesBankAccount.getOwner()))
-				getLog().log(
-						moneyReservesBankAccount.getOwner(),
-						"obtained a tender of "
-								+ Currency.formatMoneySum(bond.getFaceValue())
-								+ " " + this.getPrimaryCurrency()
-								+ " of central bank money from " + this);
-		}
-	}
-
-	@Transient
-	public double getAverageMarginalPriceForGoodType(GoodType goodType) {
-		return this.statisticalOffice
-				.getAverageMarginalPriceForGoodType(goodType);
-	}
-
-	@Transient
-	public double getReserveRatio() {
-		return ConfigurationUtil.CentralBankConfig.getReserveRatio();
-	}
-
-	protected double calculateTotalDividend() {
-		/**
-		 * central banks transfer their profit to the state, not arbitrary
-		 * agents -> deactivate dividends, transfer money in separate event
-		 * 
-		 * @see DailyInterestCalculationEvent
-		 */
-		return 0.0;
-	}
-
 	public class DailyInterestCalculationEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			assureTransactionsBankAccount();
+			CentralBank.this.assureBankAccountTransactions();
+
+			final double monthlyInterestRate = MathUtil
+					.calculateMonthlyNominalInterestRate(CentralBank.this.effectiveKeyInterestRate);
+			final double dailyInterestRate = monthlyInterestRate / 30.0;
 
 			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(CentralBank.this)) {
-				double monthlyInterest = bankAccount.getBalance()
-						* CentralBank.this
-								.calculateMonthlyNominalInterestRate(CentralBank.this.effectiveKeyInterestRate);
-				double dailyInterest = monthlyInterest / 30.0;
+				if (bankAccount.getOwner() != CentralBank.this) {
+					assert (CentralBank.this.primaryCurrency.equals(bankAccount
+							.getCurrency()));
 
-				// liability account + positive interest rate or asset account +
-				// negative interest rate
-				if (dailyInterest > 0.0) {
-					CentralBank.this.transferMoneyInternally(
-							CentralBank.this.transactionsBankAccount,
-							bankAccount, dailyInterest);
-				}
-				// asset account + positive interest rate or liability
-				// account + negative interest rate
-				else if (dailyInterest < 0.0) {
-					dailyInterest = -1.0 * dailyInterest;
-					CentralBank.this.transferMoneyInternally(bankAccount,
-							CentralBank.this.transactionsBankAccount,
-							dailyInterest);
+					final double dailyInterest = bankAccount.getBalance()
+							* dailyInterestRate;
+
+					// liability account & positive interest rate or asset
+					// account &
+					// negative interest rate
+					if (dailyInterest > 0.0) {
+						CentralBank.this.transferMoneyInternally(
+								CentralBank.this.bankAccountTransactions,
+								bankAccount, dailyInterest);
+					}
+					// asset account & positive interest rate or liability
+					// account & negative interest rate
+					else if (dailyInterest < 0.0) {
+						final double absDailyInterest = -1.0 * dailyInterest;
+						CentralBank.this.transferMoneyInternally(bankAccount,
+								CentralBank.this.bankAccountTransactions,
+								absDailyInterest);
+					}
 				}
 			}
 
-			if (CentralBank.this.transactionsBankAccount.getBalance() > 0.0) {
+			// profits are transferred to the state, instead of dividends to
+			// share holders etc.
+			if (CentralBank.this.bankAccountTransactions.getBalance() > 0.0) {
 				State state = DAOFactory.getStateDAO().findByCurrency(
 						primaryCurrency);
 				CentralBank.this.transferMoney(
-						CentralBank.this.transactionsBankAccount,
-						state.getTransactionsBankAccount(),
-						CentralBank.this.transactionsBankAccount.getBalance(),
+						CentralBank.this.bankAccountTransactions,
+						state.getBankAccountTransactions(),
+						CentralBank.this.bankAccountTransactions.getBalance(),
 						"national interest");
 			}
 		}
@@ -532,7 +553,7 @@ public class CentralBank extends Bank {
 					(1.0 + ConfigurationUtil.CentralBankConfig
 							.getInflationTarget()), yearNumber);
 
-			double monthlyNominalInflationTarget = CentralBank.this
+			double monthlyNominalInflationTarget = MathUtil
 					.calculateMonthlyNominalInterestRate(ConfigurationUtil.CentralBankConfig
 							.getInflationTarget());
 
@@ -548,53 +569,6 @@ public class CentralBank extends Bank {
 					+ targetPriceLevelForMonth + targetPriceLevelForDay);
 			return ConfigurationUtil.CentralBankConfig.getTargetPriceIndex()
 					* combinedTargetPriceLevel;
-		}
-	}
-
-	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
-		@Override
-		public void onEvent() {
-			CentralBank.this.assureCentralBankMoneyAccount();
-
-			BalanceSheet balanceSheet = CentralBank.this
-					.issueBasicBalanceSheet();
-
-			// bank accounts of customers
-			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
-					.findAllBankAccountsManagedByBank(CentralBank.this)) {
-				// TODO compare with referenceCurrency of balance sheet
-				if (bankAccount.getBalance() > 0.0) // passive account
-					balanceSheet.bankBorrowings += bankAccount.getBalance();
-				else
-					// active account
-					balanceSheet.bankLoans += bankAccount.getBalance() * -1.0;
-			}
-
-			// --------------
-
-			// bank account for interactions with central bank money accounts of
-			// credit banks
-			if (CentralBank.this.centralBankMoneyBankAccount.getBalance() > 0.0) {
-				balanceSheet.addCash(
-						CentralBank.this.centralBankMoneyBankAccount
-								.getMoneyType(),
-						CentralBank.this.centralBankMoneyBankAccount
-								.getTermType(),
-						CentralBank.this.centralBankMoneyBankAccount
-								.getBalance());
-			} else {
-				balanceSheet.addLoan(
-						CentralBank.this.centralBankMoneyBankAccount
-								.getMoneyType(),
-						CentralBank.this.centralBankMoneyBankAccount
-								.getTermType(),
-						-1.0
-								* CentralBank.this.centralBankMoneyBankAccount
-										.getBalance());
-			}
-
-			// publish
-			getLog().agent_onPublishBalanceSheet(CentralBank.this, balanceSheet);
 		}
 	}
 
@@ -751,4 +725,5 @@ public class CentralBank extends Bank {
 			return this.averageMarginalPricesForGoodTypes.get(goodType);
 		}
 	}
+
 }

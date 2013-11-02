@@ -29,12 +29,17 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Index;
 
 import compecon.economy.PricingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -61,6 +66,14 @@ import compecon.math.utility.IUtilityFunction;
 @Entity
 public class State extends Agent {
 
+	/**
+	 * bank account for financing the coupon of issued bonds
+	 */
+	@OneToOne
+	@JoinColumn(name = "bankAccountCouponLoans_id")
+	@Index(name = "IDX_A_BA_COUPONLOANS")
+	protected BankAccount bankAccountCouponLoans;
+
 	@OneToMany
 	@JoinTable(name = "State_IssuedBonds", joinColumns = @JoinColumn(name = "state_id"), inverseJoinColumns = @JoinColumn(name = "bond_id"))
 	protected Set<Bond> issuedBonds = new HashSet<Bond>();
@@ -75,17 +88,8 @@ public class State extends Agent {
 	public void initialize() {
 		super.initialize();
 
-		// balance sheet publication
-		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
-		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		Simulation
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
-						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
-
 		// offer bonds
-		ITimeSystemEvent offerBondsEvent = new OfferBondsEvent();
+		final ITimeSystemEvent offerBondsEvent = new OfferBondsEvent();
 		this.timeSystemEvents.add(offerBondsEvent);
 		Simulation
 				.getInstance()
@@ -99,13 +103,13 @@ public class State extends Agent {
 		 * significant distortions on markets, as the savings of the whole
 		 * economy flow through the state via state bonds
 		 */
-		ITimeSystemEvent buyAndConsumeGoodsEvent = new BuyAndConsumeGoodsEvent();
+		final ITimeSystemEvent buyAndConsumeGoodsEvent = new BuyAndConsumeGoodsEvent();
 		this.timeSystemEvents.add(buyAndConsumeGoodsEvent);
 		Simulation
 				.getInstance()
 				.getTimeSystem()
 				.addEventEvery(buyAndConsumeGoodsEvent, -1, MonthType.EVERY,
-						DayType.EVERY, this.BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
+						DayType.EVERY, HourType.EVERY);
 
 		double initialInterestRate = AgentFactory.getInstanceCentralBank(
 				primaryCurrency).getEffectiveKeyInterestRate() + 0.02;
@@ -126,8 +130,24 @@ public class State extends Agent {
 	 * accessors
 	 */
 
+	public BankAccount getBankAccountCouponLoans() {
+		return bankAccountCouponLoans;
+	}
+
+	public Set<Bond> getIssuedBonds() {
+		return issuedBonds;
+	}
+
 	public IUtilityFunction getUtilityFunction() {
 		return utilityFunction;
+	}
+
+	public void setBankAccountCouponLoans(BankAccount bankAccountCouponLoans) {
+		this.bankAccountCouponLoans = bankAccountCouponLoans;
+	}
+
+	public void setIssuedBonds(Set<Bond> issuedBonds) {
+		this.issuedBonds = issuedBonds;
 	}
 
 	public void setUtilityFunction(IUtilityFunction utilityFunction) {
@@ -135,58 +155,112 @@ public class State extends Agent {
 	}
 
 	/*
-	 * Business logic
+	 * assertions
+	 */
+
+	@Transient
+	public void assureBankAccountCouponLoans() {
+		if (this.isDeconstructed)
+			return;
+
+		this.assureBankCustomerAccount();
+
+		// initialize bank account
+		if (this.bankAccountCouponLoans == null) {
+			this.bankAccountCouponLoans = this.primaryBank.openBankAccount(
+					this, this.primaryCurrency, true, "loans",
+					TermType.LONG_TERM, MoneyType.DEPOSITS);
+		}
+	}
+
+	/*
+	 * business logic
 	 */
 
 	@Transient
 	public void doDeficitSpending() {
-		this.assureTransactionsBankAccount();
+		this.assureBankAccountTransactions();
 
 		for (CreditBank creditBank : AgentFactory
 				.getAllCreditBanks(this.primaryCurrency)) {
 			for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(creditBank)) {
 				if (bankAccount.getOwner() != this) {
-					this.primaryBank.transferMoney(transactionsBankAccount,
-							bankAccount, 5000,
-
-							"deficit spending");
+					this.primaryBank.transferMoney(bankAccountTransactions,
+							bankAccount, 5000, "deficit spending");
 				}
 			}
 		}
 	}
 
+	@Override
 	@Transient
-	public FixedRateBond obtainBond(final double faceValue,
-			final BankAccount buyerBankAccount) {
-		this.assureTransactionsBankAccount();
+	protected BalanceSheet issueBalanceSheet() {
+		final BalanceSheet balanceSheet = super.issueBalanceSheet();
 
-		FixedRateBond fixedRateBond = issueNewFixedRateBond(faceValue);
-		buyerBankAccount.getManagingBank().transferMoney(buyerBankAccount,
-				this.transactionsBankAccount, faceValue,
-				"payment for " + fixedRateBond);
-		PropertyRegister.getInstance().transferProperty(State.this,
-				buyerBankAccount.getOwner(), fixedRateBond);
-		return fixedRateBond;
+		// bank deposits
+		balanceSheet.addBankAccountBalance(this.bankAccountCouponLoans);
+
+		// list issued bonds on balance sheet
+		for (Bond bond : this.issuedBonds) {
+			if (!bond.isDeconstructed() && !bond.getOwner().equals(this)) {
+				balanceSheet.financialLiabilities += bond.getFaceValue();
+			}
+		}
+
+		// remove deconstructed bonds
+		final Set<Bond> bondsToDelete = new HashSet<Bond>();
+		for (Bond bond : this.issuedBonds) {
+			if (bond.isDeconstructed()) {
+				bondsToDelete.add(bond);
+			}
+		}
+		this.issuedBonds.removeAll(bondsToDelete);
+
+		return balanceSheet;
 	}
 
 	@Transient
 	private FixedRateBond issueNewFixedRateBond(final double faceValue) {
-		this.assureTransactionsBankAccount();
+		this.assureBankAccountCouponLoans();
 
-		// TODO alternative: price :=
-		// State.this.pricingBehaviour.getCurrentPrice(); price
-		// diagram
+		// TODO alternative: price := this.pricingBehaviour.getCurrentPrice();
 		final CentralBank centralBank = DAOFactory.getCentralBankDAO()
 				.findByCurrency(this.primaryCurrency);
 		final double coupon = centralBank.getEffectiveKeyInterestRate()
 				+ ConfigurationUtil.StateConfig.getBondMargin();
+		// coupons have to be payed from a separate bank account, so that bonds
+		// can be re-bought with same face value after bond deconstruction
 		final FixedRateBond bond = PropertyFactory.newInstanceFixedRateBond(
-				State.this, State.this.primaryCurrency,
-				State.this.transactionsBankAccount,
-				State.this.transactionsBankAccount, faceValue, coupon);
-		State.this.issuedBonds.add(bond);
+				this, this.primaryCurrency, this.bankAccountTransactions,
+				this.bankAccountCouponLoans, faceValue, coupon);
+		this.issuedBonds.add(bond);
 		return bond;
+	}
+
+	@Transient
+	public FixedRateBond obtainBond(final double faceValue,
+			final BankAccount buyerBankAccount) {
+		this.assureBankAccountCouponLoans();
+
+		final FixedRateBond fixedRateBond = issueNewFixedRateBond(faceValue);
+		buyerBankAccount.getManagingBank().transferMoney(buyerBankAccount,
+				this.bankAccountTransactions, faceValue,
+				"payment for " + fixedRateBond);
+		PropertyRegister.getInstance().transferProperty(this,
+				buyerBankAccount.getOwner(), fixedRateBond);
+		return fixedRateBond;
+	}
+
+	@Override
+	@Transient
+	public void onBankCloseBankAccount(BankAccount bankAccount) {
+		if (this.bankAccountCouponLoans != null
+				&& this.bankAccountCouponLoans == bankAccount) {
+			this.bankAccountCouponLoans = null;
+		}
+
+		super.onBankCloseBankAccount(bankAccount);
 	}
 
 	protected class SettlementMarketEvent implements ISettlementEvent {
@@ -207,37 +281,6 @@ public class State extends Agent {
 				State.this.pricingBehaviour.registerSelling(
 						((FixedRateBond) property).getFaceValue(), totalPrice);
 			}
-		}
-	}
-
-	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
-		@Override
-		public void onEvent() {
-			State.this.assureTransactionsBankAccount();
-
-			BalanceSheet balanceSheet = State.this.issueBasicBalanceSheet();
-
-			// --------------
-
-			// list issued bonds on balance sheet
-			for (Bond bond : State.this.issuedBonds) {
-				if (!bond.isDeconstructed()
-						&& !bond.getOwner().equals(State.this)) {
-					balanceSheet.financialLiabilities += bond.getFaceValue();
-				}
-			}
-
-			// remove deconstructed bonds
-			final Set<Bond> bondsToDelete = new HashSet<Bond>();
-			for (Bond bond : State.this.issuedBonds) {
-				if (bond.isDeconstructed()) {
-					bondsToDelete.add(bond);
-				}
-			}
-			State.this.issuedBonds.removeAll(bondsToDelete);
-
-			// publish
-			getLog().agent_onPublishBalanceSheet(State.this, balanceSheet);
 		}
 	}
 
@@ -267,10 +310,9 @@ public class State extends Agent {
 				FixedRateBond bond = (FixedRateBond) property;
 
 				assert (bond.getOwner() == State.this);
-				assert (bond.getFaceValueToBankAccount().getOwner() == State.this);
 
 				// if the bond is issued by this state -> it is an unsold bond
-				if (bond.getIssuerBankAccount().getOwner() == State.this) {
+				if (bond.getIssuer() == State.this) {
 					bond.deconstruct();
 				}
 			}
@@ -300,7 +342,7 @@ public class State extends Agent {
 					.getProperties(State.this, FixedRateBond.class)) {
 				MarketFactory.getInstance().placeSettlementSellingOffer(
 						(FixedRateBond) property, State.this,
-						State.this.transactionsBankAccount,
+						State.this.bankAccountTransactions,
 						((FixedRateBond) property).getFaceValue(),
 						new SettlementMarketEvent());
 			}
@@ -316,16 +358,16 @@ public class State extends Agent {
 
 		@Transient
 		private double buyAndConsumeGoods() {
-			State.this.assureTransactionsBankAccount();
+			State.this.assureBankAccountTransactions();
 
 			/*
 			 * buy goods for sold bonds -> prevent hoarding of money
 			 */
 			Map<GoodType, IPriceFunction> priceFunctions = MarketFactory
 					.getInstance().getMarketPriceFunctions(
-							State.this.transactionsBankAccount.getCurrency(),
+							State.this.bankAccountTransactions.getCurrency(),
 							State.this.utilityFunction.getInputGoodTypes());
-			final double budget = State.this.transactionsBankAccount
+			final double budget = State.this.bankAccountTransactions
 					.getBalance();
 			if (MathUtil.greater(budget, 0.0)) {
 				getLog().setAgentCurrentlyActive(State.this);
@@ -339,7 +381,7 @@ public class State extends Agent {
 					double maxAmount = entry.getValue();
 					MarketFactory.getInstance().buy(goodType, maxAmount,
 							Double.NaN, Double.NaN, State.this,
-							State.this.transactionsBankAccount);
+							State.this.bankAccountTransactions);
 				}
 			}
 
@@ -358,9 +400,10 @@ public class State extends Agent {
 			double utility = State.this.utilityFunction
 					.calculateUtility(effectiveConsumptionGoodsBundle);
 			getLog().state_onUtility(State.this,
-					State.this.transactionsBankAccount.getCurrency(),
+					State.this.bankAccountTransactions.getCurrency(),
 					effectiveConsumptionGoodsBundle, utility);
 			return utility;
 		}
 	}
+
 }

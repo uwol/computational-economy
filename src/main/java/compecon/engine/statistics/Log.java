@@ -306,11 +306,16 @@ public class Log {
 
 	public void bank_onTransfer(final BankAccount from, final BankAccount to,
 			final Currency currency, final double value, final String subject) {
-		modelRegistry.getNationalEconomyModel(currency).monetaryTransactionsModel
-				.bank_onTransfer(from.getOwner().getClass(), to.getOwner()
-						.getClass(), currency, value);
-		modelRegistry.getNationalEconomyModel(currency).moneyCirculationModel
-				.add(value);
+		// only if this is a transfer between agents; alternatively it could be
+		// a transfer between bank accounts of this agent
+		if (from.getOwner() != to.getOwner()) {
+			modelRegistry.getNationalEconomyModel(currency).monetaryTransactionsModel
+					.bank_onTransfer(from.getOwner().getClass(), to.getOwner()
+							.getClass(), currency, value);
+			modelRegistry.getNationalEconomyModel(currency).moneyCirculationModel
+					.add(value);
+		}
+
 		if (isAgentSelectedByClient(from.getOwner())) {
 			String message = " --- " + Currency.formatMoneySum(value) + " "
 					+ currency.getIso4217Code() + " ---> " + to + ": "

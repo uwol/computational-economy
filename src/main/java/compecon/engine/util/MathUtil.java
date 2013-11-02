@@ -27,6 +27,18 @@ public class MathUtil {
 	private static final double defaultRoundPrecision = Math
 			.round(1.0 / epsilon);
 
+	/**
+	 * Calculates the monthly nominal interest rate for a given effective yearly
+	 * interest rate.<br />
+	 * <br />
+	 * http://en.wikipedia.org/wiki/Effective_interest_rate
+	 */
+	public static double calculateMonthlyNominalInterestRate(
+			final double effectiveInterestRate) {
+		return effectiveInterestRate / (1 + 11 / 24 * effectiveInterestRate)
+				/ 12;
+	}
+
 	public static boolean equal(final double value1, final double value2) {
 		if (Double.isNaN(value1) && Double.isNaN(value2))
 			return true;

@@ -78,23 +78,26 @@ public class Household extends Agent implements IShareOwner {
 	@Column(name = "ageInDays")
 	protected int ageInDays = 0;
 
-	@Column(name = "daysWithoutUtility")
-	protected int daysWithoutUtility = 0;
-
 	@Column(name = "continuousDaysWithUtility")
 	protected int continuousDaysWithUtility = 0;
 
+	@Column(name = "daysWithoutUtility")
+	protected int daysWithoutUtility = 0;
+
 	@OneToOne
-	@JoinColumn(name = "savingsBankAccount_id")
-	@Index(name = "IDX_A_SAVINGSBANKACCOUNT")
+	@JoinColumn(name = "bankAccountSavings_id")
+	@Index(name = "IDX_A_BA_SAVINGS")
 	// bank account for savings
-	protected BankAccount savingsBankAccount;
+	protected BankAccount bankAccountSavings;
 
 	@Transient
-	protected LabourPower labourPower = new LabourPower();
+	protected double dividendSinceLastPeriod;
 
 	@Transient
 	protected IntertemporalConsumptionFunction intertemporalConsumptionFunction;
+
+	@Transient
+	protected LabourPower labourPower = new LabourPower();
 
 	@Transient
 	protected PricingBehaviour pricingBehaviour;
@@ -102,15 +105,12 @@ public class Household extends Agent implements IShareOwner {
 	@Transient
 	protected IUtilityFunction utilityFunction;
 
-	@Transient
-	protected double dividendSinceLastPeriod;
-
 	@Override
 	public void initialize() {
 		super.initialize();
 
 		// daily life at random HourType
-		ITimeSystemEvent dailyLifeEvent = new DailyLifeEvent();
+		final ITimeSystemEvent dailyLifeEvent = new DailyLifeEvent();
 		this.timeSystemEvents.add(dailyLifeEvent);
 		Simulation
 				.getInstance()
@@ -123,16 +123,7 @@ public class Household extends Agent implements IShareOwner {
 						Simulation.getInstance().getTimeSystem()
 								.suggestRandomHourType());
 
-		// balance sheet publication
-		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
-		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		Simulation
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
-						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
-
-		double marketPrice = MarketFactory.getInstance().getPrice(
+		final double marketPrice = MarketFactory.getInstance().getPrice(
 				this.primaryCurrency, GoodType.LABOURHOUR);
 		this.pricingBehaviour = new PricingBehaviour(this, GoodType.LABOURHOUR,
 				this.primaryCurrency, marketPrice);
@@ -143,7 +134,7 @@ public class Household extends Agent implements IShareOwner {
 	public void deconstruct() {
 		super.deconstruct();
 
-		this.savingsBankAccount = null;
+		this.bankAccountSavings = null;
 	}
 
 	/*
@@ -152,6 +143,10 @@ public class Household extends Agent implements IShareOwner {
 
 	public int getAgeInDays() {
 		return ageInDays;
+	}
+
+	public BankAccount getBankAccountSavings() {
+		return bankAccountSavings;
 	}
 
 	public int getContinuousDaysWithUtility() {
@@ -170,16 +165,16 @@ public class Household extends Agent implements IShareOwner {
 		return pricingBehaviour;
 	}
 
-	public BankAccount getSavingsBankAccount() {
-		return savingsBankAccount;
-	}
-
 	public IUtilityFunction getUtilityFunction() {
 		return utilityFunction;
 	}
 
 	public void setAgeInDays(int ageInDays) {
 		this.ageInDays = ageInDays;
+	}
+
+	public void setBankAccountSavings(BankAccount bankAccountSavings) {
+		this.bankAccountSavings = bankAccountSavings;
 	}
 
 	public void setContinuousDaysWithUtility(int continuousDaysWithUtility) {
@@ -199,10 +194,6 @@ public class Household extends Agent implements IShareOwner {
 		this.pricingBehaviour = pricingBehaviour;
 	}
 
-	public void setSavingsBankAccount(BankAccount savingsBankAccount) {
-		this.savingsBankAccount = savingsBankAccount;
-	}
-
 	public void setUtilityFunction(IUtilityFunction utilityFunction) {
 		this.utilityFunction = utilityFunction;
 	}
@@ -213,21 +204,21 @@ public class Household extends Agent implements IShareOwner {
 
 	@Transient
 	public void assureDividendBankAccount() {
-		this.assureTransactionsBankAccount();
+		this.assureBankAccountTransactions();
 	}
 
 	@Transient
-	public void assureSavingsBankAccount() {
+	public void assureBankAccountSavings() {
 		if (this.isDeconstructed)
 			return;
 
 		this.assureBankCustomerAccount();
 
 		// initialize bank account
-		if (this.savingsBankAccount == null) {
-			this.savingsBankAccount = this.primaryBank.openBankAccount(this,
-					this.primaryCurrency, false, "savings account",
-					TermType.LONG_TERM, MoneyType.DEPOSITS);
+		if (this.bankAccountSavings == null) {
+			this.bankAccountSavings = this.primaryBank.openBankAccount(this,
+					this.primaryCurrency, false, "savings", TermType.LONG_TERM,
+					MoneyType.DEPOSITS);
 		}
 	}
 
@@ -238,9 +229,22 @@ public class Household extends Agent implements IShareOwner {
 	@Override
 	@Transient
 	public BankAccount getDividendBankAccount() {
-		this.assureTransactionsBankAccount();
+		this.assureBankAccountTransactions();
 
-		return this.transactionsBankAccount;
+		return this.bankAccountTransactions;
+	}
+
+	@Override
+	@Transient
+	protected BalanceSheet issueBalanceSheet() {
+		this.assureBankAccountSavings();
+
+		final BalanceSheet balanceSheet = super.issueBalanceSheet();
+
+		// retirement savings
+		balanceSheet.addBankAccountBalance(this.bankAccountSavings);
+
+		return balanceSheet;
 	}
 
 	@Override
@@ -252,12 +256,17 @@ public class Household extends Agent implements IShareOwner {
 	@Override
 	@Transient
 	public void onBankCloseBankAccount(BankAccount bankAccount) {
-		if (this.savingsBankAccount != null
-				&& this.savingsBankAccount == bankAccount) {
-			this.savingsBankAccount = null;
+		if (this.bankAccountSavings != null
+				&& this.bankAccountSavings == bankAccount) {
+			this.bankAccountSavings = null;
 		}
 
 		super.onBankCloseBankAccount(bankAccount);
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + " [" + this.ageInDays / 365 + " years]";
 	}
 
 	public class SettlementMarketEvent implements ISettlementEvent {
@@ -282,31 +291,6 @@ public class Household extends Agent implements IShareOwner {
 
 	}
 
-	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
-		@Override
-		public void onEvent() {
-			Household.this.assureTransactionsBankAccount();
-			Household.this.assureSavingsBankAccount();
-
-			BalanceSheet balanceSheet = Household.this.issueBasicBalanceSheet();
-
-			// bank deposits
-			if (Household.this.savingsBankAccount.getBalance() > 0.0) {
-				balanceSheet.addCash(
-						Household.this.savingsBankAccount.getMoneyType(),
-						Household.this.savingsBankAccount.getTermType(),
-						Household.this.savingsBankAccount.getBalance());
-			} else {
-				balanceSheet.addLoan(
-						Household.this.savingsBankAccount.getMoneyType(),
-						Household.this.savingsBankAccount.getTermType(),
-						-1.0 * Household.this.savingsBankAccount.getBalance());
-			}
-
-			getLog().agent_onPublishBalanceSheet(Household.this, balanceSheet);
-		}
-	}
-
 	public class DailyLifeEvent implements ITimeSystemEvent {
 
 		@Override
@@ -322,7 +306,6 @@ public class Household extends Agent implements IShareOwner {
 				return;
 			}
 
-			// NumberOfLabourHoursPerDay is identical each period
 			getLog().household_AmountSold(Household.this.primaryCurrency,
 					Household.this.pricingBehaviour.getLastSoldAmount());
 
@@ -333,12 +316,12 @@ public class Household extends Agent implements IShareOwner {
 			Household.this.labourPower.refresh();
 			Household.this.pricingBehaviour.nextPeriod();
 
+			Household.this.assureBankAccountTransactions();
+			Household.this.assureBankAccountSavings();
+
 			/*
 			 * economic actions
 			 */
-			Household.this.assureTransactionsBankAccount();
-			Household.this.assureSavingsBankAccount();
-
 			double budget = this.saveMoney();
 
 			double numberOfLabourHoursToConsume = this
@@ -353,53 +336,15 @@ public class Household extends Agent implements IShareOwner {
 			// households make no debt; safety epsilon due to iterative
 			// deviations
 			assert (MathUtil.greaterEqual(
-					Household.this.transactionsBankAccount.getBalance(), 0.0));
+					Household.this.bankAccountTransactions.getBalance(), 0.0));
 			assert (MathUtil.greaterEqual(
-					Household.this.savingsBankAccount.getBalance(), 0.0));
+					Household.this.bankAccountSavings.getBalance(), 0.0));
 
-			/*
-			 * check for required utility
-			 */
-			if (utility < ConfigurationUtil.HouseholdConfig
-					.getRequiredUtilityPerDay()) {
-				Household.this.daysWithoutUtility++;
-				Household.this.continuousDaysWithUtility = 0;
-				if (getLog().isAgentSelectedByClient(Household.this))
-					getLog().log(
-							Household.this,
-							DailyLifeEvent.class,
-							"does not have required utility of "
-									+ ConfigurationUtil.HouseholdConfig
-											.getRequiredUtilityPerDay());
-			} else {
-				if (Household.this.daysWithoutUtility > 0)
-					daysWithoutUtility--;
-				Household.this.continuousDaysWithUtility++;
-			}
+			checkRequiredUtilityPerDay(utility);
 
-			/*
-			 * potentially, derive new household
-			 */
-			final int NEW_HOUSEHOLD_FROM_X_DAYS = ConfigurationUtil.HouseholdConfig
-					.getNewHouseholdFromAgeInDays();
-			if (Household.this.ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
-				if ((Household.this.ageInDays - NEW_HOUSEHOLD_FROM_X_DAYS)
-						% ConfigurationUtil.HouseholdConfig
-								.getNewHouseholdEveryXDays() == 0) {
-					AgentFactory
-							.newInstanceHousehold(Household.this.primaryCurrency);
-				}
-			}
+			checkDeriveNewHousehold();
 
-			/*
-			 * potentially, call destructor
-			 */
-			if (Household.this.daysWithoutUtility > Household.this.DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR) {
-				if (!Simulation.getInstance().getTimeSystem()
-						.isInitializationPhase()) {
-					Household.this.deconstruct();
-				}
-			}
+			checkCallDestructor();
 		}
 
 		protected double saveMoney() {
@@ -409,7 +354,7 @@ public class Household extends Agent implements IShareOwner {
 			final double keyInterestRate = AgentFactory.getInstanceCentralBank(
 					Household.this.primaryCurrency)
 					.getEffectiveKeyInterestRate();
-			final double income = Household.this.transactionsBankAccount
+			final double income = Household.this.bankAccountTransactions
 					.getBalance();
 
 			final double budget;
@@ -418,7 +363,7 @@ public class Household extends Agent implements IShareOwner {
 				Map<Period, Double> intertemporalConsumptionPlan = Household.this.intertemporalConsumptionFunction
 						.calculateUtilityMaximizingConsumptionPlan(
 								income,
-								Household.this.savingsBankAccount.getBalance(),
+								Household.this.bankAccountSavings.getBalance(),
 								keyInterestRate,
 								Household.this.ageInDays,
 								ConfigurationUtil.HouseholdConfig
@@ -448,9 +393,9 @@ public class Household extends Agent implements IShareOwner {
 				/*
 				 * save money for retirement
 				 */
-				Household.this.transactionsBankAccount.getManagingBank()
-						.transferMoney(Household.this.transactionsBankAccount,
-								Household.this.savingsBankAccount,
+				Household.this.bankAccountTransactions.getManagingBank()
+						.transferMoney(Household.this.bankAccountTransactions,
+								Household.this.bankAccountSavings,
 								moneySumToSave, "retirement savings");
 				if (getLog().isAgentSelectedByClient(Household.this))
 					getLog().log(
@@ -459,14 +404,14 @@ public class Household extends Agent implements IShareOwner {
 							"saving "
 									+ Currency.formatMoneySum(moneySumToSave)
 									+ " "
-									+ Household.this.transactionsBankAccount
+									+ Household.this.bankAccountTransactions
 											.getCurrency().getIso4217Code()
 									+ " of "
 									+ Currency
-											.formatMoneySum(Household.this.transactionsBankAccount
+											.formatMoneySum(Household.this.bankAccountTransactions
 													.getBalance())
 									+ " "
-									+ Household.this.transactionsBankAccount
+									+ Household.this.bankAccountTransactions
 											.getCurrency().getIso4217Code()
 									+ " income");
 			} else if (moneySumToSave < 0.0) {
@@ -479,9 +424,9 @@ public class Household extends Agent implements IShareOwner {
 				/*
 				 * spend saved retirement money
 				 */
-				Household.this.transactionsBankAccount.getManagingBank()
-						.transferMoney(Household.this.savingsBankAccount,
-								Household.this.transactionsBankAccount,
+				Household.this.bankAccountTransactions.getManagingBank()
+						.transferMoney(Household.this.bankAccountSavings,
+								Household.this.bankAccountTransactions,
 								-1.0 * moneySumToSave, "retirement dissavings");
 				if (getLog().isAgentSelectedByClient(Household.this))
 					getLog().log(
@@ -490,7 +435,7 @@ public class Household extends Agent implements IShareOwner {
 									+ Currency.formatMoneySum(-1.0
 											* moneySumToSave)
 									+ " "
-									+ Household.this.savingsBankAccount
+									+ Household.this.bankAccountSavings
 											.getCurrency().getIso4217Code());
 			}
 
@@ -555,7 +500,7 @@ public class Household extends Agent implements IShareOwner {
 									* ConfigurationUtil.HouseholdConfig
 											.getMaxPricePerUnitMultiplier(),
 							Household.this,
-							Household.this.transactionsBankAccount);
+							Household.this.bankAccountTransactions);
 					budgetSpent += priceAndAmount[0];
 				}
 			}
@@ -585,7 +530,7 @@ public class Household extends Agent implements IShareOwner {
 			double utility = Household.this.utilityFunction
 					.calculateUtility(effectiveConsumptionGoodsBundle);
 			getLog().household_onUtility(Household.this,
-					Household.this.transactionsBankAccount.getCurrency(),
+					Household.this.bankAccountTransactions.getCurrency(),
 					effectiveConsumptionGoodsBundle, utility);
 			return utility;
 		}
@@ -595,7 +540,7 @@ public class Household extends Agent implements IShareOwner {
 			 * remove labour hour offers
 			 */
 			MarketFactory.getInstance().removeAllSellingOffers(Household.this,
-					Household.this.transactionsBankAccount.getCurrency(),
+					Household.this.bankAccountTransactions.getCurrency(),
 					GoodType.LABOURHOUR);
 
 			// if not retired
@@ -611,7 +556,7 @@ public class Household extends Agent implements IShareOwner {
 				for (double price : prices) {
 					MarketFactory.getInstance().placeSettlementSellingOffer(
 							GoodType.LABOURHOUR, Household.this,
-							Household.this.transactionsBankAccount,
+							Household.this.bankAccountTransactions,
 							amountOfLabourHours / ((double) prices.length),
 							price, new SettlementMarketEvent());
 				}
@@ -631,13 +576,13 @@ public class Household extends Agent implements IShareOwner {
 			 * buy shares / capital -> equity savings
 			 */
 			MarketFactory.getInstance().buy(Share.class, 1.0, 0.0, 0.0,
-					Household.this, Household.this.transactionsBankAccount);
+					Household.this, Household.this.bankAccountTransactions);
 
 			/*
 			 * sell shares that are denominated in an incorrect currency
 			 */
 			MarketFactory.getInstance().removeAllSellingOffers(Household.this,
-					Household.this.transactionsBankAccount.getCurrency(),
+					Household.this.bankAccountTransactions.getCurrency(),
 					Share.class);
 			for (Property property : PropertyRegister.getInstance()
 					.getProperties(Household.this, Share.class)) {
@@ -647,8 +592,58 @@ public class Household extends Agent implements IShareOwner {
 							.getJointStockCompany().getPrimaryCurrency()))
 						MarketFactory.getInstance().placeSellingOffer(property,
 								Household.this,
-								Household.this.getTransactionsBankAccount(),
+								Household.this.getBankAccountTransactions(),
 								0.0);
+				}
+			}
+		}
+
+		protected void checkRequiredUtilityPerDay(final double utility) {
+			/*
+			 * check for required utility
+			 */
+			if (utility < ConfigurationUtil.HouseholdConfig
+					.getRequiredUtilityPerDay()) {
+				Household.this.daysWithoutUtility++;
+				Household.this.continuousDaysWithUtility = 0;
+				if (getLog().isAgentSelectedByClient(Household.this))
+					getLog().log(
+							Household.this,
+							DailyLifeEvent.class,
+							"does not have required utility of "
+									+ ConfigurationUtil.HouseholdConfig
+											.getRequiredUtilityPerDay());
+			} else {
+				if (Household.this.daysWithoutUtility > 0)
+					daysWithoutUtility--;
+				Household.this.continuousDaysWithUtility++;
+			}
+		}
+
+		protected void checkDeriveNewHousehold() {
+			/*
+			 * potentially, derive new household
+			 */
+			final int NEW_HOUSEHOLD_FROM_X_DAYS = ConfigurationUtil.HouseholdConfig
+					.getNewHouseholdFromAgeInDays();
+			if (Household.this.ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
+				if ((Household.this.ageInDays - NEW_HOUSEHOLD_FROM_X_DAYS)
+						% ConfigurationUtil.HouseholdConfig
+								.getNewHouseholdEveryXDays() == 0) {
+					AgentFactory
+							.newInstanceHousehold(Household.this.primaryCurrency);
+				}
+			}
+		}
+
+		protected void checkCallDestructor() {
+			/*
+			 * potentially, call destructor
+			 */
+			if (Household.this.daysWithoutUtility > Household.this.DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR) {
+				if (!Simulation.getInstance().getTimeSystem()
+						.isInitializationPhase()) {
+					Household.this.deconstruct();
 				}
 			}
 		}
@@ -682,10 +677,5 @@ public class Household extends Agent implements IShareOwner {
 					ConfigurationUtil.HouseholdConfig
 							.getNumberOfLabourHoursPerDay());
 		}
-	}
-
-	@Override
-	public String toString() {
-		return super.toString() + " [" + this.ageInDays / 365 + " years]";
 	}
 }

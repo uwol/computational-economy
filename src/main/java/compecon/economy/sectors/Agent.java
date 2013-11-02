@@ -58,7 +58,9 @@ import compecon.engine.PropertyFactory;
 import compecon.engine.Simulation;
 import compecon.engine.statistics.Log;
 import compecon.engine.time.ITimeSystemEvent;
-import compecon.engine.time.calendar.HourType;
+import compecon.engine.time.calendar.DayType;
+import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.materia.GoodType;
 
 @Entity
@@ -68,15 +70,20 @@ import compecon.materia.GoodType;
 @DiscriminatorColumn(name = "DTYPE")
 public abstract class Agent {
 
+	/**
+	 * bank account for basic daily transactions
+	 */
+	@OneToOne
+	@JoinColumn(name = "bankAccountTransactions_id")
+	@Index(name = "IDX_A_BA_TRANSACTIONS")
+	protected BankAccount bankAccountTransactions;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	protected int id;
 
 	@Column(name = "isDeconstructed")
 	protected boolean isDeconstructed = false;
-
-	@Transient
-	protected Set<ITimeSystemEvent> timeSystemEvents = new HashSet<ITimeSystemEvent>();
 
 	@Column(name = "primaryCurrency")
 	@Enumerated(EnumType.STRING)
@@ -95,21 +102,24 @@ public abstract class Agent {
 	@Column(name = "referenceCredit")
 	protected double referenceCredit;
 
-	/**
-	 * bank account for basic daily transactions
-	 */
-	@OneToOne
-	@JoinColumn(name = "transactionsBankAccount_id")
-	@Index(name = "IDX_A_TRANSACTIONSBANKACCOUNT")
-	protected BankAccount transactionsBankAccount;
-
 	@Transient
-	protected final HourType BALANCE_SHEET_PUBLICATION_HOUR_TYPE = HourType.HOUR_23;
-
-	@Transient
-	private final String agentTypeName = this.getClass().getSimpleName();
+	protected Set<ITimeSystemEvent> timeSystemEvents = new HashSet<ITimeSystemEvent>();
 
 	public void initialize() {
+		// balance sheet publication
+		final ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
+		this.timeSystemEvents.add(balanceSheetPublicationEvent);
+		Simulation
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						balanceSheetPublicationEvent,
+						-1,
+						MonthType.EVERY,
+						DayType.EVERY,
+						ConfigurationUtil.AgentConfig
+								.getBalanceSheetPublicationHourType());
+
 		getLog().agent_onConstruct(this);
 	}
 
@@ -136,13 +146,13 @@ public abstract class Agent {
 		HardCashRegister.getInstance().deregister(this);
 
 		// deregister from banks
-		if (this.transactionsBankAccount != null) {
-			this.transactionsBankAccount.getManagingBank()
+		if (this.bankAccountTransactions != null) {
+			this.bankAccountTransactions.getManagingBank()
 					.closeCustomerAccount(this);
 		}
 
 		this.primaryBank = null;
-		this.transactionsBankAccount = null;
+		this.bankAccountTransactions = null;
 		this.timeSystemEvents = null;
 
 		AgentFactory.deleteAgent(this);
@@ -153,6 +163,10 @@ public abstract class Agent {
 	/*
 	 * accessors
 	 */
+
+	public BankAccount getBankAccountTransactions() {
+		return bankAccountTransactions;
+	}
 
 	public int getId() {
 		return id;
@@ -178,8 +192,8 @@ public abstract class Agent {
 		return this.referenceCredit;
 	}
 
-	public BankAccount getTransactionsBankAccount() {
-		return transactionsBankAccount;
+	public void setBankAccountTransactions(BankAccount bankAccountTransactions) {
+		this.bankAccountTransactions = bankAccountTransactions;
 	}
 
 	public void setId(int id) {
@@ -206,13 +220,24 @@ public abstract class Agent {
 		this.referenceCredit = referenceCredit;
 	}
 
-	public void setTransactionsBankAccount(BankAccount transactionsBankAccount) {
-		this.transactionsBankAccount = transactionsBankAccount;
-	}
-
 	/*
 	 * assertions
 	 */
+
+	@Transient
+	public void assureBankAccountTransactions() {
+		if (this.isDeconstructed)
+			return;
+
+		this.assureBankCustomerAccount();
+
+		// initialize bank account
+		if (this.bankAccountTransactions == null) {
+			this.bankAccountTransactions = this.primaryBank.openBankAccount(
+					this, this.primaryCurrency, true, "transactions",
+					TermType.SHORT_TERM, MoneyType.DEPOSITS);
+		}
+	}
 
 	@Transient
 	public void assureBankCustomerAccount() {
@@ -225,77 +250,47 @@ public abstract class Agent {
 		}
 	}
 
-	@Transient
-	public void assureTransactionsBankAccount() {
-		if (this.isDeconstructed)
-			return;
-
-		this.assureBankCustomerAccount();
-
-		// initialize bank account
-		if (this.transactionsBankAccount == null) {
-			this.transactionsBankAccount = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency, true, "transactions account",
-					TermType.SHORT_TERM, MoneyType.DEPOSITS);
-		}
-	}
-
-	/**
-	 * this method is triggered in the event that the bank of the bank account
-	 * closes the bank account, so that the customer agent can react.
-	 */
-	@Transient
-	public void onBankCloseBankAccount(BankAccount bankAccount) {
-		if (this.transactionsBankAccount == bankAccount)
-			this.transactionsBankAccount = null;
-	}
-
 	/*
 	 * business logic
 	 */
 
 	@Transient
-	public BalanceSheet issueBasicBalanceSheet() {
-		this.assureTransactionsBankAccount();
+	protected Log getLog() {
+		return Simulation.getInstance().getLog();
+	}
 
-		Currency referenceCurrency = Agent.this.transactionsBankAccount
+	@Transient
+	protected BalanceSheet issueBalanceSheet() {
+		this.assureBankAccountTransactions();
+
+		final Currency referenceCurrency = this.bankAccountTransactions
 				.getCurrency();
 
 		assert (referenceCurrency != null);
 
-		BalanceSheet balanceSheet = new BalanceSheet(referenceCurrency);
+		final BalanceSheet balanceSheet = new BalanceSheet(referenceCurrency);
 
 		// hard cash
 		// TODO convert other currencies
-		balanceSheet.hardCash = HardCashRegister.getInstance().getBalance(
-				Agent.this, referenceCurrency);
+		balanceSheet.hardCash = HardCashRegister.getInstance().getBalance(this,
+				referenceCurrency);
 
 		// bank deposits
-		if (Agent.this.transactionsBankAccount.getBalance() > 0.0) {
-			balanceSheet.addCash(
-					Agent.this.transactionsBankAccount.getMoneyType(),
-					Agent.this.transactionsBankAccount.getTermType(),
-					Agent.this.transactionsBankAccount.getBalance());
-		} else {
-			balanceSheet.addLoan(
-					Agent.this.transactionsBankAccount.getMoneyType(),
-					Agent.this.transactionsBankAccount.getTermType(), -1.0
-							* Agent.this.transactionsBankAccount.getBalance());
-		}
+		balanceSheet.addBankAccountBalance(this.bankAccountTransactions);
 
 		// bonds
 		for (Property property : PropertyRegister.getInstance().getProperties(
-				Agent.this)) {
+				this)) {
 			if (property instanceof Bond) {
 				Bond bond = ((Bond) property);
-				assert (bond.getOwner() == Agent.this);
+				assert (bond.getOwner() == this);
 
 				if (bond.isDeconstructed()) {
 					PropertyFactory.deleteProperty(bond);
 				} else {
 					// important, so that agents do not count bonds that have
 					// not been sold, yet
-					if (bond.getIssuerBankAccount().getOwner() != this) {
+					if (bond.getFaceValueFromBankAccount().getOwner() != this) {
 						balanceSheet.bonds += ((Bond) property).getFaceValue();
 					}
 				}
@@ -306,7 +301,7 @@ public abstract class Agent {
 		Map<GoodType, Double> prices = MarketFactory.getInstance().getPrices(
 				this.primaryCurrency);
 		for (Entry<GoodType, Double> balanceEntry : PropertyRegister
-				.getInstance().getBalance(Agent.this).entrySet()) {
+				.getInstance().getBalance(this).entrySet()) {
 			GoodType goodType = balanceEntry.getKey();
 			double amount = balanceEntry.getValue();
 			double price = prices.get(goodType);
@@ -317,19 +312,34 @@ public abstract class Agent {
 
 		// inventory by amount
 		balanceSheet.inventoryQuantitative.putAll(PropertyRegister
-				.getInstance().getBalance(Agent.this));
+				.getInstance().getBalance(this));
 
 		return balanceSheet;
 	}
 
-	protected Log getLog() {
-		return Simulation.getInstance().getLog();
+	/**
+	 * this method is triggered in the event that the bank of the bank account
+	 * closes the bank account, so that the customer agent can react.
+	 */
+	@Transient
+	public void onBankCloseBankAccount(BankAccount bankAccount) {
+		if (this.bankAccountTransactions == bankAccount)
+			this.bankAccountTransactions = null;
 	}
 
 	@Override
 	public String toString() {
-		return this.agentTypeName + " ["
+		return this.getClass().getSimpleName() + " ["
 				+ this.primaryCurrency.getIso4217Code() + ", ID: " + this.id
 				+ "]";
+	}
+
+	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
+		@Override
+		public void onEvent() {
+			final BalanceSheet balanceSheet = Agent.this.issueBalanceSheet();
+
+			getLog().agent_onPublishBalanceSheet(Agent.this, balanceSheet);
+		}
 	}
 }

@@ -143,28 +143,28 @@ public abstract class CompEconTestSupport {
 		}
 
 		for (CentralBank centralBank : DAOFactory.getCentralBankDAO().findAll()) {
-			centralBank.assureTransactionsBankAccount();
+			centralBank.assureBankAccountTransactions();
 		}
 
 		for (CreditBank creditBank : DAOFactory.getCreditBankDAO().findAll()) {
-			creditBank.assureCentralBankMoneyReservesAccount();
-			creditBank.assureCentralBankTransactionsAccount();
-			creditBank.assureTransactionsBankAccount();
-			creditBank.assureCurrencyTradeBankAccounts();
+			creditBank.assureBankAccountCentralBankMoneyReserves();
+			creditBank.assureBankAccountCentralBankTransactions();
+			creditBank.assureBankAccountTransactions();
+			creditBank.assureBankAccountsCurrencyTrade();
 		}
 
 		for (Factory factory : DAOFactory.getFactoryDAO().findAll()) {
-			factory.assureTransactionsBankAccount();
+			factory.assureBankAccountTransactions();
 		}
 
 		for (Household household : DAOFactory.getHouseholdDAO().findAll()) {
-			household.assureTransactionsBankAccount();
-			household.assureSavingsBankAccount();
+			household.assureBankAccountTransactions();
+			household.assureBankAccountSavings();
 		}
 
 		for (Trader trader : DAOFactory.getTraderDAO().findAll()) {
-			trader.assureTransactionsBankAccount();
-			trader.assureGoodsTradeBankAccounts();
+			trader.assureBankAccountTransactions();
+			trader.assureBankAccountsGoodTrade();
 		}
 
 		HibernateUtil.flushSession();

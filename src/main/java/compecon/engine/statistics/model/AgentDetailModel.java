@@ -99,12 +99,6 @@ public class AgentDetailModel extends NotificationListenerModel {
 
 	public void logBankAccountEvent(Date date, BankAccount bankAccount,
 			String message) {
-		if (!this.bankAccountLogs.containsKey(bankAccount))
-			this.bankAccountLogs.put(
-					bankAccount,
-					new AgentLog(bankAccount.getName() + " ["
-							+ bankAccount.getId() + ", "
-							+ bankAccount.getCurrency() + "]"));
 		this.bankAccountLogs.get(bankAccount).log(
 				iso8601DateFormat.format(date) + "     " + message);
 		this.notifyListeners();
@@ -115,7 +109,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 	}
 
 	public List<AgentLog> getLogsOfCurrentAgent() {
-		List<AgentLog> logs = new ArrayList<AgentLog>();
+		final List<AgentLog> logs = new ArrayList<AgentLog>();
 		logs.add(this.agentLog);
 		for (AgentLog bankAccountLog : this.bankAccountLogs.values())
 			logs.add(bankAccountLog);
@@ -123,7 +117,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 	}
 
 	public List<BankAccount> getBankAccountsOfCurrentAgent() {
-		Agent agent = getLog().getAgentSelectedByClient();
+		final Agent agent = getLog().getAgentSelectedByClient();
 		if (agent != null)
 			return DAOFactory.getBankAccountDAO().findAllBankAccountsOfAgent(
 					agent);
@@ -153,12 +147,22 @@ public class AgentDetailModel extends NotificationListenerModel {
 		this.notifyListeners();
 	}
 
-	public void setCurrentAgent(Integer agentId) {
-		Agent selectedAgent = this.agents.get(agentId);
+	public void setCurrentAgent(final Integer agentId) {
+		final Agent selectedAgent = this.agents.get(agentId);
+		getLog().setAgentSelectedByClient(selectedAgent);
+
 		this.agentLog = new AgentLog("Agent");
 		this.bankAccountLogs.clear();
+
+		for (BankAccount bankAccount : this.getBankAccountsOfCurrentAgent()) {
+			this.bankAccountLogs.put(
+					bankAccount,
+					new AgentLog(bankAccount.getName() + " ["
+							+ bankAccount.getId() + ", "
+							+ bankAccount.getCurrency() + "]"));
+		}
+
 		this.currentLog = agentLog;
-		getLog().setAgentSelectedByClient(selectedAgent);
 		this.notifyListeners();
 	}
 

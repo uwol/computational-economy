@@ -327,17 +327,17 @@ public class CESFunctionTest extends CompEconTestSupport {
 				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				2.0, 1.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				5.0, 2.0);
 
 		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household1_EUR, household1_EUR.getTransactionsBankAccount(),
+				household1_EUR, household1_EUR.getBankAccountTransactions(),
 				2.0, 1.0);
 		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household2_EUR, household2_EUR.getTransactionsBankAccount(),
+				household2_EUR, household2_EUR.getBankAccountTransactions(),
 				3.0, 2.0);
 
 		/*

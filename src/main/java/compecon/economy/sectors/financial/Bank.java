@@ -25,17 +25,38 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Index;
 
 import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
 import compecon.economy.sectors.state.law.security.equity.JointStockCompany;
 import compecon.engine.BankAccountFactory;
 import compecon.engine.dao.DAOFactory;
 
 @Entity
 public abstract class Bank extends JointStockCompany {
+
+	/**
+	 * bank account for financing bonds
+	 */
+	@OneToOne
+	@JoinColumn(name = "bankAccountBondLoan_id")
+	@Index(name = "IDX_B_BA_BONDLOAN")
+	protected BankAccount bankAccountBondLoan;
+
+	/**
+	 * bank account for receiving bond coupons
+	 */
+	@OneToOne
+	@JoinColumn(name = "bankAccountBondCoupon_id")
+	@Index(name = "IDX_B_BA_BONDCOUPON")
+	protected BankAccount bankAccountInterestTransactions;
 
 	@Override
 	public void deconstruct() {
@@ -46,8 +67,32 @@ public abstract class Bank extends JointStockCompany {
 			this.closeCustomerAccount(agent);
 		}
 
+		this.bankAccountBondLoan = null;
+		this.bankAccountInterestTransactions = null;
+
 		// important so that this bank is removed from the DAOs index
 		DAOFactory.getBankAccountDAO().deleteAllBankAccounts(this);
+	}
+
+	/*
+	 * accessors
+	 */
+
+	public BankAccount getBankAccountBondLoan() {
+		return bankAccountBondLoan;
+	}
+
+	public BankAccount getBankAccountInterestTransactions() {
+		return bankAccountInterestTransactions;
+	}
+
+	public void setBankAccountBondLoan(BankAccount bankAccountBondLoan) {
+		this.bankAccountBondLoan = bankAccountBondLoan;
+	}
+
+	public void setBankAccountInterestTransactions(
+			BankAccount bankAccountBondCoupon) {
+		this.bankAccountInterestTransactions = bankAccountBondCoupon;
 	}
 
 	/*
@@ -58,6 +103,45 @@ public abstract class Bank extends JointStockCompany {
 	protected void assertBankAccountIsManagedByThisBank(
 			final BankAccount bankAccount) {
 		assert (bankAccount.getManagingBank() == this);
+	}
+
+	@Transient
+	public void assureBankAccountBondLoan() {
+		if (this.isDeconstructed)
+			return;
+
+		this.assureSelfCustomerAccount();
+
+		if (this.bankAccountBondLoan == null) {
+			/*
+			 * initialize the banks own bank account and open a customer account
+			 * at this new bank, so that this bank can transfer money from its
+			 * own bank account
+			 */
+			this.bankAccountBondLoan = this.primaryBank.openBankAccount(this,
+					this.primaryCurrency, true, "bond loans",
+					TermType.LONG_TERM, MoneyType.DEPOSITS);
+		}
+	}
+
+	@Transient
+	public void assureBankAccountInterestTransactions() {
+		if (this.isDeconstructed)
+			return;
+
+		this.assureSelfCustomerAccount();
+
+		if (this.bankAccountInterestTransactions == null) {
+			/*
+			 * initialize the banks own bank account and open a customer account
+			 * at this new bank, so that this bank can transfer money from its
+			 * own bank account
+			 */
+			this.bankAccountInterestTransactions = this.primaryBank
+					.openBankAccount(this, this.primaryCurrency, true,
+							"interest transactions", TermType.SHORT_TERM,
+							MoneyType.DEPOSITS);
+		}
 	}
 
 	@Transient
@@ -91,13 +175,16 @@ public abstract class Bank extends JointStockCompany {
 
 	@Transient
 	public Set<Agent> getCustomers() {
-		Set<Agent> customers = new HashSet<Agent>();
+		final Set<Agent> customers = new HashSet<Agent>();
 		for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
 				.findAllBankAccountsManagedByBank(this)) {
 			customers.add(bankAccount.getOwner());
 		}
 		return customers;
 	}
+
+	@Transient
+	public abstract void closeCustomerAccount(final Agent customer);
 
 	@Transient
 	public List<BankAccount> getBankAccounts(final Agent customer) {
@@ -110,8 +197,52 @@ public abstract class Bank extends JointStockCompany {
 		return DAOFactory.getBankAccountDAO().findAll(this, customer, currency);
 	}
 
+	@Override
 	@Transient
-	public abstract void closeCustomerAccount(final Agent customer);
+	protected BalanceSheet issueBalanceSheet() {
+		this.assureBankAccountBondLoan();
+		this.assureBankAccountInterestTransactions();
+
+		final BalanceSheet balanceSheet = super.issueBalanceSheet();
+
+		// bank accounts of customers managed by this bank
+		for (BankAccount bankAccount : DAOFactory.getBankAccountDAO()
+				.findAllBankAccountsManagedByBank(this)) {
+			assert (bankAccount.getCurrency().equals(this.primaryCurrency));
+
+			if (bankAccount.getBalance() > 0.0) { // passive account
+				balanceSheet.bankBorrowings += bankAccount.getBalance();
+			} else {
+				// active account
+				balanceSheet.bankLoans += bankAccount.getBalance() * -1.0;
+			}
+		}
+
+		// bank account for financing bonds
+		balanceSheet.addBankAccountBalance(this.bankAccountBondLoan);
+
+		// bank account for receiving coupons
+		balanceSheet
+				.addBankAccountBalance(this.bankAccountInterestTransactions);
+
+		return balanceSheet;
+	}
+
+	@Override
+	@Transient
+	public void onBankCloseBankAccount(BankAccount bankAccount) {
+		if (this.bankAccountInterestTransactions != null
+				&& this.bankAccountInterestTransactions == bankAccount) {
+			this.bankAccountInterestTransactions = null;
+		}
+
+		if (this.bankAccountBondLoan != null
+				&& this.bankAccountBondLoan == bankAccount) {
+			this.bankAccountBondLoan = null;
+		}
+
+		super.onBankCloseBankAccount(bankAccount);
+	}
 
 	@Transient
 	public BankAccount openBankAccount(final Agent customer,
@@ -120,26 +251,13 @@ public abstract class Bank extends JointStockCompany {
 			final MoneyType moneyType) {
 		this.assertCurrencyIsOffered(currency);
 
-		BankAccount bankAccount = BankAccountFactory.newInstanceBankAccount(
-				customer, currency, overdraftPossible, this, name, termType,
-				moneyType);
+		final BankAccount bankAccount = BankAccountFactory
+				.newInstanceBankAccount(customer, currency, overdraftPossible,
+						this, name, termType, moneyType);
 		return bankAccount;
 	}
 
 	@Transient
 	public abstract void transferMoney(final BankAccount from,
 			final BankAccount to, final double amount, final String subject);
-
-	@Transient
-	protected abstract void transferMoney(final BankAccount from,
-			final BankAccount to, final double amount, final String subject,
-			final boolean negativeAmountOK);
-
-	@Transient
-	public double calculateMonthlyNominalInterestRate(
-			final double effectiveInterestRate) {
-		// http://en.wikipedia.org/wiki/Effective_interest_rate
-		return effectiveInterestRate / (1 + 11 / 24 * effectiveInterestRate)
-				/ 12;
-	}
 }

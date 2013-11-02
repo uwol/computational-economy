@@ -25,9 +25,22 @@ import java.util.Map;
 import java.util.Properties;
 
 import compecon.economy.sectors.financial.Currency;
+import compecon.engine.time.calendar.HourType;
 import compecon.materia.GoodType;
 
 public class ConfigurationUtil {
+
+	public static class AgentConfig {
+
+		public static HourType balanceSheetPublicationHourType;
+
+		public static HourType getBalanceSheetPublicationHourType() {
+			if (balanceSheetPublicationHourType == null)
+				balanceSheetPublicationHourType = HourType.valueOf(configFile
+						.getProperty("agent.balanceSheetPublicationHourType"));
+			return balanceSheetPublicationHourType;
+		}
+	}
 
 	public static class BudgetingBehaviour {
 
@@ -338,6 +351,19 @@ public class ConfigurationUtil {
 								.getProperty("inputOutputModel.setup"));
 			assert (inputOutputModelSetup != null);
 			return inputOutputModelSetup;
+		}
+	}
+
+	public static class JointStockCompanyConfig {
+
+		public static Integer initialNumberOfShares;
+
+		public static int getInitialNumberOfShares() {
+			if (initialNumberOfShares == null)
+				initialNumberOfShares = Integer
+						.parseInt(configFile
+								.getProperty("jointStockCompany.initialNumberOfShares"));
+			return initialNumberOfShares;
 		}
 	}
 

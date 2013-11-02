@@ -125,6 +125,10 @@ public class TimeSystem {
 	 * methods for adding ITimeSystemEvents
 	 */
 
+	/**
+	 * @param year
+	 *            -1 for every year
+	 */
 	public void addEvent(ITimeSystemEvent event, int year, MonthType monthType,
 			DayType dayType, HourType hourType) {
 		if (!this.years.containsKey(year))
@@ -132,6 +136,10 @@ public class TimeSystem {
 		this.years.get(year).addEvent(event, monthType, dayType, hourType);
 	}
 
+	/**
+	 * @param year
+	 *            -1 for every year
+	 */
 	public void addEventEvery(ITimeSystemEvent event, int year,
 			MonthType monthType, DayType dayType, HourType excepthourType) {
 		assert (excepthourType != null);

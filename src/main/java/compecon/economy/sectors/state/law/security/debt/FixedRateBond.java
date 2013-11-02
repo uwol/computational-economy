@@ -27,11 +27,15 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.Simulation;
 import compecon.engine.time.ITimeSystemEvent;
+import compecon.engine.time.calendar.DayType;
 import compecon.engine.time.calendar.HourType;
+import compecon.engine.time.calendar.MonthType;
+import compecon.engine.util.MathUtil;
 
 @Entity
 public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
@@ -40,7 +44,18 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 	protected double coupon; // interest rate in percent
 
 	/**
-	 * receiver bank account for the periodical coupon
+	 * sender bank account (of the bond issuer and seller) for the periodical
+	 * coupon
+	 */
+	@ManyToOne
+	@JoinColumn(name = "couponFromBankAccount_id")
+	@Index(name = "couponFromBankAccount")
+	protected BankAccount couponFromBankAccount;
+
+	/**
+	 * receiver bank account (of the bond buyer) for the periodical coupon;
+	 * null, if the bond has not been transfered to a owner different from the
+	 * issuer.
 	 */
 	@ManyToOne
 	@JoinColumn(name = "couponToBankAccount_id")
@@ -52,18 +67,13 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 
 		// transfer coupon event; has to be HOUR_00, so that the coupon is
 		// payed before possible deconstruction at HOUR_01
-		ITimeSystemEvent transferCouponEvent = new TransferCouponEvent();
+		final ITimeSystemEvent transferCouponEvent = new TransferCouponEvent();
 		this.timeSystemEvents.add(transferCouponEvent);
 		Simulation
 				.getInstance()
 				.getTimeSystem()
-				.addEvent(
-						transferCouponEvent,
-						-1,
-						Simulation.getInstance().getTimeSystem()
-								.getCurrentMonthType(),
-						Simulation.getInstance().getTimeSystem()
-								.getCurrentDayType(), HourType.HOUR_00);
+				.addEvent(transferCouponEvent, -1, MonthType.EVERY,
+						DayType.EVERY, HourType.HOUR_00);
 	}
 
 	/*
@@ -74,18 +84,35 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 		return this.coupon;
 	}
 
+	public BankAccount getCouponFromBankAccount() {
+		return this.couponFromBankAccount;
+	}
+
 	public BankAccount getCouponToBankAccount() {
 		return this.couponToBankAccount;
 	}
 
 	public void setCoupon(final double coupon) {
-		assert (coupon >= 0.0);
 		this.coupon = coupon;
 	}
 
+	public void setCouponFromBankAccount(final BankAccount couponFromBankAccount) {
+		this.couponFromBankAccount = couponFromBankAccount;
+	}
+
 	public void setCouponToBankAccount(final BankAccount couponToBankAccount) {
-		assert (couponToBankAccount != null);
 		this.couponToBankAccount = couponToBankAccount;
+	}
+
+	/*
+	 * assertions
+	 */
+
+	@Override
+	protected void assertValidOwner() {
+		super.assertValidOwner();
+		assert (this.couponToBankAccount == null || this.owner
+				.equals(this.couponToBankAccount.getOwner()));
 	}
 
 	/*
@@ -105,32 +132,41 @@ public class FixedRateBond extends Bond implements Comparable<FixedRateBond> {
 		return this.hashCode() - fixedRateBond.hashCode();
 	}
 
-	public class TransferCouponEvent implements ITimeSystemEvent {
-		@Override
-		public void onEvent() {
-			assert (FixedRateBond.this.couponToBankAccount != null);
-			assert (FixedRateBond.this.issuerBankAccount != null);
-
-			final double couponValue = FixedRateBond.this.coupon
-					* FixedRateBond.this.faceValue;
-			if (couponValue > 0) {
-				assertValidOwner();
-
-				FixedRateBond.this.issuerBankAccount.getManagingBank()
-						.transferMoney(FixedRateBond.this.issuerBankAccount,
-								FixedRateBond.this.couponToBankAccount,
-								couponValue, "bond coupon");
-			}
-		}
+	@Override
+	public Agent getIssuer() {
+		final Agent issuer = super.getIssuer();
+		assert (issuer == this.couponFromBankAccount.getOwner());
+		return issuer;
 	}
 
 	@Transient
 	public String toString() {
 		return this.getClass().getSimpleName() + " [Issuer: "
-				+ this.issuerBankAccount.getOwner() + ", Facevalue: "
+				+ this.faceValueFromBankAccount.getOwner() + ", Facevalue: "
 				+ Currency.formatMoneySum(this.faceValue) + " "
 				+ this.issuedInCurrency.getIso4217Code() + ", Coupon: "
 				+ Currency.formatMoneySum(this.coupon) + " "
 				+ this.issuedInCurrency.getIso4217Code() + "]";
+	}
+
+	public class TransferCouponEvent implements ITimeSystemEvent {
+		@Override
+		public void onEvent() {
+			assert (FixedRateBond.this.couponFromBankAccount != null);
+			assertValidOwner();
+
+			if (FixedRateBond.this.couponToBankAccount != null) {
+				final double dailyCouponValue = MathUtil
+						.calculateMonthlyNominalInterestRate(FixedRateBond.this.coupon)
+						/ 30.0 * FixedRateBond.this.faceValue;
+				if (dailyCouponValue > 0) {
+					FixedRateBond.this.couponFromBankAccount.getManagingBank()
+							.transferMoney(
+									FixedRateBond.this.couponFromBankAccount,
+									FixedRateBond.this.couponToBankAccount,
+									dailyCouponValue, "bond coupon");
+				}
+			}
+		}
 	}
 }

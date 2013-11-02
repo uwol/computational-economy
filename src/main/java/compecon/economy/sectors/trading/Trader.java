@@ -35,8 +35,8 @@ import javax.persistence.Transient;
 import compecon.economy.BudgetingBehaviour;
 import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.bookkeeping.BalanceSheet;
@@ -67,16 +67,16 @@ public class Trader extends JointStockCompany {
 	protected Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
 
 	@OneToMany
-	@JoinTable(name = "Trader_ForeignCurrencyBankAccounts", joinColumns = @JoinColumn(name = "trader_id"), inverseJoinColumns = @JoinColumn(name = "bankAccount_id"))
+	@JoinTable(name = "Trader_BankAccountsGoodTrade", joinColumns = @JoinColumn(name = "trader_id"), inverseJoinColumns = @JoinColumn(name = "bankAccount_id"))
 	@MapKeyEnumerated
-	protected Map<Currency, BankAccount> goodsTradeBankAccounts = new HashMap<Currency, BankAccount>();
+	protected Map<Currency, BankAccount> bankAccountsGoodTrade = new HashMap<Currency, BankAccount>();
 
 	@Override
 	public void initialize() {
 		super.initialize();
 
 		// arbitrage trading event every hour
-		ITimeSystemEvent arbitrageTradingEvent = new ArbitrageTradingEvent();
+		final ITimeSystemEvent arbitrageTradingEvent = new ArbitrageTradingEvent();
 		this.timeSystemEvents.add(arbitrageTradingEvent);
 		Simulation
 				.getInstance()
@@ -89,15 +89,6 @@ public class Trader extends JointStockCompany {
 						Simulation.getInstance().getTimeSystem()
 								.suggestRandomHourType());
 
-		// balance sheet publication
-		ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
-		this.timeSystemEvents.add(balanceSheetPublicationEvent);
-		Simulation
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(balanceSheetPublicationEvent, -1, MonthType.EVERY,
-						DayType.EVERY, BALANCE_SHEET_PUBLICATION_HOUR_TYPE);
-
 		this.budgetingBehaviour = new BudgetingBehaviour(this);
 	}
 
@@ -105,28 +96,28 @@ public class Trader extends JointStockCompany {
 	public void deconstruct() {
 		super.deconstruct();
 
-		this.goodsTradeBankAccounts = null;
+		this.bankAccountsGoodTrade = null;
 	}
 
 	/*
 	 * accessors
 	 */
 
+	public Map<Currency, BankAccount> getBankAccountsGoodTrade() {
+		return bankAccountsGoodTrade;
+	}
+
 	public Set<GoodType> getExcludedGoodTypes() {
 		return excludedGoodTypes;
 	}
 
-	public Map<Currency, BankAccount> getGoodTradeBankAccounts() {
-		return goodsTradeBankAccounts;
+	public void setBankAccountsGoodTrade(
+			Map<Currency, BankAccount> bankAccountsGoodsTrade) {
+		this.bankAccountsGoodTrade = bankAccountsGoodsTrade;
 	}
 
 	public void setExcludedGoodTypes(Set<GoodType> excludedGoodTypes) {
 		this.excludedGoodTypes = excludedGoodTypes;
-	}
-
-	public void setGoodTradeBankAccounts(
-			Map<Currency, BankAccount> goodsTradeBankAccounts) {
-		this.goodsTradeBankAccounts = goodsTradeBankAccounts;
 	}
 
 	/*
@@ -134,47 +125,71 @@ public class Trader extends JointStockCompany {
 	 */
 
 	@Transient
-	public void assureGoodsTradeBankAccounts() {
+	public void assureBankAccountsGoodTrade() {
 		if (this.isDeconstructed)
 			return;
 
 		for (Currency currency : Currency.values()) {
 			if (!currency.equals(this.primaryCurrency)
-					&& !this.goodsTradeBankAccounts.containsKey(currency)) {
+					&& !this.bankAccountsGoodTrade.containsKey(currency)) {
 				CreditBank foreignCurrencyCreditBank = AgentFactory
 						.getRandomInstanceCreditBank(currency);
 				BankAccount bankAccount = foreignCurrencyCreditBank
 						.openBankAccount(this, currency, true,
-								"foreign currency account",
-								TermType.SHORT_TERM,
+								"foreign currency", TermType.SHORT_TERM,
 								MoneyType.DEPOSITS);
-				this.goodsTradeBankAccounts.put(currency, bankAccount);
+				this.bankAccountsGoodTrade.put(currency, bankAccount);
 			}
 		}
+	}
+
+	/*
+	 * business logic
+	 */
+
+	@Override
+	@Transient
+	protected BalanceSheet issueBalanceSheet() {
+		this.assureBankAccountsGoodTrade();
+
+		final BalanceSheet balanceSheet = super.issueBalanceSheet();
+
+		// add balances of foreign currency bank accounts
+		for (Entry<Currency, BankAccount> bankAccountEntry : this.bankAccountsGoodTrade
+				.entrySet()) {
+			double priceOfForeignCurrencyInLocalCurrency = MarketFactory
+					.getInstance().getPrice(primaryCurrency,
+							bankAccountEntry.getKey());
+			if (!Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
+				double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry
+						.getValue().getBalance()
+						* priceOfForeignCurrencyInLocalCurrency;
+				balanceSheet.cashForeignCurrency += valueOfForeignCurrencyInLocalCurrency;
+			}
+		}
+
+		return balanceSheet;
 	}
 
 	@Override
 	@Transient
 	public void onBankCloseBankAccount(BankAccount bankAccount) {
-		if (this.goodsTradeBankAccounts != null) {
+		if (this.bankAccountsGoodTrade != null) {
 			for (Entry<Currency, BankAccount> entry : new HashMap<Currency, BankAccount>(
-					this.goodsTradeBankAccounts).entrySet()) {
+					this.bankAccountsGoodTrade).entrySet()) {
 				if (entry.getValue() == bankAccount)
-					this.goodsTradeBankAccounts.remove(entry.getKey());
+					this.bankAccountsGoodTrade.remove(entry.getKey());
 			}
 		}
 
 		super.onBankCloseBankAccount(bankAccount);
 	}
 
-	/*
-	 * business logic
-	 */
 	protected class SettlementMarketEvent implements ISettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
 				double pricePerUnit, Currency currency) {
-			Trader.this.assureTransactionsBankAccount();
+			Trader.this.assureBankAccountTransactions();
 		}
 
 		@Override
@@ -191,21 +206,24 @@ public class Trader extends JointStockCompany {
 	public class ArbitrageTradingEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			Trader.this.assureTransactionsBankAccount();
-			Trader.this.assureGoodsTradeBankAccounts();
+			Trader.this.assureBankAccountTransactions();
+			Trader.this.assureBankAccountsGoodTrade();
+
+			Trader.this
+					.transferBankAccountBalanceToDividendBankAccount(Trader.this.bankAccountTransactions);
 
 			this.buyGoodsForArbitrage();
 			this.offerGoods();
 		}
 
 		protected void buyGoodsForArbitrage() {
-			int numberOfForeignCurrencies = Trader.this.goodsTradeBankAccounts
+			int numberOfForeignCurrencies = Trader.this.bankAccountsGoodTrade
 					.keySet().size();
 
 			double budget = Trader.this.budgetingBehaviour
 					.calculateTransmissionBasedBudgetForPeriod(
-							Trader.this.transactionsBankAccount.getCurrency(),
-							Trader.this.transactionsBankAccount.getBalance(),
+							Trader.this.bankAccountTransactions.getCurrency(),
+							Trader.this.bankAccountTransactions.getBalance(),
 							Trader.this.referenceCredit);
 
 			double budgetPerForeignCurrencyInLocalCurrency = budget
@@ -215,7 +233,7 @@ public class Trader extends JointStockCompany {
 				/*
 				 * for each currency / economy
 				 */
-				for (Entry<Currency, BankAccount> entry : Trader.this.goodsTradeBankAccounts
+				for (Entry<Currency, BankAccount> entry : Trader.this.bankAccountsGoodTrade
 						.entrySet()) {
 					Currency foreignCurrency = entry.getKey();
 					BankAccount foreignCurrencyBankAccount = entry.getValue();
@@ -335,8 +353,8 @@ public class Trader extends JointStockCompany {
 													budgetPerGoodTypeAndForeignCurrencyInLocalCurrency,
 													priceOfForeignCurrencyInLocalCurrency,
 													Trader.this,
-													Trader.this.transactionsBankAccount,
-													Trader.this.goodsTradeBankAccounts
+													Trader.this.bankAccountTransactions,
+													Trader.this.bankAccountsGoodTrade
 															.get(foreignCurrency));
 
 									/*
@@ -374,36 +392,10 @@ public class Trader extends JointStockCompany {
 							Trader.this.primaryCurrency, goodType);
 					MarketFactory.getInstance().placeSettlementSellingOffer(
 							goodType, Trader.this,
-							Trader.this.transactionsBankAccount, amount,
+							Trader.this.bankAccountTransactions, amount,
 							marketPrice, new SettlementMarketEvent());
 				}
 			}
 		}
 	}
-
-	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
-		@Override
-		public void onEvent() {
-			Trader.this.assureTransactionsBankAccount();
-
-			BalanceSheet balanceSheet = Trader.this.issueBasicBalanceSheet();
-
-			// add balances of foreign currency bank accounts
-			for (Entry<Currency, BankAccount> bankAccountEntry : Trader.this.goodsTradeBankAccounts
-					.entrySet()) {
-				double priceOfForeignCurrencyInLocalCurrency = MarketFactory
-						.getInstance().getPrice(primaryCurrency,
-								bankAccountEntry.getKey());
-				if (!Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
-					double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry
-							.getValue().getBalance()
-							* priceOfForeignCurrencyInLocalCurrency;
-					balanceSheet.cashForeignCurrency += valueOfForeignCurrencyInLocalCurrency;
-				}
-			}
-
-			getLog().agent_onPublishBalanceSheet(Trader.this, balanceSheet);
-		}
-	}
-
 }

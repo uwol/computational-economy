@@ -180,8 +180,8 @@ public class BankAccount {
 	public String toString() {
 		return "BankAccount [ID: " + this.id + ", Balance: "
 				+ Currency.formatMoneySum(this.balance) + " "
-				+ this.currency.getIso4217Code() + ", Owner: " + this.owner
-				+ "]";
+				+ this.currency.getIso4217Code() + ", Name: " + this.name
+				+ ", Owner: " + this.owner + "]";
 	}
 
 }

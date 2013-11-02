@@ -43,6 +43,7 @@ import compecon.economy.sectors.trading.Trader;
 import compecon.engine.MarketFactory;
 import compecon.engine.dao.DAOFactory;
 import compecon.engine.time.ITimeSystemEvent;
+import compecon.engine.util.ConfigurationUtil;
 import compecon.materia.GoodType;
 import compecon.math.price.IPriceFunction.PriceFunctionConfig;
 
@@ -76,9 +77,9 @@ public class MarketTest extends CompEconTestSupport {
 				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household1_EUR,
-				household1_EUR.getTransactionsBankAccount(), 10, 5);
+				household1_EUR.getBankAccountTransactions(), 10, 5);
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
-				household2_EUR.getTransactionsBankAccount(), 10, 4);
+				household2_EUR.getBankAccountTransactions(), 10, 4);
 
 		assertEquals(4.0,
 				MarketFactory.getInstance().getPrice(currency, goodType),
@@ -128,7 +129,7 @@ public class MarketTest extends CompEconTestSupport {
 				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
-				household2_EUR.getTransactionsBankAccount(), 10, 3);
+				household2_EUR.getBankAccountTransactions(), 10, 3);
 		assertEquals(3.0,
 				MarketFactory.getInstance().getPrice(currency, goodType),
 				epsilon);
@@ -140,7 +141,7 @@ public class MarketTest extends CompEconTestSupport {
 				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
-				household2_EUR.getTransactionsBankAccount(), 10, 3);
+				household2_EUR.getBankAccountTransactions(), 10, 3);
 		assertEquals(3.0,
 				MarketFactory.getInstance().getPrice(currency, goodType),
 				epsilon);
@@ -157,13 +158,13 @@ public class MarketTest extends CompEconTestSupport {
 
 		MarketFactory.getInstance().buy(goodType, 5, Double.NaN, 8,
 				factory1_WHEAT_EUR,
-				factory1_WHEAT_EUR.getTransactionsBankAccount());
+				factory1_WHEAT_EUR.getBankAccountTransactions());
 
 		assertEquals(
 				5,
 				PropertyRegister.getInstance().getBalance(factory1_WHEAT_EUR,
 						goodType), epsilon);
-		assertEquals(-15.0, factory1_WHEAT_EUR.getTransactionsBankAccount()
+		assertEquals(-15.0, factory1_WHEAT_EUR.getBankAccountTransactions()
 				.getBalance(), epsilon);
 	}
 
@@ -190,15 +191,17 @@ public class MarketTest extends CompEconTestSupport {
 				MarketFactory.getInstance().getPrice(currency, Share.class),
 				epsilon);
 		assertEquals(
-				factory1_WHEAT_EUR.getInitialNumberOfShares(),
+				ConfigurationUtil.JointStockCompanyConfig
+						.getInitialNumberOfShares(),
 				PropertyRegister.getInstance()
 						.getProperties(factory1_WHEAT_EUR, Share.class).size());
 
 		MarketFactory.getInstance().buy(Share.class, 1, Double.NaN, Double.NaN,
-				household1_EUR, household1_EUR.getTransactionsBankAccount());
+				household1_EUR, household1_EUR.getBankAccountTransactions());
 
 		assertEquals(
-				factory1_WHEAT_EUR.getInitialNumberOfShares() - 1,
+				ConfigurationUtil.JointStockCompanyConfig
+						.getInitialNumberOfShares() - 1,
 				PropertyRegister.getInstance()
 						.getProperties(factory1_WHEAT_EUR, Share.class).size());
 		assertEquals(
@@ -232,19 +235,19 @@ public class MarketTest extends CompEconTestSupport {
 		MarketFactory.getInstance().placeSellingOffer(
 				commodityCurrency,
 				creditBank1_EUR,
-				creditBank1_EUR.getTransactionsBankAccount(),
+				creditBank1_EUR.getBankAccountTransactions(),
 				10,
 				2,
-				creditBank1_EUR.getCurrencyTradeBankAccounts().get(
+				creditBank1_EUR.getBankAccountsCurrencyTrade().get(
 						commodityCurrency));
 
 		MarketFactory.getInstance().placeSellingOffer(
 				commodityCurrency,
 				creditBank2_EUR,
-				creditBank2_EUR.getTransactionsBankAccount(),
+				creditBank2_EUR.getBankAccountTransactions(),
 				10,
 				3,
-				creditBank2_EUR.getCurrencyTradeBankAccounts().get(
+				creditBank2_EUR.getBankAccountsCurrencyTrade().get(
 						commodityCurrency));
 		assertEquals(
 				2.0,
@@ -260,10 +263,10 @@ public class MarketTest extends CompEconTestSupport {
 		MarketFactory.getInstance().placeSellingOffer(
 				commodityCurrency,
 				creditBank1_EUR,
-				creditBank1_EUR.getTransactionsBankAccount(),
+				creditBank1_EUR.getBankAccountTransactions(),
 				10,
 				1,
-				creditBank1_EUR.getCurrencyTradeBankAccounts().get(
+				creditBank1_EUR.getBankAccountsCurrencyTrade().get(
 						commodityCurrency));
 		assertEquals(
 				1.0,
@@ -280,10 +283,10 @@ public class MarketTest extends CompEconTestSupport {
 		MarketFactory.getInstance().placeSellingOffer(
 				commodityCurrency,
 				creditBank1_EUR,
-				creditBank1_EUR.getTransactionsBankAccount(),
+				creditBank1_EUR.getBankAccountTransactions(),
 				10,
 				1,
-				creditBank1_EUR.getCurrencyTradeBankAccounts().get(
+				creditBank1_EUR.getBankAccountsCurrencyTrade().get(
 						commodityCurrency));
 		assertEquals(
 				1.0,
@@ -300,20 +303,15 @@ public class MarketTest extends CompEconTestSupport {
 						5, commodityCurrency);
 		assertEquals(2, marketOffers2.size());
 
-		MarketFactory.getInstance().buy(
-				commodityCurrency,
-				5,
-				Double.NaN,
-				8,
-				trader1_EUR,
-				trader1_EUR.getTransactionsBankAccount(),
-				trader1_EUR.getGoodTradeBankAccounts().get(
-						commodityCurrency));
+		MarketFactory.getInstance().buy(commodityCurrency, 5, Double.NaN, 8,
+				trader1_EUR, trader1_EUR.getBankAccountTransactions(),
+				trader1_EUR.getBankAccountsGoodTrade().get(commodityCurrency));
 
-		assertEquals(-5.0, trader1_EUR.getTransactionsBankAccount()
+		assertEquals(-5.0, trader1_EUR.getBankAccountTransactions()
 				.getBalance(), epsilon);
-		assertEquals(5.0, trader1_EUR.getGoodTradeBankAccounts()
-				.get(commodityCurrency).getBalance(), epsilon);
+		assertEquals(5.0,
+				trader1_EUR.getBankAccountsGoodTrade().get(commodityCurrency)
+						.getBalance(), epsilon);
 	}
 
 	@Test
@@ -331,19 +329,19 @@ public class MarketTest extends CompEconTestSupport {
 				epsilon);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household1_EUR,
-				household1_EUR.getTransactionsBankAccount(), 10, 5);
+				household1_EUR.getBankAccountTransactions(), 10, 5);
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
-				household2_EUR.getTransactionsBankAccount(), 10, 4);
+				household2_EUR.getBankAccountTransactions(), 10, 4);
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
-				household2_EUR.getTransactionsBankAccount(), 10, 6);
+				household2_EUR.getBankAccountTransactions(), 10, 6);
 
 		assertValidPriceFunctionConfig(MarketFactory.getInstance()
 				.getMarketPriceFunction(currency, goodType), 150.0, 3);
 
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
-				household2_EUR.getTransactionsBankAccount(), 100, 2);
+				household2_EUR.getBankAccountTransactions(), 100, 2);
 		MarketFactory.getInstance().placeSellingOffer(goodType, household2_EUR,
-				household2_EUR.getTransactionsBankAccount(), 20, 20);
+				household2_EUR.getBankAccountTransactions(), 20, 20);
 
 		assertValidPriceFunctionConfig(MarketFactory.getInstance()
 				.getMarketPriceFunction(currency, goodType), 1500.0, 5);

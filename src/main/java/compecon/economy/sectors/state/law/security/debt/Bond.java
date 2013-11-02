@@ -32,6 +32,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
+import compecon.economy.sectors.Agent;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.law.property.Property;
@@ -46,13 +47,19 @@ public abstract class Bond extends Property {
 	@Column(name = "faceValue")
 	protected double faceValue; // par value or principal
 
+	/**
+	 * sender bank account (of the bond issuer and seller) for the final face
+	 * value re-transfer at the end of the bond life cycle
+	 */
 	@ManyToOne
-	@JoinColumn(name = "issuerBankAccount_id")
-	@Index(name = "issuerBankAccount")
-	protected BankAccount issuerBankAccount;
+	@JoinColumn(name = "faceValueFromBankAccount_id")
+	@Index(name = "faceValueFromBankAccount")
+	protected BankAccount faceValueFromBankAccount;
 
 	/**
-	 * receiver bank account for the final face value retransfer
+	 * receiver bank account (of the bond buyer) for the final face value
+	 * re-transfer at the end of the bond life cycle. null, if the bond has not
+	 * been transfered to a owner different from the issuer.
 	 */
 	@ManyToOne
 	@JoinColumn(name = "faceValueToBankAccount_id")
@@ -72,7 +79,7 @@ public abstract class Bond extends Property {
 
 		// repay face value event;
 		// has to be at HOUR_01, so that at HOUR_00 the last coupon can be payed
-		ITimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
+		final ITimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
 		this.timeSystemEvents.add(transferFaceValueEvent);
 		Simulation
 				.getInstance()
@@ -96,12 +103,18 @@ public abstract class Bond extends Property {
 		return faceValue;
 	}
 
-	public BankAccount getFaceValueToBankAccount() {
-		return faceValueToBankAccount;
+	/**
+	 * @see #faceValueFromBankAccount
+	 */
+	public BankAccount getFaceValueFromBankAccount() {
+		return faceValueFromBankAccount;
 	}
 
-	public BankAccount getIssuerBankAccount() {
-		return issuerBankAccount;
+	/**
+	 * @see #faceValueToBankAccount
+	 */
+	public BankAccount getFaceValueToBankAccount() {
+		return faceValueToBankAccount;
 	}
 
 	public Currency getIssuedInCurrency() {
@@ -113,28 +126,24 @@ public abstract class Bond extends Property {
 	}
 
 	public void setFaceValue(final double faceValue) {
-		assert (faceValue >= 0.0);
 		this.faceValue = faceValue;
+	}
+
+	public void setFaceValueFromBankAccount(
+			final BankAccount faceValueFromBankAccount) {
+		this.faceValueFromBankAccount = faceValueFromBankAccount;
 	}
 
 	public void setFaceValueToBankAccount(
 			final BankAccount faceValueToBankAccount) {
-		assert (faceValueToBankAccount != null);
 		this.faceValueToBankAccount = faceValueToBankAccount;
 	}
 
-	public void setIssuerBankAccount(final BankAccount issuerBankAccount) {
-		assert (issuerBankAccount != null);
-		this.issuerBankAccount = issuerBankAccount;
-	}
-
 	public void setIssuedInCurrency(final Currency issuedInCurrency) {
-		assert (issuedInCurrency != null);
 		this.issuedInCurrency = issuedInCurrency;
 	}
 
 	public void setTermInYears(final int termInYears) {
-		assert (termInYears >= 0);
 		this.termInYears = termInYears;
 	}
 
@@ -145,7 +154,8 @@ public abstract class Bond extends Property {
 	protected void assertValidOwner() {
 		assert (this.owner.equals(PropertyRegister.getInstance().getOwner(
 				Bond.this)));
-		assert (this.owner.equals(this.faceValueToBankAccount.getOwner()));
+		assert (this.faceValueToBankAccount == null || this.owner
+				.equals(this.faceValueToBankAccount.getOwner()));
 	}
 
 	/*
@@ -162,23 +172,31 @@ public abstract class Bond extends Property {
 					.removeEvent(timeSystemEvent);
 	}
 
+	public Agent getIssuer() {
+		return this.faceValueFromBankAccount.getOwner();
+	}
+
+	@Transient
+	public String toString() {
+		return this.getClass().getSimpleName() + " [Issuer: "
+				+ this.faceValueFromBankAccount.getOwner() + ", Facevalue: "
+				+ Currency.formatMoneySum(this.faceValue) + " "
+				+ this.issuedInCurrency.getIso4217Code() + "]";
+	}
+
 	public class TransferFaceValueEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
+			assert (Bond.this.faceValueFromBankAccount != null);
 			assertValidOwner();
 
-			Bond.this.issuerBankAccount.getManagingBank().transferMoney(
-					Bond.this.issuerBankAccount,
-					Bond.this.faceValueToBankAccount, Bond.this.faceValue,
-					"bond face value");
+			if (Bond.this.faceValueToBankAccount != null) {
+				Bond.this.faceValueFromBankAccount.getManagingBank()
+						.transferMoney(Bond.this.faceValueFromBankAccount,
+								Bond.this.faceValueToBankAccount,
+								Bond.this.faceValue, "bond face value");
+			}
 			Bond.this.deconstruct(); // delete bond from simulation
 		}
-	}
-
-	public String toString() {
-		return this.getClass().getSimpleName() + " [Issuer: "
-				+ this.issuerBankAccount.getOwner() + ", Facevalue: "
-				+ Currency.formatMoneySum(this.faceValue) + " "
-				+ this.issuedInCurrency.getIso4217Code() + "]";
 	}
 }

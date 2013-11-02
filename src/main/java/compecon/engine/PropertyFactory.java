@@ -31,13 +31,14 @@ import compecon.engine.util.HibernateUtil;
 
 public class PropertyFactory {
 	public static FixedRateBond newInstanceFixedRateBond(final Agent owner,
-			final Currency currency, final BankAccount issuerBankAccount,
-			final BankAccount ownerBankAccount, final double faceValue,
+			final Currency currency,
+			final BankAccount faceValueFromBankAccount,
+			final BankAccount couponFromBankAccount, final double faceValue,
 			final double coupon) {
-		FixedRateBond fixedRateBond = new FixedRateBond();
+		final FixedRateBond fixedRateBond = new FixedRateBond();
 		fixedRateBond.setOwner(owner);
-		fixedRateBond.setFaceValueToBankAccount(ownerBankAccount);
-		fixedRateBond.setIssuerBankAccount(issuerBankAccount);
+		fixedRateBond.setFaceValueFromBankAccount(faceValueFromBankAccount);
+		fixedRateBond.setCouponFromBankAccount(couponFromBankAccount);
 		fixedRateBond.setFaceValue(faceValue);
 		fixedRateBond.setCoupon(coupon);
 		fixedRateBond.setIssuedInCurrency(currency);
@@ -49,7 +50,7 @@ public class PropertyFactory {
 
 	public static Share newInstanceShare(final Agent owner,
 			final JointStockCompany jointStockCompany) {
-		Share share = new Share();
+		final Share share = new Share();
 		share.setJointStockCompany(jointStockCompany);
 		share.setOwner(owner);
 		share.initialize();
