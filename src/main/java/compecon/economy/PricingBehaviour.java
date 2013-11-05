@@ -103,9 +103,15 @@ public class PricingBehaviour {
 				+ " per unit and sold "
 				+ MathUtil.round(soldAmount_InPeriods[1]) + " units -> ";
 
+		final double offeredAmountInLastPeriod = this.offeredAmount_InPeriods[1];
+		final double offeredAmountInPenultimatePeriod = this.offeredAmount_InPeriods[2];
+
+		final double soldAmountInLastPeriod = this.soldAmount_InPeriods[1];
+		final double soldAmountInPenultimatePeriod = this.soldAmount_InPeriods[2];
+
 		// nothing sold?
-		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
-				&& MathUtil.lesserEqual(this.soldAmount_InPeriods[1], 0.0)) {
+		if (MathUtil.greater(offeredAmountInLastPeriod, 0.0)
+				&& MathUtil.lesserEqual(soldAmountInLastPeriod, 0.0)) {
 			double newPrice = calculateLowerPriceExplicit(oldPrice);
 			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
 					PricingBehaviourNewPriceDecisionCause.SOLD_NOTHING,
@@ -120,9 +126,9 @@ public class PricingBehaviour {
 		}
 
 		// everything sold?
-		if (MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
-				&& MathUtil.equal(this.soldAmount_InPeriods[1],
-						this.offeredAmount_InPeriods[1])) {
+		if (MathUtil.greater(offeredAmountInLastPeriod, 0.0)
+				&& MathUtil.equal(soldAmountInLastPeriod,
+						offeredAmountInLastPeriod)) {
 			double newPrice = calculateHigherPriceExplicit(oldPrice);
 			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
 					PricingBehaviourNewPriceDecisionCause.SOLD_EVERYTHING,
@@ -139,19 +145,19 @@ public class PricingBehaviour {
 		// sold less?:
 		if (
 		// something was offered last period
-		MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
+		MathUtil.greater(offeredAmountInLastPeriod, 0.0)
 		// and something was sold in the penultimate period
-				&& MathUtil.greater(this.soldAmount_InPeriods[2], 0.0)
+				&& MathUtil.greater(soldAmountInPenultimatePeriod, 0.0)
 				// and there was sold less in last period than in the
 				// penultimate period
-				&& MathUtil.lesser(this.soldAmount_InPeriods[1],
-						this.soldAmount_InPeriods[2])
+				&& MathUtil.lesser(soldAmountInLastPeriod,
+						soldAmountInPenultimatePeriod)
 				// and there was offered more in last period than sold in
 				// penultimate period -> there was a chance in the last period
 				// to outperform the sold amount in the penultimate
 				// period
-				&& MathUtil.greaterEqual(this.offeredAmount_InPeriods[1],
-						this.soldAmount_InPeriods[2])) {
+				&& MathUtil.greaterEqual(offeredAmountInLastPeriod,
+						soldAmountInPenultimatePeriod)) {
 			double newPrice = calculateLowerPriceExplicit(oldPrice);
 			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
 					PricingBehaviourNewPriceDecisionCause.SOLD_LESS,
@@ -160,7 +166,7 @@ public class PricingBehaviour {
 				getLog().log(
 						this.agent,
 						prefix + "sold less (before: "
-								+ MathUtil.round(this.soldAmount_InPeriods[2])
+								+ MathUtil.round(soldAmountInPenultimatePeriod)
 								+ ") -> lowering price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
@@ -170,19 +176,19 @@ public class PricingBehaviour {
 		// sold more?
 		if (
 		// something was offered last period
-		MathUtil.greater(this.offeredAmount_InPeriods[1], 0.0)
+		MathUtil.greater(offeredAmountInLastPeriod, 0.0)
 		// and something was sold in the penultimate period
-				&& MathUtil.greater(this.soldAmount_InPeriods[2], 0.0)
+				&& MathUtil.greater(soldAmountInPenultimatePeriod, 0.0)
 				// and there was sold more in last period than in the
 				// penultimate period
-				&& MathUtil.greater(this.soldAmount_InPeriods[1],
-						this.soldAmount_InPeriods[2])
+				&& MathUtil.greater(soldAmountInLastPeriod,
+						soldAmountInPenultimatePeriod)
 				// and there was offered more in the penultimate period than
 				// sold in the last period -> there was a chance in the
 				// penultimate period to outperform the sold amount in the last
 				// period
-				&& MathUtil.greaterEqual(this.offeredAmount_InPeriods[2],
-						this.soldAmount_InPeriods[1])) {
+				&& MathUtil.greaterEqual(offeredAmountInPenultimatePeriod,
+						soldAmountInLastPeriod)) {
 			double newPrice = calculateHigherPriceExplicit(oldPrice);
 			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
 					PricingBehaviourNewPriceDecisionCause.SOLD_MORE,
@@ -191,7 +197,7 @@ public class PricingBehaviour {
 				getLog().log(
 						this.agent,
 						prefix + "sold more (before: "
-								+ MathUtil.round(this.soldAmount_InPeriods[2])
+								+ MathUtil.round(soldAmountInPenultimatePeriod)
 								+ ") -> raising price to "
 								+ Currency.formatMoneySum(newPrice) + " "
 								+ this.denominatedInCurrency.getIso4217Code());
@@ -239,18 +245,20 @@ public class PricingBehaviour {
 		if (MathUtil.lesserEqual(this.priceChangeIncrement, 0.0))
 			this.priceChangeIncrement = this.initialPriceChangeIncrement;
 
+		final double priceInLastPeriod = this.prices_InPeriods[1];
+		final double priceInPenultimatePeriod = this.prices_InPeriods[2];
+
 		// price will rise after adaption of price increment
 		if (raisingPrice) {
 			// rising steadily since two periods
-			if (MathUtil.greater(this.prices_InPeriods[1],
-					this.prices_InPeriods[2])) {
+			if (MathUtil.greater(priceInLastPeriod, priceInPenultimatePeriod)) {
 				this.priceChangeIncrement = Math.min(
 						this.initialPriceChangeIncrement,
 						this.priceChangeIncrement * 1.1);
 			}
 			// oscillating
-			else if (MathUtil.lesser(this.prices_InPeriods[1],
-					this.prices_InPeriods[2])) {
+			else if (MathUtil.lesser(priceInLastPeriod,
+					priceInPenultimatePeriod)) {
 				this.priceChangeIncrement = Math.min(
 						this.initialPriceChangeIncrement,
 						this.priceChangeIncrement / 1.1);
@@ -259,15 +267,14 @@ public class PricingBehaviour {
 		// price will fall after adaption of price increment
 		else {
 			// falling steadily since two periods
-			if (MathUtil.lesser(this.prices_InPeriods[1],
-					this.prices_InPeriods[2])) {
+			if (MathUtil.lesser(priceInLastPeriod, priceInPenultimatePeriod)) {
 				this.priceChangeIncrement = Math.min(
 						this.initialPriceChangeIncrement,
 						this.priceChangeIncrement * 1.1);
 			}
 			// oscillating
-			else if (MathUtil.greater(this.prices_InPeriods[1],
-					this.prices_InPeriods[2])) {
+			else if (MathUtil.greater(priceInLastPeriod,
+					priceInPenultimatePeriod)) {
 				this.priceChangeIncrement = Math.min(
 						this.initialPriceChangeIncrement,
 						this.priceChangeIncrement / 1.1);

@@ -30,6 +30,8 @@ import compecon.materia.GoodType;
 
 public class ConfigurationUtil {
 
+	public static final String defaultConfigFilename = "interdependencies.configuration.properties";
+
 	public static class AgentConfig {
 
 		public static HourType balanceSheetPublicationHourType;
@@ -498,7 +500,7 @@ public class ConfigurationUtil {
 		}
 	}
 
-	protected static Properties configFile = new Properties();
+	protected final static Properties configFile = new Properties();
 
 	static {
 		try {
@@ -508,7 +510,7 @@ public class ConfigurationUtil {
 					|| configurationProperties.isEmpty()) {
 				// if no configuration properties are set via VM args use
 				// default configuration properties
-				configurationProperties = "interdependencies.configuration.properties";
+				configurationProperties = defaultConfigFilename;
 			}
 			configFile.load(ConfigurationUtil.class.getClassLoader()
 					.getResourceAsStream(configurationProperties));

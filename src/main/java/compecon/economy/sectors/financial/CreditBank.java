@@ -173,6 +173,7 @@ public class CreditBank extends Bank implements ICentralBankCustomer {
 		for (Bond bond : this.issuedBonds) {
 			PropertyFactory.deleteProperty(bond);
 		}
+
 		this.bankAccountCentralBankMoneyReserves = null;
 		this.bankAccountCentralBankTransactions = null;
 		this.bankAccountsCurrencyTrade = null;

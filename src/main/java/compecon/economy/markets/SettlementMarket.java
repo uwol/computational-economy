@@ -159,7 +159,7 @@ public class SettlementMarket extends Market {
 			final Agent buyer, final BankAccount buyersBankAccount,
 			final BankAccount buyersBankAccountForCommodityCurrency) {
 
-		SortedMap<MarketOrder, Double> marketOffers = this
+		final SortedMap<MarketOrder, Double> marketOffers = this
 				.findBestFulfillmentSet(buyersBankAccount.getCurrency(),
 						maxAmount, maxTotalPrice, maxPricePerUnit, wholeNumber,
 						goodType, commodityCurrency, propertyClass);

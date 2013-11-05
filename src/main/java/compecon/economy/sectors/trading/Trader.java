@@ -19,6 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.sectors.trading;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -96,7 +97,12 @@ public class Trader extends JointStockCompany {
 	public void deconstruct() {
 		super.deconstruct();
 
-		this.bankAccountsGoodTrade = null;
+		for (BankAccount bankAccount : new ArrayList<BankAccount>(
+				this.bankAccountsGoodTrade.values())) {
+			bankAccount.getManagingBank().closeCustomerAccount(this);
+		}
+
+		this.bankAccountsGoodTrade.clear();
 	}
 
 	/*
@@ -177,8 +183,9 @@ public class Trader extends JointStockCompany {
 		if (this.bankAccountsGoodTrade != null) {
 			for (Entry<Currency, BankAccount> entry : new HashMap<Currency, BankAccount>(
 					this.bankAccountsGoodTrade).entrySet()) {
-				if (entry.getValue() == bankAccount)
+				if (entry.getValue() == bankAccount) {
 					this.bankAccountsGoodTrade.remove(entry.getKey());
+				}
 			}
 		}
 

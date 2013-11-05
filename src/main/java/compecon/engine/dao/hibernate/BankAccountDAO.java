@@ -36,8 +36,9 @@ public class BankAccountDAO extends HibernateDAO<BankAccount> implements
 		String hql = "FROM BankAccount ba WHERE ba.managingBank = :managingBank";
 		List<BankAccount> bankAccounts = getSession().createQuery(hql)
 				.setEntity("managingBank", managingBank).list();
-		for (BankAccount bankAccount : bankAccounts)
+		for (BankAccount bankAccount : bankAccounts) {
 			this.delete(bankAccount);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -47,8 +48,9 @@ public class BankAccountDAO extends HibernateDAO<BankAccount> implements
 		List<BankAccount> bankAccounts = getSession().createQuery(hql)
 				.setEntity("managingBank", managingBank)
 				.setEntity("owner", owner).list();
-		for (BankAccount bankAccount : bankAccounts)
+		for (BankAccount bankAccount : bankAccounts) {
 			this.delete(bankAccount);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
