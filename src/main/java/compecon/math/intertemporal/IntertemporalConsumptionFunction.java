@@ -21,7 +21,7 @@ package compecon.math.intertemporal;
 
 import java.util.Map;
 
-import compecon.math.intertemporal.IrvingFisherIntertemporalConsumptionFunction.Period;
+import compecon.math.intertemporal.impl.IrvingFisherIntertemporalConsumptionFunction.Period;
 
 public interface IntertemporalConsumptionFunction {
 

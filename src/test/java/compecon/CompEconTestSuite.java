@@ -33,8 +33,7 @@ import compecon.math.utility.CobbDouglasUtilityFunctionTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ AgentFactoryTest.class, MarketTest.class, BankTest.class,
-		CESFunctionTest.class, CobbDouglasFunctionTest.class,
-		CobbDouglasUtilityFunctionTest.class,
-		CobbDouglasProductionFunctionTest.class })
+		CobbDouglasFunctionTest.class, CobbDouglasUtilityFunctionTest.class,
+		CobbDouglasProductionFunctionTest.class, CESFunctionTest.class })
 public class CompEconTestSuite {
 }

@@ -28,8 +28,9 @@ import org.junit.Test;
 
 import compecon.CompEconTestSupport;
 import compecon.materia.GoodType;
-import compecon.math.price.FixedPriceFunction;
-import compecon.math.price.IPriceFunction;
+import compecon.math.price.PriceFunction;
+import compecon.math.price.impl.FixedPriceFunction;
+import compecon.math.utility.impl.CobbDouglasUtilityFunctionImpl;
 
 public class CobbDouglasUtilityFunctionTest extends CompEconTestSupport {
 
@@ -41,13 +42,13 @@ public class CobbDouglasUtilityFunctionTest extends CompEconTestSupport {
 		Map<GoodType, Double> preferences = new HashMap<GoodType, Double>();
 		preferences.put(GoodType.KILOWATT, 0.4);
 		preferences.put(GoodType.WHEAT, 0.6);
-		CobbDouglasUtilityFunction cobbDouglasUtilityFunction = new CobbDouglasUtilityFunction(
+		CobbDouglasUtilityFunctionImpl cobbDouglasUtilityFunction = new CobbDouglasUtilityFunctionImpl(
 				1.0, preferences);
 
 		/*
 		 * maximize output under budget restriction
 		 */
-		Map<GoodType, IPriceFunction> prices = new HashMap<GoodType, IPriceFunction>();
+		Map<GoodType, PriceFunction> prices = new HashMap<GoodType, PriceFunction>();
 		prices.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
 		prices.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
 		double budget = 10.0;

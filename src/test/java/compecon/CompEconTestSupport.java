@@ -31,21 +31,20 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.trading.Trader;
-import compecon.engine.AgentFactory;
-import compecon.engine.Simulation;
-import compecon.engine.dao.DAOFactory;
+import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.applicationcontext.ApplicationContextFactory;
 import compecon.engine.util.HibernateUtil;
 import compecon.materia.GoodType;
-import compecon.math.Function;
-import compecon.math.price.IPriceFunction;
+import compecon.math.impl.FunctionImpl;
+import compecon.math.price.PriceFunction;
 
 public abstract class CompEconTestSupport {
 
 	protected final double epsilon = 0.01;
 
 	public void assertOutputIsOptimalUnderBudget(
-			final Function<GoodType> function, final double budgetRestriction,
-			final Map<GoodType, IPriceFunction> priceFunctions,
+			final FunctionImpl<GoodType> function, final double budgetRestriction,
+			final Map<GoodType, PriceFunction> priceFunctions,
 			final Map<GoodType, Double> referenceBundleOfInputs) {
 
 		Map<GoodType, Double> rangeScanBundleOfInputs = function
@@ -91,14 +90,14 @@ public abstract class CompEconTestSupport {
 	 * in an optimum partial derivatives per price have to be identical
 	 */
 	public void assertPartialDerivativesPerPriceAreEqual(
-			final Function<GoodType> function,
+			final FunctionImpl<GoodType> function,
 			final Map<GoodType, Double> bundleOfInputs,
-			final Map<GoodType, IPriceFunction> priceFunctions) {
+			final Map<GoodType, PriceFunction> priceFunctions) {
 		Map<GoodType, Double> partialDerivatives = function
 				.partialDerivatives(bundleOfInputs);
 		for (Entry<GoodType, Double> outerPartialDerivativeEntry : partialDerivatives
 				.entrySet()) {
-			IPriceFunction outerPriceFunction = priceFunctions
+			PriceFunction outerPriceFunction = priceFunctions
 					.get(outerPartialDerivativeEntry.getKey());
 			double outerMarginalPrice = outerPriceFunction
 					.getMarginalPrice(bundleOfInputs
@@ -106,7 +105,7 @@ public abstract class CompEconTestSupport {
 			if (!Double.isNaN(outerMarginalPrice)) {
 				for (Entry<GoodType, Double> innerPartialDerivativeEntry : partialDerivatives
 						.entrySet()) {
-					IPriceFunction innerPriceFunction = priceFunctions
+					PriceFunction innerPriceFunction = priceFunctions
 							.get(innerPartialDerivativeEntry.getKey());
 					double innerMarginalPrice = innerPriceFunction
 							.getMarginalPrice(bundleOfInputs
@@ -125,44 +124,58 @@ public abstract class CompEconTestSupport {
 	}
 
 	protected void setUp() {
-		// init global (non-running) simulation object, so that models, log etc.
-		// exist
-		new Simulation(false, null);
+		if (HibernateUtil.isActive()) {
+			ApplicationContextFactory.configureHibernateApplicationContext();
+		} else {
+			ApplicationContextFactory.configureInMemoryApplicationContext();
+		}
 
 		// init database connection
 		HibernateUtil.openSession();
 
 		for (Currency currency : Currency.values()) {
-			AgentFactory.getInstanceCentralBank(currency);
-			AgentFactory.newInstanceCreditBank(currency);
-			AgentFactory.newInstanceCreditBank(currency);
-			AgentFactory.newInstanceFactory(GoodType.WHEAT, currency);
-			AgentFactory.newInstanceHousehold(currency);
-			AgentFactory.newInstanceHousehold(currency);
-			AgentFactory.newInstanceTrader(currency);
+			ApplicationContext.getInstance().getAgentFactory()
+					.getInstanceCentralBank(currency);
+			ApplicationContext.getInstance().getAgentFactory()
+					.newInstanceCreditBank(currency);
+			ApplicationContext.getInstance().getAgentFactory()
+					.newInstanceCreditBank(currency);
+			ApplicationContext.getInstance().getAgentFactory()
+					.newInstanceFactory(GoodType.WHEAT, currency);
+			ApplicationContext.getInstance().getAgentFactory()
+					.newInstanceHousehold(currency);
+			ApplicationContext.getInstance().getAgentFactory()
+					.newInstanceHousehold(currency);
+			ApplicationContext.getInstance().getAgentFactory()
+					.newInstanceTrader(currency);
 		}
 
-		for (CentralBank centralBank : DAOFactory.getCentralBankDAO().findAll()) {
+		for (CentralBank centralBank : ApplicationContext.getInstance()
+				.getCentralBankDAO().findAll()) {
 			centralBank.assureBankAccountTransactions();
 		}
 
-		for (CreditBank creditBank : DAOFactory.getCreditBankDAO().findAll()) {
+		for (CreditBank creditBank : ApplicationContext.getInstance()
+				.getCreditBankDAO().findAll()) {
 			creditBank.assureBankAccountCentralBankMoneyReserves();
 			creditBank.assureBankAccountCentralBankTransactions();
 			creditBank.assureBankAccountTransactions();
 			creditBank.assureBankAccountsCurrencyTrade();
 		}
 
-		for (Factory factory : DAOFactory.getFactoryDAO().findAll()) {
+		for (Factory factory : ApplicationContext.getInstance().getFactoryDAO()
+				.findAll()) {
 			factory.assureBankAccountTransactions();
 		}
 
-		for (Household household : DAOFactory.getHouseholdDAO().findAll()) {
+		for (Household household : ApplicationContext.getInstance()
+				.getHouseholdDAO().findAll()) {
 			household.assureBankAccountTransactions();
 			household.assureBankAccountSavings();
 		}
 
-		for (Trader trader : DAOFactory.getTraderDAO().findAll()) {
+		for (Trader trader : ApplicationContext.getInstance().getTraderDAO()
+				.findAll()) {
 			trader.assureBankAccountTransactions();
 			trader.assureBankAccountsGoodTrade();
 		}
@@ -171,29 +184,33 @@ public abstract class CompEconTestSupport {
 	}
 
 	protected void tearDown() {
-		for (Household household : DAOFactory.getHouseholdDAO().findAll()) {
+		for (Household household : ApplicationContext.getInstance()
+				.getHouseholdDAO().findAll()) {
 			household.deconstruct();
 		}
 
-		for (Trader trader : DAOFactory.getTraderDAO().findAll()) {
+		for (Trader trader : ApplicationContext.getInstance().getTraderDAO()
+				.findAll()) {
 			trader.deconstruct();
 		}
 
-		for (Factory factory : DAOFactory.getFactoryDAO().findAll()) {
+		for (Factory factory : ApplicationContext.getInstance().getFactoryDAO()
+				.findAll()) {
 			factory.deconstruct();
 		}
 
-		for (CreditBank creditBank : DAOFactory.getCreditBankDAO().findAll()) {
+		for (CreditBank creditBank : ApplicationContext.getInstance()
+				.getCreditBankDAO().findAll()) {
 			creditBank.deconstruct();
 		}
 
-		for (CentralBank centralBank : DAOFactory.getCentralBankDAO().findAll()) {
+		for (CentralBank centralBank : ApplicationContext.getInstance()
+				.getCentralBankDAO().findAll()) {
 			centralBank.deconstruct();
 		}
 
 		HibernateUtil.flushSession();
-
-		// close database conenction
 		HibernateUtil.closeSession();
+		ApplicationContext.getInstance().reset();
 	}
 }

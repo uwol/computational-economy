@@ -23,48 +23,24 @@ import java.util.Map;
 import java.util.Set;
 
 import compecon.materia.GoodType;
-import compecon.math.IFunction;
-import compecon.math.price.IPriceFunction;
+import compecon.math.price.PriceFunction;
 
-public abstract class UtilityFunction implements IUtilityFunction {
+public interface UtilityFunction {
 
-	protected IFunction<GoodType> delegate;
+	public Set<GoodType> getInputGoodTypes();
 
-	protected UtilityFunction(IFunction<GoodType> delegate) {
-		this.delegate = delegate;
-	}
+	public double calculateUtility(Map<GoodType, Double> bundleOfInputGoods);
 
-	@Override
-	public Set<GoodType> getInputGoodTypes() {
-		return this.delegate.getInputTypes();
-	}
-
-	@Override
-	public double calculateUtility(Map<GoodType, Double> bundleOfInputGoods) {
-		return this.delegate.f(bundleOfInputGoods);
-	}
-
-	@Override
 	public double calculateMarginalUtility(
 			Map<GoodType, Double> bundleOfInputGoods,
-			GoodType differentialInputGoodType) {
-		return this.delegate.partialDerivative(bundleOfInputGoods,
-				differentialInputGoodType);
-	}
+			GoodType differentialInputGoodType);
 
-	@Override
+	/**
+	 * This method implements the analytical solution for the lagrange function
+	 * of an optimization problem under budget constraints. It overwrites the
+	 * general solution for convex functions because of performance reasons.
+	 */
 	public Map<GoodType, Double> calculateUtilityMaximizingInputs(
-			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods,
-			double budget) {
-		return ((IFunction<GoodType>) this.delegate)
-				.calculateOutputMaximizingInputs(priceFunctionsOfInputGoods,
-						budget);
-	}
-
-	protected GoodType selectInputWithHighestMarginalUtilityPerPrice(
-			Map<GoodType, Double> bundleOfInputGoods,
-			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods) {
-		return this.delegate.findHighestPartialDerivatePerPrice(
-				bundleOfInputGoods, priceFunctionsOfInputGoods);
-	}
+			Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
+			double budget);
 }

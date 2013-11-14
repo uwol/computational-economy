@@ -22,8 +22,11 @@ package compecon;
 import java.util.GregorianCalendar;
 
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.Simulation;
-import compecon.engine.util.ConfigurationUtil;
+import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.applicationcontext.ApplicationContextFactory;
+import compecon.engine.runner.impl.AbstractConfigurationRunnerImpl;
+import compecon.engine.util.HibernateUtil;
+import compecon.jmx.JMXRegistration;
 import compecon.materia.GoodType;
 
 /**
@@ -31,56 +34,100 @@ import compecon.materia.GoodType;
  * dashboard. The goal is ceteris paribus to determine system parameters, which
  * maximize a metric, e. g. household utility.
  */
-public class OptimizationRunner {
+public class OptimizationRunner extends AbstractConfigurationRunnerImpl {
 
 	public static void main(String[] args) {
-
-		ConfigurationUtil.HouseholdConfig.number.put(Currency.USDOLLAR, 0);
-		ConfigurationUtil.HouseholdConfig.number.put(Currency.YEN, 0);
-
-		for (GoodType goodType : GoodType.values()) {
-			ConfigurationUtil.FactoryConfig.number.get(Currency.USDOLLAR).put(
-					goodType, 0);
-			ConfigurationUtil.FactoryConfig.number.get(Currency.YEN).put(
-					goodType, 0);
-		}
-
-		ConfigurationUtil.TraderConfig.number.put(Currency.USDOLLAR, 0);
-		ConfigurationUtil.TraderConfig.number.put(Currency.YEN, 0);
 
 		double highestTotalUtility = 0.0;
 		double optimalI = -1;
 
+		/*
+		 * iterate
+		 */
 		for (double i = 0.01; i < 0.5; i += 0.03) {
 			for (int repetition = 0; repetition < 3; repetition++) {
-				ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
+				/*
+				 * setup
+				 */
+				if (HibernateUtil.isActive()) {
+					ApplicationContextFactory
+							.configureHibernateApplicationContext();
+				} else {
+					ApplicationContextFactory
+							.configureInMemoryApplicationContext();
+				}
 
+				ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
+
+				overwriteConfiguration();
+				HibernateUtil.openSession();
+				JMXRegistration.init();
+
+				/*
+				 * run simulation
+				 */
 				System.out
 						.println("starting simulation run for defaultPriceChangeIncrement: "
-								+ ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrementExplicit);
+								+ ApplicationContext.getInstance()
+										.getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit);
 
-				Simulation simulation = new Simulation(false,
-						new GregorianCalendar(2001, 7, 1).getTime());
-				simulation.run();
-				double totalUtility = simulation.getModelRegistry()
+				ApplicationContext.getInstance().setRunner(
+						new OptimizationRunner());
+				ApplicationContext.getInstance().getRunner()
+						.run(new GregorianCalendar(2000, 7, 1).getTime());
+
+				final double totalUtility = ApplicationContext.getInstance()
+						.getModelRegistry()
 						.getNationalEconomyModel(Currency.EURO).totalUtilityOutputModel
 						.getValue();
 
 				System.out
 						.println("simulation run finished for defaultPriceChangeIncrement: "
-								+ ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrementExplicit
+								+ ApplicationContext.getInstance()
+										.getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit
 								+ " with totalUtility: " + totalUtility);
 
 				if (totalUtility > highestTotalUtility) {
 					System.out.println("total utility improved");
 					highestTotalUtility = totalUtility;
-					optimalI = ConfigurationUtil.PricingBehaviourConfig.defaultPriceChangeIncrementExplicit;
+					optimalI = ApplicationContext.getInstance()
+							.getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit;
 				}
+
+				/*
+				 * reset application context
+				 */
+				JMXRegistration.close();
+				HibernateUtil.flushSession();
+				HibernateUtil.closeSession();
+				ApplicationContext.getInstance().reset();
 			}
 		}
 
 		System.out.println("best simulation run had total utility: "
 				+ highestTotalUtility + " with defaultPriceChangeIncrement: "
 				+ optimalI);
+	}
+
+	public static void overwriteConfiguration() {
+		/*
+		 * overwrite default configuration.
+		 */
+		ApplicationContext.getInstance().getConfiguration().householdConfig.number
+				.put(Currency.USDOLLAR, 0);
+		ApplicationContext.getInstance().getConfiguration().householdConfig.number
+				.put(Currency.YEN, 0);
+
+		for (GoodType goodType : GoodType.values()) {
+			ApplicationContext.getInstance().getConfiguration().factoryConfig.number
+					.get(Currency.USDOLLAR).put(goodType, 0);
+			ApplicationContext.getInstance().getConfiguration().factoryConfig.number
+					.get(Currency.YEN).put(goodType, 0);
+		}
+
+		ApplicationContext.getInstance().getConfiguration().traderConfig.number
+				.put(Currency.USDOLLAR, 0);
+		ApplicationContext.getInstance().getConfiguration().traderConfig.number
+				.put(Currency.YEN, 0);
 	}
 }

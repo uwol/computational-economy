@@ -20,6 +20,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.materia;
 
 public interface Refreshable {
+
 	public void refresh();
 
 	public void exhaust();

@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import compecon.CompEconTestSupport;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.dao.DAOFactory;
+import compecon.engine.applicationcontext.ApplicationContext;
 
 public class AgentFactoryTest extends CompEconTestSupport {
 
@@ -43,21 +43,21 @@ public class AgentFactoryTest extends CompEconTestSupport {
 
 	@Test
 	public void testCreateAndDeleteAgents1() {
-		assertEquals(Currency.values().length, DAOFactory.getCentralBankDAO()
-				.findAll().size());
-		assertEquals(Currency.values().length * 2, DAOFactory
-				.getCreditBankDAO().findAll().size());
-		assertEquals(Currency.values().length * 2, DAOFactory.getHouseholdDAO()
-				.findAll().size());
+		assertEquals(Currency.values().length, ApplicationContext.getInstance()
+				.getCentralBankDAO().findAll().size());
+		assertEquals(Currency.values().length * 2, ApplicationContext
+				.getInstance().getCreditBankDAO().findAll().size());
+		assertEquals(Currency.values().length * 2, ApplicationContext
+				.getInstance().getHouseholdDAO().findAll().size());
 	}
 
 	@Test
 	public void testCreateAndDeleteAgents2() {
-		assertEquals(Currency.values().length, DAOFactory.getCentralBankDAO()
-				.findAll().size());
-		assertEquals(Currency.values().length * 2, DAOFactory
-				.getCreditBankDAO().findAll().size());
-		assertEquals(Currency.values().length * 2, DAOFactory.getHouseholdDAO()
-				.findAll().size());
+		assertEquals(Currency.values().length, ApplicationContext.getInstance()
+				.getCentralBankDAO().findAll().size());
+		assertEquals(Currency.values().length * 2, ApplicationContext
+				.getInstance().getCreditBankDAO().findAll().size());
+		assertEquals(Currency.values().length * 2, ApplicationContext
+				.getInstance().getHouseholdDAO().findAll().size());
 	}
 }

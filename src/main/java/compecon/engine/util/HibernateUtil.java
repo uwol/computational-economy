@@ -26,12 +26,27 @@ import org.hibernate.service.ServiceRegistryBuilder;
 
 public class HibernateUtil {
 
+	private static Boolean isActive;
+
 	private static final SessionFactory sessionFactory = buildSessionFactory();
 
 	private static Session session;
 
+	public static boolean isActive() {
+		if (isActive == null) {
+			final String dbActive = System.getProperty("dbActive");
+			if (dbActive != null) {
+				isActive = Boolean.parseBoolean(dbActive);
+			} else {
+				isActive = false;
+			}
+		}
+
+		return isActive;
+	}
+
 	private static SessionFactory buildSessionFactory() {
-		if (ConfigurationUtil.DbConfig.getActivateDb()) {
+		if (HibernateUtil.isActive()) {
 			Configuration configuration = new Configuration();
 			configuration.configure("hibernate.cfg.xml");
 			ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder()
@@ -52,19 +67,20 @@ public class HibernateUtil {
 	 * Non-transactional session
 	 */
 	public static void openSession() {
-		if (ConfigurationUtil.DbConfig.getActivateDb()) {
+		if (HibernateUtil.isActive()) {
 			// open session independent from transaction contexts
 			session = sessionFactory.openSession();
 		}
 	}
 
 	public static void clearSession() {
-		if (ConfigurationUtil.DbConfig.getActivateDb())
+		if (HibernateUtil.isActive()) {
 			session.clear();
+		}
 	}
 
 	public static void closeSession() {
-		if (ConfigurationUtil.DbConfig.getActivateDb()) {
+		if (HibernateUtil.isActive()) {
 			// close session independent from transaction contexts
 			session.close();
 		}
@@ -75,33 +91,34 @@ public class HibernateUtil {
 	}
 
 	public static void flushSession() {
-		if (ConfigurationUtil.DbConfig.getActivateDb())
+		if (HibernateUtil.isActive()) {
 			session.flush();
+		}
 	}
 
 	/*
 	 * CurrentSession -> transactional
 	 */
 	public static Session getCurrentSession() {
-		if (ConfigurationUtil.DbConfig.getActivateDb())
+		if (HibernateUtil.isActive())
 			return sessionFactory.getCurrentSession();
 		return null;
 	}
 
 	public static void closeCurrentSession() {
-		if (ConfigurationUtil.DbConfig.getActivateDb())
+		if (HibernateUtil.isActive()) {
 			HibernateUtil.getCurrentSession().close();
-
+		}
 	}
 
 	public static void flushCurrentSession() {
-		if (ConfigurationUtil.DbConfig.getActivateDb())
+		if (HibernateUtil.isActive()) {
 			HibernateUtil.getCurrentSession().flush();
-
+		}
 	}
 
 	public static Session beginTransaction() {
-		if (ConfigurationUtil.DbConfig.getActivateDb()) {
+		if (HibernateUtil.isActive()) {
 			Session hibernateSession = HibernateUtil.getCurrentSession();
 			hibernateSession.beginTransaction();
 			return hibernateSession;
@@ -110,12 +127,14 @@ public class HibernateUtil {
 	}
 
 	public static void commitTransaction() {
-		if (ConfigurationUtil.DbConfig.getActivateDb())
+		if (HibernateUtil.isActive()) {
 			HibernateUtil.getCurrentSession().getTransaction().commit();
+		}
 	}
 
 	public static void rollbackTransaction() {
-		if (ConfigurationUtil.DbConfig.getActivateDb())
+		if (HibernateUtil.isActive()) {
 			HibernateUtil.getCurrentSession().getTransaction().rollback();
+		}
 	}
 }

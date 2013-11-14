@@ -31,11 +31,11 @@ import org.junit.Test;
 import compecon.CompEconTestSupport;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
-import compecon.engine.MarketFactory;
-import compecon.engine.dao.DAOFactory;
+import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.materia.GoodType;
-import compecon.math.price.FixedPriceFunction;
-import compecon.math.price.IPriceFunction;
+import compecon.math.price.PriceFunction;
+import compecon.math.price.impl.FixedPriceFunction;
+import compecon.math.production.impl.CobbDouglasProductionFunctionImpl;
 
 public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 
@@ -59,13 +59,13 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 		Map<GoodType, Double> exponents = new HashMap<GoodType, Double>();
 		exponents.put(GoodType.KILOWATT, 0.4);
 		exponents.put(GoodType.WHEAT, 0.6);
-		CobbDouglasProductionFunction cobbDouglasProductionFunction = new CobbDouglasProductionFunction(
+		CobbDouglasProductionFunctionImpl cobbDouglasProductionFunction = new CobbDouglasProductionFunctionImpl(
 				1.0, exponents);
 
 		/*
 		 * maximize output under budget restriction
 		 */
-		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
+		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
 		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
 		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
 
@@ -105,20 +105,29 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 	public void testCalculateProductionOutputWithMarketPrices() {
 		Currency currency = Currency.EURO;
 
-		Household household1_EUR = DAOFactory.getHouseholdDAO()
-				.findAllByCurrency(currency).get(0);
-		Household household2_EUR = DAOFactory.getHouseholdDAO()
-				.findAllByCurrency(currency).get(1);
+		Household household1_EUR = ApplicationContext.getInstance()
+				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+		Household household2_EUR = ApplicationContext.getInstance()
+				.getHouseholdDAO().findAllByCurrency(currency).get(1);
 
-		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household1_EUR, household1_EUR.getBankAccountTransactions(),
-				10, 2);
-		MarketFactory.getInstance().placeSellingOffer(GoodType.KILOWATT,
-				household2_EUR, household2_EUR.getBankAccountTransactions(),
-				10, 1);
-		MarketFactory.getInstance().placeSellingOffer(GoodType.WHEAT,
-				household1_EUR, household1_EUR.getBankAccountTransactions(),
-				10, 1);
+		ApplicationContext
+				.getInstance()
+				.getMarketFactory()
+				.getMarket()
+				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
+						household1_EUR.getBankAccountTransactions(), 10, 2);
+		ApplicationContext
+				.getInstance()
+				.getMarketFactory()
+				.getMarket()
+				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
+						household2_EUR.getBankAccountTransactions(), 10, 1);
+		ApplicationContext
+				.getInstance()
+				.getMarketFactory()
+				.getMarket()
+				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
+						household1_EUR.getBankAccountTransactions(), 10, 1);
 
 		/*
 		 * prepare function
@@ -126,17 +135,19 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 		Map<GoodType, Double> exponents = new HashMap<GoodType, Double>();
 		exponents.put(GoodType.KILOWATT, 0.4);
 		exponents.put(GoodType.WHEAT, 0.6);
-		CobbDouglasProductionFunction cobbDouglasProductionFunction = new CobbDouglasProductionFunction(
+		CobbDouglasProductionFunctionImpl cobbDouglasProductionFunction = new CobbDouglasProductionFunctionImpl(
 				1.0, exponents);
 
 		/*
 		 * maximize output under budget restriction
 		 */
-		Map<GoodType, IPriceFunction> priceFunctions = new HashMap<GoodType, IPriceFunction>();
-		priceFunctions.put(GoodType.KILOWATT, MarketFactory.getInstance()
-				.getMarketPriceFunction(currency, GoodType.KILOWATT));
-		priceFunctions.put(GoodType.WHEAT, MarketFactory.getInstance()
-				.getMarketPriceFunction(currency, GoodType.WHEAT));
+		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
+		priceFunctions.put(GoodType.KILOWATT,
+				ApplicationContext.getInstance().getMarketFactory().getMarket()
+						.getMarketPriceFunction(currency, GoodType.KILOWATT));
+		priceFunctions.put(GoodType.WHEAT,
+				ApplicationContext.getInstance().getMarketFactory().getMarket()
+						.getMarketPriceFunction(currency, GoodType.WHEAT));
 
 		double budget = 50.0;
 

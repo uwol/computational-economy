@@ -23,43 +23,28 @@ import java.util.Map;
 import java.util.Set;
 
 import compecon.materia.GoodType;
-import compecon.math.IFunction;
-import compecon.math.price.IPriceFunction;
+import compecon.math.price.PriceFunction;
 
-public abstract class ProductionFunction implements IProductionFunction {
+public interface ProductionFunction {
 
-	protected IFunction<GoodType> delegate;
+	public Set<GoodType> getInputGoodTypes();
 
-	protected ProductionFunction(IFunction<GoodType> delegate) {
-		this.delegate = delegate;
-	}
-
-	@Override
-	public Set<GoodType> getInputGoodTypes() {
-		return this.delegate.getInputTypes();
-	}
-
-	@Override
 	public double calculateOutput(
-			Map<GoodType, Double> bundleOfProductionFactors) {
-		return this.delegate.f(bundleOfProductionFactors);
-	}
+			Map<GoodType, Double> bundleOfProductionFactors);
 
-	@Override
 	public double calculateMarginalOutput(
 			Map<GoodType, Double> bundleOfProductionFactors,
-			GoodType differentialGoodType) {
-		return this.delegate.partialDerivative(bundleOfProductionFactors,
-				differentialGoodType);
-	}
+			GoodType differentialGoodType);
 
 	/**
-	 * @return null, if markets are sold out
+	 * @return Key: GoodType to buy, Value: Amount to buy
 	 */
-	protected GoodType selectProductionFactorWithHighestMarginalOutputPerPrice(
-			Map<GoodType, Double> bundleOfInputGoods,
-			Map<GoodType, IPriceFunction> priceFunctionsOfInputGoods) {
-		return this.delegate.findHighestPartialDerivatePerPrice(
-				bundleOfInputGoods, priceFunctionsOfInputGoods);
-	}
+	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(
+			double priceOfProducedGoodType,
+			Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
+			double budget, double maxOutput, double margin);
+
+	public double getProductivity();
+
+	public void setProductivity(double productivity);
 }

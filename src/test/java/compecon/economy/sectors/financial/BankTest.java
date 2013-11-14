@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import compecon.CompEconTestSupport;
 import compecon.economy.sectors.household.Household;
-import compecon.engine.dao.DAOFactory;
+import compecon.engine.applicationcontext.ApplicationContext;
 
 public class BankTest extends CompEconTestSupport {
 
@@ -45,10 +45,10 @@ public class BankTest extends CompEconTestSupport {
 	public void testTransferMoney() {
 		Currency currency = Currency.EURO;
 
-		Household household1_EUR = DAOFactory.getHouseholdDAO()
-				.findAllByCurrency(currency).get(0);
-		Household household2_EUR = DAOFactory.getHouseholdDAO()
-				.findAllByCurrency(currency).get(1);
+		Household household1_EUR = ApplicationContext.getInstance()
+				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+		Household household2_EUR = ApplicationContext.getInstance()
+				.getHouseholdDAO().findAllByCurrency(currency).get(1);
 
 		assertEquals(0.0, household1_EUR.getBankAccountTransactions()
 				.getBalance(), epsilon);
