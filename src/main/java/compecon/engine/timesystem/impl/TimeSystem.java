@@ -197,6 +197,8 @@ public class TimeSystem implements ITimeSystem {
 
 	public void nextHour() {
 		this.gregorianCalendar.add(GregorianCalendar.HOUR_OF_DAY, 1);
+		ApplicationContext.getInstance().getLog()
+				.notifyTimeSystem_nextHour(getCurrentDate());
 		if (HourType.getHourType(this.gregorianCalendar
 				.get(GregorianCalendar.HOUR_OF_DAY)) == HourType.HOUR_00) {
 			ApplicationContext.getInstance().getLog()

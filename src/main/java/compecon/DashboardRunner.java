@@ -40,7 +40,7 @@ public class DashboardRunner extends AbstractConfigurationRunnerImpl {
 		} else {
 			ApplicationContextFactory.configureInMemoryApplicationContext();
 		}
-		ApplicationContext.getInstance().setDashboard(new Dashboard());
+		new Dashboard();
 
 		HibernateUtil.openSession();
 		JMXRegistration.init();

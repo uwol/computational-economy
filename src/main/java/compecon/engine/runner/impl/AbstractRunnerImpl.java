@@ -55,14 +55,6 @@ public abstract class AbstractRunnerImpl implements SimulationRunner {
 				else if (!paused) {
 					// step hour-wise; triggers events in time system
 					ApplicationContext.getInstance().getTimeSystem().nextHour();
-					if (HourType.HOUR_00
-							.equals(ApplicationContext.getInstance()
-									.getTimeSystem().getCurrentHourType())) {
-						if (ApplicationContext.getInstance().getDashboard() != null) {
-							ApplicationContext.getInstance().getDashboard()
-									.getControlPanel().refreshDateTime();
-						}
-					}
 					Thread.sleep(millisecondsToSleepPerHourType);
 				}
 				// paused mode, only proceeding with singleDayStep interaction
@@ -73,10 +65,6 @@ public abstract class AbstractRunnerImpl implements SimulationRunner {
 							.equals(ApplicationContext.getInstance()
 									.getTimeSystem().getCurrentHourType())) {
 						singleDayStep = false;
-						if (ApplicationContext.getInstance().getDashboard() != null) {
-							ApplicationContext.getInstance().getDashboard()
-									.getControlPanel().refreshDateTime();
-						}
 					}
 				}
 				// paused mode, only proceeding with singleHourStep interaction
@@ -84,14 +72,6 @@ public abstract class AbstractRunnerImpl implements SimulationRunner {
 				else if (paused && singleHourStep) {
 					singleHourStep = false;
 					ApplicationContext.getInstance().getTimeSystem().nextHour();
-					if (ApplicationContext.getInstance().getDashboard() != null) {
-						ApplicationContext.getInstance().getDashboard()
-								.getControlPanel().refreshDateTime();
-						// normally, the dashboard is redrawn at HOUR_00 only ->
-						// trigger redrawing
-						ApplicationContext.getInstance().getDashboard()
-								.notifyListener();
-					}
 				}
 				// wait until next iteration
 				else {

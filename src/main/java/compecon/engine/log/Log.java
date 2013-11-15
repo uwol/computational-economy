@@ -47,6 +47,8 @@ public interface Log {
 
 	public void notifyTimeSystem_nextDay(final Date date);
 
+	public void notifyTimeSystem_nextHour(final Date date);
+
 	public void log(final Agent agent, final String message);
 
 	public void log(final Agent agent,

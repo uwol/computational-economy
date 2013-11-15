@@ -38,9 +38,10 @@ import javax.swing.event.ChangeListener;
 import compecon.dashboard.model.ControlModel;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.statistics.NotificationListenerModel.ModelListener;
 import compecon.engine.timesystem.ITimeSystemEvent;
 
-public class ControlPanel extends JPanel {
+public class ControlPanel extends JPanel implements ModelListener {
 
 	private final int SLIDER_MAX = 100;
 
@@ -58,6 +59,9 @@ public class ControlPanel extends JPanel {
 		this.add(new JSeparator(SwingConstants.HORIZONTAL));
 
 		this.add(createEconomicSectorsPane());
+
+		ApplicationContext.getInstance().getModelRegistry()
+				.getTimeSystemModel().registerListener(this);
 	}
 
 	protected JPanel createSpeedSliderPanel() {
@@ -190,7 +194,12 @@ public class ControlPanel extends JPanel {
 		return economicSectorsPane;
 	}
 
-	public void refreshDateTime() {
+	@Override
+	public void notifyListener() {
+		this.refreshDateTime();
+	}
+
+	private void refreshDateTime() {
 		this.dateTimeLabel.setText(new SimpleDateFormat()
 				.format(ApplicationContext.getInstance().getTimeSystem()
 						.getCurrentDate()));

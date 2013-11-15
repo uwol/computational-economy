@@ -70,6 +70,10 @@ public class LogImpl implements Log {
 		ApplicationContext.getInstance().getModelRegistry().nextPeriod();
 	}
 
+	public void notifyTimeSystem_nextHour(final Date date) {
+		ApplicationContext.getInstance().getModelRegistry().nextHour();
+	}
+
 	// --------
 
 	public synchronized void log(final Agent agent, final String message) {

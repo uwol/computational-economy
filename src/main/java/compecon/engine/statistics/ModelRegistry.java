@@ -471,6 +471,8 @@ public class ModelRegistry {
 
 	protected final Map<Currency, NationalEconomyModel> nationalEconomyModels = new HashMap<Currency, NationalEconomyModel>();
 
+	protected final TimeSystemModel timeSystemModel = new TimeSystemModel();
+
 	public ModelRegistry() {
 		for (Currency currency : Currency.values())
 			nationalEconomyModels.put(currency, new NationalEconomyModel(
@@ -483,6 +485,14 @@ public class ModelRegistry {
 
 	public NationalEconomyModel getNationalEconomyModel(Currency currency) {
 		return this.nationalEconomyModels.get(currency);
+	}
+
+	public TimeSystemModel getTimeSystemModel() {
+		return this.timeSystemModel;
+	}
+
+	public void nextHour() {
+		this.timeSystemModel.nextHour();
 	}
 
 	public void nextPeriod() {

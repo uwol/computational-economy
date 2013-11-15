@@ -19,7 +19,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.applicationcontext;
 
-import compecon.dashboard.Dashboard;
 import compecon.economy.property.HardCashRegister;
 import compecon.economy.property.PropertyRegister;
 import compecon.engine.dao.BankAccountDAO;
@@ -51,8 +50,6 @@ public class ApplicationContext {
 	// system objects
 
 	protected Configuration configuration;
-
-	protected Dashboard dashboard;
 
 	protected InputOutputModel inputOutputModel;
 
@@ -130,10 +127,6 @@ public class ApplicationContext {
 
 	public Configuration getConfiguration() {
 		return configuration;
-	}
-
-	public Dashboard getDashboard() {
-		return dashboard;
 	}
 
 	public InputOutputModel getInputOutputModel() {
@@ -226,10 +219,6 @@ public class ApplicationContext {
 
 	public void setConfiguration(Configuration configuration) {
 		this.configuration = configuration;
-	}
-
-	public void setDashboard(Dashboard dashboard) {
-		this.dashboard = dashboard;
 	}
 
 	public void setInputOutputModel(InputOutputModel inputOutputModel) {
