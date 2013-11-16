@@ -19,34 +19,31 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.security.debt;
 
-import compecon.economy.agent.Agent;
-import compecon.economy.property.Property;
-import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.property.PropertyIssued;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 
-public interface Bond extends Property {
+public interface Bond extends PropertyIssued {
 
 	public void deconstruct();
 
 	public double getFaceValue();
 
-	public BankAccount getFaceValueFromBankAccount();
+	public BankAccountDelegate getFaceValueFromBankAccountDelegate();
 
-	public BankAccount getFaceValueToBankAccount();
+	public BankAccountDelegate getFaceValueToBankAccountDelegate();
 
 	public Currency getIssuedInCurrency();
 
 	public int getTermInYears();
 
-	public Agent getIssuer();
-
 	public void setFaceValue(final double faceValue);
 
-	public void setFaceValueFromBankAccount(
-			final BankAccount faceValueFromBankAccount);
+	public void setFaceValueFromBankAccountDelegate(
+			final BankAccountDelegate faceValueFromBankAccountDelegate);
 
-	public void setFaceValueToBankAccount(
-			final BankAccount faceValueToBankAccount);
+	public void setFaceValueToBankAccountDelegate(
+			final BankAccountDelegate faceValueToBankAccountDelegate);
 
 	public void setIssuedInCurrency(final Currency issuedInCurrency);
 

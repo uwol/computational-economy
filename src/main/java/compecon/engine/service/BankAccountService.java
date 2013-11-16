@@ -17,26 +17,25 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.factory;
+package compecon.engine.service;
 
 import compecon.economy.agent.Agent;
-import compecon.economy.property.Property;
+import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccount.MoneyType;
+import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.security.debt.FixedRateBond;
-import compecon.economy.security.equity.JointStockCompany;
-import compecon.economy.security.equity.Share;
 
-public interface PropertyFactory {
+public interface BankAccountService {
 
-	public FixedRateBond newInstanceFixedRateBond(final Agent owner,
-			final Currency currency,
-			final BankAccount faceValueFromBankAccount,
-			final BankAccount couponFromBankAccount, final double faceValue,
-			final double coupon);
+	public BankAccount newInstanceBankAccount(final Agent owner,
+			final Currency currency, boolean overdraftPossible,
+			final Bank managingBank, final String name,
+			final TermType termType, final MoneyType moneyType);
 
-	public Share newInstanceShare(final Agent owner,
-			final JointStockCompany jointStockCompany);
+	public void deleteBankAccount(final BankAccount bankAccount);
 
-	public void deleteProperty(final Property property);
+	public void deleteAllBankAccounts(final Bank managingBank);
+
+	public void deleteAllBankAccounts(final Bank managingBank, final Agent owner);
 }

@@ -42,8 +42,8 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 	final int numberOfIterations = 2000;
 
 	@Before
-	public void setUp() {
-		super.setUp();
+	public void setUpApplicationContextWithAgents() {
+		super.setUpApplicationContextWithAgents();
 	}
 
 	@After
@@ -112,22 +112,22 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 10, 2);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						10, 2);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 10, 1);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						10, 1);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 10, 1);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						10, 1);
 
 		/*
 		 * prepare function
@@ -143,10 +143,10 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 		 */
 		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
 		priceFunctions.put(GoodType.KILOWATT,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
+				ApplicationContext.getInstance().getMarketService()
 						.getMarketPriceFunction(currency, GoodType.KILOWATT));
 		priceFunctions.put(GoodType.WHEAT,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
+				ApplicationContext.getInstance().getMarketService()
 						.getMarketPriceFunction(currency, GoodType.WHEAT));
 
 		double budget = 50.0;

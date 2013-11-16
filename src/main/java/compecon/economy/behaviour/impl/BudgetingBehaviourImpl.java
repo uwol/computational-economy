@@ -58,7 +58,7 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 		}
 
 		double keyInterestRate = ApplicationContext.getInstance()
-				.getAgentFactory().getInstanceCentralBank(currency)
+				.getAgentService().getInstanceCentralBank(currency)
 				.getEffectiveKeyInterestRate();
 		double internalRateOfReturn = ApplicationContext.getInstance()
 				.getConfiguration().budgetingBehaviourConfig

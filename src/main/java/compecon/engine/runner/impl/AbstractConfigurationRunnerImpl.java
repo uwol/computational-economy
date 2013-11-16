@@ -33,14 +33,15 @@ import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.util.HibernateUtil;
 import compecon.materia.GoodType;
 
-public abstract class AbstractConfigurationRunnerImpl extends AbstractRunnerImpl {
+public abstract class AbstractConfigurationRunnerImpl extends
+		AbstractRunnerImpl {
 
 	protected void setUp() {
 		for (Currency currency : Currency.values()) {
 			if (ApplicationContext.getInstance().getConfiguration().stateConfig
 					.getNumber(currency) == 1) {
 				// initialize states
-				ApplicationContext.getInstance().getAgentFactory()
+				ApplicationContext.getInstance().getAgentService()
 						.getInstanceState(currency);
 			}
 		}
@@ -49,7 +50,7 @@ public abstract class AbstractConfigurationRunnerImpl extends AbstractRunnerImpl
 			if (ApplicationContext.getInstance().getConfiguration().centralBankConfig
 					.getNumber(currency) == 1) {
 				// initialize central banks
-				ApplicationContext.getInstance().getAgentFactory()
+				ApplicationContext.getInstance().getAgentService()
 						.getInstanceCentralBank(currency);
 			}
 		}
@@ -61,7 +62,7 @@ public abstract class AbstractConfigurationRunnerImpl extends AbstractRunnerImpl
 			// initialize credit banks
 			for (int i = 0; i < ApplicationContext.getInstance()
 					.getConfiguration().creditBankConfig.getNumber(currency); i++) {
-				ApplicationContext.getInstance().getAgentFactory()
+				ApplicationContext.getInstance().getAgentService()
 						.newInstanceCreditBank(offeredCurrencies, currency);
 			}
 		}
@@ -73,7 +74,7 @@ public abstract class AbstractConfigurationRunnerImpl extends AbstractRunnerImpl
 					for (int i = 0; i < ApplicationContext.getInstance()
 							.getConfiguration().factoryConfig.getNumber(
 							currency, goodType); i++) {
-						ApplicationContext.getInstance().getAgentFactory()
+						ApplicationContext.getInstance().getAgentService()
 								.newInstanceFactory(goodType, currency);
 					}
 				}
@@ -84,7 +85,7 @@ public abstract class AbstractConfigurationRunnerImpl extends AbstractRunnerImpl
 			// initialize traders
 			for (int i = 0; i < ApplicationContext.getInstance()
 					.getConfiguration().traderConfig.getNumber(currency); i++) {
-				ApplicationContext.getInstance().getAgentFactory()
+				ApplicationContext.getInstance().getAgentService()
 						.newInstanceTrader(currency);
 			}
 		}
@@ -94,7 +95,7 @@ public abstract class AbstractConfigurationRunnerImpl extends AbstractRunnerImpl
 			for (int i = 0; i < ApplicationContext.getInstance()
 					.getConfiguration().householdConfig.getNumber(currency); i++) {
 				Household household = ApplicationContext.getInstance()
-						.getAgentFactory().newInstanceHousehold(currency);
+						.getAgentService().newInstanceHousehold(currency);
 				// division, so that households have time left until
 				// retirement
 				household

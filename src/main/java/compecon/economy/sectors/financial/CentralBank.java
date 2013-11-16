@@ -27,15 +27,13 @@ import compecon.materia.GoodType;
 
 public interface CentralBank extends Bank {
 
-	public void assureBankAccountTransactions();
-
-	public void assureBankAccountCentralBankMoney();
-
-	public double getEffectiveKeyInterestRate();
-
 	public void closeCustomerAccount(Agent customer);
 
 	public double getAverageMarginalPriceForGoodType(GoodType goodType);
+
+	public BankAccountDelegate getBankAccountCentralBankMoneyDelegate();
+
+	public double getEffectiveKeyInterestRate();
 
 	public double getReserveRatio();
 

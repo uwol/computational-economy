@@ -22,10 +22,15 @@ package compecon.economy.sectors.financial;
 import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.security.equity.JointStockCompany;
 
-public interface Bank extends Agent {
+public interface Bank extends JointStockCompany {
 
 	public abstract void closeCustomerAccount(final Agent customer);
+
+	public BankAccountDelegate getBankAccountBondLoanDelegate();
+
+	public BankAccountDelegate getBankAccountInterestTransactionsDelegate();
 
 	public BankAccount openBankAccount(final Agent customer,
 			final Currency currency, final boolean overdraftPossible,

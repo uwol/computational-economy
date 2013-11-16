@@ -19,15 +19,15 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.applicationcontext;
 
-import compecon.economy.property.impl.HardCashRegisterImpl;
-import compecon.economy.property.impl.PropertyRegisterImpl;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
-import compecon.engine.factory.impl.AgentFactoryImpl;
-import compecon.engine.factory.impl.BankAccountFactoryImpl;
-import compecon.engine.factory.impl.MarketFactoryImpl;
-import compecon.engine.factory.impl.MarketOrderFactoryImpl;
-import compecon.engine.factory.impl.PropertyFactoryImpl;
 import compecon.engine.log.impl.LogImpl;
+import compecon.engine.service.impl.AgentServiceImpl;
+import compecon.engine.service.impl.BankAccountServiceImpl;
+import compecon.engine.service.impl.GoodTypeOwnershipServiceImpl;
+import compecon.engine.service.impl.HardCashServiceImpl;
+import compecon.engine.service.impl.MarketOrderServiceImpl;
+import compecon.engine.service.impl.PropertyServiceImpl;
+import compecon.engine.service.impl.SettlementMarketServiceImpl;
 import compecon.engine.statistics.ModelRegistry;
 import compecon.engine.timesystem.impl.TimeSystem;
 import compecon.materia.impl.InputOutputModelInterdependenciesImpl;
@@ -57,16 +57,22 @@ public class ApplicationContextFactory {
 				new Configuration(configurationPropertiesFilename));
 
 		/*
-		 * factories
+		 * services
 		 */
-		ApplicationContext.getInstance().setAgentFactory(new AgentFactoryImpl());
-		ApplicationContext.getInstance().setBankAccountFactory(
-				new BankAccountFactoryImpl());
-		ApplicationContext.getInstance().setMarketFactory(new MarketFactoryImpl());
-		ApplicationContext.getInstance().setMarketOrderFactory(
-				new MarketOrderFactoryImpl());
-		ApplicationContext.getInstance().setPropertyFactory(
-				new PropertyFactoryImpl());
+		ApplicationContext.getInstance()
+				.setAgentService(new AgentServiceImpl());
+		ApplicationContext.getInstance().setBankAccountService(
+				new BankAccountServiceImpl());
+		ApplicationContext.getInstance().setGoodTypeOwnershipService(
+				new GoodTypeOwnershipServiceImpl());
+		ApplicationContext.getInstance().setHardCashService(
+				new HardCashServiceImpl());
+		ApplicationContext.getInstance().setMarketOrderService(
+				new MarketOrderServiceImpl());
+		ApplicationContext.getInstance().setPropertyService(
+				new PropertyServiceImpl());
+		ApplicationContext.getInstance().setMarketService(
+				new SettlementMarketServiceImpl());
 
 		/*
 		 * input-output model
@@ -94,10 +100,7 @@ public class ApplicationContextFactory {
 		ApplicationContext.getInstance().setTimeSystem(new TimeSystem(2000));
 		ApplicationContext.getInstance().setLog(new LogImpl());
 		ApplicationContext.getInstance().setModelRegistry(new ModelRegistry());
-		ApplicationContext.getInstance().setPropertyRegister(
-				new PropertyRegisterImpl());
-		ApplicationContext.getInstance().setHardCashRegister(
-				new HardCashRegisterImpl());
+
 	}
 
 	public static void configureInMemoryApplicationContext() {
@@ -111,8 +114,10 @@ public class ApplicationContextFactory {
 				new compecon.engine.dao.inmemory.impl.CentralBankDAOImpl());
 		ApplicationContext.getInstance().setCreditBankDAO(
 				new compecon.engine.dao.inmemory.impl.CreditBankDAOImpl());
-		ApplicationContext.getInstance().setGoodTypeOwnershipDAO(
-				new compecon.engine.dao.inmemory.impl.GoodTypeOwnershipDAOImpl());
+		ApplicationContext
+				.getInstance()
+				.setGoodTypeOwnershipDAO(
+						new compecon.engine.dao.inmemory.impl.GoodTypeOwnershipDAOImpl());
 		ApplicationContext.getInstance().setHouseholdDAO(
 				new compecon.engine.dao.inmemory.impl.HouseholdDAOImpl());
 		ApplicationContext.getInstance().setFactoryDAO(
@@ -138,8 +143,10 @@ public class ApplicationContextFactory {
 				new compecon.engine.dao.hibernate.impl.CentralBankDAOImpl());
 		ApplicationContext.getInstance().setCreditBankDAO(
 				new compecon.engine.dao.hibernate.impl.CreditBankDAOImpl());
-		ApplicationContext.getInstance().setGoodTypeOwnershipDAO(
-				new compecon.engine.dao.hibernate.impl.GoodTypeOwnershipDAOImpl());
+		ApplicationContext
+				.getInstance()
+				.setGoodTypeOwnershipDAO(
+						new compecon.engine.dao.hibernate.impl.GoodTypeOwnershipDAOImpl());
 		ApplicationContext.getInstance().setHouseholdDAO(
 				new compecon.engine.dao.hibernate.impl.HouseholdDAOImpl());
 		ApplicationContext.getInstance().setFactoryDAO(

@@ -61,8 +61,9 @@ public class HibernateDAOImpl<T> implements GenericDAO<T> {
 		if (0 != count) {
 			int index = new Random().nextInt(count);
 			crit = getSession().createCriteria(persistentClass);
-			return (T) crit.setFirstResult(index).setMaxResults(1)
+			T entity = (T) crit.setFirstResult(index).setMaxResults(1)
 					.uniqueResult();
+			return entity;
 		}
 		return null;
 	}

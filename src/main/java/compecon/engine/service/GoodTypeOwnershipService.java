@@ -17,11 +17,15 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.factory;
+package compecon.engine.service;
 
-import compecon.economy.markets.impl.SettlementMarketImpl;
+import compecon.economy.agent.Agent;
+import compecon.economy.property.GoodTypeOwnership;
 
-public interface MarketFactory {
+public interface GoodTypeOwnershipService {
 
-	public SettlementMarketImpl getMarket();
+	public GoodTypeOwnership newInstanceGoodTypeOwnership(final Agent owner);
+
+	public void deleteGoodTypeOwnership(
+			final GoodTypeOwnership goodTypeOwnership);
 }

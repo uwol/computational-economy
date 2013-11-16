@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.factory.impl;
+package compecon.engine.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,18 +39,17 @@ import compecon.economy.sectors.state.impl.StateImpl;
 import compecon.economy.sectors.trading.Trader;
 import compecon.economy.sectors.trading.impl.TraderImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.factory.AgentFactory;
+import compecon.engine.service.AgentService;
 import compecon.engine.util.HibernateUtil;
 import compecon.materia.GoodType;
-import compecon.math.intertemporal.IntertemporalConsumptionFunction;
 import compecon.math.intertemporal.impl.ModiglianiIntertemporalConsumptionFunction;
 import compecon.math.production.ProductionFunction;
 
-public class AgentFactoryImpl implements AgentFactory {
+public class AgentServiceImpl implements AgentService {
 
 	public final List<Class<? extends Agent>> agentTypes = new ArrayList<Class<? extends Agent>>();
 
-	public AgentFactoryImpl() {
+	public AgentServiceImpl() {
 		this.agentTypes.add(HouseholdImpl.class);
 		this.agentTypes.add(CreditBankImpl.class);
 		this.agentTypes.add(CentralBankImpl.class);
@@ -179,9 +178,8 @@ public class AgentFactoryImpl implements AgentFactory {
 		 * intertemeporalPreferences);
 		 */
 
-		IntertemporalConsumptionFunction intertemporalConsumptionFunction = new ModiglianiIntertemporalConsumptionFunction();
 		household
-				.setIntertemporalConsumptionFunction(intertemporalConsumptionFunction);
+				.setIntertemporalConsumptionFunction(new ModiglianiIntertemporalConsumptionFunction());
 
 		ApplicationContext.getInstance().getHouseholdDAO().save(household);
 		household.initialize();
@@ -231,5 +229,6 @@ public class AgentFactoryImpl implements AgentFactory {
 		else if (agent instanceof Trader)
 			ApplicationContext.getInstance().getTraderDAO()
 					.delete((Trader) agent);
+		HibernateUtil.flushSession();
 	}
 }

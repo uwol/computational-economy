@@ -42,8 +42,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 	final int numberOfIterations = 500;
 
 	@Before
-	public void setUp() {
-		super.setUp();
+	public void setUpApplicationContextWithAgents() {
+		super.setUpApplicationContextWithAgents();
 	}
 
 	@After
@@ -59,8 +59,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 		Map<GoodType, Double> coefficients = new HashMap<GoodType, Double>();
 		coefficients.put(GoodType.KILOWATT, 0.4);
 		coefficients.put(GoodType.WHEAT, 0.6);
-		CESFunctionImpl<GoodType> cesFunction = new CESFunctionImpl<GoodType>(1.0,
-				coefficients, -0.5, 0.4);
+		CESFunctionImpl<GoodType> cesFunction = new CESFunctionImpl<GoodType>(
+				1.0, coefficients, -0.5, 0.4);
 
 		/*
 		 * maximize output under budget restriction
@@ -137,8 +137,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 		coefficients.put(GoodType.KILOWATT, 0.1);
 		coefficients.put(GoodType.COTTON, 0.2);
 		coefficients.put(GoodType.WHEAT, 0.7);
-		CESFunctionImpl<GoodType> cesFunction = new CESFunctionImpl<GoodType>(1.0,
-				coefficients, -0.5, 0.4);
+		CESFunctionImpl<GoodType> cesFunction = new CESFunctionImpl<GoodType>(
+				1.0, coefficients, -0.5, 0.4);
 
 		/*
 		 * maximize output under budget restriction
@@ -227,8 +227,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 		coefficients.put(GoodType.COAL, 0.1);
 		coefficients.put(GoodType.KILOWATT, 0.3);
 		coefficients.put(GoodType.WHEAT, 0.6);
-		CESFunctionImpl<GoodType> cesFunction = new CESFunctionImpl<GoodType>(1.0,
-				coefficients, -0.5, 0.4);
+		CESFunctionImpl<GoodType> cesFunction = new CESFunctionImpl<GoodType>(
+				1.0, coefficients, -0.5, 0.4);
 
 		/*
 		 * maximize output under budget restriction
@@ -318,38 +318,37 @@ public class CESFunctionTest extends CompEconTestSupport {
 		Household household2_EUR = ApplicationContext.getInstance()
 				.getHouseholdDAO().findAllByCurrency(currency).get(1);
 
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.KILOWATT), epsilon);
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.WHEAT), epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.KILOWATT),
+				epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.WHEAT), epsilon);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 2.0, 1.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						2.0, 1.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 5.0, 2.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						5.0, 2.0);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 2.0, 1.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						2.0, 1.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.WHEAT, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 3.0, 2.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						3.0, 2.0);
 
 		/*
 		 * prepare function
@@ -357,16 +356,15 @@ public class CESFunctionTest extends CompEconTestSupport {
 		Map<GoodType, Double> coefficients = new HashMap<GoodType, Double>();
 		coefficients.put(GoodType.KILOWATT, 0.4);
 		coefficients.put(GoodType.WHEAT, 0.6);
-		CESFunctionImpl<GoodType> cesFunction = new CESFunctionImpl<GoodType>(1.0,
-				coefficients, -0.5, 0.4);
+		CESFunctionImpl<GoodType> cesFunction = new CESFunctionImpl<GoodType>(
+				1.0, coefficients, -0.5, 0.4);
 
 		/*
 		 * maximize output under budget restriction
 		 */
 		Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.getMarketPriceFunctions(currency,
 						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT });
 

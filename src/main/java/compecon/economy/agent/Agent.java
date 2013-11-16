@@ -21,8 +21,8 @@ package compecon.economy.agent;
 
 import java.util.Set;
 
-import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.timesystem.ITimeSystemEvent;
 
@@ -32,27 +32,19 @@ public interface Agent {
 
 	public void deconstruct();
 
-	public void assureBankAccountTransactions();
-
-	public void assureBankCustomerAccount();
-
-	public BankAccount getBankAccountTransactions();
+	public BankAccountDelegate getBankAccountTransactionsDelegate();
 
 	public int getId();
 
-	public boolean isDeconstructed();
-
 	public Set<ITimeSystemEvent> getTimeSystemEvents();
 
-	public Bank getPrimaryBank();
-
 	public Currency getPrimaryCurrency();
+
+	public boolean isDeconstructed();
 
 	public void onBankCloseBankAccount(BankAccount bankAccount);
 
 	public void setId(int id);
-
-	public void setPrimaryBank(final Bank primaryBank);
 
 	public void setPrimaryCurrency(final Currency primaryCurrency);
 

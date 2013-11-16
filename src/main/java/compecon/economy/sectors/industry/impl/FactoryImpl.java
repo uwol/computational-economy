@@ -32,13 +32,12 @@ import compecon.economy.behaviour.BudgetingBehaviour;
 import compecon.economy.behaviour.PricingBehaviour;
 import compecon.economy.behaviour.impl.BudgetingBehaviourImpl;
 import compecon.economy.behaviour.impl.PricingBehaviourImpl;
-import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
-import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -85,7 +84,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 								.suggestRandomHourType());
 
 		final double marketPrice = ApplicationContext.getInstance()
-				.getMarketFactory().getMarket()
+				.getMarketService()
 				.getPrice(this.primaryCurrency, this.producedGoodType);
 		this.pricingBehaviour = new PricingBehaviourImpl(this,
 				this.producedGoodType, this.primaryCurrency, marketPrice);
@@ -119,21 +118,11 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 	 */
 
 	@Override
-	@Transient
-	protected BalanceSheetDTO issueBalanceSheet() {
-		final BalanceSheetDTO balanceSheet = super.issueBalanceSheet();
-
-		balanceSheet.issuedCapital = this.issuedShares;
-
-		return balanceSheet;
-	}
-
-	@Override
 	public String toString() {
 		return super.toString() + " [" + this.producedGoodType + "]";
 	}
 
-	protected class SettlementMarketEvent implements ISettlementEvent {
+	protected class SettlementMarketEvent implements SettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
 				double pricePerUnit, Currency currency) {
@@ -196,8 +185,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				// get prices for production factors
 				Map<GoodType, PriceFunction> priceFunctionsOfProductionFactors = ApplicationContext
 						.getInstance()
-						.getMarketFactory()
-						.getMarket()
+						.getMarketService()
 						.getMarketPriceFunctions(
 								FactoryImpl.this.primaryCurrency,
 								FactoryImpl.this.productionFunction
@@ -206,8 +194,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				// calculate optimal production plan
 				double priceOfProducedGoodType = ApplicationContext
 						.getInstance()
-						.getMarketFactory()
-						.getMarket()
+						.getMarketService()
 						.getPrice(FactoryImpl.this.primaryCurrency,
 								FactoryImpl.this.producedGoodType);
 
@@ -253,11 +240,10 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				if (MathUtil.greater(amountToBuy, 0.0)) {
 					double[] priceAndAmount = ApplicationContext
 							.getInstance()
-							.getMarketFactory()
-							.getMarket()
+							.getMarketService()
 							.buy(goodTypeToBuy, amountToBuy, Double.NaN,
 									Double.NaN, FactoryImpl.this,
-									FactoryImpl.this.bankAccountTransactions);
+									getBankAccountTransactionsDelegate());
 					budgetSpent += priceAndAmount[0];
 				}
 			}
@@ -275,7 +261,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 						.put(productionFactor,
 								ApplicationContext
 										.getInstance()
-										.getPropertyRegister()
+										.getPropertyService()
 										.getBalance(FactoryImpl.this,
 												productionFactor));
 			}
@@ -284,7 +270,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 					.calculateOutput(productionFactorsOwned);
 			ApplicationContext
 					.getInstance()
-					.getPropertyRegister()
+					.getPropertyService()
 					.incrementGoodTypeAmount(FactoryImpl.this,
 							FactoryImpl.this.producedGoodType, producedOutput);
 
@@ -307,7 +293,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 					.entrySet()) {
 				ApplicationContext
 						.getInstance()
-						.getPropertyRegister()
+						.getPropertyService()
 						.decrementGoodTypeAmount(FactoryImpl.this,
 								entry.getKey(), entry.getValue());
 			}
@@ -321,14 +307,13 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			 */
 			ApplicationContext
 					.getInstance()
-					.getMarketFactory()
-					.getMarket()
+					.getMarketService()
 					.removeAllSellingOffers(FactoryImpl.this,
 							FactoryImpl.this.primaryCurrency,
 							FactoryImpl.this.producedGoodType);
 			double amountInInventory = ApplicationContext
 					.getInstance()
-					.getPropertyRegister()
+					.getPropertyService()
 					.getBalance(FactoryImpl.this,
 							FactoryImpl.this.producedGoodType);
 			double[] prices = FactoryImpl.this.pricingBehaviour
@@ -336,12 +321,11 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			for (double price : prices) {
 				ApplicationContext
 						.getInstance()
-						.getMarketFactory()
-						.getMarket()
+						.getMarketService()
 						.placeSettlementSellingOffer(
 								FactoryImpl.this.producedGoodType,
 								FactoryImpl.this,
-								FactoryImpl.this.bankAccountTransactions,
+								getBankAccountTransactionsDelegate(),
 								amountInInventory / ((double) prices.length),
 								price, new SettlementMarketEvent());
 			}

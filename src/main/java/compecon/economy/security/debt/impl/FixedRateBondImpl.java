@@ -21,16 +21,10 @@ package compecon.economy.security.debt.impl;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Index;
-
-import compecon.economy.agent.Agent;
-import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.timesystem.ITimeSystemEvent;
@@ -50,20 +44,16 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 	 * sender bank account (of the bond issuer and seller) for the periodical
 	 * coupon
 	 */
-	@ManyToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "couponFromBankAccount_id")
-	@Index(name = "couponFromBankAccount")
-	protected BankAccount couponFromBankAccount;
+	@Transient
+	protected BankAccountDelegate couponFromBankAccountDelegate;
 
 	/**
 	 * receiver bank account (of the bond buyer) for the periodical coupon;
 	 * null, if the bond has not been transfered to a owner different from the
 	 * issuer.
 	 */
-	@ManyToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "couponToBankAccount_id")
-	@Index(name = "couponToBankAccount")
-	protected BankAccount couponToBankAccount;
+	@Transient
+	protected BankAccountDelegate couponToBankAccountDelegate;
 
 	public void initialize() {
 		super.initialize();
@@ -87,24 +77,26 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 		return this.coupon;
 	}
 
-	public BankAccount getCouponFromBankAccount() {
-		return this.couponFromBankAccount;
+	public BankAccountDelegate getCouponFromBankAccountDelegate() {
+		return this.couponFromBankAccountDelegate;
 	}
 
-	public BankAccount getCouponToBankAccount() {
-		return this.couponToBankAccount;
+	public BankAccountDelegate getCouponToBankAccountDelegate() {
+		return this.couponToBankAccountDelegate;
 	}
 
 	public void setCoupon(final double coupon) {
 		this.coupon = coupon;
 	}
 
-	public void setCouponFromBankAccount(final BankAccount couponFromBankAccount) {
-		this.couponFromBankAccount = couponFromBankAccount;
+	public void setCouponFromBankAccountDelegate(
+			final BankAccountDelegate couponFromBankAccountDelegate) {
+		this.couponFromBankAccountDelegate = couponFromBankAccountDelegate;
 	}
 
-	public void setCouponToBankAccount(final BankAccount couponToBankAccount) {
-		this.couponToBankAccount = couponToBankAccount;
+	public void setCouponToBankAccountDelegate(
+			final BankAccountDelegate couponToBankAccountDelegate) {
+		this.couponToBankAccountDelegate = couponToBankAccountDelegate;
 	}
 
 	/*
@@ -114,8 +106,15 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 	@Override
 	protected void assertValidOwner() {
 		super.assertValidOwner();
-		assert (this.couponToBankAccount == null || this.owner
-				.equals(this.couponToBankAccount.getOwner()));
+		assert (this.couponToBankAccountDelegate == null || this.owner
+				.equals(this.couponToBankAccountDelegate.getBankAccount()
+						.getOwner()));
+	}
+
+	protected void assertValidIssuer() {
+		super.assertValidIssuer();
+		assert (this.getIssuer() == this.couponFromBankAccountDelegate
+				.getBankAccount().getOwner());
 	}
 
 	/*
@@ -136,16 +135,16 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 	}
 
 	@Override
-	public Agent getIssuer() {
-		final Agent issuer = super.getIssuer();
-		assert (issuer == this.couponFromBankAccount.getOwner());
-		return issuer;
+	@Transient
+	public void resetOwner() {
+		super.resetOwner();
+		this.couponToBankAccountDelegate = null;
 	}
 
 	@Transient
 	public String toString() {
 		return this.getClass().getSimpleName() + " [Issuer: "
-				+ this.faceValueFromBankAccount.getOwner() + ", Facevalue: "
+				+ this.getIssuer() + ", Facevalue: "
 				+ Currency.formatMoneySum(this.faceValue) + " "
 				+ this.issuedInCurrency.getIso4217Code() + ", Coupon: "
 				+ Currency.formatMoneySum(this.coupon) + " "
@@ -155,19 +154,23 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 	public class TransferCouponEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			assert (FixedRateBondImpl.this.couponFromBankAccount != null);
+			assert (FixedRateBondImpl.this.couponFromBankAccountDelegate != null);
 			assertValidOwner();
+			assertValidIssuer();
 
-			if (FixedRateBondImpl.this.couponToBankAccount != null) {
+			if (FixedRateBondImpl.this.couponToBankAccountDelegate != null) {
 				final double dailyCouponValue = MathUtil
 						.calculateMonthlyNominalInterestRate(FixedRateBondImpl.this.coupon)
 						/ 30.0 * FixedRateBondImpl.this.faceValue;
 				if (dailyCouponValue > 0) {
-					FixedRateBondImpl.this.couponFromBankAccount
+					FixedRateBondImpl.this.couponFromBankAccountDelegate
+							.getBankAccount()
 							.getManagingBank()
 							.transferMoney(
-									FixedRateBondImpl.this.couponFromBankAccount,
-									FixedRateBondImpl.this.couponToBankAccount,
+									FixedRateBondImpl.this.couponFromBankAccountDelegate
+											.getBankAccount(),
+									FixedRateBondImpl.this.couponToBankAccountDelegate
+											.getBankAccount(),
 									dailyCouponValue, "bond coupon");
 				}
 			}

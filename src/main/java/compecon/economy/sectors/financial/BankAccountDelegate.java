@@ -17,8 +17,22 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.markets;
+package compecon.economy.sectors.financial;
 
-public interface Market {
+/**
+ * interface for delegating to a bank account. Is applied in the context of
+ * bonds, shares etc. where the delegate has to identify bank accounts involved
+ * in dividenc transactions etc.<br />
+ * <br />
+ * This pattern allows lazy evaluation and loose coupling of bank accounts to
+ * bonds, shares etc.
+ */
+public interface BankAccountDelegate {
 
+	/**
+	 * the delegated bank account
+	 * 
+	 * @return must not be null
+	 */
+	public BankAccount getBankAccount();
 }

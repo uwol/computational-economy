@@ -19,15 +19,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.sectors.trading;
 
-import java.util.Map;
-
 import compecon.economy.agent.Agent;
-import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 
 public interface Trader extends Agent {
 
-	public void assureBankAccountsGoodTrade();
-
-	public Map<Currency, BankAccount> getBankAccountsGoodTrade();
+	public BankAccountDelegate getBankAccountGoodsTradeDelegate(
+			final Currency currency);
 }

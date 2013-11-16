@@ -19,13 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.security.equity;
 
-import compecon.economy.sectors.financial.BankAccount;
-
 public interface ShareOwner {
-
-	public void assureDividendBankAccount();
 
 	public void onDividendTransfer(final double dividendAmount);
 
-	public BankAccount getDividendBankAccount();
 }

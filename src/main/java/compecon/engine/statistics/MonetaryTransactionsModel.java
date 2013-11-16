@@ -35,13 +35,13 @@ public class MonetaryTransactionsModel extends NotificationListenerModel {
 	public MonetaryTransactionsModel() {
 		// from
 		for (Class<? extends Agent> agentTypeFrom : ApplicationContext
-				.getInstance().getAgentFactory().getAgentTypes()) {
+				.getInstance().getAgentService().getAgentTypes()) {
 			Map<Class<? extends Agent>, PeriodDataAccumulator> toMap = new HashMap<Class<? extends Agent>, PeriodDataAccumulator>();
 			this.adjacencyMatrix.put(agentTypeFrom, toMap);
 
 			// to
 			for (Class<? extends Agent> agentTypeTo : ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes()) {
+					.getInstance().getAgentService().getAgentTypes()) {
 				toMap.put(agentTypeTo, new PeriodDataAccumulator());
 			}
 		}
@@ -51,9 +51,9 @@ public class MonetaryTransactionsModel extends NotificationListenerModel {
 		this.notifyListeners();
 
 		for (Class<? extends Agent> agentTypeFrom : ApplicationContext
-				.getInstance().getAgentFactory().getAgentTypes()) {
+				.getInstance().getAgentService().getAgentTypes()) {
 			for (Class<? extends Agent> agentTypeTo : ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes()) {
+					.getInstance().getAgentService().getAgentTypes()) {
 				this.adjacencyMatrix.get(agentTypeFrom).get(agentTypeTo)
 						.reset();
 			}

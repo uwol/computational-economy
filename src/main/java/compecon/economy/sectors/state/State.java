@@ -20,7 +20,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.economy.sectors.state;
 
 import compecon.economy.agent.Agent;
-import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.math.utility.UtilityFunction;
 
@@ -28,8 +28,10 @@ public interface State extends Agent {
 
 	public void doDeficitSpending();
 
+	public BankAccountDelegate getBankAccountCouponLoansDelegate();
+
 	public FixedRateBond obtainBond(final double faceValue,
-			final BankAccount buyerBankAccount);
+			final BankAccountDelegate buyerBankAccountDelegate);
 
 	public void setUtilityFunction(UtilityFunction utilityFunction);
 }

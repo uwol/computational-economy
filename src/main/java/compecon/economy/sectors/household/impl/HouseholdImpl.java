@@ -35,7 +35,6 @@ import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.behaviour.PricingBehaviour;
 import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
-import compecon.economy.markets.SettlementMarket.ISettlementEvent;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
@@ -47,6 +46,7 @@ import compecon.economy.security.equity.Share;
 import compecon.economy.security.equity.ShareOwner;
 import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -127,18 +127,11 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 								.suggestRandomHourType());
 
 		final double marketPrice = ApplicationContext.getInstance()
-				.getMarketFactory().getMarket()
+				.getMarketService()
 				.getPrice(this.primaryCurrency, GoodType.LABOURHOUR);
 		this.pricingBehaviour = new PricingBehaviourImpl(this,
 				GoodType.LABOURHOUR, this.primaryCurrency, marketPrice);
 		this.labourPower.refresh();
-	}
-
-	@Transient
-	public void deconstruct() {
-		super.deconstruct();
-
-		this.bankAccountSavings = null;
 	}
 
 	/*
@@ -216,27 +209,17 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 		if (this.isDeconstructed)
 			return;
 
-		this.assureBankCustomerAccount();
-
 		// initialize bank account
 		if (this.bankAccountSavings == null) {
-			this.bankAccountSavings = this.primaryBank.openBankAccount(this,
-					this.primaryCurrency, false, "savings", TermType.LONG_TERM,
-					MoneyType.DEPOSITS);
+			this.bankAccountSavings = this.getPrimaryBank().openBankAccount(
+					this, this.primaryCurrency, false, "savings",
+					TermType.LONG_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
 	/*
 	 * business logic
 	 */
-
-	@Override
-	@Transient
-	public BankAccount getDividendBankAccount() {
-		this.assureBankAccountTransactions();
-
-		return this.bankAccountTransactions;
-	}
 
 	@Override
 	@Transient
@@ -273,7 +256,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 		return super.toString() + " [" + this.ageInDays / 365 + " years]";
 	}
 
-	public class SettlementMarketEvent implements ISettlementEvent {
+	public class SettlementMarketEvent implements SettlementEvent {
 		@Override
 		public void onEvent(GoodType goodType, double amount,
 				double pricePerUnit, Currency currency) {
@@ -357,7 +340,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 			 * calculate budget
 			 */
 			final double keyInterestRate = ApplicationContext.getInstance()
-					.getAgentFactory()
+					.getAgentService()
 					.getInstanceCentralBank(HouseholdImpl.this.primaryCurrency)
 					.getEffectiveKeyInterestRate();
 			final double income = HouseholdImpl.this.bankAccountTransactions
@@ -460,8 +443,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 				// get prices for good types
 				Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
 						.getInstance()
-						.getMarketFactory()
-						.getMarket()
+						.getMarketService()
 						.getFixedPriceFunctions(
 								HouseholdImpl.this.primaryCurrency,
 								HouseholdImpl.this.utilityFunction
@@ -508,8 +490,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 					// prices can rise, leading to overspending
 					double[] priceAndAmount = ApplicationContext
 							.getInstance()
-							.getMarketFactory()
-							.getMarket()
+							.getMarketService()
 							.buy(goodTypeToBuy,
 									amountToBuy,
 									budget,
@@ -518,7 +499,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 													.getConfiguration().householdConfig
 													.getMaxPricePerUnitMultiplier(),
 									HouseholdImpl.this,
-									HouseholdImpl.this.bankAccountTransactions);
+									getBankAccountTransactionsDelegate());
 					budgetSpent += priceAndAmount[0];
 				}
 			}
@@ -533,7 +514,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 			for (GoodType goodType : HouseholdImpl.this.utilityFunction
 					.getInputGoodTypes()) {
 				double balance = ApplicationContext.getInstance()
-						.getPropertyRegister()
+						.getPropertyService()
 						.getBalance(HouseholdImpl.this, goodType);
 				double amountToConsume;
 				if (GoodType.LABOURHOUR.equals(goodType)) {
@@ -545,7 +526,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 				effectiveConsumptionGoodsBundle.put(goodType, amountToConsume);
 				ApplicationContext
 						.getInstance()
-						.getPropertyRegister()
+						.getPropertyService()
 						.decrementGoodTypeAmount(HouseholdImpl.this, goodType,
 								amountToConsume);
 			}
@@ -563,8 +544,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 			 */
 			ApplicationContext
 					.getInstance()
-					.getMarketFactory()
-					.getMarket()
+					.getMarketService()
 					.removeAllSellingOffers(
 							HouseholdImpl.this,
 							HouseholdImpl.this.bankAccountTransactions
@@ -578,19 +558,18 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 				 * offer labour hours
 				 */
 				double amountOfLabourHours = ApplicationContext.getInstance()
-						.getPropertyRegister()
+						.getPropertyService()
 						.getBalance(HouseholdImpl.this, GoodType.LABOURHOUR);
 				double prices[] = HouseholdImpl.this.pricingBehaviour
 						.getCurrentPriceArray();
 				for (double price : prices) {
 					ApplicationContext
 							.getInstance()
-							.getMarketFactory()
-							.getMarket()
+							.getMarketService()
 							.placeSettlementSellingOffer(
 									GoodType.LABOURHOUR,
 									HouseholdImpl.this,
-									HouseholdImpl.this.bankAccountTransactions,
+									getBankAccountTransactionsDelegate(),
 									amountOfLabourHours
 											/ ((double) prices.length), price,
 									new SettlementMarketEvent());
@@ -614,39 +593,44 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 			// FIXME ShareImpl -> Share
 			ApplicationContext
 					.getInstance()
-					.getMarketFactory()
-					.getMarket()
+					.getMarketService()
 					.buy(ShareImpl.class, 1.0, 0.0, 0.0, HouseholdImpl.this,
-							HouseholdImpl.this.bankAccountTransactions);
+							getBankAccountTransactionsDelegate());
 
 			/*
-			 * sell shares that are denominated in an incorrect currency
+			 * check that shares have correct bank account delegate, and sell
+			 * shares that are denominated in an incorrect currency
 			 */
 			// FIXME ShareImpl -> Share
 			ApplicationContext
 					.getInstance()
-					.getMarketFactory()
-					.getMarket()
+					.getMarketService()
 					.removeAllSellingOffers(
 							HouseholdImpl.this,
 							HouseholdImpl.this.bankAccountTransactions
 									.getCurrency(), ShareImpl.class);
 			for (Property property : ApplicationContext.getInstance()
-					.getPropertyRegister()
+					.getPropertyService()
 					.getProperties(HouseholdImpl.this, Share.class)) {
 				if (property instanceof Share) {
 					Share share = (Share) property;
+
+					// check bank account delegate
+					if (share.getDividendBankAccountDelegate() == null
+							|| share.getDividendBankAccountDelegate()
+									.getBankAccount() != HouseholdImpl.this.bankAccountTransactions) {
+						share.setDividendBankAccountDelegate(getBankAccountTransactionsDelegate());
+					}
+
+					// check currency
 					if (!HouseholdImpl.this.primaryCurrency.equals(share
-							.getJointStockCompany().getPrimaryCurrency()))
+							.getIssuer().getPrimaryCurrency()))
 						ApplicationContext
 								.getInstance()
-								.getMarketFactory()
-								.getMarket()
-								.placeSellingOffer(
-										property,
+								.getMarketService()
+								.placeSellingOffer(property,
 										HouseholdImpl.this,
-										HouseholdImpl.this
-												.getBankAccountTransactions(),
+										getBankAccountTransactionsDelegate(),
 										0.0);
 				}
 			}
@@ -688,7 +672,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 								.getNewHouseholdEveryXDays() == 0) {
 					ApplicationContext
 							.getInstance()
-							.getAgentFactory()
+							.getAgentService()
 							.newInstanceHousehold(
 									HouseholdImpl.this.primaryCurrency);
 				}
@@ -711,13 +695,13 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 	protected class LabourPower implements Refreshable {
 
 		public double getNumberOfLabourHoursAvailable() {
-			return ApplicationContext.getInstance().getPropertyRegister()
+			return ApplicationContext.getInstance().getPropertyService()
 					.getBalance(HouseholdImpl.this, GoodType.LABOURHOUR);
 		}
 
 		@Override
 		public boolean isExhausted() {
-			return ApplicationContext.getInstance().getPropertyRegister()
+			return ApplicationContext.getInstance().getPropertyService()
 					.getBalance(HouseholdImpl.this, GoodType.LABOURHOUR) <= 0;
 		}
 
@@ -725,7 +709,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 		public void exhaust() {
 			ApplicationContext
 					.getInstance()
-					.getPropertyRegister()
+					.getPropertyService()
 					.resetGoodTypeAmount(HouseholdImpl.this,
 							GoodType.LABOURHOUR);
 		}
@@ -735,7 +719,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 			exhaust();
 			ApplicationContext
 					.getInstance()
-					.getPropertyRegister()
+					.getPropertyService()
 					.incrementGoodTypeAmount(
 							HouseholdImpl.this,
 							GoodType.LABOURHOUR,

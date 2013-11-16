@@ -17,9 +17,8 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.property.impl;
+package compecon.engine.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,19 +26,25 @@ import java.util.Map.Entry;
 import compecon.economy.agent.Agent;
 import compecon.economy.property.GoodTypeOwnership;
 import compecon.economy.property.Property;
-import compecon.economy.property.PropertyRegister;
+import compecon.economy.sectors.financial.BankAccountDelegate;
+import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
+import compecon.economy.security.debt.FixedRateBond;
+import compecon.economy.security.debt.impl.FixedRateBondImpl;
+import compecon.economy.security.equity.JointStockCompany;
+import compecon.economy.security.equity.Share;
+import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.service.PropertyService;
 import compecon.engine.util.HibernateUtil;
 import compecon.engine.util.MathUtil;
 import compecon.materia.GoodType;
 
 /**
- * The property register manages property rights. Each
- * {@link compecon.culture.sectors.state.law.property.IProperty} can be assigned
- * to an owning agent and can be transfered between agents.
+ * The property service manages property rights. Each {@link Property} can be
+ * assigned to an owning agent and can be transfered between agents.
  */
-public class PropertyRegisterImpl implements PropertyRegister {
+public class PropertyServiceImpl implements PropertyService {
 
 	/*
 	 * assures
@@ -48,16 +53,38 @@ public class PropertyRegisterImpl implements PropertyRegister {
 	protected GoodTypeOwnership assureGoodTypeOwnership(Agent agent) {
 		assert (agent != null);
 
-		GoodTypeOwnership goodTypeOwnership = ApplicationContext.getInstance()
-				.getGoodTypeOwnershipDAO().findFirstByAgent(agent);
+		final GoodTypeOwnership goodTypeOwnership = ApplicationContext
+				.getInstance().getGoodTypeOwnershipDAO()
+				.findFirstByAgent(agent);
 		if (goodTypeOwnership == null) {
-			goodTypeOwnership = new GoodTypeOwnershipImpl();
-			goodTypeOwnership.setAgent(agent);
-			ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
-					.save(goodTypeOwnership);
-			HibernateUtil.flushSession();
+			assert (!agent.isDeconstructed());
+			return ApplicationContext.getInstance()
+					.getGoodTypeOwnershipService()
+					.newInstanceGoodTypeOwnership(agent);
 		}
 		return goodTypeOwnership;
+	}
+
+	public double decrementGoodTypeAmount(Agent propertyOwner,
+			GoodType goodType, double amount) {
+		assert (amount >= 0.0);
+
+		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
+		double oldBalance = goodTypeOwnership.getOwnedGoodTypes().get(goodType);
+
+		assert (oldBalance >= amount || MathUtil.equal(oldBalance, amount));
+
+		double newBalance = Math.max(oldBalance - amount, 0);
+		goodTypeOwnership.getOwnedGoodTypes().put(goodType, newBalance);
+
+		HibernateUtil.flushSession();
+
+		return newBalance;
+	}
+
+	public void deleteProperty(final Property property) {
+		ApplicationContext.getInstance().getPropertyDAO().delete(property);
+		HibernateUtil.flushSession();
 	}
 
 	/*
@@ -85,23 +112,15 @@ public class PropertyRegisterImpl implements PropertyRegister {
 
 	public List<Property> getProperties(Agent agent) {
 		return ApplicationContext.getInstance().getPropertyDAO()
-				.findAllByAgent(agent);
+				.findAllPropertiesOfAgent(agent);
 	}
 
 	public List<Property> getProperties(Agent agent,
 			Class<? extends Property> propertyClass) {
-		List<Property> propertiesOfClass = new ArrayList<Property>();
-		for (Property property : ApplicationContext.getInstance()
-				.getPropertyDAO().findAllByAgent(agent)) {
-			if (propertyClass.isAssignableFrom(property.getClass()))
-				propertiesOfClass.add(property);
-		}
-		return propertiesOfClass;
+		return ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesOfAgent(agent, propertyClass);
 	}
 
-	/*
-	 * modify owned amount of GoodType
-	 */
 	public double incrementGoodTypeAmount(Agent propertyOwner,
 			GoodType goodType, double amount) {
 		assert (amount >= 0.0);
@@ -116,26 +135,43 @@ public class PropertyRegisterImpl implements PropertyRegister {
 		return newBalance;
 	}
 
-	public double decrementGoodTypeAmount(Agent propertyOwner,
-			GoodType goodType, double amount) {
-		assert (amount >= 0.0);
-
-		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
-		double oldBalance = goodTypeOwnership.getOwnedGoodTypes().get(goodType);
-
-		assert (oldBalance >= amount || MathUtil.equal(oldBalance, amount));
-
-		double newBalance = Math.max(oldBalance - amount, 0);
-		goodTypeOwnership.getOwnedGoodTypes().put(goodType, newBalance);
-
+	public FixedRateBond newInstanceFixedRateBond(final Agent owner,
+			final Agent issuer, final Currency currency,
+			final BankAccountDelegate faceValueFromBankAccountDelegate,
+			final BankAccountDelegate couponFromBankAccountDelegate,
+			final double faceValue, final double coupon) {
+		final FixedRateBondImpl fixedRateBond = new FixedRateBondImpl();
+		fixedRateBond.setOwner(owner);
+		fixedRateBond.setIssuer(issuer);
+		fixedRateBond
+				.setFaceValueFromBankAccountDelegate(faceValueFromBankAccountDelegate);
+		fixedRateBond
+				.setCouponFromBankAccountDelegate(couponFromBankAccountDelegate);
+		fixedRateBond.setFaceValue(faceValue);
+		fixedRateBond.setCoupon(coupon);
+		fixedRateBond.setIssuedInCurrency(currency);
+		fixedRateBond.initialize();
+		ApplicationContext.getInstance().getPropertyDAO().save(fixedRateBond);
 		HibernateUtil.flushSession();
+		return fixedRateBond;
+	}
 
-		return newBalance;
+	public Share newInstanceShare(final Agent owner,
+			final JointStockCompany issuer) {
+		final ShareImpl share = new ShareImpl();
+		share.setIssuer(issuer);
+		share.setOwner(owner);
+		share.initialize();
+		ApplicationContext.getInstance().getPropertyDAO().save(share);
+		HibernateUtil.flushSession();
+		return share;
 	}
 
 	public void resetGoodTypeAmount(Agent propertyOwner, GoodType goodType) {
 		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, 0.0);
+
+		HibernateUtil.flushSession();
 	}
 
 	/*
@@ -145,6 +181,8 @@ public class PropertyRegisterImpl implements PropertyRegister {
 			GoodType goodType, double amount) {
 		this.decrementGoodTypeAmount(oldOwner, goodType, amount);
 		this.incrementGoodTypeAmount(newOwner, goodType, amount);
+
+		HibernateUtil.flushSession();
 	}
 
 	/**
@@ -155,8 +193,11 @@ public class PropertyRegisterImpl implements PropertyRegister {
 		// consistency check
 		assert (oldOwner == property.getOwner());
 
+		property.resetOwner();
 		ApplicationContext.getInstance().getPropertyDAO()
 				.transferProperty(oldOwner, newOwner, property);
+
+		HibernateUtil.flushSession();
 	}
 
 	public void transferEverythingToRandomAgent(Agent oldOwner) {
@@ -183,20 +224,21 @@ public class PropertyRegisterImpl implements PropertyRegister {
 			for (GoodTypeOwnership goodTypeOwnership : ApplicationContext
 					.getInstance().getGoodTypeOwnershipDAO()
 					.findAllByAgent(oldOwner)) {
-
 				for (Entry<GoodType, Double> entry : goodTypeOwnership
 						.getOwnedGoodTypes().entrySet()) {
-					if (!entry.getKey().equals(GoodType.LABOURHOUR))
+					if (!entry.getKey().equals(GoodType.LABOURHOUR)) {
 						this.transferGoodTypeAmount(oldOwner,
 								newOwnerHousehold, entry.getKey(),
 								entry.getValue());
+					}
 				}
 			}
 		}
 
 		// transfer all properties, eventually to null!
 		for (Property property : ApplicationContext.getInstance()
-				.getPropertyDAO().findAllByAgent(oldOwner)) {
+				.getPropertyDAO().findAllPropertiesOfAgent(oldOwner)) {
+			// FIXME set bank account delegates of new owner
 			this.transferProperty(oldOwner, newOwnerHousehold, property);
 		}
 
@@ -204,8 +246,11 @@ public class PropertyRegisterImpl implements PropertyRegister {
 		for (GoodTypeOwnership goodTypeOwnership : ApplicationContext
 				.getInstance().getGoodTypeOwnershipDAO()
 				.findAllByAgent(oldOwner)) {
-			ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
-					.delete(goodTypeOwnership);
+			ApplicationContext.getInstance().getGoodTypeOwnershipService()
+					.deleteGoodTypeOwnership(goodTypeOwnership);
 		}
+
+		assert (ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
+				.findAllByAgent(oldOwner).size() == 0);
 	}
 }

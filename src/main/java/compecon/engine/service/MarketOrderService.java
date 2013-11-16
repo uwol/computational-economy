@@ -17,29 +17,33 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.factory;
+package compecon.engine.service;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
 import compecon.economy.property.Property;
-import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.materia.GoodType;
 
-public interface MarketOrderFactory {
+public interface MarketOrderService {
 
 	public MarketOrder newInstanceGoodTypeMarketOrder(final GoodType goodType,
-			final Agent offeror, final BankAccount offerorsBankAcount,
+			final Agent offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount, final double pricePerUnit);
 
 	public MarketOrder newInstanceCurrencyMarketOrder(
-			final Currency currencyToBeOffered, final Agent offeror,
-			final BankAccount offerorsBankAcount, final double amount,
+			final Currency currencyToBeOffered,
+			final Agent offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate,
+			final double amount,
 			final double pricePerUnit,
-			final BankAccount commodityCurrencyOfferorsBankAcount);
+			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate);
 
 	public MarketOrder newInstancePropertyMarketOrder(final Property property,
-			final Agent offeror, final BankAccount offerorsBankAcount,
+			final Agent offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double pricePerUnit);
 
 }

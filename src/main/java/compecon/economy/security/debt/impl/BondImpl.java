@@ -26,24 +26,18 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Index;
-
-import compecon.economy.agent.Agent;
-import compecon.economy.property.impl.PropertyImpl;
-import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.property.impl.PropertyIssuedImpl;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.security.debt.Bond;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.HourType;
 
 @Entity
-public abstract class BondImpl extends PropertyImpl implements Bond {
+public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 
 	@Column(name = "faceValue")
 	protected double faceValue; // par value or principal
@@ -52,20 +46,16 @@ public abstract class BondImpl extends PropertyImpl implements Bond {
 	 * sender bank account (of the bond issuer and seller) for the final face
 	 * value re-transfer at the end of the bond life cycle
 	 */
-	@ManyToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "faceValueFromBankAccount_id")
-	@Index(name = "faceValueFromBankAccount")
-	protected BankAccount faceValueFromBankAccount;
+	@Transient
+	protected BankAccountDelegate faceValueFromBankAccountDelegate;
 
 	/**
 	 * receiver bank account (of the bond buyer) for the final face value
 	 * re-transfer at the end of the bond life cycle. null, if the bond has not
 	 * been transfered to a owner different from the issuer.
 	 */
-	@ManyToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "faceValueToBankAccount_id")
-	@Index(name = "faceValueToBankAccount")
-	protected BankAccount faceValueToBankAccount;
+	@Transient
+	protected BankAccountDelegate faceValueToBankAccountDelegate;
 
 	@Enumerated(value = EnumType.STRING)
 	protected Currency issuedInCurrency;
@@ -105,17 +95,17 @@ public abstract class BondImpl extends PropertyImpl implements Bond {
 	}
 
 	/**
-	 * @see #faceValueFromBankAccount
+	 * @see #faceValueFromBankAccountDelegate
 	 */
-	public BankAccount getFaceValueFromBankAccount() {
-		return faceValueFromBankAccount;
+	public BankAccountDelegate getFaceValueFromBankAccountDelegate() {
+		return faceValueFromBankAccountDelegate;
 	}
 
 	/**
-	 * @see #faceValueToBankAccount
+	 * @see #faceValueToBankAccountDelegate
 	 */
-	public BankAccount getFaceValueToBankAccount() {
-		return faceValueToBankAccount;
+	public BankAccountDelegate getFaceValueToBankAccountDelegate() {
+		return faceValueToBankAccountDelegate;
 	}
 
 	public Currency getIssuedInCurrency() {
@@ -130,14 +120,14 @@ public abstract class BondImpl extends PropertyImpl implements Bond {
 		this.faceValue = faceValue;
 	}
 
-	public void setFaceValueFromBankAccount(
-			final BankAccount faceValueFromBankAccount) {
-		this.faceValueFromBankAccount = faceValueFromBankAccount;
+	public void setFaceValueFromBankAccountDelegate(
+			final BankAccountDelegate faceValueFromBankAccountDelegate) {
+		this.faceValueFromBankAccountDelegate = faceValueFromBankAccountDelegate;
 	}
 
-	public void setFaceValueToBankAccount(
-			final BankAccount faceValueToBankAccount) {
-		this.faceValueToBankAccount = faceValueToBankAccount;
+	public void setFaceValueToBankAccountDelegate(
+			final BankAccountDelegate faceValueToBankAccountDelegate) {
+		this.faceValueToBankAccountDelegate = faceValueToBankAccountDelegate;
 	}
 
 	public void setIssuedInCurrency(final Currency issuedInCurrency) {
@@ -152,11 +142,20 @@ public abstract class BondImpl extends PropertyImpl implements Bond {
 	 * assertions
 	 */
 
+	@Override
 	protected void assertValidOwner() {
 		assert (this.owner.equals(ApplicationContext.getInstance()
-				.getPropertyRegister().getOwner(BondImpl.this)));
-		assert (this.faceValueToBankAccount == null || this.owner
-				.equals(this.faceValueToBankAccount.getOwner()));
+				.getPropertyService().getOwner(BondImpl.this)));
+		assert (this.faceValueToBankAccountDelegate == null || this.owner
+				.equals(this.faceValueToBankAccountDelegate.getBankAccount()
+						.getOwner()));
+	}
+
+	@Override
+	protected void assertValidIssuer() {
+		super.assertValidIssuer();
+		assert (this.getIssuer() == this.faceValueFromBankAccountDelegate
+				.getBankAccount().getOwner());
 	}
 
 	/*
@@ -173,14 +172,17 @@ public abstract class BondImpl extends PropertyImpl implements Bond {
 					.removeEvent(timeSystemEvent);
 	}
 
-	public Agent getIssuer() {
-		return this.faceValueFromBankAccount.getOwner();
+	@Override
+	@Transient
+	public void resetOwner() {
+		super.resetOwner();
+		this.faceValueToBankAccountDelegate = null;
 	}
 
 	@Transient
 	public String toString() {
 		return this.getClass().getSimpleName() + " [Issuer: "
-				+ this.faceValueFromBankAccount.getOwner() + ", Facevalue: "
+				+ this.getIssuer() + ", Facevalue: "
 				+ Currency.formatMoneySum(this.faceValue) + " "
 				+ this.issuedInCurrency.getIso4217Code() + "]";
 	}
@@ -188,13 +190,19 @@ public abstract class BondImpl extends PropertyImpl implements Bond {
 	public class TransferFaceValueEvent implements ITimeSystemEvent {
 		@Override
 		public void onEvent() {
-			assert (BondImpl.this.faceValueFromBankAccount != null);
+			assert (BondImpl.this.faceValueFromBankAccountDelegate != null);
 			assertValidOwner();
+			assertValidIssuer();
 
-			if (BondImpl.this.faceValueToBankAccount != null) {
-				BondImpl.this.faceValueFromBankAccount.getManagingBank()
-						.transferMoney(BondImpl.this.faceValueFromBankAccount,
-								BondImpl.this.faceValueToBankAccount,
+			if (BondImpl.this.faceValueToBankAccountDelegate != null) {
+				BondImpl.this.faceValueFromBankAccountDelegate
+						.getBankAccount()
+						.getManagingBank()
+						.transferMoney(
+								BondImpl.this.faceValueFromBankAccountDelegate
+										.getBankAccount(),
+								BondImpl.this.faceValueToBankAccountDelegate
+										.getBankAccount(),
 								BondImpl.this.faceValue, "bond face value");
 			}
 			BondImpl.this.deconstruct(); // delete bond from simulation

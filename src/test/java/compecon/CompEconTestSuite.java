@@ -23,16 +23,19 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import compecon.economy.markets.MarketTest;
 import compecon.economy.sectors.financial.BankTest;
-import compecon.engine.AgentFactoryTest;
+import compecon.engine.dao.HouseholdDAOTest;
+import compecon.engine.dao.PropertyDAOTest;
+import compecon.engine.service.AgentServiceTest;
+import compecon.engine.service.MarketServiceTest;
 import compecon.math.CESFunctionTest;
 import compecon.math.CobbDouglasFunctionTest;
 import compecon.math.production.CobbDouglasProductionFunctionTest;
 import compecon.math.utility.CobbDouglasUtilityFunctionTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ AgentFactoryTest.class, MarketTest.class, BankTest.class,
+@SuiteClasses({ HouseholdDAOTest.class, PropertyDAOTest.class,
+		AgentServiceTest.class, MarketServiceTest.class, BankTest.class,
 		CobbDouglasFunctionTest.class, CobbDouglasUtilityFunctionTest.class,
 		CobbDouglasProductionFunctionTest.class, CESFunctionTest.class })
 public class CompEconTestSuite {

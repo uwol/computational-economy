@@ -32,8 +32,8 @@ import compecon.engine.applicationcontext.ApplicationContext;
 public class BankTest extends CompEconTestSupport {
 
 	@Before
-	public void setUp() {
-		super.setUp();
+	public void setUpApplicationContextWithAgents() {
+		super.setUpApplicationContextWithAgents();
 	}
 
 	@After
@@ -50,20 +50,23 @@ public class BankTest extends CompEconTestSupport {
 		Household household2_EUR = ApplicationContext.getInstance()
 				.getHouseholdDAO().findAllByCurrency(currency).get(1);
 
-		assertEquals(0.0, household1_EUR.getBankAccountTransactions()
-				.getBalance(), epsilon);
+		assertEquals(0.0, household1_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getBalance(), epsilon);
 
-		Bank source = household1_EUR.getBankAccountTransactions()
-				.getManagingBank();
-		Bank target = household2_EUR.getBankAccountTransactions()
-				.getManagingBank();
+		Bank source = household1_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getManagingBank();
+		Bank target = household2_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getManagingBank();
 		for (int i = 1; i < 1000; i++) {
-			source.transferMoney(household1_EUR.getBankAccountTransactions(),
-					household2_EUR.getBankAccountTransactions(), 10,
-					"Transaction" + i);
-			assertEquals(-10.0 * i, household1_EUR.getBankAccountTransactions()
+			source.transferMoney(household1_EUR
+					.getBankAccountTransactionsDelegate().getBankAccount(),
+					household2_EUR.getBankAccountTransactionsDelegate()
+							.getBankAccount(), 10, "Transaction" + i);
+			assertEquals(-10.0 * i, household1_EUR
+					.getBankAccountTransactionsDelegate().getBankAccount()
 					.getBalance(), epsilon);
-			assertEquals(10.0 * i, household2_EUR.getBankAccountTransactions()
+			assertEquals(10.0 * i, household2_EUR
+					.getBankAccountTransactionsDelegate().getBankAccount()
 					.getBalance(), epsilon);
 		}
 	}

@@ -17,18 +17,19 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.factory.impl;
+package compecon.engine.service;
 
-import compecon.economy.markets.impl.SettlementMarketImpl;
-import compecon.engine.factory.MarketFactory;
+import compecon.economy.agent.Agent;
+import compecon.economy.sectors.financial.Currency;
 
-public class MarketFactoryImpl implements MarketFactory {
+public interface HardCashService {
+	public double getBalance(final Agent agent, final Currency currency);
 
-	private SettlementMarketImpl market = new SettlementMarketImpl();
+	public double increment(final Agent agent, final Currency currency,
+			final double amount);
 
-	public SettlementMarketImpl getMarket() {
-		if (market == null)
-			market = new SettlementMarketImpl();
-		return market;
-	}
+	public double decrement(final Agent agent, final Currency currency,
+			final double amount);
+
+	public void deregister(final Agent agent);
 }

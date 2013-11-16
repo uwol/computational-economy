@@ -37,6 +37,7 @@ import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -174,17 +175,16 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		if (this.isDeconstructed)
 			return;
 
-		this.assureSelfCustomerAccount();
-
 		if (this.bankAccountTransactions == null) {
 			/*
 			 * initialize the banks own bank account and open a customer account
 			 * at this new bank, so that this bank can transfer money from its
 			 * own bank account
 			 */
-			this.bankAccountTransactions = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency, true, "transactions",
-					TermType.SHORT_TERM, MoneyType.DEPOSITS);
+			this.bankAccountTransactions = this.getPrimaryBank()
+					.openBankAccount(this, this.primaryCurrency, true,
+							"transactions", TermType.SHORT_TERM,
+							MoneyType.DEPOSITS);
 		}
 	}
 
@@ -193,15 +193,13 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		if (this.isDeconstructed)
 			return;
 
-		this.assureSelfCustomerAccount();
-
 		if (this.bankAccountCentralBankMoney == null) {
 			/*
 			 * initialize the banks own bank account and open a customer account
 			 * at this new bank, so that this bank can transfer money from its
 			 * own bank account
 			 */
-			this.bankAccountCentralBankMoney = this.primaryBank
+			this.bankAccountCentralBankMoney = this.getPrimaryBank()
 					.openBankAccount(this, this.primaryCurrency, true,
 							"central bank money", TermType.LONG_TERM,
 							MoneyType.CENTRALBANK_MONEY);
@@ -256,7 +254,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			}
 			customer.onBankCloseBankAccount(bankAccount);
 		}
-		ApplicationContext.getInstance().getBankAccountDAO()
+		ApplicationContext.getInstance().getBankAccountService()
 				.deleteAllBankAccounts(this, customer);
 	}
 
@@ -264,6 +262,18 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	public double getAverageMarginalPriceForGoodType(GoodType goodType) {
 		return this.statisticalOffice
 				.getAverageMarginalPriceForGoodType(goodType);
+	}
+
+	@Transient
+	public BankAccountDelegate getBankAccountCentralBankMoneyDelegate() {
+		final BankAccountDelegate delegate = new BankAccountDelegate() {
+			@Override
+			public BankAccount getBankAccount() {
+				CentralBankImpl.this.assureBankAccountCentralBankMoney();
+				return CentralBankImpl.this.bankAccountCentralBankMoney;
+			}
+		};
+		return delegate;
 	}
 
 	@Transient
@@ -301,11 +311,12 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			moneyReservesBankAccount.deposit(bond.getFaceValue());
 			ApplicationContext
 					.getInstance()
-					.getPropertyRegister()
+					.getPropertyService()
 					.transferProperty(moneyReservesBankAccount.getOwner(),
 							this, bond);
-			bond.setFaceValueToBankAccount(CentralBankImpl.this.bankAccountCentralBankMoney);
-			bond.setCouponToBankAccount(CentralBankImpl.this.bankAccountCentralBankMoney);
+
+			bond.setFaceValueToBankAccountDelegate(getBankAccountCentralBankMoneyDelegate());
+			bond.setCouponToBankAccountDelegate(getBankAccountCentralBankMoneyDelegate());
 
 			if (getLog().isAgentSelectedByClient(
 					moneyReservesBankAccount.getOwner()))
@@ -417,7 +428,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		CreditBank creditBank = (CreditBank) to.getManagingBank();
 		from.withdraw(amount);
-		creditBank.assureBankAccountCentralBankTransactions();
 		creditBank.deposit(to, amount);
 
 		assert (fromBalanceBefore - amount == from.getBalance());
@@ -498,7 +508,8 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 						.findByCurrency(primaryCurrency);
 				CentralBankImpl.this.transferMoney(
 						CentralBankImpl.this.bankAccountTransactions, state
-								.getBankAccountTransactions(),
+								.getBankAccountTransactionsDelegate()
+								.getBankAccount(),
 						CentralBankImpl.this.bankAccountTransactions
 								.getBalance(), "national interest");
 			}
@@ -653,8 +664,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 				// fetch and store current price for this good type
 				double marginalPriceForGoodType = ApplicationContext
 						.getInstance()
-						.getMarketFactory()
-						.getMarket()
+						.getMarketService()
 						.getPrice(CentralBankImpl.this.primaryCurrency,
 								entry.getKey());
 

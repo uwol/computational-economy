@@ -17,15 +17,29 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.property;
+package compecon.engine.service;
 
 import java.util.List;
 import java.util.Map;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.property.Property;
+import compecon.economy.sectors.financial.BankAccountDelegate;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.security.debt.FixedRateBond;
+import compecon.economy.security.equity.JointStockCompany;
+import compecon.economy.security.equity.Share;
 import compecon.materia.GoodType;
 
-public interface PropertyRegister {
+public interface PropertyService {
+
+	/**
+	 * @see #incrementGoodTypeAmount(Agent, GoodType, double)
+	 */
+	public double decrementGoodTypeAmount(Agent propertyOwner,
+			GoodType goodType, double amount);
+
+	public void deleteProperty(final Property property);
 
 	public double getBalance(Agent agent, GoodType goodType);
 
@@ -38,11 +52,20 @@ public interface PropertyRegister {
 	public List<Property> getProperties(Agent agent,
 			Class<? extends Property> propertyClass);
 
+	/**
+	 * @see #decrementGoodTypeAmount(Agent, GoodType, double)
+	 */
 	public double incrementGoodTypeAmount(Agent propertyOwner,
 			GoodType goodType, double amount);
 
-	public double decrementGoodTypeAmount(Agent propertyOwner,
-			GoodType goodType, double amount);
+	public FixedRateBond newInstanceFixedRateBond(final Agent owner,
+			final Agent issuer, final Currency currency,
+			final BankAccountDelegate faceValueFromBankAccountDelegate,
+			final BankAccountDelegate couponFromBankAccountDelegate,
+			final double faceValue, final double coupon);
+
+	public Share newInstanceShare(final Agent owner,
+			final JointStockCompany issuer);
 
 	public void resetGoodTypeAmount(Agent propertyOwner, GoodType goodType);
 

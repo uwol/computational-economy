@@ -27,5 +27,7 @@ public interface Property {
 
 	public Agent getOwner();
 
+	public void resetOwner();
+
 	public void setOwner(Agent owner);
 }

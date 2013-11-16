@@ -35,7 +35,6 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -45,13 +44,14 @@ import org.hibernate.annotations.Index;
 import compecon.economy.agent.Agent;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyIssued;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
-import compecon.economy.sectors.financial.impl.BankImpl;
 import compecon.economy.security.debt.Bond;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
@@ -86,11 +86,6 @@ public abstract class AgentImpl implements Agent {
 	@Enumerated(EnumType.STRING)
 	@Index(name = "IDX_A_PRIMARYCURRENCY")
 	protected Currency primaryCurrency;
-
-	@ManyToOne(targetEntity = BankImpl.class)
-	@JoinColumn(name = "primaryBank_id")
-	@Index(name = "IDX_A_PRIMARYBANK")
-	protected Bank primaryBank;
 
 	/**
 	 * maxCredit limits the demand for money when buying production input
@@ -129,34 +124,42 @@ public abstract class AgentImpl implements Agent {
 		getLog().agent_onDeconstruct(this);
 
 		// deregister from time system
-		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
+		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents) {
 			ApplicationContext.getInstance().getTimeSystem()
 					.removeEvent(timeSystemEvent);
-
-		// remove selling offers from primary market
-		ApplicationContext.getInstance().getMarketFactory().getMarket()
-				.removeAllSellingOffers(this);
-
-		// deregister from poperty register
-		ApplicationContext.getInstance().getPropertyRegister()
-				.transferEverythingToRandomAgent(this);
-
-		// deregister from cash register
-		ApplicationContext.getInstance().getHardCashRegister().deregister(this);
-
-		// deregister from banks
-		if (this.bankAccountTransactions != null) {
-			this.bankAccountTransactions.getManagingBank()
-					.closeCustomerAccount(this);
 		}
-
-		this.primaryBank = null;
-		this.bankAccountTransactions = null;
 		this.timeSystemEvents = null;
 
-		ApplicationContext.getInstance().getAgentFactory().deleteAgent(this);
-		// no flush here, as calling deconstruct methods might necessiate
-		// further cleanup actions / current state might not be consistent
+		// remove selling offers from market
+		ApplicationContext.getInstance().getMarketService()
+				.removeAllSellingOffers(this);
+
+		// delete properties issued by this agent
+		for (PropertyIssued propertyIssued : ApplicationContext.getInstance()
+				.getPropertyDAO().findAllPropertiesIssuedByAgent(this)) {
+			ApplicationContext.getInstance().getPropertyService()
+					.deleteProperty(propertyIssued);
+		}
+
+		// deregister from property register
+		ApplicationContext.getInstance().getPropertyService()
+				.transferEverythingToRandomAgent(this);
+
+		// close bank accounts
+		for (BankAccount bankAccount : ApplicationContext.getInstance()
+				.getBankAccountDAO().findAllBankAccountsOfAgent(this)) {
+			if (bankAccount.getOwner() == this) {
+				bankAccount.getManagingBank().closeCustomerAccount(this);
+			}
+		}
+
+		assert (ApplicationContext.getInstance().getBankAccountDAO()
+				.findAllBankAccountsOfAgent(this).size() == 0);
+
+		// deregister from cash register
+		ApplicationContext.getInstance().getHardCashService().deregister(this);
+
+		ApplicationContext.getInstance().getAgentService().deleteAgent(this);
 	}
 
 	/*
@@ -177,10 +180,6 @@ public abstract class AgentImpl implements Agent {
 
 	public Set<ITimeSystemEvent> getTimeSystemEvents() {
 		return timeSystemEvents;
-	}
-
-	public Bank getPrimaryBank() {
-		return primaryBank;
 	}
 
 	public Currency getPrimaryCurrency() {
@@ -208,10 +207,6 @@ public abstract class AgentImpl implements Agent {
 		this.timeSystemEvents = timeSystemEvents;
 	}
 
-	public void setPrimaryBank(final Bank primaryBank) {
-		this.primaryBank = primaryBank;
-	}
-
 	public void setPrimaryCurrency(final Currency primaryCurrency) {
 		this.primaryCurrency = primaryCurrency;
 	}
@@ -225,29 +220,18 @@ public abstract class AgentImpl implements Agent {
 	 */
 
 	@Transient
-	public void assureBankAccountTransactions() {
+	protected void assureBankAccountTransactions() {
 		if (this.isDeconstructed)
 			return;
-
-		this.assureBankCustomerAccount();
 
 		// initialize bank account
 		if (this.bankAccountTransactions == null) {
-			this.bankAccountTransactions = this.primaryBank.openBankAccount(
-					this, this.primaryCurrency, true, "transactions",
-					TermType.SHORT_TERM, MoneyType.DEPOSITS);
-		}
-	}
-
-	@Transient
-	public void assureBankCustomerAccount() {
-		if (this.isDeconstructed)
-			return;
-
-		if (this.primaryBank == null) {
-			this.primaryBank = ApplicationContext.getInstance()
-					.getAgentFactory()
+			final Bank randomBank = ApplicationContext.getInstance()
+					.getAgentService()
 					.getRandomInstanceCreditBank(this.primaryCurrency);
+			this.bankAccountTransactions = randomBank.openBankAccount(this,
+					this.primaryCurrency, true, "transactions",
+					TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
@@ -258,6 +242,24 @@ public abstract class AgentImpl implements Agent {
 	@Transient
 	protected Log getLog() {
 		return ApplicationContext.getInstance().getLog();
+	}
+
+	@Transient
+	protected Bank getPrimaryBank() {
+		this.assureBankAccountTransactions();
+		return this.bankAccountTransactions.getManagingBank();
+	}
+
+	@Transient
+	public BankAccountDelegate getBankAccountTransactionsDelegate() {
+		final BankAccountDelegate delegate = new BankAccountDelegate() {
+			@Override
+			public BankAccount getBankAccount() {
+				AgentImpl.this.assureBankAccountTransactions();
+				return AgentImpl.this.bankAccountTransactions;
+			}
+		};
+		return delegate;
 	}
 
 	@Transient
@@ -275,25 +277,25 @@ public abstract class AgentImpl implements Agent {
 		// hard cash
 		// TODO convert other currencies
 		balanceSheet.hardCash = ApplicationContext.getInstance()
-				.getHardCashRegister().getBalance(this, referenceCurrency);
+				.getHardCashService().getBalance(this, referenceCurrency);
 
 		// bank deposits
 		balanceSheet.addBankAccountBalance(this.bankAccountTransactions);
 
 		// bonds
 		for (Property property : ApplicationContext.getInstance()
-				.getPropertyRegister().getProperties(this)) {
+				.getPropertyService().getProperties(this)) {
 			if (property instanceof Bond) {
 				Bond bond = ((Bond) property);
 				assert (bond.getOwner() == this);
 
 				if (bond.isDeconstructed()) {
-					ApplicationContext.getInstance().getPropertyFactory()
+					ApplicationContext.getInstance().getPropertyService()
 							.deleteProperty(bond);
 				} else {
-					// important, so that agents do not count bonds that have
-					// not been sold, yet
-					if (bond.getFaceValueFromBankAccount().getOwner() != this) {
+					if (bond.getIssuer() != this) {
+						// important, so that agents do not count bonds that
+						// have not been sold, yet
 						balanceSheet.bonds += ((Bond) property).getFaceValue();
 					}
 				}
@@ -302,10 +304,9 @@ public abstract class AgentImpl implements Agent {
 
 		// inventory by value
 		final Map<GoodType, Double> prices = ApplicationContext.getInstance()
-				.getMarketFactory().getMarket().getPrices(this.primaryCurrency);
+				.getMarketService().getPrices(this.primaryCurrency);
 		for (Entry<GoodType, Double> balanceEntry : ApplicationContext
-				.getInstance().getPropertyRegister().getBalance(this)
-				.entrySet()) {
+				.getInstance().getPropertyService().getBalance(this).entrySet()) {
 			GoodType goodType = balanceEntry.getKey();
 			double amount = balanceEntry.getValue();
 			double price = prices.get(goodType);
@@ -316,7 +317,7 @@ public abstract class AgentImpl implements Agent {
 
 		// inventory by amount
 		balanceSheet.inventoryQuantitative.putAll(ApplicationContext
-				.getInstance().getPropertyRegister().getBalance(this));
+				.getInstance().getPropertyService().getBalance(this));
 
 		return balanceSheet;
 	}
@@ -327,8 +328,9 @@ public abstract class AgentImpl implements Agent {
 	 */
 	@Transient
 	public void onBankCloseBankAccount(BankAccount bankAccount) {
-		if (this.bankAccountTransactions == bankAccount)
+		if (this.bankAccountTransactions == bankAccount) {
 			this.bankAccountTransactions = null;
+		}
 	}
 
 	@Override

@@ -19,11 +19,13 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.security.equity;
 
-import compecon.economy.property.Property;
+import compecon.economy.property.PropertyIssued;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 
-public interface Share extends Property {
+public interface Share extends PropertyIssued {
 
-	public JointStockCompany getJointStockCompany();
+	public BankAccountDelegate getDividendBankAccountDelegate();
 
-	public void setJointStockCompany(JointStockCompany jointStockCompany);
+	public void setDividendBankAccountDelegate(
+			BankAccountDelegate dividendBankAccountDelegate);
 }

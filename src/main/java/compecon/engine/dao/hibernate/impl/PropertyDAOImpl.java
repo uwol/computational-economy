@@ -25,16 +25,44 @@ import org.hibernate.criterion.Restrictions;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyIssued;
 import compecon.economy.property.impl.PropertyImpl;
+import compecon.economy.property.impl.PropertyIssuedImpl;
 import compecon.engine.dao.PropertyDAO;
 
-public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements PropertyDAO {
+public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements
+		PropertyDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Property> findAllByAgent(Agent agent) {
+	public List<Property> findAllPropertiesOfAgent(Agent agent) {
 		return (List<Property>) getSession().createCriteria(PropertyImpl.class)
 				.add(Restrictions.eq("owner", agent)).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Property> findAllPropertiesOfAgent(Agent agent,
+			Class<? extends Property> propertyClass) {
+		return (List<Property>) getSession().createCriteria(propertyClass)
+				.add(Restrictions.eq("owner", agent)).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer) {
+		return (List<PropertyIssued>) getSession()
+				.createCriteria(PropertyIssuedImpl.class)
+				.add(Restrictions.eq("issuer", issuer)).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer,
+			Class<? extends PropertyIssued> propertyClass) {
+		return (List<PropertyIssued>) getSession()
+				.createCriteria(propertyClass)
+				.add(Restrictions.eq("issuer", issuer)).list();
 	}
 
 	@Override
@@ -42,5 +70,4 @@ public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements Prope
 			Property property) {
 		property.setOwner(newOwner);
 	}
-
 }

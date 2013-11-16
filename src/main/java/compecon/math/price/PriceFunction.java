@@ -31,7 +31,7 @@ public interface PriceFunction {
 	 * = coefficientXPower0 + coefficientXPowerMinus1 / x <br />
 	 * | x in [intervalLeftBoundary, intervalRightBoundary]
 	 * 
-	 * @see compecon.economy.markets.impl.MarketImpl#getAnalyticalPriceFunctionConfigs(Currency,
+	 * @see compecon.engine.service.impl.MarketServiceImpl#getAnalyticalPriceFunctionConfigs(Currency,
 	 *      GoodType, double)
 	 */
 	public class PriceFunctionConfig {

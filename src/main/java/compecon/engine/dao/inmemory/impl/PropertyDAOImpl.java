@@ -24,21 +24,67 @@ import java.util.List;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyIssued;
 import compecon.engine.dao.PropertyDAO;
 
-public class PropertyDAOImpl extends AgentIndexedInMemoryDAOImpl<Property> implements
-		PropertyDAO {
+public class PropertyDAOImpl extends
+		AgentDoubleIndexedInMemoryDAOImpl<Property> implements PropertyDAO {
 
 	@Override
-	public synchronized List<Property> findAllByAgent(Agent agent) {
-		if (this.getInstancesForAgent(agent) != null)
-			return new ArrayList<Property>(this.getInstancesForAgent(agent));
+	public synchronized List<Property> findAllPropertiesOfAgent(Agent agent) {
+		if (this.getInstancesForFirstAgent(agent) != null)
+			return new ArrayList<Property>(
+					this.getInstancesForFirstAgent(agent));
 		return new ArrayList<Property>();
 	}
 
 	@Override
+	public List<Property> findAllPropertiesOfAgent(Agent agent,
+			Class<? extends Property> propertyClass) {
+		final List<Property> propertiesOfClass = new ArrayList<Property>();
+		for (Property property : this.findAllPropertiesOfAgent(agent)) {
+			if (propertyClass.isAssignableFrom(property.getClass())) {
+				propertiesOfClass.add(property);
+			}
+		}
+		return propertiesOfClass;
+	}
+
+	@Override
+	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer) {
+		final List<PropertyIssued> propertiesIssuedByAgent = new ArrayList<PropertyIssued>();
+		if (this.getInstancesForSecondAgent(issuer) != null) {
+			for (Property property : this.getInstancesForSecondAgent(issuer)) {
+				if (property instanceof PropertyIssued) {
+					PropertyIssued propertyIssued = (PropertyIssued) property;
+					assert (propertyIssued.getIssuer() == issuer);
+					propertiesIssuedByAgent.add((PropertyIssued) property);
+				}
+			}
+		}
+		return propertiesIssuedByAgent;
+	}
+
+	@Override
+	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer,
+			Class<? extends PropertyIssued> propertyClass) {
+		final List<PropertyIssued> propertiesIssuedByAgent = new ArrayList<PropertyIssued>();
+		for (PropertyIssued propertyIssued : this
+				.findAllPropertiesIssuedByAgent(issuer)) {
+			if (propertyClass.isAssignableFrom(propertyIssued.getClass())) {
+				propertiesIssuedByAgent.add(propertyIssued);
+			}
+		}
+		return propertiesIssuedByAgent;
+	}
+
+	@Override
 	public synchronized void save(Property property) {
-		super.save(property.getOwner(), property);
+		if (property instanceof PropertyIssued)
+			super.save(property.getOwner(),
+					((PropertyIssued) property).getIssuer(), property);
+		else
+			super.save(property.getOwner(), property);
 	}
 
 	@Override
@@ -48,6 +94,6 @@ public class PropertyDAOImpl extends AgentIndexedInMemoryDAOImpl<Property> imple
 		// agent-property-index is updated
 		this.delete(property);
 		property.setOwner(newOwner);
-		this.save(newOwner, property);
+		this.save(property);
 	}
 }

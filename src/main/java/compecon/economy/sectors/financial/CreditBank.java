@@ -19,26 +19,21 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.sectors.financial;
 
-import java.util.Map;
-
 import compecon.economy.agent.Agent;
 
 public interface CreditBank extends Bank {
-
-	public void assureBankAccountCentralBankMoneyReserves();
-
-	public void assureBankAccountCentralBankTransactions();
-
-	public void assureBankAccountTransactions();
-
-	public void assureBankAccountsCurrencyTrade();
 
 	public void deposit(BankAccount bankAccount, double amount);
 
 	public void depositCash(Agent client, BankAccount to, double amount,
 			Currency currency);
 
-	public Map<Currency, BankAccount> getBankAccountsCurrencyTrade();
+	public BankAccountDelegate getBankAccountCentralBankMoneyReservesDelegate();
+
+	public BankAccountDelegate getBankAccountCentralBankTransactionsDelegate();
+
+	public BankAccountDelegate getBankAccountCurrencyTradeDelegate(
+			final Currency currency);
 
 	public void withdraw(BankAccount bankAccount, double amount);
 

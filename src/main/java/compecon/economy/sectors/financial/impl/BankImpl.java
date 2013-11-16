@@ -37,6 +37,7 @@ import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
@@ -62,19 +63,19 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 
 	@Override
 	public void deconstruct() {
-		super.deconstruct();
+		this.isDeconstructed = true;
 
-		for (Agent agent : new ArrayList<Agent>(this.getCustomers())) {
+		final List<Agent> customers = new ArrayList<Agent>(this.getCustomers());
+		for (Agent agent : customers) {
 			// implicitly deletes the associated bank accounts
 			this.closeCustomerAccount(agent);
 		}
 
-		this.bankAccountBondLoan = null;
-		this.bankAccountInterestTransactions = null;
-
-		// important so that this bank is removed from the DAOs index
-		ApplicationContext.getInstance().getBankAccountDAO()
+		// mandatory, so that this bank is removed from the DAOs index structure
+		ApplicationContext.getInstance().getBankAccountService()
 				.deleteAllBankAccounts(this);
+
+		super.deconstruct();
 	}
 
 	/*
@@ -113,16 +114,14 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 		if (this.isDeconstructed)
 			return;
 
-		this.assureSelfCustomerAccount();
-
 		if (this.bankAccountBondLoan == null) {
 			/*
 			 * initialize the banks own bank account and open a customer account
 			 * at this new bank, so that this bank can transfer money from its
 			 * own bank account
 			 */
-			this.bankAccountBondLoan = this.primaryBank.openBankAccount(this,
-					this.primaryCurrency, true, "bond loans",
+			this.bankAccountBondLoan = this.getPrimaryBank().openBankAccount(
+					this, this.primaryCurrency, true, "bond loans",
 					TermType.LONG_TERM, MoneyType.DEPOSITS);
 		}
 	}
@@ -132,28 +131,16 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 		if (this.isDeconstructed)
 			return;
 
-		this.assureSelfCustomerAccount();
-
 		if (this.bankAccountInterestTransactions == null) {
 			/*
 			 * initialize the banks own bank account and open a customer account
 			 * at this new bank, so that this bank can transfer money from its
 			 * own bank account
 			 */
-			this.bankAccountInterestTransactions = this.primaryBank
+			this.bankAccountInterestTransactions = this.getPrimaryBank()
 					.openBankAccount(this, this.primaryCurrency, true,
 							"interest transactions", TermType.SHORT_TERM,
 							MoneyType.DEPOSITS);
-		}
-	}
-
-	@Transient
-	public void assureSelfCustomerAccount() {
-		if (this.isDeconstructed)
-			return;
-
-		if (this.primaryBank == null) {
-			this.primaryBank = this;
 		}
 	}
 
@@ -178,17 +165,28 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	 */
 
 	@Transient
-	public Set<Agent> getCustomers() {
-		final Set<Agent> customers = new HashSet<Agent>();
-		for (BankAccount bankAccount : ApplicationContext.getInstance()
-				.getBankAccountDAO().findAllBankAccountsManagedByBank(this)) {
-			customers.add(bankAccount.getOwner());
-		}
-		return customers;
+	public BankAccountDelegate getBankAccountBondLoanDelegate() {
+		final BankAccountDelegate delegate = new BankAccountDelegate() {
+			@Override
+			public BankAccount getBankAccount() {
+				BankImpl.this.assureBankAccountBondLoan();
+				return BankImpl.this.bankAccountBondLoan;
+			}
+		};
+		return delegate;
 	}
 
 	@Transient
-	public abstract void closeCustomerAccount(final Agent customer);
+	public BankAccountDelegate getBankAccountInterestTransactionsDelegate() {
+		final BankAccountDelegate delegate = new BankAccountDelegate() {
+			@Override
+			public BankAccount getBankAccount() {
+				BankImpl.this.assureBankAccountInterestTransactions();
+				return BankImpl.this.bankAccountInterestTransactions;
+			}
+		};
+		return delegate;
+	}
 
 	@Transient
 	public List<BankAccount> getBankAccounts(final Agent customer) {
@@ -201,6 +199,21 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 			final Currency currency) {
 		return ApplicationContext.getInstance().getBankAccountDAO()
 				.findAll(this, customer, currency);
+	}
+
+	@Transient
+	public Set<Agent> getCustomers() {
+		final Set<Agent> customers = new HashSet<Agent>();
+		for (BankAccount bankAccount : ApplicationContext.getInstance()
+				.getBankAccountDAO().findAllBankAccountsManagedByBank(this)) {
+			customers.add(bankAccount.getOwner());
+		}
+		return customers;
+	}
+
+	@Transient
+	protected Bank getPrimaryBank() {
+		return this;
 	}
 
 	@Override
@@ -255,17 +268,14 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 			final Currency currency, final boolean overdraftPossible,
 			final String name, final TermType termType,
 			final MoneyType moneyType) {
+		assert (!this.isDeconstructed());
 		this.assertCurrencyIsOffered(currency);
 
 		final BankAccount bankAccount = ApplicationContext
 				.getInstance()
-				.getBankAccountFactory()
+				.getBankAccountService()
 				.newInstanceBankAccount(customer, currency, overdraftPossible,
 						this, name, termType, moneyType);
 		return bankAccount;
 	}
-
-	@Transient
-	public abstract void transferMoney(final BankAccount from,
-			final BankAccount to, final double amount, final String subject);
 }

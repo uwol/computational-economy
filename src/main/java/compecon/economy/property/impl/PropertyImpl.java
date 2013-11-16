@@ -65,9 +65,6 @@ public abstract class PropertyImpl implements Property {
 	@JoinColumn(name = "owner_id")
 	protected Agent owner;
 
-	public void initialize() {
-	}
-
 	/*
 	 * accessors
 	 */
@@ -105,9 +102,22 @@ public abstract class PropertyImpl implements Property {
 	 */
 
 	@Transient
+	protected void assertValidOwner() {
+	}
+
+	@Transient
 	protected void deconstruct() {
 		this.isDeconstructed = true;
-		ApplicationContext.getInstance().getPropertyFactory()
+		ApplicationContext.getInstance().getPropertyService()
 				.deleteProperty(this);
+	}
+
+	@Transient
+	public void initialize() {
+	}
+
+	@Transient
+	public void resetOwner() {
+		this.owner = null;
 	}
 }

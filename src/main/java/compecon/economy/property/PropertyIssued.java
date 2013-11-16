@@ -17,22 +17,13 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.markets;
+package compecon.economy.property;
 
-import compecon.economy.property.Property;
-import compecon.economy.sectors.financial.Currency;
-import compecon.materia.GoodType;
+import compecon.economy.agent.Agent;
 
-public interface SettlementMarket extends Market {
+public interface PropertyIssued extends Property {
 
-	public interface ISettlementEvent {
-		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit, Currency currency);
+	public Agent getIssuer();
 
-		public void onEvent(Currency commodityCurrency, double amount,
-				double pricePerUnit, Currency currency);
-
-		public void onEvent(Property property, double pricePerUnit,
-				Currency currency);
-	}
+	public void setIssuer(Agent issuer);
 }

@@ -375,7 +375,7 @@ public class ModelRegistry {
 
 		/**
 		 * total utility sum of all periods; measurement starts after
-		 * initialization phase; FIXME double overflow possible, group
+		 * initialization phase; TODO double overflow possible, group
 		 * statistical models that are filled after initialization phase
 		 */
 		public final PeriodDataAccumulatorTimeSeriesModel totalUtilityOutputModel;

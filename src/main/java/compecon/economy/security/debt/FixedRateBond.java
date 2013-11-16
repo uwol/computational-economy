@@ -19,19 +19,21 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.security.debt;
 
-import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 
 public interface FixedRateBond extends Bond {
 
 	public double getCoupon();
 
-	public BankAccount getCouponFromBankAccount();
+	public BankAccountDelegate getCouponFromBankAccountDelegate();
 
-	public BankAccount getCouponToBankAccount();
+	public BankAccountDelegate getCouponToBankAccountDelegate();
 
 	public void setCoupon(final double coupon);
 
-	public void setCouponFromBankAccount(final BankAccount couponFromBankAccount);
+	public void setCouponFromBankAccountDelegate(
+			final BankAccountDelegate couponFromBankAccountDelegate);
 
-	public void setCouponToBankAccount(final BankAccount couponToBankAccount);
+	public void setCouponToBankAccountDelegate(
+			final BankAccountDelegate couponToBankAccountDelegate);
 }

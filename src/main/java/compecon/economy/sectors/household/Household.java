@@ -26,8 +26,6 @@ import compecon.math.utility.UtilityFunction;
 
 public interface Household extends Agent {
 
-	public void assureBankAccountSavings();
-
 	public void setAgeInDays(int ageInDays);
 
 	public void setIntertemporalConsumptionFunction(

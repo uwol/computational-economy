@@ -125,7 +125,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 	public Map<GoodType, Double> getGoodsOfCurrentAgent() {
 		Agent agent = getLog().getAgentSelectedByClient();
 		if (agent != null)
-			return ApplicationContext.getInstance().getPropertyRegister()
+			return ApplicationContext.getInstance().getPropertyService()
 					.getBalance(agent);
 		return new HashMap<GoodType, Double>();
 	}
@@ -133,7 +133,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 	public List<Property> getPropertiesOfCurrentAgent() {
 		Agent agent = getLog().getAgentSelectedByClient();
 		if (agent != null)
-			return ApplicationContext.getInstance().getPropertyRegister()
+			return ApplicationContext.getInstance().getPropertyService()
 					.getProperties(agent);
 		return new ArrayList<Property>();
 	}

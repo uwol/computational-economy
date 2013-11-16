@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine;
+package compecon.engine.service;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,11 +29,11 @@ import compecon.CompEconTestSupport;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 
-public class AgentFactoryTest extends CompEconTestSupport {
+public class AgentServiceTest extends CompEconTestSupport {
 
 	@Before
-	public void setUp() {
-		super.setUp();
+	public void setUpApplicationContextWithAgents() {
+		super.setUpApplicationContextWithAgents();
 	}
 
 	@After

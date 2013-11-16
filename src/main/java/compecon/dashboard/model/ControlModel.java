@@ -30,7 +30,7 @@ public class ControlModel extends NotificationListenerModel {
 
 	public void initEconomicGrowth(final Currency currency) {
 		final List<Factory> factories = ApplicationContext.getInstance()
-				.getAgentFactory().getAllFactories();
+				.getAgentService().getAllFactories();
 		for (Factory factory : factories) {
 			if (currency.equals(factory.getPrimaryCurrency())) {
 				double productivity = factory.getProductionFunction()
@@ -43,13 +43,13 @@ public class ControlModel extends NotificationListenerModel {
 
 	public void initHouseholds(final Currency currency) {
 		for (int i = 0; i < 100; i++) {
-			ApplicationContext.getInstance().getAgentFactory()
+			ApplicationContext.getInstance().getAgentService()
 					.newInstanceHousehold(currency);
 		}
 	}
 
 	public void deficitSpending(final Currency currency) {
-		ApplicationContext.getInstance().getAgentFactory()
+		ApplicationContext.getInstance().getAgentService()
 				.getInstanceState(currency).doDeficitSpending();
 	}
 }

@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.Set;
 
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.Currency;
 import compecon.economy.security.equity.Share;
 import compecon.materia.GoodType;
 
@@ -133,12 +133,15 @@ public class BalanceSheetDTO {
 	}
 
 	public void addBankAccountBalance(final BankAccount bankAccount) {
-		if (bankAccount.getBalance() > 0.0) {
-			this.addCash(bankAccount.getMoneyType(), bankAccount.getTermType(),
-					bankAccount.getBalance());
-		} else {
-			this.addLoan(bankAccount.getMoneyType(), bankAccount.getTermType(),
-					-1.0 * bankAccount.getBalance());
+		if (bankAccount != null) {
+			if (bankAccount.getBalance() > 0.0) {
+				this.addCash(bankAccount.getMoneyType(),
+						bankAccount.getTermType(), bankAccount.getBalance());
+			} else {
+				this.addLoan(bankAccount.getMoneyType(),
+						bankAccount.getTermType(),
+						-1.0 * bankAccount.getBalance());
+			}
 		}
 	}
 

@@ -33,8 +33,8 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.MarketOrderDAO;
 import compecon.materia.GoodType;
 
-public class MarketOrderDAOImpl extends AgentIndexedInMemoryDAOImpl<MarketOrder>
-		implements MarketOrderDAO {
+public class MarketOrderDAOImpl extends
+		AgentIndexedInMemoryDAOImpl<MarketOrder> implements MarketOrderDAO {
 
 	protected Map<Currency, Map<GoodType, SortedSet<MarketOrder>>> marketOrdersForGoodTypes = new HashMap<Currency, Map<GoodType, SortedSet<MarketOrder>>>();
 
@@ -123,8 +123,7 @@ public class MarketOrderDAOImpl extends AgentIndexedInMemoryDAOImpl<MarketOrder>
 		SortedSet<MarketOrder> marketOrders = new TreeSet<MarketOrder>();
 		if (this.getInstancesForAgent(agent) != null) {
 			for (MarketOrder marketOrder : this.getInstancesForAgent(agent))
-				if (currency.equals(marketOrder.getOfferorsBankAcount()
-						.getCurrency())
+				if (currency.equals(marketOrder.getCurrency())
 						&& goodType.equals(marketOrder.getGoodType()))
 					marketOrders.add(marketOrder);
 		}
@@ -136,8 +135,7 @@ public class MarketOrderDAOImpl extends AgentIndexedInMemoryDAOImpl<MarketOrder>
 		SortedSet<MarketOrder> marketOrders = new TreeSet<MarketOrder>();
 		if (this.getInstancesForAgent(agent) != null) {
 			for (MarketOrder marketOrder : this.getInstancesForAgent(agent))
-				if (currency.equals(marketOrder.getOfferorsBankAcount()
-						.getCurrency())
+				if (currency.equals(marketOrder.getCurrency())
 						&& commodityCurrency.equals(marketOrder
 								.getCommodityCurrency()))
 					marketOrders.add(marketOrder);
@@ -150,8 +148,7 @@ public class MarketOrderDAOImpl extends AgentIndexedInMemoryDAOImpl<MarketOrder>
 		SortedSet<MarketOrder> marketOrders = new TreeSet<MarketOrder>();
 		if (this.getInstancesForAgent(agent) != null) {
 			for (MarketOrder marketOrder : this.getInstancesForAgent(agent))
-				if (currency.equals(marketOrder.getOfferorsBankAcount()
-						.getCurrency())
+				if (currency.equals(marketOrder.getCurrency())
 						&& marketOrder.getProperty() != null
 						&& propertyClass.equals(marketOrder.getProperty()
 								.getClass()))
@@ -167,20 +164,17 @@ public class MarketOrderDAOImpl extends AgentIndexedInMemoryDAOImpl<MarketOrder>
 	@Override
 	public synchronized void save(MarketOrder marketOrder) {
 		if (marketOrder.getGoodType() != null) {
-			this.getMarketOrders(
-					marketOrder.getOfferorsBankAcount().getCurrency(),
+			this.getMarketOrders(marketOrder.getCurrency(),
 					marketOrder.getGoodType()).add(marketOrder);
 		}
 
 		if (marketOrder.getCommodityCurrency() != null) {
-			this.getMarketOrders(
-					marketOrder.getOfferorsBankAcount().getCurrency(),
+			this.getMarketOrders(marketOrder.getCurrency(),
 					marketOrder.getCommodityCurrency()).add(marketOrder);
 		}
 
 		if (marketOrder.getProperty() != null) {
-			this.getMarketOrders(
-					marketOrder.getOfferorsBankAcount().getCurrency(),
+			this.getMarketOrders(marketOrder.getCurrency(),
 					marketOrder.getProperty().getClass()).add(marketOrder);
 		}
 
@@ -190,20 +184,17 @@ public class MarketOrderDAOImpl extends AgentIndexedInMemoryDAOImpl<MarketOrder>
 	@Override
 	public synchronized void delete(MarketOrder marketOrder) {
 		if (marketOrder.getGoodType() != null) {
-			this.getMarketOrders(
-					marketOrder.getOfferorsBankAcount().getCurrency(),
+			this.getMarketOrders(marketOrder.getCurrency(),
 					marketOrder.getGoodType()).remove(marketOrder);
 		}
 
 		if (marketOrder.getCommodityCurrency() != null) {
-			this.getMarketOrders(
-					marketOrder.getOfferorsBankAcount().getCurrency(),
+			this.getMarketOrders(marketOrder.getCurrency(),
 					marketOrder.getCommodityCurrency()).remove(marketOrder);
 		}
 
 		if (marketOrder.getProperty() != null) {
-			this.getMarketOrders(
-					marketOrder.getOfferorsBankAcount().getCurrency(),
+			this.getMarketOrders(marketOrder.getCurrency(),
 					marketOrder.getProperty().getClass()).remove(marketOrder);
 		}
 

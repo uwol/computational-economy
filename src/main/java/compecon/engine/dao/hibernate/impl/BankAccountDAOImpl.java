@@ -30,24 +30,19 @@ import compecon.engine.dao.BankAccountDAO;
 public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 		BankAccountDAO {
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllBankAccounts(Bank managingBank) {
-		String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank";
-		List<BankAccount> bankAccounts = getSession().createQuery(hql)
-				.setEntity("managingBank", managingBank).list();
+		final List<BankAccount> bankAccounts = this
+				.findAllBankAccountsManagedByBank(managingBank);
 		for (BankAccount bankAccount : bankAccounts) {
 			this.delete(bankAccount);
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllBankAccounts(Bank managingBank, Agent owner) {
-		String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank AND ba.owner = :owner";
-		List<BankAccount> bankAccounts = getSession().createQuery(hql)
-				.setEntity("managingBank", managingBank)
-				.setEntity("owner", owner).list();
+		final List<BankAccount> bankAccounts = this
+				.findAll(managingBank, owner);
 		for (BankAccount bankAccount : bankAccounts) {
 			this.delete(bankAccount);
 		}

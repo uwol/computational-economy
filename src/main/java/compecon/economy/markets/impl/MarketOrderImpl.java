@@ -38,9 +38,8 @@ import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.markets.MarketOrder;
 import compecon.economy.property.Property;
 import compecon.economy.property.impl.PropertyImpl;
-import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.materia.GoodType;
 
 /**
@@ -49,7 +48,6 @@ import compecon.materia.GoodType;
 @Entity
 @Table(name = "MarketOrder")
 @org.hibernate.annotations.Table(appliesTo = "MarketOrder", indexes = {
-		@Index(name = "IDX_MO_OFFERORSBANKACCOUNT", columnNames = "offerorsBankAcount_id"),
 		@Index(name = "IDX_MO_GP", columnNames = { "goodType", "pricePerUnit" }),
 		@Index(name = "IDX_MO_CP", columnNames = { "commodityCurrency",
 				"pricePerUnit" }) })
@@ -57,6 +55,11 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 
 	@Column(name = "amount")
 	protected double amount;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "currency")
+	@Index(name = "IDX_MO_CURRENCY")
+	protected Currency currency;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
@@ -66,9 +69,8 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	@JoinColumn(name = "offeror_id")
 	protected Agent offeror;
 
-	@ManyToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "offerorsBankAcount_id")
-	protected BankAccount offerorsBankAcount;
+	@Transient
+	protected BankAccountDelegate offerorsBankAcountDelegate;
 
 	@Column(name = "pricePerUnit")
 	protected double pricePerUnit;
@@ -89,9 +91,8 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	@Enumerated(EnumType.STRING)
 	protected Currency commodityCurrency;
 
-	@ManyToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "commodityCurrencyOfferorsBankAcount_id")
-	protected BankAccount commodityCurrencyOfferorsBankAcount;
+	@Transient
+	protected BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate;
 
 	// market offer type 3: market offer for property (e.g. shares)
 
@@ -104,6 +105,10 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 
 	public double getAmount() {
 		return amount;
+	}
+
+	public Currency getCurrency() {
+		return this.currency;
 	}
 
 	public int getId() {
@@ -122,16 +127,18 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		return commodityCurrency;
 	}
 
-	public BankAccount getCommodityCurrencyOfferorsBankAccount() {
-		return this.commodityCurrencyOfferorsBankAcount;
+	@Transient
+	public BankAccountDelegate getCommodityCurrencyOfferorsBankAccountDelegate() {
+		return this.commodityCurrencyOfferorsBankAcountDelegate;
 	}
 
 	public GoodType getGoodType() {
 		return goodType;
 	}
 
-	public BankAccount getOfferorsBankAcount() {
-		return offerorsBankAcount;
+	@Transient
+	public BankAccountDelegate getOfferorsBankAcountDelegate() {
+		return offerorsBankAcountDelegate;
 	}
 
 	public double getPricePerUnit() {
@@ -148,6 +155,10 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 
 	public void setAmount(double amount) {
 		this.amount = amount;
+	}
+
+	public void setCurrency(final Currency currency) {
+		this.currency = currency;
 	}
 
 	public void setId(int id) {
@@ -169,12 +180,16 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		this.commodityCurrency = currency;
 	}
 
-	public void setCommodityCurrencyOfferorsBankAccount(BankAccount bankAccount) {
-		this.commodityCurrencyOfferorsBankAcount = bankAccount;
+	@Transient
+	public void setCommodityCurrencyOfferorsBankAccountDelegate(
+			BankAccountDelegate bankAccountDelegate) {
+		this.commodityCurrencyOfferorsBankAcountDelegate = bankAccountDelegate;
 	}
 
-	public void setOfferorsBankAcount(BankAccount offerorsBankAcount) {
-		this.offerorsBankAcount = offerorsBankAcount;
+	@Transient
+	public void setOfferorsBankAcountDelegate(
+			BankAccountDelegate offerorsBankAcountDelegate) {
+		this.offerorsBankAcountDelegate = offerorsBankAcountDelegate;
 	}
 
 	public void setPricePerUnit(double pricePerUnit) {

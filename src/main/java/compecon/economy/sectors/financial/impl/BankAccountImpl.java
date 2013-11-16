@@ -43,6 +43,10 @@ import compecon.economy.sectors.financial.Currency;
 @Table(name = "BankAccount")
 public class BankAccountImpl implements BankAccount {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	protected int id;
+
 	@Column(name = "balance")
 	protected double balance;
 
@@ -56,10 +60,6 @@ public class BankAccountImpl implements BankAccount {
 
 	@Enumerated(EnumType.STRING)
 	protected MoneyType moneyType;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	protected int id;
 
 	@ManyToOne(targetEntity = BankImpl.class)
 	@JoinColumn(name = "managingBank_id")

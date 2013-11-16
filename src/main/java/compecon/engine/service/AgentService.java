@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.factory;
+package compecon.engine.service;
 
 import java.util.List;
 import java.util.Set;
@@ -32,7 +32,7 @@ import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.trading.Trader;
 import compecon.materia.GoodType;
 
-public interface AgentFactory {
+public interface AgentService {
 
 	public List<Class<? extends Agent>> getAgentTypes();
 

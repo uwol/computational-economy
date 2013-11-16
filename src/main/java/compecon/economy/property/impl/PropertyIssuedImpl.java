@@ -17,19 +17,37 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.property;
+package compecon.economy.property.impl;
+
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Index;
 
 import compecon.economy.agent.Agent;
-import compecon.economy.sectors.financial.Currency;
+import compecon.economy.agent.impl.AgentImpl;
+import compecon.economy.property.PropertyIssued;
 
-public interface HardCashRegister {
-	public double getBalance(final Agent agent, final Currency currency);
+@Entity
+public abstract class PropertyIssuedImpl extends PropertyImpl implements
+		PropertyIssued {
 
-	public double increment(final Agent agent, final Currency currency,
-			final double amount);
+	@ManyToOne(targetEntity = AgentImpl.class)
+	@JoinColumn(name = "issuer_id")
+	@Index(name = "IDX_P_ISSUER")
+	protected Agent issuer;
 
-	public double decrement(final Agent agent, final Currency currency,
-			final double amount);
+	public Agent getIssuer() {
+		return this.issuer;
+	}
 
-	public void deregister(final Agent agent);
+	public void setIssuer(Agent issuer) {
+		this.issuer = issuer;
+	}
+
+	@Transient
+	protected void assertValidIssuer() {
+	}
 }

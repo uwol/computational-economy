@@ -5,24 +5,31 @@
 <hibernate-configuration>
 	<session-factory>
 	
+		<!-- HSQLDB -->
+		<property name="connection.url">jdbc:hsqldb:mem:compecon</property>
+		<property name="connection.driver_class">org.hsqldb.jdbcDriver</property>
+        <property name="dialect">org.hibernate.dialect.HSQLDialect</property>
+
+		<!-- MySQL -->
+		<!-- <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/compecon</property> -->
 		<!-- <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property> -->
 		<!-- <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property> -->
-		<!-- <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/compecon</property> -->
 		
-		<property name="connection.url">jdbc:postgresql://localhost:5432/compecon</property>
-		<property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
-		<property name="connection.driver_class">org.postgresql.Driver</property>
+		<!-- PostgreSQL -->
+		<!-- <property name="connection.url">jdbc:postgresql://localhost:5432/compecon</property> -->
+		<!-- <property name="connection.driver_class">org.postgresql.Driver</property> -->
+		<!-- <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property> -->
 		
-		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.username">sa</property>
 		<property name="hibernate.connection.password"></property>
 		
 		<property name="hibernate.connection.pool_size">1</property>
 		<property name="hibernate.connection.autocommit">true</property>
 		<property name="hibernate.current_session_context_class">thread</property>
 		<property name="hibernate.show_sql">false</property>
-		<property name="hibernate.format_sql">true</property>
+		<property name="hibernate.format_sql">false</property>
 		<property name="hibernate.hbm2ddl.auto">create</property>
-		<property name="hibernate.generate.statistics">true</property>
+		<property name="hibernate.generate.statistics">false</property>
 		
 		<!-- <property name="hibernate.order_inserts">true</property> -->
 		<!-- <property name="hibernate.order_updates">true</property> -->
@@ -39,6 +46,8 @@
 		<mapping class="compecon.economy.property.impl.GoodTypeOwnershipImpl" />
 		<mapping class="compecon.economy.property.Property" />
 		<mapping class="compecon.economy.property.impl.PropertyImpl" />
+		<mapping class="compecon.economy.property.PropertyIssued" />
+		<mapping class="compecon.economy.property.impl.PropertyIssuedImpl" />
 		<mapping class="compecon.economy.sectors.financial.Currency" />
 		<mapping class="compecon.economy.sectors.financial.Bank" />
 		<mapping class="compecon.economy.sectors.financial.impl.BankImpl" />

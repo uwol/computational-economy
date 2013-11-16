@@ -49,7 +49,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	@Override
 	public void deleteAllSellingOrders(Agent offeror, Currency currency,
 			GoodType goodType) {
-		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.offerorsBankAcount.currency = :currency AND m.goodType = :goodType";
+		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.currency = :currency AND m.goodType = :goodType";
 		List<MarketOrder> marketOrders = getSession().createQuery(hql)
 				.setEntity("offeror", offeror)
 				.setParameter("currency", currency)
@@ -62,7 +62,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	@Override
 	public void deleteAllSellingOrders(Agent offeror, Currency currency,
 			Currency commodityCurrency) {
-		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.offerorsBankAcount.currency = :currency AND m.commodityCurrency = :commodityCurrency";
+		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.currency = :currency AND m.commodityCurrency = :commodityCurrency";
 		List<MarketOrder> marketOrders = getSession().createQuery(hql)
 				.setEntity("offeror", offeror)
 				.setParameter("currency", currency)
@@ -75,7 +75,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	@Override
 	public void deleteAllSellingOrders(Agent offeror, Currency currency,
 			Class<? extends Property> propertyClass) {
-		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.offerorsBankAcount.currency = :currency AND m.property.class = :propertyClass";
+		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.currency = :currency AND m.property.class = :propertyClass";
 		List<MarketOrder> marketOrders = getSession().createQuery(hql)
 				.setEntity("offeror", offeror)
 				.setParameter("currency", currency)
@@ -88,7 +88,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	@Override
 	public double findMarginalPrice(Currency currency, GoodType goodType) {
 		String hql = "SELECT m.pricePerUnit FROM MarketOrderImpl m "
-				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.goodType = :goodType ORDER BY pricePerUnit ASC";
+				+ "WHERE m.currency = :currency AND m.goodType = :goodType ORDER BY pricePerUnit ASC";
 		Object marginalPrice = getSession().createQuery(hql).setMaxResults(1)
 				.setParameter("currency", currency)
 				.setParameter("goodType", goodType).uniqueResult();
@@ -101,7 +101,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	public double findMarginalPrice(Currency currency,
 			Currency commodityCurrency) {
 		String hql = "SELECT m.pricePerUnit FROM MarketOrderImpl m "
-				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.commodityCurrency = :commodityCurrency ORDER BY pricePerUnit ASC";
+				+ "WHERE m.currency = :currency AND m.commodityCurrency = :commodityCurrency ORDER BY pricePerUnit ASC";
 		Object marginalPrice = getSession().createQuery(hql).setMaxResults(1)
 				.setParameter("currency", currency)
 				.setParameter("commodityCurrency", commodityCurrency)
@@ -115,7 +115,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	public double findMarginalPrice(Currency currency,
 			Class<? extends Property> propertyClass) {
 		String hql = "SELECT m.pricePerUnit FROM MarketOrderImpl m "
-				+ " WHERE m.offerorsBankAcount.currency = :currency AND m.property.class = :propertyClass ORDER BY pricePerUnit ASC";
+				+ " WHERE m.currency = :currency AND m.property.class = :propertyClass ORDER BY pricePerUnit ASC";
 		Object marginalPrice = getSession().createQuery(hql).setMaxResults(1)
 				.setParameter("currency", currency)
 				.setParameter("propertyClass", propertyClass.getSimpleName())
@@ -129,7 +129,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	public Iterator<MarketOrder> getIterator(Currency currency,
 			GoodType goodType) {
 		String queryString = "FROM MarketOrderImpl m "
-				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.goodType = :goodType "
+				+ "WHERE m.currency = :currency AND m.goodType = :goodType "
 				+ "ORDER BY m.pricePerUnit ASC";
 		ScrollableResults itemCursor = getSession().createQuery(queryString)
 				.setParameter("currency", currency)
@@ -142,7 +142,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	public Iterator<MarketOrder> getIterator(Currency currency,
 			Currency commodityCurrency) {
 		String queryString = "FROM MarketOrderImpl m "
-				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.commodityCurrency = :commodityCurrency "
+				+ "WHERE m.currency = :currency AND m.commodityCurrency = :commodityCurrency "
 				+ "ORDER BY m.pricePerUnit ASC";
 		ScrollableResults itemCursor = getSession().createQuery(queryString)
 				.setParameter("currency", currency)
@@ -155,7 +155,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	public Iterator<MarketOrder> getIterator(Currency currency,
 			Class<? extends Property> propertyClass) {
 		String queryString = "FROM MarketOrderImpl m "
-				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.property.class = :propertyClass "
+				+ "WHERE m.currency = :currency AND m.property.class = :propertyClass "
 				+ "ORDER BY m.pricePerUnit ASC";
 		ScrollableResults itemCursor = getSession().createQuery(queryString)
 				.setParameter("currency", currency)
@@ -179,7 +179,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	@Override
 	public double getAmountSum(Currency currency, GoodType goodType) {
 		String queryString = "SUM(m.pricePerUnit * m.amount) FROM MarketOrderImpl m "
-				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.goodType = :goodType";
+				+ "WHERE m.currency = :currency AND m.goodType = :goodType";
 		Object amountSum = getSession().createQuery(queryString)
 				.setMaxResults(1).setParameter("currency", currency)
 				.setParameter("goodType", goodType).uniqueResult();
@@ -191,7 +191,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	@Override
 	public double getAmountSum(Currency currency, Currency commodityCurrency) {
 		String queryString = "SUM(m.pricePerUnit * m.amount) FROM MarketOrderImpl m "
-				+ "WHERE m.offerorsBankAcount.currency = :currency AND m.commodityCurrency = :commodityCurrency";
+				+ "WHERE m.currency = :currency AND m.commodityCurrency = :commodityCurrency";
 		Object amountSum = getSession().createQuery(queryString)
 				.setMaxResults(1).setParameter("currency", currency)
 				.setParameter("commodityCurrency", commodityCurrency)

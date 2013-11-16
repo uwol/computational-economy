@@ -17,37 +17,31 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.dao.hibernate.impl;
-
-import java.util.List;
-
-import org.hibernate.criterion.Restrictions;
+package compecon.engine.service.impl;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.property.GoodTypeOwnership;
 import compecon.economy.property.impl.GoodTypeOwnershipImpl;
-import compecon.engine.dao.GoodTypeOwnershipDAO;
+import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.service.GoodTypeOwnershipService;
+import compecon.engine.util.HibernateUtil;
 
-public class GoodTypeOwnershipDAOImpl extends
-		HibernateDAOImpl<GoodTypeOwnership> implements GoodTypeOwnershipDAO {
+public class GoodTypeOwnershipServiceImpl implements GoodTypeOwnershipService {
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<GoodTypeOwnership> findAllByAgent(Agent agent) {
-		return (List<GoodTypeOwnership>) getSession()
-				.createCriteria(GoodTypeOwnershipImpl.class)
-				.add(Restrictions.eq("agent", agent)).list();
+	public GoodTypeOwnership newInstanceGoodTypeOwnership(Agent owner) {
+		GoodTypeOwnership goodTypeOwnership = new GoodTypeOwnershipImpl();
+		goodTypeOwnership.setAgent(owner);
+		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
+				.save(goodTypeOwnership);
+		HibernateUtil.flushSession();
+		return goodTypeOwnership;
 	}
 
 	@Override
-	public GoodTypeOwnership findFirstByAgent(Agent agent) {
-		Object object = getSession()
-				.createCriteria(GoodTypeOwnershipImpl.class)
-				.add(Restrictions.eq("agent", agent)).setMaxResults(1)
-				.uniqueResult();
-		if (object == null)
-			return null;
-		return (GoodTypeOwnershipImpl) object;
+	public void deleteGoodTypeOwnership(GoodTypeOwnership goodTypeOwnership) {
+		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
+				.delete(goodTypeOwnership);
+		HibernateUtil.flushSession();
 	}
-
 }

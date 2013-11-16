@@ -30,6 +30,7 @@ import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
+import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.trading.Trader;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.applicationcontext.ApplicationContextFactory;
@@ -43,7 +44,8 @@ public abstract class CompEconTestSupport {
 	protected final double epsilon = 0.01;
 
 	public void assertOutputIsOptimalUnderBudget(
-			final FunctionImpl<GoodType> function, final double budgetRestriction,
+			final FunctionImpl<GoodType> function,
+			final double budgetRestriction,
 			final Map<GoodType, PriceFunction> priceFunctions,
 			final Map<GoodType, Double> referenceBundleOfInputs) {
 
@@ -123,7 +125,7 @@ public abstract class CompEconTestSupport {
 		}
 	}
 
-	protected void setUp() {
+	protected void setUpApplicationContext() {
 		if (HibernateUtil.isActive()) {
 			ApplicationContextFactory.configureHibernateApplicationContext();
 		} else {
@@ -132,52 +134,26 @@ public abstract class CompEconTestSupport {
 
 		// init database connection
 		HibernateUtil.openSession();
+	}
+
+	protected void setUpApplicationContextWithAgents() {
+		this.setUpApplicationContext();
 
 		for (Currency currency : Currency.values()) {
-			ApplicationContext.getInstance().getAgentFactory()
+			ApplicationContext.getInstance().getAgentService()
 					.getInstanceCentralBank(currency);
-			ApplicationContext.getInstance().getAgentFactory()
+			ApplicationContext.getInstance().getAgentService()
 					.newInstanceCreditBank(currency);
-			ApplicationContext.getInstance().getAgentFactory()
+			ApplicationContext.getInstance().getAgentService()
 					.newInstanceCreditBank(currency);
-			ApplicationContext.getInstance().getAgentFactory()
+			ApplicationContext.getInstance().getAgentService()
 					.newInstanceFactory(GoodType.WHEAT, currency);
-			ApplicationContext.getInstance().getAgentFactory()
+			ApplicationContext.getInstance().getAgentService()
 					.newInstanceHousehold(currency);
-			ApplicationContext.getInstance().getAgentFactory()
+			ApplicationContext.getInstance().getAgentService()
 					.newInstanceHousehold(currency);
-			ApplicationContext.getInstance().getAgentFactory()
+			ApplicationContext.getInstance().getAgentService()
 					.newInstanceTrader(currency);
-		}
-
-		for (CentralBank centralBank : ApplicationContext.getInstance()
-				.getCentralBankDAO().findAll()) {
-			centralBank.assureBankAccountTransactions();
-		}
-
-		for (CreditBank creditBank : ApplicationContext.getInstance()
-				.getCreditBankDAO().findAll()) {
-			creditBank.assureBankAccountCentralBankMoneyReserves();
-			creditBank.assureBankAccountCentralBankTransactions();
-			creditBank.assureBankAccountTransactions();
-			creditBank.assureBankAccountsCurrencyTrade();
-		}
-
-		for (Factory factory : ApplicationContext.getInstance().getFactoryDAO()
-				.findAll()) {
-			factory.assureBankAccountTransactions();
-		}
-
-		for (Household household : ApplicationContext.getInstance()
-				.getHouseholdDAO().findAll()) {
-			household.assureBankAccountTransactions();
-			household.assureBankAccountSavings();
-		}
-
-		for (Trader trader : ApplicationContext.getInstance().getTraderDAO()
-				.findAll()) {
-			trader.assureBankAccountTransactions();
-			trader.assureBankAccountsGoodTrade();
 		}
 
 		HibernateUtil.flushSession();
@@ -197,6 +173,11 @@ public abstract class CompEconTestSupport {
 		for (Factory factory : ApplicationContext.getInstance().getFactoryDAO()
 				.findAll()) {
 			factory.deconstruct();
+		}
+
+		for (State state : ApplicationContext.getInstance().getStateDAO()
+				.findAll()) {
+			state.deconstruct();
 		}
 
 		for (CreditBank creditBank : ApplicationContext.getInstance()

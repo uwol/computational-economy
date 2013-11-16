@@ -17,20 +17,20 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.engine.factory.impl;
+package compecon.engine.service.impl;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
-import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.factory.BankAccountFactory;
+import compecon.engine.service.BankAccountService;
 import compecon.engine.util.HibernateUtil;
 
-public class BankAccountFactoryImpl implements BankAccountFactory {
+public class BankAccountServiceImpl implements BankAccountService {
 
 	public BankAccount newInstanceBankAccount(final Agent owner,
 			final Currency currency, boolean overdraftPossible,
@@ -57,6 +57,20 @@ public class BankAccountFactoryImpl implements BankAccountFactory {
 	public void deleteBankAccount(final BankAccount bankAccount) {
 		ApplicationContext.getInstance().getBankAccountDAO()
 				.delete(bankAccount);
+		HibernateUtil.flushSession();
 	}
 
+	@Override
+	public void deleteAllBankAccounts(Bank managingBank) {
+		ApplicationContext.getInstance().getBankAccountDAO()
+				.deleteAllBankAccounts(managingBank);
+		HibernateUtil.flushSession();
+	}
+
+	@Override
+	public void deleteAllBankAccounts(Bank managingBank, Agent owner) {
+		ApplicationContext.getInstance().getBankAccountDAO()
+				.deleteAllBankAccounts(managingBank, owner);
+		HibernateUtil.flushSession();
+	}
 }

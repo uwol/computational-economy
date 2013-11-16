@@ -53,7 +53,7 @@ public class AgentsPanel extends AbstractChartsPanel implements ModelListener {
 			panelForCurrency.setBackground(Color.lightGray);
 
 			for (Class<? extends Agent> agentType : ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes()) {
+					.getInstance().getAgentService().getAgentTypes()) {
 				panelForCurrency
 						.add(createAgentNumberPanel(currency, agentType));
 			}

@@ -42,8 +42,8 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 	final int numberOfIterations = 500;
 
 	@Before
-	public void setUp() {
-		super.setUp();
+	public void setUpApplicationContextWithAgents() {
+		super.setUpApplicationContextWithAgents();
 	}
 
 	@After
@@ -252,38 +252,37 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		Household household2_EUR = ApplicationContext.getInstance()
 				.getHouseholdDAO().findAllByCurrency(currency).get(1);
 
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.KILOWATT), epsilon);
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.WHEAT), epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.KILOWATT),
+				epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.WHEAT), epsilon);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 5.0, 2.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						5.0, 2.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 5.0, 1.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						5.0, 1.0);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 3.0, 2.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						3.0, 2.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.WHEAT, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 2.0, 1.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						2.0, 1.0);
 
 		/*
 		 * prepare function
@@ -299,8 +298,7 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		 */
 		Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.getMarketPriceFunctions(currency,
 						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT });
 
@@ -355,38 +353,37 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		Household household2_EUR = ApplicationContext.getInstance()
 				.getHouseholdDAO().findAllByCurrency(currency).get(1);
 
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.KILOWATT), epsilon);
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.WHEAT), epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.KILOWATT),
+				epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.WHEAT), epsilon);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 20.0, 2.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						20.0, 2.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 5.0, 1.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						5.0, 1.0);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 20.0, 2.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						20.0, 2.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.WHEAT, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 4.0, 1.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						4.0, 1.0);
 
 		/*
 		 * prepare function
@@ -402,12 +399,11 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		 */
 		Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.getMarketPriceFunctions(currency,
 						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT });
 
-		// FIXME: problematic with 6.7 < budget < 15.8 as
+		// TODO: problematic with 6.7 < budget < 15.8 as
 		// partialDerivativesPerPrice
 		// are not equal -> analytical solution is not found
 		double budget = 21;
@@ -461,70 +457,67 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		Household household2_EUR = ApplicationContext.getInstance()
 				.getHouseholdDAO().findAllByCurrency(currency).get(1);
 
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.KILOWATT), epsilon);
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.WHEAT), epsilon);
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.COAL), epsilon);
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketFactory().getMarket()
-						.getPrice(currency, GoodType.IRON), epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.KILOWATT),
+				epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.WHEAT), epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.COAL), epsilon);
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getPrice(currency, GoodType.IRON), epsilon);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 200.0, 2.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						200.0, 2.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 50.0, 1.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						50.0, 1.0);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 200.0, 4.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						200.0, 4.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.WHEAT, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 40.0, 1.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						40.0, 1.0);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.COAL, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 150.0, 5.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						150.0, 5.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.COAL, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 60.0, 1.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						60.0, 1.0);
 
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.IRON, household1_EUR,
-						household1_EUR.getBankAccountTransactions(), 220.0, 3.0);
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						220.0, 3.0);
 		ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.placeSellingOffer(GoodType.IRON, household2_EUR,
-						household2_EUR.getBankAccountTransactions(), 770.0, 1.0);
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						770.0, 1.0);
 
 		/*
 		 * prepare function
@@ -542,8 +535,7 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		 */
 		Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
 				.getInstance()
-				.getMarketFactory()
-				.getMarket()
+				.getMarketService()
 				.getMarketPriceFunctions(
 						currency,
 						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT,

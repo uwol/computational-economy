@@ -17,16 +17,17 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.property.impl;
+package compecon.engine.service.impl;
 
 import java.util.HashMap;
 
 import compecon.economy.agent.Agent;
-import compecon.economy.property.HardCashRegister;
 import compecon.economy.sectors.financial.Currency;
+import compecon.engine.service.HardCashService;
 
-public class HardCashRegisterImpl implements HardCashRegister {
+public class HardCashServiceImpl implements HardCashService {
 
+	// FIXME Services have to be stateless, move state into DAO / database
 	private HashMap<Agent, HashMap<Currency, Double>> balances = new HashMap<Agent, HashMap<Currency, Double>>();
 
 	public double getBalance(final Agent agent, final Currency currency) {

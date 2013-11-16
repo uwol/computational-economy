@@ -21,7 +21,7 @@ package compecon.economy.markets;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.property.Property;
-import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.materia.GoodType;
 
@@ -43,15 +43,17 @@ public interface MarketOrder {
 
 	public Currency getCommodityCurrency();
 
-	public BankAccount getCommodityCurrencyOfferorsBankAccount();
+	public BankAccountDelegate getCommodityCurrencyOfferorsBankAccountDelegate();
 
 	public CommodityType getCommodityType();
+
+	public Currency getCurrency();
 
 	public GoodType getGoodType();
 
 	public Agent getOfferor();
 
-	public BankAccount getOfferorsBankAcount();
+	public BankAccountDelegate getOfferorsBankAcountDelegate();
 
 	public double getPricePerUnit();
 
