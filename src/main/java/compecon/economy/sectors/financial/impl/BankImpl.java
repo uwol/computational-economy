@@ -172,6 +172,10 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 				BankImpl.this.assureBankAccountBondLoan();
 				return BankImpl.this.bankAccountBondLoan;
 			}
+
+			@Override
+			public void onTransfer(final double amount) {
+			}
 		};
 		return delegate;
 	}
@@ -183,6 +187,10 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 			public BankAccount getBankAccount() {
 				BankImpl.this.assureBankAccountInterestTransactions();
 				return BankImpl.this.bankAccountInterestTransactions;
+			}
+
+			@Override
+			public void onTransfer(final double amount) {
 			}
 		};
 		return delegate;

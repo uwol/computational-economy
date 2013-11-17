@@ -35,4 +35,6 @@ public interface BankAccountDelegate {
 	 * @return must not be null
 	 */
 	public BankAccount getBankAccount();
+
+	public void onTransfer(final double amount);
 }

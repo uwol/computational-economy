@@ -166,6 +166,10 @@ public class StateImpl extends AgentImpl implements State {
 				StateImpl.this.assureBankAccountCouponLoans();
 				return StateImpl.this.bankAccountCouponLoans;
 			}
+
+			@Override
+			public void onTransfer(final double amount) {
+			}
 		};
 		return delegate;
 	}

@@ -272,6 +272,10 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 				CentralBankImpl.this.assureBankAccountCentralBankMoney();
 				return CentralBankImpl.this.bankAccountCentralBankMoney;
 			}
+
+			@Override
+			public void onTransfer(final double amount) {
+			}
 		};
 		return delegate;
 	}

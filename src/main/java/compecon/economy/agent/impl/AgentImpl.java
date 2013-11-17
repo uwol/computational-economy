@@ -258,6 +258,10 @@ public abstract class AgentImpl implements Agent {
 				AgentImpl.this.assureBankAccountTransactions();
 				return AgentImpl.this.bankAccountTransactions;
 			}
+
+			@Override
+			public void onTransfer(final double amount) {
+			}
 		};
 		return delegate;
 	}

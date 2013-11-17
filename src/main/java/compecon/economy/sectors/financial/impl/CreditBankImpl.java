@@ -409,6 +409,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				CreditBankImpl.this.assureBankAccountCentralBankTransactions();
 				return CreditBankImpl.this.bankAccountCentralBankTransactions;
 			}
+
+			@Override
+			public void onTransfer(final double amount) {
+			}
 		};
 		return delegate;
 	}
@@ -420,6 +424,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			public BankAccount getBankAccount() {
 				CreditBankImpl.this.assureBankAccountCentralBankMoneyReserves();
 				return CreditBankImpl.this.bankAccountCentralBankMoneyReserves;
+			}
+
+			@Override
+			public void onTransfer(final double amount) {
 			}
 		};
 		return delegate;
@@ -434,6 +442,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				CreditBankImpl.this.assureBankAccountsCurrencyTrade();
 				return CreditBankImpl.this.bankAccountsCurrencyTrade
 						.get(currency);
+			}
+
+			@Override
+			public void onTransfer(final double amount) {
 			}
 		};
 		return delegate;

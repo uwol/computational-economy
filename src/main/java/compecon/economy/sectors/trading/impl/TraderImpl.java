@@ -174,6 +174,10 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 				TraderImpl.this.assureBankAccountsGoodTrade();
 				return TraderImpl.this.bankAccountsGoodTrade.get(currency);
 			}
+
+			@Override
+			public void onTransfer(final double amount) {
+			}
 		};
 		return delegate;
 	}

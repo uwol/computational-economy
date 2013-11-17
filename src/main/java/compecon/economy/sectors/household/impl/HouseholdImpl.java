@@ -39,11 +39,11 @@ import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.security.equity.Share;
-import compecon.economy.security.equity.ShareOwner;
 import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.service.SettlementMarketService.SettlementEvent;
@@ -62,7 +62,7 @@ import compecon.math.utility.UtilityFunction;
  * Agent type Household offers labour hours and consumes goods.
  */
 @Entity
-public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
+public class HouseholdImpl extends AgentImpl implements Household {
 
 	// configuration constants ------------------------------
 
@@ -200,12 +200,12 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 	 */
 
 	@Transient
-	public void assureDividendBankAccount() {
+	protected void assureDividendBankAccount() {
 		this.assureBankAccountTransactions();
 	}
 
 	@Transient
-	public void assureBankAccountSavings() {
+	protected void assureBankAccountSavings() {
 		if (this.isDeconstructed)
 			return;
 
@@ -221,6 +221,23 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 	 * business logic
 	 */
 
+	@Transient
+	public BankAccountDelegate getBankAccountDividendDelegate() {
+		final BankAccountDelegate delegate = new BankAccountDelegate() {
+			@Override
+			public BankAccount getBankAccount() {
+				HouseholdImpl.this.assureBankAccountTransactions();
+				return HouseholdImpl.this.bankAccountTransactions;
+			}
+
+			@Override
+			public void onTransfer(final double amount) {
+				HouseholdImpl.this.dividendSinceLastPeriod += amount;
+			}
+		};
+		return delegate;
+	}
+
 	@Override
 	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
@@ -232,12 +249,6 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 		balanceSheet.addBankAccountBalance(this.bankAccountSavings);
 
 		return balanceSheet;
-	}
-
-	@Override
-	@Transient
-	public void onDividendTransfer(double dividendAmount) {
-		this.dividendSinceLastPeriod += dividendAmount;
 	}
 
 	@Override
@@ -619,7 +630,7 @@ public class HouseholdImpl extends AgentImpl implements Household, ShareOwner {
 					if (share.getDividendBankAccountDelegate() == null
 							|| share.getDividendBankAccountDelegate()
 									.getBankAccount() != HouseholdImpl.this.bankAccountTransactions) {
-						share.setDividendBankAccountDelegate(getBankAccountTransactionsDelegate());
+						share.setDividendBankAccountDelegate(getBankAccountDividendDelegate());
 					}
 
 					// check currency

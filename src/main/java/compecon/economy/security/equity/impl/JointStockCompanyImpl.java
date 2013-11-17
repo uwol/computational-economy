@@ -39,7 +39,6 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.security.equity.JointStockCompany;
 import compecon.economy.security.equity.Share;
-import compecon.economy.security.equity.ShareOwner;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
@@ -223,11 +222,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 						final Share share = (Share) propertyIssued;
 						if (share.getOwner() != null
 								&& share.getOwner() != JointStockCompanyImpl.this) {
-							assert (share.getOwner() instanceof ShareOwner);
 							assert (share.getDividendBankAccountDelegate() != null);
-
-							final ShareOwner shareOwner = (ShareOwner) share
-									.getOwner();
 
 							if (currency.equals(share
 									.getDividendBankAccountDelegate()
@@ -243,7 +238,8 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 												share.getDividendBankAccountDelegate()
 														.getBankAccount(),
 												dividend, "dividend");
-								shareOwner.onDividendTransfer(dividendPerOwner);
+								share.getDividendBankAccountDelegate()
+										.onTransfer(dividendPerOwner);
 								totalDividendPayed += dividendPerOwner;
 							}
 						}
