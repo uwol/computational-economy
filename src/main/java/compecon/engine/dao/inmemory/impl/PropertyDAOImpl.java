@@ -32,9 +32,10 @@ public class PropertyDAOImpl extends
 
 	@Override
 	public synchronized List<Property> findAllPropertiesOfAgent(Agent agent) {
-		if (this.getInstancesForFirstAgent(agent) != null)
+		if (this.getInstancesForFirstAgent(agent) != null) {
 			return new ArrayList<Property>(
 					this.getInstancesForFirstAgent(agent));
+		}
 		return new ArrayList<Property>();
 	}
 
@@ -53,8 +54,10 @@ public class PropertyDAOImpl extends
 	@Override
 	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer) {
 		final List<PropertyIssued> propertiesIssuedByAgent = new ArrayList<PropertyIssued>();
-		if (this.getInstancesForSecondAgent(issuer) != null) {
-			for (Property property : this.getInstancesForSecondAgent(issuer)) {
+		final List<Property> propertiesForSecondAgent = this
+				.getInstancesForSecondAgent(issuer);
+		if (propertiesForSecondAgent != null) {
+			for (Property property : propertiesForSecondAgent) {
 				if (property instanceof PropertyIssued) {
 					PropertyIssued propertyIssued = (PropertyIssued) property;
 					assert (propertyIssued.getIssuer() == issuer);
@@ -80,11 +83,12 @@ public class PropertyDAOImpl extends
 
 	@Override
 	public synchronized void save(Property property) {
-		if (property instanceof PropertyIssued)
+		if (property instanceof PropertyIssued) {
 			super.save(property.getOwner(),
 					((PropertyIssued) property).getIssuer(), property);
-		else
+		} else {
 			super.save(property.getOwner(), property);
+		}
 	}
 
 	@Override

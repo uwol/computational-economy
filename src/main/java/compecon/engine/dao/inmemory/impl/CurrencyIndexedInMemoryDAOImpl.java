@@ -32,8 +32,9 @@ public class CurrencyIndexedInMemoryDAOImpl<T> extends InMemoryDAOImpl<T> {
 
 	private synchronized void assureInitializedDataStructure(Currency currency) {
 		if (currency != null) {
-			if (!this.currencyIndexedInstances.containsKey(currency))
+			if (!this.currencyIndexedInstances.containsKey(currency)) {
 				this.currencyIndexedInstances.put(currency, new ArrayList<T>());
+			}
 		}
 	}
 
@@ -42,8 +43,9 @@ public class CurrencyIndexedInMemoryDAOImpl<T> extends InMemoryDAOImpl<T> {
 	 */
 
 	protected synchronized List<T> getInstancesForCurrency(Currency currency) {
-		if (this.currencyIndexedInstances.containsKey(currency))
+		if (this.currencyIndexedInstances.containsKey(currency)) {
 			return this.currencyIndexedInstances.get(currency);
+		}
 		return null;
 	}
 
@@ -61,8 +63,9 @@ public class CurrencyIndexedInMemoryDAOImpl<T> extends InMemoryDAOImpl<T> {
 	protected synchronized void delete(Currency currency, T instance) {
 		if (this.currencyIndexedInstances.containsKey(currency)) {
 			this.currencyIndexedInstances.get(currency).remove(instance);
-			if (this.currencyIndexedInstances.get(currency).isEmpty())
+			if (this.currencyIndexedInstances.get(currency).isEmpty()) {
 				this.currencyIndexedInstances.remove(currency);
+			}
 		}
 
 		super.delete(instance);

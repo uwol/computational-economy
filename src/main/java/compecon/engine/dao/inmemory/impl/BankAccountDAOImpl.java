@@ -41,8 +41,9 @@ public class BankAccountDAOImpl extends
 	 */
 
 	private void assureInitializedDataStructure(Bank bank) {
-		if (!this.bankAccounts.containsKey(bank))
+		if (!this.bankAccounts.containsKey(bank)) {
 			this.bankAccounts.put(bank, new ArrayList<BankAccount>());
+		}
 	}
 
 	/*
@@ -73,7 +74,8 @@ public class BankAccountDAOImpl extends
 	public synchronized void deleteAllBankAccounts(Bank managingBank,
 			Agent owner) {
 		if (this.bankAccounts.containsKey(managingBank)) {
-			List<BankAccount> bankAccounts = this.getInstancesForAgent(owner);
+			final List<BankAccount> bankAccounts = this
+					.getInstancesForAgent(owner);
 			if (bankAccounts != null) {
 				for (BankAccount bankAccount : new HashSet<BankAccount>(
 						bankAccounts)) {
@@ -89,25 +91,27 @@ public class BankAccountDAOImpl extends
 			Bank managingBank) {
 		assureInitializedDataStructure(managingBank);
 
-		List<BankAccount> bankAccountManagedByBank = this.bankAccounts
+		final List<BankAccount> bankAccountManagedByBank = this.bankAccounts
 				.get(managingBank);
 		return new ArrayList<BankAccount>(bankAccountManagedByBank);
 	}
 
 	@Override
 	public synchronized List<BankAccount> findAllBankAccountsOfAgent(Agent owner) {
-		List<BankAccount> bankAccounts = this.getInstancesForAgent(owner);
-		if (bankAccounts != null)
+		final List<BankAccount> bankAccounts = this.getInstancesForAgent(owner);
+		if (bankAccounts != null) {
 			return new ArrayList<BankAccount>(bankAccounts);
+		}
 		return new ArrayList<BankAccount>();
 	}
 
 	@Override
 	public synchronized List<BankAccount> findAll(Bank managingBank, Agent owner) {
-		List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
+		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
-			if (bankAccount.getManagingBank() == managingBank)
+			if (bankAccount.getManagingBank() == managingBank) {
 				bankAccounts.add(bankAccount);
+			}
 		}
 		return bankAccounts;
 	}
@@ -115,11 +119,12 @@ public class BankAccountDAOImpl extends
 	@Override
 	public synchronized List<BankAccount> findAll(Bank managingBank,
 			Agent owner, Currency currency) {
-		List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
+		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank
-					&& currency.equals(bankAccount.getCurrency()))
+					&& currency.equals(bankAccount.getCurrency())) {
 				bankAccounts.add(bankAccount);
+			}
 		}
 		return bankAccounts;
 	}

@@ -37,14 +37,15 @@ public abstract class InMemoryDAOImpl<T> implements GenericDAO<T> {
 
 	@Override
 	public synchronized T find(int id) {
-		if (this.instancesByIds.containsKey(id))
+		if (this.instancesByIds.containsKey(id)) {
 			return this.instancesByIds.get(id);
+		}
 		return null;
 	}
 
 	@Override
 	public synchronized T findRandom() {
-		List<Integer> keys = new ArrayList<Integer>(
+		final List<Integer> keys = new ArrayList<Integer>(
 				this.instancesByIds.keySet());
 		int id = keys.get(this.randomizer.nextInt(keys.size()));
 		return this.instancesByIds.get(id);

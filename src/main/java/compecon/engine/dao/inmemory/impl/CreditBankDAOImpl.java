@@ -35,7 +35,7 @@ public class CreditBankDAOImpl extends
 
 	@Override
 	public synchronized CreditBank findRandom(Currency currency) {
-		List<CreditBank> creditBanks = this.findAllByCurrency(currency);
+		final List<CreditBank> creditBanks = this.findAllByCurrency(currency);
 		if (creditBanks != null && !creditBanks.isEmpty()) {
 			int id = this.randomizer.nextInt(creditBanks.size());
 			return creditBanks.get(id);

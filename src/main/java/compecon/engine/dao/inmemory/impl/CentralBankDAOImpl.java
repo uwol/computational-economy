@@ -36,10 +36,11 @@ public class CentralBankDAOImpl extends
 	@Override
 	public synchronized CentralBank findByCurrency(Currency currency) {
 		// should contain only one element
-		List<CentralBank> centralBanksForCurrency = this
+		final List<CentralBank> centralBanksForCurrency = this
 				.getInstancesForCurrency(currency);
-		if (centralBanksForCurrency == null)
+		if (centralBanksForCurrency == null) {
 			return null;
+		}
 
 		assert (centralBanksForCurrency.size() <= 1);
 

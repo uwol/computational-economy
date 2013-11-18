@@ -32,18 +32,20 @@ public class GoodTypeOwnershipDAOImpl extends
 
 	@Override
 	public synchronized List<GoodTypeOwnership> findAllByAgent(Agent agent) {
-		if (this.getInstancesForAgent(agent) != null)
+		if (this.getInstancesForAgent(agent) != null) {
 			return new ArrayList<GoodTypeOwnership>(
 					this.getInstancesForAgent(agent));
+		}
 		return new ArrayList<GoodTypeOwnership>();
 	}
 
 	@Override
 	public synchronized GoodTypeOwnership findFirstByAgent(Agent agent) {
-		List<GoodTypeOwnership> goodTypeOwnerships = this
+		final List<GoodTypeOwnership> goodTypeOwnerships = this
 				.getInstancesForAgent(agent);
-		if (goodTypeOwnerships != null && !goodTypeOwnerships.isEmpty())
+		if (goodTypeOwnerships != null && !goodTypeOwnerships.isEmpty()) {
 			return goodTypeOwnerships.get(0);
+		}
 		return null;
 	}
 

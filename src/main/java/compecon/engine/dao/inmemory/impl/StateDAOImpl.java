@@ -27,9 +27,11 @@ public class StateDAOImpl extends InMemoryDAOImpl<State> implements StateDAO {
 
 	@Override
 	public synchronized State findByCurrency(Currency currency) {
-		for (State state : this.findAll())
-			if (state.getPrimaryCurrency().equals(currency))
+		for (State state : this.findAll()) {
+			if (state.getPrimaryCurrency().equals(currency)) {
 				return state;
+			}
+		}
 		return null;
 	}
 }
