@@ -24,7 +24,7 @@ import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.security.equity.JointStockCompany;
 
-public interface Bank extends JointStockCompany {
+public interface Bank extends Agent, JointStockCompany {
 
 	public abstract void closeCustomerAccount(final Agent customer);
 

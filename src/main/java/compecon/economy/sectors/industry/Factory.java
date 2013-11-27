@@ -20,10 +20,11 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.economy.sectors.industry;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.security.equity.JointStockCompany;
 import compecon.materia.GoodType;
 import compecon.math.production.ProductionFunction;
 
-public interface Factory extends Agent {
+public interface Factory extends Agent, JointStockCompany {
 
 	public GoodType getProducedGoodType();
 

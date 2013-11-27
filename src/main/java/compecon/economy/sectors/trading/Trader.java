@@ -22,8 +22,9 @@ package compecon.economy.sectors.trading;
 import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.security.equity.JointStockCompany;
 
-public interface Trader extends Agent {
+public interface Trader extends Agent, JointStockCompany {
 
 	public BankAccountDelegate getBankAccountGoodsTradeDelegate(
 			final Currency currency);
