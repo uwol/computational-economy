@@ -21,7 +21,7 @@ package compecon.math.production.impl;
 
 import java.util.Map;
 
-import compecon.materia.GoodType;
+import compecon.economy.materia.GoodType;
 import compecon.math.impl.CobbDouglasFunctionImpl;
 
 public class CobbDouglasProductionFunctionImpl extends ConvexProductionFunctionImpl {

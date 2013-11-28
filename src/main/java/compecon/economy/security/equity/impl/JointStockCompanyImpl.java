@@ -30,6 +30,7 @@ import org.hibernate.annotations.Index;
 
 import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.property.PropertyIssued;
 import compecon.economy.sectors.financial.BankAccount;
@@ -45,8 +46,7 @@ import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
+import compecon.math.util.MathUtil;
 
 /**
  * Joint-stock companies are owned by agents and pay dividends to them every

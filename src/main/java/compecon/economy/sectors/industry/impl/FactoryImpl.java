@@ -32,6 +32,7 @@ import compecon.economy.behaviour.BudgetingBehaviour;
 import compecon.economy.behaviour.PricingBehaviour;
 import compecon.economy.behaviour.impl.BudgetingBehaviourImpl;
 import compecon.economy.behaviour.impl.PricingBehaviourImpl;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.industry.Factory;
@@ -41,10 +42,9 @@ import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
 import compecon.math.price.PriceFunction;
 import compecon.math.production.ProductionFunction;
+import compecon.math.util.MathUtil;
 
 /**
  * Agent type factory produces arbitrary goods by combining production factors
@@ -89,6 +89,14 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 		this.pricingBehaviour = new PricingBehaviourImpl(this,
 				this.producedGoodType, this.primaryCurrency, marketPrice);
 		this.budgetingBehaviour = new BudgetingBehaviourImpl(this);
+	}
+
+	@Override
+	public void deconstruct() {
+		super.deconstruct();
+
+		ApplicationContext.getInstance().getFactoryFactory()
+				.deleteFactory(this);
 	}
 
 	/*

@@ -20,10 +20,10 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.service;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
-import compecon.materia.GoodType;
 
 public interface SettlementMarketService extends MarketService {
 

@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Map;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
-import compecon.materia.GoodType;
 
 public class AgentDetailModel extends NotificationListenerModel {
 

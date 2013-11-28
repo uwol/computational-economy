@@ -43,8 +43,8 @@ public class ControlModel extends NotificationListenerModel {
 
 	public void initHouseholds(final Currency currency) {
 		for (int i = 0; i < 100; i++) {
-			ApplicationContext.getInstance().getAgentService()
-					.newInstanceHousehold(currency);
+			ApplicationContext.getInstance().getHouseholdFactory()
+					.newInstanceHousehold(currency, 0);
 		}
 	}
 

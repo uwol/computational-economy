@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.GoodTypeOwnership;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccountDelegate;
@@ -37,8 +38,7 @@ import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.service.PropertyService;
 import compecon.engine.util.HibernateUtil;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
+import compecon.math.util.MathUtil;
 
 /**
  * The property service manages property rights. Each {@link Property} can be
@@ -59,7 +59,7 @@ public class PropertyServiceImpl implements PropertyService {
 		if (goodTypeOwnership == null) {
 			assert (!agent.isDeconstructed());
 			return ApplicationContext.getInstance()
-					.getGoodTypeOwnershipService()
+					.getGoodTypeOwnershipFactory()
 					.newInstanceGoodTypeOwnership(agent);
 		}
 		return goodTypeOwnership;
@@ -246,7 +246,7 @@ public class PropertyServiceImpl implements PropertyService {
 		for (GoodTypeOwnership goodTypeOwnership : ApplicationContext
 				.getInstance().getGoodTypeOwnershipDAO()
 				.findAllByAgent(oldOwner)) {
-			ApplicationContext.getInstance().getGoodTypeOwnershipService()
+			ApplicationContext.getInstance().getGoodTypeOwnershipFactory()
 					.deleteGoodTypeOwnership(goodTypeOwnership);
 		}
 

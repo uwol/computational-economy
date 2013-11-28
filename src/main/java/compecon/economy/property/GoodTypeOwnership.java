@@ -22,16 +22,11 @@ package compecon.economy.property;
 import java.util.Map;
 
 import compecon.economy.agent.Agent;
-import compecon.materia.GoodType;
+import compecon.economy.materia.GoodType;
 
 public interface GoodTypeOwnership {
 
 	public Agent getAgent();
 
 	public Map<GoodType, Double> getOwnedGoodTypes();
-
-	public void setAgent(Agent agent);
-
-	public void setOwnedGoodTypes(Map<GoodType, Double> ownedGoodTypes);
-
 }

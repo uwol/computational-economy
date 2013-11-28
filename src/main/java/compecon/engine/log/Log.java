@@ -25,13 +25,13 @@ import java.util.Map;
 import compecon.economy.agent.Agent;
 import compecon.economy.behaviour.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.State;
 import compecon.engine.timesystem.ITimeSystemEvent;
-import compecon.materia.GoodType;
 import compecon.math.ConvexFunction.ConvexFunctionTerminationCause;
 import compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
 

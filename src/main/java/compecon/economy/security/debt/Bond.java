@@ -37,16 +37,6 @@ public interface Bond extends PropertyIssued {
 
 	public int getTermInYears();
 
-	public void setFaceValue(final double faceValue);
-
-	public void setFaceValueFromBankAccountDelegate(
-			final BankAccountDelegate faceValueFromBankAccountDelegate);
-
 	public void setFaceValueToBankAccountDelegate(
 			final BankAccountDelegate faceValueToBankAccountDelegate);
-
-	public void setIssuedInCurrency(final Currency issuedInCurrency);
-
-	public void setTermInYears(final int termInYears);
-
 }

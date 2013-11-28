@@ -34,6 +34,7 @@ import org.hibernate.annotations.Index;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
@@ -48,8 +49,7 @@ import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
+import compecon.math.util.MathUtil;
 
 /**
  * Agent type central bank adjusts key interest rates based on price indices.
@@ -129,6 +129,14 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		// statistical office; has to be initialized after calculating
 		// NUMBER_OF_SNAPSHOTS_PER_DAY
 		this.statisticalOffice = new StatisticalOffice();
+	}
+
+	@Override
+	public void deconstruct() {
+		super.deconstruct();
+
+		ApplicationContext.getInstance().getCentralBankFactory()
+				.deleteCentralBank(this);
 	}
 
 	/*
@@ -254,7 +262,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			}
 			customer.onBankCloseBankAccount(bankAccount);
 		}
-		ApplicationContext.getInstance().getBankAccountService()
+		ApplicationContext.getInstance().getBankAccountFactory()
 				.deleteAllBankAccounts(this, customer);
 	}
 

@@ -22,13 +22,13 @@ package compecon.math.production.impl;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import compecon.economy.materia.GoodType;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
 import compecon.math.Function;
 import compecon.math.price.PriceFunction;
 import compecon.math.production.ConvexProductionFunction;
+import compecon.math.util.MathUtil;
 
 public abstract class ConvexProductionFunctionImpl extends
 		ProductionFunctionImpl implements ConvexProductionFunction {

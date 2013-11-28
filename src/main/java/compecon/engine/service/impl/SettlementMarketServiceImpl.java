@@ -26,14 +26,14 @@ import java.util.SortedMap;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.service.SettlementMarketService;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
+import compecon.math.util.MathUtil;
 
 /**
  * The settlement market is a special market that transfers ownership of offered

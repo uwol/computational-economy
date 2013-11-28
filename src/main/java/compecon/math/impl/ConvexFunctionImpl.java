@@ -24,9 +24,9 @@ import java.util.Map;
 
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
-import compecon.engine.util.MathUtil;
 import compecon.math.ConvexFunction;
 import compecon.math.price.PriceFunction;
+import compecon.math.util.MathUtil;
 
 public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 		ConvexFunction<T> {

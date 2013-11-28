@@ -22,7 +22,6 @@ package compecon.economy.sectors.state;
 import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.security.debt.FixedRateBond;
-import compecon.math.utility.UtilityFunction;
 
 public interface State extends Agent {
 
@@ -32,6 +31,4 @@ public interface State extends Agent {
 
 	public FixedRateBond obtainBond(final double faceValue,
 			final BankAccountDelegate buyerBankAccountDelegate);
-
-	public void setUtilityFunction(UtilityFunction utilityFunction);
 }

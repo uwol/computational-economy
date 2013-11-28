@@ -29,10 +29,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import compecon.CompEconTestSupport;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.materia.GoodType;
 import compecon.math.impl.CobbDouglasFunctionImpl;
 import compecon.math.price.PriceFunction;
 import compecon.math.price.impl.FixedPriceFunction;

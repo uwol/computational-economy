@@ -37,9 +37,9 @@ import org.jfree.ui.RectangleInsets;
 import compecon.dashboard.model.BalanceSheetTableModel;
 import compecon.economy.behaviour.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.materia.GoodType;
 
 public abstract class AbstractChartsPanel extends JPanel {
 

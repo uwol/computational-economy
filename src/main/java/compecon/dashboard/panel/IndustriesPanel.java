@@ -37,12 +37,12 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.XYDataset;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.NotificationListenerModel.ModelListener;
 import compecon.engine.statistics.PricesModel;
 import compecon.engine.statistics.PricesModel.PriceModel;
-import compecon.materia.GoodType;
 import compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
 
 public class IndustriesPanel extends AbstractChartsPanel implements

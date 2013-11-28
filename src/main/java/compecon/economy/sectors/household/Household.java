@@ -20,18 +20,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.economy.sectors.household;
 
 import compecon.economy.agent.Agent;
-import compecon.economy.behaviour.PricingBehaviour;
-import compecon.math.intertemporal.IntertemporalConsumptionFunction;
-import compecon.math.utility.UtilityFunction;
 
 public interface Household extends Agent {
 
-	public void setAgeInDays(int ageInDays);
-
-	public void setIntertemporalConsumptionFunction(
-			final IntertemporalConsumptionFunction intertemporalConsumptionFunction);
-
-	public void setPricingBehaviour(final PricingBehaviour pricingBehaviour);
-
-	public void setUtilityFunction(UtilityFunction utilityFunction);
 }

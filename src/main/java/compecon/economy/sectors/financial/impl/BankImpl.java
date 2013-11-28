@@ -72,7 +72,7 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 		}
 
 		// mandatory, so that this bank is removed from the DAOs index structure
-		ApplicationContext.getInstance().getBankAccountService()
+		ApplicationContext.getInstance().getBankAccountFactory()
 				.deleteAllBankAccounts(this);
 
 		super.deconstruct();
@@ -281,7 +281,7 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 
 		final BankAccount bankAccount = ApplicationContext
 				.getInstance()
-				.getBankAccountService()
+				.getBankAccountFactory()
 				.newInstanceBankAccount(customer, currency, overdraftPossible,
 						this, name, termType, moneyType);
 		return bankAccount;

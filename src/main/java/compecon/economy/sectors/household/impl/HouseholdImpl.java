@@ -35,6 +35,8 @@ import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.behaviour.PricingBehaviour;
 import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
+import compecon.economy.materia.Refreshable;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
@@ -50,12 +52,10 @@ import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
-import compecon.materia.Refreshable;
 import compecon.math.intertemporal.IntertemporalConsumptionFunction;
 import compecon.math.intertemporal.impl.IrvingFisherIntertemporalConsumptionFunction.Period;
 import compecon.math.price.PriceFunction;
+import compecon.math.util.MathUtil;
 import compecon.math.utility.UtilityFunction;
 
 /**
@@ -132,6 +132,14 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		this.pricingBehaviour = new PricingBehaviourImpl(this,
 				GoodType.LABOURHOUR, this.primaryCurrency, marketPrice);
 		this.labourPower.refresh();
+	}
+
+	@Override
+	public void deconstruct() {
+		super.deconstruct();
+
+		ApplicationContext.getInstance().getHouseholdFactory()
+				.deleteHousehold(this);
 	}
 
 	/*
@@ -683,9 +691,9 @@ public class HouseholdImpl extends AgentImpl implements Household {
 								.getNewHouseholdEveryXDays() == 0) {
 					ApplicationContext
 							.getInstance()
-							.getAgentService()
+							.getHouseholdFactory()
 							.newInstanceHousehold(
-									HouseholdImpl.this.primaryCurrency);
+									HouseholdImpl.this.primaryCurrency, 0);
 				}
 			}
 		}

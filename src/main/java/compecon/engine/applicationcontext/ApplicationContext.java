@@ -19,6 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.applicationcontext;
 
+import compecon.economy.materia.InputOutputModel;
 import compecon.engine.dao.BankAccountDAO;
 import compecon.engine.dao.CentralBankDAO;
 import compecon.engine.dao.CreditBankDAO;
@@ -30,18 +31,23 @@ import compecon.engine.dao.PropertyDAO;
 import compecon.engine.dao.StateDAO;
 import compecon.engine.dao.TraderDAO;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
+import compecon.engine.factory.BankAccountFactory;
+import compecon.engine.factory.CentralBankFactory;
+import compecon.engine.factory.CreditBankFactory;
+import compecon.engine.factory.FactoryFactory;
+import compecon.engine.factory.GoodTypeOwnershipFactory;
+import compecon.engine.factory.HouseholdFactory;
+import compecon.engine.factory.MarketOrderFactory;
+import compecon.engine.factory.StateFactory;
+import compecon.engine.factory.TraderFactory;
 import compecon.engine.log.Log;
 import compecon.engine.runner.SimulationRunner;
 import compecon.engine.service.AgentService;
-import compecon.engine.service.BankAccountService;
-import compecon.engine.service.GoodTypeOwnershipService;
 import compecon.engine.service.HardCashService;
-import compecon.engine.service.MarketOrderService;
 import compecon.engine.service.PropertyService;
 import compecon.engine.service.SettlementMarketService;
 import compecon.engine.statistics.ModelRegistry;
 import compecon.engine.timesystem.ITimeSystem;
-import compecon.materia.InputOutputModel;
 
 public class ApplicationContext {
 
@@ -69,19 +75,33 @@ public class ApplicationContext {
 
 	protected TraderDAO traderDAO;
 
+	// factory classes
+
+	protected BankAccountFactory bankAccountFactory;
+
+	protected CentralBankFactory centralBankFactory;
+
+	protected CreditBankFactory creditBankFactory;
+
+	protected FactoryFactory factoryFactory;
+
+	protected GoodTypeOwnershipFactory goodTypeOwnershipFactory;
+
+	protected HouseholdFactory householdFactory;
+
+	protected MarketOrderFactory marketOrderFactory;
+
+	protected StateFactory stateFactory;
+
+	protected TraderFactory traderFactory;
+
 	// services
 
 	protected AgentService agentService;
 
-	protected BankAccountService bankAccountService;
-
-	protected GoodTypeOwnershipService goodTypeOwnershipService;
-
 	protected HardCashService hardCashService;
 
 	protected SettlementMarketService marketService;
-
-	protected MarketOrderService marketOrderService;
 
 	protected PropertyService propertyService;
 
@@ -159,16 +179,44 @@ public class ApplicationContext {
 		return traderDAO;
 	}
 
+	public BankAccountFactory getBankAccountFactory() {
+		return bankAccountFactory;
+	}
+
+	public CentralBankFactory getCentralBankFactory() {
+		return centralBankFactory;
+	}
+
+	public CreditBankFactory getCreditBankFactory() {
+		return creditBankFactory;
+	}
+
+	public FactoryFactory getFactoryFactory() {
+		return factoryFactory;
+	}
+
+	public GoodTypeOwnershipFactory getGoodTypeOwnershipFactory() {
+		return goodTypeOwnershipFactory;
+	}
+
+	public HouseholdFactory getHouseholdFactory() {
+		return householdFactory;
+	}
+
+	public MarketOrderFactory getMarketOrderFactory() {
+		return marketOrderFactory;
+	}
+
+	public StateFactory getStateFactory() {
+		return stateFactory;
+	}
+
+	public TraderFactory getTraderFactory() {
+		return traderFactory;
+	}
+
 	public AgentService getAgentService() {
 		return agentService;
-	}
-
-	public BankAccountService getBankAccountService() {
-		return bankAccountService;
-	}
-
-	public GoodTypeOwnershipService getGoodTypeOwnershipService() {
-		return goodTypeOwnershipService;
 	}
 
 	public HardCashService getHardCashService() {
@@ -177,10 +225,6 @@ public class ApplicationContext {
 
 	public SettlementMarketService getMarketService() {
 		return marketService;
-	}
-
-	public MarketOrderService getMarketOrderService() {
-		return marketOrderService;
 	}
 
 	public PropertyService getPropertyService() {
@@ -260,17 +304,45 @@ public class ApplicationContext {
 		this.traderDAO = traderDAO;
 	}
 
+	public void setBankAccountFactory(BankAccountFactory bankAccountFactory) {
+		this.bankAccountFactory = bankAccountFactory;
+	}
+
+	public void setCentralBankFactory(CentralBankFactory centralBankFactory) {
+		this.centralBankFactory = centralBankFactory;
+	}
+
+	public void setCreditBankFactory(CreditBankFactory creditBankFactory) {
+		this.creditBankFactory = creditBankFactory;
+	}
+
+	public void setFactoryFactory(FactoryFactory factoryFactory) {
+		this.factoryFactory = factoryFactory;
+	}
+
+	public void setGoodTypeOwnershipFactory(
+			GoodTypeOwnershipFactory goodTypeOwnershipFactory) {
+		this.goodTypeOwnershipFactory = goodTypeOwnershipFactory;
+	}
+
+	public void setHouseholdFactory(HouseholdFactory householdFactory) {
+		this.householdFactory = householdFactory;
+	}
+
+	public void setMarketOrderFactory(MarketOrderFactory marketOrderFactory) {
+		this.marketOrderFactory = marketOrderFactory;
+	}
+
+	public void setStateFactory(StateFactory stateFactory) {
+		this.stateFactory = stateFactory;
+	}
+
+	public void setTraderFactory(TraderFactory traderFactory) {
+		this.traderFactory = traderFactory;
+	}
+
 	public void setAgentService(AgentService agentService) {
 		this.agentService = agentService;
-	}
-
-	public void setBankAccountService(BankAccountService bankAccountService) {
-		this.bankAccountService = bankAccountService;
-	}
-
-	public void setGoodTypeOwnershipService(
-			GoodTypeOwnershipService goodTypeOwnershipService) {
-		this.goodTypeOwnershipService = goodTypeOwnershipService;
 	}
 
 	public void setHardCashService(HardCashService hardCashService) {
@@ -279,10 +351,6 @@ public class ApplicationContext {
 
 	public void setMarketService(SettlementMarketService marketService) {
 		this.marketService = marketService;
-	}
-
-	public void setMarketOrderService(MarketOrderService marketOrderService) {
-		this.marketOrderService = marketOrderService;
 	}
 
 	public void setPropertyService(PropertyService propertyService) {
@@ -317,5 +385,4 @@ public class ApplicationContext {
 	public void setTimeSystem(ITimeSystem timeSystem) {
 		this.timeSystem = timeSystem;
 	}
-
 }

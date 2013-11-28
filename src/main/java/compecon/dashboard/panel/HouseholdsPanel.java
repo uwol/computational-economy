@@ -40,6 +40,7 @@ import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYDataset;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.ModelRegistry.IncomeSource;
@@ -47,7 +48,6 @@ import compecon.engine.statistics.NotificationListenerModel.ModelListener;
 import compecon.engine.statistics.PeriodDataDistributionModel.SummaryStatisticalData;
 import compecon.engine.statistics.PricesModel;
 import compecon.engine.statistics.PricesModel.PriceModel;
-import compecon.materia.GoodType;
 import compecon.math.ConvexFunction.ConvexFunctionTerminationCause;
 
 public class HouseholdsPanel extends AbstractChartsPanel implements

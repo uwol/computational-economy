@@ -44,17 +44,17 @@ public class HouseholdDAOTest extends CompEconTestSupport {
 
 	@Test
 	public void testCreateAndDeleteHouseholds() {
-		ApplicationContext.getInstance().getAgentService()
-				.newInstanceHousehold(Currency.EURO);
-		ApplicationContext.getInstance().getAgentService()
-				.newInstanceHousehold(Currency.EURO);
+		ApplicationContext.getInstance().getHouseholdFactory()
+				.newInstanceHousehold(Currency.EURO, 0);
+		ApplicationContext.getInstance().getHouseholdFactory()
+				.newInstanceHousehold(Currency.EURO, 0);
 		Household household = ApplicationContext.getInstance()
-				.getAgentService().newInstanceHousehold(Currency.EURO);
+				.getHouseholdFactory().newInstanceHousehold(Currency.EURO, 0);
 
-		ApplicationContext.getInstance().getAgentService()
-				.newInstanceHousehold(Currency.USDOLLAR);
-		ApplicationContext.getInstance().getAgentService()
-				.newInstanceHousehold(Currency.YEN);
+		ApplicationContext.getInstance().getHouseholdFactory()
+				.newInstanceHousehold(Currency.USDOLLAR, 0);
+		ApplicationContext.getInstance().getHouseholdFactory()
+				.newInstanceHousehold(Currency.YEN, 0);
 
 		assertEquals(5, ApplicationContext.getInstance().getHouseholdDAO()
 				.findAll().size());

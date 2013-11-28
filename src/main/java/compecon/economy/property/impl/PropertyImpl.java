@@ -106,7 +106,7 @@ public abstract class PropertyImpl implements Property {
 	}
 
 	@Transient
-	protected void deconstruct() {
+	public void deconstruct() {
 		this.isDeconstructed = true;
 		ApplicationContext.getInstance().getPropertyService()
 				.deleteProperty(this);

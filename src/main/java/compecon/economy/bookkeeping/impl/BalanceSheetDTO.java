@@ -24,12 +24,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.security.equity.Share;
-import compecon.materia.GoodType;
 
 public class BalanceSheetDTO {
 

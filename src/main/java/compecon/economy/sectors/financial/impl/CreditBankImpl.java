@@ -43,6 +43,7 @@ import compecon.economy.agent.Agent;
 import compecon.economy.behaviour.PricingBehaviour;
 import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
@@ -63,8 +64,7 @@ import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
+import compecon.math.util.MathUtil;
 
 /**
  * Agent type credit bank manages bank accounts, creates money by credit and
@@ -182,6 +182,9 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		}
 
 		super.deconstruct();
+
+		ApplicationContext.getInstance().getCreditBankFactory()
+				.deleteCreditBank(this);
 	}
 
 	/*
@@ -350,10 +353,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			// when tearing down the simulation, the transactions bank account
 			// might be null, if the credit bank is already deconstructed
 			// has to be checked each in iteration
-			if (this.bankAccountTransactions != null) {
+			if (!this.isDeconstructed && this.bankAccountTransactions != null) {
 				if (bankAccount != this.bankAccountTransactions) {
-					// on closing has to be evened up to 0, so that no money is
-					// lost in the monetary system
+					// on closing has to be evened up to 0, so that no money
+					// is lost in the monetary system
 					if (bankAccount.getBalance() >= 0) {
 						this.transferMoney(bankAccount,
 								this.bankAccountTransactions,
@@ -375,7 +378,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			this.transferBankAccountBalanceToDividendBankAccount(this.bankAccountTransactions);
 		}
 
-		ApplicationContext.getInstance().getBankAccountService()
+		ApplicationContext.getInstance().getBankAccountFactory()
 				.deleteAllBankAccounts(this, customer);
 	}
 
@@ -547,6 +550,8 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	@Transient
 	public void transferMoney(final BankAccount from, final BankAccount to,
 			final double amount, final String subject) {
+		assert (!this.isDeconstructed);
+
 		this.assureBankAccountCentralBankTransactions();
 		this.assertIsCustomerOfThisBank(from.getOwner());
 		this.assertBankAccountIsManagedByThisBank(from);

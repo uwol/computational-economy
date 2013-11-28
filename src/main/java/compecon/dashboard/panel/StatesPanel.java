@@ -33,10 +33,10 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.NotificationListenerModel.ModelListener;
-import compecon.materia.GoodType;
 
 public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 

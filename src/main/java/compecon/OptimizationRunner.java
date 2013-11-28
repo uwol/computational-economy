@@ -21,13 +21,13 @@ package compecon;
 
 import java.util.GregorianCalendar;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.applicationcontext.ApplicationContextFactory;
 import compecon.engine.runner.impl.AbstractConfigurationRunnerImpl;
 import compecon.engine.util.HibernateUtil;
 import compecon.jmx.JMXRegistration;
-import compecon.materia.GoodType;
 
 /**
  * This is a main method for sequently starting multiple simulations without a

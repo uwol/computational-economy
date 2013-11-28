@@ -23,9 +23,9 @@ import java.util.Iterator;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Currency;
-import compecon.materia.GoodType;
 
 public interface MarketOrderDAO extends GenericDAO<MarketOrder> {
 

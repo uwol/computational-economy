@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.materia;
+package compecon.economy.materia;
 
 import compecon.math.production.ProductionFunction;
 import compecon.math.utility.UtilityFunction;

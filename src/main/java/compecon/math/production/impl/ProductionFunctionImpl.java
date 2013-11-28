@@ -22,7 +22,7 @@ package compecon.math.production.impl;
 import java.util.Map;
 import java.util.Set;
 
-import compecon.materia.GoodType;
+import compecon.economy.materia.GoodType;
 import compecon.math.Function;
 import compecon.math.price.PriceFunction;
 import compecon.math.production.ProductionFunction;

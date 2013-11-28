@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.timesystem.impl.HourType;
-import compecon.materia.GoodType;
 
 public class Configuration {
 

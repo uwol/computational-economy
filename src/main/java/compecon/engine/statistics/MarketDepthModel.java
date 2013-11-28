@@ -26,9 +26,9 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.materia.GoodType;
 
 /**
  * Market depth model uses the compecon notification listener approach instead

@@ -40,14 +40,14 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.AgentDetailModel;
 import compecon.engine.statistics.AgentDetailModel.AgentLog;
 import compecon.engine.statistics.NotificationListenerModel.ModelListener;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
+import compecon.math.util.MathUtil;
 
 public class LogPanel extends JPanel implements ModelListener {
 

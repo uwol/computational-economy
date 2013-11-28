@@ -43,6 +43,7 @@ import org.hibernate.annotations.Index;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.property.PropertyIssued;
 import compecon.economy.sectors.financial.Bank;
@@ -58,7 +59,6 @@ import compecon.engine.log.Log;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.materia.GoodType;
 
 @Entity
 @Table(name = "Agent")
@@ -158,8 +158,6 @@ public abstract class AgentImpl implements Agent {
 
 		// deregister from cash register
 		ApplicationContext.getInstance().getHardCashService().deregister(this);
-
-		ApplicationContext.getInstance().getAgentService().deleteAgent(this);
 	}
 
 	/*

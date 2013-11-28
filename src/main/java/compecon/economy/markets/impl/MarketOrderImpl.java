@@ -36,11 +36,11 @@ import org.hibernate.annotations.Index;
 import compecon.economy.agent.Agent;
 import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.property.impl.PropertyImpl;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
-import compecon.materia.GoodType;
 
 /**
  * http://en.wikipedia.org/wiki/Order_%28exchange%29

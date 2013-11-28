@@ -19,7 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.math.utility.impl;
 
-import compecon.materia.GoodType;
+import compecon.economy.materia.GoodType;
 import compecon.math.impl.ConvexFunctionImpl;
 
 /**

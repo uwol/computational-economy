@@ -24,7 +24,7 @@ import compecon.economy.behaviour.PricingBehaviour;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
-import compecon.engine.util.MathUtil;
+import compecon.math.util.MathUtil;
 
 /**
  * This behaviour controls pricing decisions. It is injected into an agent (thus

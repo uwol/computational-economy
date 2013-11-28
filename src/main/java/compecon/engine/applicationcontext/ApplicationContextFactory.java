@@ -19,20 +19,26 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.applicationcontext;
 
+import compecon.economy.materia.impl.InputOutputModelInterdependenciesImpl;
+import compecon.economy.materia.impl.InputOutputModelMinimalImpl;
+import compecon.economy.materia.impl.InputOutputModelSegementedImpl;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
+import compecon.engine.factory.impl.BankAccountImplFactoryImpl;
+import compecon.engine.factory.impl.CentralBankImplFactoryImpl;
+import compecon.engine.factory.impl.CreditBankImplFactoryImpl;
+import compecon.engine.factory.impl.FactoryImplFactoryImpl;
+import compecon.engine.factory.impl.GoodTypeOwnershipImplFactoryImpl;
+import compecon.engine.factory.impl.HouseholdImplFactoryImpl;
+import compecon.engine.factory.impl.MarketOrderImplFactoryImpl;
+import compecon.engine.factory.impl.StateImplFactoryImpl;
+import compecon.engine.factory.impl.TraderImplFactoryImpl;
 import compecon.engine.log.impl.LogImpl;
 import compecon.engine.service.impl.AgentServiceImpl;
-import compecon.engine.service.impl.BankAccountServiceImpl;
-import compecon.engine.service.impl.GoodTypeOwnershipServiceImpl;
 import compecon.engine.service.impl.HardCashServiceImpl;
-import compecon.engine.service.impl.MarketOrderServiceImpl;
 import compecon.engine.service.impl.PropertyServiceImpl;
 import compecon.engine.service.impl.SettlementMarketServiceImpl;
 import compecon.engine.statistics.ModelRegistry;
 import compecon.engine.timesystem.impl.TimeSystem;
-import compecon.materia.impl.InputOutputModelInterdependenciesImpl;
-import compecon.materia.impl.InputOutputModelMinimalImpl;
-import compecon.materia.impl.InputOutputModelSegementedImpl;
 
 public class ApplicationContextFactory {
 
@@ -57,18 +63,35 @@ public class ApplicationContextFactory {
 				new Configuration(configurationPropertiesFilename));
 
 		/*
+		 * factory classes
+		 */
+
+		ApplicationContext.getInstance().setBankAccountFactory(
+				new BankAccountImplFactoryImpl());
+		ApplicationContext.getInstance().setCentralBankFactory(
+				new CentralBankImplFactoryImpl());
+		ApplicationContext.getInstance().setCreditBankFactory(
+				new CreditBankImplFactoryImpl());
+		ApplicationContext.getInstance().setFactoryFactory(
+				new FactoryImplFactoryImpl());
+		ApplicationContext.getInstance().setGoodTypeOwnershipFactory(
+				new GoodTypeOwnershipImplFactoryImpl());
+		ApplicationContext.getInstance().setHouseholdFactory(
+				new HouseholdImplFactoryImpl());
+		ApplicationContext.getInstance().setMarketOrderFactory(
+				new MarketOrderImplFactoryImpl());
+		ApplicationContext.getInstance().setStateFactory(
+				new StateImplFactoryImpl());
+		ApplicationContext.getInstance().setTraderFactory(
+				new TraderImplFactoryImpl());
+
+		/*
 		 * services
 		 */
 		ApplicationContext.getInstance()
 				.setAgentService(new AgentServiceImpl());
-		ApplicationContext.getInstance().setBankAccountService(
-				new BankAccountServiceImpl());
-		ApplicationContext.getInstance().setGoodTypeOwnershipService(
-				new GoodTypeOwnershipServiceImpl());
 		ApplicationContext.getInstance().setHardCashService(
 				new HardCashServiceImpl());
-		ApplicationContext.getInstance().setMarketOrderService(
-				new MarketOrderServiceImpl());
 		ApplicationContext.getInstance().setPropertyService(
 				new PropertyServiceImpl());
 		ApplicationContext.getInstance().setMarketService(

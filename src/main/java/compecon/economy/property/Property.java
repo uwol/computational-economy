@@ -19,11 +19,10 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.property;
 
+import compecon.economy.LifecycleEntity;
 import compecon.economy.agent.Agent;
 
-public interface Property {
-
-	public boolean isDeconstructed();
+public interface Property extends LifecycleEntity {
 
 	public Agent getOwner();
 

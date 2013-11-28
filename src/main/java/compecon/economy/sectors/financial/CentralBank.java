@@ -22,8 +22,8 @@ package compecon.economy.sectors.financial;
 import java.util.List;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.materia.GoodType;
 import compecon.economy.security.debt.FixedRateBond;
-import compecon.materia.GoodType;
 
 public interface CentralBank extends Bank {
 

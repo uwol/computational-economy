@@ -19,7 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.math.price;
 
-import compecon.materia.GoodType;
+import compecon.economy.materia.GoodType;
 
 public interface PriceFunction {
 

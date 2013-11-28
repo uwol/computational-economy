@@ -22,9 +22,9 @@ package compecon.math.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import compecon.engine.util.MathUtil;
 import compecon.math.Function;
 import compecon.math.price.PriceFunction;
+import compecon.math.util.MathUtil;
 
 public abstract class FunctionImpl<T> implements Function<T> {
 

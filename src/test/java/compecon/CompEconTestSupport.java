@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -35,7 +36,6 @@ import compecon.economy.sectors.trading.Trader;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.applicationcontext.ApplicationContextFactory;
 import compecon.engine.util.HibernateUtil;
-import compecon.materia.GoodType;
 import compecon.math.impl.FunctionImpl;
 import compecon.math.price.PriceFunction;
 
@@ -142,17 +142,17 @@ public abstract class CompEconTestSupport {
 		for (Currency currency : Currency.values()) {
 			ApplicationContext.getInstance().getAgentService()
 					.getInstanceCentralBank(currency);
-			ApplicationContext.getInstance().getAgentService()
+			ApplicationContext.getInstance().getCreditBankFactory()
 					.newInstanceCreditBank(currency);
-			ApplicationContext.getInstance().getAgentService()
+			ApplicationContext.getInstance().getCreditBankFactory()
 					.newInstanceCreditBank(currency);
-			ApplicationContext.getInstance().getAgentService()
+			ApplicationContext.getInstance().getFactoryFactory()
 					.newInstanceFactory(GoodType.WHEAT, currency);
-			ApplicationContext.getInstance().getAgentService()
-					.newInstanceHousehold(currency);
-			ApplicationContext.getInstance().getAgentService()
-					.newInstanceHousehold(currency);
-			ApplicationContext.getInstance().getAgentService()
+			ApplicationContext.getInstance().getHouseholdFactory()
+					.newInstanceHousehold(currency, 0);
+			ApplicationContext.getInstance().getHouseholdFactory()
+					.newInstanceHousehold(currency, 0);
+			ApplicationContext.getInstance().getTraderFactory()
 					.newInstanceTrader(currency);
 		}
 

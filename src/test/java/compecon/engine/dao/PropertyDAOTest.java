@@ -51,7 +51,7 @@ public class PropertyDAOTest extends CompEconTestSupport {
 		State state = ApplicationContext.getInstance().getAgentService()
 				.getInstanceState(Currency.EURO);
 		CreditBank creditBank = ApplicationContext.getInstance()
-				.getAgentService().newInstanceCreditBank(Currency.EURO);
+				.getCreditBankFactory().newInstanceCreditBank(Currency.EURO);
 
 		Bond bond = state.obtainBond(1000,
 				creditBank.getBankAccountTransactionsDelegate());
@@ -88,7 +88,7 @@ public class PropertyDAOTest extends CompEconTestSupport {
 		State state = ApplicationContext.getInstance().getAgentService()
 				.getInstanceState(Currency.EURO);
 		CreditBank creditBank = ApplicationContext.getInstance()
-				.getAgentService().newInstanceCreditBank(Currency.EURO);
+				.getCreditBankFactory().newInstanceCreditBank(Currency.EURO);
 
 		Bond bond1 = state.obtainBond(1000,
 				creditBank.getBankAccountTransactionsDelegate());

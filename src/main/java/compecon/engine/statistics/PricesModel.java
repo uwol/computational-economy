@@ -24,11 +24,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.materia.GoodType;
 
 public class PricesModel extends NotificationListenerModel {
 

@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.economy.security.equity.JointStockCompany;
 import compecon.economy.security.equity.Share;
-import compecon.materia.GoodType;
 
 public interface PropertyService {
 

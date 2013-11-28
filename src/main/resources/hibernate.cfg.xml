@@ -42,6 +42,7 @@
 		<mapping class="compecon.economy.agent.impl.AgentImpl" />
 		<mapping class="compecon.economy.markets.MarketOrder" />
 		<mapping class="compecon.economy.markets.impl.MarketOrderImpl" />
+		<mapping class="compecon.economy.materia.GoodType" />
 		<mapping class="compecon.economy.property.GoodTypeOwnership" />
 		<mapping class="compecon.economy.property.impl.GoodTypeOwnershipImpl" />
 		<mapping class="compecon.economy.property.Property" />
@@ -75,6 +76,5 @@
 		<mapping class="compecon.economy.security.equity.impl.JointStockCompanyImpl" />
 		<mapping class="compecon.economy.security.equity.Share" />
 		<mapping class="compecon.economy.security.equity.impl.ShareImpl" />
-		<mapping class="compecon.materia.GoodType" />
 	</session-factory>
 </hibernate-configuration>

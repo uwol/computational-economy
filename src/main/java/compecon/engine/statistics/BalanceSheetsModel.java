@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -32,7 +33,6 @@ import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.trading.Trader;
-import compecon.materia.GoodType;
 
 public class BalanceSheetsModel extends NotificationListenerModel {
 

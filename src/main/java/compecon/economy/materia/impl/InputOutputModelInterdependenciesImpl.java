@@ -17,13 +17,13 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.materia.impl;
+package compecon.economy.materia.impl;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import compecon.materia.GoodType;
-import compecon.materia.InputOutputModel;
+import compecon.economy.materia.GoodType;
+import compecon.economy.materia.InputOutputModel;
 import compecon.math.production.ProductionFunction;
 import compecon.math.production.impl.CESProductionFunctionImpl;
 import compecon.math.utility.UtilityFunction;

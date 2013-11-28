@@ -36,8 +36,8 @@ import javax.persistence.Table;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.agent.impl.AgentImpl;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.GoodTypeOwnership;
-import compecon.materia.GoodType;
 
 @Entity
 @Table(name = "GoodTypeOwnership")

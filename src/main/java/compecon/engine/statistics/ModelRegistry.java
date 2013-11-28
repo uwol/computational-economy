@@ -23,12 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import compecon.economy.behaviour.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.statistics.timeseries.PeriodDataPercentageTimeSeriesModel;
 import compecon.engine.statistics.timeseries.PeriodDataQuotientTimeSeriesModel;
-import compecon.materia.GoodType;
 import compecon.math.ConvexFunction.ConvexFunctionTerminationCause;
 import compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
 import compecon.math.production.ProductionFunction;

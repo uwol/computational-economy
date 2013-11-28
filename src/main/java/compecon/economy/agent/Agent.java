@@ -21,16 +21,13 @@ package compecon.economy.agent;
 
 import java.util.Set;
 
+import compecon.economy.LifecycleEntity;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.timesystem.ITimeSystemEvent;
 
-public interface Agent {
-
-	public void initialize();
-
-	public void deconstruct();
+public interface Agent extends LifecycleEntity {
 
 	public BankAccountDelegate getBankAccountTransactionsDelegate();
 
@@ -40,13 +37,5 @@ public interface Agent {
 
 	public Currency getPrimaryCurrency();
 
-	public boolean isDeconstructed();
-
 	public void onBankCloseBankAccount(BankAccount bankAccount);
-
-	public void setId(int id);
-
-	public void setPrimaryCurrency(final Currency primaryCurrency);
-
-	public void setReferenceCredit(final double referenceCredit);
 }

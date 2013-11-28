@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import compecon.CompEconTestSupport;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
@@ -41,7 +42,6 @@ import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.service.impl.MarketServiceImpl.MarketPriceFunction;
 import compecon.engine.timesystem.ITimeSystemEvent;
-import compecon.materia.GoodType;
 import compecon.math.price.PriceFunction.PriceFunctionConfig;
 
 public class MarketServiceTest extends CompEconTestSupport {

@@ -34,6 +34,7 @@ import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.behaviour.PricingBehaviour;
 import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
@@ -52,9 +53,8 @@ import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
 import compecon.math.price.PriceFunction;
+import compecon.math.util.MathUtil;
 import compecon.math.utility.UtilityFunction;
 
 @Entity
@@ -97,6 +97,13 @@ public class StateImpl extends AgentImpl implements State {
 				.getEffectiveKeyInterestRate() + 0.02;
 		this.pricingBehaviour = new PricingBehaviourImpl(this,
 				FixedRateBond.class, this.primaryCurrency, initialInterestRate);
+	}
+
+	@Override
+	public void deconstruct() {
+		super.deconstruct();
+
+		ApplicationContext.getInstance().getStateFactory().deleteState(this);
 	}
 
 	/*

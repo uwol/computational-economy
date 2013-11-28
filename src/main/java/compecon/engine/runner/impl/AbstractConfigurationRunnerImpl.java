@@ -20,8 +20,10 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.runner.impl;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -31,10 +33,11 @@ import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.trading.Trader;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.util.HibernateUtil;
-import compecon.materia.GoodType;
 
 public abstract class AbstractConfigurationRunnerImpl extends
 		AbstractRunnerImpl {
+
+	protected final Random random = new Random();
 
 	protected void setUp() {
 		for (Currency currency : Currency.values()) {
@@ -62,7 +65,7 @@ public abstract class AbstractConfigurationRunnerImpl extends
 			// initialize credit banks
 			for (int i = 0; i < ApplicationContext.getInstance()
 					.getConfiguration().creditBankConfig.getNumber(currency); i++) {
-				ApplicationContext.getInstance().getAgentService()
+				ApplicationContext.getInstance().getCreditBankFactory()
 						.newInstanceCreditBank(offeredCurrencies, currency);
 			}
 		}
@@ -74,7 +77,7 @@ public abstract class AbstractConfigurationRunnerImpl extends
 					for (int i = 0; i < ApplicationContext.getInstance()
 							.getConfiguration().factoryConfig.getNumber(
 							currency, goodType); i++) {
-						ApplicationContext.getInstance().getAgentService()
+						ApplicationContext.getInstance().getFactoryFactory()
 								.newInstanceFactory(goodType, currency);
 					}
 				}
@@ -85,7 +88,7 @@ public abstract class AbstractConfigurationRunnerImpl extends
 			// initialize traders
 			for (int i = 0; i < ApplicationContext.getInstance()
 					.getConfiguration().traderConfig.getNumber(currency); i++) {
-				ApplicationContext.getInstance().getAgentService()
+				ApplicationContext.getInstance().getTraderFactory()
 						.newInstanceTrader(currency);
 			}
 		}
@@ -94,14 +97,13 @@ public abstract class AbstractConfigurationRunnerImpl extends
 			// initialize households
 			for (int i = 0; i < ApplicationContext.getInstance()
 					.getConfiguration().householdConfig.getNumber(currency); i++) {
-				Household household = ApplicationContext.getInstance()
-						.getAgentService().newInstanceHousehold(currency);
 				// division, so that households have time left until
 				// retirement
-				household
-						.setAgeInDays((household.hashCode() % ApplicationContext
-								.getInstance().getConfiguration().householdConfig
-								.getLifespanInDays()) / 2);
+				int ageInDays = this.random.nextInt(ApplicationContext
+						.getInstance().getConfiguration().householdConfig
+						.getLifespanInDays()) / 2;
+				ApplicationContext.getInstance().getHouseholdFactory()
+						.newInstanceHousehold(currency, ageInDays);
 			}
 		}
 

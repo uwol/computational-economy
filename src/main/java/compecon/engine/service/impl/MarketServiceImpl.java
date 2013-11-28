@@ -31,6 +31,7 @@ import java.util.TreeMap;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
@@ -38,11 +39,10 @@ import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
 import compecon.engine.service.MarketService;
 import compecon.engine.util.HibernateUtil;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
 import compecon.math.price.PriceFunction;
 import compecon.math.price.PriceFunction.PriceFunctionConfig;
 import compecon.math.price.impl.FixedPriceFunction;
+import compecon.math.util.MathUtil;
 
 public abstract class MarketServiceImpl implements MarketService {
 
@@ -517,7 +517,7 @@ public abstract class MarketServiceImpl implements MarketService {
 
 		ApplicationContext
 				.getInstance()
-				.getMarketOrderService()
+				.getMarketOrderFactory()
 				.newInstanceGoodTypeMarketOrder(goodType, offeror,
 						offerorsBankAcountDelegate, amount, pricePerUnit);
 		if (getLog().isAgentSelectedByClient(offeror))
@@ -548,7 +548,7 @@ public abstract class MarketServiceImpl implements MarketService {
 
 		ApplicationContext
 				.getInstance()
-				.getMarketOrderService()
+				.getMarketOrderFactory()
 				.newInstanceCurrencyMarketOrder(commodityCurrency, offeror,
 						offerorsBankAcountDelegate, amount, pricePerUnit,
 						commodityCurrencyOfferorsBankAcountDelegate);
@@ -575,7 +575,7 @@ public abstract class MarketServiceImpl implements MarketService {
 
 		ApplicationContext
 				.getInstance()
-				.getMarketOrderService()
+				.getMarketOrderFactory()
 				.newInstancePropertyMarketOrder(property, offeror,
 						offerorsBankAcountDelegate, pricePerUnit);
 		if (getLog().isAgentSelectedByClient(offeror))

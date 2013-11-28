@@ -31,7 +31,7 @@ import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.engine.util.MathUtil;
+import compecon.math.util.MathUtil;
 
 @Entity
 public class FixedRateBondImpl extends BondImpl implements FixedRateBond,

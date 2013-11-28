@@ -27,10 +27,10 @@ import org.hibernate.ScrollableResults;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.MarketOrderDAO;
-import compecon.materia.GoodType;
 
 public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 		MarketOrderDAO {

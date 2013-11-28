@@ -39,5 +39,4 @@ public interface Bank extends Agent, JointStockCompany {
 
 	public void transferMoney(final BankAccount from, final BankAccount to,
 			final double amount, final String subject);
-
 }

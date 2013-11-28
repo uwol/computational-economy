@@ -17,48 +17,39 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.materia.impl;
+package compecon.economy.materia.impl;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import compecon.materia.GoodType;
-import compecon.materia.InputOutputModel;
+import compecon.economy.materia.GoodType;
+import compecon.economy.materia.InputOutputModel;
 import compecon.math.production.ProductionFunction;
 import compecon.math.production.impl.RootProductionFunctionImpl;
 import compecon.math.utility.UtilityFunction;
 import compecon.math.utility.impl.CESUtilityFunctionImpl;
 
-public class InputOutputModelSegementedImpl implements InputOutputModel {
+public class InputOutputModelMinimalImpl implements InputOutputModel {
 
+	@Override
 	public UtilityFunction getUtilityFunctionOfHousehold() {
 		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.IRON, 0.2);
-		preferences.put(GoodType.COAL, 0.2);
-		preferences.put(GoodType.COTTON, 0.2);
-		preferences.put(GoodType.WHEAT, 0.2);
-		preferences.put(GoodType.FOOD, 0.2);
-		preferences.put(GoodType.CLOTHING, 0.2);
-		preferences.put(GoodType.REALESTATE, 0.2);
-		preferences.put(GoodType.KILOWATT, 0.2);
-		preferences.put(GoodType.LABOURHOUR, 0.2);
+		preferences.put(GoodType.IRON, 0.3);
+		preferences.put(GoodType.COAL, 0.3);
+		preferences.put(GoodType.LABOURHOUR, 0.3);
 		return new CESUtilityFunctionImpl(1.0, preferences, -0.7, 0.5);
 	}
 
+	@Override
 	public UtilityFunction getUtilityFunctionOfState() {
 		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.IRON, 0.2);
-		preferences.put(GoodType.COAL, 0.2);
-		preferences.put(GoodType.COTTON, 0.2);
-		preferences.put(GoodType.WHEAT, 0.2);
-		preferences.put(GoodType.FOOD, 0.2);
-		preferences.put(GoodType.CLOTHING, 0.2);
-		preferences.put(GoodType.REALESTATE, 0.2);
-		preferences.put(GoodType.KILOWATT, 0.2);
-		preferences.put(GoodType.LABOURHOUR, 0.2);
+		preferences.put(GoodType.IRON, 0.3);
+		preferences.put(GoodType.COAL, 0.3);
+		preferences.put(GoodType.LABOURHOUR, 0.3);
 		return new CESUtilityFunctionImpl(1.0, preferences, -0.7, 0.5);
 	}
 
+	@Override
 	public ProductionFunction getProductionFunction(
 			final GoodType outputGoodType) {
 		switch (outputGoodType) {
@@ -66,22 +57,9 @@ public class InputOutputModelSegementedImpl implements InputOutputModel {
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
 		case COAL:
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
-		case COTTON:
-			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
-		case WHEAT:
-			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
-
-		case KILOWATT:
-			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
-		case CLOTHING:
-			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
-		case FOOD:
-			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
-		case REALESTATE:
-			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
-
 		default:
 			return null;
 		}
 	}
+
 }

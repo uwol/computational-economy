@@ -35,6 +35,7 @@ import javax.persistence.Transient;
 import compecon.economy.behaviour.BudgetingBehaviour;
 import compecon.economy.behaviour.impl.BudgetingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
@@ -50,8 +51,7 @@ import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.engine.util.MathUtil;
-import compecon.materia.GoodType;
+import compecon.math.util.MathUtil;
 
 /**
  * Agent type Trader imports goods and sells them on his domestic market.
@@ -90,6 +90,13 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 								.suggestRandomHourType());
 
 		this.budgetingBehaviour = new BudgetingBehaviourImpl(this);
+	}
+
+	@Override
+	public void deconstruct() {
+		super.deconstruct();
+
+		ApplicationContext.getInstance().getTraderFactory().deleteTrader(this);
 	}
 
 	/*
