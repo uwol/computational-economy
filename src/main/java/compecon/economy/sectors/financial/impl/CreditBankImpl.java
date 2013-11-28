@@ -730,7 +730,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				 */
 				final FixedRateBond bond = ApplicationContext
 						.getInstance()
-						.getPropertyService()
+						.getFixedRateBondFactory()
 						.newInstanceFixedRateBond(
 								CreditBankImpl.this,
 								CreditBankImpl.this,

@@ -21,7 +21,6 @@ package compecon.engine.service;
 
 import java.util.List;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -29,8 +28,6 @@ import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.State;
 
 public interface AgentService {
-
-	public List<Class<? extends Agent>> getAgentTypes();
 
 	public State getInstanceState(final Currency currency);
 

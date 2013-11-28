@@ -20,29 +20,23 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.factory.impl;
 
 import compecon.economy.agent.Agent;
-import compecon.economy.property.GoodTypeOwnership;
-import compecon.economy.property.impl.GoodTypeOwnershipImpl;
+import compecon.economy.security.equity.JointStockCompany;
+import compecon.economy.security.equity.Share;
+import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.factory.GoodTypeOwnershipFactory;
+import compecon.engine.factory.ShareFactory;
 import compecon.engine.util.HibernateUtil;
 
-public class GoodTypeOwnershipImplFactoryImpl implements
-		GoodTypeOwnershipFactory {
+public class ShareImplFactoryImpl implements ShareFactory {
 
-	@Override
-	public GoodTypeOwnership newInstanceGoodTypeOwnership(Agent owner) {
-		GoodTypeOwnershipImpl goodTypeOwnership = new GoodTypeOwnershipImpl();
-		goodTypeOwnership.setAgent(owner);
-		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
-				.save(goodTypeOwnership);
+	public Share newInstanceShare(final Agent owner,
+			final JointStockCompany issuer) {
+		final ShareImpl share = new ShareImpl();
+		share.setIssuer(issuer);
+		share.setOwner(owner);
+		share.initialize();
+		ApplicationContext.getInstance().getPropertyDAO().save(share);
 		HibernateUtil.flushSession();
-		return goodTypeOwnership;
-	}
-
-	@Override
-	public void deleteGoodTypeOwnership(GoodTypeOwnership goodTypeOwnership) {
-		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
-				.delete(goodTypeOwnership);
-		HibernateUtil.flushSession();
+		return share;
 	}
 }

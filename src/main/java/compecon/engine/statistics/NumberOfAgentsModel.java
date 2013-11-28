@@ -42,7 +42,7 @@ public class NumberOfAgentsModel extends NotificationListenerModel {
 	public NumberOfAgentsModel(Currency referenceCurrency) {
 		this.referenceCurrency = referenceCurrency;
 		for (Class<? extends Agent> agentType : ApplicationContext
-				.getInstance().getAgentService().getAgentTypes()) {
+				.getInstance().getAgentFactory().getAgentTypes()) {
 			this.timeSeriesModel
 					.put(agentType, new PeriodDataAccumulatorTimeSeriesModel(
 							referenceCurrency.getIso4217Code() + " "

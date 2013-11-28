@@ -23,13 +23,16 @@ import compecon.economy.materia.impl.InputOutputModelInterdependenciesImpl;
 import compecon.economy.materia.impl.InputOutputModelMinimalImpl;
 import compecon.economy.materia.impl.InputOutputModelSegementedImpl;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
+import compecon.engine.factory.impl.AgentImplFactoryImpl;
 import compecon.engine.factory.impl.BankAccountImplFactoryImpl;
 import compecon.engine.factory.impl.CentralBankImplFactoryImpl;
 import compecon.engine.factory.impl.CreditBankImplFactoryImpl;
 import compecon.engine.factory.impl.FactoryImplFactoryImpl;
+import compecon.engine.factory.impl.FixedRateBondImplFactoryImpl;
 import compecon.engine.factory.impl.GoodTypeOwnershipImplFactoryImpl;
 import compecon.engine.factory.impl.HouseholdImplFactoryImpl;
 import compecon.engine.factory.impl.MarketOrderImplFactoryImpl;
+import compecon.engine.factory.impl.ShareImplFactoryImpl;
 import compecon.engine.factory.impl.StateImplFactoryImpl;
 import compecon.engine.factory.impl.TraderImplFactoryImpl;
 import compecon.engine.log.impl.LogImpl;
@@ -66,6 +69,8 @@ public class ApplicationContextFactory {
 		 * factory classes
 		 */
 
+		ApplicationContext.getInstance().setAgentFactory(
+				new AgentImplFactoryImpl());
 		ApplicationContext.getInstance().setBankAccountFactory(
 				new BankAccountImplFactoryImpl());
 		ApplicationContext.getInstance().setCentralBankFactory(
@@ -74,12 +79,16 @@ public class ApplicationContextFactory {
 				new CreditBankImplFactoryImpl());
 		ApplicationContext.getInstance().setFactoryFactory(
 				new FactoryImplFactoryImpl());
+		ApplicationContext.getInstance().setFixedRateBondFactory(
+				new FixedRateBondImplFactoryImpl());
 		ApplicationContext.getInstance().setGoodTypeOwnershipFactory(
 				new GoodTypeOwnershipImplFactoryImpl());
 		ApplicationContext.getInstance().setHouseholdFactory(
 				new HouseholdImplFactoryImpl());
 		ApplicationContext.getInstance().setMarketOrderFactory(
 				new MarketOrderImplFactoryImpl());
+		ApplicationContext.getInstance().setShareFactory(
+				new ShareImplFactoryImpl());
 		ApplicationContext.getInstance().setStateFactory(
 				new StateImplFactoryImpl());
 		ApplicationContext.getInstance().setTraderFactory(

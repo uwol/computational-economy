@@ -19,14 +19,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.factory;
 
-import compecon.economy.materia.GoodType;
-import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.industry.Factory;
+import compecon.economy.agent.Agent;
+import compecon.economy.security.equity.JointStockCompany;
+import compecon.economy.security.equity.Share;
 
-public interface FactoryFactory {
+public interface ShareFactory {
 
-	public void deleteFactory(final Factory agent);
-
-	public Factory newInstanceFactory(final GoodType goodType,
-			final Currency primaryCurrency);
+	public Share newInstanceShare(final Agent owner,
+			final JointStockCompany issuer);
 }

@@ -57,8 +57,8 @@ public abstract class MarketServiceImpl implements MarketService {
 
 		protected final GoodType goodType;
 
-		public MarketPriceFunction(MarketServiceImpl market,
-				Currency denominatedInCurrency, GoodType goodType) {
+		public MarketPriceFunction(final MarketServiceImpl market,
+				final Currency denominatedInCurrency, final GoodType goodType) {
 			this.market = market;
 			this.denominatedInCurrency = denominatedInCurrency;
 			this.goodType = goodType;

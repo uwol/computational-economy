@@ -27,14 +27,7 @@ import compecon.economy.agent.Agent;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.GoodTypeOwnership;
 import compecon.economy.property.Property;
-import compecon.economy.sectors.financial.BankAccountDelegate;
-import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
-import compecon.economy.security.debt.FixedRateBond;
-import compecon.economy.security.debt.impl.FixedRateBondImpl;
-import compecon.economy.security.equity.JointStockCompany;
-import compecon.economy.security.equity.Share;
-import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.service.PropertyService;
 import compecon.engine.util.HibernateUtil;
@@ -133,38 +126,6 @@ public class PropertyServiceImpl implements PropertyService {
 		HibernateUtil.flushSession();
 
 		return newBalance;
-	}
-
-	public FixedRateBond newInstanceFixedRateBond(final Agent owner,
-			final Agent issuer, final Currency currency,
-			final BankAccountDelegate faceValueFromBankAccountDelegate,
-			final BankAccountDelegate couponFromBankAccountDelegate,
-			final double faceValue, final double coupon) {
-		final FixedRateBondImpl fixedRateBond = new FixedRateBondImpl();
-		fixedRateBond.setOwner(owner);
-		fixedRateBond.setIssuer(issuer);
-		fixedRateBond
-				.setFaceValueFromBankAccountDelegate(faceValueFromBankAccountDelegate);
-		fixedRateBond
-				.setCouponFromBankAccountDelegate(couponFromBankAccountDelegate);
-		fixedRateBond.setFaceValue(faceValue);
-		fixedRateBond.setCoupon(coupon);
-		fixedRateBond.setIssuedInCurrency(currency);
-		fixedRateBond.initialize();
-		ApplicationContext.getInstance().getPropertyDAO().save(fixedRateBond);
-		HibernateUtil.flushSession();
-		return fixedRateBond;
-	}
-
-	public Share newInstanceShare(final Agent owner,
-			final JointStockCompany issuer) {
-		final ShareImpl share = new ShareImpl();
-		share.setIssuer(issuer);
-		share.setOwner(owner);
-		share.initialize();
-		ApplicationContext.getInstance().getPropertyDAO().save(share);
-		HibernateUtil.flushSession();
-		return share;
 	}
 
 	public void resetGoodTypeAmount(Agent propertyOwner, GoodType goodType) {

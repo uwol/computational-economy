@@ -55,8 +55,8 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 			public final Currency referenceCurrency;
 
 			protected Object[][] transientTableData = new Object[ApplicationContext
-					.getInstance().getAgentService().getAgentTypes().size()][ApplicationContext
-					.getInstance().getAgentService().getAgentTypes().size() + 1];
+					.getInstance().getAgentFactory().getAgentTypes().size()][ApplicationContext
+					.getInstance().getAgentFactory().getAgentTypes().size() + 1];
 
 			public MonetaryTransactionsTableModel(Currency referenceCurrency) {
 				this.referenceCurrency = referenceCurrency;
@@ -84,7 +84,7 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 			public String getColumnName(int columnIndex) {
 				if (columnIndex == 0)
 					return "from / to";
-				return ApplicationContext.getInstance().getAgentService()
+				return ApplicationContext.getInstance().getAgentFactory()
 						.getAgentTypes().get(columnIndex - 1).getSimpleName();
 			}
 
@@ -99,9 +99,9 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 				// for all agent types as sources of monetary transactions
 				// -> rows
 				for (int i = 0; i < ApplicationContext.getInstance()
-						.getAgentService().getAgentTypes().size(); i++) {
+						.getAgentFactory().getAgentTypes().size(); i++) {
 					Class<? extends Agent> agentTypeFrom = ApplicationContext
-							.getInstance().getAgentService().getAgentTypes()
+							.getInstance().getAgentFactory().getAgentTypes()
 							.get(i);
 					Map<Class<? extends Agent>, PeriodDataAccumulator> adjacencyMatrixForCurrencyAndFromAgentType = adjacencyMatrixForCurrency
 							.get(agentTypeFrom);
@@ -115,9 +115,9 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 					// ->
 					// columns
 					for (int j = 0; j < ApplicationContext.getInstance()
-							.getAgentService().getAgentTypes().size(); j++) {
+							.getAgentFactory().getAgentTypes().size(); j++) {
 						Class<? extends Agent> agentTypeTo = ApplicationContext
-								.getInstance().getAgentService()
+								.getInstance().getAgentFactory()
 								.getAgentTypes().get(j);
 						PeriodDataAccumulator periodTransactionVolume = adjacencyMatrixForCurrencyAndFromAgentType
 								.get(agentTypeTo);

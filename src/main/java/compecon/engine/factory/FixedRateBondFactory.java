@@ -19,14 +19,16 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.factory;
 
-import compecon.economy.materia.GoodType;
+import compecon.economy.agent.Agent;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.industry.Factory;
+import compecon.economy.security.debt.FixedRateBond;
 
-public interface FactoryFactory {
+public interface FixedRateBondFactory {
 
-	public void deleteFactory(final Factory agent);
-
-	public Factory newInstanceFactory(final GoodType goodType,
-			final Currency primaryCurrency);
+	public FixedRateBond newInstanceFixedRateBond(final Agent owner,
+			final Agent issuer, final Currency currency,
+			final BankAccountDelegate faceValueFromBankAccountDelegate,
+			final BankAccountDelegate couponFromBankAccountDelegate,
+			final double faceValue, final double coupon);
 }

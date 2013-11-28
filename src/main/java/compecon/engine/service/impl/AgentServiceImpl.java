@@ -19,40 +19,17 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.financial.impl.CentralBankImpl;
-import compecon.economy.sectors.financial.impl.CreditBankImpl;
-import compecon.economy.sectors.household.impl.HouseholdImpl;
 import compecon.economy.sectors.industry.Factory;
-import compecon.economy.sectors.industry.impl.FactoryImpl;
 import compecon.economy.sectors.state.State;
-import compecon.economy.sectors.state.impl.StateImpl;
-import compecon.economy.sectors.trading.impl.TraderImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.service.AgentService;
 
 public class AgentServiceImpl implements AgentService {
-
-	public final List<Class<? extends Agent>> agentTypes = new ArrayList<Class<? extends Agent>>();
-
-	public AgentServiceImpl() {
-		this.agentTypes.add(HouseholdImpl.class);
-		this.agentTypes.add(CreditBankImpl.class);
-		this.agentTypes.add(CentralBankImpl.class);
-		this.agentTypes.add(StateImpl.class);
-		this.agentTypes.add(FactoryImpl.class);
-		this.agentTypes.add(TraderImpl.class);
-	}
-
-	public List<Class<? extends Agent>> getAgentTypes() {
-		return this.agentTypes;
-	}
 
 	public State getInstanceState(final Currency currency) {
 		State state = ApplicationContext.getInstance().getStateDAO()

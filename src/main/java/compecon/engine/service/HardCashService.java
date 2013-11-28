@@ -23,6 +23,7 @@ import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Currency;
 
 public interface HardCashService {
+
 	public double getBalance(final Agent agent, final Currency currency);
 
 	public double increment(final Agent agent, final Currency currency,

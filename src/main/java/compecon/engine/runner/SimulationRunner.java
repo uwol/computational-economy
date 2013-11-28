@@ -27,11 +27,23 @@ public interface SimulationRunner {
 	public void setMillisecondsToSleepPerHourType(
 			final int millisecondsToSleepPerHourType);
 
+	/**
+	 * pauses the simulation loop
+	 */
 	public void setPaused(boolean paused);
 
+	/**
+	 * set a flag that the simulation loop should advance one day
+	 */
 	public void setSingleDayStep();
 
+	/**
+	 * set a flag that the simulation loop should advance one hour
+	 */
 	public void setSingleHourStep();
 
+	/**
+	 * shuts down the simulation loop
+	 */
 	public void stop();
 }

@@ -31,13 +31,16 @@ import compecon.engine.dao.PropertyDAO;
 import compecon.engine.dao.StateDAO;
 import compecon.engine.dao.TraderDAO;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
+import compecon.engine.factory.AgentFactory;
 import compecon.engine.factory.BankAccountFactory;
 import compecon.engine.factory.CentralBankFactory;
 import compecon.engine.factory.CreditBankFactory;
 import compecon.engine.factory.FactoryFactory;
+import compecon.engine.factory.FixedRateBondFactory;
 import compecon.engine.factory.GoodTypeOwnershipFactory;
 import compecon.engine.factory.HouseholdFactory;
 import compecon.engine.factory.MarketOrderFactory;
+import compecon.engine.factory.ShareFactory;
 import compecon.engine.factory.StateFactory;
 import compecon.engine.factory.TraderFactory;
 import compecon.engine.log.Log;
@@ -77,6 +80,8 @@ public class ApplicationContext {
 
 	// factory classes
 
+	protected AgentFactory agentFactory;
+
 	protected BankAccountFactory bankAccountFactory;
 
 	protected CentralBankFactory centralBankFactory;
@@ -85,11 +90,15 @@ public class ApplicationContext {
 
 	protected FactoryFactory factoryFactory;
 
+	protected FixedRateBondFactory fixedRateBondFactory;
+
 	protected GoodTypeOwnershipFactory goodTypeOwnershipFactory;
 
 	protected HouseholdFactory householdFactory;
 
 	protected MarketOrderFactory marketOrderFactory;
+
+	protected ShareFactory shareFactory;
 
 	protected StateFactory stateFactory;
 
@@ -179,6 +188,10 @@ public class ApplicationContext {
 		return traderDAO;
 	}
 
+	public AgentFactory getAgentFactory() {
+		return agentFactory;
+	}
+
 	public BankAccountFactory getBankAccountFactory() {
 		return bankAccountFactory;
 	}
@@ -195,6 +208,10 @@ public class ApplicationContext {
 		return factoryFactory;
 	}
 
+	public FixedRateBondFactory getFixedRateBondFactory() {
+		return fixedRateBondFactory;
+	}
+
 	public GoodTypeOwnershipFactory getGoodTypeOwnershipFactory() {
 		return goodTypeOwnershipFactory;
 	}
@@ -205,6 +222,10 @@ public class ApplicationContext {
 
 	public MarketOrderFactory getMarketOrderFactory() {
 		return marketOrderFactory;
+	}
+
+	public ShareFactory getShareFactory() {
+		return shareFactory;
 	}
 
 	public StateFactory getStateFactory() {
@@ -304,6 +325,10 @@ public class ApplicationContext {
 		this.traderDAO = traderDAO;
 	}
 
+	public void setAgentFactory(AgentFactory agentFactory) {
+		this.agentFactory = agentFactory;
+	}
+
 	public void setBankAccountFactory(BankAccountFactory bankAccountFactory) {
 		this.bankAccountFactory = bankAccountFactory;
 	}
@@ -320,6 +345,11 @@ public class ApplicationContext {
 		this.factoryFactory = factoryFactory;
 	}
 
+	public void setFixedRateBondFactory(
+			FixedRateBondFactory fixedRateBondFactory) {
+		this.fixedRateBondFactory = fixedRateBondFactory;
+	}
+
 	public void setGoodTypeOwnershipFactory(
 			GoodTypeOwnershipFactory goodTypeOwnershipFactory) {
 		this.goodTypeOwnershipFactory = goodTypeOwnershipFactory;
@@ -331,6 +361,10 @@ public class ApplicationContext {
 
 	public void setMarketOrderFactory(MarketOrderFactory marketOrderFactory) {
 		this.marketOrderFactory = marketOrderFactory;
+	}
+
+	public void setShareFactory(ShareFactory shareFactory) {
+		this.shareFactory = shareFactory;
 	}
 
 	public void setStateFactory(StateFactory stateFactory) {

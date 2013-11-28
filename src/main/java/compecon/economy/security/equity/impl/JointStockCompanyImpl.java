@@ -280,7 +280,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 						.getInitialNumberOfShares(); i++) {
 					final Share initialShare = ApplicationContext
 							.getInstance()
-							.getPropertyService()
+							.getShareFactory()
 							.newInstanceShare(JointStockCompanyImpl.this,
 									JointStockCompanyImpl.this);
 					ApplicationContext

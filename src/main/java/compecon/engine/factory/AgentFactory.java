@@ -19,14 +19,11 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.factory;
 
-import compecon.economy.materia.GoodType;
-import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.industry.Factory;
+import java.util.List;
 
-public interface FactoryFactory {
+import compecon.economy.agent.Agent;
 
-	public void deleteFactory(final Factory agent);
+public interface AgentFactory {
 
-	public Factory newInstanceFactory(final GoodType goodType,
-			final Currency primaryCurrency);
+	public List<Class<? extends Agent>> getAgentTypes();
 }

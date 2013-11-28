@@ -217,7 +217,7 @@ public class StateImpl extends AgentImpl implements State {
 		// can be re-bought with same face value after bond deconstruction
 		final FixedRateBond fixedRateBond = ApplicationContext
 				.getInstance()
-				.getPropertyService()
+				.getFixedRateBondFactory()
 				.newInstanceFixedRateBond(this, this, this.primaryCurrency,
 						getBankAccountTransactionsDelegate(),
 						getBankAccountCouponLoansDelegate(), faceValue, coupon);

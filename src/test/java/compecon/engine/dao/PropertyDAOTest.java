@@ -94,7 +94,7 @@ public class PropertyDAOTest extends CompEconTestSupport {
 				creditBank.getBankAccountTransactionsDelegate());
 		Bond bond2 = state.obtainBond(1000,
 				creditBank.getBankAccountTransactionsDelegate());
-		Share share1 = ApplicationContext.getInstance().getPropertyService()
+		Share share1 = ApplicationContext.getInstance().getShareFactory()
 				.newInstanceShare(creditBank, creditBank);
 
 		// total number

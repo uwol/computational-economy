@@ -25,11 +25,6 @@ import java.util.Map;
 import compecon.economy.agent.Agent;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
-import compecon.economy.sectors.financial.BankAccountDelegate;
-import compecon.economy.sectors.financial.Currency;
-import compecon.economy.security.debt.FixedRateBond;
-import compecon.economy.security.equity.JointStockCompany;
-import compecon.economy.security.equity.Share;
 
 public interface PropertyService {
 
@@ -57,15 +52,6 @@ public interface PropertyService {
 	 */
 	public double incrementGoodTypeAmount(Agent propertyOwner,
 			GoodType goodType, double amount);
-
-	public FixedRateBond newInstanceFixedRateBond(final Agent owner,
-			final Agent issuer, final Currency currency,
-			final BankAccountDelegate faceValueFromBankAccountDelegate,
-			final BankAccountDelegate couponFromBankAccountDelegate,
-			final double faceValue, final double coupon);
-
-	public Share newInstanceShare(final Agent owner,
-			final JointStockCompany issuer);
 
 	public void resetGoodTypeAmount(Agent propertyOwner, GoodType goodType);
 
