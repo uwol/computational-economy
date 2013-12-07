@@ -20,7 +20,7 @@ Features:
 Technical platform:
 * Java 1.7
 * Maven
-* Optional: Database server 
+* Optional: SQL server 
 
 ![screenshot1](http://img.literaturedb.com/compecon1.png)
 
