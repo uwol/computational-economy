@@ -19,7 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.service;
 
-import compecon.economy.agent.Agent;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccountDelegate;
@@ -27,43 +27,30 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface SettlementMarketService extends MarketService {
 
-	public interface SettlementEvent {
-		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit, Currency currency);
-
-		public void onEvent(Currency commodityCurrency, double amount,
-				double pricePerUnit, Currency currency);
-
-		public void onEvent(Property property, double pricePerUnit,
-				Currency currency);
-	}
-
 	public void placeSettlementSellingOffer(final GoodType goodType,
-			final Agent offeror,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount, final double pricePerUnit,
-			final SettlementEvent settlementEvent);
+			final double amount, final double pricePerUnit);
 
 	public void placeSettlementSellingOffer(
 			final Currency commodityCurrency,
-			final Agent offeror,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount,
 			final double pricePerUnit,
-			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate,
-			final SettlementEvent settlementEvent);
+			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate);
 
 	public void placeSettlementSellingOffer(final Property property,
-			final Agent offeror,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double pricePerUnit, final SettlementEvent settlementEvent);
+			final double pricePerUnit);
 
 	/**
 	 * @return total price and total amount
 	 */
 	public double[] buy(final GoodType goodType, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
-			final Agent buyer,
+			final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate);
 
 	/**
@@ -74,7 +61,7 @@ public interface SettlementMarketService extends MarketService {
 			final double maxAmount,
 			final double maxTotalPrice,
 			final double maxPricePerUnit,
-			final Agent buyer,
+			final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate,
 			final BankAccountDelegate buyersBankAccountForCommodityCurrencyDelegate);
 
@@ -83,8 +70,8 @@ public interface SettlementMarketService extends MarketService {
 	 */
 	public double[] buy(final Class<? extends Property> propertyClass,
 			final double maxAmount, final double maxTotalPrice,
-			final double maxPricePerUnit, final Agent buyer,
+			final double maxPricePerUnit, final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate);
 
-	public void removeAllSellingOffers(final Agent offeror);
+	public void removeAllSellingOffers(final MarketParticipant offeror);
 }

@@ -19,7 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.factory.impl;
 
-import compecon.economy.agent.Agent;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.markets.impl.MarketOrderImpl;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
@@ -32,7 +32,7 @@ import compecon.engine.util.HibernateUtil;
 public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 	public MarketOrderImpl newInstanceGoodTypeMarketOrder(
-			final GoodType goodType, final Agent offeror,
+			final GoodType goodType, final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount, final double pricePerUnit) {
 
@@ -52,7 +52,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 	public MarketOrderImpl newInstanceCurrencyMarketOrder(
 			final Currency currencyToBeOffered,
-			final Agent offeror,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount,
 			final double pricePerUnit,
@@ -75,7 +75,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 	}
 
 	public MarketOrderImpl newInstancePropertyMarketOrder(
-			final Property property, final Agent offeror,
+			final Property property, final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double pricePerUnit) {
 		MarketOrderImpl marketOrder = new MarketOrderImpl();

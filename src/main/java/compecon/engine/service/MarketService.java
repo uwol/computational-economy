@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccountDelegate;
@@ -112,32 +112,34 @@ public interface MarketService {
 			final Currency denominatedInCurrency,
 			final Class<? extends Property> propertyClass);
 
-	public void placeSellingOffer(final GoodType goodType, final Agent offeror,
+	public void placeSellingOffer(final GoodType goodType,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount, final double pricePerUnit);
 
 	public void placeSellingOffer(
 			final Currency commodityCurrency,
-			final Agent offeror,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount,
 			final double pricePerUnit,
 			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate);
 
-	public void placeSellingOffer(final Property property, final Agent offeror,
+	public void placeSellingOffer(final Property property,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double pricePerUnit);
 
-	public void removeAllSellingOffers(final Agent offeror);
+	public void removeAllSellingOffers(final MarketParticipant offeror);
 
-	public void removeAllSellingOffers(final Agent offeror,
+	public void removeAllSellingOffers(final MarketParticipant offeror,
 			final Currency denominatedInCurrency, final GoodType goodType);
 
-	public void removeAllSellingOffers(final Agent offeror,
+	public void removeAllSellingOffers(final MarketParticipant offeror,
 			final Currency denominatedInCurrency,
 			final Currency commodityCurrency);
 
-	public void removeAllSellingOffers(final Agent offeror,
+	public void removeAllSellingOffers(final MarketParticipant offeror,
 			final Currency denominatedInCurrency,
 			final Class<? extends Property> propertyClass);
 }

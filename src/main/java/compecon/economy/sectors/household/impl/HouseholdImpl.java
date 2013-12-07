@@ -48,7 +48,6 @@ import compecon.economy.sectors.household.Household;
 import compecon.economy.security.equity.Share;
 import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -271,30 +270,38 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	}
 
 	@Override
-	public String toString() {
-		return super.toString() + " [" + this.ageInDays / 365 + " years]";
+	public void onMarketSettlement(GoodType goodType, double amount,
+			double pricePerUnit, Currency currency) {
+		if (GoodType.LABOURHOUR.equals(goodType)) {
+			HouseholdImpl.this.pricingBehaviour.registerSelling(amount, amount
+					* pricePerUnit);
+		}
 	}
 
-	public class SettlementMarketEvent implements SettlementEvent {
-		@Override
-		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit, Currency currency) {
-			if (goodType.equals(GoodType.LABOURHOUR)) {
-				HouseholdImpl.this.pricingBehaviour.registerSelling(amount,
-						amount * pricePerUnit);
-			}
-		}
+	@Override
+	public void onMarketSettlement(Currency commodityCurrency, double amount,
+			double pricePerUnit, Currency currency) {
+	}
 
-		@Override
-		public void onEvent(Currency commodityCurrency, double amount,
-				double pricePerUnit, Currency currency) {
-		}
+	@Override
+	public void onMarketSettlement(Property property, double pricePerUnit,
+			Currency currency) {
+	}
 
-		@Override
-		public void onEvent(Property property, double pricePerUnit,
-				Currency currency) {
-		}
+	@Override
+	@Transient
+	public void onPropertyTransfer(final Property property) {
+		super.onPropertyTransfer(property);
 
+		if (property instanceof Share) {
+			Share share = (Share) property;
+			share.setDividendBankAccountDelegate(getBankAccountDividendDelegate());
+		}
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + ", ageInYears=[" + this.ageInDays / 365 + "]";
 	}
 
 	public class DailyLifeEvent implements ITimeSystemEvent {
@@ -590,8 +597,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 									HouseholdImpl.this,
 									getBankAccountTransactionsDelegate(),
 									amountOfLabourHours
-											/ ((double) prices.length), price,
-									new SettlementMarketEvent());
+											/ ((double) prices.length), price);
 				}
 				HouseholdImpl.this.pricingBehaviour
 						.registerOfferedAmount(amountOfLabourHours);
@@ -633,14 +639,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 					.getProperties(HouseholdImpl.this, Share.class)) {
 				if (property instanceof Share) {
 					Share share = (Share) property;
-
-					// check bank account delegate
-					if (share.getDividendBankAccountDelegate() == null
-							|| share.getDividendBankAccountDelegate()
-									.getBankAccount() != HouseholdImpl.this.bankAccountTransactions) {
-						share.setDividendBankAccountDelegate(getBankAccountDividendDelegate());
-					}
-
 					// check currency
 					if (!HouseholdImpl.this.primaryCurrency.equals(share
 							.getIssuer().getPrimaryCurrency()))

@@ -19,13 +19,14 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.factory;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.property.GoodTypeOwnership;
+import compecon.economy.property.PropertyOwner;
 
 public interface GoodTypeOwnershipFactory {
 
 	public void deleteGoodTypeOwnership(
 			final GoodTypeOwnership goodTypeOwnership);
 
-	public GoodTypeOwnership newInstanceGoodTypeOwnership(final Agent owner);
+	public GoodTypeOwnership newInstanceGoodTypeOwnership(
+			final PropertyOwner propertyOwner);
 }

@@ -47,7 +47,6 @@ import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.sectors.trading.Trader;
 import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -204,22 +203,20 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 		super.onBankCloseBankAccount(bankAccount);
 	}
 
-	protected class SettlementMarketEvent implements SettlementEvent {
-		@Override
-		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit, Currency currency) {
-			TraderImpl.this.assureBankAccountTransactions();
-		}
+	@Override
+	public void onMarketSettlement(GoodType goodType, double amount,
+			double pricePerUnit, Currency currency) {
+		TraderImpl.this.assureBankAccountTransactions();
+	}
 
-		@Override
-		public void onEvent(Currency commodityCurrency, double amount,
-				double pricePerUnit, Currency currency) {
-		}
+	@Override
+	public void onMarketSettlement(Currency commodityCurrency, double amount,
+			double pricePerUnit, Currency currency) {
+	}
 
-		@Override
-		public void onEvent(Property property, double totalPrice,
-				Currency currency) {
-		}
+	@Override
+	public void onMarketSettlement(Property property, double totalPrice,
+			Currency currency) {
 	}
 
 	public class ArbitrageTradingEvent implements ITimeSystemEvent {
@@ -437,8 +434,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 							.placeSettlementSellingOffer(goodType,
 									TraderImpl.this,
 									getBankAccountTransactionsDelegate(),
-									amount, marketPrice,
-									new SettlementMarketEvent());
+									amount, marketPrice);
 				}
 			}
 		}

@@ -21,24 +21,24 @@ package compecon.engine.dao;
 
 import java.util.Iterator;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Currency;
 
 public interface MarketOrderDAO extends GenericDAO<MarketOrder> {
 
-	public void deleteAllSellingOrders(Agent offeror);
+	public void deleteAllSellingOrders(MarketParticipant offeror);
 
-	public void deleteAllSellingOrders(Agent offeror, Currency currency,
-			GoodType goodType);
+	public void deleteAllSellingOrders(MarketParticipant offeror,
+			Currency currency, GoodType goodType);
 
-	public void deleteAllSellingOrders(Agent offeror, Currency currency,
-			Currency commodityCurrency);
+	public void deleteAllSellingOrders(MarketParticipant offeror,
+			Currency currency, Currency commodityCurrency);
 
-	public void deleteAllSellingOrders(Agent offeror, Currency currency,
-			Class<? extends Property> propertyClass);
+	public void deleteAllSellingOrders(MarketParticipant offeror,
+			Currency currency, Class<? extends Property> propertyClass);
 
 	public double findMarginalPrice(Currency currency, GoodType goodType);
 

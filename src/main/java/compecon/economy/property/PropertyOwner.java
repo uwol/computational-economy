@@ -19,14 +19,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.property;
 
-import java.util.Map;
+import compecon.economy.LifecycleEntity;
 
-import compecon.economy.materia.GoodType;
+public interface PropertyOwner extends LifecycleEntity {
 
-public interface GoodTypeOwnership {
-
-	public Map<GoodType, Double> getOwnedGoodTypes();
-
-	public PropertyOwner getPropertyOwner();
-
+	/**
+	 * this method is called in the event of a property transfer
+	 */
+	public void onPropertyTransfer(final Property property);
 }

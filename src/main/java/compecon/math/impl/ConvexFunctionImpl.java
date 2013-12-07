@@ -149,7 +149,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 				break;
 			}
 
-			T optimalInputType = this.findHighestPartialDerivatePerPrice(
+			final T optimalInputType = this.findHighestPartialDerivatePerPrice(
 					bundleOfInputs, priceFunctionsOfInputTypes);
 
 			// no optimal input type could be found, i. e. markets are sold out
@@ -160,18 +160,23 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 						ConvexFunctionTerminationCause.NO_INPUT_AVAILABLE);
 				break;
 			} else {
-				double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
+				final double oldAmountOfOptimalInputType = bundleOfInputs
+						.get(optimalInputType);
+				final double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
 						.get(optimalInputType).getMarginalPrice(
 								bundleOfInputs.get(optimalInputType));
 				// additional amounts have to grow slowly, so that the solution
 				// space is not left
-				double additionalAmountOfInputType = Math.min(
+				final double additionalAmountOfInputType = Math.min(
 						budgetPerIteration / marginalPriceOfOptimalInputType,
 						Math.max(bundleOfInputs.get(optimalInputType),
 								initializationValue));
 				bundleOfInputs.put(optimalInputType,
-						bundleOfInputs.get(optimalInputType)
+						oldAmountOfOptimalInputType
 								+ additionalAmountOfInputType);
+
+				// constraints
+
 				moneySpent += marginalPriceOfOptimalInputType
 						* additionalAmountOfInputType;
 			}

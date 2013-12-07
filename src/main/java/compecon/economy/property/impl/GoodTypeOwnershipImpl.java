@@ -34,10 +34,10 @@ import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.GoodTypeOwnership;
+import compecon.economy.property.PropertyOwner;
 
 @Entity
 @Table(name = "GoodTypeOwnership")
@@ -48,8 +48,8 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 	protected int id;
 
 	@OneToOne(targetEntity = AgentImpl.class)
-	@JoinColumn(name = "agent_id", nullable = false)
-	protected Agent agent;
+	@JoinColumn(name = "propertyOwner_id", nullable = false)
+	protected PropertyOwner propertyOwner;
 
 	@ElementCollection
 	@CollectionTable(name = "GoodTypeOwnership_OwnedGoodTypes", joinColumns = @JoinColumn(name = "goodtypeownership_id"))
@@ -61,10 +61,6 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 			this.ownedGoodTypes.put(goodType, 0.0);
 	}
 
-	public Agent getAgent() {
-		return agent;
-	}
-
 	public int getId() {
 		return id;
 	}
@@ -73,8 +69,8 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 		return ownedGoodTypes;
 	}
 
-	public void setAgent(Agent agent) {
-		this.agent = agent;
+	public PropertyOwner getPropertyOwner() {
+		return propertyOwner;
 	}
 
 	public void setId(int id) {
@@ -83,5 +79,9 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 
 	public void setOwnedGoodTypes(Map<GoodType, Double> ownedGoodTypes) {
 		this.ownedGoodTypes = ownedGoodTypes;
+	}
+
+	public void setPropertyOwner(PropertyOwner propertyOwner) {
+		this.propertyOwner = propertyOwner;
 	}
 }

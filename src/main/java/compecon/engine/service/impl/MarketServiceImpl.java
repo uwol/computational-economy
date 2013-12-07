@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccountDelegate;
@@ -508,7 +508,8 @@ public abstract class MarketServiceImpl implements MarketService {
 	/*
 	 * place selling orders
 	 */
-	public void placeSellingOffer(final GoodType goodType, final Agent offeror,
+	public void placeSellingOffer(final GoodType goodType,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount, final double pricePerUnit) {
 
@@ -537,7 +538,7 @@ public abstract class MarketServiceImpl implements MarketService {
 
 	public void placeSellingOffer(
 			final Currency commodityCurrency,
-			final Agent offeror,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount,
 			final double pricePerUnit,
@@ -567,7 +568,8 @@ public abstract class MarketServiceImpl implements MarketService {
 							+ " per unit");
 	}
 
-	public void placeSellingOffer(final Property property, final Agent offeror,
+	public void placeSellingOffer(final Property property,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double pricePerUnit) {
 
@@ -594,13 +596,13 @@ public abstract class MarketServiceImpl implements MarketService {
 	/*
 	 * remove selling orders
 	 */
-	public void removeAllSellingOffers(final Agent offeror) {
+	public void removeAllSellingOffers(final MarketParticipant offeror) {
 		ApplicationContext.getInstance().getMarketOrderDAO()
 				.deleteAllSellingOrders(offeror);
 		HibernateUtil.flushSession();
 	}
 
-	public void removeAllSellingOffers(final Agent offeror,
+	public void removeAllSellingOffers(final MarketParticipant offeror,
 			final Currency denominatedInCurrency, final GoodType goodType) {
 		ApplicationContext
 				.getInstance()
@@ -610,7 +612,7 @@ public abstract class MarketServiceImpl implements MarketService {
 		HibernateUtil.flushSession();
 	}
 
-	public void removeAllSellingOffers(final Agent offeror,
+	public void removeAllSellingOffers(final MarketParticipant offeror,
 			final Currency denominatedInCurrency,
 			final Currency commodityCurrency) {
 		ApplicationContext
@@ -621,7 +623,7 @@ public abstract class MarketServiceImpl implements MarketService {
 		HibernateUtil.flushSession();
 	}
 
-	public void removeAllSellingOffers(final Agent offeror,
+	public void removeAllSellingOffers(final MarketParticipant offeror,
 			final Currency denominatedInCurrency,
 			final Class<? extends Property> propertyClass) {
 		ApplicationContext

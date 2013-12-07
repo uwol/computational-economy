@@ -19,13 +19,11 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Bank;
@@ -42,18 +40,13 @@ import compecon.math.util.MathUtil;
 public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 		SettlementMarketService {
 
-	protected Map<Agent, SettlementEvent> settlementEventListeners = new HashMap<Agent, SettlementEvent>();
-
 	public void placeSettlementSellingOffer(final GoodType goodType,
-			final Agent offeror,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount, final double pricePerUnit,
-			final SettlementEvent settlementEvent) {
+			final double amount, final double pricePerUnit) {
 		if (amount > 0) {
 			this.placeSellingOffer(goodType, offeror,
 					offerorsBankAcountDelegate, amount, pricePerUnit);
-			if (settlementEvent != null)
-				this.settlementEventListeners.put(offeror, settlementEvent);
 		}
 	}
 
@@ -69,43 +62,36 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 	 * @param amount
 	 *            Money amount
 	 * @param pricePerUnit
-	 * @param settlementEvent
 	 */
 	public void placeSettlementSellingOffer(
 			final Currency commodityCurrency,
-			final Agent offeror,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount,
 			final double pricePerUnit,
-			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate,
-			final SettlementEvent settlementEvent) {
+			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate) {
 		if (amount > 0) {
 			this.placeSellingOffer(commodityCurrency, offeror,
 					offerorsBankAcountDelegate, amount, pricePerUnit,
 					commodityCurrencyOfferorsBankAcountDelegate);
-			if (settlementEvent != null)
-				this.settlementEventListeners.put(offeror, settlementEvent);
 		}
 	}
 
 	public void placeSettlementSellingOffer(final Property property,
-			final Agent offeror,
+			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double pricePerUnit, final SettlementEvent settlementEvent) {
+			final double pricePerUnit) {
 		this.placeSellingOffer(property, offeror, offerorsBankAcountDelegate,
 				pricePerUnit);
-		if (settlementEvent != null)
-			this.settlementEventListeners.put(offeror, settlementEvent);
 	}
 
-	public void removeAllSellingOffers(final Agent offeror) {
+	public void removeAllSellingOffers(final MarketParticipant offeror) {
 		super.removeAllSellingOffers(offeror);
-		this.settlementEventListeners.remove(offeror);
 	}
 
 	public double[] buy(final GoodType goodType, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
-			final Agent buyer,
+			final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate) {
 		return this.buy(goodType, null, null, maxAmount, maxTotalPrice,
 				maxPricePerUnit, goodType.getWholeNumber(), buyer,
@@ -133,7 +119,7 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 			final double maxAmount,
 			final double maxTotalPrice,
 			final double maxPricePerUnit,
-			final Agent buyer,
+			final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate,
 			final BankAccountDelegate buyersBankAccountForCommodityCurrencyDelegate) {
 		return this.buy(null, commodityCurrency, null, maxAmount,
@@ -144,7 +130,7 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 
 	public double[] buy(final Class<? extends Property> propertyClass,
 			final double maxAmount, final double maxTotalPrice,
-			final double maxPricePerUnit, final Agent buyer,
+			final double maxPricePerUnit, final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate) {
 		return this.buy(null, null, propertyClass, maxAmount, maxTotalPrice,
 				maxPricePerUnit, true, buyer, buyersBankAccountDelegate, null);
@@ -161,7 +147,7 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 			final double maxTotalPrice,
 			final double maxPricePerUnit,
 			final boolean wholeNumber,
-			final Agent buyer,
+			final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate,
 			final BankAccountDelegate buyersBankAccountForCommodityCurrencyDelegate) {
 
@@ -212,17 +198,14 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 						.getPropertyService()
 						.transferGoodTypeAmount(marketOffer.getOfferor(),
 								buyer, marketOffer.getGoodType(), amount);
-				if (this.settlementEventListeners.containsKey(marketOffer
-						.getOfferor())
-						&& this.settlementEventListeners.get(marketOffer
-								.getOfferor()) != null)
-					this.settlementEventListeners.get(marketOffer.getOfferor())
-							.onEvent(
-									marketOffer.getGoodType(),
-									amount,
-									marketOffer.getPricePerUnit(),
-									marketOffer.getOfferorsBankAcountDelegate()
-											.getBankAccount().getCurrency());
+
+				marketOffer.getOfferor().onMarketSettlement(
+						marketOffer.getGoodType(),
+						amount,
+						marketOffer.getPricePerUnit(),
+						marketOffer.getOfferorsBankAcountDelegate()
+								.getBankAccount().getCurrency());
+
 				// register market tick
 				getLog().market_onTick(
 						marketOffer.getPricePerUnit(),
@@ -244,17 +227,14 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 						"transfer of " + Currency.formatMoneySum(amount)
 								+ " units of commoditycurrency "
 								+ marketOffer.getCommodity());
-				if (this.settlementEventListeners.containsKey(marketOffer
-						.getOfferor())
-						&& this.settlementEventListeners.get(marketOffer
-								.getOfferor()) != null)
-					this.settlementEventListeners.get(marketOffer.getOfferor())
-							.onEvent(
-									marketOffer.getCommodityCurrency(),
-									amount,
-									marketOffer.getPricePerUnit(),
-									marketOffer.getOfferorsBankAcountDelegate()
-											.getBankAccount().getCurrency());
+
+				marketOffer.getOfferor().onMarketSettlement(
+						marketOffer.getCommodityCurrency(),
+						amount,
+						marketOffer.getPricePerUnit(),
+						marketOffer.getOfferorsBankAcountDelegate()
+								.getBankAccount().getCurrency());
+
 				// register market tick
 				getLog().market_onTick(
 						marketOffer.getPricePerUnit(),
@@ -268,16 +248,12 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 						.getPropertyService()
 						.transferProperty(marketOffer.getOfferor(), buyer,
 								marketOffer.getProperty());
-				if (this.settlementEventListeners.containsKey(marketOffer
-						.getOfferor())
-						&& this.settlementEventListeners.get(marketOffer
-								.getOfferor()) != null)
-					this.settlementEventListeners.get(marketOffer.getOfferor())
-							.onEvent(
-									marketOffer.getProperty(),
-									marketOffer.getPricePerUnit(),
-									marketOffer.getOfferorsBankAcountDelegate()
-											.getBankAccount().getCurrency());
+
+				marketOffer.getOfferor().onMarketSettlement(
+						marketOffer.getProperty(),
+						marketOffer.getPricePerUnit(),
+						marketOffer.getOfferorsBankAcountDelegate()
+								.getBankAccount().getCurrency());
 				break;
 			default:
 				throw new RuntimeException("CommodityType unknown");

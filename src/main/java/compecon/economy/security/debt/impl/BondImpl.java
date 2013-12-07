@@ -181,9 +181,9 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 
 	@Transient
 	public String toString() {
-		return this.getClass().getSimpleName() + " [Issuer: "
-				+ this.getIssuer() + ", Facevalue: "
-				+ Currency.formatMoneySum(this.faceValue) + " "
+		return super.toString() + ", issuer=[" + this.getIssuer()
+				+ "], facevalue=[" + Currency.formatMoneySum(this.faceValue)
+				+ "], issuedInCurrency=["
 				+ this.issuedInCurrency.getIso4217Code() + "]";
 	}
 

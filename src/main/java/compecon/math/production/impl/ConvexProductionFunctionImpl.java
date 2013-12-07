@@ -180,10 +180,6 @@ public abstract class ConvexProductionFunctionImpl extends
 		final double budgetPerIteration = budget
 				/ (double) NUMBER_OF_ITERATIONS;
 
-		// determine estimatedMarginalRevenueOfGoodType
-		double estimatedMarginalRevenueOfGoodType = priceOfProducedGoodType
-				/ (1.0 + margin);
-
 		// ---------------------- iterate --------------------
 
 		while (true) {
@@ -196,7 +192,7 @@ public abstract class ConvexProductionFunctionImpl extends
 				break;
 			}
 
-			GoodType optimalInputType = this
+			final GoodType optimalInputType = this
 					.selectProductionFactorWithHighestMarginalOutputPerPrice(
 							bundleOfInputFactors, priceFunctionsOfInputTypes);
 
@@ -209,14 +205,14 @@ public abstract class ConvexProductionFunctionImpl extends
 						ConvexProductionFunctionTerminationCause.NO_INPUT_AVAILABLE);
 				break;
 			} else {
-				double oldAmountOfOptimalInputType = bundleOfInputFactors
+				final double oldAmountOfOptimalInputType = bundleOfInputFactors
 						.get(optimalInputType);
-				double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
+				final double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
 						.get(optimalInputType).getMarginalPrice(
 								bundleOfInputFactors.get(optimalInputType));
 				// additional amounts have to grow slowly, so that the solution
 				// space is not left
-				double additionalAmountOfInputType = Math.min(
+				final double additionalAmountOfInputType = Math.min(
 						budgetPerIteration / marginalPriceOfOptimalInputType,
 						Math.max(bundleOfInputFactors.get(optimalInputType),
 								initializationValue));
@@ -224,67 +220,73 @@ public abstract class ConvexProductionFunctionImpl extends
 						oldAmountOfOptimalInputType
 								+ additionalAmountOfInputType);
 
-				double marginalOutputOfOptimalInputType = this
-						.calculateMarginalOutput(bundleOfInputFactors,
-								optimalInputType);
-				double marginalPriceOfOptimalInputTypePerOutput = marginalPriceOfOptimalInputType
-						/ marginalOutputOfOptimalInputType;
+				{
+					final double estimatedMarginalRevenueOfGoodType = priceOfProducedGoodType
+							/ (1.0 + margin);
+					final double marginalOutputOfOptimalInputType = this
+							.calculateMarginalOutput(bundleOfInputFactors,
+									optimalInputType);
+					final double marginalPriceOfOptimalInputTypePerOutput = marginalPriceOfOptimalInputType
+							/ marginalOutputOfOptimalInputType;
 
-				/*
-				 * ensure that marginal revenue > marginal cost with NEW amount;
-				 * calculation strictly has to happen with NEW amount, so that
-				 * no inputs at all are chosen in case that marginal costs per
-				 * unit > marginal revenue per unit -> effect on pricing
-				 * behaviour, as nothing is bought
-				 */
-				if (!Double.isInfinite(estimatedMarginalRevenueOfGoodType)) {
-					// a polypoly is assumed -> price = marginal revenue
-					if (MathUtil.lesser(estimatedMarginalRevenueOfGoodType,
-							marginalPriceOfOptimalInputTypePerOutput)) {
+					/*
+					 * ensure that marginal revenue > marginal cost with NEW
+					 * amount; calculation strictly has to happen with NEW
+					 * amount, so that no inputs at all are chosen in case that
+					 * marginal costs per unit > marginal revenue per unit ->
+					 * effect on pricing behaviour, as nothing is bought
+					 */
+					if (!Double.isInfinite(estimatedMarginalRevenueOfGoodType)) {
+						// a polypoly is assumed -> price = marginal revenue
+						if (MathUtil.lesser(estimatedMarginalRevenueOfGoodType,
+								marginalPriceOfOptimalInputTypePerOutput)) {
+							// revert amount of optimal good type
+							// important (see above)
+							bundleOfInputFactors.put(optimalInputType,
+									oldAmountOfOptimalInputType);
+							getLog().log(
+									MathUtil.round(estimatedMarginalRevenueOfGoodType)
+											+ " estimatedMarginalRevenue"
+											+ " < "
+											+ MathUtil
+													.round(marginalPriceOfOptimalInputTypePerOutput)
+											+ " currentMarginalPriceOfInputPerOutput"
+											+ " -> "
+											+ bundleOfInputFactors.entrySet()
+													.toString());
+							getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
+									budget,
+									moneySpent,
+									ConvexProductionFunctionTerminationCause.MARGINAL_REVENUE_EXCEEDED);
+							break;
+						}
+					}
+				}
+
+				{
+					// check maxOutput
+					final double newOutput = this
+							.calculateOutput(bundleOfInputFactors);
+					if (!Double.isNaN(maxOutput)
+							&& MathUtil.greater(newOutput, maxOutput)) {
 						// revert amount of optimal good type
 						// important (see above)
 						bundleOfInputFactors.put(optimalInputType,
 								oldAmountOfOptimalInputType);
 						getLog().log(
-								MathUtil.round(estimatedMarginalRevenueOfGoodType)
-										+ " estimatedMarginalRevenue"
-										+ " < "
-										+ MathUtil
-												.round(marginalPriceOfOptimalInputTypePerOutput)
-										+ " currentMarginalPriceOfInputPerOutput"
+								"output "
+										+ newOutput
+										+ " > maxOutput "
+										+ maxOutput
 										+ " -> "
 										+ bundleOfInputFactors.entrySet()
 												.toString());
 						getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
 								budget,
 								moneySpent,
-								ConvexProductionFunctionTerminationCause.MARGINAL_REVENUE_EXCEEDED);
+								ConvexProductionFunctionTerminationCause.MAX_OUTPUT_EXCEEDED);
 						break;
 					}
-				}
-
-				double newOutput = this.calculateOutput(bundleOfInputFactors);
-
-				// check maxOutput
-				if (!Double.isNaN(maxOutput)
-						&& MathUtil.greater(newOutput, maxOutput)) {
-					// revert amount of optimal good type
-					// important (see above)
-					bundleOfInputFactors.put(optimalInputType,
-							oldAmountOfOptimalInputType);
-					getLog().log(
-							"output "
-									+ newOutput
-									+ " > maxOutput "
-									+ maxOutput
-									+ " -> "
-									+ bundleOfInputFactors.entrySet()
-											.toString());
-					getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
-							budget,
-							moneySpent,
-							ConvexProductionFunctionTerminationCause.MAX_OUTPUT_EXCEEDED);
-					break;
 				}
 
 				moneySpent += marginalPriceOfOptimalInputType

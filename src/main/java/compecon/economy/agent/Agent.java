@@ -22,12 +22,15 @@ package compecon.economy.agent;
 import java.util.Set;
 
 import compecon.economy.LifecycleEntity;
+import compecon.economy.markets.MarketParticipant;
+import compecon.economy.property.PropertyOwner;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.timesystem.ITimeSystemEvent;
 
-public interface Agent extends LifecycleEntity {
+public interface Agent extends LifecycleEntity, PropertyOwner,
+		MarketParticipant {
 
 	public BankAccountDelegate getBankAccountTransactionsDelegate();
 
@@ -37,5 +40,9 @@ public interface Agent extends LifecycleEntity {
 
 	public Currency getPrimaryCurrency();
 
-	public void onBankCloseBankAccount(BankAccount bankAccount);
+	/**
+	 * this method is called in the event that the bank of the bank account
+	 * closes the bank account, so that the customer agent can react.
+	 */
+	public void onBankCloseBankAccount(final BankAccount bankAccount);
 }

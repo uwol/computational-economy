@@ -38,7 +38,6 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -126,30 +125,29 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 	 */
 
 	@Override
-	public String toString() {
-		return super.toString() + " [" + this.producedGoodType + "]";
+	public void onMarketSettlement(GoodType goodType, double amount,
+			double pricePerUnit, Currency currency) {
+		FactoryImpl.this.assureBankAccountTransactions();
+		if (FactoryImpl.this.producedGoodType.equals(goodType)) {
+			FactoryImpl.this.pricingBehaviour.registerSelling(amount, amount
+					* pricePerUnit);
+		}
 	}
 
-	protected class SettlementMarketEvent implements SettlementEvent {
-		@Override
-		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit, Currency currency) {
-			FactoryImpl.this.assureBankAccountTransactions();
-			if (FactoryImpl.this.producedGoodType.equals(goodType)) {
-				FactoryImpl.this.pricingBehaviour.registerSelling(amount,
-						amount * pricePerUnit);
-			}
-		}
+	@Override
+	public void onMarketSettlement(Currency commodityCurrency, double amount,
+			double pricePerUnit, Currency currency) {
+	}
 
-		@Override
-		public void onEvent(Currency commodityCurrency, double amount,
-				double pricePerUnit, Currency currency) {
-		}
+	@Override
+	public void onMarketSettlement(Property property, double totalPrice,
+			Currency currency) {
+	}
 
-		@Override
-		public void onEvent(Property property, double totalPrice,
-				Currency currency) {
-		}
+	@Override
+	public String toString() {
+		return super.toString() + ", producedGoodType=["
+				+ this.producedGoodType + "]";
 	}
 
 	public class ProductionEvent implements ITimeSystemEvent {
@@ -335,7 +333,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 								FactoryImpl.this,
 								getBankAccountTransactionsDelegate(),
 								amountInInventory / ((double) prices.length),
-								price, new SettlementMarketEvent());
+								price);
 			}
 			FactoryImpl.this.pricingBehaviour
 					.registerOfferedAmount(amountInInventory);

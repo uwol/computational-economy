@@ -21,6 +21,9 @@ package compecon.economy.property;
 
 import compecon.economy.agent.Agent;
 
+/**
+ * property that is issued by an issuer
+ */
 public interface PropertyIssued extends Property {
 
 	public Agent getIssuer();

@@ -27,15 +27,16 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.MarketOrderDAO;
 
 public class MarketOrderDAOImpl extends
-		AgentIndexedInMemoryDAOImpl<MarketOrder> implements MarketOrderDAO {
+		AbstractIndexedInMemoryDAOImpl<MarketParticipant, MarketOrder>
+		implements MarketOrderDAO {
 
 	protected Map<Currency, Map<GoodType, SortedSet<MarketOrder>>> marketOrdersForGoodTypes = new HashMap<Currency, Map<GoodType, SortedSet<MarketOrder>>>();
 
@@ -124,13 +125,13 @@ public class MarketOrderDAOImpl extends
 				propertyClass);
 	}
 
-	private SortedSet<MarketOrder> findMarketOrders(Agent agent,
+	private SortedSet<MarketOrder> findMarketOrders(MarketParticipant offeror,
 			Currency currency, GoodType goodType) {
 		final SortedSet<MarketOrder> marketOrders = new TreeSet<MarketOrder>();
-		final List<MarketOrder> marketOrdersForAgent = this
-				.getInstancesForAgent(agent);
-		if (marketOrdersForAgent != null) {
-			for (MarketOrder marketOrder : marketOrdersForAgent) {
+		final List<MarketOrder> marketOrdersForOfferor = this
+				.getInstancesForKey(offeror);
+		if (marketOrdersForOfferor != null) {
+			for (MarketOrder marketOrder : marketOrdersForOfferor) {
 				if (currency.equals(marketOrder.getCurrency())
 						&& goodType.equals(marketOrder.getGoodType())) {
 					marketOrders.add(marketOrder);
@@ -140,13 +141,13 @@ public class MarketOrderDAOImpl extends
 		return marketOrders;
 	}
 
-	private SortedSet<MarketOrder> findMarketOrders(Agent agent,
+	private SortedSet<MarketOrder> findMarketOrders(MarketParticipant offeror,
 			Currency currency, Currency commodityCurrency) {
 		final SortedSet<MarketOrder> marketOrders = new TreeSet<MarketOrder>();
-		final List<MarketOrder> marketOrdersForAgent = this
-				.getInstancesForAgent(agent);
-		if (marketOrdersForAgent != null) {
-			for (MarketOrder marketOrder : marketOrdersForAgent) {
+		final List<MarketOrder> marketOrdersForOfferor = this
+				.getInstancesForKey(offeror);
+		if (marketOrdersForOfferor != null) {
+			for (MarketOrder marketOrder : marketOrdersForOfferor) {
 				if (currency.equals(marketOrder.getCurrency())
 						&& commodityCurrency.equals(marketOrder
 								.getCommodityCurrency())) {
@@ -157,13 +158,13 @@ public class MarketOrderDAOImpl extends
 		return marketOrders;
 	}
 
-	private SortedSet<MarketOrder> findMarketOrders(Agent agent,
+	private SortedSet<MarketOrder> findMarketOrders(MarketParticipant offeror,
 			Currency currency, Class<? extends Property> propertyClass) {
 		final SortedSet<MarketOrder> marketOrders = new TreeSet<MarketOrder>();
-		final List<MarketOrder> marketOrdersForAgent = this
-				.getInstancesForAgent(agent);
-		if (marketOrdersForAgent != null) {
-			for (MarketOrder marketOrder : marketOrdersForAgent) {
+		final List<MarketOrder> marketOrdersForOfferor = this
+				.getInstancesForKey(offeror);
+		if (marketOrdersForOfferor != null) {
+			for (MarketOrder marketOrder : marketOrdersForOfferor) {
 				if (currency.equals(marketOrder.getCurrency())
 						&& marketOrder.getProperty() != null
 						&& propertyClass.equals(marketOrder.getProperty()
@@ -220,17 +221,17 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllSellingOrders(Agent offeror) {
-		if (this.getInstancesForAgent(offeror) != null) {
+	public synchronized void deleteAllSellingOrders(MarketParticipant offeror) {
+		if (this.getInstancesForKey(offeror) != null) {
 			for (MarketOrder marketOrder : new HashSet<MarketOrder>(
-					this.getInstancesForAgent(offeror))) {
+					this.getInstancesForKey(offeror))) {
 				this.delete(marketOrder);
 			}
 		}
 	}
 
 	@Override
-	public synchronized void deleteAllSellingOrders(Agent offeror,
+	public synchronized void deleteAllSellingOrders(MarketParticipant offeror,
 			Currency currency, GoodType goodType) {
 		for (MarketOrder marketOrder : this.findMarketOrders(offeror, currency,
 				goodType)) {
@@ -239,7 +240,7 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllSellingOrders(Agent offeror,
+	public synchronized void deleteAllSellingOrders(MarketParticipant offeror,
 			Currency currency, Currency commodityCurrency) {
 		for (MarketOrder marketOrder : this.findMarketOrders(offeror, currency,
 				commodityCurrency)) {
@@ -248,7 +249,7 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllSellingOrders(Agent offeror,
+	public synchronized void deleteAllSellingOrders(MarketParticipant offeror,
 			Currency currency, Class<? extends Property> propertyClass) {
 		for (MarketOrder marketOrder : this.findMarketOrders(offeror, currency,
 				propertyClass)) {

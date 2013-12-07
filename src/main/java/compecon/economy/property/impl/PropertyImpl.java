@@ -34,9 +34,9 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyOwner;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.dao.PropertyDAO;
 
@@ -63,7 +63,7 @@ public abstract class PropertyImpl implements Property {
 	@ManyToOne(targetEntity = AgentImpl.class)
 	@Index(name = "IDX_P_OWNER")
 	@JoinColumn(name = "owner_id")
-	protected Agent owner;
+	protected PropertyOwner owner;
 
 	/*
 	 * accessors
@@ -77,7 +77,7 @@ public abstract class PropertyImpl implements Property {
 		return id;
 	}
 
-	public Agent getOwner() {
+	public PropertyOwner getOwner() {
 		return owner;
 	}
 
@@ -93,7 +93,7 @@ public abstract class PropertyImpl implements Property {
 	 * only to be called via
 	 * {@link PropertyDAO#transferProperty(AgentImpl, AgentImpl, Property)}
 	 */
-	public void setOwner(Agent owner) {
+	public void setOwner(PropertyOwner owner) {
 		this.owner = owner;
 	}
 
@@ -119,5 +119,10 @@ public abstract class PropertyImpl implements Property {
 	@Transient
 	public void resetOwner() {
 		this.owner = null;
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + ": owner=[" + this.owner + "]";
 	}
 }

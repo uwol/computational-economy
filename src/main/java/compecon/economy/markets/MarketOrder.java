@@ -19,7 +19,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.markets;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccountDelegate;
@@ -51,7 +50,7 @@ public interface MarketOrder {
 
 	public GoodType getGoodType();
 
-	public Agent getOfferor();
+	public MarketParticipant getOfferor();
 
 	public BankAccountDelegate getOfferorsBankAcountDelegate();
 

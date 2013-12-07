@@ -48,7 +48,6 @@ import compecon.economy.sectors.state.State;
 import compecon.economy.security.debt.Bond;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
@@ -191,7 +190,8 @@ public class StateImpl extends AgentImpl implements State {
 
 		// list issued bonds on balance sheet
 		for (Property property : ApplicationContext.getInstance()
-				.getPropertyDAO().findAllPropertiesOfAgent(this, Bond.class)) {
+				.getPropertyDAO()
+				.findAllPropertiesOfPropertyOwner(this, Bond.class)) {
 			Bond bond = (Bond) property;
 			if (!bond.isDeconstructed() && !bond.getOwner().equals(this)) {
 				balanceSheet.financialLiabilities += bond.getFaceValue();
@@ -249,24 +249,22 @@ public class StateImpl extends AgentImpl implements State {
 		super.onBankCloseBankAccount(bankAccount);
 	}
 
-	protected class SettlementMarketEvent implements SettlementEvent {
-		@Override
-		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit, Currency currency) {
-		}
+	@Override
+	public void onMarketSettlement(GoodType goodType, double amount,
+			double pricePerUnit, Currency currency) {
+	}
 
-		@Override
-		public void onEvent(Currency commodityCurrency, double amount,
-				double pricePerUnit, Currency currency) {
-		}
+	@Override
+	public void onMarketSettlement(Currency commodityCurrency, double amount,
+			double pricePerUnit, Currency currency) {
+	}
 
-		@Override
-		public void onEvent(Property property, double totalPrice,
-				Currency currency) {
-			if (property instanceof FixedRateBond) {
-				StateImpl.this.pricingBehaviour.registerSelling(
-						((FixedRateBond) property).getFaceValue(), totalPrice);
-			}
+	@Override
+	public void onMarketSettlement(Property property, double totalPrice,
+			Currency currency) {
+		if (property instanceof FixedRateBond) {
+			StateImpl.this.pricingBehaviour.registerSelling(
+					((FixedRateBond) property).getFaceValue(), totalPrice);
 		}
 	}
 

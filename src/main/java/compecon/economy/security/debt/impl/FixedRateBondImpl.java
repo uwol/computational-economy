@@ -24,7 +24,6 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import compecon.economy.sectors.financial.BankAccountDelegate;
-import compecon.economy.sectors.financial.Currency;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.timesystem.ITimeSystemEvent;
@@ -143,12 +142,7 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 
 	@Transient
 	public String toString() {
-		return this.getClass().getSimpleName() + " [Issuer: "
-				+ this.getIssuer() + ", Facevalue: "
-				+ Currency.formatMoneySum(this.faceValue) + " "
-				+ this.issuedInCurrency.getIso4217Code() + ", Coupon: "
-				+ Currency.formatMoneySum(this.coupon) + " "
-				+ this.issuedInCurrency.getIso4217Code() + "]";
+		return super.toString() + ", coupon=[" + this.coupon + "]";
 	}
 
 	public class TransferCouponEvent implements ITimeSystemEvent {

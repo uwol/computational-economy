@@ -17,16 +17,23 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.property;
-
-import java.util.Map;
+package compecon.economy.markets;
 
 import compecon.economy.materia.GoodType;
+import compecon.economy.property.Property;
+import compecon.economy.property.PropertyOwner;
+import compecon.economy.sectors.financial.Currency;
 
-public interface GoodTypeOwnership {
+public interface MarketParticipant extends PropertyOwner {
 
-	public Map<GoodType, Double> getOwnedGoodTypes();
+	public void onMarketSettlement(final GoodType goodType,
+			final double amount, final double pricePerUnit,
+			final Currency currency);
 
-	public PropertyOwner getPropertyOwner();
+	public void onMarketSettlement(final Currency commodityCurrency,
+			final double amount, final double pricePerUnit,
+			final Currency currency);
 
+	public void onMarketSettlement(final Property property,
+			final double pricePerUnit, final Currency currency);
 }

@@ -59,7 +59,6 @@ import compecon.economy.security.debt.Bond;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.economy.security.debt.impl.BondImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
@@ -547,6 +546,26 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		super.onBankCloseBankAccount(bankAccount);
 	}
 
+	@Override
+	public void onMarketSettlement(GoodType goodType, double amount,
+			double pricePerUnit, Currency currency) {
+	}
+
+	@Override
+	public void onMarketSettlement(Currency commodityCurrency, double amount,
+			double pricePerUnit, Currency currency) {
+		// pricing behaviour only for local currency
+		if (CreditBankImpl.this.primaryCurrency.equals(commodityCurrency)) {
+			CreditBankImpl.this.localCurrencyPricingBehaviours.get(currency)
+					.registerSelling(amount, amount * pricePerUnit);
+		}
+	}
+
+	@Override
+	public void onMarketSettlement(Property property, double totalPrice,
+			Currency currency) {
+	}
+
 	@Transient
 	public void transferMoney(final BankAccount from, final BankAccount to,
 			final double amount, final String subject) {
@@ -623,28 +642,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		from.withdraw(amount);
 		return ApplicationContext.getInstance().getHardCashService()
 				.increment(client, currency, amount);
-	}
-
-	protected class SettlementMarketEvent implements SettlementEvent {
-		@Override
-		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit, Currency currency) {
-		}
-
-		@Override
-		public void onEvent(Currency commodityCurrency, double amount,
-				double pricePerUnit, Currency currency) {
-			if (CreditBankImpl.this.primaryCurrency.equals(commodityCurrency)) {
-				CreditBankImpl.this.localCurrencyPricingBehaviours
-						.get(currency).registerSelling(amount,
-								amount * pricePerUnit);
-			}
-		}
-
-		@Override
-		public void onEvent(Property property, double totalPrice,
-				Currency currency) {
-		}
 	}
 
 	public class DailyInterestCalculationEvent implements ITimeSystemEvent {
@@ -1054,8 +1051,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 										getBankAccountCurrencyTradeDelegate(foreignCurrency),
 										partialLocalCurrencyBudgetForCurrency,
 										pricingBehaviourPriceOfLocalCurrencyInForeignCurrency,
-										getBankAccountCurrencyTradeDelegate(localCurrency),
-										new SettlementMarketEvent());
+										getBankAccountCurrencyTradeDelegate(localCurrency));
 
 						pricingBehaviour
 								.registerOfferedAmount(partialLocalCurrencyBudgetForCurrency);
@@ -1101,8 +1097,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 									getBankAccountCurrencyTradeDelegate(localCurrency),
 									foreignCurrencyBankAccount.getBalance(),
 									priceOfForeignCurrencyInLocalCurrency / 1.001,
-									getBankAccountCurrencyTradeDelegate(foreignCurrency),
-									null);
+									getBankAccountCurrencyTradeDelegate(foreignCurrency));
 				}
 			}
 		}

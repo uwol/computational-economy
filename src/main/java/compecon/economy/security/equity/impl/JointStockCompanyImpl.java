@@ -41,7 +41,6 @@ import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.security.equity.JointStockCompany;
 import compecon.economy.security.equity.Share;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.service.SettlementMarketService.SettlementEvent;
 import compecon.engine.timesystem.ITimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
@@ -158,6 +157,21 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 		super.onBankCloseBankAccount(bankAccount);
 	}
 
+	@Override
+	public void onMarketSettlement(GoodType goodType, double amount,
+			double pricePerUnit, Currency currency) {
+	}
+
+	@Override
+	public void onMarketSettlement(Currency commodityCurrency, double amount,
+			double pricePerUnit, Currency currency) {
+	}
+
+	@Override
+	public void onMarketSettlement(Property property, double pricePerUnit,
+			Currency currency) {
+	}
+
 	/**
 	 * Transfers money on account to dividend account, so that on the next
 	 * dividend event the money is transfered to share holders.
@@ -172,23 +186,6 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 			bankAccount.getManagingBank().transferMoney(bankAccount,
 					JointStockCompanyImpl.this.bankAccountDividends,
 					bankAccount.getBalance(), "converting profit to dividend");
-		}
-	}
-
-	public class SettlementMarketEventImpl implements SettlementEvent {
-		@Override
-		public void onEvent(GoodType goodType, double amount,
-				double pricePerUnit, Currency currency) {
-		}
-
-		@Override
-		public void onEvent(Currency commodityCurrency, double amount,
-				double pricePerUnit, Currency currency) {
-		}
-
-		@Override
-		public void onEvent(Property property, double pricePerUnit,
-				Currency currency) {
 		}
 	}
 
@@ -288,8 +285,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 							.getMarketService()
 							.placeSettlementSellingOffer(initialShare,
 									JointStockCompanyImpl.this,
-									getBankAccountTransactionsDelegate(), 0.0,
-									new SettlementMarketEventImpl());
+									getBankAccountTransactionsDelegate(), 0.0);
 				}
 			}
 		}

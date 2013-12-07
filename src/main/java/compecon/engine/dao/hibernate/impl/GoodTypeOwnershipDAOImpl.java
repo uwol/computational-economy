@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.hibernate.criterion.Restrictions;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.property.GoodTypeOwnership;
+import compecon.economy.property.PropertyOwner;
 import compecon.economy.property.impl.GoodTypeOwnershipImpl;
 import compecon.engine.dao.GoodTypeOwnershipDAO;
 
@@ -33,18 +33,18 @@ public class GoodTypeOwnershipDAOImpl extends
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<GoodTypeOwnership> findAllByAgent(Agent agent) {
+	public List<GoodTypeOwnership> findAllByPropertyOwner(PropertyOwner propertyOwner) {
 		return (List<GoodTypeOwnership>) getSession()
 				.createCriteria(GoodTypeOwnershipImpl.class)
-				.add(Restrictions.eq("agent", agent)).list();
+				.add(Restrictions.eq("propertyOwner", propertyOwner)).list();
 	}
 
 	@Override
-	public GoodTypeOwnership findFirstByAgent(Agent agent) {
+	public GoodTypeOwnership findFirstByPropertyOwner(PropertyOwner propertyOwner) {
 		Object object = getSession()
 				.createCriteria(GoodTypeOwnershipImpl.class)
-				.add(Restrictions.eq("agent", agent)).setMaxResults(1)
-				.uniqueResult();
+				.add(Restrictions.eq("propertyOwner", propertyOwner))
+				.setMaxResults(1).uniqueResult();
 		if (object == null)
 			return null;
 		return (GoodTypeOwnershipImpl) object;

@@ -33,9 +33,9 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.property.impl.PropertyImpl;
@@ -67,7 +67,7 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 
 	@ManyToOne(targetEntity = AgentImpl.class)
 	@JoinColumn(name = "offeror_id")
-	protected Agent offeror;
+	protected MarketParticipant offeror;
 
 	@Transient
 	protected BankAccountDelegate offerorsBankAcountDelegate;
@@ -115,7 +115,7 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		return id;
 	}
 
-	public Agent getOfferor() {
+	public MarketParticipant getOfferor() {
 		return offeror;
 	}
 
@@ -169,7 +169,7 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		this.goodType = goodType;
 	}
 
-	public void setOfferor(Agent offeror) {
+	public void setOfferor(MarketParticipant offeror) {
 		this.offeror = offeror;
 	}
 

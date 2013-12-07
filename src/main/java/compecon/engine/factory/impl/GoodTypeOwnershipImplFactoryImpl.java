@@ -19,8 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.factory.impl;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.property.GoodTypeOwnership;
+import compecon.economy.property.PropertyOwner;
 import compecon.economy.property.impl.GoodTypeOwnershipImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.factory.GoodTypeOwnershipFactory;
@@ -30,9 +30,10 @@ public class GoodTypeOwnershipImplFactoryImpl implements
 		GoodTypeOwnershipFactory {
 
 	@Override
-	public GoodTypeOwnership newInstanceGoodTypeOwnership(Agent owner) {
+	public GoodTypeOwnership newInstanceGoodTypeOwnership(
+			PropertyOwner propertyOwner) {
 		GoodTypeOwnershipImpl goodTypeOwnership = new GoodTypeOwnershipImpl();
-		goodTypeOwnership.setAgent(owner);
+		goodTypeOwnership.setPropertyOwner(propertyOwner);
 		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
 				.save(goodTypeOwnership);
 		HibernateUtil.flushSession();

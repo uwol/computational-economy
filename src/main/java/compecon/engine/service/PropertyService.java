@@ -22,44 +22,45 @@ package compecon.engine.service;
 import java.util.List;
 import java.util.Map;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyOwner;
 
 public interface PropertyService {
 
 	/**
-	 * @see #incrementGoodTypeAmount(Agent, GoodType, double)
+	 * @see #incrementGoodTypeAmount(PropertyOwner, GoodType, double)
 	 */
-	public double decrementGoodTypeAmount(Agent propertyOwner,
+	public double decrementGoodTypeAmount(PropertyOwner propertyOwner,
 			GoodType goodType, double amount);
 
 	public void deleteProperty(final Property property);
 
-	public double getBalance(Agent agent, GoodType goodType);
+	public double getBalance(PropertyOwner propertyOwner, GoodType goodType);
 
-	public Map<GoodType, Double> getBalance(Agent agent);
+	public Map<GoodType, Double> getBalance(PropertyOwner propertyOwner);
 
-	public Agent getOwner(Property property);
+	public PropertyOwner getOwner(Property property);
 
-	public List<Property> getProperties(Agent agent);
+	public List<Property> getProperties(PropertyOwner propertyOwner);
 
-	public List<Property> getProperties(Agent agent,
+	public List<Property> getProperties(PropertyOwner propertyOwner,
 			Class<? extends Property> propertyClass);
 
 	/**
-	 * @see #decrementGoodTypeAmount(Agent, GoodType, double)
+	 * @see #decrementGoodTypeAmount(PropertyOwner, GoodType, double)
 	 */
-	public double incrementGoodTypeAmount(Agent propertyOwner,
+	public double incrementGoodTypeAmount(PropertyOwner propertyOwner,
 			GoodType goodType, double amount);
 
-	public void resetGoodTypeAmount(Agent propertyOwner, GoodType goodType);
+	public void resetGoodTypeAmount(PropertyOwner propertyOwner,
+			GoodType goodType);
 
-	public void transferGoodTypeAmount(Agent oldOwner, Agent newOwner,
-			GoodType goodType, double amount);
+	public void transferGoodTypeAmount(PropertyOwner oldOwner,
+			PropertyOwner newOwner, GoodType goodType, double amount);
 
-	public void transferProperty(Agent oldOwner, Agent newOwner,
-			Property property);
+	public void transferProperty(PropertyOwner oldOwner,
+			PropertyOwner newOwner, Property property);
 
-	public void transferEverythingToRandomAgent(Agent oldOwner);
+	public void transferEverythingToRandomAgent(PropertyOwner oldOwner);
 }

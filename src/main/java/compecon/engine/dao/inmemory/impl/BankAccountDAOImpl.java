@@ -32,7 +32,8 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.BankAccountDAO;
 
 public class BankAccountDAOImpl extends
-		AgentIndexedInMemoryDAOImpl<BankAccount> implements BankAccountDAO {
+		AbstractIndexedInMemoryDAOImpl<Agent, BankAccount> implements
+		BankAccountDAO {
 
 	protected Map<Bank, List<BankAccount>> bankAccounts = new HashMap<Bank, List<BankAccount>>();
 
@@ -75,7 +76,7 @@ public class BankAccountDAOImpl extends
 			Agent owner) {
 		if (this.bankAccounts.containsKey(managingBank)) {
 			final List<BankAccount> bankAccounts = this
-					.getInstancesForAgent(owner);
+					.getInstancesForKey(owner);
 			if (bankAccounts != null) {
 				for (BankAccount bankAccount : new HashSet<BankAccount>(
 						bankAccounts)) {
@@ -98,7 +99,7 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized List<BankAccount> findAllBankAccountsOfAgent(Agent owner) {
-		final List<BankAccount> bankAccounts = this.getInstancesForAgent(owner);
+		final List<BankAccount> bankAccounts = this.getInstancesForKey(owner);
 		if (bankAccounts != null) {
 			return new ArrayList<BankAccount>(bankAccounts);
 		}

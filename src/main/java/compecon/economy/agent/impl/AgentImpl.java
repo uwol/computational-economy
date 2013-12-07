@@ -324,10 +324,6 @@ public abstract class AgentImpl implements Agent {
 		return balanceSheet;
 	}
 
-	/**
-	 * this method is triggered in the event that the bank of the bank account
-	 * closes the bank account, so that the customer agent can react.
-	 */
 	@Transient
 	public void onBankCloseBankAccount(BankAccount bankAccount) {
 		if (this.bankAccountTransactions == bankAccount) {
@@ -335,11 +331,15 @@ public abstract class AgentImpl implements Agent {
 		}
 	}
 
+	@Transient
+	public void onPropertyTransfer(final Property property) {
+	}
+
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " ["
-				+ this.primaryCurrency.getIso4217Code() + ", ID: " + this.id
-				+ "]";
+		return this.getClass().getSimpleName() + ": id=[" + this.id
+				+ "], primaryCurrency=["
+				+ this.primaryCurrency.getIso4217Code() + "]";
 	}
 
 	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {

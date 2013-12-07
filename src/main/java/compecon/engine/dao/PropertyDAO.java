@@ -24,12 +24,13 @@ import java.util.List;
 import compecon.economy.agent.Agent;
 import compecon.economy.property.Property;
 import compecon.economy.property.PropertyIssued;
+import compecon.economy.property.PropertyOwner;
 
 public interface PropertyDAO extends GenericDAO<Property> {
 
-	public List<Property> findAllPropertiesOfAgent(Agent agent);
+	public List<Property> findAllPropertiesOfPropertyOwner(PropertyOwner propertyOwner);
 
-	public List<Property> findAllPropertiesOfAgent(Agent agent,
+	public List<Property> findAllPropertiesOfPropertyOwner(PropertyOwner propertyOwner,
 			Class<? extends Property> propertyClass);
 
 	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer);
@@ -37,6 +38,6 @@ public interface PropertyDAO extends GenericDAO<Property> {
 	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer,
 			Class<? extends PropertyIssued> propertyClass);
 
-	public void transferProperty(Agent oldOwner, Agent newOwner,
-			Property property);
+	public void transferProperty(PropertyOwner oldOwner,
+			PropertyOwner newOwner, Property property);
 }

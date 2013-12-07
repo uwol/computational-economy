@@ -21,12 +21,12 @@ package compecon.engine.dao;
 
 import java.util.List;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.property.GoodTypeOwnership;
+import compecon.economy.property.PropertyOwner;
 
 public interface GoodTypeOwnershipDAO extends GenericDAO<GoodTypeOwnership> {
 
-	public List<GoodTypeOwnership> findAllByAgent(Agent agent);
+	public List<GoodTypeOwnership> findAllByPropertyOwner(PropertyOwner propertyOwner);
 
-	public GoodTypeOwnership findFirstByAgent(Agent agent);
+	public GoodTypeOwnership findFirstByPropertyOwner(PropertyOwner propertyOwner);
 }

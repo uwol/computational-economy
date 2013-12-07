@@ -22,27 +22,29 @@ package compecon.engine.dao.inmemory.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.property.GoodTypeOwnership;
+import compecon.economy.property.PropertyOwner;
 import compecon.engine.dao.GoodTypeOwnershipDAO;
 
 public class GoodTypeOwnershipDAOImpl extends
-		AgentIndexedInMemoryDAOImpl<GoodTypeOwnership> implements
+		AbstractIndexedInMemoryDAOImpl<PropertyOwner, GoodTypeOwnership> implements
 		GoodTypeOwnershipDAO {
 
 	@Override
-	public synchronized List<GoodTypeOwnership> findAllByAgent(Agent agent) {
-		if (this.getInstancesForAgent(agent) != null) {
+	public synchronized List<GoodTypeOwnership> findAllByPropertyOwner(
+			PropertyOwner propertyOwner) {
+		if (this.getInstancesForKey(propertyOwner) != null) {
 			return new ArrayList<GoodTypeOwnership>(
-					this.getInstancesForAgent(agent));
+					this.getInstancesForKey(propertyOwner));
 		}
 		return new ArrayList<GoodTypeOwnership>();
 	}
 
 	@Override
-	public synchronized GoodTypeOwnership findFirstByAgent(Agent agent) {
+	public synchronized GoodTypeOwnership findFirstByPropertyOwner(
+			PropertyOwner propertyOwner) {
 		final List<GoodTypeOwnership> goodTypeOwnerships = this
-				.getInstancesForAgent(agent);
+				.getInstancesForKey(propertyOwner);
 		if (goodTypeOwnerships != null && !goodTypeOwnerships.isEmpty()) {
 			return goodTypeOwnerships.get(0);
 		}
@@ -51,6 +53,6 @@ public class GoodTypeOwnershipDAOImpl extends
 
 	@Override
 	public synchronized void save(GoodTypeOwnership goodTypeOwnership) {
-		super.save(goodTypeOwnership.getAgent(), goodTypeOwnership);
+		super.save(goodTypeOwnership.getPropertyOwner(), goodTypeOwnership);
 	}
 }

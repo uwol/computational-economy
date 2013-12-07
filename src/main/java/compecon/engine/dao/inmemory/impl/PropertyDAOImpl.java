@@ -25,25 +25,28 @@ import java.util.List;
 import compecon.economy.agent.Agent;
 import compecon.economy.property.Property;
 import compecon.economy.property.PropertyIssued;
+import compecon.economy.property.PropertyOwner;
 import compecon.engine.dao.PropertyDAO;
 
 public class PropertyDAOImpl extends
-		AgentDoubleIndexedInMemoryDAOImpl<Property> implements PropertyDAO {
+		AbstractDoubleIndexedInMemoryDAOImpl<PropertyOwner, Property> implements
+		PropertyDAO {
 
 	@Override
-	public synchronized List<Property> findAllPropertiesOfAgent(Agent agent) {
-		if (this.getInstancesForFirstAgent(agent) != null) {
+	public synchronized List<Property> findAllPropertiesOfPropertyOwner(
+			PropertyOwner propertyOwner) {
+		if (this.getInstancesForFirstKey(propertyOwner) != null) {
 			return new ArrayList<Property>(
-					this.getInstancesForFirstAgent(agent));
+					this.getInstancesForFirstKey(propertyOwner));
 		}
 		return new ArrayList<Property>();
 	}
 
 	@Override
-	public List<Property> findAllPropertiesOfAgent(Agent agent,
+	public List<Property> findAllPropertiesOfPropertyOwner(PropertyOwner propertyOwner,
 			Class<? extends Property> propertyClass) {
 		final List<Property> propertiesOfClass = new ArrayList<Property>();
-		for (Property property : this.findAllPropertiesOfAgent(agent)) {
+		for (Property property : this.findAllPropertiesOfPropertyOwner(propertyOwner)) {
 			if (propertyClass.isAssignableFrom(property.getClass())) {
 				propertiesOfClass.add(property);
 			}
@@ -55,7 +58,7 @@ public class PropertyDAOImpl extends
 	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer) {
 		final List<PropertyIssued> propertiesIssuedByAgent = new ArrayList<PropertyIssued>();
 		final List<Property> propertiesForSecondAgent = this
-				.getInstancesForSecondAgent(issuer);
+				.getInstancesForSecondKey(issuer);
 		if (propertiesForSecondAgent != null) {
 			for (Property property : propertiesForSecondAgent) {
 				if (property instanceof PropertyIssued) {
@@ -92,8 +95,8 @@ public class PropertyDAOImpl extends
 	}
 
 	@Override
-	public synchronized void transferProperty(Agent oldOwner, Agent newOwner,
-			Property property) {
+	public synchronized void transferProperty(PropertyOwner oldOwner,
+			PropertyOwner newOwner, Property property) {
 		// the property is deleted and re-saved, so that the
 		// agent-property-index is updated
 		this.delete(property);

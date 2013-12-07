@@ -25,6 +25,7 @@ import java.util.Map;
 import compecon.economy.agent.Agent;
 import compecon.economy.behaviour.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.Currency;
@@ -39,6 +40,9 @@ public interface Log {
 
 	public boolean isAgentSelectedByClient(final Agent agent);
 
+	public boolean isAgentSelectedByClient(
+			final MarketParticipant marketParticipant);
+
 	public Agent getAgentSelectedByClient();
 
 	public void setAgentSelectedByClient(final Agent agent);
@@ -50,6 +54,9 @@ public interface Log {
 	public void notifyTimeSystem_nextHour(final Date date);
 
 	public void log(final Agent agent, final String message);
+
+	public void log(final MarketParticipant marketParticipant,
+			final String message);
 
 	public void log(final Agent agent,
 			final Class<? extends ITimeSystemEvent> eventClass,

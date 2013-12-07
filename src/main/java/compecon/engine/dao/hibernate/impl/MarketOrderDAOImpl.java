@@ -25,8 +25,8 @@ import java.util.List;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.markets.MarketOrder;
+import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Currency;
@@ -37,7 +37,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllSellingOrders(Agent offeror) {
+	public void deleteAllSellingOrders(MarketParticipant offeror) {
 		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror";
 		List<MarketOrder> marketOrders = getSession().createQuery(hql)
 				.setEntity("offeror", offeror).list();
@@ -47,8 +47,8 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllSellingOrders(Agent offeror, Currency currency,
-			GoodType goodType) {
+	public void deleteAllSellingOrders(MarketParticipant offeror,
+			Currency currency, GoodType goodType) {
 		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.currency = :currency AND m.goodType = :goodType";
 		List<MarketOrder> marketOrders = getSession().createQuery(hql)
 				.setEntity("offeror", offeror)
@@ -60,8 +60,8 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllSellingOrders(Agent offeror, Currency currency,
-			Currency commodityCurrency) {
+	public void deleteAllSellingOrders(MarketParticipant offeror,
+			Currency currency, Currency commodityCurrency) {
 		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.currency = :currency AND m.commodityCurrency = :commodityCurrency";
 		List<MarketOrder> marketOrders = getSession().createQuery(hql)
 				.setEntity("offeror", offeror)
@@ -73,8 +73,8 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllSellingOrders(Agent offeror, Currency currency,
-			Class<? extends Property> propertyClass) {
+	public void deleteAllSellingOrders(MarketParticipant offeror,
+			Currency currency, Class<? extends Property> propertyClass) {
 		String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.currency = :currency AND m.property.class = :propertyClass";
 		List<MarketOrder> marketOrders = getSession().createQuery(hql)
 				.setEntity("offeror", offeror)
