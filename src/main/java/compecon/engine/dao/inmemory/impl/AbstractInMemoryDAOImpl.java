@@ -27,7 +27,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import compecon.engine.dao.GenericDAO;
 
-public abstract class InMemoryDAOImpl<T> implements GenericDAO<T> {
+public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 
 	protected BiMap<Integer, T> instancesByIds = HashBiMap.create();
 

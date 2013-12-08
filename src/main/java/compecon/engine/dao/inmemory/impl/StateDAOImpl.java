@@ -23,7 +23,7 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.State;
 import compecon.engine.dao.StateDAO;
 
-public class StateDAOImpl extends InMemoryDAOImpl<State> implements StateDAO {
+public class StateDAOImpl extends AbstractInMemoryDAOImpl<State> implements StateDAO {
 
 	@Override
 	public synchronized State findByCurrency(Currency currency) {

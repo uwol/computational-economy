@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
-		InMemoryDAOImpl<V> {
+		AbstractInMemoryDAOImpl<V> {
 
 	private Map<K, List<V>> indexedInstances = new HashMap<K, List<V>>();
 
