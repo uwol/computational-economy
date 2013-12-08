@@ -165,6 +165,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 				final double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
 						.get(optimalInputType).getMarginalPrice(
 								bundleOfInputs.get(optimalInputType));
+
 				// additional amounts have to grow slowly, so that the solution
 				// space is not left
 				final double additionalAmountOfInputType = Math.min(

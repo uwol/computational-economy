@@ -45,7 +45,7 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.state.State;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -77,7 +77,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		super.initialize();
 
 		// calculate interest
-		final ITimeSystemEvent interestCalculationEvent = new DailyInterestCalculationEvent();
+		final TimeSystemEvent interestCalculationEvent = new DailyInterestCalculationEvent();
 		this.timeSystemEvents.add(interestCalculationEvent);
 		ApplicationContext
 				.getInstance()
@@ -87,7 +87,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		// take snapshots of marginal prices multiple times a day
 		// -> market situation differs over the day !!!
-		final ITimeSystemEvent recalculateAveragePriceIndexEvent = new MarginalPriceSnapshotEvent();
+		final TimeSystemEvent recalculateAveragePriceIndexEvent = new MarginalPriceSnapshotEvent();
 		this.timeSystemEvents.add(recalculateAveragePriceIndexEvent);
 		ApplicationContext
 				.getInstance()
@@ -111,7 +111,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 						MonthType.EVERY, DayType.EVERY, HourType.HOUR_21);
 
 		// recalculate key interest rate every day
-		final ITimeSystemEvent keyInterestRateCalculationEvent = new KeyInterestRateCalculationEvent();
+		final TimeSystemEvent keyInterestRateCalculationEvent = new KeyInterestRateCalculationEvent();
 		this.timeSystemEvents.add(keyInterestRateCalculationEvent);
 		ApplicationContext
 				.getInstance()
@@ -121,7 +121,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		// count number of snapshots that are taken per day
 		int numberOfSnapshotsPerDay = 0;
-		for (ITimeSystemEvent event : CentralBankImpl.this.timeSystemEvents)
+		for (TimeSystemEvent event : CentralBankImpl.this.timeSystemEvents)
 			if (event instanceof MarginalPriceSnapshotEvent)
 				numberOfSnapshotsPerDay++;
 		this.NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY = numberOfSnapshotsPerDay;
@@ -324,8 +324,8 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			ApplicationContext
 					.getInstance()
 					.getPropertyService()
-					.transferProperty(moneyReservesBankAccount.getOwner(),
-							this, bond);
+					.transferProperty(bond,
+							moneyReservesBankAccount.getOwner(), this);
 
 			bond.setFaceValueToBankAccountDelegate(getBankAccountCentralBankMoneyDelegate());
 			bond.setCouponToBankAccountDelegate(getBankAccountCentralBankMoneyDelegate());
@@ -474,7 +474,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		assert (toBalanceBefore + amount == to.getBalance());
 	}
 
-	public class DailyInterestCalculationEvent implements ITimeSystemEvent {
+	public class DailyInterestCalculationEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			CentralBankImpl.this.assureBankAccountTransactions();
@@ -528,7 +528,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		}
 	}
 
-	public class MarginalPriceSnapshotEvent implements ITimeSystemEvent {
+	public class MarginalPriceSnapshotEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			CentralBankImpl.this.statisticalOffice
@@ -536,7 +536,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		}
 	}
 
-	public class KeyInterestRateCalculationEvent implements ITimeSystemEvent {
+	public class KeyInterestRateCalculationEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			// calculate price index

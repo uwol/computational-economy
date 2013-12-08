@@ -26,18 +26,14 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.CentralBankDAO;
 
 public class CentralBankDAOImpl extends
-		CurrencyIndexedInMemoryDAOImpl<CentralBank> implements CentralBankDAO {
-
-	@Override
-	public synchronized void delete(CentralBank entity) {
-		super.delete(entity.getPrimaryCurrency(), entity);
-	}
+		AbstractIndexedInMemoryDAOImpl<Currency, CentralBank> implements
+		CentralBankDAO {
 
 	@Override
 	public synchronized CentralBank findByCurrency(Currency currency) {
 		// should contain only one element
 		final List<CentralBank> centralBanksForCurrency = this
-				.getInstancesForCurrency(currency);
+				.getInstancesForKey(currency);
 		if (centralBanksForCurrency == null) {
 			return null;
 		}

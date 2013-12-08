@@ -31,15 +31,15 @@ import java.util.Random;
 import java.util.Set;
 
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystem;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystem;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.util.HibernateUtil;
 
 /**
  * Agents register their actions as events in the time system (observer
  * pattern).
  */
-public class TimeSystem implements ITimeSystem {
+public class TimeSystemImpl implements TimeSystem {
 
 	private final int startYear;
 
@@ -52,13 +52,13 @@ public class TimeSystem implements ITimeSystem {
 	private SimpleDateFormat dayFormat = new SimpleDateFormat(
 			"dd.MM.yyyy HH:mm");
 
-	private Map<Integer, Year> years = new HashMap<Integer, Year>();
+	private Map<Integer, YearImpl> years = new HashMap<Integer, YearImpl>();
 
-	private Set<ITimeSystemEvent> eventsToBeRemoved = new HashSet<ITimeSystemEvent>();
+	private Set<TimeSystemEvent> eventsToBeRemoved = new HashSet<TimeSystemEvent>();
 
-	private List<ITimeSystemEvent> externalEvents = new ArrayList<ITimeSystemEvent>();
+	private List<TimeSystemEvent> externalEvents = new ArrayList<TimeSystemEvent>();
 
-	public TimeSystem(int year) {
+	public TimeSystemImpl(int year) {
 		gregorianCalendar = new GregorianCalendar(year,
 				MonthType.JANUARY.getMonthNumber(),
 				DayType.DAY_01.getDayNumber());
@@ -127,11 +127,11 @@ public class TimeSystem implements ITimeSystem {
 	 * @param year
 	 *            -1 for every year
 	 */
-	public void addEvent(final ITimeSystemEvent event, final int year,
+	public void addEvent(final TimeSystemEvent event, final int year,
 			final MonthType monthType, final DayType dayType,
 			final HourType hourType) {
 		if (!this.years.containsKey(year))
-			this.years.put(year, new Year());
+			this.years.put(year, new YearImpl());
 		this.years.get(year).addEvent(event, monthType, dayType, hourType);
 	}
 
@@ -139,13 +139,13 @@ public class TimeSystem implements ITimeSystem {
 	 * @param year
 	 *            -1 for every year
 	 */
-	public void addEventEvery(final ITimeSystemEvent event, final int year,
+	public void addEventEvery(final TimeSystemEvent event, final int year,
 			final MonthType monthType, DayType dayType,
 			final HourType excepthourType) {
 		assert (excepthourType != null);
 
 		if (!this.years.containsKey(year))
-			this.years.put(year, new Year());
+			this.years.put(year, new YearImpl());
 		for (HourType hourType : HourType.values()) {
 			if (!HourType.EVERY.equals(hourType)
 					&& !excepthourType.equals(hourType)) {
@@ -155,22 +155,22 @@ public class TimeSystem implements ITimeSystem {
 		}
 	}
 
-	public void addEventForEveryDay(final ITimeSystemEvent event) {
+	public void addEventForEveryDay(final TimeSystemEvent event) {
 		this.addEvent(event, -1, MonthType.EVERY, DayType.EVERY,
 				HourType.HOUR_12);
 	}
 
-	public void addEventForEveryMorning(final ITimeSystemEvent event) {
+	public void addEventForEveryMorning(final TimeSystemEvent event) {
 		this.addEvent(event, -1, MonthType.EVERY, DayType.EVERY,
 				HourType.HOUR_07);
 	}
 
-	public void addEventForEveryEvening(final ITimeSystemEvent event) {
+	public void addEventForEveryEvening(final TimeSystemEvent event) {
 		this.addEvent(event, -1, MonthType.EVERY, DayType.EVERY,
 				HourType.HOUR_18);
 	}
 
-	public void addEventForEveryHour(final ITimeSystemEvent event) {
+	public void addEventForEveryHour(final TimeSystemEvent event) {
 		this.addEvent(event, -1, MonthType.EVERY, DayType.EVERY, HourType.EVERY);
 	}
 
@@ -179,7 +179,7 @@ public class TimeSystem implements ITimeSystem {
 	 */
 
 	public synchronized void addExternalEvent(
-			final ITimeSystemEvent timeSystemEvent) {
+			final TimeSystemEvent timeSystemEvent) {
 		this.externalEvents.add(timeSystemEvent);
 	}
 
@@ -187,7 +187,7 @@ public class TimeSystem implements ITimeSystem {
 	 * methods for removing ITimeSystemEvents
 	 */
 
-	public void removeEvent(final ITimeSystemEvent event) {
+	public void removeEvent(final TimeSystemEvent event) {
 		this.eventsToBeRemoved.add(event);
 	}
 
@@ -210,15 +210,15 @@ public class TimeSystem implements ITimeSystem {
 
 	private synchronized void triggerEvents() {
 		// determine current date
-		Year yearExact = this.years.get(this.getCurrentYear());
-		Year yearEvery = this.years.get(-1);
+		YearImpl yearExact = this.years.get(this.getCurrentYear());
+		YearImpl yearEvery = this.years.get(-1);
 
 		MonthType currentMonthType = this.getCurrentMonthType();
 		DayType currentDayType = this.getCurrentDayType();
 		HourType currentHourType = this.getCurrentHourType();
 
 		// select events for this date
-		List<ITimeSystemEvent> events = new ArrayList<ITimeSystemEvent>();
+		List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
 
 		if (yearExact != null)
 			events.addAll(yearExact.getEvents(currentMonthType, currentDayType,
@@ -228,7 +228,7 @@ public class TimeSystem implements ITimeSystem {
 			events.addAll(yearEvery.getEvents(currentMonthType, currentDayType,
 					currentHourType));
 
-		for (ITimeSystemEvent event : events) {
+		for (TimeSystemEvent event : events) {
 			try {
 				event.onEvent();
 			} catch (Exception e) {
@@ -238,7 +238,7 @@ public class TimeSystem implements ITimeSystem {
 
 		if (HourType.HOUR_00.equals(currentHourType)) {
 			// potential external events from GUI
-			for (ITimeSystemEvent event : this.externalEvents) {
+			for (TimeSystemEvent event : this.externalEvents) {
 				try {
 					event.onEvent();
 				} catch (Exception e) {
@@ -251,17 +251,16 @@ public class TimeSystem implements ITimeSystem {
 		// flush state to database
 		HibernateUtil.flushSession();
 
-		if (false && DayType.DAY_01.equals(currentDayType)
-				&& HourType.HOUR_00.equals(currentHourType)) {
-			HibernateUtil.closeSession();
-			HibernateUtil.openSession();
-		}
+		this.cleanRemovedEvents();
+	}
 
+	public void cleanRemovedEvents() {
 		// remove events that have been marked as removable
-		if (this.eventsToBeRemoved.size() > 0) {
-			for (Year year : this.years.values())
+		if (!this.eventsToBeRemoved.isEmpty()) {
+			for (YearImpl year : this.years.values()) {
 				year.removeEvents(this.eventsToBeRemoved);
-			this.eventsToBeRemoved.clear();
+				this.eventsToBeRemoved.clear();
+			}
 		}
 	}
 

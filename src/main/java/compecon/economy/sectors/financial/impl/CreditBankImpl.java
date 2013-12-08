@@ -59,7 +59,7 @@ import compecon.economy.security.debt.Bond;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.economy.security.debt.impl.BondImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -108,7 +108,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		super.initialize();
 
 		// trade currencies on exchange markets
-		final ITimeSystemEvent currencyTradeEvent = new CurrencyTradeEvent();
+		final TimeSystemEvent currencyTradeEvent = new CurrencyTradeEvent();
 		this.timeSystemEvents.add(currencyTradeEvent);
 		ApplicationContext
 				.getInstance()
@@ -122,7 +122,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 								.suggestRandomHourType());
 
 		// calculate interest on customers bank accounts
-		final ITimeSystemEvent interestCalculationEvent = new DailyInterestCalculationEvent();
+		final TimeSystemEvent interestCalculationEvent = new DailyInterestCalculationEvent();
 		this.timeSystemEvents.add(interestCalculationEvent);
 		ApplicationContext
 				.getInstance()
@@ -131,7 +131,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 						DayType.EVERY, HourType.HOUR_02);
 
 		// check money reserves at the central bank
-		final ITimeSystemEvent checkMoneyReservesEvent = new CheckMoneyReservesEvent();
+		final TimeSystemEvent checkMoneyReservesEvent = new CheckMoneyReservesEvent();
 		this.timeSystemEvents.add(checkMoneyReservesEvent);
 		ApplicationContext
 				.getInstance()
@@ -142,7 +142,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		// bonds trading
 		// should happen every hour, so that money flow is distributed over the
 		// period, leading to less volatility on markets
-		final ITimeSystemEvent bondsTradingEvent = new BondsTradingEvent();
+		final TimeSystemEvent bondsTradingEvent = new BondsTradingEvent();
 		this.timeSystemEvents.add(bondsTradingEvent);
 		ApplicationContext
 				.getInstance()
@@ -644,7 +644,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				.increment(client, currency, amount);
 	}
 
-	public class DailyInterestCalculationEvent implements ITimeSystemEvent {
+	public class DailyInterestCalculationEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			CreditBankImpl.this.assureBankAccountInterestTransactions();
@@ -696,7 +696,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		}
 	}
 
-	public class CheckMoneyReservesEvent implements ITimeSystemEvent {
+	public class CheckMoneyReservesEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			CreditBankImpl.this.assureBankAccountCentralBankMoneyReserves();
@@ -753,7 +753,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		}
 	}
 
-	public class CurrencyTradeEvent implements ITimeSystemEvent {
+	public class CurrencyTradeEvent implements TimeSystemEvent {
 
 		@Override
 		public void onEvent() {
@@ -1114,7 +1114,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		}
 	}
 
-	public class BondsTradingEvent implements ITimeSystemEvent {
+	public class BondsTradingEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			CreditBankImpl.this.assureBankAccountBondLoan();

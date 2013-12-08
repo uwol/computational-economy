@@ -48,7 +48,7 @@ import compecon.economy.sectors.state.State;
 import compecon.economy.security.debt.Bond;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -83,7 +83,7 @@ public class StateImpl extends AgentImpl implements State {
 		 * significant distortions on markets, as the savings of the whole
 		 * economy flow through the state via state bonds
 		 */
-		final ITimeSystemEvent buyAndConsumeGoodsEvent = new BuyAndConsumeGoodsEvent();
+		final TimeSystemEvent buyAndConsumeGoodsEvent = new BuyAndConsumeGoodsEvent();
 		this.timeSystemEvents.add(buyAndConsumeGoodsEvent);
 		ApplicationContext
 				.getInstance()
@@ -232,9 +232,8 @@ public class StateImpl extends AgentImpl implements State {
 		ApplicationContext
 				.getInstance()
 				.getPropertyService()
-				.transferProperty(this,
-						buyerBankAccountDelegate.getBankAccount().getOwner(),
-						fixedRateBond);
+				.transferProperty(fixedRateBond, this,
+						buyerBankAccountDelegate.getBankAccount().getOwner());
 		return fixedRateBond;
 	}
 
@@ -268,7 +267,7 @@ public class StateImpl extends AgentImpl implements State {
 		}
 	}
 
-	public class BuyAndConsumeGoodsEvent implements ITimeSystemEvent {
+	public class BuyAndConsumeGoodsEvent implements TimeSystemEvent {
 
 		@Override
 		public void onEvent() {

@@ -25,17 +25,12 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.trading.Trader;
 import compecon.engine.dao.TraderDAO;
 
-public class TraderDAOImpl extends CurrencyIndexedInMemoryDAOImpl<Trader> implements
-		TraderDAO {
-
-	@Override
-	public synchronized void delete(Trader entity) {
-		super.delete(entity.getPrimaryCurrency(), entity);
-	}
+public class TraderDAOImpl extends
+		AbstractIndexedInMemoryDAOImpl<Currency, Trader> implements TraderDAO {
 
 	@Override
 	public synchronized List<Trader> findAllByCurrency(Currency currency) {
-		return this.getInstancesForCurrency(currency);
+		return this.getInstancesForKey(currency);
 	}
 
 	@Override

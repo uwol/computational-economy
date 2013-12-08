@@ -32,7 +32,7 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.State;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.math.ConvexFunction.ConvexFunctionTerminationCause;
 import compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
 
@@ -59,7 +59,7 @@ public interface Log {
 			final String message);
 
 	public void log(final Agent agent,
-			final Class<? extends ITimeSystemEvent> eventClass,
+			final Class<? extends TimeSystemEvent> eventClass,
 			final String message);
 
 	public void log(final String message);

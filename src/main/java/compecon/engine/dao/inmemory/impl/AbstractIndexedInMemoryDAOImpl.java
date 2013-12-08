@@ -76,7 +76,7 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 	}
 
 	public synchronized void delete(V instance) {
-		List<K> keys = getKeysForInstance(instance);
+		final List<K> keys = getKeysForInstance(instance);
 		if (keys != null) {
 			for (K key : new ArrayList<K>(keys)) {
 				if (this.indexedInstances.containsKey(key)) {

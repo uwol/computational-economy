@@ -47,7 +47,7 @@ import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.sectors.trading.Trader;
 import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
 import compecon.math.util.MathUtil;
@@ -75,7 +75,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 		super.initialize();
 
 		// arbitrage trading event every hour
-		final ITimeSystemEvent arbitrageTradingEvent = new ArbitrageTradingEvent();
+		final TimeSystemEvent arbitrageTradingEvent = new ArbitrageTradingEvent();
 		this.timeSystemEvents.add(arbitrageTradingEvent);
 		ApplicationContext
 				.getInstance()
@@ -219,7 +219,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 			Currency currency) {
 	}
 
-	public class ArbitrageTradingEvent implements ITimeSystemEvent {
+	public class ArbitrageTradingEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			TraderImpl.this.assureBankAccountTransactions();

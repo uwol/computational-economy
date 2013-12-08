@@ -27,7 +27,7 @@ import compecon.economy.property.PropertyOwner;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 
 public interface Agent extends LifecycleEntity, PropertyOwner,
 		MarketParticipant {
@@ -36,7 +36,7 @@ public interface Agent extends LifecycleEntity, PropertyOwner,
 
 	public int getId();
 
-	public Set<ITimeSystemEvent> getTimeSystemEvents();
+	public Set<TimeSystemEvent> getTimeSystemEvents();
 
 	public Currency getPrimaryCurrency();
 

@@ -50,7 +50,7 @@ import compecon.engine.service.HardCashService;
 import compecon.engine.service.PropertyService;
 import compecon.engine.service.SettlementMarketService;
 import compecon.engine.statistics.ModelRegistry;
-import compecon.engine.timesystem.ITimeSystem;
+import compecon.engine.timesystem.TimeSystem;
 
 public class ApplicationContext {
 
@@ -128,7 +128,7 @@ public class ApplicationContext {
 
 	protected SequenceNumberGeneratorImpl sequenceNumberGenerator;
 
-	protected ITimeSystem timeSystem;
+	protected TimeSystem timeSystem;
 
 	private ApplicationContext() {
 		super();
@@ -276,7 +276,7 @@ public class ApplicationContext {
 		return sequenceNumberGenerator;
 	}
 
-	public ITimeSystem getTimeSystem() {
+	public TimeSystem getTimeSystem() {
 		return timeSystem;
 	}
 
@@ -416,7 +416,7 @@ public class ApplicationContext {
 		this.sequenceNumberGenerator = sequenceNumberGenerator;
 	}
 
-	public void setTimeSystem(ITimeSystem timeSystem) {
+	public void setTimeSystem(TimeSystem timeSystem) {
 		this.timeSystem = timeSystem;
 	}
 }

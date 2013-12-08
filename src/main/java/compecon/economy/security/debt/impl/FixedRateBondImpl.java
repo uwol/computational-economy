@@ -26,7 +26,7 @@ import javax.persistence.Transient;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -59,7 +59,7 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 
 		// transfer coupon event; has to be HOUR_00, so that the coupon is
 		// payed before possible deconstruction at HOUR_01
-		final ITimeSystemEvent transferCouponEvent = new TransferCouponEvent();
+		final TimeSystemEvent transferCouponEvent = new TransferCouponEvent();
 		this.timeSystemEvents.add(transferCouponEvent);
 		ApplicationContext
 				.getInstance()
@@ -145,7 +145,7 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 		return super.toString() + ", coupon=[" + this.coupon + "]";
 	}
 
-	public class TransferCouponEvent implements ITimeSystemEvent {
+	public class TransferCouponEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			assert (FixedRateBondImpl.this.couponFromBankAccountDelegate != null);

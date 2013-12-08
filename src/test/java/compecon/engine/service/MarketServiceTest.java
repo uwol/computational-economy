@@ -41,7 +41,7 @@ import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.service.impl.MarketServiceImpl.MarketPriceFunction;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.math.price.PriceFunction.PriceFunctionConfig;
 
 public class MarketServiceTest extends CompEconTestSupport {
@@ -181,7 +181,7 @@ public class MarketServiceTest extends CompEconTestSupport {
 				.getMarketService().getPrice(currency, ShareImpl.class),
 				epsilon);
 
-		for (ITimeSystemEvent timeSystemEvent : factory1_WHEAT_EUR
+		for (TimeSystemEvent timeSystemEvent : factory1_WHEAT_EUR
 				.getTimeSystemEvents()) {
 			if (timeSystemEvent instanceof JointStockCompanyImpl.OfferSharesEvent)
 				timeSystemEvent.onEvent();

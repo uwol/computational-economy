@@ -31,36 +31,38 @@ public interface PropertyService {
 	/**
 	 * @see #incrementGoodTypeAmount(PropertyOwner, GoodType, double)
 	 */
-	public double decrementGoodTypeAmount(PropertyOwner propertyOwner,
-			GoodType goodType, double amount);
+	public double decrementGoodTypeAmount(final PropertyOwner propertyOwner,
+			final GoodType goodType, double amount);
 
 	public void deleteProperty(final Property property);
 
-	public double getBalance(PropertyOwner propertyOwner, GoodType goodType);
+	public double getBalance(final PropertyOwner propertyOwner,
+			final GoodType goodType);
 
-	public Map<GoodType, Double> getBalance(PropertyOwner propertyOwner);
+	public Map<GoodType, Double> getBalance(final PropertyOwner propertyOwner);
 
-	public PropertyOwner getOwner(Property property);
+	public PropertyOwner getOwner(final Property property);
 
-	public List<Property> getProperties(PropertyOwner propertyOwner);
+	public List<Property> getProperties(final PropertyOwner propertyOwner);
 
-	public List<Property> getProperties(PropertyOwner propertyOwner,
-			Class<? extends Property> propertyClass);
+	public List<Property> getProperties(final PropertyOwner propertyOwner,
+			final Class<? extends Property> propertyClass);
 
 	/**
 	 * @see #decrementGoodTypeAmount(PropertyOwner, GoodType, double)
 	 */
-	public double incrementGoodTypeAmount(PropertyOwner propertyOwner,
-			GoodType goodType, double amount);
+	public double incrementGoodTypeAmount(final PropertyOwner propertyOwner,
+			final GoodType goodType, final double amount);
 
-	public void resetGoodTypeAmount(PropertyOwner propertyOwner,
-			GoodType goodType);
+	public void resetGoodTypeAmount(final PropertyOwner propertyOwner,
+			final GoodType goodType);
 
-	public void transferGoodTypeAmount(PropertyOwner oldOwner,
-			PropertyOwner newOwner, GoodType goodType, double amount);
+	public void transferGoodTypeAmount(final GoodType goodType,
+			final PropertyOwner oldOwner, final PropertyOwner newOwner,
+			final double amount);
 
-	public void transferProperty(PropertyOwner oldOwner,
-			PropertyOwner newOwner, Property property);
+	public void transferProperty(final Property property,
+			final PropertyOwner oldOwner, final PropertyOwner newOwner);
 
-	public void transferEverythingToRandomAgent(PropertyOwner oldOwner);
+	public void transferEverythingToRandomAgent(final PropertyOwner oldOwner);
 }

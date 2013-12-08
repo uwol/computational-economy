@@ -22,14 +22,15 @@ package compecon.engine.timesystem;
 import java.util.List;
 import java.util.Set;
 
+import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 
-public interface IHour {
-	public HourType getHourType();
+public interface Day {
+	public DayType getDayType();
 
-	public void addEvent(final ITimeSystemEvent event);
+	public void addEvent(final TimeSystemEvent event, final HourType hourType);
 
-	public List<ITimeSystemEvent> getEvents();
+	public List<TimeSystemEvent> getEvents(final HourType hourType);
 
-	public void removeEvents(final Set<ITimeSystemEvent> events);
+	public void removeEvents(final Set<TimeSystemEvent> events);
 }

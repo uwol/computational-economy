@@ -84,7 +84,7 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 	}
 
 	public synchronized void delete(V instance) {
-		List<K> secondKeys = getSecondKeysForInstance(instance);
+		final List<K> secondKeys = getSecondKeysForInstance(instance);
 		if (secondKeys != null) {
 			for (K secondKey : new ArrayList<K>(secondKeys)) {
 				if (this.indexedInstances.containsKey(secondKey)) {

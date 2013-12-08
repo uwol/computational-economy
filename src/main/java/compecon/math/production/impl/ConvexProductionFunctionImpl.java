@@ -210,6 +210,7 @@ public abstract class ConvexProductionFunctionImpl extends
 				final double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
 						.get(optimalInputType).getMarginalPrice(
 								bundleOfInputFactors.get(optimalInputType));
+
 				// additional amounts have to grow slowly, so that the solution
 				// space is not left
 				final double additionalAmountOfInputType = Math.min(

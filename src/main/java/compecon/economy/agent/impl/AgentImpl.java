@@ -46,6 +46,7 @@ import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.property.PropertyIssued;
+import compecon.economy.property.PropertyOwner;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
@@ -56,7 +57,7 @@ import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.security.debt.Bond;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
 
@@ -95,11 +96,11 @@ public abstract class AgentImpl implements Agent {
 	protected double referenceCredit;
 
 	@Transient
-	protected Set<ITimeSystemEvent> timeSystemEvents = new HashSet<ITimeSystemEvent>();
+	protected Set<TimeSystemEvent> timeSystemEvents = new HashSet<TimeSystemEvent>();
 
 	public void initialize() {
 		// balance sheet publication
-		final ITimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
+		final TimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
 		this.timeSystemEvents.add(balanceSheetPublicationEvent);
 		ApplicationContext
 				.getInstance()
@@ -124,7 +125,7 @@ public abstract class AgentImpl implements Agent {
 		getLog().agent_onDeconstruct(this);
 
 		// deregister from time system
-		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents) {
+		for (TimeSystemEvent timeSystemEvent : this.timeSystemEvents) {
 			ApplicationContext.getInstance().getTimeSystem()
 					.removeEvent(timeSystemEvent);
 		}
@@ -176,7 +177,7 @@ public abstract class AgentImpl implements Agent {
 		return isDeconstructed;
 	}
 
-	public Set<ITimeSystemEvent> getTimeSystemEvents() {
+	public Set<TimeSystemEvent> getTimeSystemEvents() {
 		return timeSystemEvents;
 	}
 
@@ -201,7 +202,7 @@ public abstract class AgentImpl implements Agent {
 		this.isDeconstructed = isDeconstructed;
 	}
 
-	public void setTimeSystemEvents(final Set<ITimeSystemEvent> timeSystemEvents) {
+	public void setTimeSystemEvents(final Set<TimeSystemEvent> timeSystemEvents) {
 		this.timeSystemEvents = timeSystemEvents;
 	}
 
@@ -332,7 +333,8 @@ public abstract class AgentImpl implements Agent {
 	}
 
 	@Transient
-	public void onPropertyTransfer(final Property property) {
+	public void onPropertyTransfer(final Property property,
+			final PropertyOwner oldOwner, final PropertyOwner newOwner) {
 	}
 
 	@Override
@@ -342,7 +344,7 @@ public abstract class AgentImpl implements Agent {
 				+ this.primaryCurrency.getIso4217Code() + "]";
 	}
 
-	public class BalanceSheetPublicationEvent implements ITimeSystemEvent {
+	public class BalanceSheetPublicationEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			final BalanceSheetDTO balanceSheet = AgentImpl.this

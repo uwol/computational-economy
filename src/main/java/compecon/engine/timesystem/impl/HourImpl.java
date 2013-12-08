@@ -24,16 +24,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import compecon.engine.timesystem.IHour;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.Hour;
+import compecon.engine.timesystem.TimeSystemEvent;
 
-public class Hour implements IHour {
+public class HourImpl implements Hour {
 
 	private HourType hourType;
 
-	private List<ITimeSystemEvent> events = new ArrayList<ITimeSystemEvent>();
+	private List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
 
-	public Hour(final HourType hourType) {
+	public HourImpl(final HourType hourType) {
 		this.hourType = hourType;
 	}
 
@@ -41,11 +41,11 @@ public class Hour implements IHour {
 		return this.hourType;
 	}
 
-	public void addEvent(final ITimeSystemEvent event) {
+	public void addEvent(final TimeSystemEvent event) {
 		this.events.add(event);
 	}
 
-	public List<ITimeSystemEvent> getEvents() {
+	public List<TimeSystemEvent> getEvents() {
 		// every time this method is called, events have to be shuffled, so
 		// that
 		// each day gives each agent a new chance of being first
@@ -53,7 +53,7 @@ public class Hour implements IHour {
 		return this.events;
 	}
 
-	public void removeEvents(final Set<ITimeSystemEvent> events) {
+	public void removeEvents(final Set<TimeSystemEvent> events) {
 		this.events.removeAll(events);
 	}
 }

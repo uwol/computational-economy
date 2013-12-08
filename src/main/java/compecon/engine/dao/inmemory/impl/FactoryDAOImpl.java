@@ -25,17 +25,12 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.industry.Factory;
 import compecon.engine.dao.FactoryDAO;
 
-public class FactoryDAOImpl extends CurrencyIndexedInMemoryDAOImpl<Factory> implements
-		FactoryDAO {
-
-	@Override
-	public synchronized void delete(Factory entity) {
-		super.delete(entity.getPrimaryCurrency(), entity);
-	}
+public class FactoryDAOImpl extends
+		AbstractIndexedInMemoryDAOImpl<Currency, Factory> implements FactoryDAO {
 
 	@Override
 	public synchronized List<Factory> findAllByCurrency(Currency currency) {
-		return this.getInstancesForCurrency(currency);
+		return this.getInstancesForKey(currency);
 	}
 
 	@Override

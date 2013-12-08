@@ -41,7 +41,7 @@ import compecon.engine.service.impl.HardCashServiceImpl;
 import compecon.engine.service.impl.PropertyServiceImpl;
 import compecon.engine.service.impl.SettlementMarketServiceImpl;
 import compecon.engine.statistics.ModelRegistry;
-import compecon.engine.timesystem.impl.TimeSystem;
+import compecon.engine.timesystem.impl.TimeSystemImpl;
 
 public class ApplicationContextFactory {
 
@@ -129,7 +129,7 @@ public class ApplicationContextFactory {
 
 		ApplicationContext.getInstance().setSequenceNumberGenerator(
 				new SequenceNumberGeneratorImpl());
-		ApplicationContext.getInstance().setTimeSystem(new TimeSystem(2000));
+		ApplicationContext.getInstance().setTimeSystem(new TimeSystemImpl(2000));
 		ApplicationContext.getInstance().setLog(new LogImpl());
 		ApplicationContext.getInstance().setModelRegistry(new ModelRegistry());
 

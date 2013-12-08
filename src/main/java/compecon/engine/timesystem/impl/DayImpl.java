@@ -24,16 +24,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import compecon.engine.timesystem.IDay;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.Day;
+import compecon.engine.timesystem.TimeSystemEvent;
 
-public class Day implements IDay {
+public class DayImpl implements Day {
 
 	private DayType dayType;
 
-	private HashMap<HourType, Hour> hours = new HashMap<HourType, Hour>();
+	private HashMap<HourType, HourImpl> hours = new HashMap<HourType, HourImpl>();
 
-	public Day(final DayType dayType) {
+	public DayImpl(final DayType dayType) {
 		this.dayType = dayType;
 	}
 
@@ -41,17 +41,17 @@ public class Day implements IDay {
 		return this.dayType;
 	}
 
-	public void addEvent(final ITimeSystemEvent event, final HourType hourType) {
+	public void addEvent(final TimeSystemEvent event, final HourType hourType) {
 		if (!this.hours.containsKey(hourType))
-			this.hours.put(hourType, new Hour(hourType));
+			this.hours.put(hourType, new HourImpl(hourType));
 		this.hours.get(hourType).addEvent(event);
 	}
 
-	public List<ITimeSystemEvent> getEvents(final HourType hourType) {
-		Hour hourExact = this.hours.get(hourType);
-		Hour hourEvery = this.hours.get(HourType.EVERY);
+	public List<TimeSystemEvent> getEvents(final HourType hourType) {
+		HourImpl hourExact = this.hours.get(hourType);
+		HourImpl hourEvery = this.hours.get(HourType.EVERY);
 
-		List<ITimeSystemEvent> events = new ArrayList<ITimeSystemEvent>();
+		List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
 
 		if (hourExact != null)
 			events.addAll(hourExact.getEvents());
@@ -62,8 +62,8 @@ public class Day implements IDay {
 		return events;
 	}
 
-	public void removeEvents(final Set<ITimeSystemEvent> events) {
-		for (Hour hour : this.hours.values())
+	public void removeEvents(final Set<TimeSystemEvent> events) {
+		for (HourImpl hour : this.hours.values())
 			hour.removeEvents(events);
 	}
 }

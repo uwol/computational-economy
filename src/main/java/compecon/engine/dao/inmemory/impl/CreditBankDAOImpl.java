@@ -26,12 +26,8 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.CreditBankDAO;
 
 public class CreditBankDAOImpl extends
-		CurrencyIndexedInMemoryDAOImpl<CreditBank> implements CreditBankDAO {
-
-	@Override
-	public synchronized void delete(CreditBank entity) {
-		super.delete(entity.getPrimaryCurrency(), entity);
-	}
+		AbstractIndexedInMemoryDAOImpl<Currency, CreditBank> implements
+		CreditBankDAO {
 
 	@Override
 	public synchronized CreditBank findRandom(Currency currency) {
@@ -45,7 +41,7 @@ public class CreditBankDAOImpl extends
 
 	@Override
 	public synchronized List<CreditBank> findAllByCurrency(Currency currency) {
-		return this.getInstancesForCurrency(currency);
+		return this.getInstancesForKey(currency);
 	}
 
 	@Override

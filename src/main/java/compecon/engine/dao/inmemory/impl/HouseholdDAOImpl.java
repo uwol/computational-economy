@@ -25,17 +25,13 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.engine.dao.HouseholdDAO;
 
-public class HouseholdDAOImpl extends CurrencyIndexedInMemoryDAOImpl<Household>
-		implements HouseholdDAO {
-
-	@Override
-	public synchronized void delete(Household entity) {
-		super.delete(entity.getPrimaryCurrency(), entity);
-	}
+public class HouseholdDAOImpl extends
+		AbstractIndexedInMemoryDAOImpl<Currency, Household> implements
+		HouseholdDAO {
 
 	@Override
 	public synchronized List<Household> findAllByCurrency(Currency currency) {
-		return this.getInstancesForCurrency(currency);
+		return this.getInstancesForKey(currency);
 	}
 
 	@Override

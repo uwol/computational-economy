@@ -19,10 +19,18 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.timesystem;
 
-/**
- * an event that is added to the time system as a listener and is triggered at
- * certain points in time
- */
-public interface ITimeSystemEvent {
-	public void onEvent();
+import java.util.List;
+
+import compecon.engine.timesystem.impl.DayType;
+import compecon.engine.timesystem.impl.HourType;
+import compecon.engine.timesystem.impl.MonthType;
+
+public interface Month {
+	public MonthType getMonthType();
+
+	public void addEvent(final TimeSystemEvent event, final DayType dayType,
+			HourType hourType);
+
+	public List<TimeSystemEvent> getEvents(final DayType dayType,
+			final HourType hourType);
 }

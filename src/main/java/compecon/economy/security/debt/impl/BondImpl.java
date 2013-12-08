@@ -33,7 +33,7 @@ import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.security.debt.Bond;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.HourType;
 
 @Entity
@@ -63,14 +63,14 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	protected int termInYears = 1;
 
 	@Transient
-	protected List<ITimeSystemEvent> timeSystemEvents = new ArrayList<ITimeSystemEvent>();
+	protected List<TimeSystemEvent> timeSystemEvents = new ArrayList<TimeSystemEvent>();
 
 	public void initialize() {
 		super.initialize();
 
 		// repay face value event;
 		// has to be at HOUR_01, so that at HOUR_00 the last coupon can be payed
-		final ITimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
+		final TimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
 		this.timeSystemEvents.add(transferFaceValueEvent);
 		ApplicationContext
 				.getInstance()
@@ -167,7 +167,7 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 		super.deconstruct();
 
 		// deregister from TimeSystem
-		for (ITimeSystemEvent timeSystemEvent : this.timeSystemEvents)
+		for (TimeSystemEvent timeSystemEvent : this.timeSystemEvents)
 			ApplicationContext.getInstance().getTimeSystem()
 					.removeEvent(timeSystemEvent);
 	}
@@ -187,7 +187,7 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 				+ this.issuedInCurrency.getIso4217Code() + "]";
 	}
 
-	public class TransferFaceValueEvent implements ITimeSystemEvent {
+	public class TransferFaceValueEvent implements TimeSystemEvent {
 		@Override
 		public void onEvent() {
 			assert (BondImpl.this.faceValueFromBankAccountDelegate != null);

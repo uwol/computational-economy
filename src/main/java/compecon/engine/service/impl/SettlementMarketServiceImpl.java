@@ -196,8 +196,8 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 				ApplicationContext
 						.getInstance()
 						.getPropertyService()
-						.transferGoodTypeAmount(marketOffer.getOfferor(),
-								buyer, marketOffer.getGoodType(), amount);
+						.transferGoodTypeAmount(marketOffer.getGoodType(),
+								marketOffer.getOfferor(), buyer, amount);
 
 				marketOffer.getOfferor().onMarketSettlement(
 						marketOffer.getGoodType(),
@@ -246,8 +246,8 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 				ApplicationContext
 						.getInstance()
 						.getPropertyService()
-						.transferProperty(marketOffer.getOfferor(), buyer,
-								marketOffer.getProperty());
+						.transferProperty(marketOffer.getProperty(),
+								marketOffer.getOfferor(), buyer);
 
 				marketOffer.getOfferor().onMarketSettlement(
 						marketOffer.getProperty(),

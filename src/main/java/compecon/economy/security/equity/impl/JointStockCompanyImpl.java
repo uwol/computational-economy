@@ -41,7 +41,7 @@ import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.security.equity.JointStockCompany;
 import compecon.economy.security.equity.Share;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
@@ -70,7 +70,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 		// offer shares at 00:00
 		// has to happen as an event, as at constructor time the transaction
 		// bank account is null
-		final ITimeSystemEvent offerSharesEvent = new OfferSharesEvent();
+		final TimeSystemEvent offerSharesEvent = new OfferSharesEvent();
 		this.timeSystemEvents.add(offerSharesEvent);
 		ApplicationContext
 				.getInstance()
@@ -79,7 +79,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 						HourType.HOUR_00);
 
 		// pay dividend
-		final ITimeSystemEvent payDividendEvent = new PayDividendEvent();
+		final TimeSystemEvent payDividendEvent = new PayDividendEvent();
 		this.timeSystemEvents.add(payDividendEvent);
 		ApplicationContext
 				.getInstance()
@@ -189,7 +189,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 		}
 	}
 
-	public class PayDividendEvent implements ITimeSystemEvent {
+	public class PayDividendEvent implements TimeSystemEvent {
 
 		@Override
 		public void onEvent() {
@@ -258,7 +258,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 		}
 	}
 
-	public class OfferSharesEvent implements ITimeSystemEvent {
+	public class OfferSharesEvent implements TimeSystemEvent {
 
 		@Override
 		public void onEvent() {

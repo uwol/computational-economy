@@ -26,5 +26,6 @@ public interface PropertyOwner extends LifecycleEntity {
 	/**
 	 * this method is called in the event of a property transfer
 	 */
-	public void onPropertyTransfer(final Property property);
+	public void onPropertyTransfer(final Property property,
+			final PropertyOwner oldOwner, final PropertyOwner newOwner);
 }

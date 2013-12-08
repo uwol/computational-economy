@@ -25,7 +25,7 @@ import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
 
-public interface ITimeSystem {
+public interface TimeSystem {
 
 	public Date getCurrentDate();
 
@@ -50,26 +50,28 @@ public interface ITimeSystem {
 
 	public boolean isInitializationPhase();
 
-	public void addEvent(final ITimeSystemEvent event, final int year,
+	public void addEvent(final TimeSystemEvent event, final int year,
 			final MonthType monthType, final DayType dayType,
 			final HourType hourType);
 
-	public void addEventEvery(final ITimeSystemEvent event, final int year,
+	public void addEventEvery(final TimeSystemEvent event, final int year,
 			final MonthType monthType, final DayType dayType,
 			final HourType excepthourType);
 
-	public void addEventForEveryDay(final ITimeSystemEvent event);
+	public void addEventForEveryDay(final TimeSystemEvent event);
 
-	public void addEventForEveryMorning(final ITimeSystemEvent event);
+	public void addEventForEveryMorning(final TimeSystemEvent event);
 
-	public void addEventForEveryEvening(final ITimeSystemEvent event);
+	public void addEventForEveryEvening(final TimeSystemEvent event);
 
-	public void addEventForEveryHour(final ITimeSystemEvent event);
+	public void addEventForEveryHour(final TimeSystemEvent event);
 
-	public void addExternalEvent(final ITimeSystemEvent timeSystemEvent);
+	public void addExternalEvent(final TimeSystemEvent timeSystemEvent);
 
-	public void removeEvent(final ITimeSystemEvent event);
+	public void removeEvent(final TimeSystemEvent event);
 
 	public void nextHour();
+
+	public void cleanRemovedEvents();
 
 }

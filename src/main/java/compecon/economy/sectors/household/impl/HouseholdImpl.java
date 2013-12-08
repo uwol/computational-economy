@@ -38,6 +38,7 @@ import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.materia.Refreshable;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyOwner;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
@@ -48,7 +49,7 @@ import compecon.economy.sectors.household.Household;
 import compecon.economy.security.equity.Share;
 import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
 import compecon.math.intertemporal.IntertemporalConsumptionFunction;
@@ -112,7 +113,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 						.getDaysWithoutUtilityUntilDestructor();
 
 		// daily life at random HourType
-		final ITimeSystemEvent dailyLifeEvent = new DailyLifeEvent();
+		final TimeSystemEvent dailyLifeEvent = new DailyLifeEvent();
 		this.timeSystemEvents.add(dailyLifeEvent);
 		ApplicationContext
 				.getInstance()
@@ -290,10 +291,11 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 	@Override
 	@Transient
-	public void onPropertyTransfer(final Property property) {
-		super.onPropertyTransfer(property);
+	public void onPropertyTransfer(final Property property,
+			final PropertyOwner oldOwner, final PropertyOwner newOwner) {
+		super.onPropertyTransfer(property, oldOwner, newOwner);
 
-		if (property instanceof Share) {
+		if (newOwner == this && property instanceof Share) {
 			Share share = (Share) property;
 			share.setDividendBankAccountDelegate(getBankAccountDividendDelegate());
 		}
@@ -304,7 +306,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		return super.toString() + ", ageInYears=[" + this.ageInDays / 365 + "]";
 	}
 
-	public class DailyLifeEvent implements ITimeSystemEvent {
+	public class DailyLifeEvent implements TimeSystemEvent {
 
 		@Override
 		public void onEvent() {

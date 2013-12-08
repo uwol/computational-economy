@@ -39,7 +39,7 @@ import compecon.dashboard.model.ControlModel;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.NotificationListenerModel.ModelListener;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 
 public class ControlPanel extends JPanel implements ModelListener {
 
@@ -145,7 +145,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 			initEconomicGrowthButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					ApplicationContext.getInstance().getTimeSystem()
-							.addExternalEvent(new ITimeSystemEvent() {
+							.addExternalEvent(new TimeSystemEvent() {
 								@Override
 								public void onEvent() {
 									controlModel.initEconomicGrowth(currency);
@@ -163,7 +163,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 			doDeficitSpendingButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					ApplicationContext.getInstance().getTimeSystem()
-							.addExternalEvent(new ITimeSystemEvent() {
+							.addExternalEvent(new TimeSystemEvent() {
 								@Override
 								public void onEvent() {
 									controlModel.deficitSpending(currency);
@@ -181,7 +181,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 			init100HouseholdsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					ApplicationContext.getInstance().getTimeSystem()
-							.addExternalEvent(new ITimeSystemEvent() {
+							.addExternalEvent(new TimeSystemEvent() {
 								@Override
 								public void onEvent() {
 									controlModel.initHouseholds(currency);

@@ -38,7 +38,7 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
 import compecon.math.price.PriceFunction;
@@ -69,7 +69,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 		super.initialize();
 
 		// production event at random HourType
-		final ITimeSystemEvent productionEvent = new ProductionEvent();
+		final TimeSystemEvent productionEvent = new ProductionEvent();
 		this.timeSystemEvents.add(productionEvent);
 		ApplicationContext
 				.getInstance()
@@ -150,7 +150,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				+ this.producedGoodType + "]";
 	}
 
-	public class ProductionEvent implements ITimeSystemEvent {
+	public class ProductionEvent implements TimeSystemEvent {
 
 		@Override
 		public void onEvent() {
@@ -189,7 +189,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 		protected void buyOptimalProductionFactorsForBudget(final double budget) {
 			if (MathUtil.greater(budget, 0.0)) {
 				// get prices for production factors
-				Map<GoodType, PriceFunction> priceFunctionsOfProductionFactors = ApplicationContext
+				final Map<GoodType, PriceFunction> priceFunctionsOfProductionFactors = ApplicationContext
 						.getInstance()
 						.getMarketService()
 						.getMarketPriceFunctions(
@@ -198,14 +198,14 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 										.getInputGoodTypes());
 
 				// calculate optimal production plan
-				double priceOfProducedGoodType = ApplicationContext
+				final double priceOfProducedGoodType = ApplicationContext
 						.getInstance()
 						.getMarketService()
 						.getPrice(FactoryImpl.this.primaryCurrency,
 								FactoryImpl.this.producedGoodType);
 
 				getLog().setAgentCurrentlyActive(FactoryImpl.this);
-				Map<GoodType, Double> productionFactorsToBuy = FactoryImpl.this.productionFunction
+				final Map<GoodType, Double> productionFactorsToBuy = FactoryImpl.this.productionFunction
 						.calculateProfitMaximizingProductionFactors(
 								priceOfProducedGoodType,
 								priceFunctionsOfProductionFactors, budget,
@@ -214,7 +214,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 										.getMargin());
 
 				// buy production factors
-				double budgetSpent = this
+				final double budgetSpent = this
 						.buyProductionFactors(productionFactorsToBuy);
 
 				assert (MathUtil.lesserEqual(budgetSpent, budget * 1.2));

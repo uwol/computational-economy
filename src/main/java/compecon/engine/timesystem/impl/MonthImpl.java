@@ -24,16 +24,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import compecon.engine.timesystem.IMonth;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.Month;
+import compecon.engine.timesystem.TimeSystemEvent;
 
-public class Month implements IMonth {
+public class MonthImpl implements Month {
 
 	private MonthType monthType;
 
-	private HashMap<DayType, Day> days = new HashMap<DayType, Day>();
+	private HashMap<DayType, DayImpl> days = new HashMap<DayType, DayImpl>();
 
-	public Month(final MonthType monthType) {
+	public MonthImpl(final MonthType monthType) {
 		this.monthType = monthType;
 	}
 
@@ -41,19 +41,19 @@ public class Month implements IMonth {
 		return this.monthType;
 	}
 
-	public void addEvent(final ITimeSystemEvent event, final DayType dayType,
+	public void addEvent(final TimeSystemEvent event, final DayType dayType,
 			HourType hourType) {
 		if (!this.days.containsKey(dayType))
-			this.days.put(dayType, new Day(dayType));
+			this.days.put(dayType, new DayImpl(dayType));
 		this.days.get(dayType).addEvent(event, hourType);
 	}
 
-	public List<ITimeSystemEvent> getEvents(final DayType dayType,
+	public List<TimeSystemEvent> getEvents(final DayType dayType,
 			final HourType hourType) {
-		Day dayExact = this.days.get(dayType);
-		Day dayEvery = this.days.get(DayType.EVERY);
+		DayImpl dayExact = this.days.get(dayType);
+		DayImpl dayEvery = this.days.get(DayType.EVERY);
 
-		List<ITimeSystemEvent> events = new ArrayList<ITimeSystemEvent>();
+		List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
 
 		if (dayExact != null)
 			events.addAll(dayExact.getEvents(hourType));
@@ -64,8 +64,8 @@ public class Month implements IMonth {
 		return events;
 	}
 
-	public void removeEvents(final Set<ITimeSystemEvent> events) {
-		for (Day day : this.days.values())
+	public void removeEvents(final Set<TimeSystemEvent> events) {
+		for (DayImpl day : this.days.values())
 			day.removeEvents(events);
 	}
 }

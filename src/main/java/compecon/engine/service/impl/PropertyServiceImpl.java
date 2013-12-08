@@ -44,7 +44,7 @@ public class PropertyServiceImpl implements PropertyService {
 	 */
 
 	protected GoodTypeOwnership assureGoodTypeOwnership(
-			PropertyOwner propertyOwner) {
+			final PropertyOwner propertyOwner) {
 		assert (propertyOwner != null);
 
 		final GoodTypeOwnership goodTypeOwnership = ApplicationContext
@@ -59,8 +59,8 @@ public class PropertyServiceImpl implements PropertyService {
 		return goodTypeOwnership;
 	}
 
-	public double decrementGoodTypeAmount(PropertyOwner propertyOwner,
-			GoodType goodType, double amount) {
+	public double decrementGoodTypeAmount(final PropertyOwner propertyOwner,
+			final GoodType goodType, double amount) {
 		assert (amount >= 0.0);
 
 		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
@@ -85,7 +85,8 @@ public class PropertyServiceImpl implements PropertyService {
 	 * get owners
 	 */
 
-	public double getBalance(PropertyOwner propertyOwner, GoodType goodType) {
+	public double getBalance(final PropertyOwner propertyOwner,
+			final GoodType goodType) {
 		assureGoodTypeOwnership(propertyOwner);
 
 		GoodTypeOwnership goodTypeOwnership = ApplicationContext.getInstance()
@@ -94,30 +95,30 @@ public class PropertyServiceImpl implements PropertyService {
 		return goodTypeOwnership.getOwnedGoodTypes().get(goodType);
 	}
 
-	public Map<GoodType, Double> getBalance(PropertyOwner propertyOwner) {
+	public Map<GoodType, Double> getBalance(final PropertyOwner propertyOwner) {
 		assureGoodTypeOwnership(propertyOwner);
 
 		return ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
 				.findFirstByPropertyOwner(propertyOwner).getOwnedGoodTypes();
 	}
 
-	public PropertyOwner getOwner(Property property) {
+	public PropertyOwner getOwner(final Property property) {
 		return property.getOwner();
 	}
 
-	public List<Property> getProperties(PropertyOwner propertyOwner) {
+	public List<Property> getProperties(final PropertyOwner propertyOwner) {
 		return ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesOfPropertyOwner(propertyOwner);
 	}
 
-	public List<Property> getProperties(PropertyOwner propertyOwner,
-			Class<? extends Property> propertyClass) {
+	public List<Property> getProperties(final PropertyOwner propertyOwner,
+			final Class<? extends Property> propertyClass) {
 		return ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesOfPropertyOwner(propertyOwner, propertyClass);
 	}
 
-	public double incrementGoodTypeAmount(PropertyOwner propertyOwner,
-			GoodType goodType, double amount) {
+	public double incrementGoodTypeAmount(final PropertyOwner propertyOwner,
+			final GoodType goodType, double amount) {
 		assert (amount >= 0.0);
 
 		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
@@ -130,8 +131,8 @@ public class PropertyServiceImpl implements PropertyService {
 		return newBalance;
 	}
 
-	public void resetGoodTypeAmount(PropertyOwner propertyOwner,
-			GoodType goodType) {
+	public void resetGoodTypeAmount(final PropertyOwner propertyOwner,
+			final GoodType goodType) {
 		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, 0.0);
 
@@ -141,8 +142,9 @@ public class PropertyServiceImpl implements PropertyService {
 	/*
 	 * transfer
 	 */
-	public void transferGoodTypeAmount(PropertyOwner oldOwner,
-			PropertyOwner newOwner, GoodType goodType, double amount) {
+	public void transferGoodTypeAmount(final GoodType goodType,
+			final PropertyOwner oldOwner, final PropertyOwner newOwner,
+			final double amount) {
 		this.decrementGoodTypeAmount(oldOwner, goodType, amount);
 		this.incrementGoodTypeAmount(newOwner, goodType, amount);
 
@@ -152,8 +154,8 @@ public class PropertyServiceImpl implements PropertyService {
 	/**
 	 * newOwner with value null is allowed, e. g. for shares
 	 */
-	public void transferProperty(PropertyOwner oldOwner,
-			PropertyOwner newOwner, Property property) {
+	public void transferProperty(final Property property,
+			final PropertyOwner oldOwner, final PropertyOwner newOwner) {
 		// consistency check
 		assert (oldOwner == property.getOwner());
 
@@ -161,13 +163,13 @@ public class PropertyServiceImpl implements PropertyService {
 		ApplicationContext.getInstance().getPropertyDAO()
 				.transferProperty(oldOwner, newOwner, property);
 		if (newOwner != null) {
-			newOwner.onPropertyTransfer(property);
+			newOwner.onPropertyTransfer(property, oldOwner, newOwner);
 		}
 
 		HibernateUtil.flushSession();
 	}
 
-	public void transferEverythingToRandomAgent(PropertyOwner oldOwner) {
+	public void transferEverythingToRandomAgent(final PropertyOwner oldOwner) {
 		if (oldOwner == null)
 			return;
 
@@ -194,9 +196,8 @@ public class PropertyServiceImpl implements PropertyService {
 				for (Entry<GoodType, Double> entry : goodTypeOwnership
 						.getOwnedGoodTypes().entrySet()) {
 					if (!entry.getKey().equals(GoodType.LABOURHOUR)) {
-						this.transferGoodTypeAmount(oldOwner,
-								newOwnerHousehold, entry.getKey(),
-								entry.getValue());
+						this.transferGoodTypeAmount(entry.getKey(), oldOwner,
+								newOwnerHousehold, entry.getValue());
 					}
 				}
 			}
@@ -205,7 +206,7 @@ public class PropertyServiceImpl implements PropertyService {
 		// transfer all properties, eventually to null property owner!
 		for (Property property : ApplicationContext.getInstance()
 				.getPropertyDAO().findAllPropertiesOfPropertyOwner(oldOwner)) {
-			this.transferProperty(oldOwner, newOwnerHousehold, property);
+			this.transferProperty(property, oldOwner, newOwnerHousehold);
 		}
 
 		// remove good type ownerships as they should have been zeroed

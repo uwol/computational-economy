@@ -36,7 +36,7 @@ import compecon.economy.sectors.state.State;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
 import compecon.engine.statistics.ModelRegistry.IncomeSource;
-import compecon.engine.timesystem.ITimeSystemEvent;
+import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.math.ConvexFunction.ConvexFunctionTerminationCause;
 import compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
 import compecon.math.util.MathUtil;
@@ -96,7 +96,7 @@ public class LogImpl implements Log {
 	}
 
 	public synchronized void log(final Agent agent,
-			final Class<? extends ITimeSystemEvent> eventClass,
+			final Class<? extends TimeSystemEvent> eventClass,
 			final String message) {
 		setAgentCurrentlyActive(agent);
 		log(eventClass.getSimpleName() + ": " + message);
