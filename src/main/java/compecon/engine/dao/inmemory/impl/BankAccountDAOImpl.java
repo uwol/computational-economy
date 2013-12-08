@@ -25,14 +25,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.BankAccountDAO;
 
 public class BankAccountDAOImpl extends
-		AbstractIndexedInMemoryDAOImpl<Agent, BankAccount> implements
+		AbstractIndexedInMemoryDAOImpl<BankCustomer, BankAccount> implements
 		BankAccountDAO {
 
 	protected Map<Bank, List<BankAccount>> bankAccounts = new HashMap<Bank, List<BankAccount>>();
@@ -73,7 +73,7 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized void deleteAllBankAccounts(Bank managingBank,
-			Agent owner) {
+			BankCustomer owner) {
 		if (this.bankAccounts.containsKey(managingBank)) {
 			final List<BankAccount> bankAccounts = this
 					.getInstancesForKey(owner);
@@ -98,7 +98,8 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<BankAccount> findAllBankAccountsOfAgent(Agent owner) {
+	public synchronized List<BankAccount> findAllBankAccountsOfAgent(
+			BankCustomer owner) {
 		final List<BankAccount> bankAccounts = this.getInstancesForKey(owner);
 		if (bankAccounts != null) {
 			return new ArrayList<BankAccount>(bankAccounts);
@@ -107,7 +108,8 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<BankAccount> findAll(Bank managingBank, Agent owner) {
+	public synchronized List<BankAccount> findAll(Bank managingBank,
+			BankCustomer owner) {
 		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank) {
@@ -119,7 +121,7 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized List<BankAccount> findAll(Bank managingBank,
-			Agent owner, Currency currency) {
+			BankCustomer owner, Currency currency) {
 		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank

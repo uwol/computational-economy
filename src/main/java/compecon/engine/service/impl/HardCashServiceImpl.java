@@ -21,19 +21,19 @@ package compecon.engine.service.impl;
 
 import java.util.HashMap;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.financial.HardCashOwner;
 import compecon.engine.service.HardCashService;
 
 public class HardCashServiceImpl implements HardCashService {
 
 	// FIXME Services have to be stateless, move state into DAO / database
-	private HashMap<Agent, HashMap<Currency, Double>> balances = new HashMap<Agent, HashMap<Currency, Double>>();
+	private HashMap<HardCashOwner, HashMap<Currency, Double>> balances = new HashMap<HardCashOwner, HashMap<Currency, Double>>();
 
-	public double getBalance(final Agent agent, final Currency currency) {
-		this.assureAgentHasBalances(agent);
+	public double getBalance(final HardCashOwner owner, final Currency currency) {
+		this.assureAgentHasBalances(owner);
 
-		HashMap<Currency, Double> balancesForIAgent = this.balances.get(agent);
+		HashMap<Currency, Double> balancesForIAgent = this.balances.get(owner);
 		double balance = 0;
 		if (balancesForIAgent.containsKey(currency))
 			balance = balancesForIAgent.get(currency);
@@ -41,42 +41,42 @@ public class HardCashServiceImpl implements HardCashService {
 		return balance;
 	}
 
-	public double increment(final Agent agent, final Currency currency,
+	public double increment(final HardCashOwner owner, final Currency currency,
 			final double amount) {
-		this.assureAgentHasBalances(agent);
+		this.assureAgentHasBalances(owner);
 
 		assert (amount > 0.0);
 
-		double oldBalance = this.getBalance(agent, currency);
+		double oldBalance = this.getBalance(owner, currency);
 		double newBalance = oldBalance + amount;
-		this.balances.get(agent).put(currency, newBalance);
+		this.balances.get(owner).put(currency, newBalance);
 		return newBalance;
 	}
 
-	public double decrement(final Agent agent, final Currency currency,
+	public double decrement(final HardCashOwner owner, final Currency currency,
 			final double amount) {
-		this.assureAgentHasBalances(agent);
+		this.assureAgentHasBalances(owner);
 
 		assert (amount >= 0.0);
 
-		double oldBalance = this.getBalance(agent, currency);
+		double oldBalance = this.getBalance(owner, currency);
 
 		assert (oldBalance >= amount);
 
 		double newBalance = oldBalance - amount;
-		this.balances.get(agent).put(currency, newBalance);
+		this.balances.get(owner).put(currency, newBalance);
 		return newBalance;
 	}
 
-	private void assureAgentHasBalances(final Agent agent) {
-		if (!this.balances.containsKey(agent))
-			this.balances.put(agent, new HashMap<Currency, Double>());
+	private void assureAgentHasBalances(final HardCashOwner owner) {
+		if (!this.balances.containsKey(owner))
+			this.balances.put(owner, new HashMap<Currency, Double>());
 	}
 
 	/*
 	 * deregister
 	 */
-	public void deregister(final Agent agent) {
-		this.balances.remove(agent); // TODO transfer to other agent?
+	public void deregister(final HardCashOwner owner) {
+		this.balances.remove(owner); // TODO transfer to other agent?
 	}
 }

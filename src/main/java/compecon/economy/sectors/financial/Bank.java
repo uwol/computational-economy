@@ -26,13 +26,13 @@ import compecon.economy.security.equity.JointStockCompany;
 
 public interface Bank extends Agent, JointStockCompany {
 
-	public abstract void closeCustomerAccount(final Agent customer);
+	public abstract void closeCustomerAccount(final BankCustomer customer);
 
 	public BankAccountDelegate getBankAccountBondLoanDelegate();
 
 	public BankAccountDelegate getBankAccountInterestTransactionsDelegate();
 
-	public BankAccount openBankAccount(final Agent customer,
+	public BankAccount openBankAccount(final BankCustomer customer,
 			final Currency currency, final boolean overdraftPossible,
 			final String name, final TermType termType,
 			final MoneyType moneyType);

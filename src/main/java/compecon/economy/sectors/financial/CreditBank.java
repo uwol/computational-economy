@@ -19,14 +19,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.sectors.financial;
 
-import compecon.economy.agent.Agent;
-
 public interface CreditBank extends Bank {
 
-	public void deposit(BankAccount bankAccount, double amount);
+	public void deposit(final BankAccount bankAccount, final double amount);
 
-	public void depositCash(Agent client, BankAccount to, double amount,
-			Currency currency);
+	public void depositCash(final BankCustomer customer, final BankAccount to,
+			final double amount, final Currency currency);
 
 	public BankAccountDelegate getBankAccountCentralBankMoneyReservesDelegate();
 
@@ -35,8 +33,8 @@ public interface CreditBank extends Bank {
 	public BankAccountDelegate getBankAccountCurrencyTradeDelegate(
 			final Currency currency);
 
-	public void withdraw(BankAccount bankAccount, double amount);
+	public void withdraw(final BankAccount bankAccount, final double amount);
 
-	public double withdrawCash(Agent client, BankAccount from, double amount,
-			Currency currency);
+	public double withdrawCash(final BankCustomer customer,
+			final BankAccount from, final double amount, final Currency currency);
 }

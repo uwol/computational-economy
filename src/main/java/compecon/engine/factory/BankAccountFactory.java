@@ -19,11 +19,11 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.factory;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 
 public interface BankAccountFactory {
@@ -32,9 +32,10 @@ public interface BankAccountFactory {
 
 	public void deleteAllBankAccounts(final Bank managingBank);
 
-	public void deleteAllBankAccounts(final Bank managingBank, Agent owner);
+	public void deleteAllBankAccounts(final Bank managingBank,
+			BankCustomer customer);
 
-	public BankAccount newInstanceBankAccount(final Agent owner,
+	public BankAccount newInstanceBankAccount(final BankCustomer owner,
 			final Currency currency, boolean overdraftPossible,
 			final Bank managingBank, final String name,
 			final TermType termType, final MoneyType moneyType);

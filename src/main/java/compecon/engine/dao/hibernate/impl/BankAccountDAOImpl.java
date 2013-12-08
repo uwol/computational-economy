@@ -21,9 +21,9 @@ package compecon.engine.dao.hibernate.impl;
 
 import java.util.List;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.dao.BankAccountDAO;
 
@@ -40,7 +40,7 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 	}
 
 	@Override
-	public void deleteAllBankAccounts(Bank managingBank, Agent owner) {
+	public void deleteAllBankAccounts(Bank managingBank, BankCustomer owner) {
 		final List<BankAccount> bankAccounts = this
 				.findAll(managingBank, owner);
 		for (BankAccount bankAccount : bankAccounts) {
@@ -58,14 +58,14 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAllBankAccountsOfAgent(Agent owner) {
+	public List<BankAccount> findAllBankAccountsOfAgent(BankCustomer owner) {
 		String hql = "FROM BankAccountImpl ba WHERE ba.owner = :owner";
 		return getSession().createQuery(hql).setEntity("owner", owner).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAll(Bank managingBank, Agent owner) {
+	public List<BankAccount> findAll(Bank managingBank, BankCustomer owner) {
 		String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank AND ba.owner = :owner";
 		return getSession().createQuery(hql)
 				.setEntity("managingBank", managingBank)
@@ -74,7 +74,7 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAll(Bank managingBank, Agent owner,
+	public List<BankAccount> findAll(Bank managingBank, BankCustomer owner,
 			Currency currency) {
 		String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank AND ba.owner = :owner AND ba.currency = :currency";
 		return getSession().createQuery(hql)

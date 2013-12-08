@@ -36,6 +36,7 @@ import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyOwner;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
@@ -203,8 +204,11 @@ public class StateImpl extends AgentImpl implements State {
 
 	@Transient
 	public FixedRateBond obtainBond(final double faceValue,
+			final PropertyOwner buyer,
 			final BankAccountDelegate buyerBankAccountDelegate) {
 		this.assureBankAccountCouponLoans();
+
+		assert (buyer == buyerBankAccountDelegate.getBankAccount().getOwner());
 
 		// TODO alternative: price := this.pricingBehaviour.getCurrentPrice();
 		final CentralBank centralBank = ApplicationContext.getInstance()
@@ -222,18 +226,21 @@ public class StateImpl extends AgentImpl implements State {
 						getBankAccountTransactionsDelegate(),
 						getBankAccountCouponLoansDelegate(), faceValue, coupon);
 
-		// transfer
+		// transfer money
 		buyerBankAccountDelegate
 				.getBankAccount()
 				.getManagingBank()
 				.transferMoney(buyerBankAccountDelegate.getBankAccount(),
 						this.bankAccountTransactions, faceValue,
 						"payment for " + fixedRateBond);
-		ApplicationContext
-				.getInstance()
-				.getPropertyService()
-				.transferProperty(fixedRateBond, this,
-						buyerBankAccountDelegate.getBankAccount().getOwner());
+
+		// transfer bond
+		ApplicationContext.getInstance().getPropertyService()
+				.transferProperty(fixedRateBond, this, buyer);
+
+		assert (fixedRateBond.getOwner() == buyerBankAccountDelegate
+				.getBankAccount().getOwner());
+
 		return fixedRateBond;
 	}
 

@@ -19,7 +19,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.sectors.financial;
 
-import compecon.economy.agent.Agent;
 
 public interface BankAccount {
 
@@ -49,7 +48,7 @@ public interface BankAccount {
 
 	public boolean getOverdraftPossible();
 
-	public Agent getOwner();
+	public BankCustomer getOwner();
 
 	public void withdraw(final double amount);
 

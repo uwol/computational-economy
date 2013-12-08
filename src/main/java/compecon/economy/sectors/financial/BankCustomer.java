@@ -17,27 +17,13 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.economy.agent;
+package compecon.economy.sectors.financial;
 
-import java.util.Set;
+public interface BankCustomer extends HardCashOwner {
 
-import compecon.economy.LifecycleEntity;
-import compecon.economy.markets.MarketParticipant;
-import compecon.economy.property.PropertyOwner;
-import compecon.economy.sectors.financial.BankCustomer;
-import compecon.economy.sectors.financial.BankAccountDelegate;
-import compecon.economy.sectors.financial.Currency;
-import compecon.engine.timesystem.TimeSystemEvent;
-
-public interface Agent extends LifecycleEntity, PropertyOwner,
-		MarketParticipant, BankCustomer {
-
-	public BankAccountDelegate getBankAccountTransactionsDelegate();
-
-	public int getId();
-
-	public Set<TimeSystemEvent> getTimeSystemEvents();
-
-	public Currency getPrimaryCurrency();
-
+	/**
+	 * this method is called in the event that the bank of the bank account
+	 * closes the bank account, so that the customer agent can react.
+	 */
+	public void onBankCloseBankAccount(final BankAccount bankAccount);
 }

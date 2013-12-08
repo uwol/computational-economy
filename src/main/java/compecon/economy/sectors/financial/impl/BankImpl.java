@@ -31,13 +31,13 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.BankAccountDelegate;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
@@ -65,10 +65,11 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	public void deconstruct() {
 		this.isDeconstructed = true;
 
-		final List<Agent> customers = new ArrayList<Agent>(this.getCustomers());
-		for (Agent agent : customers) {
+		final List<BankCustomer> customers = new ArrayList<BankCustomer>(
+				this.getCustomers());
+		for (BankCustomer customer : customers) {
 			// implicitly deletes the associated bank accounts
-			this.closeCustomerAccount(agent);
+			this.closeCustomerAccount(customer);
 		}
 
 		// mandatory, so that this bank is removed from the DAOs index structure
@@ -145,9 +146,9 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	}
 
 	@Transient
-	protected void assertIsCustomerOfThisBank(final Agent agent) {
+	protected void assertIsCustomerOfThisBank(final BankCustomer customer) {
 		assert (ApplicationContext.getInstance().getBankAccountDAO()
-				.findAll(this, agent).size() > 0);
+				.findAll(this, customer).size() > 0);
 	}
 
 	@Transient
@@ -197,21 +198,21 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	}
 
 	@Transient
-	public List<BankAccount> getBankAccounts(final Agent customer) {
+	public List<BankAccount> getBankAccounts(final BankCustomer customer) {
 		return ApplicationContext.getInstance().getBankAccountDAO()
 				.findAll(this, customer);
 	}
 
 	@Transient
-	public List<BankAccount> getBankAccounts(final Agent customer,
+	public List<BankAccount> getBankAccounts(final BankCustomer customer,
 			final Currency currency) {
 		return ApplicationContext.getInstance().getBankAccountDAO()
 				.findAll(this, customer, currency);
 	}
 
 	@Transient
-	public Set<Agent> getCustomers() {
-		final Set<Agent> customers = new HashSet<Agent>();
+	public Set<BankCustomer> getCustomers() {
+		final Set<BankCustomer> customers = new HashSet<BankCustomer>();
 		for (BankAccount bankAccount : ApplicationContext.getInstance()
 				.getBankAccountDAO().findAllBankAccountsManagedByBank(this)) {
 			customers.add(bankAccount.getOwner());
@@ -272,7 +273,7 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	}
 
 	@Transient
-	public BankAccount openBankAccount(final Agent customer,
+	public BankAccount openBankAccount(final BankCustomer customer,
 			final Currency currency, final boolean overdraftPossible,
 			final String name, final TermType termType,
 			final MoneyType moneyType) {

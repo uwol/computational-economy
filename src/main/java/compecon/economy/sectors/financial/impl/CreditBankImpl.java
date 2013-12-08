@@ -39,7 +39,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Index;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.behaviour.PricingBehaviour;
 import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
@@ -49,6 +48,7 @@ import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.BankAccountDelegate;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CentralBankCustomer;
 import compecon.economy.sectors.financial.CreditBank;
@@ -340,7 +340,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	 */
 
 	@Transient
-	public void closeCustomerAccount(Agent customer) {
+	public void closeCustomerAccount(BankCustomer customer) {
 		this.assureBankAccountTransactions();
 
 		// for each customer bank account ...
@@ -391,15 +391,15 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	}
 
 	@Transient
-	public void depositCash(Agent client, BankAccount to, double amount,
-			Currency currency) {
-		this.assertIsCustomerOfThisBank(client);
+	public void depositCash(final BankCustomer customer, final BankAccount to,
+			final double amount, final Currency currency) {
+		this.assertIsCustomerOfThisBank(customer);
 		this.assertBankAccountIsManagedByThisBank(to);
 		this.assertCurrencyIsOffered(currency);
 
 		// transfer money
 		ApplicationContext.getInstance().getHardCashService()
-				.decrement(client, currency, amount);
+				.decrement(customer, currency, amount);
 		to.deposit(amount);
 	}
 
@@ -632,16 +632,16 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	}
 
 	@Transient
-	public double withdrawCash(Agent client, BankAccount from, double amount,
-			Currency currency) {
-		this.assertIsCustomerOfThisBank(client);
+	public double withdrawCash(BankCustomer customer, BankAccount from,
+			double amount, Currency currency) {
+		this.assertIsCustomerOfThisBank(customer);
 		this.assertBankAccountIsManagedByThisBank(from);
 		this.assertCurrencyIsOffered(currency);
 
 		// transfer money
 		from.withdraw(amount);
 		return ApplicationContext.getInstance().getHardCashService()
-				.increment(client, currency, amount);
+				.increment(customer, currency, amount);
 	}
 
 	public class DailyInterestCalculationEvent implements TimeSystemEvent {
@@ -1161,7 +1161,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 						.getInstance()
 						.getStateDAO()
 						.findByCurrency(CreditBankImpl.this.primaryCurrency)
-						.obtainBond(difference,
+						.obtainBond(difference, CreditBankImpl.this,
 								getBankAccountBondLoanDelegate());
 				assert (fixedRateBond.getOwner() == CreditBankImpl.this);
 

@@ -53,7 +53,7 @@ public class PropertyDAOTest extends CompEconTestSupport {
 		CreditBank creditBank = ApplicationContext.getInstance()
 				.getCreditBankFactory().newInstanceCreditBank(Currency.EURO);
 
-		Bond bond = state.obtainBond(1000,
+		Bond bond = state.obtainBond(1000, creditBank,
 				creditBank.getBankAccountTransactionsDelegate());
 
 		// total number
@@ -92,9 +92,9 @@ public class PropertyDAOTest extends CompEconTestSupport {
 		CreditBank creditBank = ApplicationContext.getInstance()
 				.getCreditBankFactory().newInstanceCreditBank(Currency.EURO);
 
-		Bond bond1 = state.obtainBond(1000,
+		Bond bond1 = state.obtainBond(1000, creditBank,
 				creditBank.getBankAccountTransactionsDelegate());
-		Bond bond2 = state.obtainBond(1000,
+		Bond bond2 = state.obtainBond(1000, creditBank,
 				creditBank.getBankAccountTransactionsDelegate());
 		Share share1 = ApplicationContext.getInstance().getShareFactory()
 				.newInstanceShare(creditBank, creditBank);

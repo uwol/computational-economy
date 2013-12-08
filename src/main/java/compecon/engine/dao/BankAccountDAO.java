@@ -21,23 +21,23 @@ package compecon.engine.dao;
 
 import java.util.List;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 
 public interface BankAccountDAO extends GenericDAO<BankAccount> {
 
 	public List<BankAccount> findAllBankAccountsManagedByBank(Bank managingBank);
 
-	public List<BankAccount> findAllBankAccountsOfAgent(Agent owner);
+	public List<BankAccount> findAllBankAccountsOfAgent(BankCustomer owner);
 
-	public List<BankAccount> findAll(Bank managingBank, Agent owner);
+	public List<BankAccount> findAll(Bank managingBank, BankCustomer owner);
 
-	public List<BankAccount> findAll(Bank managingBank, Agent owner,
+	public List<BankAccount> findAll(Bank managingBank, BankCustomer owner,
 			Currency currency);
 
 	public void deleteAllBankAccounts(Bank managingBank);
 
-	public void deleteAllBankAccounts(Bank managingBank, Agent owner);
+	public void deleteAllBankAccounts(Bank managingBank, BankCustomer owner);
 }

@@ -28,6 +28,7 @@ import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
@@ -39,6 +40,8 @@ import compecon.math.production.ConvexProductionFunction.ConvexProductionFunctio
 public interface Log {
 
 	public boolean isAgentSelectedByClient(final Agent agent);
+
+	public boolean isAgentSelectedByClient(final BankCustomer bankCustomer);
 
 	public boolean isAgentSelectedByClient(
 			final MarketParticipant marketParticipant);
@@ -54,6 +57,8 @@ public interface Log {
 	public void notifyTimeSystem_nextHour(final Date date);
 
 	public void log(final Agent agent, final String message);
+
+	public void log(final BankCustomer bankCustomer, final String message);
 
 	public void log(final MarketParticipant marketParticipant,
 			final String message);

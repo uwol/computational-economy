@@ -29,6 +29,7 @@ import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.markets.MarketParticipant;
 import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
@@ -51,6 +52,10 @@ public class LogImpl implements Log {
 
 	public boolean isAgentSelectedByClient(final Agent agent) {
 		return agent != null && agentSelectedByClient == agent;
+	}
+
+	public boolean isAgentSelectedByClient(final BankCustomer bankCustomer) {
+		return bankCustomer != null && agentSelectedByClient == bankCustomer;
 	}
 
 	public boolean isAgentSelectedByClient(
@@ -86,6 +91,13 @@ public class LogImpl implements Log {
 	public synchronized void log(final Agent agent, final String message) {
 		setAgentCurrentlyActive(agent);
 		log(message);
+	}
+
+	public synchronized void log(final BankCustomer bankCustomer,
+			final String message) {
+		if (bankCustomer instanceof Agent) {
+			log((Agent) bankCustomer, message);
+		}
 	}
 
 	public synchronized void log(final MarketParticipant marketParticipant,

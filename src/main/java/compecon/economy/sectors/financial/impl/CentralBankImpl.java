@@ -32,13 +32,13 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
 import compecon.economy.sectors.financial.BankAccountDelegate;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -219,7 +219,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	 */
 
 	@Transient
-	public void closeCustomerAccount(Agent customer) {
+	public void closeCustomerAccount(BankCustomer customer) {
 		this.assureBankAccountCentralBankMoney();
 
 		// each customer bank account ...
@@ -310,7 +310,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 	@Transient
 	public void obtainTender(final BankAccount moneyReservesBankAccount,
-			List<FixedRateBond> bonds) {
+			final List<FixedRateBond> bonds) {
 		this.assureBankAccountCentralBankMoney();
 
 		this.assertIsCustomerOfThisBank(moneyReservesBankAccount.getOwner());
@@ -320,12 +320,14 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			assert (MoneyType.CENTRALBANK_MONEY.equals(moneyReservesBankAccount
 					.getMoneyType()));
 
+			// transfer money
 			moneyReservesBankAccount.deposit(bond.getFaceValue());
-			ApplicationContext
-					.getInstance()
-					.getPropertyService()
-					.transferProperty(bond,
-							moneyReservesBankAccount.getOwner(), this);
+
+			// transfer bond
+			ApplicationContext.getInstance().getPropertyService()
+					.transferProperty(bond, bond.getOwner(), this);
+
+			assert (bond.getOwner() == this);
 
 			bond.setFaceValueToBankAccountDelegate(getBankAccountCentralBankMoneyDelegate());
 			bond.setCouponToBankAccountDelegate(getBankAccountCentralBankMoneyDelegate());

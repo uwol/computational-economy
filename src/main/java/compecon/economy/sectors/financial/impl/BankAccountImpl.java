@@ -33,10 +33,10 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 
 @Entity
@@ -74,8 +74,8 @@ public class BankAccountImpl implements BankAccount {
 
 	@ManyToOne(targetEntity = AgentImpl.class)
 	@JoinColumn(name = "agent_id")
-	@Index(name = "IDX_BA_AGENT")
-	protected Agent owner;
+	@Index(name = "IDX_BA_OWNER")
+	protected BankCustomer owner;
 
 	/*
 	 * Accessors
@@ -113,7 +113,7 @@ public class BankAccountImpl implements BankAccount {
 		return this.overdraftPossible;
 	}
 
-	public Agent getOwner() {
+	public BankCustomer getOwner() {
 		return this.owner;
 	}
 
@@ -149,7 +149,7 @@ public class BankAccountImpl implements BankAccount {
 		this.overdraftPossible = overdraftPossible;
 	}
 
-	public void setOwner(Agent owner) {
+	public void setOwner(BankCustomer owner) {
 		this.owner = owner;
 	}
 

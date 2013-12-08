@@ -19,18 +19,18 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.service;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.financial.HardCashOwner;
 
 public interface HardCashService {
 
-	public double getBalance(final Agent agent, final Currency currency);
+	public double getBalance(final HardCashOwner owner, final Currency currency);
 
-	public double increment(final Agent agent, final Currency currency,
+	public double increment(final HardCashOwner owner, final Currency currency,
 			final double amount);
 
-	public double decrement(final Agent agent, final Currency currency,
+	public double decrement(final HardCashOwner owner, final Currency currency,
 			final double amount);
 
-	public void deregister(final Agent agent);
+	public void deregister(final HardCashOwner owner);
 }

@@ -19,11 +19,11 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.factory.impl;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
@@ -46,13 +46,14 @@ public class BankAccountImplFactoryImpl implements BankAccountFactory {
 	}
 
 	@Override
-	public void deleteAllBankAccounts(final Bank managingBank, final Agent owner) {
+	public void deleteAllBankAccounts(final Bank managingBank,
+			final BankCustomer owner) {
 		ApplicationContext.getInstance().getBankAccountDAO()
 				.deleteAllBankAccounts(managingBank, owner);
 		HibernateUtil.flushSession();
 	}
 
-	public BankAccount newInstanceBankAccount(final Agent owner,
+	public BankAccount newInstanceBankAccount(final BankCustomer owner,
 			final Currency currency, boolean overdraftPossible,
 			final Bank managingBank, final String name,
 			final TermType termType, final MoneyType moneyType) {

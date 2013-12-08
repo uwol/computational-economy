@@ -21,15 +21,14 @@ package compecon.economy.sectors.financial;
 
 import java.util.List;
 
-import compecon.economy.agent.Agent;
 import compecon.economy.materia.GoodType;
 import compecon.economy.security.debt.FixedRateBond;
 
 public interface CentralBank extends Bank {
 
-	public void closeCustomerAccount(Agent customer);
+	public void closeCustomerAccount(final BankCustomer customer);
 
-	public double getAverageMarginalPriceForGoodType(GoodType goodType);
+	public double getAverageMarginalPriceForGoodType(final GoodType goodType);
 
 	public BankAccountDelegate getBankAccountCentralBankMoneyDelegate();
 
@@ -38,5 +37,5 @@ public interface CentralBank extends Bank {
 	public double getReserveRatio();
 
 	public void obtainTender(final BankAccount moneyReservesBankAccount,
-			List<FixedRateBond> bonds);
+			final List<FixedRateBond> bonds);
 }

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.accumulator.PeriodDataAccumulator;
@@ -60,8 +61,8 @@ public class MonetaryTransactionsModel extends NotificationListenerModel {
 		}
 	}
 
-	public void bank_onTransfer(Class<? extends Agent> from,
-			Class<? extends Agent> to, Currency currency, double value) {
+	public void bank_onTransfer(Class<? extends BankCustomer> from,
+			Class<? extends BankCustomer> to, Currency currency, double value) {
 		this.adjacencyMatrix.get(from).get(to).add(value);
 	}
 
