@@ -159,7 +159,7 @@ public abstract class ConvexProductionFunctionImpl extends
 		/*
 		 * regular calculation
 		 */
-		double moneySpent = 0.0;
+		double budgetSpent = 0.0;
 		final Map<GoodType, Double> bundleOfInputFactors = new LinkedHashMap<GoodType, Double>();
 
 		final double initializationValueForInputs;
@@ -184,10 +184,10 @@ public abstract class ConvexProductionFunctionImpl extends
 
 		while (true) {
 			// would this iteration lead to overspending of the budget?
-			if (MathUtil.greater(moneySpent + budgetPerIteration, budget)) {
+			if (MathUtil.greater(budgetSpent + budgetPerIteration, budget)) {
 				getLog().log("budget planned completely");
 				getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
-						budget, moneySpent,
+						budget, budgetSpent,
 						ConvexProductionFunctionTerminationCause.BUDGET_PLANNED);
 				break;
 			}
@@ -201,7 +201,7 @@ public abstract class ConvexProductionFunctionImpl extends
 				getLog().log("no optimal input found -> terminating");
 				getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
 						budget,
-						moneySpent,
+						budgetSpent,
 						ConvexProductionFunctionTerminationCause.NO_INPUT_AVAILABLE);
 				break;
 			} else {
@@ -257,7 +257,7 @@ public abstract class ConvexProductionFunctionImpl extends
 													.toString());
 							getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
 									budget,
-									moneySpent,
+									budgetSpent,
 									ConvexProductionFunctionTerminationCause.MARGINAL_REVENUE_EXCEEDED);
 							break;
 						}
@@ -284,13 +284,13 @@ public abstract class ConvexProductionFunctionImpl extends
 												.toString());
 						getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
 								budget,
-								moneySpent,
+								budgetSpent,
 								ConvexProductionFunctionTerminationCause.MAX_OUTPUT_EXCEEDED);
 						break;
 					}
 				}
 
-				moneySpent += marginalPriceOfOptimalInputType
+				budgetSpent += marginalPriceOfOptimalInputType
 						* additionalAmountOfInputType;
 			}
 		}

@@ -291,9 +291,9 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 	@Override
 	@Transient
-	public void onPropertyTransfer(final Property property,
+	public void onPropertyTransferred(final Property property,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner) {
-		super.onPropertyTransfer(property, oldOwner, newOwner);
+		super.onPropertyTransferred(property, oldOwner, newOwner);
 
 		if (newOwner == this && property instanceof Share) {
 			Share share = (Share) property;

@@ -333,7 +333,7 @@ public abstract class AgentImpl implements Agent {
 	}
 
 	@Transient
-	public void onPropertyTransfer(final Property property,
+	public void onPropertyTransferred(final Property property,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner) {
 	}
 

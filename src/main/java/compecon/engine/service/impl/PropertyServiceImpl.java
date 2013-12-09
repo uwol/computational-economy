@@ -162,8 +162,9 @@ public class PropertyServiceImpl implements PropertyService {
 		property.resetOwner();
 		ApplicationContext.getInstance().getPropertyDAO()
 				.transferProperty(oldOwner, newOwner, property);
+		oldOwner.onPropertyTransferred(property, oldOwner, newOwner);
 		if (newOwner != null) {
-			newOwner.onPropertyTransfer(property, oldOwner, newOwner);
+			newOwner.onPropertyTransferred(property, oldOwner, newOwner);
 		}
 
 		HibernateUtil.flushSession();

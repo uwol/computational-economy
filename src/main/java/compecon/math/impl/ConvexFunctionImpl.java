@@ -118,7 +118,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 		/*
 		 * regular calculation
 		 */
-		double moneySpent = 0.0;
+		double budgetSpent = 0.0;
 		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 
 		final double initializationValueForInputs;
@@ -141,10 +141,10 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 
 		while (true) {
 			// would this iteration lead to overspending of the budget?
-			if (MathUtil.greater(moneySpent + budgetPerIteration, budget)) {
+			if (MathUtil.greater(budgetSpent + budgetPerIteration, budget)) {
 				getLog().log("budget planned completely");
 				getLog().agent_onCalculateOutputMaximizingInputsIterative(
-						budget, moneySpent,
+						budget, budgetSpent,
 						ConvexFunctionTerminationCause.BUDGET_PLANNED);
 				break;
 			}
@@ -156,7 +156,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 			if (optimalInputType == null) {
 				getLog().log("no optimal input found -> terminating");
 				getLog().agent_onCalculateOutputMaximizingInputsIterative(
-						budget, moneySpent,
+						budget, budgetSpent,
 						ConvexFunctionTerminationCause.NO_INPUT_AVAILABLE);
 				break;
 			} else {
@@ -178,7 +178,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 
 				// constraints
 
-				moneySpent += marginalPriceOfOptimalInputType
+				budgetSpent += marginalPriceOfOptimalInputType
 						* additionalAmountOfInputType;
 			}
 		}

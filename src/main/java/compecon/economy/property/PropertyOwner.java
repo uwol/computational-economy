@@ -24,8 +24,9 @@ import compecon.economy.LifecycleEntity;
 public interface PropertyOwner extends LifecycleEntity {
 
 	/**
-	 * this method is called in the event of a property transfer
+	 * this method is called after a property transfer from oldOwner to newOwner
+	 * on both property owners.
 	 */
-	public void onPropertyTransfer(final Property property,
+	public void onPropertyTransferred(final Property property,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner);
 }
