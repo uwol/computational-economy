@@ -96,10 +96,6 @@ public abstract class MarketServiceImpl implements MarketService {
 	 * fulfillment
 	 */
 
-	/**
-	 * @return A map of {@link MarketOrder}s conjoint with the amount to take
-	 *         from these orders.
-	 */
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
@@ -109,10 +105,6 @@ public abstract class MarketServiceImpl implements MarketService {
 				goodType, null, null);
 	}
 
-	/**
-	 * @return A map of {@link MarketOrder}s conjoint with the amount to take
-	 *         from these orders.
-	 */
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
@@ -122,10 +114,6 @@ public abstract class MarketServiceImpl implements MarketService {
 				null);
 	}
 
-	/**
-	 * @return A map of {@link MarketOrder}s conjoint with the amount to take
-	 *         from these orders.
-	 */
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
@@ -512,28 +500,29 @@ public abstract class MarketServiceImpl implements MarketService {
 			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount, final double pricePerUnit) {
+		if (amount > 0) {
+			assert (goodType != null && !Double.isNaN(amount)
+					&& !Double.isNaN(pricePerUnit) && amount > 0);
 
-		assert (goodType != null && !Double.isNaN(amount)
-				&& !Double.isNaN(pricePerUnit) && amount > 0);
-
-		ApplicationContext
-				.getInstance()
-				.getMarketOrderFactory()
-				.newInstanceGoodTypeMarketOrder(goodType, offeror,
-						offerorsBankAcountDelegate, amount, pricePerUnit);
-		if (getLog().isAgentSelectedByClient(offeror))
-			getLog().log(
-					offeror,
-					"offering "
-							+ MathUtil.round(amount)
-							+ " units of "
-							+ goodType
-							+ " for "
-							+ Currency.formatMoneySum(pricePerUnit)
-							+ " "
-							+ offerorsBankAcountDelegate.getBankAccount()
-									.getCurrency().getIso4217Code()
-							+ " per unit");
+			ApplicationContext
+					.getInstance()
+					.getMarketOrderFactory()
+					.newInstanceGoodTypeMarketOrder(goodType, offeror,
+							offerorsBankAcountDelegate, amount, pricePerUnit);
+			if (getLog().isAgentSelectedByClient(offeror))
+				getLog().log(
+						offeror,
+						"offering "
+								+ MathUtil.round(amount)
+								+ " units of "
+								+ goodType
+								+ " for "
+								+ Currency.formatMoneySum(pricePerUnit)
+								+ " "
+								+ offerorsBankAcountDelegate.getBankAccount()
+										.getCurrency().getIso4217Code()
+								+ " per unit");
+		}
 	}
 
 	public void placeSellingOffer(
@@ -543,36 +532,36 @@ public abstract class MarketServiceImpl implements MarketService {
 			final double amount,
 			final double pricePerUnit,
 			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate) {
+		if (amount > 0) {
+			assert (commodityCurrency != null && !Double.isNaN(amount)
+					&& !Double.isNaN(pricePerUnit) && amount > 0);
 
-		assert (commodityCurrency != null && !Double.isNaN(amount)
-				&& !Double.isNaN(pricePerUnit) && amount > 0);
-
-		ApplicationContext
-				.getInstance()
-				.getMarketOrderFactory()
-				.newInstanceCurrencyMarketOrder(commodityCurrency, offeror,
-						offerorsBankAcountDelegate, amount, pricePerUnit,
-						commodityCurrencyOfferorsBankAcountDelegate);
-		if (getLog().isAgentSelectedByClient(offeror))
-			getLog().log(
-					offeror,
-					"offering "
-							+ MathUtil.round(amount)
-							+ " units of "
-							+ commodityCurrency
-							+ " for "
-							+ Currency.formatMoneySum(pricePerUnit)
-							+ " "
-							+ offerorsBankAcountDelegate.getBankAccount()
-									.getCurrency().getIso4217Code()
-							+ " per unit");
+			ApplicationContext
+					.getInstance()
+					.getMarketOrderFactory()
+					.newInstanceCurrencyMarketOrder(commodityCurrency, offeror,
+							offerorsBankAcountDelegate, amount, pricePerUnit,
+							commodityCurrencyOfferorsBankAcountDelegate);
+			if (getLog().isAgentSelectedByClient(offeror))
+				getLog().log(
+						offeror,
+						"offering "
+								+ MathUtil.round(amount)
+								+ " units of "
+								+ commodityCurrency
+								+ " for "
+								+ Currency.formatMoneySum(pricePerUnit)
+								+ " "
+								+ offerorsBankAcountDelegate.getBankAccount()
+										.getCurrency().getIso4217Code()
+								+ " per unit");
+		}
 	}
 
 	public void placeSellingOffer(final Property property,
 			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double pricePerUnit) {
-
 		assert (property != null && !Double.isNaN(pricePerUnit));
 
 		ApplicationContext

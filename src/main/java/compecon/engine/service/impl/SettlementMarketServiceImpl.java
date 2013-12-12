@@ -40,55 +40,6 @@ import compecon.math.util.MathUtil;
 public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 		SettlementMarketService {
 
-	public void placeSettlementSellingOffer(final GoodType goodType,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount, final double pricePerUnit) {
-		if (amount > 0) {
-			this.placeSellingOffer(goodType, offeror,
-					offerorsBankAcountDelegate, amount, pricePerUnit);
-		}
-	}
-
-	/**
-	 * Place settlement selling offer for a certain amount of money.
-	 * 
-	 * @param commodityCurrency
-	 *            Currency of money to be offered, e.g. EURO.
-	 * @param offeror
-	 * @param offerorsBankAcount
-	 *            Bank account of offeror; offerorsBankAcount.currency (e.g.
-	 *            USD) != commodityCurrency (e.g. EURO)
-	 * @param amount
-	 *            Money amount
-	 * @param pricePerUnit
-	 */
-	public void placeSettlementSellingOffer(
-			final Currency commodityCurrency,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount,
-			final double pricePerUnit,
-			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate) {
-		if (amount > 0) {
-			this.placeSellingOffer(commodityCurrency, offeror,
-					offerorsBankAcountDelegate, amount, pricePerUnit,
-					commodityCurrencyOfferorsBankAcountDelegate);
-		}
-	}
-
-	public void placeSettlementSellingOffer(final Property property,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double pricePerUnit) {
-		this.placeSellingOffer(property, offeror, offerorsBankAcountDelegate,
-				pricePerUnit);
-	}
-
-	public void removeAllSellingOffers(final MarketParticipant offeror) {
-		super.removeAllSellingOffers(offeror);
-	}
-
 	public double[] buy(final GoodType goodType, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
 			final MarketParticipant buyer,
@@ -98,22 +49,6 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 				buyersBankAccountDelegate, null);
 	}
 
-	/**
-	 * Buy a foreign currency with another currency
-	 * 
-	 * @param commodityCurrency
-	 *            Currency to buy
-	 * @param maxAmount
-	 *            Amount to buy
-	 * @param maxTotalPrice
-	 *            Max amount to pay in local currency
-	 * @param maxPricePerUnit
-	 *            Max price of foreign currency in local currency
-	 * @param buyer
-	 * @param buyersBankAccount
-	 * @param buyersBankAccountForCommodityCurrency
-	 *            Bank account that should receive the bought foreign currency
-	 */
 	public double[] buy(
 			final Currency commodityCurrency,
 			final double maxAmount,
@@ -260,8 +195,9 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 			}
 
 			marketOffer.decrementAmount(amount);
-			if (marketOffer.getAmount() <= 0)
+			if (marketOffer.getAmount() <= 0) {
 				this.removeSellingOffer(marketOffer);
+			}
 
 			moneySpentSum += amount * marketOffer.getPricePerUnit();
 			amountSum += amount;

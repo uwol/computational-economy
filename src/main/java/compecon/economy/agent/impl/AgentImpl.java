@@ -277,15 +277,14 @@ public abstract class AgentImpl implements Agent {
 		final BalanceSheetDTO balanceSheet = new BalanceSheetDTO(
 				referenceCurrency);
 
-		// hard cash
-		// TODO convert other currencies
+		// hard cash, TODO convert other currencies
 		balanceSheet.hardCash = ApplicationContext.getInstance()
 				.getHardCashService().getBalance(this, referenceCurrency);
 
 		// bank deposits
 		balanceSheet.addBankAccountBalance(this.bankAccountTransactions);
 
-		// bonds
+		// owned bonds
 		for (Property property : ApplicationContext.getInstance()
 				.getPropertyService().getProperties(this)) {
 			if (property instanceof Bond) {
@@ -296,9 +295,12 @@ public abstract class AgentImpl implements Agent {
 					ApplicationContext.getInstance().getPropertyService()
 							.deleteProperty(bond);
 				} else {
+					/*
+					 * check, that the agent does not take into account bonds,
+					 * which are issued by the agent (and have not been sold,
+					 * yet -> are owned by the agent)
+					 */
 					if (bond.getIssuer() != this) {
-						// important, so that agents do not count bonds that
-						// have not been sold, yet
 						balanceSheet.bonds += ((Bond) property).getFaceValue();
 					}
 				}
@@ -321,6 +323,21 @@ public abstract class AgentImpl implements Agent {
 		// inventory by amount
 		balanceSheet.inventoryQuantitative.putAll(ApplicationContext
 				.getInstance().getPropertyService().getBalance(this));
+
+		// --------------
+
+		// issued bonds
+		for (Property property : ApplicationContext.getInstance()
+				.getPropertyDAO()
+				.findAllPropertiesIssuedByAgent(this, Bond.class)) {
+			Bond bond = (Bond) property;
+			if (!bond.isDeconstructed() && !bond.getOwner().equals(this)) {
+				assert (bond.getIssuer() == this);
+				assert (bond.getOwner() != this);
+
+				balanceSheet.financialLiabilities += bond.getFaceValue();
+			}
+		}
 
 		return balanceSheet;
 	}

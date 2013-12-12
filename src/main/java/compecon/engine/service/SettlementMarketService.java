@@ -27,24 +27,6 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface SettlementMarketService extends MarketService {
 
-	public void placeSettlementSellingOffer(final GoodType goodType,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount, final double pricePerUnit);
-
-	public void placeSettlementSellingOffer(
-			final Currency commodityCurrency,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount,
-			final double pricePerUnit,
-			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate);
-
-	public void placeSettlementSellingOffer(final Property property,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double pricePerUnit);
-
 	/**
 	 * @return total price and total amount
 	 */
@@ -54,6 +36,20 @@ public interface SettlementMarketService extends MarketService {
 			final BankAccountDelegate buyersBankAccountDelegate);
 
 	/**
+	 * Buy a foreign currency with another currency
+	 * 
+	 * @param commodityCurrency
+	 *            Currency to buy
+	 * @param maxAmount
+	 *            Amount to buy
+	 * @param maxTotalPrice
+	 *            Max amount to pay in local currency
+	 * @param maxPricePerUnit
+	 *            Max price of foreign currency in local currency
+	 * @param buyer
+	 * @param buyersBankAccount
+	 * @param buyersBankAccountForCommodityCurrency
+	 *            Bank account that should receive the bought foreign currency
 	 * @return total price and total amount
 	 */
 	public double[] buy(
@@ -72,6 +68,4 @@ public interface SettlementMarketService extends MarketService {
 			final double maxAmount, final double maxTotalPrice,
 			final double maxPricePerUnit, final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate);
-
-	public void removeAllSellingOffers(final MarketParticipant offeror);
 }

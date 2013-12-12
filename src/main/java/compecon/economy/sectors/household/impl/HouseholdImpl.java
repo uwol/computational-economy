@@ -47,7 +47,6 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.security.equity.Share;
-import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
@@ -594,7 +593,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 					ApplicationContext
 							.getInstance()
 							.getMarketService()
-							.placeSettlementSellingOffer(
+							.placeSellingOffer(
 									GoodType.LABOURHOUR,
 									HouseholdImpl.this,
 									getBankAccountTransactionsDelegate(),
@@ -617,25 +616,23 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			/*
 			 * buy shares / capital -> equity savings
 			 */
-			// FIXME ShareImpl -> Share
 			ApplicationContext
 					.getInstance()
 					.getMarketService()
-					.buy(ShareImpl.class, 1.0, 0.0, 0.0, HouseholdImpl.this,
+					.buy(Share.class, 1.0, 0.0, 0.0, HouseholdImpl.this,
 							getBankAccountTransactionsDelegate());
 
 			/*
 			 * check that shares have correct bank account delegate, and sell
 			 * shares that are denominated in an incorrect currency
 			 */
-			// FIXME ShareImpl -> Share
 			ApplicationContext
 					.getInstance()
 					.getMarketService()
 					.removeAllSellingOffers(
 							HouseholdImpl.this,
 							HouseholdImpl.this.bankAccountTransactions
-									.getCurrency(), ShareImpl.class);
+									.getCurrency(), Share.class);
 			for (Property property : ApplicationContext.getInstance()
 					.getPropertyService()
 					.getProperties(HouseholdImpl.this, Share.class)) {

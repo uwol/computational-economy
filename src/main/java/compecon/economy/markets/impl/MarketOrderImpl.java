@@ -248,4 +248,13 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 			return this.property;
 		return this.goodType;
 	}
+
+	@Override
+	public String toString() {
+		return "id=[" + this.id + "], currency=[" + this.currency
+				+ "], amount=[" + this.amount + "], pricePerUnit=["
+				+ this.pricePerUnit + "], goodType=[" + this.goodType
+				+ "], commodityCurrency=[" + this.commodityCurrency
+				+ "], property=[" + this.property + "]";
+	}
 }

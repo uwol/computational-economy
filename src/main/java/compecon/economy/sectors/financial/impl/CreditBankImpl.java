@@ -21,11 +21,9 @@ package compecon.economy.sectors.financial.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -55,9 +53,7 @@ import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.state.State;
-import compecon.economy.security.debt.Bond;
 import compecon.economy.security.debt.FixedRateBond;
-import compecon.economy.security.debt.impl.BondImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
@@ -98,10 +94,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 
 	@Transient
 	protected Map<Currency, PricingBehaviour> localCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
-
-	@OneToMany(targetEntity = BondImpl.class)
-	@JoinTable(name = "CreditBank_IssuedBonds", joinColumns = @JoinColumn(name = "creditBank_id"), inverseJoinColumns = @JoinColumn(name = "bond_id"))
-	protected Set<Bond> issuedBonds = new HashSet<Bond>();
 
 	@Override
 	public void initialize() {
@@ -173,13 +165,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 
 	@Transient
 	public void deconstruct() {
-		this.isDeconstructed = true;
-
-		for (Bond bond : this.issuedBonds) {
-			ApplicationContext.getInstance().getPropertyService()
-					.deleteProperty(bond);
-		}
-
 		super.deconstruct();
 
 		ApplicationContext.getInstance().getCreditBankFactory()
@@ -206,10 +191,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		return localCurrencyPricingBehaviours;
 	}
 
-	public Set<Bond> getIssuedBonds() {
-		return issuedBonds;
-	}
-
 	public void setBankAccountCentralBankMoneyReserves(
 			BankAccount bankAccountCentralBankMoneyReserves) {
 		this.bankAccountCentralBankMoneyReserves = bankAccountCentralBankMoneyReserves;
@@ -228,10 +209,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	public void setLocalCurrencyPricingBehaviours(
 			Map<Currency, PricingBehaviour> localCurrencyPricingBehaviours) {
 		this.localCurrencyPricingBehaviours = localCurrencyPricingBehaviours;
-	}
-
-	public void setIssuedBonds(Set<Bond> issuedBonds) {
-		this.issuedBonds = issuedBonds;
 	}
 
 	/*
@@ -500,24 +477,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			}
 		}
 
-		// --------------
-
-		// list issued bonds on balance sheet
-		for (Bond bond : this.issuedBonds) {
-			if (!bond.isDeconstructed() && !bond.getOwner().equals(this)) {
-				balanceSheet.financialLiabilities += bond.getFaceValue();
-			}
-		}
-
-		// remove deconstructed bonds
-		final Set<Bond> bondsToDelete = new HashSet<Bond>();
-		for (Bond bond : this.issuedBonds) {
-			if (bond.isDeconstructed()) {
-				bondsToDelete.add(bond);
-			}
-		}
-		this.issuedBonds.removeAll(bondsToDelete);
-
 		return balanceSheet;
 	}
 
@@ -718,8 +677,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				// calculate number of bonds needed to deposit them at
 				// central bank for credit
 
-				final List<FixedRateBond> bonds = new ArrayList<FixedRateBond>();
-
 				/*
 				 * issue bond; mega bond that covers complete moneyReserveGap;
 				 * no split up per 100 currency units, as one mega bond takes
@@ -736,6 +693,8 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 								getBankAccountCentralBankMoneyReservesDelegate(),
 								moneyReserveGap,
 								centralBank.getEffectiveKeyInterestRate() + 0.02);
+
+				final List<FixedRateBond> bonds = new ArrayList<FixedRateBond>();
 				bonds.add(bond);
 
 				// obtain tender for bond
@@ -746,9 +705,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 
 				assert (balanceBefore + moneyReserveGap == bankAccountCentralBankMoneyReserves
 						.getBalance());
-
-				// remember issued bonds for balance sheet event
-				CreditBankImpl.this.issuedBonds.addAll(bonds);
 			}
 		}
 	}
@@ -1045,7 +1001,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 						ApplicationContext
 								.getInstance()
 								.getMarketService()
-								.placeSettlementSellingOffer(
+								.placeSellingOffer(
 										localCurrency,
 										CreditBankImpl.this,
 										getBankAccountCurrencyTradeDelegate(foreignCurrency),
@@ -1091,7 +1047,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 					ApplicationContext
 							.getInstance()
 							.getMarketService()
-							.placeSettlementSellingOffer(
+							.placeSellingOffer(
 									foreignCurrency,
 									CreditBankImpl.this,
 									getBankAccountCurrencyTradeDelegate(localCurrency),
@@ -1193,7 +1149,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				if (bankAccount.getBalance() > 0.0
 						&& TermType.LONG_TERM.equals(bankAccount.getTermType())) { // passive
 																					// account
-					// temporary assertion; TODO remove
+					// temporary assertion
 					assert (bankAccount.getOwner() instanceof Household);
 					balanceSumOfPassiveBankAccounts += bankAccount.getBalance();
 				}

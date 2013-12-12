@@ -27,7 +27,7 @@ import compecon.engine.service.HardCashService;
 
 public class HardCashServiceImpl implements HardCashService {
 
-	// FIXME Services have to be stateless, move state into DAO / database
+	// TODO Services have to be stateless, move state into DAO / database
 	private HashMap<HardCashOwner, HashMap<Currency, Double>> balances = new HashMap<HardCashOwner, HashMap<Currency, Double>>();
 
 	public double getBalance(final HardCashOwner owner, final Currency currency) {

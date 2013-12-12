@@ -36,16 +36,28 @@ import compecon.math.price.impl.FixedPriceFunction;
 
 public interface MarketService {
 
+	/**
+	 * @return A map of {@link MarketOrder}s conjoint with the amount to take
+	 *         from these orders.
+	 */
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
 			final GoodType goodType);
 
+	/**
+	 * @return A map of {@link MarketOrder}s conjoint with the amount to take
+	 *         from these orders.
+	 */
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
 			final Currency commodityCurrency);
 
+	/**
+	 * @return A map of {@link MarketOrder}s conjoint with the amount to take
+	 *         from these orders.
+	 */
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
@@ -117,6 +129,24 @@ public interface MarketService {
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount, final double pricePerUnit);
 
+	/**
+	 * Place offer for a certain amount of money.
+	 * 
+	 * @param commodityCurrency
+	 *            Currency of money to be offered, e.g. EURO.
+	 * @param offeror
+	 * @param offerorsBankAcountDelegate
+	 *            Delegate to the bank account of the offeror;
+	 *            offerorsBankAcount.currency (e.g. USD) != commodityCurrency
+	 *            (e.g. EURO)
+	 * @param amount
+	 *            Money amount
+	 * @param pricePerUnit
+	 * @param commodityCurrencyOfferorsBankAcountDelegate
+	 *            Delegate to the bank account containing the commodity
+	 *            currency, i. e. the bank account the commodity currency should
+	 *            be transferred from.
+	 */
 	public void placeSellingOffer(
 			final Currency commodityCurrency,
 			final MarketParticipant offeror,

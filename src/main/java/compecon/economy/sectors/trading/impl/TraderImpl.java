@@ -431,7 +431,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 					ApplicationContext
 							.getInstance()
 							.getMarketService()
-							.placeSettlementSellingOffer(goodType,
+							.placeSellingOffer(goodType,
 									TraderImpl.this,
 									getBankAccountTransactionsDelegate(),
 									amount, marketPrice);

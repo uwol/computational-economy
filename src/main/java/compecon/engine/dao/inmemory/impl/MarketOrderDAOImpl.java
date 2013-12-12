@@ -118,11 +118,11 @@ public class MarketOrderDAOImpl extends
 	}
 
 	private SortedSet<MarketOrder> getMarketOrders(Currency currency,
-			Class<? extends Property> propertyClass) {
-		this.assureInitializedDataStructure(currency, propertyClass);
+			Class<? extends Property> propertyIndexInterface) {
+		this.assureInitializedDataStructure(currency, propertyIndexInterface);
 
 		return this.marketOrdersForPropertyClasses.get(currency).get(
-				propertyClass);
+				propertyIndexInterface);
 	}
 
 	private SortedSet<MarketOrder> findMarketOrders(MarketParticipant offeror,
@@ -193,8 +193,10 @@ public class MarketOrderDAOImpl extends
 		}
 
 		if (marketOrder.getProperty() != null) {
+			final Class<? extends Property> propertyIndexInterface = this
+					.getIndexInterface(marketOrder.getProperty().getClass());
 			this.getMarketOrders(marketOrder.getCurrency(),
-					marketOrder.getProperty().getClass()).add(marketOrder);
+					propertyIndexInterface).add(marketOrder);
 		}
 
 		super.save(marketOrder.getOfferor(), marketOrder);
@@ -213,8 +215,10 @@ public class MarketOrderDAOImpl extends
 		}
 
 		if (marketOrder.getProperty() != null) {
+			final Class<? extends Property> propertyIndexInterface = this
+					.getIndexInterface(marketOrder.getProperty().getClass());
 			this.getMarketOrders(marketOrder.getCurrency(),
-					marketOrder.getProperty().getClass()).remove(marketOrder);
+					propertyIndexInterface).remove(marketOrder);
 		}
 
 		super.delete(marketOrder);
@@ -279,7 +283,10 @@ public class MarketOrderDAOImpl extends
 	@Override
 	public synchronized double findMarginalPrice(Currency currency,
 			Class<? extends Property> propertyClass) {
-		for (MarketOrder marketOrder : getMarketOrders(currency, propertyClass))
+		final Class<? extends Property> propertyIndexInterface = this
+				.getIndexInterface(propertyClass);
+		for (MarketOrder marketOrder : getMarketOrders(currency,
+				propertyIndexInterface))
 			return marketOrder.getPricePerUnit();
 		return Double.NaN;
 	}
@@ -299,7 +306,10 @@ public class MarketOrderDAOImpl extends
 	@Override
 	public synchronized Iterator<MarketOrder> getIterator(Currency currency,
 			Class<? extends Property> propertyClass) {
-		return this.getMarketOrders(currency, propertyClass).iterator();
+		final Class<? extends Property> propertyIndexInterface = this
+				.getIndexInterface(propertyClass);
+		return this.getMarketOrders(currency, propertyIndexInterface)
+				.iterator();
 	}
 
 	@Override
@@ -337,5 +347,30 @@ public class MarketOrderDAOImpl extends
 			totalAmountSum += iterator.next().getAmount();
 		}
 		return totalAmountSum;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Class<? extends Property> getIndexInterface(
+			final Class<? extends Property> propertyClass) {
+		/*
+		 * the property object should be stored in the DAO with the first
+		 * interface as the key; e. g. a property object of class ShareImpl
+		 * should be stored in the list indexed by interface Share
+		 */
+
+		// if the propertyClass is already an interface
+		if (propertyClass.isInterface()) {
+			return propertyClass;
+		} else {
+			// determine primary interface of class
+			final Class<?>[] interfacesOfPropertyClass = propertyClass
+					.getInterfaces();
+
+			// as the property implements at least interface Property,
+			// interfacesOfPropertyClass.length > 0
+			assert (interfacesOfPropertyClass.length > 0);
+
+			return (Class<? extends Property>) interfacesOfPropertyClass[0];
+		}
 	}
 }

@@ -262,13 +262,13 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 
 		@Override
 		public void onEvent() {
-			final List<PropertyIssued> propertiesIssued = ApplicationContext
+			final List<PropertyIssued> sharesIssued = ApplicationContext
 					.getInstance()
 					.getPropertyDAO()
 					.findAllPropertiesIssuedByAgent(JointStockCompanyImpl.this,
 							Share.class);
 
-			if (propertiesIssued.size() == 0) {
+			if (sharesIssued.size() == 0) {
 				JointStockCompanyImpl.this.assureBankAccountTransactions();
 
 				// issue initial shares
@@ -283,7 +283,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 					ApplicationContext
 							.getInstance()
 							.getMarketService()
-							.placeSettlementSellingOffer(initialShare,
+							.placeSellingOffer(initialShare,
 									JointStockCompanyImpl.this,
 									getBankAccountTransactionsDelegate(), 0.0);
 				}

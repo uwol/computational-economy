@@ -328,7 +328,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				ApplicationContext
 						.getInstance()
 						.getMarketService()
-						.placeSettlementSellingOffer(
+						.placeSellingOffer(
 								FactoryImpl.this.producedGoodType,
 								FactoryImpl.this,
 								getBankAccountTransactionsDelegate(),

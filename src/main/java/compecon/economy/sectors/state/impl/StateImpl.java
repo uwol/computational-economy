@@ -46,7 +46,6 @@ import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.sectors.state.State;
-import compecon.economy.security.debt.Bond;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.timesystem.TimeSystemEvent;
@@ -188,16 +187,6 @@ public class StateImpl extends AgentImpl implements State {
 
 		// bank deposits
 		balanceSheet.addBankAccountBalance(this.bankAccountCouponLoans);
-
-		// list issued bonds on balance sheet
-		for (Property property : ApplicationContext.getInstance()
-				.getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(this, Bond.class)) {
-			Bond bond = (Bond) property;
-			if (!bond.isDeconstructed() && !bond.getOwner().equals(this)) {
-				balanceSheet.financialLiabilities += bond.getFaceValue();
-			}
-		}
 
 		return balanceSheet;
 	}
