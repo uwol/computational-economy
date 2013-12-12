@@ -47,7 +47,7 @@ import compecon.math.price.PriceFunction.PriceFunctionConfig;
 public class MarketServiceTest extends CompEconTestSupport {
 
 	@Before
-	public void setUpApplicationContextWithAgents() {
+	public void setup() {
 		super.setUpApplicationContextWithAgents();
 	}
 

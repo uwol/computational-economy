@@ -36,7 +36,7 @@ import compecon.engine.applicationcontext.ApplicationContext;
 public class PropertyDAOTest extends CompEconTestSupport {
 
 	@Before
-	public void setUpApplicationContext() {
+	public void setup() {
 		super.setUpApplicationContext();
 	}
 
@@ -80,8 +80,25 @@ public class PropertyDAOTest extends CompEconTestSupport {
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesIssuedByAgent(state, Share.class).size());
 
+		// random access
 		assertEquals(bond, ApplicationContext.getInstance().getPropertyDAO()
 				.findRandom());
+
+		bond.deconstruct();
+
+		// owner
+		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesOfPropertyOwner(state).size());
+		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesOfPropertyOwner(creditBank).size());
+
+		// issuer
+		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesIssuedByAgent(state).size());
+		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesIssuedByAgent(state, Bond.class).size());
+		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesIssuedByAgent(state, Share.class).size());
 	}
 
 	@Test

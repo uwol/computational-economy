@@ -42,7 +42,7 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 	final int numberOfIterations = 2000;
 
 	@Before
-	public void setUpApplicationContextWithAgents() {
+	public void setup() {
 		super.setUpApplicationContextWithAgents();
 	}
 

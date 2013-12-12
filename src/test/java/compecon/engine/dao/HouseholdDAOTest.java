@@ -33,7 +33,7 @@ import compecon.engine.applicationcontext.ApplicationContext;
 public class HouseholdDAOTest extends CompEconTestSupport {
 
 	@Before
-	public void setUpApplicationContext() {
+	public void setup() {
 		super.setUpApplicationContext();
 	}
 

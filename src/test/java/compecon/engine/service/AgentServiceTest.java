@@ -32,7 +32,7 @@ import compecon.engine.applicationcontext.ApplicationContext;
 public class AgentServiceTest extends CompEconTestSupport {
 
 	@Before
-	public void setUpApplicationContextWithAgents() {
+	public void setup() {
 		super.setUpApplicationContextWithAgents();
 	}
 

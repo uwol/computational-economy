@@ -28,6 +28,7 @@ import compecon.engine.dao.HouseholdDAOTest;
 import compecon.engine.dao.PropertyDAOTest;
 import compecon.engine.service.AgentServiceTest;
 import compecon.engine.service.MarketServiceTest;
+import compecon.engine.service.PropertyServiceTest;
 import compecon.math.CESFunctionTest;
 import compecon.math.CobbDouglasFunctionTest;
 import compecon.math.production.CobbDouglasProductionFunctionTest;
@@ -35,7 +36,8 @@ import compecon.math.utility.CobbDouglasUtilityFunctionTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ HouseholdDAOTest.class, PropertyDAOTest.class,
-		AgentServiceTest.class, MarketServiceTest.class, BankTest.class,
+		AgentServiceTest.class, MarketServiceTest.class,
+		PropertyServiceTest.class, BankTest.class,
 		CobbDouglasFunctionTest.class, CobbDouglasUtilityFunctionTest.class,
 		CobbDouglasProductionFunctionTest.class, CESFunctionTest.class })
 public class CompEconTestSuite {

@@ -142,16 +142,20 @@ public abstract class CompEconTestSupport {
 		for (Currency currency : Currency.values()) {
 			ApplicationContext.getInstance().getAgentService()
 					.getInstanceCentralBank(currency);
+
 			ApplicationContext.getInstance().getCreditBankFactory()
 					.newInstanceCreditBank(currency);
 			ApplicationContext.getInstance().getCreditBankFactory()
 					.newInstanceCreditBank(currency);
+
 			ApplicationContext.getInstance().getFactoryFactory()
 					.newInstanceFactory(GoodType.WHEAT, currency);
+
 			ApplicationContext.getInstance().getHouseholdFactory()
 					.newInstanceHousehold(currency, 0);
 			ApplicationContext.getInstance().getHouseholdFactory()
 					.newInstanceHousehold(currency, 0);
+
 			ApplicationContext.getInstance().getTraderFactory()
 					.newInstanceTrader(currency);
 		}

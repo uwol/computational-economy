@@ -32,7 +32,7 @@ import compecon.engine.applicationcontext.ApplicationContext;
 public class BankTest extends CompEconTestSupport {
 
 	@Before
-	public void setUpApplicationContextWithAgents() {
+	public void setup() {
 		super.setUpApplicationContextWithAgents();
 	}
 
@@ -57,6 +57,7 @@ public class BankTest extends CompEconTestSupport {
 				.getBankAccount().getManagingBank();
 		Bank target = household2_EUR.getBankAccountTransactionsDelegate()
 				.getBankAccount().getManagingBank();
+
 		for (int i = 1; i < 1000; i++) {
 			source.transferMoney(household1_EUR
 					.getBankAccountTransactionsDelegate().getBankAccount(),
