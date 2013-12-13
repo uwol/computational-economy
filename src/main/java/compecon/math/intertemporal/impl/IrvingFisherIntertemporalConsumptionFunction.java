@@ -26,7 +26,7 @@ import java.util.Map.Entry;
 import compecon.math.impl.ConvexFunctionImpl;
 import compecon.math.intertemporal.IntertemporalConsumptionFunction;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.impl.FixedPriceFunction;
+import compecon.math.price.impl.FixedPriceFunctionImpl;
 
 public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 		IntertemporalConsumptionFunction {
@@ -51,7 +51,7 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 		Map<Period, PriceFunction> priceLevelsOfPeriods = new HashMap<Period, PriceFunction>();
 		for (Period period : Period.values()) {
 			// price levels in periods
-			priceLevelsOfPeriods.put(period, new FixedPriceFunction(1.0));
+			priceLevelsOfPeriods.put(period, new FixedPriceFunctionImpl(1.0));
 		}
 
 		// income cash flow discounted to current period -> intertemporal budget

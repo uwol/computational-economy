@@ -34,7 +34,7 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.impl.FixedPriceFunction;
+import compecon.math.price.impl.FixedPriceFunctionImpl;
 import compecon.math.production.impl.CobbDouglasProductionFunctionImpl;
 
 public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
@@ -66,8 +66,8 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 		 * maximize output under budget restriction
 		 */
 		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
-		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
+		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
+		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 
 		double budget = 10.0;
 

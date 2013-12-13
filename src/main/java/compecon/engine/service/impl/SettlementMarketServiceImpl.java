@@ -92,26 +92,30 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 						maxTotalPrice, maxPricePerUnit, wholeNumber, goodType,
 						commodityCurrency, propertyClass);
 
-		Bank buyersBank = buyersBankAccountDelegate.getBankAccount()
+		final Bank buyersBank = buyersBankAccountDelegate.getBankAccount()
 				.getManagingBank();
 
 		double moneySpentSum = 0;
 		double amountSum = 0;
-		double[] priceAndAmount = new double[2];
+		final double[] priceAndAmount = new double[2];
 
 		for (Entry<MarketOrder, Double> entry : marketOffers.entrySet()) {
-			MarketOrder marketOffer = entry.getKey();
-			double amount = entry.getValue();
+			final MarketOrder marketOrder = entry.getKey();
+			final double amount = entry.getValue();
+
+			// empty market order should not exist, as they are deleted
+			// after execution in this method
+			assert (marketOrder.getAmount() > 0);
 
 			// is the offeror' bank account is identical to the buyer's bank
 			// account
-			if (buyersBankAccountDelegate.getBankAccount() == marketOffer
+			if (buyersBankAccountDelegate.getBankAccount() == marketOrder
 					.getOfferorsBankAcountDelegate().getBankAccount()) {
 				continue;
 			}
 
 			// is the offeror is identical to the buyer
-			if (buyersBankAccountDelegate.getBankAccount().getOwner() == marketOffer
+			if (buyersBankAccountDelegate.getBankAccount().getOwner() == marketOrder
 					.getOfferorsBankAcountDelegate().getBankAccount()
 					.getOwner()) {
 				continue;
@@ -119,41 +123,41 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 
 			// transfer money
 			buyersBank.transferMoney(
-					buyersBankAccountDelegate.getBankAccount(), marketOffer
+					buyersBankAccountDelegate.getBankAccount(), marketOrder
 							.getOfferorsBankAcountDelegate().getBankAccount(),
-					amount * marketOffer.getPricePerUnit(), "price for "
+					amount * marketOrder.getPricePerUnit(), "price for "
 							+ MathUtil.round(amount) + " units of "
-							+ marketOffer.getCommodity());
+							+ marketOrder.getCommodity());
 
 			// transfer ownership
-			switch (marketOffer.getCommodityType()) {
+			switch (marketOrder.getCommodityType()) {
 			case GOODTYPE:
 				ApplicationContext
 						.getInstance()
 						.getPropertyService()
-						.transferGoodTypeAmount(marketOffer.getGoodType(),
-								marketOffer.getOfferor(), buyer, amount);
+						.transferGoodTypeAmount(marketOrder.getGoodType(),
+								marketOrder.getOfferor(), buyer, amount);
 
-				marketOffer.getOfferor().onMarketSettlement(
-						marketOffer.getGoodType(),
+				marketOrder.getOfferor().onMarketSettlement(
+						marketOrder.getGoodType(),
 						amount,
-						marketOffer.getPricePerUnit(),
-						marketOffer.getOfferorsBankAcountDelegate()
+						marketOrder.getPricePerUnit(),
+						marketOrder.getOfferorsBankAcountDelegate()
 								.getBankAccount().getCurrency());
 
 				// register market tick
 				getLog().market_onTick(
-						marketOffer.getPricePerUnit(),
-						marketOffer.getGoodType(),
-						marketOffer.getOfferorsBankAcountDelegate()
+						marketOrder.getPricePerUnit(),
+						marketOrder.getGoodType(),
+						marketOrder.getOfferorsBankAcountDelegate()
 								.getBankAccount().getCurrency(), amount);
 				break;
 			case CURRENCY:
-				Bank bank = marketOffer
+				Bank bank = marketOrder
 						.getCommodityCurrencyOfferorsBankAccountDelegate()
 						.getBankAccount().getManagingBank();
 				bank.transferMoney(
-						marketOffer
+						marketOrder
 								.getCommodityCurrencyOfferorsBankAccountDelegate()
 								.getBankAccount(),
 						buyersBankAccountForCommodityCurrencyDelegate
@@ -161,45 +165,45 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 						amount,
 						"transfer of " + Currency.formatMoneySum(amount)
 								+ " units of commoditycurrency "
-								+ marketOffer.getCommodity());
+								+ marketOrder.getCommodity());
 
-				marketOffer.getOfferor().onMarketSettlement(
-						marketOffer.getCommodityCurrency(),
+				marketOrder.getOfferor().onMarketSettlement(
+						marketOrder.getCommodityCurrency(),
 						amount,
-						marketOffer.getPricePerUnit(),
-						marketOffer.getOfferorsBankAcountDelegate()
+						marketOrder.getPricePerUnit(),
+						marketOrder.getOfferorsBankAcountDelegate()
 								.getBankAccount().getCurrency());
 
 				// register market tick
 				getLog().market_onTick(
-						marketOffer.getPricePerUnit(),
-						marketOffer.getCommodityCurrency(),
-						marketOffer.getOfferorsBankAcountDelegate()
+						marketOrder.getPricePerUnit(),
+						marketOrder.getCommodityCurrency(),
+						marketOrder.getOfferorsBankAcountDelegate()
 								.getBankAccount().getCurrency(), amount);
 				break;
 			case PROPERTY:
 				ApplicationContext
 						.getInstance()
 						.getPropertyService()
-						.transferProperty(marketOffer.getProperty(),
-								marketOffer.getOfferor(), buyer);
+						.transferProperty(marketOrder.getProperty(),
+								marketOrder.getOfferor(), buyer);
 
-				marketOffer.getOfferor().onMarketSettlement(
-						marketOffer.getProperty(),
-						marketOffer.getPricePerUnit(),
-						marketOffer.getOfferorsBankAcountDelegate()
+				marketOrder.getOfferor().onMarketSettlement(
+						marketOrder.getProperty(),
+						marketOrder.getPricePerUnit(),
+						marketOrder.getOfferorsBankAcountDelegate()
 								.getBankAccount().getCurrency());
 				break;
 			default:
 				throw new RuntimeException("CommodityType unknown");
 			}
 
-			marketOffer.decrementAmount(amount);
-			if (marketOffer.getAmount() <= 0) {
-				this.removeSellingOffer(marketOffer);
+			marketOrder.decrementAmount(amount);
+			if (marketOrder.getAmount() <= 0) {
+				this.removeSellingOffer(marketOrder);
 			}
 
-			moneySpentSum += amount * marketOffer.getPricePerUnit();
+			moneySpentSum += amount * marketOrder.getPricePerUnit();
 			amountSum += amount;
 		}
 

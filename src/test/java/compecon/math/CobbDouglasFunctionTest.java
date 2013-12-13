@@ -35,7 +35,7 @@ import compecon.economy.sectors.household.Household;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.math.impl.CobbDouglasFunctionImpl;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.impl.FixedPriceFunction;
+import compecon.math.price.impl.FixedPriceFunctionImpl;
 
 public class CobbDouglasFunctionTest extends CompEconTestSupport {
 
@@ -71,9 +71,9 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, 2.0);
 
 		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.COAL, new FixedPriceFunction(Double.NaN));
-		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
-		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
+		priceFunctions.put(GoodType.COAL, new FixedPriceFunctionImpl(Double.NaN));
+		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
+		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 
 		double budget = 10.0;
 
@@ -164,9 +164,9 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, 2.0);
 
 		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.COAL, new FixedPriceFunction(Double.NaN));
-		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
-		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
+		priceFunctions.put(GoodType.COAL, new FixedPriceFunctionImpl(Double.NaN));
+		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
+		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 
 		double budget = 10.0;
 

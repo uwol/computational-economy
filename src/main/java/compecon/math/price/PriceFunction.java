@@ -35,7 +35,9 @@ public interface PriceFunction {
 	 *      GoodType, double)
 	 */
 	public class PriceFunctionConfig {
+
 		public final double intervalLeftBoundary;
+
 		public final double intervalRightBoundary;
 
 		/**

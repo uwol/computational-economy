@@ -105,6 +105,7 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 	@Override
 	protected void assertValidOwner() {
 		super.assertValidOwner();
+
 		assert (this.couponToBankAccountDelegate == null || this.owner
 				.equals(this.couponToBankAccountDelegate.getBankAccount()
 						.getOwner()));
@@ -112,6 +113,7 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 
 	protected void assertValidIssuer() {
 		super.assertValidIssuer();
+
 		assert (this.getIssuer() == this.couponFromBankAccountDelegate
 				.getBankAccount().getOwner());
 	}

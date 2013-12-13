@@ -40,8 +40,8 @@ import compecon.economy.sectors.trading.Trader;
 import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.service.impl.MarketServiceImpl.MarketPriceFunction;
 import compecon.engine.timesystem.TimeSystemEvent;
+import compecon.math.price.PriceFunction;
 import compecon.math.price.PriceFunction.PriceFunctionConfig;
 
 public class MarketServiceTest extends CompEconTestSupport {
@@ -388,7 +388,7 @@ public class MarketServiceTest extends CompEconTestSupport {
 	}
 
 	private void assertValidPriceFunctionConfig(
-			MarketPriceFunction marketPriceFunction, double maxBudget,
+			PriceFunction marketPriceFunction, double maxBudget,
 			int numberOfOffers) {
 		PriceFunctionConfig[] priceFunctionConfigs = marketPriceFunction
 				.getAnalyticalPriceFunctionParameters(maxBudget);

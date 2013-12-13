@@ -27,7 +27,7 @@ import java.util.Set;
 
 import compecon.math.price.PriceFunction;
 import compecon.math.price.PriceFunction.PriceFunctionConfig;
-import compecon.math.price.impl.FixedPriceFunction;
+import compecon.math.price.impl.FixedPriceFunctionImpl;
 import compecon.math.util.MathUtil;
 
 public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
@@ -137,7 +137,7 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 		Map<T, Double> fixedPrices = new HashMap<T, Double>();
 		for (Entry<T, PriceFunction> priceFunctionEntry : priceFunctionsOfInputs
 				.entrySet()) {
-			if (priceFunctionEntry.getValue() instanceof FixedPriceFunction) {
+			if (priceFunctionEntry.getValue() instanceof FixedPriceFunctionImpl) {
 				fixedPrices.put(priceFunctionEntry.getKey(), priceFunctionEntry
 						.getValue().getPrice(0.0));
 			} else {

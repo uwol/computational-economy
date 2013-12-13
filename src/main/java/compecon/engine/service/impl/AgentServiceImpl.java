@@ -32,7 +32,7 @@ import compecon.engine.service.AgentService;
 public class AgentServiceImpl implements AgentService {
 
 	public State getInstanceState(final Currency currency) {
-		State state = ApplicationContext.getInstance().getStateDAO()
+		final State state = ApplicationContext.getInstance().getStateDAO()
 				.findByCurrency(currency);
 		if (state == null) {
 			return ApplicationContext.getInstance().getStateFactory()
@@ -42,7 +42,7 @@ public class AgentServiceImpl implements AgentService {
 	}
 
 	public CentralBank getInstanceCentralBank(final Currency currency) {
-		CentralBank centralBank = ApplicationContext.getInstance()
+		final CentralBank centralBank = ApplicationContext.getInstance()
 				.getCentralBankDAO().findByCurrency(currency);
 		if (centralBank == null) {
 			return ApplicationContext.getInstance().getCentralBankFactory()

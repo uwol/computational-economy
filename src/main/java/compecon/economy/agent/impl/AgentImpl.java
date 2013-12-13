@@ -311,7 +311,7 @@ public abstract class AgentImpl implements Agent {
 		final Map<GoodType, Double> prices = ApplicationContext.getInstance()
 				.getMarketService().getPrices(this.primaryCurrency);
 		for (Entry<GoodType, Double> balanceEntry : ApplicationContext
-				.getInstance().getPropertyService().getBalance(this).entrySet()) {
+				.getInstance().getPropertyService().getBalances(this).entrySet()) {
 			GoodType goodType = balanceEntry.getKey();
 			double amount = balanceEntry.getValue();
 			double price = prices.get(goodType);
@@ -322,7 +322,7 @@ public abstract class AgentImpl implements Agent {
 
 		// inventory by amount
 		balanceSheet.inventoryQuantitative.putAll(ApplicationContext
-				.getInstance().getPropertyService().getBalance(this));
+				.getInstance().getPropertyService().getBalances(this));
 
 		// --------------
 

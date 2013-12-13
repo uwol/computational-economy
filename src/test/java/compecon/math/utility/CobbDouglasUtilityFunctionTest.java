@@ -29,7 +29,7 @@ import org.junit.Test;
 import compecon.CompEconTestSupport;
 import compecon.economy.materia.GoodType;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.impl.FixedPriceFunction;
+import compecon.math.price.impl.FixedPriceFunctionImpl;
 import compecon.math.utility.impl.CobbDouglasUtilityFunctionImpl;
 
 public class CobbDouglasUtilityFunctionTest extends CompEconTestSupport {
@@ -49,8 +49,8 @@ public class CobbDouglasUtilityFunctionTest extends CompEconTestSupport {
 		 * maximize output under budget restriction
 		 */
 		Map<GoodType, PriceFunction> prices = new HashMap<GoodType, PriceFunction>();
-		prices.put(GoodType.KILOWATT, new FixedPriceFunction(1.0));
-		prices.put(GoodType.WHEAT, new FixedPriceFunction(2.0));
+		prices.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
+		prices.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 		double budget = 10.0;
 
 		Map<GoodType, Double> optimalInputs = cobbDouglasUtilityFunction

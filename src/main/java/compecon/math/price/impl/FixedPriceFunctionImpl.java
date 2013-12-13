@@ -22,11 +22,11 @@ package compecon.math.price.impl;
 import compecon.math.price.PriceFunction;
 import compecon.math.price.PriceFunction.PriceFunctionConfig;
 
-public class FixedPriceFunction implements PriceFunction {
+public class FixedPriceFunctionImpl implements PriceFunction {
 
 	protected final double fixedPrice;
 
-	public FixedPriceFunction(final double fixedPrice) {
+	public FixedPriceFunctionImpl(final double fixedPrice) {
 		this.fixedPrice = fixedPrice;
 	}
 

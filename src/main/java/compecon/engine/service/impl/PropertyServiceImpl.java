@@ -81,10 +81,6 @@ public class PropertyServiceImpl implements PropertyService {
 		HibernateUtil.flushSession();
 	}
 
-	/*
-	 * get owners
-	 */
-
 	public double getBalance(final PropertyOwner propertyOwner,
 			final GoodType goodType) {
 		assureGoodTypeOwnership(propertyOwner);
@@ -95,15 +91,11 @@ public class PropertyServiceImpl implements PropertyService {
 		return goodTypeOwnership.getOwnedGoodTypes().get(goodType);
 	}
 
-	public Map<GoodType, Double> getBalance(final PropertyOwner propertyOwner) {
+	public Map<GoodType, Double> getBalances(final PropertyOwner propertyOwner) {
 		assureGoodTypeOwnership(propertyOwner);
 
 		return ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
 				.findFirstByPropertyOwner(propertyOwner).getOwnedGoodTypes();
-	}
-
-	public PropertyOwner getOwner(final Property property) {
-		return property.getOwner();
 	}
 
 	public List<Property> getProperties(final PropertyOwner propertyOwner) {
@@ -139,9 +131,6 @@ public class PropertyServiceImpl implements PropertyService {
 		HibernateUtil.flushSession();
 	}
 
-	/*
-	 * transfer
-	 */
 	public void transferGoodTypeAmount(final GoodType goodType,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner,
 			final double amount) {

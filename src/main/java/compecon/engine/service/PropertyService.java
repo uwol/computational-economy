@@ -39,9 +39,7 @@ public interface PropertyService {
 	public double getBalance(final PropertyOwner propertyOwner,
 			final GoodType goodType);
 
-	public Map<GoodType, Double> getBalance(final PropertyOwner propertyOwner);
-
-	public PropertyOwner getOwner(final Property property);
+	public Map<GoodType, Double> getBalances(final PropertyOwner propertyOwner);
 
 	public List<Property> getProperties(final PropertyOwner propertyOwner);
 

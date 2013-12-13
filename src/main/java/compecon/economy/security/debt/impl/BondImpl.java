@@ -144,8 +144,6 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 
 	@Override
 	protected void assertValidOwner() {
-		assert (this.owner.equals(ApplicationContext.getInstance()
-				.getPropertyService().getOwner(BondImpl.this)));
 		assert (this.faceValueToBankAccountDelegate == null || this.owner
 				.equals(this.faceValueToBankAccountDelegate.getBankAccount()
 						.getOwner()));
@@ -154,6 +152,7 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	@Override
 	protected void assertValidIssuer() {
 		super.assertValidIssuer();
+
 		assert (this.getIssuer() == this.faceValueFromBankAccountDelegate
 				.getBankAccount().getOwner());
 	}

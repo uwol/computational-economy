@@ -41,7 +41,7 @@ import compecon.engine.service.MarketService;
 import compecon.engine.util.HibernateUtil;
 import compecon.math.price.PriceFunction;
 import compecon.math.price.PriceFunction.PriceFunctionConfig;
-import compecon.math.price.impl.FixedPriceFunction;
+import compecon.math.price.impl.FixedPriceFunctionImpl;
 import compecon.math.util.MathUtil;
 
 public abstract class MarketServiceImpl implements MarketService {
@@ -49,7 +49,7 @@ public abstract class MarketServiceImpl implements MarketService {
 	/**
 	 * market offers define a rising step function
 	 */
-	public class MarketPriceFunction implements PriceFunction {
+	public class MarketPriceFunctionImpl implements PriceFunction {
 
 		protected final MarketServiceImpl market;
 
@@ -57,7 +57,7 @@ public abstract class MarketServiceImpl implements MarketService {
 
 		protected final GoodType goodType;
 
-		public MarketPriceFunction(final MarketServiceImpl market,
+		public MarketPriceFunctionImpl(final MarketServiceImpl market,
 				final Currency denominatedInCurrency, final GoodType goodType) {
 			this.market = market;
 			this.denominatedInCurrency = denominatedInCurrency;
@@ -367,9 +367,9 @@ public abstract class MarketServiceImpl implements MarketService {
 		return getPrices(denominatedInCurrency, GoodType.values());
 	}
 
-	public FixedPriceFunction getFixedPriceFunction(
+	public FixedPriceFunctionImpl getFixedPriceFunction(
 			final Currency denominatedInCurrency, final GoodType goodType) {
-		return new FixedPriceFunction(this.getPrice(denominatedInCurrency,
+		return new FixedPriceFunctionImpl(this.getPrice(denominatedInCurrency,
 				goodType));
 	}
 
@@ -391,9 +391,10 @@ public abstract class MarketServiceImpl implements MarketService {
 		return priceFunctions;
 	}
 
-	public MarketPriceFunction getMarketPriceFunction(
+	public PriceFunction getMarketPriceFunction(
 			final Currency denominatedInCurrency, final GoodType goodType) {
-		return new MarketPriceFunction(this, denominatedInCurrency, goodType);
+		return new MarketPriceFunctionImpl(this, denominatedInCurrency,
+				goodType);
 	}
 
 	public Map<GoodType, PriceFunction> getMarketPriceFunctions(
@@ -414,20 +415,20 @@ public abstract class MarketServiceImpl implements MarketService {
 		return priceFunctions;
 	}
 
-	public Iterator<MarketOrder> getMarketOrderIterator(
+	protected Iterator<MarketOrder> getMarketOrderIterator(
 			final Currency denominatedInCurrency, final GoodType goodType) {
 		return ApplicationContext.getInstance().getMarketOrderDAO()
 				.getIterator(denominatedInCurrency, goodType);
 	}
 
-	public Iterator<MarketOrder> getMarketOrderIterator(
+	protected Iterator<MarketOrder> getMarketOrderIterator(
 			final Currency denominatedInCurrency,
 			final Currency commodityCurrency) {
 		return ApplicationContext.getInstance().getMarketOrderDAO()
 				.getIterator(denominatedInCurrency, commodityCurrency);
 	}
 
-	public Iterator<MarketOrder> getMarketOrderIterator(
+	protected Iterator<MarketOrder> getMarketOrderIterator(
 			final Currency denominatedInCurrency,
 			final Class<? extends Property> propertyClass) {
 		return ApplicationContext.getInstance().getMarketOrderDAO()

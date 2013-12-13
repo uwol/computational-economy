@@ -19,7 +19,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.service;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -30,9 +29,7 @@ import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.service.impl.MarketServiceImpl.MarketPriceFunction;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.impl.FixedPriceFunction;
 
 public interface MarketService {
 
@@ -95,7 +92,7 @@ public interface MarketService {
 
 	public Map<GoodType, Double> getPrices(final Currency denominatedInCurrency);
 
-	public FixedPriceFunction getFixedPriceFunction(
+	public PriceFunction getFixedPriceFunction(
 			final Currency denominatedInCurrency, final GoodType goodType);
 
 	public Map<GoodType, PriceFunction> getFixedPriceFunctions(
@@ -104,7 +101,7 @@ public interface MarketService {
 	public Map<GoodType, PriceFunction> getFixedPriceFunctions(
 			final Currency denominatedInCurrency, final Set<GoodType> goodTypes);
 
-	public MarketPriceFunction getMarketPriceFunction(
+	public PriceFunction getMarketPriceFunction(
 			final Currency denominatedInCurrency, final GoodType goodType);
 
 	public Map<GoodType, PriceFunction> getMarketPriceFunctions(
@@ -112,17 +109,6 @@ public interface MarketService {
 
 	public Map<GoodType, PriceFunction> getMarketPriceFunctions(
 			final Currency denominatedInCurrency, final Set<GoodType> goodTypes);
-
-	public Iterator<MarketOrder> getMarketOrderIterator(
-			final Currency denominatedInCurrency, final GoodType goodType);
-
-	public Iterator<MarketOrder> getMarketOrderIterator(
-			final Currency denominatedInCurrency,
-			final Currency commodityCurrency);
-
-	public Iterator<MarketOrder> getMarketOrderIterator(
-			final Currency denominatedInCurrency,
-			final Class<? extends Property> propertyClass);
 
 	public void placeSellingOffer(final GoodType goodType,
 			final MarketParticipant offeror,
