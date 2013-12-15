@@ -147,6 +147,11 @@ public class ControlPanel extends JPanel implements ModelListener {
 					ApplicationContext.getInstance().getTimeSystem()
 							.addExternalEvent(new TimeSystemEvent() {
 								@Override
+								public boolean isDeconstructed() {
+									return false;
+								}
+
+								@Override
 								public void onEvent() {
 									controlModel.initEconomicGrowth(currency);
 								}
@@ -165,6 +170,11 @@ public class ControlPanel extends JPanel implements ModelListener {
 					ApplicationContext.getInstance().getTimeSystem()
 							.addExternalEvent(new TimeSystemEvent() {
 								@Override
+								public boolean isDeconstructed() {
+									return false;
+								}
+
+								@Override
 								public void onEvent() {
 									controlModel.deficitSpending(currency);
 								}
@@ -182,6 +192,11 @@ public class ControlPanel extends JPanel implements ModelListener {
 				public void actionPerformed(ActionEvent e) {
 					ApplicationContext.getInstance().getTimeSystem()
 							.addExternalEvent(new TimeSystemEvent() {
+								@Override
+								public boolean isDeconstructed() {
+									return false;
+								}
+
 								@Override
 								public void onEvent() {
 									controlModel.initHouseholds(currency);

@@ -17,33 +17,15 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon.math.price.impl;
+package compecon.engine.service;
 
 import compecon.math.price.PriceFunction;
-import compecon.math.price.PriceFunction.PriceFunctionConfig;
 
-public class FixedPriceFunctionImpl implements PriceFunction {
+public interface MarketPriceFunction extends PriceFunction {
 
-	protected final double fixedPrice;
-
-	public FixedPriceFunctionImpl(final double fixedPrice) {
-		this.fixedPrice = fixedPrice;
-	}
-
-	@Override
-	public double getPrice(double numberOfGoods) {
-		return this.fixedPrice;
-	}
-
-	@Override
-	public double getMarginalPrice(double numberOfGoods) {
-		return this.fixedPrice;
-	}
-
-	@Override
-	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(
-			double maxBudget) {
-		return new PriceFunctionConfig[] { new PriceFunctionConfig(0.0,
-				Double.POSITIVE_INFINITY, this.fixedPrice, 0.0) };
-	}
+	/**
+	 * resets the market order iterator, thus refreshing the market price
+	 * function to new market situations.
+	 */
+	public void reset();
 }

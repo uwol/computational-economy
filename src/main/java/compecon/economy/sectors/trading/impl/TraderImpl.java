@@ -158,8 +158,10 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 		for (Entry<Currency, BankAccount> bankAccountEntry : this.bankAccountsGoodTrade
 				.entrySet()) {
 			double priceOfForeignCurrencyInLocalCurrency = ApplicationContext
-					.getInstance().getMarketService()
-					.getPrice(primaryCurrency, bankAccountEntry.getKey());
+					.getInstance()
+					.getMarketService()
+					.getMarginalMarketPrice(primaryCurrency,
+							bankAccountEntry.getKey());
 			if (!Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
 				double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry
 						.getValue().getBalance()
@@ -221,6 +223,11 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 
 	public class ArbitrageTradingEvent implements TimeSystemEvent {
 		@Override
+		public boolean isDeconstructed() {
+			return TraderImpl.this.isDeconstructed;
+		}
+
+		@Override
 		public void onEvent() {
 			TraderImpl.this.assureBankAccountTransactions();
 			TraderImpl.this.assureBankAccountsGoodTrade();
@@ -274,17 +281,21 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 
 								// e.g. CAR_in_EUR = 10
 								double priceOfGoodTypeInLocalCurrency = ApplicationContext
-										.getInstance().getMarketService()
-										.getPrice(localCurrency, goodType);
+										.getInstance()
+										.getMarketService()
+										.getMarginalMarketPrice(localCurrency,
+												goodType);
 								// e.g. CAR_in_USD = 11
 								double priceOfGoodTypeInForeignCurrency = ApplicationContext
-										.getInstance().getMarketService()
-										.getPrice(foreignCurrency, goodType);
+										.getInstance()
+										.getMarketService()
+										.getMarginalMarketPrice(
+												foreignCurrency, goodType);
 								// e.g. exchange rate for EUR/USD = 1.0
 								double priceOfForeignCurrencyInLocalCurrency = ApplicationContext
 										.getInstance()
 										.getMarketService()
-										.getPrice(localCurrency,
+										.getMarginalMarketPrice(localCurrency,
 												foreignCurrency);
 
 								if (Double
@@ -427,12 +438,12 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 					double marketPrice = ApplicationContext
 							.getInstance()
 							.getMarketService()
-							.getPrice(TraderImpl.this.primaryCurrency, goodType);
+							.getMarginalMarketPrice(
+									TraderImpl.this.primaryCurrency, goodType);
 					ApplicationContext
 							.getInstance()
 							.getMarketService()
-							.placeSellingOffer(goodType,
-									TraderImpl.this,
+							.placeSellingOffer(goodType, TraderImpl.this,
 									getBankAccountTransactionsDelegate(),
 									amount, marketPrice);
 				}

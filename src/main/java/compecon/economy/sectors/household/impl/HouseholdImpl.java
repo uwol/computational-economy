@@ -125,9 +125,11 @@ public class HouseholdImpl extends AgentImpl implements Household {
 						ApplicationContext.getInstance().getTimeSystem()
 								.suggestRandomHourType());
 
-		final double marketPrice = ApplicationContext.getInstance()
+		final double marketPrice = ApplicationContext
+				.getInstance()
 				.getMarketService()
-				.getPrice(this.primaryCurrency, GoodType.LABOURHOUR);
+				.getMarginalMarketPrice(this.primaryCurrency,
+						GoodType.LABOURHOUR);
 		this.pricingBehaviour = new PricingBehaviourImpl(this,
 				GoodType.LABOURHOUR, this.primaryCurrency, marketPrice);
 		this.labourPower.refresh();
@@ -306,6 +308,10 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	}
 
 	public class DailyLifeEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return HouseholdImpl.this.isDeconstructed;
+		}
 
 		@Override
 		public void onEvent() {

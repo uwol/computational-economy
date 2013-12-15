@@ -28,8 +28,8 @@ import org.junit.Test;
 
 import compecon.CompEconTestSupport;
 import compecon.economy.materia.GoodType;
+import compecon.engine.service.impl.FixedPriceFunctionImpl;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.impl.FixedPriceFunctionImpl;
 import compecon.math.utility.impl.CobbDouglasUtilityFunctionImpl;
 
 public class CobbDouglasUtilityFunctionTest extends CompEconTestSupport {

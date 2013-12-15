@@ -20,6 +20,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.timesystem;
 
 import java.util.Date;
+import java.util.Set;
 
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
@@ -68,10 +69,7 @@ public interface TimeSystem {
 
 	public void addExternalEvent(final TimeSystemEvent timeSystemEvent);
 
-	public void removeEvent(final TimeSystemEvent event);
+	public void removeEvents(final Set<TimeSystemEvent> events);
 
 	public void nextHour();
-
-	public void cleanRemovedEvents();
-
 }

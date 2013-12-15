@@ -40,10 +40,10 @@ public class YearImpl implements Year {
 
 	public List<TimeSystemEvent> getEvents(final MonthType monthType,
 			final DayType dayType, final HourType hourType) {
-		MonthImpl monthExact = this.months.get(monthType);
-		MonthImpl monthEvery = this.months.get(MonthType.EVERY);
+		final MonthImpl monthExact = this.months.get(monthType);
+		final MonthImpl monthEvery = this.months.get(MonthType.EVERY);
 
-		List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
+		final List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
 
 		if (monthExact != null)
 			events.addAll(monthExact.getEvents(dayType, hourType));
@@ -55,7 +55,8 @@ public class YearImpl implements Year {
 	}
 
 	public void removeEvents(final Set<TimeSystemEvent> events) {
-		for (MonthImpl month : this.months.values())
+		for (MonthImpl month : this.months.values()) {
 			month.removeEvents(events);
+		}
 	}
 }

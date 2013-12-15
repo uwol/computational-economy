@@ -73,14 +73,14 @@ public interface PriceFunction {
 	}
 
 	/**
-	 * price per unit for numberOfGoods
+	 * average price per unit at the given amount
 	 */
-	public double getPrice(double numberOfGoods);
+	public double getPrice(double atAmount);
 
 	/**
-	 * marginal price for numberOfGoods
+	 * marginal price at the given amount
 	 */
-	public double getMarginalPrice(double numberOfGoods);
+	public double getMarginalPrice(double atAmount);
 
 	/**
 	 * @return coefficients of polynomial price function; exponent = position in

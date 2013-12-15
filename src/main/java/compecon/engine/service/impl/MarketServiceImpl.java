@@ -19,12 +19,9 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.service.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -37,60 +34,13 @@ import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
+import compecon.engine.service.MarketPriceFunction;
 import compecon.engine.service.MarketService;
 import compecon.engine.util.HibernateUtil;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.PriceFunction.PriceFunctionConfig;
-import compecon.math.price.impl.FixedPriceFunctionImpl;
 import compecon.math.util.MathUtil;
 
 public abstract class MarketServiceImpl implements MarketService {
-
-	/**
-	 * market offers define a rising step function
-	 */
-	public class MarketPriceFunctionImpl implements PriceFunction {
-
-		protected final MarketServiceImpl market;
-
-		protected final Currency denominatedInCurrency;
-
-		protected final GoodType goodType;
-
-		public MarketPriceFunctionImpl(final MarketServiceImpl market,
-				final Currency denominatedInCurrency, final GoodType goodType) {
-			this.market = market;
-			this.denominatedInCurrency = denominatedInCurrency;
-			this.goodType = goodType;
-		}
-
-		/**
-		 * calculates the average price for a given amount to buy; average, as a
-		 * rising amounts induces a rising marginal price depending on market
-		 * depth.
-		 */
-		@Override
-		public double getPrice(double numberOfGoods) {
-			return this.market.getAveragePrice(denominatedInCurrency, goodType,
-					numberOfGoods);
-		}
-
-		/**
-		 * the marginal price for an additional unit
-		 */
-		@Override
-		public double getMarginalPrice(double numberOfGoods) {
-			return this.market.getPrice(denominatedInCurrency, goodType,
-					numberOfGoods);
-		}
-
-		@Override
-		public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(
-				double maxBudget) {
-			return this.market.getAnalyticalPriceFunctionConfigs(
-					denominatedInCurrency, goodType, maxBudget);
-		}
-	}
 
 	/*
 	 * fulfillment
@@ -256,7 +206,97 @@ public abstract class MarketServiceImpl implements MarketService {
 	}
 
 	/*
-	 * getters
+	 * fixed price functions
+	 */
+
+	public PriceFunction getFixedPriceFunction(
+			final Currency denominatedInCurrency, final GoodType goodType) {
+		return new FixedPriceFunctionImpl(this.getMarginalMarketPrice(
+				denominatedInCurrency, goodType));
+	}
+
+	public PriceFunction getFixedPriceFunction(
+			final Currency denominatedInCurrency,
+			final Currency commodityCurrency) {
+		return new FixedPriceFunctionImpl(this.getMarginalMarketPrice(
+				denominatedInCurrency, commodityCurrency));
+	}
+
+	public PriceFunction getFixedPriceFunction(
+			final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass) {
+		return new FixedPriceFunctionImpl(this.getMarginalMarketPrice(
+				denominatedInCurrency, propertyClass));
+	}
+
+	public Map<GoodType, PriceFunction> getFixedPriceFunctions(
+			final Currency denominatedInCurrency, final Set<GoodType> goodTypes) {
+		final Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
+		for (GoodType goodType : goodTypes)
+			priceFunctions.put(goodType,
+					getFixedPriceFunction(denominatedInCurrency, goodType));
+		return priceFunctions;
+	}
+
+	/*
+	 * marginal market price
+	 */
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final GoodType goodType) {
+		return this
+				.getMarginalMarketPrice(denominatedInCurrency, goodType, 0.0);
+	}
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final GoodType goodType, final double atAmount) {
+		return this.getMarketPriceFunction(denominatedInCurrency, goodType)
+				.getMarginalPrice(atAmount);
+	}
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final Currency commodityCurrency) {
+		return this.getMarginalMarketPrice(denominatedInCurrency,
+				commodityCurrency, 0.0);
+	}
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final Currency commodityCurrency, final double atAmount) {
+		return this.getMarketPriceFunction(denominatedInCurrency,
+				commodityCurrency).getMarginalPrice(atAmount);
+	}
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass) {
+		return ApplicationContext.getInstance().getMarketOrderDAO()
+				.findMarginalPrice(denominatedInCurrency, propertyClass);
+	}
+
+	public Map<GoodType, Double> getMarginalMarketPrices(
+			final Currency denominatedInCurrency, final GoodType[] goodTypes) {
+		final Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
+		for (GoodType goodType : goodTypes)
+			prices.put(goodType,
+					getMarginalMarketPrice(denominatedInCurrency, goodType));
+		return prices;
+	}
+
+	public Map<GoodType, Double> getMarginalMarketPrices(
+			final Currency denominatedInCurrency, final Set<GoodType> goodTypes) {
+		final Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
+		for (GoodType goodType : goodTypes)
+			prices.put(goodType,
+					getMarginalMarketPrice(denominatedInCurrency, goodType));
+		return prices;
+	}
+
+	public Map<GoodType, Double> getMarginalMarketPrices(
+			final Currency denominatedInCurrency) {
+		return getMarginalMarketPrices(denominatedInCurrency, GoodType.values());
+	}
+
+	/*
+	 * market depth
 	 */
 
 	public double getMarketDepth(final Currency denominatedInCurrency,
@@ -271,149 +311,46 @@ public abstract class MarketServiceImpl implements MarketService {
 				.getAmountSum(denominatedInCurrency, commodityCurrency);
 	}
 
-	public double getAveragePrice(final Currency denominatedInCurrency,
-			final GoodType goodType, final double atAmount) {
-		// case 1: no market depth -> marginal price is searched
-		if (MathUtil.equal(atAmount, 0.0))
-			return this.getPrice(denominatedInCurrency, goodType);
+	/*
+	 * market price function
+	 */
 
-		// a market price in the depth of the market is searched
-		final Map<MarketOrder, Double> marketOrders = this
-				.findBestFulfillmentSet(denominatedInCurrency, atAmount,
-						Double.NaN, Double.NaN, goodType);
-		double totalPriceSum = 0.0;
-		double totalAmountSum = 0.0;
-		for (Entry<MarketOrder, Double> relevantMarketOrderEntry : marketOrders
-				.entrySet()) {
-			totalAmountSum += relevantMarketOrderEntry.getValue();
-			totalPriceSum += relevantMarketOrderEntry.getValue()
-					* relevantMarketOrderEntry.getKey().getPricePerUnit();
-		}
-		// case 2: numberOfGoods is not offered on market, completely
-		if (MathUtil.lesser(totalAmountSum, atAmount))
-			return Double.NaN;
-
-		// case 3: regular case
-		assert (MathUtil.equal(atAmount, totalAmountSum));
-
-		return totalPriceSum / atAmount;
-	}
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final GoodType goodType) {
-		return ApplicationContext.getInstance().getMarketOrderDAO()
-				.findMarginalPrice(denominatedInCurrency, goodType);
-	}
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final GoodType goodType, final double atAmount) {
-		Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
-				.getMarketOrderDAO()
-				.getIterator(denominatedInCurrency, goodType);
-		double totalAmount = 0.0;
-		while (iterator.hasNext()) {
-			MarketOrder marketOrder = iterator.next();
-			totalAmount += marketOrder.getAmount();
-			if (totalAmount >= atAmount)
-				return marketOrder.getPricePerUnit();
-		}
-		return Double.NaN;
-	}
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final Currency commodityCurrency) {
-		return ApplicationContext.getInstance().getMarketOrderDAO()
-				.findMarginalPrice(denominatedInCurrency, commodityCurrency);
-	}
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final Currency commodityCurrency, final double atAmount) {
-		Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
-				.getMarketOrderDAO()
-				.getIterator(denominatedInCurrency, commodityCurrency);
-		double totalAmount = 0.0;
-		while (iterator.hasNext()) {
-			MarketOrder marketOrder = iterator.next();
-			totalAmount += marketOrder.getAmount();
-			if (totalAmount >= atAmount)
-				return marketOrder.getPricePerUnit();
-		}
-		return Double.NaN;
-	}
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final Class<? extends Property> propertyClass) {
-		return ApplicationContext.getInstance().getMarketOrderDAO()
-				.findMarginalPrice(denominatedInCurrency, propertyClass);
-	}
-
-	public Map<GoodType, Double> getPrices(
-			final Currency denominatedInCurrency, final GoodType[] goodTypes) {
-		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
-		for (GoodType goodType : goodTypes)
-			prices.put(goodType, getPrice(denominatedInCurrency, goodType));
-		return prices;
-	}
-
-	public Map<GoodType, Double> getPrices(
-			final Currency denominatedInCurrency, final Set<GoodType> goodTypes) {
-		Map<GoodType, Double> prices = new HashMap<GoodType, Double>();
-		for (GoodType goodType : goodTypes)
-			prices.put(goodType, getPrice(denominatedInCurrency, goodType));
-		return prices;
-	}
-
-	public Map<GoodType, Double> getPrices(final Currency denominatedInCurrency) {
-		return getPrices(denominatedInCurrency, GoodType.values());
-	}
-
-	public FixedPriceFunctionImpl getFixedPriceFunction(
-			final Currency denominatedInCurrency, final GoodType goodType) {
-		return new FixedPriceFunctionImpl(this.getPrice(denominatedInCurrency,
-				goodType));
-	}
-
-	public Map<GoodType, PriceFunction> getFixedPriceFunctions(
-			final Currency denominatedInCurrency, final GoodType[] goodTypes) {
-		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		for (GoodType goodType : goodTypes)
-			priceFunctions.put(goodType,
-					getFixedPriceFunction(denominatedInCurrency, goodType));
-		return priceFunctions;
-	}
-
-	public Map<GoodType, PriceFunction> getFixedPriceFunctions(
-			final Currency denominatedInCurrency, final Set<GoodType> goodTypes) {
-		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		for (GoodType goodType : goodTypes)
-			priceFunctions.put(goodType,
-					getFixedPriceFunction(denominatedInCurrency, goodType));
-		return priceFunctions;
-	}
-
-	public PriceFunction getMarketPriceFunction(
+	public MarketPriceFunction getMarketPriceFunction(
 			final Currency denominatedInCurrency, final GoodType goodType) {
 		return new MarketPriceFunctionImpl(this, denominatedInCurrency,
 				goodType);
 	}
 
+	public MarketPriceFunction getMarketPriceFunction(
+			final Currency denominatedInCurrency,
+			final Currency commodityCurrency) {
+		return new MarketPriceFunctionImpl(this, denominatedInCurrency,
+				commodityCurrency);
+	}
+
 	public Map<GoodType, PriceFunction> getMarketPriceFunctions(
 			final Currency denominatedInCurrency, final GoodType[] goodTypes) {
-		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		for (GoodType goodType : goodTypes)
+		final Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
+		for (GoodType goodType : goodTypes) {
 			priceFunctions.put(goodType,
 					getMarketPriceFunction(denominatedInCurrency, goodType));
+		}
 		return priceFunctions;
 	}
 
 	public Map<GoodType, PriceFunction> getMarketPriceFunctions(
 			final Currency denominatedInCurrency, final Set<GoodType> goodTypes) {
-		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		for (GoodType goodType : goodTypes)
+		final Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
+		for (GoodType goodType : goodTypes) {
 			priceFunctions.put(goodType,
 					getMarketPriceFunction(denominatedInCurrency, goodType));
+		}
 		return priceFunctions;
 	}
+
+	/*
+	 * iterators
+	 */
 
 	protected Iterator<MarketOrder> getMarketOrderIterator(
 			final Currency denominatedInCurrency, final GoodType goodType) {
@@ -435,68 +372,10 @@ public abstract class MarketServiceImpl implements MarketService {
 				.getIterator(denominatedInCurrency, propertyClass);
 	}
 
-	/**
-	 * p(x) = p_1 * x | 0 <= x < a_1 <br />
-	 * p(x) = [p_1 * a_1 + p_2 * (x - a_1)] / [a_1 + (x - a_1)] | a_1 <= x < a_2 <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * (x - a_2)] / [a_1 + (a_2 - a_1) +
-	 * (x - a_2)] | a_2 <= x < a_3 <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + p_4 * (x - a_3)] / [a_1 +
-	 * (a_2 - a_1) + (a_3 - a_2) + (x - a_3)] | a_3 <= x < a_4 <br />
-	 * <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + ... + p_n * (x - a_(n-1))] /
-	 * [x] | a_(n-1) <= x < a_n <br />
-	 * <br />
-	 * => <br />
-	 * <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + ... + p_(n-1) * a_(n-1)] / x
-	 * - a_(n-1) / x + p_n | a_(n-1) <= x < a_n <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + ... + p_(n-1) * a_(n-1) - p_n
-	 * * a_(n-1)] / x + p_n | a_(n-1) <= x < a_n <br />
-	 */
-	protected PriceFunctionConfig[] getAnalyticalPriceFunctionConfigs(
-			final Currency denominatedInCurrency, final GoodType goodType,
-			final double maxBudget) {
-		List<PriceFunctionConfig> parameterSets = new ArrayList<PriceFunctionConfig>();
-		Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
-				.getMarketOrderDAO()
-				.getIterator(denominatedInCurrency, goodType);
-
-		// a_(n-1)
-		double intervalLeftBoundary = 0.0;
-		double sumOfPriceTimesAmount = 0.0;
-
-		/*
-		 * calculate step-wise price function parameters, starting with the
-		 * lowest price
-		 */
-		while (iterator.hasNext()) {
-			MarketOrder marketOrder = iterator.next();
-
-			// a_n
-			double intervalRightBoundary = intervalLeftBoundary
-					+ marketOrder.getAmount();
-
-			double coefficientXPower0 = marketOrder.getPricePerUnit();
-			double coefficientXPowerMinus1 = sumOfPriceTimesAmount
-					- marketOrder.getPricePerUnit() * intervalLeftBoundary;
-
-			parameterSets.add(new PriceFunctionConfig(intervalLeftBoundary,
-					intervalRightBoundary, coefficientXPower0,
-					coefficientXPowerMinus1));
-
-			sumOfPriceTimesAmount += marketOrder.getPricePerUnit()
-					* marketOrder.getAmount();
-			intervalLeftBoundary = intervalRightBoundary;
-
-			if (sumOfPriceTimesAmount > maxBudget)
-				break;
-		}
-		return parameterSets.toArray(new PriceFunctionConfig[0]);
-	}
-
 	/*
 	 * place selling orders
 	 */
+
 	public void placeSellingOffer(final GoodType goodType,
 			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
@@ -586,6 +465,7 @@ public abstract class MarketServiceImpl implements MarketService {
 	/*
 	 * remove selling orders
 	 */
+
 	public void removeAllSellingOffers(final MarketParticipant offeror) {
 		ApplicationContext.getInstance().getMarketOrderDAO()
 				.deleteAllSellingOrders(offeror);

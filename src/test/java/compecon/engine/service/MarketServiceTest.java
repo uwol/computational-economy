@@ -69,15 +69,22 @@ public class MarketServiceTest extends CompEconTestSupport {
 		Factory factory1_WHEAT_EUR = ApplicationContext.getInstance()
 				.getFactoryDAO().findAllByCurrency(currency).get(0);
 
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getPrice(currency, goodType), epsilon);
+		MarketPriceFunction marketPriceFunction = ApplicationContext
+				.getInstance().getMarketService()
+				.getMarketPriceFunction(currency, goodType);
 
+		assertEquals(Double.NaN, marketPriceFunction.getMarginalPrice(0.0),
+				epsilon);
+
+		// offer goods: household 1
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
 				.placeSellingOffer(goodType, household1_EUR,
 						household1_EUR.getBankAccountTransactionsDelegate(),
 						10, 5);
+
+		// offer goods: household 2
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
@@ -85,66 +92,86 @@ public class MarketServiceTest extends CompEconTestSupport {
 						household2_EUR.getBankAccountTransactionsDelegate(),
 						10, 4);
 
-		assertEquals(4.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, goodType), epsilon);
-		assertEquals(ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, goodType), ApplicationContext.getInstance()
-				.getMarketService().getMarketPriceFunction(currency, goodType)
-				.getPrice(0.0), epsilon);
-		assertEquals(ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, goodType), ApplicationContext.getInstance()
-				.getMarketService().getMarketPriceFunction(currency, goodType)
-				.getPrice(1.0), epsilon);
+		// -> market price function has to be renewed
+		marketPriceFunction.reset();
 
-		assertEquals(4.5, ApplicationContext.getInstance().getMarketService()
-				.getMarketPriceFunction(currency, goodType).getPrice(20.0),
-				epsilon);
-		assertEquals(4.333333, ApplicationContext.getInstance()
-				.getMarketService().getMarketPriceFunction(currency, goodType)
-				.getPrice(15.0), epsilon);
-		assertEquals(4.0,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarketPriceFunction(currency, goodType)
-						.getMarginalPrice(10.0), epsilon);
-		assertEquals(5.0,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarketPriceFunction(currency, goodType)
-						.getMarginalPrice(11.0), epsilon);
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarketPriceFunction(currency, goodType)
-				.getMarginalPrice(21.0), epsilon);
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getAveragePrice(currency, goodType, 21.0),
+		// check marginal price
+		assertEquals(4.0, marketPriceFunction.getMarginalPrice(0.0), epsilon);
+		assertEquals(4.0, marketPriceFunction.getMarginalPrice(10.0), epsilon);
+		assertEquals(5.0, marketPriceFunction.getMarginalPrice(10.1), epsilon);
+
+		// check average price
+		assertEquals(4.5, marketPriceFunction.getPrice(20.0), epsilon);
+		assertEquals(4.333333, marketPriceFunction.getPrice(15.0), epsilon);
+		assertEquals(Double.NaN, marketPriceFunction.getPrice(21.0), epsilon);
+
+		// check marginal price
+		assertEquals(5.0, marketPriceFunction.getMarginalPrice(11.0), epsilon);
+		assertEquals(5.0, marketPriceFunction.getMarginalPrice(20.0), epsilon);
+		assertEquals(Double.NaN, marketPriceFunction.getMarginalPrice(21.0),
 				epsilon);
 
+		// compare marginal price of price function with marginal price
+		// from service
+		assertEquals(ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, goodType),
+				marketPriceFunction.getMarginalPrice(0.0), epsilon);
+		assertEquals(ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, goodType),
+				marketPriceFunction.getPrice(1.0), epsilon);
+
+		// remove all selling offers of household 2
 		ApplicationContext.getInstance().getMarketService()
 				.removeAllSellingOffers(household2_EUR);
-		assertEquals(5.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, goodType), epsilon);
 
+		// -> market price function has to be renewed
+		marketPriceFunction.reset();
+
+		// check marginal price
+		assertEquals(5.0, marketPriceFunction.getMarginalPrice(0), epsilon);
+
+		// offer goods: household 2
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
 				.placeSellingOffer(goodType, household2_EUR,
 						household2_EUR.getBankAccountTransactionsDelegate(),
 						10, 3);
-		assertEquals(3.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, goodType), epsilon);
 
+		// -> market price function has to be renewed
+		marketPriceFunction.reset();
+
+		// check marginal price
+		assertEquals(3.0, marketPriceFunction.getMarginalPrice(0), epsilon);
+		assertEquals(3.0, ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, goodType), epsilon);
+
+		// remove all selling offers of household 2
 		ApplicationContext.getInstance().getMarketService()
 				.removeAllSellingOffers(household2_EUR, currency, goodType);
-		assertEquals(5.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, goodType), epsilon);
 
+		// -> market price function has to be renewed
+		marketPriceFunction.reset();
+
+		// check marginal price
+		assertEquals(5.0, marketPriceFunction.getMarginalPrice(0.0), epsilon);
+
+		// offer goods: household 2
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
 				.placeSellingOffer(goodType, household2_EUR,
 						household2_EUR.getBankAccountTransactionsDelegate(),
 						10, 3);
-		assertEquals(3.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, goodType), epsilon);
 
+		// -> market price function has to be renewed
+		marketPriceFunction.reset();
+
+		// check marginal price
+		assertEquals(3.0, ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, goodType), epsilon);
+
+		// find best fulfillment sets
 		SortedMap<MarketOrder, Double> marketOffers1 = ApplicationContext
 				.getInstance().getMarketService()
 				.findBestFulfillmentSet(currency, 20, Double.NaN, 3, goodType);
@@ -155,12 +182,14 @@ public class MarketServiceTest extends CompEconTestSupport {
 				.findBestFulfillmentSet(currency, 20, Double.NaN, 5, goodType);
 		assertEquals(2, marketOffers2.size());
 
+		// buy goods
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
 				.buy(goodType, 5, Double.NaN, 8, factory1_WHEAT_EUR,
 						factory1_WHEAT_EUR.getBankAccountTransactionsDelegate());
 
+		// check property and money transaction
 		assertEquals(5, ApplicationContext.getInstance().getPropertyService()
 				.getBalance(factory1_WHEAT_EUR, goodType), epsilon);
 		assertEquals(-15.0, factory1_WHEAT_EUR
@@ -177,18 +206,24 @@ public class MarketServiceTest extends CompEconTestSupport {
 		Household household1_EUR = ApplicationContext.getInstance()
 				.getHouseholdDAO().findAllByCurrency(currency).get(0);
 
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getPrice(currency, ShareImpl.class),
+		// check marginal price
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, ShareImpl.class),
 				epsilon);
 
+		// IPO
 		for (TimeSystemEvent timeSystemEvent : factory1_WHEAT_EUR
 				.getTimeSystemEvents()) {
 			if (timeSystemEvent instanceof JointStockCompanyImpl.OfferSharesEvent)
 				timeSystemEvent.onEvent();
 		}
 
+		// check marginal price
 		assertEquals(0.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, ShareImpl.class), epsilon);
+				.getMarginalMarketPrice(currency, ShareImpl.class), epsilon);
+
+		// check number of offered shares
 		assertEquals(
 				ApplicationContext.getInstance().getConfiguration().jointStockCompanyConfig
 						.getInitialNumberOfShares(),
@@ -196,6 +231,7 @@ public class MarketServiceTest extends CompEconTestSupport {
 						.getProperties(factory1_WHEAT_EUR, ShareImpl.class)
 						.size());
 
+		// buy one share
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
@@ -203,6 +239,7 @@ public class MarketServiceTest extends CompEconTestSupport {
 						household1_EUR,
 						household1_EUR.getBankAccountTransactionsDelegate());
 
+		// check transaction / settlement
 		assertEquals(
 				ApplicationContext.getInstance().getConfiguration().jointStockCompanyConfig
 						.getInitialNumberOfShares() - 1,
@@ -212,10 +249,12 @@ public class MarketServiceTest extends CompEconTestSupport {
 		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
 				.getProperties(household1_EUR, ShareImpl.class).size());
 
+		// remove all selling offers
 		ApplicationContext.getInstance().getMarketService()
 				.removeAllSellingOffers(factory1_WHEAT_EUR);
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getPrice(currency, ShareImpl.class),
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, ShareImpl.class),
 				epsilon);
 	}
 
@@ -231,10 +270,13 @@ public class MarketServiceTest extends CompEconTestSupport {
 		Trader trader1_EUR = ApplicationContext.getInstance().getTraderDAO()
 				.findAllByCurrency(currency).get(0);
 
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getPrice(currency, commodityCurrency),
+		// check marginal price
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, commodityCurrency),
 				epsilon);
 
+		// offer currency
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
@@ -247,6 +289,7 @@ public class MarketServiceTest extends CompEconTestSupport {
 						creditBank1_EUR
 								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
 
+		// offer currency
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
@@ -258,14 +301,20 @@ public class MarketServiceTest extends CompEconTestSupport {
 						3,
 						creditBank2_EUR
 								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
-		assertEquals(2.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, commodityCurrency), epsilon);
 
+		// check marginal price
+		assertEquals(2.0, ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
+
+		// remove all offers of credit bank 1
 		ApplicationContext.getInstance().getMarketService()
 				.removeAllSellingOffers(creditBank1_EUR);
+
+		// check marginal price
 		assertEquals(3, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, commodityCurrency), epsilon);
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
 
+		// offer currency
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
@@ -277,15 +326,23 @@ public class MarketServiceTest extends CompEconTestSupport {
 						1,
 						creditBank1_EUR
 								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
+
+		// check marginal price
 		assertEquals(1.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, commodityCurrency), epsilon);
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
 
-		ApplicationContext.getInstance().getMarketService()
+		// remove all offers of credit bank 1
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.removeAllSellingOffers(creditBank1_EUR, currency,
+						commodityCurrency);
 
-		.removeAllSellingOffers(creditBank1_EUR, currency, commodityCurrency);
+		// check marginal price
 		assertEquals(3.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, commodityCurrency), epsilon);
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
 
+		// offer curency
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
@@ -297,9 +354,12 @@ public class MarketServiceTest extends CompEconTestSupport {
 						1,
 						creditBank1_EUR
 								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
-		assertEquals(1.0, ApplicationContext.getInstance().getMarketService()
-				.getPrice(currency, commodityCurrency), epsilon);
 
+		// check marginal price
+		assertEquals(1.0, ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
+
+		// find best fulfillment set
 		SortedMap<MarketOrder, Double> marketOffers1 = ApplicationContext
 				.getInstance()
 				.getMarketService()
@@ -314,6 +374,7 @@ public class MarketServiceTest extends CompEconTestSupport {
 						commodityCurrency);
 		assertEquals(2, marketOffers2.size());
 
+		// buy
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
@@ -326,6 +387,7 @@ public class MarketServiceTest extends CompEconTestSupport {
 						trader1_EUR
 								.getBankAccountGoodsTradeDelegate(commodityCurrency));
 
+		// check transaction
 		assertEquals(-5.0, trader1_EUR.getBankAccountTransactionsDelegate()
 				.getBankAccount().getBalance(), epsilon);
 		assertEquals(5.0,
@@ -344,7 +406,8 @@ public class MarketServiceTest extends CompEconTestSupport {
 				.getHouseholdDAO().findAllByCurrency(currency).get(1);
 
 		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getPrice(currency, goodType), epsilon);
+				.getMarketService().getMarginalMarketPrice(currency, goodType),
+				epsilon);
 
 		ApplicationContext
 				.getInstance()

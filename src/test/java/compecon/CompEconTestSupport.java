@@ -197,7 +197,6 @@ public abstract class CompEconTestSupport {
 		HibernateUtil.flushSession();
 		HibernateUtil.closeSession();
 
-		ApplicationContext.getInstance().getTimeSystem().cleanRemovedEvents();
 		ApplicationContext.getInstance().reset();
 	}
 }

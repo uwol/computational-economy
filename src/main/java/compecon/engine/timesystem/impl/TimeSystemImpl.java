@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -53,8 +52,6 @@ public class TimeSystemImpl implements TimeSystem {
 			"dd.MM.yyyy HH:mm");
 
 	private Map<Integer, YearImpl> years = new HashMap<Integer, YearImpl>();
-
-	private Set<TimeSystemEvent> eventsToBeRemoved = new HashSet<TimeSystemEvent>();
 
 	private List<TimeSystemEvent> externalEvents = new ArrayList<TimeSystemEvent>();
 
@@ -187,8 +184,10 @@ public class TimeSystemImpl implements TimeSystem {
 	 * methods for removing ITimeSystemEvents
 	 */
 
-	public void removeEvent(final TimeSystemEvent event) {
-		this.eventsToBeRemoved.add(event);
+	public void removeEvents(final Set<TimeSystemEvent> events) {
+		for (YearImpl year : this.years.values()) {
+			year.removeEvents(events);
+		}
 	}
 
 	/*
@@ -210,27 +209,37 @@ public class TimeSystemImpl implements TimeSystem {
 
 	private synchronized void triggerEvents() {
 		// determine current date
-		YearImpl yearExact = this.years.get(this.getCurrentYear());
-		YearImpl yearEvery = this.years.get(-1);
+		final YearImpl yearExact = this.years.get(this.getCurrentYear());
+		final YearImpl yearEvery = this.years.get(-1);
 
-		MonthType currentMonthType = this.getCurrentMonthType();
-		DayType currentDayType = this.getCurrentDayType();
-		HourType currentHourType = this.getCurrentHourType();
+		final MonthType currentMonthType = this.getCurrentMonthType();
+		final DayType currentDayType = this.getCurrentDayType();
+		final HourType currentHourType = this.getCurrentHourType();
 
 		// select events for this date
-		List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
+		final List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
 
-		if (yearExact != null)
+		if (yearExact != null) {
 			events.addAll(yearExact.getEvents(currentMonthType, currentDayType,
 					currentHourType));
+		}
 
-		if (yearEvery != null)
+		if (yearEvery != null) {
 			events.addAll(yearEvery.getEvents(currentMonthType, currentDayType,
 					currentHourType));
+		}
 
 		for (TimeSystemEvent event : events) {
 			try {
-				event.onEvent();
+				/*
+				 * it may happen, that an event deconstructs an agent, and that
+				 * agent has registered other events for the same point in time
+				 * -> they are contained in the events-list -> check for
+				 * deconstruction
+				 */
+				if (!event.isDeconstructed()) {
+					event.onEvent();
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -250,18 +259,6 @@ public class TimeSystemImpl implements TimeSystem {
 
 		// flush state to database
 		HibernateUtil.flushSession();
-
-		this.cleanRemovedEvents();
-	}
-
-	public void cleanRemovedEvents() {
-		// remove events that have been marked as removable
-		if (!this.eventsToBeRemoved.isEmpty()) {
-			for (YearImpl year : this.years.values()) {
-				year.removeEvents(this.eventsToBeRemoved);
-				this.eventsToBeRemoved.clear();
-			}
-		}
 	}
 
 	public String toString() {

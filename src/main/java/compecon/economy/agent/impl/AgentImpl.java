@@ -125,10 +125,8 @@ public abstract class AgentImpl implements Agent {
 		getLog().agent_onDeconstruct(this);
 
 		// deregister from time system
-		for (TimeSystemEvent timeSystemEvent : this.timeSystemEvents) {
-			ApplicationContext.getInstance().getTimeSystem()
-					.removeEvent(timeSystemEvent);
-		}
+		ApplicationContext.getInstance().getTimeSystem()
+				.removeEvents(this.timeSystemEvents);
 		this.timeSystemEvents = null;
 
 		// remove selling offers from market
@@ -309,9 +307,11 @@ public abstract class AgentImpl implements Agent {
 
 		// inventory by value
 		final Map<GoodType, Double> prices = ApplicationContext.getInstance()
-				.getMarketService().getPrices(this.primaryCurrency);
+				.getMarketService()
+				.getMarginalMarketPrices(this.primaryCurrency);
 		for (Entry<GoodType, Double> balanceEntry : ApplicationContext
-				.getInstance().getPropertyService().getBalances(this).entrySet()) {
+				.getInstance().getPropertyService().getBalances(this)
+				.entrySet()) {
 			GoodType goodType = balanceEntry.getKey();
 			double amount = balanceEntry.getValue();
 			double price = prices.get(goodType);
@@ -362,6 +362,11 @@ public abstract class AgentImpl implements Agent {
 	}
 
 	public class BalanceSheetPublicationEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return AgentImpl.this.isDeconstructed;
+		}
+
 		@Override
 		public void onEvent() {
 			final BalanceSheetDTO balanceSheet = AgentImpl.this

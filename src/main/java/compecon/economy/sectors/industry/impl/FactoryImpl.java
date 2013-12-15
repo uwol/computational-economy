@@ -82,9 +82,11 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 						ApplicationContext.getInstance().getTimeSystem()
 								.suggestRandomHourType());
 
-		final double marketPrice = ApplicationContext.getInstance()
+		final double marketPrice = ApplicationContext
+				.getInstance()
 				.getMarketService()
-				.getPrice(this.primaryCurrency, this.producedGoodType);
+				.getMarginalMarketPrice(this.primaryCurrency,
+						this.producedGoodType);
 		this.pricingBehaviour = new PricingBehaviourImpl(this,
 				this.producedGoodType, this.primaryCurrency, marketPrice);
 		this.budgetingBehaviour = new BudgetingBehaviourImpl(this);
@@ -151,6 +153,10 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 	}
 
 	public class ProductionEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return FactoryImpl.this.isDeconstructed;
+		}
 
 		@Override
 		public void onEvent() {
@@ -201,7 +207,8 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				final double priceOfProducedGoodType = ApplicationContext
 						.getInstance()
 						.getMarketService()
-						.getPrice(FactoryImpl.this.primaryCurrency,
+						.getMarginalMarketPrice(
+								FactoryImpl.this.primaryCurrency,
 								FactoryImpl.this.producedGoodType);
 
 				getLog().setAgentCurrentlyActive(FactoryImpl.this);
@@ -328,8 +335,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				ApplicationContext
 						.getInstance()
 						.getMarketService()
-						.placeSellingOffer(
-								FactoryImpl.this.producedGoodType,
+						.placeSellingOffer(FactoryImpl.this.producedGoodType,
 								FactoryImpl.this,
 								getBankAccountTransactionsDelegate(),
 								amountInInventory / ((double) prices.length),

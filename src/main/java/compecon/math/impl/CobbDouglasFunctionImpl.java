@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import compecon.engine.service.impl.FixedPriceFunctionImpl;
 import compecon.math.price.PriceFunction;
 import compecon.math.price.PriceFunction.PriceFunctionConfig;
-import compecon.math.price.impl.FixedPriceFunctionImpl;
 import compecon.math.util.MathUtil;
 
 public class CobbDouglasFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {

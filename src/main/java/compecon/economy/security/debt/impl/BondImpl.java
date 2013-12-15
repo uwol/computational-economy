@@ -19,8 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.security.debt.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -63,7 +63,7 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	protected int termInYears = 1;
 
 	@Transient
-	protected List<TimeSystemEvent> timeSystemEvents = new ArrayList<TimeSystemEvent>();
+	protected Set<TimeSystemEvent> timeSystemEvents = new HashSet<TimeSystemEvent>();
 
 	public void initialize() {
 		super.initialize();
@@ -166,9 +166,8 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 		super.deconstruct();
 
 		// deregister from TimeSystem
-		for (TimeSystemEvent timeSystemEvent : this.timeSystemEvents)
-			ApplicationContext.getInstance().getTimeSystem()
-					.removeEvent(timeSystemEvent);
+		ApplicationContext.getInstance().getTimeSystem()
+				.removeEvents(this.timeSystemEvents);
 	}
 
 	@Override
@@ -187,6 +186,11 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	}
 
 	public class TransferFaceValueEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return BondImpl.this.isDeconstructed;
+		}
+
 		@Override
 		public void onEvent() {
 			assert (BondImpl.this.faceValueFromBankAccountDelegate != null);

@@ -149,6 +149,11 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 
 	public class TransferCouponEvent implements TimeSystemEvent {
 		@Override
+		public boolean isDeconstructed() {
+			return FixedRateBondImpl.this.isDeconstructed;
+		}
+
+		@Override
 		public void onEvent() {
 			assert (FixedRateBondImpl.this.couponFromBankAccountDelegate != null);
 			assertValidOwner();

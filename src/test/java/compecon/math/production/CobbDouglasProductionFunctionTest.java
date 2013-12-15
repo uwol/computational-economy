@@ -33,8 +33,8 @@ import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.service.impl.FixedPriceFunctionImpl;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.impl.FixedPriceFunctionImpl;
 import compecon.math.production.impl.CobbDouglasProductionFunctionImpl;
 
 public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {

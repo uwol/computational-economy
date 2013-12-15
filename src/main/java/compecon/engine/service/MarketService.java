@@ -60,49 +60,56 @@ public interface MarketService {
 			final double maxTotalPrice, final double maxPricePerUnit,
 			final Class<? extends Property> propertyClass);
 
-	public double getMarketDepth(final Currency denominatedInCurrency,
-			final GoodType goodType);
-
-	public double getMarketDepth(final Currency denominatedInCurrency,
-			final Currency commodityCurrency);
-
-	public double getAveragePrice(final Currency denominatedInCurrency,
-			final GoodType goodType, final double atAmount);
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final GoodType goodType);
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final GoodType goodType, final double atAmount);
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final Currency commodityCurrency);
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final Currency commodityCurrency, final double atAmount);
-
-	public double getPrice(final Currency denominatedInCurrency,
-			final Class<? extends Property> propertyClass);
-
-	public Map<GoodType, Double> getPrices(
-			final Currency denominatedInCurrency, final GoodType[] goodTypes);
-
-	public Map<GoodType, Double> getPrices(
-			final Currency denominatedInCurrency, final Set<GoodType> goodTypes);
-
-	public Map<GoodType, Double> getPrices(final Currency denominatedInCurrency);
-
 	public PriceFunction getFixedPriceFunction(
 			final Currency denominatedInCurrency, final GoodType goodType);
 
-	public Map<GoodType, PriceFunction> getFixedPriceFunctions(
-			final Currency denominatedInCurrency, final GoodType[] goodTypes);
+	public PriceFunction getFixedPriceFunction(
+			final Currency denominatedInCurrency,
+			final Currency commodityCurrency);
+
+	public PriceFunction getFixedPriceFunction(
+			final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass);
 
 	public Map<GoodType, PriceFunction> getFixedPriceFunctions(
 			final Currency denominatedInCurrency, final Set<GoodType> goodTypes);
 
-	public PriceFunction getMarketPriceFunction(
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final GoodType goodType);
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final GoodType goodType, final double atAmount);
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final Currency commodityCurrency);
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final Currency commodityCurrency, final double atAmount);
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass);
+
+	public Map<GoodType, Double> getMarginalMarketPrices(
+			final Currency denominatedInCurrency, final GoodType[] goodTypes);
+
+	public Map<GoodType, Double> getMarginalMarketPrices(
+			final Currency denominatedInCurrency, final Set<GoodType> goodTypes);
+
+	public Map<GoodType, Double> getMarginalMarketPrices(
+			final Currency denominatedInCurrency);
+
+	public double getMarketDepth(final Currency denominatedInCurrency,
+			final GoodType goodType);
+
+	public double getMarketDepth(final Currency denominatedInCurrency,
+			final Currency commodityCurrency);
+
+	public MarketPriceFunction getMarketPriceFunction(
 			final Currency denominatedInCurrency, final GoodType goodType);
+
+	public MarketPriceFunction getMarketPriceFunction(
+			final Currency denominatedInCurrency,
+			final Currency commodityCurrency);
 
 	public Map<GoodType, PriceFunction> getMarketPriceFunctions(
 			final Currency denominatedInCurrency, final GoodType[] goodTypes);

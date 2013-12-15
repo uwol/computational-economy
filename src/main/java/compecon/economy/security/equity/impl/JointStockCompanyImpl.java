@@ -190,6 +190,10 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 	}
 
 	public class PayDividendEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return JointStockCompanyImpl.this.isDeconstructed;
+		}
 
 		@Override
 		public void onEvent() {
@@ -259,6 +263,10 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 	}
 
 	public class OfferSharesEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return JointStockCompanyImpl.this.isDeconstructed;
+		}
 
 		@Override
 		public void onEvent() {

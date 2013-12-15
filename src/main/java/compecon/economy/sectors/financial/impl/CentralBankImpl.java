@@ -478,6 +478,11 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 	public class DailyInterestCalculationEvent implements TimeSystemEvent {
 		@Override
+		public boolean isDeconstructed() {
+			return CentralBankImpl.this.isDeconstructed;
+		}
+
+		@Override
 		public void onEvent() {
 			CentralBankImpl.this.assureBankAccountTransactions();
 
@@ -532,6 +537,11 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 	public class MarginalPriceSnapshotEvent implements TimeSystemEvent {
 		@Override
+		public boolean isDeconstructed() {
+			return CentralBankImpl.this.isDeconstructed;
+		}
+
+		@Override
 		public void onEvent() {
 			CentralBankImpl.this.statisticalOffice
 					.takeSnapshotOfMarginalPrices();
@@ -539,6 +549,11 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	public class KeyInterestRateCalculationEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return CentralBankImpl.this.isDeconstructed;
+		}
+
 		@Override
 		public void onEvent() {
 			// calculate price index
@@ -679,7 +694,8 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 				double marginalPriceForGoodType = ApplicationContext
 						.getInstance()
 						.getMarketService()
-						.getPrice(CentralBankImpl.this.primaryCurrency,
+						.getMarginalMarketPrice(
+								CentralBankImpl.this.primaryCurrency,
 								entry.getKey());
 
 				if (!Double.isNaN(marginalPriceForGoodType)

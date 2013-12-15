@@ -147,8 +147,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			if (!this.primaryCurrency.equals(foreignCurrency)) {
 				// price of local currency in foreign currency
 				double initialPriceOfLocalCurrencyInForeignCurrency = ApplicationContext
-						.getInstance().getMarketService()
-						.getPrice(foreignCurrency, this.primaryCurrency);
+						.getInstance()
+						.getMarketService()
+						.getMarginalMarketPrice(foreignCurrency,
+								this.primaryCurrency);
 				if (Double.isNaN(initialPriceOfLocalCurrencyInForeignCurrency))
 					initialPriceOfLocalCurrencyInForeignCurrency = 1.0;
 				this.localCurrencyPricingBehaviours.put(
@@ -467,8 +469,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		for (Entry<Currency, BankAccount> bankAccountEntry : this.bankAccountsCurrencyTrade
 				.entrySet()) {
 			double priceOfForeignCurrencyInLocalCurrency = ApplicationContext
-					.getInstance().getMarketService()
-					.getPrice(primaryCurrency, bankAccountEntry.getKey());
+					.getInstance()
+					.getMarketService()
+					.getMarginalMarketPrice(primaryCurrency,
+							bankAccountEntry.getKey());
 			if (!Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
 				double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry
 						.getValue().getBalance()
@@ -605,6 +609,11 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 
 	public class DailyInterestCalculationEvent implements TimeSystemEvent {
 		@Override
+		public boolean isDeconstructed() {
+			return CreditBankImpl.this.isDeconstructed;
+		}
+
+		@Override
 		public void onEvent() {
 			CreditBankImpl.this.assureBankAccountInterestTransactions();
 			CreditBankImpl.this.assureBankAccountCentralBankTransactions();
@@ -656,6 +665,11 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	}
 
 	public class CheckMoneyReservesEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return CreditBankImpl.this.isDeconstructed;
+		}
+
 		@Override
 		public void onEvent() {
 			CreditBankImpl.this.assureBankAccountCentralBankMoneyReserves();
@@ -710,6 +724,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	}
 
 	public class CurrencyTradeEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return CreditBankImpl.this.isDeconstructed;
+		}
 
 		@Override
 		public void onEvent() {
@@ -739,11 +757,11 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			// e.g. USD_in_EUR = 0.8
 			double priceOfFirstCurrencyInSecondCurrency = ApplicationContext
 					.getInstance().getMarketService()
-					.getPrice(secondCurrency, firstCurrency);
+					.getMarginalMarketPrice(secondCurrency, firstCurrency);
 			// e.g. EUR_in_USD = 0.8
 			double priceOfSecondCurrencyInFirstCurrency = ApplicationContext
 					.getInstance().getMarketService()
-					.getPrice(firstCurrency, secondCurrency);
+					.getMarginalMarketPrice(firstCurrency, secondCurrency);
 
 			if (Double.isNaN(priceOfSecondCurrencyInFirstCurrency)) {
 				return priceOfFirstCurrencyInSecondCurrency;
@@ -806,8 +824,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 						final Currency foreignCurrency = currency;
 
 						double realPriceOfForeignCurrencyInLocalCurrency = ApplicationContext
-								.getInstance().getMarketService()
-								.getPrice(primaryCurrency, foreignCurrency);
+								.getInstance()
+								.getMarketService()
+								.getMarginalMarketPrice(primaryCurrency,
+										foreignCurrency);
 						double correctPriceOfForeignCurrencyInLocalCurrency = calculateCalculatoryPriceOfFirstCurrencyInSecondCurrency(
 								foreignCurrency, primaryCurrency);
 
@@ -977,8 +997,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 						if (Double
 								.isNaN(pricingBehaviourPriceOfLocalCurrencyInForeignCurrency)) {
 							pricingBehaviourPriceOfLocalCurrencyInForeignCurrency = ApplicationContext
-									.getInstance().getMarketService()
-									.getPrice(foreignCurrency, localCurrency);
+									.getInstance()
+									.getMarketService()
+									.getMarginalMarketPrice(foreignCurrency,
+											localCurrency);
 							if (getLog().isAgentSelectedByClient(
 									CreditBankImpl.this))
 								getLog().log(
@@ -1031,8 +1053,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 
 					// determine price of foreign currency
 					double priceOfForeignCurrencyInLocalCurrency = ApplicationContext
-							.getInstance().getMarketService()
-							.getPrice(localCurrency, foreignCurrency);
+							.getInstance()
+							.getMarketService()
+							.getMarginalMarketPrice(localCurrency,
+									foreignCurrency);
 					if (Double.isNaN(priceOfForeignCurrencyInLocalCurrency))
 						priceOfForeignCurrencyInLocalCurrency = 1.0;
 
@@ -1071,6 +1095,11 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	}
 
 	public class BondsTradingEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return CreditBankImpl.this.isDeconstructed;
+		}
+
 		@Override
 		public void onEvent() {
 			CreditBankImpl.this.assureBankAccountBondLoan();

@@ -25,5 +25,7 @@ package compecon.engine.timesystem;
  */
 public interface TimeSystemEvent {
 
+	public boolean isDeconstructed();
+
 	public void onEvent();
 }

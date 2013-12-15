@@ -264,6 +264,10 @@ public class StateImpl extends AgentImpl implements State {
 	}
 
 	public class BuyAndConsumeGoodsEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return StateImpl.this.isDeconstructed;
+		}
 
 		@Override
 		public void onEvent() {

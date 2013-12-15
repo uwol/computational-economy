@@ -23,10 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import compecon.engine.service.impl.FixedPriceFunctionImpl;
 import compecon.math.impl.ConvexFunctionImpl;
 import compecon.math.intertemporal.IntertemporalConsumptionFunction;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.impl.FixedPriceFunctionImpl;
 
 public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 		IntertemporalConsumptionFunction {

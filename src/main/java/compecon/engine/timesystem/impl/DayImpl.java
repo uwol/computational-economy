@@ -48,10 +48,10 @@ public class DayImpl implements Day {
 	}
 
 	public List<TimeSystemEvent> getEvents(final HourType hourType) {
-		HourImpl hourExact = this.hours.get(hourType);
-		HourImpl hourEvery = this.hours.get(HourType.EVERY);
+		final HourImpl hourExact = this.hours.get(hourType);
+		final HourImpl hourEvery = this.hours.get(HourType.EVERY);
 
-		List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
+		final List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
 
 		if (hourExact != null)
 			events.addAll(hourExact.getEvents());
@@ -63,7 +63,8 @@ public class DayImpl implements Day {
 	}
 
 	public void removeEvents(final Set<TimeSystemEvent> events) {
-		for (HourImpl hour : this.hours.values())
+		for (HourImpl hour : this.hours.values()) {
 			hour.removeEvents(events);
+		}
 	}
 }

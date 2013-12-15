@@ -33,9 +33,9 @@ import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.service.impl.FixedPriceFunctionImpl;
 import compecon.math.impl.CESFunctionImpl;
 import compecon.math.price.PriceFunction;
-import compecon.math.price.impl.FixedPriceFunctionImpl;
 
 public class CESFunctionTest extends CompEconTestSupport {
 
@@ -71,7 +71,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, 1.0);
 
 		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.COAL, new FixedPriceFunctionImpl(Double.NaN));
+		priceFunctions.put(GoodType.COAL,
+				new FixedPriceFunctionImpl(Double.NaN));
 		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
 		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(1.0));
 
@@ -150,7 +151,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, 2.0);
 
 		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.COAL, new FixedPriceFunctionImpl(Double.NaN));
+		priceFunctions.put(GoodType.COAL,
+				new FixedPriceFunctionImpl(Double.NaN));
 		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
 		priceFunctions.put(GoodType.COTTON, new FixedPriceFunctionImpl(3.0));
 		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
@@ -239,7 +241,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, 2.0);
 
 		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.COAL, new FixedPriceFunctionImpl(Double.NaN));
+		priceFunctions.put(GoodType.COAL,
+				new FixedPriceFunctionImpl(Double.NaN));
 		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
 		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 
@@ -318,11 +321,14 @@ public class CESFunctionTest extends CompEconTestSupport {
 		Household household2_EUR = ApplicationContext.getInstance()
 				.getHouseholdDAO().findAllByCurrency(currency).get(1);
 
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getPrice(currency, GoodType.KILOWATT),
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.KILOWATT),
 				epsilon);
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getPrice(currency, GoodType.WHEAT), epsilon);
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.WHEAT),
+				epsilon);
 
 		ApplicationContext
 				.getInstance()

@@ -50,10 +50,10 @@ public class MonthImpl implements Month {
 
 	public List<TimeSystemEvent> getEvents(final DayType dayType,
 			final HourType hourType) {
-		DayImpl dayExact = this.days.get(dayType);
-		DayImpl dayEvery = this.days.get(DayType.EVERY);
+		final DayImpl dayExact = this.days.get(dayType);
+		final DayImpl dayEvery = this.days.get(DayType.EVERY);
 
-		List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
+		final List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
 
 		if (dayExact != null)
 			events.addAll(dayExact.getEvents(hourType));
@@ -65,7 +65,8 @@ public class MonthImpl implements Month {
 	}
 
 	public void removeEvents(final Set<TimeSystemEvent> events) {
-		for (DayImpl day : this.days.values())
+		for (DayImpl day : this.days.values()) {
 			day.removeEvents(events);
+		}
 	}
 }

@@ -107,14 +107,14 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 			// after execution in this method
 			assert (marketOrder.getAmount() > 0);
 
-			// is the offeror' bank account is identical to the buyer's bank
+			// if the offeror's bank account is identical to the buyer's bank
 			// account
 			if (buyersBankAccountDelegate.getBankAccount() == marketOrder
 					.getOfferorsBankAcountDelegate().getBankAccount()) {
 				continue;
 			}
 
-			// is the offeror is identical to the buyer
+			// if the offeror is identical to the buyer
 			if (buyersBankAccountDelegate.getBankAccount().getOwner() == marketOrder
 					.getOfferorsBankAcountDelegate().getBankAccount()
 					.getOwner()) {
