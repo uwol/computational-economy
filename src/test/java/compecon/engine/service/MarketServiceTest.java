@@ -37,6 +37,7 @@ import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.trading.Trader;
+import compecon.economy.security.equity.Share;
 import compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import compecon.economy.security.equity.impl.ShareImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
@@ -209,8 +210,7 @@ public class MarketServiceTest extends CompEconTestSupport {
 		// check marginal price
 		assertEquals(Double.NaN,
 				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, ShareImpl.class),
-				epsilon);
+						.getMarginalMarketPrice(currency, Share.class), epsilon);
 
 		// IPO
 		for (TimeSystemEvent timeSystemEvent : factory1_WHEAT_EUR
@@ -228,15 +228,13 @@ public class MarketServiceTest extends CompEconTestSupport {
 				ApplicationContext.getInstance().getConfiguration().jointStockCompanyConfig
 						.getInitialNumberOfShares(),
 				ApplicationContext.getInstance().getPropertyService()
-						.getProperties(factory1_WHEAT_EUR, ShareImpl.class)
-						.size());
+						.getProperties(factory1_WHEAT_EUR, Share.class).size());
 
 		// buy one share
 		ApplicationContext
 				.getInstance()
 				.getMarketService()
-				.buy(ShareImpl.class, 1, Double.NaN, Double.NaN,
-						household1_EUR,
+				.buy(Share.class, 1, Double.NaN, Double.NaN, household1_EUR,
 						household1_EUR.getBankAccountTransactionsDelegate());
 
 		// check transaction / settlement
@@ -244,18 +242,16 @@ public class MarketServiceTest extends CompEconTestSupport {
 				ApplicationContext.getInstance().getConfiguration().jointStockCompanyConfig
 						.getInitialNumberOfShares() - 1,
 				ApplicationContext.getInstance().getPropertyService()
-						.getProperties(factory1_WHEAT_EUR, ShareImpl.class)
-						.size());
+						.getProperties(factory1_WHEAT_EUR, Share.class).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
-				.getProperties(household1_EUR, ShareImpl.class).size());
+				.getProperties(household1_EUR, Share.class).size());
 
 		// remove all selling offers
 		ApplicationContext.getInstance().getMarketService()
 				.removeAllSellingOffers(factory1_WHEAT_EUR);
 		assertEquals(Double.NaN,
 				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, ShareImpl.class),
-				epsilon);
+						.getMarginalMarketPrice(currency, Share.class), epsilon);
 	}
 
 	@Test

@@ -106,6 +106,9 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 			// empty market order should not exist, as they are deleted
 			// after execution in this method
 			assert (marketOrder.getAmount() > 0);
+			assert (marketOrder.getOfferor() == marketOrder
+					.getOfferorsBankAcountDelegate().getBankAccount()
+					.getOwner());
 
 			// if the offeror's bank account is identical to the buyer's bank
 			// account
@@ -132,12 +135,17 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 			// transfer ownership
 			switch (marketOrder.getCommodityType()) {
 			case GOODTYPE:
+				// transfer goods
 				ApplicationContext
 						.getInstance()
 						.getPropertyService()
 						.transferGoodTypeAmount(marketOrder.getGoodType(),
 								marketOrder.getOfferor(), buyer, amount);
 
+				// decrement amount in market order
+				marketOrder.decrementAmount(amount);
+
+				// inform event listener
 				marketOrder.getOfferor().onMarketSettlement(
 						marketOrder.getGoodType(),
 						amount,
@@ -151,11 +159,18 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 						marketOrder.getGoodType(),
 						marketOrder.getOfferorsBankAcountDelegate()
 								.getBankAccount().getCurrency(), amount);
+
+				// optionally, delete market order
+				if (MathUtil.lesserEqual(marketOrder.getAmount(), 0)) {
+					this.removeSellingOffer(marketOrder);
+				}
 				break;
 			case CURRENCY:
 				Bank bank = marketOrder
 						.getCommodityCurrencyOfferorsBankAccountDelegate()
 						.getBankAccount().getManagingBank();
+
+				// transfer commodity currency
 				bank.transferMoney(
 						marketOrder
 								.getCommodityCurrencyOfferorsBankAccountDelegate()
@@ -167,6 +182,10 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 								+ " units of commoditycurrency "
 								+ marketOrder.getCommodity());
 
+				// decrement amount in market order
+				marketOrder.decrementAmount(amount);
+
+				// inform event listener
 				marketOrder.getOfferor().onMarketSettlement(
 						marketOrder.getCommodityCurrency(),
 						amount,
@@ -180,27 +199,35 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 						marketOrder.getCommodityCurrency(),
 						marketOrder.getOfferorsBankAcountDelegate()
 								.getBankAccount().getCurrency(), amount);
+
+				// optionally, delete market order
+				if (MathUtil.lesserEqual(marketOrder.getAmount(), 0)) {
+					this.removeSellingOffer(marketOrder);
+				}
 				break;
 			case PROPERTY:
+				assert (marketOrder.getProperty().getOwner() == marketOrder
+						.getOfferor());
+
+				// transfer property
 				ApplicationContext
 						.getInstance()
 						.getPropertyService()
 						.transferProperty(marketOrder.getProperty(),
 								marketOrder.getOfferor(), buyer);
 
+				// inform event listener
 				marketOrder.getOfferor().onMarketSettlement(
 						marketOrder.getProperty(),
 						marketOrder.getPricePerUnit(),
 						marketOrder.getOfferorsBankAcountDelegate()
 								.getBankAccount().getCurrency());
+
+				// delete market order
+				this.removeSellingOffer(marketOrder);
 				break;
 			default:
 				throw new RuntimeException("CommodityType unknown");
-			}
-
-			marketOrder.decrementAmount(amount);
-			if (marketOrder.getAmount() <= 0) {
-				this.removeSellingOffer(marketOrder);
 			}
 
 			moneySpentSum += amount * marketOrder.getPricePerUnit();

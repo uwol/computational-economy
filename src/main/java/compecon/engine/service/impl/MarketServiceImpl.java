@@ -381,8 +381,12 @@ public abstract class MarketServiceImpl implements MarketService {
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount, final double pricePerUnit) {
 		if (amount > 0) {
-			assert (goodType != null && !Double.isNaN(amount)
-					&& !Double.isNaN(pricePerUnit) && amount > 0);
+			assert (goodType != null);
+			assert (!Double.isNaN(amount));
+			assert (!Double.isNaN(pricePerUnit));
+			assert (amount > 0);
+			assert (offeror == offerorsBankAcountDelegate.getBankAccount()
+					.getOwner());
 
 			ApplicationContext
 					.getInstance()
@@ -413,8 +417,12 @@ public abstract class MarketServiceImpl implements MarketService {
 			final double pricePerUnit,
 			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate) {
 		if (amount > 0) {
-			assert (commodityCurrency != null && !Double.isNaN(amount)
-					&& !Double.isNaN(pricePerUnit) && amount > 0);
+			assert (commodityCurrency != null);
+			assert (!Double.isNaN(amount));
+			assert (!Double.isNaN(pricePerUnit));
+			assert (amount > 0);
+			assert (offeror == offerorsBankAcountDelegate.getBankAccount()
+					.getOwner());
 
 			ApplicationContext
 					.getInstance()
@@ -442,7 +450,11 @@ public abstract class MarketServiceImpl implements MarketService {
 			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double pricePerUnit) {
-		assert (property != null && !Double.isNaN(pricePerUnit));
+		assert (property != null);
+		assert (!Double.isNaN(pricePerUnit));
+		assert (offeror == property.getOwner());
+		assert (offeror == offerorsBankAcountDelegate.getBankAccount()
+				.getOwner());
 
 		ApplicationContext
 				.getInstance()

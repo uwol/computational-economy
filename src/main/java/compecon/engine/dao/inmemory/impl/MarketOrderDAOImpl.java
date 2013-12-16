@@ -205,20 +205,24 @@ public class MarketOrderDAOImpl extends
 	@Override
 	public synchronized void delete(MarketOrder marketOrder) {
 		if (marketOrder.getGoodType() != null) {
-			this.getMarketOrders(marketOrder.getCurrency(),
-					marketOrder.getGoodType()).remove(marketOrder);
+			final SortedSet<MarketOrder> marketOrders = this.getMarketOrders(
+					marketOrder.getCurrency(), marketOrder.getGoodType());
+			marketOrders.remove(marketOrder);
 		}
 
 		if (marketOrder.getCommodityCurrency() != null) {
-			this.getMarketOrders(marketOrder.getCurrency(),
-					marketOrder.getCommodityCurrency()).remove(marketOrder);
+			final SortedSet<MarketOrder> marketOrders = this.getMarketOrders(
+					marketOrder.getCurrency(),
+					marketOrder.getCommodityCurrency());
+			marketOrders.remove(marketOrder);
 		}
 
 		if (marketOrder.getProperty() != null) {
 			final Class<? extends Property> propertyIndexInterface = this
 					.getIndexInterface(marketOrder.getProperty().getClass());
-			this.getMarketOrders(marketOrder.getCurrency(),
-					propertyIndexInterface).remove(marketOrder);
+			final SortedSet<MarketOrder> marketOrders = this.getMarketOrders(
+					marketOrder.getCurrency(), propertyIndexInterface);
+			marketOrders.remove(marketOrder);
 		}
 
 		super.delete(marketOrder);

@@ -299,6 +299,19 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		if (newOwner == this && property instanceof Share) {
 			Share share = (Share) property;
 			share.setDividendBankAccountDelegate(getBankAccountDividendDelegate());
+
+			/*
+			 * check that shares have correct bank account delegate, and sell
+			 * shares that are denominated in an incorrect currency
+			 */
+			if (!HouseholdImpl.this.primaryCurrency.equals(share.getIssuer()
+					.getPrimaryCurrency())) {
+				ApplicationContext
+						.getInstance()
+						.getMarketService()
+						.placeSellingOffer(share, HouseholdImpl.this,
+								getBankAccountTransactionsDelegate(), 0.0);
+			}
 		}
 	}
 
@@ -351,7 +364,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 			this.offerLabourHours();
 
-			this.buyAndOfferShares();
+			this.buyShares();
 
 			// households make no debt; safety epsilon due to iterative
 			// deviations
@@ -618,7 +631,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			}
 		}
 
-		protected void buyAndOfferShares() {
+		protected void buyShares() {
 			/*
 			 * buy shares / capital -> equity savings
 			 */
@@ -627,35 +640,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 					.getMarketService()
 					.buy(Share.class, 1.0, 0.0, 0.0, HouseholdImpl.this,
 							getBankAccountTransactionsDelegate());
-
-			/*
-			 * check that shares have correct bank account delegate, and sell
-			 * shares that are denominated in an incorrect currency
-			 */
-			ApplicationContext
-					.getInstance()
-					.getMarketService()
-					.removeAllSellingOffers(
-							HouseholdImpl.this,
-							HouseholdImpl.this.bankAccountTransactions
-									.getCurrency(), Share.class);
-			for (Property property : ApplicationContext.getInstance()
-					.getPropertyService()
-					.getProperties(HouseholdImpl.this, Share.class)) {
-				if (property instanceof Share) {
-					Share share = (Share) property;
-					// check currency
-					if (!HouseholdImpl.this.primaryCurrency.equals(share
-							.getIssuer().getPrimaryCurrency()))
-						ApplicationContext
-								.getInstance()
-								.getMarketService()
-								.placeSellingOffer(property,
-										HouseholdImpl.this,
-										getBankAccountTransactionsDelegate(),
-										0.0);
-				}
-			}
 		}
 
 		protected void checkRequiredUtilityPerDay(final double utility) {

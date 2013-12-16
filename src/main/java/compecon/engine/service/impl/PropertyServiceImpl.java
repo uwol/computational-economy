@@ -145,6 +145,7 @@ public class PropertyServiceImpl implements PropertyService {
 	 */
 	public void transferProperty(final Property property,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner) {
+
 		// consistency check
 		assert (oldOwner == property.getOwner());
 

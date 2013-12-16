@@ -50,4 +50,9 @@ public abstract class PropertyIssuedImpl extends PropertyImpl implements
 	@Transient
 	protected void assertValidIssuer() {
 	}
+
+	@Override
+	public String toString() {
+		return super.toString() + ", issuer=[" + this.issuer + "]";
+	}
 }

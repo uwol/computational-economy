@@ -122,6 +122,7 @@ public abstract class AgentImpl implements Agent {
 	@Transient
 	public void deconstruct() {
 		this.isDeconstructed = true;
+
 		getLog().agent_onDeconstruct(this);
 
 		// deregister from time system
