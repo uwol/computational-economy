@@ -33,11 +33,13 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 
 	private synchronized void assureInitializedDataStructure(K key, V instance) {
 		if (key != null && instance != null) {
-			if (!this.indexedInstances.containsKey(key))
+			if (!this.indexedInstances.containsKey(key)) {
 				this.indexedInstances.put(key, new ArrayList<V>());
+			}
 
-			if (!this.instanceIndexedKeys.containsKey(instance))
+			if (!this.instanceIndexedKeys.containsKey(instance)) {
 				this.instanceIndexedKeys.put(instance, new ArrayList<K>());
+			}
 		}
 	}
 
@@ -50,8 +52,9 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 	}
 
 	protected synchronized List<V> getInstancesForSecondKey(K secondKey) {
-		if (this.indexedInstances.containsKey(secondKey))
+		if (this.indexedInstances.containsKey(secondKey)) {
 			return this.indexedInstances.get(secondKey);
+		}
 		// has to return null, as the calling DAO method should return a new
 		// collection anyway, not this one
 		return null;
@@ -62,8 +65,9 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 	}
 
 	protected synchronized List<K> getSecondKeysForInstance(V instance) {
-		if (this.instanceIndexedKeys.containsKey(instance))
+		if (this.instanceIndexedKeys.containsKey(instance)) {
 			return this.instanceIndexedKeys.get(instance);
+		}
 		// has to return null, as the calling DAO method should return a new
 		// collection anyway, not this one
 		return null;
@@ -88,15 +92,21 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 		if (secondKeys != null) {
 			for (K secondKey : new ArrayList<K>(secondKeys)) {
 				if (this.indexedInstances.containsKey(secondKey)) {
-					this.indexedInstances.get(secondKey).remove(instance);
-					if (this.indexedInstances.get(secondKey).isEmpty())
+					final List<V> indexedInstanceForKey = this.indexedInstances
+							.get(secondKey);
+					indexedInstanceForKey.remove(instance);
+					if (indexedInstanceForKey.isEmpty()) {
 						this.indexedInstances.remove(secondKey);
+					}
 				}
 
 				if (this.instanceIndexedKeys.containsKey(instance)) {
-					this.instanceIndexedKeys.get(instance).remove(secondKey);
-					if (this.instanceIndexedKeys.get(instance).isEmpty())
+					final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
+							.get(instance);
+					instanceIndexedKeysForInstance.remove(secondKey);
+					if (instanceIndexedKeysForInstance.isEmpty()) {
 						this.instanceIndexedKeys.remove(instance);
+					}
 				}
 			}
 		}

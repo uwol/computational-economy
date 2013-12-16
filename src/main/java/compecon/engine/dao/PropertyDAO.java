@@ -28,14 +28,15 @@ import compecon.economy.property.PropertyOwner;
 
 public interface PropertyDAO extends GenericDAO<Property> {
 
-	public List<Property> findAllPropertiesOfPropertyOwner(PropertyOwner propertyOwner);
+	public List<Property> findAllPropertiesOfPropertyOwner(
+			PropertyOwner propertyOwner);
 
-	public List<Property> findAllPropertiesOfPropertyOwner(PropertyOwner propertyOwner,
-			Class<? extends Property> propertyClass);
+	public List<Property> findAllPropertiesOfPropertyOwner(
+			PropertyOwner propertyOwner, Class<? extends Property> propertyClass);
 
-	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer);
+	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer);
 
-	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer,
+	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer,
 			Class<? extends PropertyIssued> propertyClass);
 
 	public void transferProperty(PropertyOwner oldOwner,

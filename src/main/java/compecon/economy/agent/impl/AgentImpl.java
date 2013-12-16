@@ -45,7 +45,6 @@ import compecon.economy.agent.Agent;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
-import compecon.economy.property.PropertyIssued;
 import compecon.economy.property.PropertyOwner;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
@@ -135,7 +134,7 @@ public abstract class AgentImpl implements Agent {
 				.removeAllSellingOffers(this);
 
 		// delete properties issued by this agent
-		for (PropertyIssued propertyIssued : ApplicationContext.getInstance()
+		for (Property propertyIssued : ApplicationContext.getInstance()
 				.getPropertyDAO().findAllPropertiesIssuedByAgent(this)) {
 			ApplicationContext.getInstance().getPropertyService()
 					.deleteProperty(propertyIssued);
@@ -283,12 +282,14 @@ public abstract class AgentImpl implements Agent {
 		// bank deposits
 		balanceSheet.addBankAccountBalance(this.bankAccountTransactions);
 
-		// owned bonds
+		// owned properties
 		for (Property property : ApplicationContext.getInstance()
 				.getPropertyService().getProperties(this)) {
+			assert (property.getOwner() == AgentImpl.this);
+
+			// owned bonds
 			if (property instanceof Bond) {
 				Bond bond = ((Bond) property);
-				assert (bond.getOwner() == this);
 
 				if (bond.isDeconstructed()) {
 					ApplicationContext.getInstance().getPropertyService()
@@ -331,7 +332,7 @@ public abstract class AgentImpl implements Agent {
 		for (Property property : ApplicationContext.getInstance()
 				.getPropertyDAO()
 				.findAllPropertiesIssuedByAgent(this, Bond.class)) {
-			Bond bond = (Bond) property;
+			final Bond bond = (Bond) property;
 			if (!bond.isDeconstructed() && !bond.getOwner().equals(this)) {
 				assert (bond.getIssuer() == this);
 				assert (bond.getOwner() != this);

@@ -27,15 +27,16 @@ import compecon.economy.property.PropertyOwner;
 import compecon.engine.dao.GoodTypeOwnershipDAO;
 
 public class GoodTypeOwnershipDAOImpl extends
-		AbstractIndexedInMemoryDAOImpl<PropertyOwner, GoodTypeOwnership> implements
-		GoodTypeOwnershipDAO {
+		AbstractIndexedInMemoryDAOImpl<PropertyOwner, GoodTypeOwnership>
+		implements GoodTypeOwnershipDAO {
 
 	@Override
 	public synchronized List<GoodTypeOwnership> findAllByPropertyOwner(
 			PropertyOwner propertyOwner) {
-		if (this.getInstancesForKey(propertyOwner) != null) {
-			return new ArrayList<GoodTypeOwnership>(
-					this.getInstancesForKey(propertyOwner));
+		final List<GoodTypeOwnership> goodTypeOwnerships = this
+				.getInstancesForKey(propertyOwner);
+		if (goodTypeOwnerships != null) {
+			return new ArrayList<GoodTypeOwnership>(goodTypeOwnerships);
 		}
 		return new ArrayList<GoodTypeOwnership>();
 	}

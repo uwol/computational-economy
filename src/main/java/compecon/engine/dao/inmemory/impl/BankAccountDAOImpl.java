@@ -80,8 +80,9 @@ public class BankAccountDAOImpl extends
 			if (bankAccounts != null) {
 				for (BankAccount bankAccount : new HashSet<BankAccount>(
 						bankAccounts)) {
-					if (bankAccount.getManagingBank() == managingBank)
+					if (bankAccount.getManagingBank() == managingBank) {
 						this.delete(bankAccount);
+					}
 				}
 			}
 		}

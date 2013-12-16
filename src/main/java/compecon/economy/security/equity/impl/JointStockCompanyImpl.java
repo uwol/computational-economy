@@ -32,10 +32,10 @@ import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
-import compecon.economy.property.PropertyIssued;
 import compecon.economy.sectors.financial.BankAccount;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.security.equity.JointStockCompany;
@@ -122,6 +122,22 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 	 * business logic
 	 */
 
+	@Transient
+	public BankAccountDelegate getBankAccountDividendsDelegate() {
+		final BankAccountDelegate delegate = new BankAccountDelegate() {
+			@Override
+			public BankAccount getBankAccount() {
+				JointStockCompanyImpl.this.assureBankAccountDividends();
+				return JointStockCompanyImpl.this.bankAccountDividends;
+			}
+
+			@Override
+			public void onTransfer(final double amount) {
+			}
+		};
+		return delegate;
+	}
+
 	@Override
 	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
@@ -133,13 +149,13 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 		balanceSheet.addBankAccountBalance(this.bankAccountDividends);
 
 		// issuedCapital
-		final List<PropertyIssued> propertiesIssued = ApplicationContext
+		final List<Property> propertiesIssued = ApplicationContext
 				.getInstance()
 				.getPropertyDAO()
 				.findAllPropertiesIssuedByAgent(JointStockCompanyImpl.this,
 						Share.class);
-		for (PropertyIssued propertyIssued : propertiesIssued) {
-			Share share = (Share) propertyIssued;
+		for (Property propertyIssued : propertiesIssued) {
+			final Share share = (Share) propertyIssued;
 			balanceSheet.issuedCapital.add(share);
 		}
 
@@ -197,7 +213,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 
 		@Override
 		public void onEvent() {
-			final List<PropertyIssued> propertiesIssued = ApplicationContext
+			final List<Property> propertiesIssued = ApplicationContext
 					.getInstance()
 					.getPropertyDAO()
 					.findAllPropertiesIssuedByAgent(JointStockCompanyImpl.this,
@@ -219,7 +235,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 							/ propertiesIssued.size();
 
 					// pay dividend for each share
-					for (PropertyIssued propertyIssued : propertiesIssued) {
+					for (Property propertyIssued : propertiesIssued) {
 						final Share share = (Share) propertyIssued;
 						if (share.getOwner() != null
 								&& share.getOwner() != JointStockCompanyImpl.this) {
@@ -270,7 +286,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 
 		@Override
 		public void onEvent() {
-			final List<PropertyIssued> sharesIssued = ApplicationContext
+			final List<Property> sharesIssued = ApplicationContext
 					.getInstance()
 					.getPropertyDAO()
 					.findAllPropertiesIssuedByAgent(JointStockCompanyImpl.this,

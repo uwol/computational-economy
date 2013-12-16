@@ -35,18 +35,20 @@ public class PropertyDAOImpl extends
 	@Override
 	public synchronized List<Property> findAllPropertiesOfPropertyOwner(
 			PropertyOwner propertyOwner) {
-		if (this.getInstancesForFirstKey(propertyOwner) != null) {
-			return new ArrayList<Property>(
-					this.getInstancesForFirstKey(propertyOwner));
+		final List<Property> propertiesOfPropertyOwner = this
+				.getInstancesForFirstKey(propertyOwner);
+		if (propertiesOfPropertyOwner != null) {
+			return new ArrayList<Property>(propertiesOfPropertyOwner);
 		}
 		return new ArrayList<Property>();
 	}
 
 	@Override
-	public List<Property> findAllPropertiesOfPropertyOwner(PropertyOwner propertyOwner,
-			Class<? extends Property> propertyClass) {
+	public List<Property> findAllPropertiesOfPropertyOwner(
+			PropertyOwner propertyOwner, Class<? extends Property> propertyClass) {
 		final List<Property> propertiesOfClass = new ArrayList<Property>();
-		for (Property property : this.findAllPropertiesOfPropertyOwner(propertyOwner)) {
+		for (Property property : this
+				.findAllPropertiesOfPropertyOwner(propertyOwner)) {
 			if (propertyClass.isAssignableFrom(property.getClass())) {
 				propertiesOfClass.add(property);
 			}
@@ -55,27 +57,20 @@ public class PropertyDAOImpl extends
 	}
 
 	@Override
-	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer) {
-		final List<PropertyIssued> propertiesIssuedByAgent = new ArrayList<PropertyIssued>();
-		final List<Property> propertiesForSecondAgent = this
+	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer) {
+		final List<Property> propertiesIssuedByAgent = this
 				.getInstancesForSecondKey(issuer);
-		if (propertiesForSecondAgent != null) {
-			for (Property property : propertiesForSecondAgent) {
-				if (property instanceof PropertyIssued) {
-					PropertyIssued propertyIssued = (PropertyIssued) property;
-					assert (propertyIssued.getIssuer() == issuer);
-					propertiesIssuedByAgent.add((PropertyIssued) property);
-				}
-			}
+		if (propertiesIssuedByAgent != null) {
+			return new ArrayList<Property>(propertiesIssuedByAgent);
 		}
-		return propertiesIssuedByAgent;
+		return new ArrayList<Property>();
 	}
 
 	@Override
-	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer,
+	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer,
 			Class<? extends PropertyIssued> propertyClass) {
-		final List<PropertyIssued> propertiesIssuedByAgent = new ArrayList<PropertyIssued>();
-		for (PropertyIssued propertyIssued : this
+		final List<Property> propertiesIssuedByAgent = new ArrayList<Property>();
+		for (Property propertyIssued : this
 				.findAllPropertiesIssuedByAgent(issuer)) {
 			if (propertyClass.isAssignableFrom(propertyIssued.getClass())) {
 				propertiesIssuedByAgent.add(propertyIssued);

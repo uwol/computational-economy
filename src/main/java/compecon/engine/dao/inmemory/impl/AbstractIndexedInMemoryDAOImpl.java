@@ -33,11 +33,13 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 
 	private synchronized void assureInitializedDataStructure(K key, V instance) {
 		if (key != null && instance != null) {
-			if (!this.indexedInstances.containsKey(key))
+			if (!this.indexedInstances.containsKey(key)) {
 				this.indexedInstances.put(key, new ArrayList<V>());
+			}
 
-			if (!this.instanceIndexedKeys.containsKey(instance))
+			if (!this.instanceIndexedKeys.containsKey(instance)) {
 				this.instanceIndexedKeys.put(instance, new ArrayList<K>());
+			}
 		}
 	}
 
@@ -46,16 +48,18 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 	 */
 
 	protected synchronized List<V> getInstancesForKey(K key) {
-		if (this.indexedInstances.containsKey(key))
+		if (this.indexedInstances.containsKey(key)) {
 			return this.indexedInstances.get(key);
+		}
 		// has to return null, as the calling DAO method should return a new
 		// collection anyway, not this one
 		return null;
 	}
 
 	protected synchronized List<K> getKeysForInstance(V instance) {
-		if (this.instanceIndexedKeys.containsKey(instance))
+		if (this.instanceIndexedKeys.containsKey(instance)) {
 			return this.instanceIndexedKeys.get(instance);
+		}
 		// has to return null, as the calling DAO method should return a new
 		// collection anyway, not this one
 		return null;
@@ -80,14 +84,19 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 		if (keys != null) {
 			for (K key : new ArrayList<K>(keys)) {
 				if (this.indexedInstances.containsKey(key)) {
-					this.indexedInstances.get(key).remove(instance);
-					if (this.indexedInstances.get(key).isEmpty())
+					final List<V> indexedInstancesForKey = this.indexedInstances
+							.get(key);
+					indexedInstancesForKey.remove(instance);
+					if (indexedInstancesForKey.isEmpty()) {
 						this.indexedInstances.remove(key);
+					}
 				}
 
 				if (this.instanceIndexedKeys.containsKey(instance)) {
-					this.instanceIndexedKeys.get(instance).remove(key);
-					if (this.instanceIndexedKeys.get(instance).isEmpty())
+					final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
+							.get(instance);
+					instanceIndexedKeysForInstance.remove(key);
+					if (instanceIndexedKeysForInstance.isEmpty())
 						this.instanceIndexedKeys.remove(instance);
 				}
 			}

@@ -36,33 +36,33 @@ public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Property> findAllPropertiesOfPropertyOwner(PropertyOwner propertyOwner) {
+	public List<Property> findAllPropertiesOfPropertyOwner(
+			PropertyOwner propertyOwner) {
 		return (List<Property>) getSession().createCriteria(PropertyImpl.class)
 				.add(Restrictions.eq("owner", propertyOwner)).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Property> findAllPropertiesOfPropertyOwner(PropertyOwner propertyOwner,
-			Class<? extends Property> propertyClass) {
+	public List<Property> findAllPropertiesOfPropertyOwner(
+			PropertyOwner propertyOwner, Class<? extends Property> propertyClass) {
 		return (List<Property>) getSession().createCriteria(propertyClass)
 				.add(Restrictions.eq("owner", propertyOwner)).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer) {
-		return (List<PropertyIssued>) getSession()
+	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer) {
+		return (List<Property>) getSession()
 				.createCriteria(PropertyIssuedImpl.class)
 				.add(Restrictions.eq("issuer", issuer)).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<PropertyIssued> findAllPropertiesIssuedByAgent(Agent issuer,
+	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer,
 			Class<? extends PropertyIssued> propertyClass) {
-		return (List<PropertyIssued>) getSession()
-				.createCriteria(propertyClass)
+		return (List<Property>) getSession().createCriteria(propertyClass)
 				.add(Restrictions.eq("issuer", issuer)).list();
 	}
 

@@ -70,8 +70,10 @@ public class MarketOrderDAOImpl extends
 			GoodType goodType) {
 		assureInitializedDataStructure(currency);
 
-		if (!this.marketOrdersForGoodTypes.get(currency).containsKey(goodType)) {
-			this.marketOrdersForGoodTypes.get(currency).put(goodType,
+		final Map<GoodType, SortedSet<MarketOrder>> marketOrdersForGoodTypesAndCurrency = this.marketOrdersForGoodTypes
+				.get(currency);
+		if (!marketOrdersForGoodTypesAndCurrency.containsKey(goodType)) {
+			marketOrdersForGoodTypesAndCurrency.put(goodType,
 					new TreeSet<MarketOrder>());
 		}
 	}
@@ -80,9 +82,10 @@ public class MarketOrderDAOImpl extends
 			Currency commodityCurrency) {
 		assureInitializedDataStructure(currency);
 
-		if (!this.marketOrdersForCurrencies.get(currency).containsKey(
-				commodityCurrency)) {
-			this.marketOrdersForCurrencies.get(currency).put(commodityCurrency,
+		final Map<Currency, SortedSet<MarketOrder>> marketOrdersForCurrency = this.marketOrdersForCurrencies
+				.get(currency);
+		if (!marketOrdersForCurrency.containsKey(commodityCurrency)) {
+			marketOrdersForCurrency.put(commodityCurrency,
 					new TreeSet<MarketOrder>());
 		}
 	}
@@ -91,10 +94,11 @@ public class MarketOrderDAOImpl extends
 			Class<? extends Property> propertyClass) {
 		assureInitializedDataStructure(currency);
 
-		if (!this.marketOrdersForPropertyClasses.get(currency).containsKey(
-				propertyClass)) {
-			this.marketOrdersForPropertyClasses.get(currency).put(
-					propertyClass, new TreeSet<MarketOrder>());
+		final Map<Class<? extends Property>, SortedSet<MarketOrder>> marketOrdersForPropertyClass = this.marketOrdersForPropertyClasses
+				.get(currency);
+		if (!marketOrdersForPropertyClass.containsKey(propertyClass)) {
+			marketOrdersForPropertyClass.put(propertyClass,
+					new TreeSet<MarketOrder>());
 		}
 	}
 
