@@ -22,8 +22,10 @@ package compecon.engine.service;
 import java.util.List;
 import java.util.Map;
 
+import compecon.economy.agent.Agent;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyIssued;
 import compecon.economy.property.PropertyOwner;
 
 public interface PropertyService {
@@ -40,6 +42,34 @@ public interface PropertyService {
 	public void deleteProperty(final Property property);
 
 	/**
+	 * returns all properties owned by the given property owner.
+	 */
+	public List<Property> findAllPropertiesOfPropertyOwner(
+			final PropertyOwner propertyOwner);
+
+	/**
+	 * returns all properties owned by the given property owner, which are
+	 * assignable to the given property class. E. g. for the property class
+	 * "Share" all owned objects of "ShareImpl" are returned.
+	 */
+	public List<Property> findAllPropertiesOfPropertyOwner(
+			final PropertyOwner propertyOwner,
+			final Class<? extends Property> propertyClass);
+
+	/**
+	 * returns all properties issued by the given agent.
+	 */
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer);
+
+	/**
+	 * returns all properties issued by the given agent, which are assignable to
+	 * the given property class. E. g. for the property class "Share" all owned
+	 * objects of "ShareImpl" are returned.
+	 */
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
+			final Class<? extends PropertyIssued> propertyClass);
+
+	/**
 	 * returns the amount of given good type owned by the given property owner.
 	 */
 	public double getBalance(final PropertyOwner propertyOwner,
@@ -49,19 +79,6 @@ public interface PropertyService {
 	 * returns the amounts of all good types owned by the given property owner.
 	 */
 	public Map<GoodType, Double> getBalances(final PropertyOwner propertyOwner);
-
-	/**
-	 * returns all properties owned by the given property owner.
-	 */
-	public List<Property> getProperties(final PropertyOwner propertyOwner);
-
-	/**
-	 * returns all properties owned by the given property owner, which are
-	 * assignable to the given property class. E. g. for the property class
-	 * "Share" all owned objects of "ShareImpl" are returned.
-	 */
-	public List<Property> getProperties(final PropertyOwner propertyOwner,
-			final Class<? extends Property> propertyClass);
 
 	/**
 	 * @see #decrementGoodTypeAmount(PropertyOwner, GoodType, double)

@@ -31,18 +31,6 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 
 	private Map<V, List<K>> instanceIndexedKeys = new HashMap<V, List<K>>();
 
-	private synchronized void assureInitializedDataStructure(K key, V instance) {
-		if (key != null && instance != null) {
-			if (!this.indexedInstances.containsKey(key)) {
-				this.indexedInstances.put(key, new ArrayList<V>());
-			}
-
-			if (!this.instanceIndexedKeys.containsKey(instance)) {
-				this.instanceIndexedKeys.put(instance, new ArrayList<K>());
-			}
-		}
-	}
-
 	/*
 	 * get instances for key
 	 */
@@ -52,12 +40,7 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 	}
 
 	protected synchronized List<V> getInstancesForSecondKey(K secondKey) {
-		if (this.indexedInstances.containsKey(secondKey)) {
-			return this.indexedInstances.get(secondKey);
-		}
-		// has to return null, as the calling DAO method should return a new
-		// collection anyway, not this one
-		return null;
+		return this.indexedInstances.get(secondKey);
 	}
 
 	protected synchronized List<K> getFirstKeysForInstance(V instance) {
@@ -65,12 +48,7 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 	}
 
 	protected synchronized List<K> getSecondKeysForInstance(V instance) {
-		if (this.instanceIndexedKeys.containsKey(instance)) {
-			return this.instanceIndexedKeys.get(instance);
-		}
-		// has to return null, as the calling DAO method should return a new
-		// collection anyway, not this one
-		return null;
+		return this.instanceIndexedKeys.get(instance);
 	}
 
 	/*
@@ -78,12 +56,27 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 	 */
 
 	protected synchronized void save(K firstKey, K secondKey, V instance) {
-		this.assureInitializedDataStructure(secondKey, instance);
+		if (secondKey != null && instance != null) {
+			// store the value
+			List<V> indexedInstancesForKey = this.indexedInstances
+					.get(secondKey);
+			if (indexedInstancesForKey == null) {
+				indexedInstancesForKey = new ArrayList<V>();
+				this.indexedInstances.put(secondKey, indexedInstancesForKey);
+			}
+			indexedInstancesForKey.add(instance);
 
-		if (secondKey != null) {
-			this.indexedInstances.get(secondKey).add(instance);
-			this.instanceIndexedKeys.get(instance).add(secondKey);
+			// store the key
+			List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
+					.get(instance);
+			if (instanceIndexedKeysForInstance == null) {
+				instanceIndexedKeysForInstance = new ArrayList<K>();
+				this.instanceIndexedKeys.put(instance,
+						instanceIndexedKeysForInstance);
+			}
+			instanceIndexedKeysForInstance.add(secondKey);
 		}
+
 		super.save(firstKey, instance);
 	}
 
@@ -91,18 +84,18 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 		final List<K> secondKeys = getSecondKeysForInstance(instance);
 		if (secondKeys != null) {
 			for (K secondKey : new ArrayList<K>(secondKeys)) {
-				if (this.indexedInstances.containsKey(secondKey)) {
-					final List<V> indexedInstanceForKey = this.indexedInstances
-							.get(secondKey);
+				final List<V> indexedInstanceForKey = this.indexedInstances
+						.get(secondKey);
+				if (indexedInstanceForKey != null) {
 					indexedInstanceForKey.remove(instance);
 					if (indexedInstanceForKey.isEmpty()) {
 						this.indexedInstances.remove(secondKey);
 					}
 				}
 
-				if (this.instanceIndexedKeys.containsKey(instance)) {
-					final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
-							.get(instance);
+				final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
+						.get(instance);
+				if (instanceIndexedKeysForInstance != null) {
 					instanceIndexedKeysForInstance.remove(secondKey);
 					if (instanceIndexedKeysForInstance.isEmpty()) {
 						this.instanceIndexedKeys.remove(instance);

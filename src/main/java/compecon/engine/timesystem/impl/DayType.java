@@ -38,9 +38,11 @@ public enum DayType {
 	}
 
 	public static DayType getDayType(int dayNumber) {
-		for (DayType dayType : DayType.values())
-			if (dayType.getDayNumber() == dayNumber)
+		for (DayType dayType : DayType.values()) {
+			if (dayType.getDayNumber() == dayNumber) {
 				return dayType;
+			}
+		}
 		return null;
 	}
 }

@@ -37,9 +37,11 @@ public enum HourType {
 	}
 
 	public static HourType getHourType(int hourNumber) {
-		for (HourType hourType : HourType.values())
-			if (hourType.getHourNumber() == hourNumber)
+		for (HourType hourType : HourType.values()) {
+			if (hourType.getHourNumber() == hourNumber) {
 				return hourType;
+			}
+		}
 		return null;
 	}
 }

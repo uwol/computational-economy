@@ -23,9 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import compecon.economy.agent.Agent;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.GoodTypeOwnership;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyIssued;
 import compecon.economy.property.PropertyOwner;
 import compecon.economy.sectors.household.Household;
 import compecon.engine.applicationcontext.ApplicationContext;
@@ -81,6 +83,30 @@ public class PropertyServiceImpl implements PropertyService {
 		HibernateUtil.flushSession();
 	}
 
+	public List<Property> findAllPropertiesOfPropertyOwner(
+			final PropertyOwner propertyOwner) {
+		return ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesOfPropertyOwner(propertyOwner);
+	}
+
+	public List<Property> findAllPropertiesOfPropertyOwner(
+			final PropertyOwner propertyOwner,
+			final Class<? extends Property> propertyClass) {
+		return ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesOfPropertyOwner(propertyOwner, propertyClass);
+	}
+
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
+		return ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesIssuedByAgent(issuer);
+	}
+
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
+			final Class<? extends PropertyIssued> propertyClass) {
+		return ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesIssuedByAgent(issuer, propertyClass);
+	}
+
 	public double getBalance(final PropertyOwner propertyOwner,
 			final GoodType goodType) {
 		assureGoodTypeOwnership(propertyOwner);
@@ -96,17 +122,6 @@ public class PropertyServiceImpl implements PropertyService {
 
 		return ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
 				.findFirstByPropertyOwner(propertyOwner).getOwnedGoodTypes();
-	}
-
-	public List<Property> getProperties(final PropertyOwner propertyOwner) {
-		return ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(propertyOwner);
-	}
-
-	public List<Property> getProperties(final PropertyOwner propertyOwner,
-			final Class<? extends Property> propertyClass) {
-		return ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(propertyOwner, propertyClass);
 	}
 
 	public double incrementGoodTypeAmount(final PropertyOwner propertyOwner,

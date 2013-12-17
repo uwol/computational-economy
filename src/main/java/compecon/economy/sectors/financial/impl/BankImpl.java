@@ -61,6 +61,32 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	@Index(name = "IDX_B_BA_BONDCOUPON")
 	protected BankAccount bankAccountInterestTransactions;
 
+	@Transient
+	protected final BankAccountDelegate bankAccountBondLoanDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			BankImpl.this.assureBankAccountBondLoan();
+			return BankImpl.this.bankAccountBondLoan;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
+
+	@Transient
+	protected final BankAccountDelegate bankAccountInterestTransactionsDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			BankImpl.this.assureBankAccountInterestTransactions();
+			return BankImpl.this.bankAccountInterestTransactions;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
+
 	@Override
 	public void deconstruct() {
 		this.isDeconstructed = true;
@@ -167,34 +193,12 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 
 	@Transient
 	public BankAccountDelegate getBankAccountBondLoanDelegate() {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				BankImpl.this.assureBankAccountBondLoan();
-				return BankImpl.this.bankAccountBondLoan;
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-			}
-		};
-		return delegate;
+		return this.bankAccountBondLoanDelegate;
 	}
 
 	@Transient
 	public BankAccountDelegate getBankAccountInterestTransactionsDelegate() {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				BankImpl.this.assureBankAccountInterestTransactions();
-				return BankImpl.this.bankAccountInterestTransactions;
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-			}
-		};
-		return delegate;
+		return bankAccountInterestTransactionsDelegate;
 	}
 
 	@Transient

@@ -73,6 +73,19 @@ public class StateImpl extends AgentImpl implements State {
 	@Transient
 	protected UtilityFunction utilityFunction;
 
+	@Transient
+	protected final BankAccountDelegate bankAccountCouponLoansDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			StateImpl.this.assureBankAccountCouponLoans();
+			return StateImpl.this.bankAccountCouponLoans;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
+
 	@Override
 	public void initialize() {
 		super.initialize();
@@ -166,18 +179,7 @@ public class StateImpl extends AgentImpl implements State {
 
 	@Transient
 	public BankAccountDelegate getBankAccountCouponLoansDelegate() {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				StateImpl.this.assureBankAccountCouponLoans();
-				return StateImpl.this.bankAccountCouponLoans;
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-			}
-		};
-		return delegate;
+		return this.bankAccountCouponLoansDelegate;
 	}
 
 	@Override

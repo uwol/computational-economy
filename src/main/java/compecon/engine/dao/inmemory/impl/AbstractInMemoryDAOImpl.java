@@ -37,10 +37,7 @@ public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 
 	@Override
 	public synchronized T find(int id) {
-		if (this.instancesByIds.containsKey(id)) {
-			return this.instancesByIds.get(id);
-		}
-		return null;
+		return this.instancesByIds.get(id);
 	}
 
 	@Override

@@ -95,6 +95,35 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	@Transient
 	protected Map<Currency, PricingBehaviour> localCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
 
+	@Transient
+	protected final BankAccountDelegate bankAccountCentralBankTransactionsDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			CreditBankImpl.this.assureBankAccountCentralBankTransactions();
+			return CreditBankImpl.this.bankAccountCentralBankTransactions;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
+
+	@Transient
+	protected final BankAccountDelegate bankAccountCentralBankMoneyReservesDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			CreditBankImpl.this.assureBankAccountCentralBankMoneyReserves();
+			return CreditBankImpl.this.bankAccountCentralBankMoneyReserves;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
+
+	@Transient
+	protected Map<Currency, BankAccountDelegate> bankAccountsCurrencyTradeDelegate = new HashMap<Currency, BankAccountDelegate>();
+
 	@Override
 	public void initialize() {
 		super.initialize();
@@ -162,6 +191,23 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 										.getConfiguration().creditBankConfig
 										.getPriceChangeIncrement()));
 			}
+		}
+
+		// initialize currency trade bank account delegates
+		for (final Currency currency : Currency.values()) {
+			final BankAccountDelegate delegate = new BankAccountDelegate() {
+				@Override
+				public BankAccount getBankAccount() {
+					CreditBankImpl.this.assureBankAccountsCurrencyTrade();
+					return CreditBankImpl.this.bankAccountsCurrencyTrade
+							.get(currency);
+				}
+
+				@Override
+				public void onTransfer(final double amount) {
+				}
+			};
+			this.bankAccountsCurrencyTradeDelegate.put(currency, delegate);
 		}
 	}
 
@@ -384,52 +430,18 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 
 	@Transient
 	public BankAccountDelegate getBankAccountCentralBankTransactionsDelegate() {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				CreditBankImpl.this.assureBankAccountCentralBankTransactions();
-				return CreditBankImpl.this.bankAccountCentralBankTransactions;
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-			}
-		};
-		return delegate;
+		return this.bankAccountCentralBankTransactionsDelegate;
 	}
 
 	@Transient
 	public BankAccountDelegate getBankAccountCentralBankMoneyReservesDelegate() {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				CreditBankImpl.this.assureBankAccountCentralBankMoneyReserves();
-				return CreditBankImpl.this.bankAccountCentralBankMoneyReserves;
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-			}
-		};
-		return delegate;
+		return this.bankAccountCentralBankMoneyReservesDelegate;
 	}
 
 	@Transient
 	public BankAccountDelegate getBankAccountCurrencyTradeDelegate(
 			final Currency currency) {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				CreditBankImpl.this.assureBankAccountsCurrencyTrade();
-				return CreditBankImpl.this.bankAccountsCurrencyTrade
-						.get(currency);
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-			}
-		};
-		return delegate;
+		return this.bankAccountsCurrencyTradeDelegate.get(currency);
 	}
 
 	@Transient
@@ -1196,7 +1208,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 
 			for (Property property : ApplicationContext.getInstance()
 					.getPropertyService()
-					.getProperties(CreditBankImpl.this, FixedRateBond.class)) {
+					.findAllPropertiesOfPropertyOwner(CreditBankImpl.this, FixedRateBond.class)) {
 				assert (property instanceof FixedRateBond);
 				FixedRateBond bond = (FixedRateBond) property;
 				assert (bond.getOwner() == CreditBankImpl.this);

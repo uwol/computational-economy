@@ -23,4 +23,5 @@ import compecon.economy.agent.Agent;
 
 public interface JointStockCompany extends Agent {
 
+	public void issueShares();
 }

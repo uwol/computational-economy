@@ -134,7 +134,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 		Agent agent = getLog().getAgentSelectedByClient();
 		if (agent != null)
 			return ApplicationContext.getInstance().getPropertyService()
-					.getProperties(agent);
+					.findAllPropertiesOfPropertyOwner(agent);
 		return new ArrayList<Property>();
 	}
 

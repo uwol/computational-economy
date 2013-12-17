@@ -34,9 +34,11 @@ public enum MonthType {
 	}
 
 	public static MonthType getMonthType(final int monthNumber) {
-		for (MonthType monthType : MonthType.values())
-			if (monthType.getMonthNumber() == monthNumber)
+		for (MonthType monthType : MonthType.values()) {
+			if (monthType.getMonthNumber() == monthNumber) {
 				return monthType;
+			}
+		}
 		return null;
 	}
 }

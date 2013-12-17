@@ -45,6 +45,7 @@ import compecon.economy.agent.Agent;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
+import compecon.economy.property.PropertyIssued;
 import compecon.economy.property.PropertyOwner;
 import compecon.economy.sectors.financial.Bank;
 import compecon.economy.sectors.financial.BankAccount;
@@ -54,6 +55,7 @@ import compecon.economy.sectors.financial.BankAccountDelegate;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
 import compecon.economy.security.debt.Bond;
+import compecon.economy.security.equity.Share;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
 import compecon.engine.timesystem.TimeSystemEvent;
@@ -96,6 +98,19 @@ public abstract class AgentImpl implements Agent {
 
 	@Transient
 	protected Set<TimeSystemEvent> timeSystemEvents = new HashSet<TimeSystemEvent>();
+
+	@Transient
+	protected final BankAccountDelegate bankAccountTransactionsDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			AgentImpl.this.assureBankAccountTransactions();
+			return AgentImpl.this.bankAccountTransactions;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
 
 	public void initialize() {
 		// balance sheet publication
@@ -249,18 +264,7 @@ public abstract class AgentImpl implements Agent {
 
 	@Transient
 	public BankAccountDelegate getBankAccountTransactionsDelegate() {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				AgentImpl.this.assureBankAccountTransactions();
-				return AgentImpl.this.bankAccountTransactions;
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-			}
-		};
-		return delegate;
+		return this.bankAccountTransactionsDelegate;
 	}
 
 	@Transient
@@ -275,7 +279,7 @@ public abstract class AgentImpl implements Agent {
 		final BalanceSheetDTO balanceSheet = new BalanceSheetDTO(
 				referenceCurrency);
 
-		// hard cash, TODO convert other currencies
+		// hard cash
 		balanceSheet.hardCash = ApplicationContext.getInstance()
 				.getHardCashService().getBalance(this, referenceCurrency);
 
@@ -284,12 +288,12 @@ public abstract class AgentImpl implements Agent {
 
 		// owned properties
 		for (Property property : ApplicationContext.getInstance()
-				.getPropertyService().getProperties(this)) {
+				.getPropertyService().findAllPropertiesOfPropertyOwner(this)) {
 			assert (property.getOwner() == AgentImpl.this);
 
 			// owned bonds
 			if (property instanceof Bond) {
-				Bond bond = ((Bond) property);
+				final Bond bond = ((Bond) property);
 
 				if (bond.isDeconstructed()) {
 					ApplicationContext.getInstance().getPropertyService()
@@ -314,9 +318,9 @@ public abstract class AgentImpl implements Agent {
 		for (Entry<GoodType, Double> balanceEntry : ApplicationContext
 				.getInstance().getPropertyService().getBalances(this)
 				.entrySet()) {
-			GoodType goodType = balanceEntry.getKey();
-			double amount = balanceEntry.getValue();
-			double price = prices.get(goodType);
+			final GoodType goodType = balanceEntry.getKey();
+			final double amount = balanceEntry.getValue();
+			final double price = prices.get(goodType);
 			if (!Double.isNaN(price)) {
 				balanceSheet.inventoryValue += amount * price;
 			}
@@ -328,16 +332,27 @@ public abstract class AgentImpl implements Agent {
 
 		// --------------
 
-		// issued bonds
+		// issued properties
 		for (Property property : ApplicationContext.getInstance()
-				.getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(this, Bond.class)) {
-			final Bond bond = (Bond) property;
-			if (!bond.isDeconstructed() && !bond.getOwner().equals(this)) {
-				assert (bond.getIssuer() == this);
-				assert (bond.getOwner() != this);
+				.getPropertyService().findAllPropertiesIssuedByAgent(this)) {
+			final PropertyIssued propertyIssued = (PropertyIssued) property;
 
-				balanceSheet.financialLiabilities += bond.getFaceValue();
+			assert (propertyIssued.getIssuer() == AgentImpl.this);
+
+			// issued bonds
+			if (propertyIssued instanceof Bond) {
+				final Bond bond = (Bond) property;
+				if (!bond.isDeconstructed() && !bond.getOwner().equals(this)) {
+					assert (bond.getOwner() != this);
+
+					balanceSheet.financialLiabilities += bond.getFaceValue();
+				}
+			}
+
+			// issued capital / shares
+			if (propertyIssued instanceof Share) {
+				final Share share = (Share) propertyIssued;
+				balanceSheet.issuedCapital.add(share);
 			}
 		}
 

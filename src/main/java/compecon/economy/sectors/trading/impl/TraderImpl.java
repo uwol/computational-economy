@@ -70,6 +70,9 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 	@MapKeyEnumerated
 	protected Map<Currency, BankAccount> bankAccountsGoodTrade = new HashMap<Currency, BankAccount>();
 
+	@Transient
+	protected Map<Currency, BankAccountDelegate> bankAccountsGoodTradeDelegate = new HashMap<Currency, BankAccountDelegate>();
+
 	@Override
 	public void initialize() {
 		super.initialize();
@@ -87,6 +90,22 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 						DayType.EVERY,
 						ApplicationContext.getInstance().getTimeSystem()
 								.suggestRandomHourType());
+
+		// initialize good trade bank account delegates
+		for (final Currency currency : Currency.values()) {
+			final BankAccountDelegate delegate = new BankAccountDelegate() {
+				@Override
+				public BankAccount getBankAccount() {
+					TraderImpl.this.assureBankAccountsGoodTrade();
+					return TraderImpl.this.bankAccountsGoodTrade.get(currency);
+				}
+
+				@Override
+				public void onTransfer(final double amount) {
+				}
+			};
+			this.bankAccountsGoodTradeDelegate.put(currency, delegate);
+		}
 
 		this.budgetingBehaviour = new BudgetingBehaviourImpl(this);
 	}
@@ -176,18 +195,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 	@Transient
 	public BankAccountDelegate getBankAccountGoodsTradeDelegate(
 			final Currency currency) {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				TraderImpl.this.assureBankAccountsGoodTrade();
-				return TraderImpl.this.bankAccountsGoodTrade.get(currency);
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-			}
-		};
-		return delegate;
+		return this.bankAccountsGoodTradeDelegate.get(currency);
 	}
 
 	@Override

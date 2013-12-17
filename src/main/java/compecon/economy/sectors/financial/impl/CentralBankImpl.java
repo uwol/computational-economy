@@ -72,6 +72,19 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	@Transient
 	protected StatisticalOffice statisticalOffice;
 
+	@Transient
+	protected final BankAccountDelegate bankAccountCentralBankMoneyDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			CentralBankImpl.this.assureBankAccountCentralBankMoney();
+			return CentralBankImpl.this.bankAccountCentralBankMoney;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
+
 	@Override
 	public void initialize() {
 		super.initialize();
@@ -274,18 +287,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 	@Transient
 	public BankAccountDelegate getBankAccountCentralBankMoneyDelegate() {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				CentralBankImpl.this.assureBankAccountCentralBankMoney();
-				return CentralBankImpl.this.bankAccountCentralBankMoney;
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-			}
-		};
-		return delegate;
+		return bankAccountCentralBankMoneyDelegate;
 	}
 
 	@Transient

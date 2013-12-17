@@ -53,18 +53,22 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized void delete(BankAccount bankAccount) {
-		if (this.bankAccounts.containsKey(bankAccount.getManagingBank())) {
-			this.bankAccounts.get(bankAccount.getManagingBank()).remove(
-					bankAccount);
+		final List<BankAccount> bankAccountsOfBank = this.bankAccounts
+				.get(bankAccount.getManagingBank());
+		if (bankAccountsOfBank != null) {
+			bankAccountsOfBank.remove(bankAccount);
 		}
+
 		super.delete(bankAccount);
 	}
 
 	@Override
 	public synchronized void deleteAllBankAccounts(Bank managingBank) {
-		if (this.bankAccounts.containsKey(managingBank)) {
+		final List<BankAccount> bankAccountsOfBank = this.bankAccounts
+				.get(managingBank);
+		if (bankAccountsOfBank != null) {
 			for (BankAccount bankAccount : new HashSet<BankAccount>(
-					this.bankAccounts.get(managingBank))) {
+					bankAccountsOfBank)) {
 				this.delete(bankAccount);
 			}
 		}
@@ -74,15 +78,13 @@ public class BankAccountDAOImpl extends
 	@Override
 	public synchronized void deleteAllBankAccounts(Bank managingBank,
 			BankCustomer owner) {
-		if (this.bankAccounts.containsKey(managingBank)) {
-			final List<BankAccount> bankAccounts = this
-					.getInstancesForKey(owner);
-			if (bankAccounts != null) {
-				for (BankAccount bankAccount : new HashSet<BankAccount>(
-						bankAccounts)) {
-					if (bankAccount.getManagingBank() == managingBank) {
-						this.delete(bankAccount);
-					}
+		final List<BankAccount> bankAccountsOfOwner = this
+				.getInstancesForKey(owner);
+		if (bankAccountsOfOwner != null) {
+			for (BankAccount bankAccount : new HashSet<BankAccount>(
+					bankAccountsOfOwner)) {
+				if (bankAccount.getManagingBank() == managingBank) {
+					this.delete(bankAccount);
 				}
 			}
 		}

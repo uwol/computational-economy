@@ -31,38 +31,16 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 
 	private Map<V, List<K>> instanceIndexedKeys = new HashMap<V, List<K>>();
 
-	private synchronized void assureInitializedDataStructure(K key, V instance) {
-		if (key != null && instance != null) {
-			if (!this.indexedInstances.containsKey(key)) {
-				this.indexedInstances.put(key, new ArrayList<V>());
-			}
-
-			if (!this.instanceIndexedKeys.containsKey(instance)) {
-				this.instanceIndexedKeys.put(instance, new ArrayList<K>());
-			}
-		}
-	}
-
 	/*
 	 * get instances for key
 	 */
 
 	protected synchronized List<V> getInstancesForKey(K key) {
-		if (this.indexedInstances.containsKey(key)) {
-			return this.indexedInstances.get(key);
-		}
-		// has to return null, as the calling DAO method should return a new
-		// collection anyway, not this one
-		return null;
+		return this.indexedInstances.get(key);
 	}
 
 	protected synchronized List<K> getKeysForInstance(V instance) {
-		if (this.instanceIndexedKeys.containsKey(instance)) {
-			return this.instanceIndexedKeys.get(instance);
-		}
-		// has to return null, as the calling DAO method should return a new
-		// collection anyway, not this one
-		return null;
+		return this.instanceIndexedKeys.get(instance);
 	}
 
 	/*
@@ -70,12 +48,26 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 	 */
 
 	protected synchronized void save(K key, V instance) {
-		this.assureInitializedDataStructure(key, instance);
+		if (key != null && instance != null) {
+			// store the value
+			List<V> indexedInstancesForKey = this.indexedInstances.get(key);
+			if (indexedInstancesForKey == null) {
+				indexedInstancesForKey = new ArrayList<V>();
+				this.indexedInstances.put(key, indexedInstancesForKey);
+			}
+			indexedInstancesForKey.add(instance);
 
-		if (key != null) {
-			this.indexedInstances.get(key).add(instance);
-			this.instanceIndexedKeys.get(instance).add(key);
+			// store the key
+			List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
+					.get(instance);
+			if (instanceIndexedKeysForInstance == null) {
+				instanceIndexedKeysForInstance = new ArrayList<K>();
+				this.instanceIndexedKeys.put(instance,
+						instanceIndexedKeysForInstance);
+			}
+			instanceIndexedKeysForInstance.add(key);
 		}
+
 		super.save(instance);
 	}
 
@@ -83,18 +75,18 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 		final List<K> keys = getKeysForInstance(instance);
 		if (keys != null) {
 			for (K key : new ArrayList<K>(keys)) {
-				if (this.indexedInstances.containsKey(key)) {
-					final List<V> indexedInstancesForKey = this.indexedInstances
-							.get(key);
+				final List<V> indexedInstancesForKey = this.indexedInstances
+						.get(key);
+				if (indexedInstancesForKey != null) {
 					indexedInstancesForKey.remove(instance);
 					if (indexedInstancesForKey.isEmpty()) {
 						this.indexedInstances.remove(key);
 					}
 				}
 
-				if (this.instanceIndexedKeys.containsKey(instance)) {
-					final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
-							.get(instance);
+				final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
+						.get(instance);
+				if (instanceIndexedKeysForInstance != null) {
 					instanceIndexedKeysForInstance.remove(key);
 					if (instanceIndexedKeysForInstance.isEmpty())
 						this.instanceIndexedKeys.remove(instance);

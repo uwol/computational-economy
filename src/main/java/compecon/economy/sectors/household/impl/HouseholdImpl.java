@@ -100,6 +100,20 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	@Transient
 	protected UtilityFunction utilityFunction;
 
+	@Transient
+	protected final BankAccountDelegate bankAccountDividendDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			HouseholdImpl.this.assureBankAccountTransactions();
+			return HouseholdImpl.this.bankAccountTransactions;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+			HouseholdImpl.this.dividendSinceLastPeriod += amount;
+		}
+	};
+
 	@Override
 	public void initialize() {
 		super.initialize();
@@ -232,19 +246,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 	@Transient
 	public BankAccountDelegate getBankAccountDividendDelegate() {
-		final BankAccountDelegate delegate = new BankAccountDelegate() {
-			@Override
-			public BankAccount getBankAccount() {
-				HouseholdImpl.this.assureBankAccountTransactions();
-				return HouseholdImpl.this.bankAccountTransactions;
-			}
-
-			@Override
-			public void onTransfer(final double amount) {
-				HouseholdImpl.this.dividendSinceLastPeriod += amount;
-			}
-		};
-		return delegate;
+		return this.bankAccountDividendDelegate;
 	}
 
 	@Override

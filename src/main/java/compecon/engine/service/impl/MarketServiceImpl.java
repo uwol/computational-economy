@@ -92,7 +92,7 @@ public abstract class MarketServiceImpl implements MarketService {
 				.isNaN(maxPricePerUnit));
 
 		// MarketOrder, Amount
-		SortedMap<MarketOrder, Double> selectedOffers = new TreeMap<MarketOrder, Double>();
+		final SortedMap<MarketOrder, Double> selectedOffers = new TreeMap<MarketOrder, Double>();
 
 		boolean restrictMaxAmount = true;
 		if (Double.isInfinite(maxAmount) || Double.isNaN(maxAmount))
