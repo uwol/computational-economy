@@ -34,15 +34,32 @@ public interface PropertyService {
 	public double decrementGoodTypeAmount(final PropertyOwner propertyOwner,
 			final GoodType goodType, double amount);
 
+	/**
+	 * deletes the given property from the persistence backend.
+	 */
 	public void deleteProperty(final Property property);
 
+	/**
+	 * returns the amount of given good type owned by the given property owner.
+	 */
 	public double getBalance(final PropertyOwner propertyOwner,
 			final GoodType goodType);
 
+	/**
+	 * returns the amounts of all good types owned by the given property owner.
+	 */
 	public Map<GoodType, Double> getBalances(final PropertyOwner propertyOwner);
 
+	/**
+	 * returns all properties owned by the given property owner.
+	 */
 	public List<Property> getProperties(final PropertyOwner propertyOwner);
 
+	/**
+	 * returns all properties owned by the given property owner, which are
+	 * assignable to the given property class. E. g. for the property class
+	 * "Share" all owned objects of "ShareImpl" are returned.
+	 */
 	public List<Property> getProperties(final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass);
 
@@ -52,15 +69,30 @@ public interface PropertyService {
 	public double incrementGoodTypeAmount(final PropertyOwner propertyOwner,
 			final GoodType goodType, final double amount);
 
+	/**
+	 * Resets the owned amount of the given good type for the property owner to
+	 * 0. Needed for cases, when goods are consumed.
+	 */
 	public void resetGoodTypeAmount(final PropertyOwner propertyOwner,
 			final GoodType goodType);
 
+	/**
+	 * Transfers the given amount of good from the old owner to the new owner.
+	 */
 	public void transferGoodTypeAmount(final GoodType goodType,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner,
 			final double amount);
 
+	/**
+	 * Transfers the given property from the old owner to the new owner. Both
+	 * owners are informed on the transaction via their callback methods.
+	 */
 	public void transferProperty(final Property property,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner);
 
+	/**
+	 * transfers all properties from the given oldOwner to a random new owner.
+	 * Needed for cases, when property owners are deconstructed.
+	 */
 	public void transferEverythingToRandomAgent(final PropertyOwner oldOwner);
 }

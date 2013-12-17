@@ -98,9 +98,17 @@ public interface MarketService {
 	public Map<GoodType, Double> getMarginalMarketPrices(
 			final Currency denominatedInCurrency);
 
+	/**
+	 * returns the market depth of the given good type on the market for the
+	 * given currency, i. e. the total amount available on that market.
+	 */
 	public double getMarketDepth(final Currency denominatedInCurrency,
 			final GoodType goodType);
 
+	/**
+	 * returns the market depth of the given commodity currency on the market
+	 * for the given currency, i. e. the total amount available on that market.
+	 */
 	public double getMarketDepth(final Currency denominatedInCurrency,
 			final Currency commodityCurrency);
 

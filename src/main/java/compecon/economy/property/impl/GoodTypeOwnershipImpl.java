@@ -57,8 +57,9 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 	private Map<GoodType, Double> ownedGoodTypes = new HashMap<GoodType, Double>();
 
 	public GoodTypeOwnershipImpl() {
-		for (GoodType goodType : GoodType.values())
+		for (GoodType goodType : GoodType.values()) {
 			this.ownedGoodTypes.put(goodType, 0.0);
+		}
 	}
 
 	public int getId() {
