@@ -48,7 +48,6 @@ public class DashboardRunner extends AbstractConfigurationRunnerImpl {
 		/*
 		 * run simulation
 		 */
-
 		ApplicationContext.getInstance().setRunner(new DashboardRunner());
 		ApplicationContext.getInstance().getRunner().run(null);
 

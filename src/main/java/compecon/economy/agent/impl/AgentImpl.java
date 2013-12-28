@@ -240,7 +240,7 @@ public abstract class AgentImpl implements Agent {
 		if (this.bankAccountTransactions == null) {
 			final Bank randomBank = ApplicationContext.getInstance()
 					.getAgentService()
-					.getRandomInstanceCreditBank(this.primaryCurrency);
+					.findRandomCreditBank(this.primaryCurrency);
 			this.bankAccountTransactions = randomBank.openBankAccount(this,
 					this.primaryCurrency, true, "transactions",
 					TermType.SHORT_TERM, MoneyType.DEPOSITS);

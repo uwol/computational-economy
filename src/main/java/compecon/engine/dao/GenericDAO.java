@@ -29,9 +29,21 @@ public interface GenericDAO<T> {
 
 	public List<T> findAll();
 
+	/**
+	 * WARNING: Should only be called from factory classes, which ensure a
+	 * subsequent Hibernate flush.
+	 */
 	public void save(T entity);
 
+	/**
+	 * WARNING: Should only be called from factory classes, which ensure a
+	 * subsequent Hibernate flush.
+	 */
 	public void merge(T entity);
 
+	/**
+	 * WARNING: Should only be called from factory classes, which ensure a
+	 * subsequent Hibernate flush.
+	 */
 	public void delete(T entity);
 }

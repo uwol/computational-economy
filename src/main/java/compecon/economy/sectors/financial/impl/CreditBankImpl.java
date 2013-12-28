@@ -278,7 +278,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			this.bankAccountCentralBankMoneyReserves = ApplicationContext
 					.getInstance()
 					.getAgentService()
-					.getInstanceCentralBank(this.primaryCurrency)
+					.findCentralBank(this.primaryCurrency)
 					.openBankAccount(this, this.primaryCurrency, true,
 							"central bank money reserves", TermType.LONG_TERM,
 							MoneyType.CENTRALBANK_MONEY);
@@ -295,7 +295,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			this.bankAccountCentralBankTransactions = ApplicationContext
 					.getInstance()
 					.getAgentService()
-					.getInstanceCentralBank(this.primaryCurrency)
+					.findCentralBank(this.primaryCurrency)
 					.openBankAccount(this, this.primaryCurrency, true,
 							"central bank transactions", TermType.SHORT_TERM,
 							MoneyType.DEPOSITS);
@@ -337,7 +337,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				if (!this.primaryCurrency.equals(currency)) {
 					CreditBank foreignCurrencyCreditBank = ApplicationContext
 							.getInstance().getAgentService()
-							.getRandomInstanceCreditBank(currency);
+							.findRandomCreditBank(currency);
 					if (foreignCurrencyCreditBank != null) {
 						BankAccount bankAccount = foreignCurrencyCreditBank
 								.openBankAccount(this, currency, true,
@@ -576,7 +576,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			} else { // transfer to another bank
 				CentralBank centralBank = ApplicationContext.getInstance()
 						.getAgentService()
-						.getInstanceCentralBank(from.getCurrency());
+						.findCentralBank(from.getCurrency());
 
 				// transfer money to central bank account of this bank
 				centralBank.transferMoney(from,
@@ -634,7 +634,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 					.calculateMonthlyNominalInterestRate(ApplicationContext
 							.getInstance()
 							.getAgentService()
-							.getInstanceCentralBank(
+							.findCentralBank(
 									CreditBankImpl.this.primaryCurrency)
 							.getEffectiveKeyInterestRate());
 			final double dailyInterestRate = monthlyInterestRate / 30.0;
@@ -689,7 +689,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			CentralBank centralBank = ApplicationContext
 					.getInstance()
 					.getAgentService()
-					.getInstanceCentralBank(CreditBankImpl.this.primaryCurrency);
+					.findCentralBank(CreditBankImpl.this.primaryCurrency);
 
 			double sumOfBorrowings = CreditBankImpl.this
 					.getSumOfBorrowings(CreditBankImpl.this.primaryCurrency);

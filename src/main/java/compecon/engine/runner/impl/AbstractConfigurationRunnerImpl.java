@@ -45,7 +45,7 @@ public abstract class AbstractConfigurationRunnerImpl extends
 					.getNumber(currency) == 1) {
 				// initialize states
 				ApplicationContext.getInstance().getAgentService()
-						.getInstanceState(currency);
+						.findState(currency);
 			}
 		}
 
@@ -54,7 +54,7 @@ public abstract class AbstractConfigurationRunnerImpl extends
 					.getNumber(currency) == 1) {
 				// initialize central banks
 				ApplicationContext.getInstance().getAgentService()
-						.getInstanceCentralBank(currency);
+						.findCentralBank(currency);
 			}
 		}
 

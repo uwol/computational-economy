@@ -24,6 +24,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import compecon.economy.sectors.financial.BankTest;
+import compecon.engine.dao.BankAccountDAOTest;
 import compecon.engine.dao.HouseholdDAOTest;
 import compecon.engine.dao.PropertyDAOTest;
 import compecon.engine.service.AgentServiceTest;
@@ -35,8 +36,8 @@ import compecon.math.production.CobbDouglasProductionFunctionTest;
 import compecon.math.utility.CobbDouglasUtilityFunctionTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ HouseholdDAOTest.class, PropertyDAOTest.class,
-		AgentServiceTest.class, MarketServiceTest.class,
+@SuiteClasses({ BankAccountDAOTest.class, HouseholdDAOTest.class,
+		PropertyDAOTest.class, AgentServiceTest.class, MarketServiceTest.class,
 		PropertyServiceTest.class, BankTest.class,
 		CobbDouglasFunctionTest.class, CobbDouglasUtilityFunctionTest.class,
 		CobbDouglasProductionFunctionTest.class, CESFunctionTest.class })

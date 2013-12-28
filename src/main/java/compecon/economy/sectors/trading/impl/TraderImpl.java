@@ -152,7 +152,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 					&& !this.bankAccountsGoodTrade.containsKey(currency)) {
 				CreditBank foreignCurrencyCreditBank = ApplicationContext
 						.getInstance().getAgentService()
-						.getRandomInstanceCreditBank(currency);
+						.findRandomCreditBank(currency);
 				BankAccount bankAccount = foreignCurrencyCreditBank
 						.openBankAccount(this, currency, true,
 								"foreign currency", TermType.SHORT_TERM,

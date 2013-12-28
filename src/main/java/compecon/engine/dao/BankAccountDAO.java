@@ -37,7 +37,19 @@ public interface BankAccountDAO extends GenericDAO<BankAccount> {
 	public List<BankAccount> findAll(Bank managingBank, BankCustomer owner,
 			Currency currency);
 
+	/**
+	 * WARNING: Should only be called from the bank account factory, which
+	 * ensures a subsequent Hibernate flush.
+	 * 
+	 * @see compecon.engine.factory.BankAccountFactory
+	 */
 	public void deleteAllBankAccounts(Bank managingBank);
 
+	/**
+	 * WARNING: Should only be called from the bank account factory, which
+	 * ensures a subsequent Hibernate flush.
+	 * 
+	 * @see compecon.engine.factory.BankAccountFactory
+	 */
 	public void deleteAllBankAccounts(Bank managingBank, BankCustomer owner);
 }

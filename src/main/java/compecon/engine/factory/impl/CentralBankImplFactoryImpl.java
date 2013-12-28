@@ -47,5 +47,4 @@ public class CentralBankImplFactoryImpl implements CentralBankFactory {
 		HibernateUtil.flushSession();
 		return centralBank;
 	}
-
 }

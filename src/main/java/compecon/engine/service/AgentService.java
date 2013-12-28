@@ -24,18 +24,27 @@ import java.util.List;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.State;
+import compecon.economy.sectors.trading.Trader;
 
 public interface AgentService {
 
-	public State getInstanceState(final Currency currency);
+	public CentralBank findCentralBank(final Currency currency);
 
-	public CentralBank getInstanceCentralBank(final Currency currency);
+	public List<CreditBank> findCreditBanks(final Currency currency);
 
-	public CreditBank getRandomInstanceCreditBank(final Currency currency);
+	public List<Factory> findFactories(final Currency currency);
 
-	public List<CreditBank> getAllCreditBanks(Currency currency);
+	public List<Household> findHouseholds(final Currency currency);
 
-	public List<Factory> getAllFactories();
+	public State findState(final Currency currency);
+
+	public List<Trader> getTraders(final Currency currency);
+
+	public CreditBank findRandomCreditBank(final Currency currency);
+
+	public Factory findRandomFactory();
+
 }

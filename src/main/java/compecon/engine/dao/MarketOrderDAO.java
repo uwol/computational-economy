@@ -29,14 +29,38 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface MarketOrderDAO extends GenericDAO<MarketOrder> {
 
+	/**
+	 * WARNING: Should only be called from the market order factory, which
+	 * ensures a subsequent Hibernate flush.
+	 * 
+	 * @see compecon.engine.factory.MarketOrderFactory
+	 */
 	public void deleteAllSellingOrders(MarketParticipant offeror);
 
+	/**
+	 * WARNING: Should only be called from the market order factory, which
+	 * ensures a subsequent Hibernate flush.
+	 * 
+	 * @see compecon.engine.factory.MarketOrderFactory
+	 */
 	public void deleteAllSellingOrders(MarketParticipant offeror,
 			Currency currency, GoodType goodType);
 
+	/**
+	 * WARNING: Should only be called from the market order factory, which
+	 * ensures a subsequent Hibernate flush.
+	 * 
+	 * @see compecon.engine.factory.MarketOrderFactory
+	 */
 	public void deleteAllSellingOrders(MarketParticipant offeror,
 			Currency currency, Currency commodityCurrency);
 
+	/**
+	 * WARNING: Should only be called from the market order factory, which
+	 * ensures a subsequent Hibernate flush.
+	 * 
+	 * @see compecon.engine.factory.MarketOrderFactory
+	 */
 	public void deleteAllSellingOrders(MarketParticipant offeror,
 			Currency currency, Class<? extends Property> propertyClass);
 

@@ -37,7 +37,7 @@ public class PropertyDAOTest extends CompEconTestSupport {
 
 	@Before
 	public void setup() {
-		super.setUpApplicationContext();
+		super.setUpApplicationContextWithAgents();
 	}
 
 	@After
@@ -46,15 +46,17 @@ public class PropertyDAOTest extends CompEconTestSupport {
 	}
 
 	@Test
-	public void testCreateAndDeleteStateBonds1() {
-		// prepare
-		State state = ApplicationContext.getInstance().getAgentService()
-				.getInstanceState(Currency.EURO);
-		CreditBank creditBank = ApplicationContext.getInstance()
-				.getCreditBankFactory().newInstanceCreditBank(Currency.EURO);
+	public void testCreateAndDeletePropertyOwnedAndIssuedBy() {
+		Currency currency = Currency.EURO;
 
-		Bond bond = state.obtainBond(1000, creditBank,
-				creditBank.getBankAccountTransactionsDelegate());
+		// prepare
+		State state_EUR = ApplicationContext.getInstance().getAgentService()
+				.findState(currency);
+		CreditBank creditBank1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findCreditBanks(currency).get(0);
+
+		Bond bond = state_EUR.obtainBond(1000, creditBank1_EUR,
+				creditBank1_EUR.getBankAccountTransactionsDelegate());
 
 		// total number
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
@@ -62,23 +64,23 @@ public class PropertyDAOTest extends CompEconTestSupport {
 
 		// owner
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state).size());
+				.findAllPropertiesOfPropertyOwner(state_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank).size());
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank, Bond.class)
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Bond.class)
 				.size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank, Share.class)
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Share.class)
 				.size());
 
 		// issuer
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state).size());
+				.findAllPropertiesIssuedByAgent(state_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state, Bond.class).size());
+				.findAllPropertiesIssuedByAgent(state_EUR, Bond.class).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state, Share.class).size());
+				.findAllPropertiesIssuedByAgent(state_EUR, Share.class).size());
 
 		// random access
 		assertEquals(bond, ApplicationContext.getInstance().getPropertyDAO()
@@ -88,85 +90,60 @@ public class PropertyDAOTest extends CompEconTestSupport {
 
 		// owner
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state).size());
+				.findAllPropertiesOfPropertyOwner(state_EUR).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank).size());
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR).size());
 
 		// issuer
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state).size());
+				.findAllPropertiesIssuedByAgent(state_EUR).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state, Bond.class).size());
+				.findAllPropertiesIssuedByAgent(state_EUR, Bond.class).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state, Share.class).size());
+				.findAllPropertiesIssuedByAgent(state_EUR, Share.class).size());
 	}
 
 	@Test
-	public void testCreateAndDeleteStateBonds2() {
-		// prepare
-		State state = ApplicationContext.getInstance().getAgentService()
-				.getInstanceState(Currency.EURO);
-		CreditBank creditBank = ApplicationContext.getInstance()
-				.getCreditBankFactory().newInstanceCreditBank(Currency.EURO);
+	public void testTransferProperty() {
+		Currency currency = Currency.EURO;
 
-		Bond bond1 = state.obtainBond(1000, creditBank,
-				creditBank.getBankAccountTransactionsDelegate());
-		Bond bond2 = state.obtainBond(1000, creditBank,
-				creditBank.getBankAccountTransactionsDelegate());
+		// prepare
+		State state_EUR = ApplicationContext.getInstance().getAgentService()
+				.findState(currency);
+		CreditBank creditBank1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findCreditBanks(currency).get(0);
+
+		Bond bond1 = state_EUR.obtainBond(1000, creditBank1_EUR,
+				creditBank1_EUR.getBankAccountTransactionsDelegate());
+		Bond bond2 = state_EUR.obtainBond(1000, creditBank1_EUR,
+				creditBank1_EUR.getBankAccountTransactionsDelegate());
 		Share share1 = ApplicationContext.getInstance().getShareFactory()
-				.newInstanceShare(creditBank, creditBank);
+				.newInstanceShare(creditBank1_EUR, creditBank1_EUR);
 
 		// total number
 		assertEquals(3, ApplicationContext.getInstance().getPropertyDAO()
 				.findAll().size());
 
-		// owner
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state).size());
-
-		assertEquals(3, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank).size());
-		assertEquals(2, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank, Bond.class)
-				.size());
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank, Share.class)
-				.size());
-
-		// issuer
-		assertEquals(2, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state).size());
-		assertEquals(2, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state, Bond.class).size());
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state, Share.class).size());
-
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(creditBank).size());
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(creditBank, Bond.class).size());
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(creditBank, Share.class).size());
-
 		// transfer
 		ApplicationContext.getInstance().getPropertyService()
-				.transferProperty(bond2, creditBank, state);
+				.transferProperty(bond2, creditBank1_EUR, state_EUR);
 
 		// owner
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state).size());
+				.findAllPropertiesOfPropertyOwner(state_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state, Bond.class).size());
+				.findAllPropertiesOfPropertyOwner(state_EUR, Bond.class).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state, Share.class).size());
+				.findAllPropertiesOfPropertyOwner(state_EUR, Share.class)
+				.size());
 
 		assertEquals(2, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank).size());
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank, Bond.class)
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Bond.class)
 				.size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank, Share.class)
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Share.class)
 				.size());
 	}
 }

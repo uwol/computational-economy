@@ -36,7 +36,6 @@ import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.log.Log;
 import compecon.engine.service.MarketPriceFunction;
 import compecon.engine.service.MarketService;
-import compecon.engine.util.HibernateUtil;
 import compecon.math.price.PriceFunction;
 import compecon.math.util.MathUtil;
 
@@ -479,19 +478,17 @@ public abstract class MarketServiceImpl implements MarketService {
 	 */
 
 	public void removeAllSellingOffers(final MarketParticipant offeror) {
-		ApplicationContext.getInstance().getMarketOrderDAO()
+		ApplicationContext.getInstance().getMarketOrderFactory()
 				.deleteAllSellingOrders(offeror);
-		HibernateUtil.flushSession();
 	}
 
 	public void removeAllSellingOffers(final MarketParticipant offeror,
 			final Currency denominatedInCurrency, final GoodType goodType) {
 		ApplicationContext
 				.getInstance()
-				.getMarketOrderDAO()
+				.getMarketOrderFactory()
 				.deleteAllSellingOrders(offeror, denominatedInCurrency,
 						goodType);
-		HibernateUtil.flushSession();
 	}
 
 	public void removeAllSellingOffers(final MarketParticipant offeror,
@@ -499,10 +496,9 @@ public abstract class MarketServiceImpl implements MarketService {
 			final Currency commodityCurrency) {
 		ApplicationContext
 				.getInstance()
-				.getMarketOrderDAO()
+				.getMarketOrderFactory()
 				.deleteAllSellingOrders(offeror, denominatedInCurrency,
 						commodityCurrency);
-		HibernateUtil.flushSession();
 	}
 
 	public void removeAllSellingOffers(final MarketParticipant offeror,
@@ -510,16 +506,14 @@ public abstract class MarketServiceImpl implements MarketService {
 			final Class<? extends Property> propertyClass) {
 		ApplicationContext
 				.getInstance()
-				.getMarketOrderDAO()
+				.getMarketOrderFactory()
 				.deleteAllSellingOrders(offeror, denominatedInCurrency,
 						propertyClass);
-		HibernateUtil.flushSession();
 	}
 
 	protected void removeSellingOffer(final MarketOrder marketOrder) {
-		ApplicationContext.getInstance().getMarketOrderDAO()
-				.delete(marketOrder);
-		HibernateUtil.flushSession();
+		ApplicationContext.getInstance().getMarketOrderFactory()
+				.deleteSellingOrder(marketOrder);
 	}
 
 	protected Log getLog() {

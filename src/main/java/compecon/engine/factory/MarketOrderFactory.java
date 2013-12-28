@@ -28,6 +28,21 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface MarketOrderFactory {
 
+	public void deleteSellingOrder(final MarketOrder marketOrder);
+
+	public void deleteAllSellingOrders(final MarketParticipant offeror);
+
+	public void deleteAllSellingOrders(final MarketParticipant offeror,
+			final Currency denominatedInCurrency, final GoodType goodType);
+
+	public void deleteAllSellingOrders(final MarketParticipant offeror,
+			final Currency denominatedInCurrency,
+			final Currency commodityCurrency);
+
+	public void deleteAllSellingOrders(final MarketParticipant offeror,
+			final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass);
+
 	public MarketOrder newInstanceGoodTypeMarketOrder(final GoodType goodType,
 			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,

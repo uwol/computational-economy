@@ -26,9 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import compecon.CompEconTestSupport;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
+import compecon.economy.security.debt.Bond;
 import compecon.economy.security.equity.Share;
 import compecon.engine.applicationcontext.ApplicationContext;
 
@@ -45,15 +47,157 @@ public class PropertyServiceTest extends CompEconTestSupport {
 	}
 
 	@Test
-	public void transferProperty() {
+	public void testDeleteProperty() {
+		Factory factory1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findRandomFactory();
+
+		// create share
+		Share share = ApplicationContext.getInstance().getShareFactory()
+				.newInstanceShare(factory1_EUR, factory1_EUR);
+
+		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
+				.findAllPropertiesOfPropertyOwner(factory1_EUR, Share.class)
+				.size());
+
+		// delete share
+		ApplicationContext.getInstance().getPropertyService()
+				.deleteProperty(share);
+
+		assertEquals(0, ApplicationContext.getInstance().getPropertyService()
+				.findAllPropertiesOfPropertyOwner(factory1_EUR, Share.class)
+				.size());
+	}
+
+	@Test
+	public void testFindAllPropertiesOfPropertyOwner() {
+		Factory factory1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findRandomFactory();
+
+		// create share
+		Share share = ApplicationContext.getInstance().getShareFactory()
+				.newInstanceShare(factory1_EUR, factory1_EUR);
+
+		// create bond
+		Bond bond = ApplicationContext
+				.getInstance()
+				.getFixedRateBondFactory()
+				.newInstanceFixedRateBond(factory1_EUR, factory1_EUR,
+						Currency.EURO, null, null, 100, 1);
+
+		assertEquals(2, ApplicationContext.getInstance().getPropertyService()
+				.findAllPropertiesOfPropertyOwner(factory1_EUR).size());
+		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
+				.findAllPropertiesOfPropertyOwner(factory1_EUR, Share.class)
+				.size());
+		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
+				.findAllPropertiesOfPropertyOwner(factory1_EUR, Bond.class)
+				.size());
+	}
+
+	@Test
+	public void testFindAllPropertiesIssuedByAgent() {
+		Factory factory1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findRandomFactory();
+
+		// create share
+		Share share = ApplicationContext.getInstance().getShareFactory()
+				.newInstanceShare(factory1_EUR, factory1_EUR);
+
+		// create bond
+		Bond bond = ApplicationContext
+				.getInstance()
+				.getFixedRateBondFactory()
+				.newInstanceFixedRateBond(factory1_EUR, factory1_EUR,
+						Currency.EURO, null, null, 100, 1);
+
+		assertEquals(2, ApplicationContext.getInstance().getPropertyService()
+				.findAllPropertiesIssuedByAgent(factory1_EUR).size());
+		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
+				.findAllPropertiesIssuedByAgent(factory1_EUR, Share.class)
+				.size());
+		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
+				.findAllPropertiesIssuedByAgent(factory1_EUR, Bond.class)
+				.size());
+	}
+
+	@Test
+	public void testIncrementAndDecrementGoodType() {
 		Currency currency = Currency.EURO;
 
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
+
+		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
+				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+
+		// increment
+		ApplicationContext.getInstance().getPropertyService()
+				.incrementGoodTypeAmount(household1_EUR, GoodType.IRON, 1.1);
+
+		assertEquals(1.1, ApplicationContext.getInstance().getPropertyService()
+				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+		assertEquals(1.1, ApplicationContext.getInstance().getPropertyService()
+				.getBalances(household1_EUR).get(GoodType.IRON), epsilon);
+
+		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
+				.getBalance(household1_EUR, GoodType.WHEAT), epsilon);
+		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
+				.getBalances(household1_EUR).get(GoodType.WHEAT), epsilon);
+
+		// decrement
+		ApplicationContext.getInstance().getPropertyService()
+				.decrementGoodTypeAmount(household1_EUR, GoodType.IRON, 1.0);
+
+		assertEquals(0.1, ApplicationContext.getInstance().getPropertyService()
+				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+
+		// reset
+		ApplicationContext.getInstance().getPropertyService()
+				.resetGoodTypeAmount(household1_EUR, GoodType.IRON);
+
+		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
+				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+	}
+
+	@Test
+	public void testTransferGoodTypeAmount() {
+		Currency currency = Currency.EURO;
+
+		Household household1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(0);
 		Household household2_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(1);
-		Factory factory1_EUR = ApplicationContext.getInstance().getFactoryDAO()
-				.findRandom();
+				.getAgentService().findHouseholds(currency).get(1);
+
+		// increment
+		ApplicationContext.getInstance().getPropertyService()
+				.incrementGoodTypeAmount(household1_EUR, GoodType.IRON, 1.1);
+
+		assertEquals(1.1, ApplicationContext.getInstance().getPropertyService()
+				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+
+		// transfer
+		ApplicationContext
+				.getInstance()
+				.getPropertyService()
+				.transferGoodTypeAmount(GoodType.IRON, household1_EUR,
+						household2_EUR, 1.0);
+
+		assertEquals(0.1, ApplicationContext.getInstance().getPropertyService()
+				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+		assertEquals(1.0, ApplicationContext.getInstance().getPropertyService()
+				.getBalance(household2_EUR, GoodType.IRON), epsilon);
+	}
+
+	@Test
+	public void testTransferProperty() {
+		Currency currency = Currency.EURO;
+
+		Household household1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(0);
+		Household household2_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(1);
+		Factory factory1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findRandomFactory();
 
 		Share share = ApplicationContext.getInstance().getShareFactory()
 				.newInstanceShare(factory1_EUR, factory1_EUR);
@@ -63,10 +207,10 @@ public class PropertyServiceTest extends CompEconTestSupport {
 				.transferProperty(share, factory1_EUR, household1_EUR);
 
 		// owner
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
+		assertEquals(0, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesOfPropertyOwner(factory1_EUR, Share.class)
 				.size());
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
+		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesOfPropertyOwner(household1_EUR, Share.class)
 				.size());
 
@@ -75,30 +219,30 @@ public class PropertyServiceTest extends CompEconTestSupport {
 				.transferProperty(share, household1_EUR, household2_EUR);
 
 		// owner
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
+		assertEquals(0, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesOfPropertyOwner(household1_EUR, Share.class)
 				.size());
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
+		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesOfPropertyOwner(household2_EUR, Share.class)
 				.size());
 
 		// issuer
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
+		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesIssuedByAgent(factory1_EUR, Share.class)
 				.size());
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
+		assertEquals(0, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesIssuedByAgent(household2_EUR, Share.class)
 				.size());
 	}
 
 	@Test
-	public void transferEverything() {
+	public void testTransferEverythingToRandomAgent() {
 		Currency currency = Currency.EURO;
 
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
-		Factory factory1_EUR = ApplicationContext.getInstance().getFactoryDAO()
-				.findRandom();
+				.getAgentService().findHouseholds(currency).get(0);
+		Factory factory1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findRandomFactory();
 
 		Share share = ApplicationContext.getInstance().getShareFactory()
 				.newInstanceShare(factory1_EUR, factory1_EUR);
@@ -108,7 +252,7 @@ public class PropertyServiceTest extends CompEconTestSupport {
 				.transferProperty(share, factory1_EUR, household1_EUR);
 
 		// owner
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
+		assertEquals(1, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesOfPropertyOwner(household1_EUR, Share.class)
 				.size());
 
@@ -117,7 +261,7 @@ public class PropertyServiceTest extends CompEconTestSupport {
 				.transferEverythingToRandomAgent(household1_EUR);
 
 		// owner
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
+		assertEquals(0, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesOfPropertyOwner(household1_EUR).size());
 	}
 }

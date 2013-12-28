@@ -19,6 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.factory.impl;
 
+import compecon.economy.markets.MarketOrder;
 import compecon.economy.markets.MarketParticipant;
 import compecon.economy.markets.impl.MarketOrderImpl;
 import compecon.economy.materia.GoodType;
@@ -31,6 +32,56 @@ import compecon.engine.util.HibernateUtil;
 
 public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
+	@Override
+	public void deleteSellingOrder(final MarketOrder marketOrder) {
+		ApplicationContext.getInstance().getMarketOrderDAO()
+				.delete(marketOrder);
+		HibernateUtil.flushSession();
+	}
+
+	@Override
+	public void deleteAllSellingOrders(final MarketParticipant offeror) {
+		ApplicationContext.getInstance().getMarketOrderDAO()
+				.deleteAllSellingOrders(offeror);
+		HibernateUtil.flushSession();
+	}
+
+	@Override
+	public void deleteAllSellingOrders(final MarketParticipant offeror,
+			final Currency denominatedInCurrency, final GoodType goodType) {
+		ApplicationContext
+				.getInstance()
+				.getMarketOrderDAO()
+				.deleteAllSellingOrders(offeror, denominatedInCurrency,
+						goodType);
+		HibernateUtil.flushSession();
+	}
+
+	@Override
+	public void deleteAllSellingOrders(final MarketParticipant offeror,
+			final Currency denominatedInCurrency,
+			final Currency commodityCurrency) {
+		ApplicationContext
+				.getInstance()
+				.getMarketOrderDAO()
+				.deleteAllSellingOrders(offeror, denominatedInCurrency,
+						commodityCurrency);
+		HibernateUtil.flushSession();
+	}
+
+	@Override
+	public void deleteAllSellingOrders(final MarketParticipant offeror,
+			final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass) {
+		ApplicationContext
+				.getInstance()
+				.getMarketOrderDAO()
+				.deleteAllSellingOrders(offeror, denominatedInCurrency,
+						propertyClass);
+		HibernateUtil.flushSession();
+	}
+
+	@Override
 	public MarketOrderImpl newInstanceGoodTypeMarketOrder(
 			final GoodType goodType, final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
@@ -50,6 +101,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		return marketOrder;
 	}
 
+	@Override
 	public MarketOrderImpl newInstanceCurrencyMarketOrder(
 			final Currency currencyToBeOffered,
 			final MarketParticipant offeror,
@@ -74,6 +126,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		return marketOrder;
 	}
 
+	@Override
 	public MarketOrderImpl newInstancePropertyMarketOrder(
 			final Property property, final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
@@ -91,4 +144,5 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		HibernateUtil.flushSession();
 		return marketOrder;
 	}
+
 }

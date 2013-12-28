@@ -22,28 +22,35 @@ package compecon.engine.runner;
 import java.util.Date;
 
 public interface SimulationRunner {
+
+	/**
+	 * start the simulation loop
+	 * 
+	 * @param endDate
+	 *            optional end date
+	 */
 	public void run(final Date endDate);
 
 	public void setMillisecondsToSleepPerHourType(
 			final int millisecondsToSleepPerHourType);
 
 	/**
-	 * pauses the simulation loop
+	 * pauses the simulation loop.
 	 */
 	public void setPaused(boolean paused);
 
 	/**
-	 * set a flag that the simulation loop should advance one day
+	 * set a flag that the simulation loop should advance one day.
 	 */
 	public void setSingleDayStep();
 
 	/**
-	 * set a flag that the simulation loop should advance one hour
+	 * set a flag that the simulation loop should advance one hour.
 	 */
 	public void setSingleHourStep();
 
 	/**
-	 * shuts down the simulation loop
+	 * shuts down the simulation loop.
 	 */
 	public void stop();
 }

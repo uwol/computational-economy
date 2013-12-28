@@ -105,7 +105,7 @@ public class StateImpl extends AgentImpl implements State {
 						DayType.EVERY, HourType.EVERY);
 
 		double initialInterestRate = ApplicationContext.getInstance()
-				.getAgentService().getInstanceCentralBank(primaryCurrency)
+				.getAgentService().findCentralBank(primaryCurrency)
 				.getEffectiveKeyInterestRate() + 0.02;
 		this.pricingBehaviour = new PricingBehaviourImpl(this,
 				FixedRateBond.class, this.primaryCurrency, initialInterestRate);
@@ -164,7 +164,7 @@ public class StateImpl extends AgentImpl implements State {
 		this.assureBankAccountTransactions();
 
 		for (CreditBank creditBank : ApplicationContext.getInstance()
-				.getAgentService().getAllCreditBanks(this.primaryCurrency)) {
+				.getAgentService().findCreditBanks(this.primaryCurrency)) {
 			for (BankAccount bankAccount : ApplicationContext.getInstance()
 					.getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(creditBank)) {
@@ -203,7 +203,7 @@ public class StateImpl extends AgentImpl implements State {
 
 		// TODO alternative: price := this.pricingBehaviour.getCurrentPrice();
 		final CentralBank centralBank = ApplicationContext.getInstance()
-				.getAgentService().getInstanceCentralBank(this.primaryCurrency);
+				.getAgentService().findCentralBank(this.primaryCurrency);
 		final double coupon = centralBank.getEffectiveKeyInterestRate()
 				+ ApplicationContext.getInstance().getConfiguration().stateConfig
 						.getBondMargin();

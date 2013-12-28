@@ -39,6 +39,12 @@ public interface PropertyDAO extends GenericDAO<Property> {
 	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer,
 			Class<? extends PropertyIssued> propertyClass);
 
+	/**
+	 * WARNING: Should only be called from the property service, which ensures a
+	 * subsequent Hibernate flush.
+	 * 
+	 * @see compecon.engine.service.PropertyService
+	 */
 	public void transferProperty(PropertyOwner oldOwner,
 			PropertyOwner newOwner, Property property);
 }

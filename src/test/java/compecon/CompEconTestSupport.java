@@ -141,7 +141,7 @@ public abstract class CompEconTestSupport {
 
 		for (Currency currency : Currency.values()) {
 			ApplicationContext.getInstance().getAgentService()
-					.getInstanceCentralBank(currency);
+					.findCentralBank(currency);
 
 			ApplicationContext.getInstance().getCreditBankFactory()
 					.newInstanceCreditBank(currency);

@@ -24,24 +24,17 @@ import java.util.List;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.state.State;
+import compecon.economy.sectors.trading.Trader;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.service.AgentService;
 
 public class AgentServiceImpl implements AgentService {
 
-	public State getInstanceState(final Currency currency) {
-		final State state = ApplicationContext.getInstance().getStateDAO()
-				.findByCurrency(currency);
-		if (state == null) {
-			return ApplicationContext.getInstance().getStateFactory()
-					.newInstanceState(currency);
-		}
-		return state;
-	}
-
-	public CentralBank getInstanceCentralBank(final Currency currency) {
+	@Override
+	public CentralBank findCentralBank(final Currency currency) {
 		final CentralBank centralBank = ApplicationContext.getInstance()
 				.getCentralBankDAO().findByCurrency(currency);
 		if (centralBank == null) {
@@ -51,17 +44,49 @@ public class AgentServiceImpl implements AgentService {
 		return centralBank;
 	}
 
-	public CreditBank getRandomInstanceCreditBank(final Currency currency) {
-		return ApplicationContext.getInstance().getCreditBankDAO()
-				.findRandom(currency);
-	}
-
-	public List<CreditBank> getAllCreditBanks(Currency currency) {
+	@Override
+	public List<CreditBank> findCreditBanks(final Currency currency) {
 		return ApplicationContext.getInstance().getCreditBankDAO()
 				.findAllByCurrency(currency);
 	}
 
-	public List<Factory> getAllFactories() {
-		return ApplicationContext.getInstance().getFactoryDAO().findAll();
+	@Override
+	public List<Factory> findFactories(final Currency currency) {
+		return ApplicationContext.getInstance().getFactoryDAO()
+				.findAllByCurrency(currency);
+	}
+
+	@Override
+	public List<Household> findHouseholds(final Currency currency) {
+		return ApplicationContext.getInstance().getHouseholdDAO()
+				.findAllByCurrency(currency);
+	}
+
+	@Override
+	public State findState(final Currency currency) {
+		final State state = ApplicationContext.getInstance().getStateDAO()
+				.findByCurrency(currency);
+		if (state == null) {
+			return ApplicationContext.getInstance().getStateFactory()
+					.newInstanceState(currency);
+		}
+		return state;
+	}
+
+	@Override
+	public CreditBank findRandomCreditBank(final Currency currency) {
+		return ApplicationContext.getInstance().getCreditBankDAO()
+				.findRandom(currency);
+	}
+
+	@Override
+	public Factory findRandomFactory() {
+		return ApplicationContext.getInstance().getFactoryDAO().findRandom();
+	}
+
+	@Override
+	public List<Trader> getTraders(final Currency currency) {
+		return ApplicationContext.getInstance().getTraderDAO()
+				.findAllByCurrency(currency);
 	}
 }

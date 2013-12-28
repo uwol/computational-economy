@@ -30,14 +30,11 @@ public class ControlModel extends NotificationListenerModel {
 
 	public void initEconomicGrowth(final Currency currency) {
 		final List<Factory> factories = ApplicationContext.getInstance()
-				.getAgentService().getAllFactories();
+				.getAgentService().findFactories(currency);
 		for (Factory factory : factories) {
-			if (currency.equals(factory.getPrimaryCurrency())) {
-				double productivity = factory.getProductionFunction()
-						.getProductivity();
-				factory.getProductionFunction().setProductivity(
-						productivity * 1.5);
-			}
+			final double productivity = factory.getProductionFunction()
+					.getProductivity();
+			factory.getProductionFunction().setProductivity(productivity * 1.5);
 		}
 	}
 
@@ -49,7 +46,7 @@ public class ControlModel extends NotificationListenerModel {
 	}
 
 	public void deficitSpending(final Currency currency) {
-		ApplicationContext.getInstance().getAgentService()
-				.getInstanceState(currency).doDeficitSpending();
+		ApplicationContext.getInstance().getAgentService().findState(currency)
+				.doDeficitSpending();
 	}
 }
