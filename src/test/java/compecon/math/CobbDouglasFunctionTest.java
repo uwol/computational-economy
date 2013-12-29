@@ -71,7 +71,8 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, 2.0);
 
 		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.COAL, new FixedPriceFunctionImpl(Double.NaN));
+		priceFunctions.put(GoodType.COAL,
+				new FixedPriceFunctionImpl(Double.NaN));
 		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
 		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 
@@ -164,7 +165,8 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, 2.0);
 
 		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.COAL, new FixedPriceFunctionImpl(Double.NaN));
+		priceFunctions.put(GoodType.COAL,
+				new FixedPriceFunctionImpl(Double.NaN));
 		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
 		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 
@@ -248,15 +250,18 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		Currency currency = Currency.EURO;
 
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
 		Household household2_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(1);
+				.getAgentService().findHouseholds(currency).get(1);
 
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarginalMarketPrice(currency, GoodType.KILOWATT),
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.KILOWATT),
 				epsilon);
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarginalMarketPrice(currency, GoodType.WHEAT), epsilon);
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.WHEAT),
+				epsilon);
 
 		ApplicationContext
 				.getInstance()
@@ -349,15 +354,18 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		Currency currency = Currency.EURO;
 
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
 		Household household2_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(1);
+				.getAgentService().findHouseholds(currency).get(1);
 
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarginalMarketPrice(currency, GoodType.KILOWATT),
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.KILOWATT),
 				epsilon);
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarginalMarketPrice(currency, GoodType.WHEAT), epsilon);
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.WHEAT),
+				epsilon);
 
 		ApplicationContext
 				.getInstance()
@@ -453,19 +461,26 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		Currency currency = Currency.EURO;
 
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
 		Household household2_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(1);
+				.getAgentService().findHouseholds(currency).get(1);
 
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarginalMarketPrice(currency, GoodType.KILOWATT),
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.KILOWATT),
 				epsilon);
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarginalMarketPrice(currency, GoodType.WHEAT), epsilon);
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarginalMarketPrice(currency, GoodType.COAL), epsilon);
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarginalMarketPrice(currency, GoodType.IRON), epsilon);
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.WHEAT),
+				epsilon);
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.COAL),
+				epsilon);
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, GoodType.IRON),
+				epsilon);
 
 		ApplicationContext
 				.getInstance()

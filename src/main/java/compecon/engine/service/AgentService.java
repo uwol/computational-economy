@@ -39,11 +39,11 @@ public interface AgentService {
 
 	public List<Household> findHouseholds(final Currency currency);
 
+	public CreditBank findRandomCreditBank(final Currency currency);
+
 	public State findState(final Currency currency);
 
-	public List<Trader> getTraders(final Currency currency);
-
-	public CreditBank findRandomCreditBank(final Currency currency);
+	public List<Trader> findTraders(final Currency currency);
 
 	public Factory findRandomFactory();
 

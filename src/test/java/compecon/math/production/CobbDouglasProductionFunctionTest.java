@@ -106,9 +106,9 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 		Currency currency = Currency.EURO;
 
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
 		Household household2_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(1);
+				.getAgentService().findHouseholds(currency).get(1);
 
 		ApplicationContext
 				.getInstance()

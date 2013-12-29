@@ -35,10 +35,15 @@ public class DashboardRunner extends AbstractConfigurationRunnerImpl {
 		/*
 		 * setup
 		 */
+		final String configurationPropertiesFilename = System
+				.getProperty("configuration.properties");
+
 		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory.configureHibernateApplicationContext();
+			ApplicationContextFactory
+					.configureHibernateApplicationContext(configurationPropertiesFilename);
 		} else {
-			ApplicationContextFactory.configureInMemoryApplicationContext();
+			ApplicationContextFactory
+					.configureInMemoryApplicationContext(configurationPropertiesFilename);
 		}
 		new Dashboard();
 

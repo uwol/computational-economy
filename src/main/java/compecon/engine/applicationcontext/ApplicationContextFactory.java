@@ -47,16 +47,18 @@ public class ApplicationContextFactory {
 
 	public final static String defaultConfigFilename = "interdependencies.configuration.properties";
 
-	protected static void configureMinimalApplicationContext() {
+	protected static void configureMinimalApplicationContext(
+			String configurationPropertiesFilename) {
 		ApplicationContext.getInstance().reset();
 
 		/*
 		 * configuration
 		 */
-		String configurationPropertiesFilename = System
-				.getProperty("configuration.properties");
 		if (configurationPropertiesFilename == null
 				|| configurationPropertiesFilename.isEmpty()) {
+			System.out
+					.println("No configuration file set via VM arg configuration.properties");
+
 			// if no configuration properties are set via VM args use
 			// default configuration properties
 			configurationPropertiesFilename = defaultConfigFilename;
@@ -129,16 +131,18 @@ public class ApplicationContextFactory {
 
 		ApplicationContext.getInstance().setSequenceNumberGenerator(
 				new SequenceNumberGeneratorImpl());
-		ApplicationContext.getInstance().setTimeSystem(new TimeSystemImpl(2000));
+		ApplicationContext.getInstance()
+				.setTimeSystem(new TimeSystemImpl(2000));
 		ApplicationContext.getInstance().setLog(new LogImpl());
 		ApplicationContext.getInstance().setModelRegistry(new ModelRegistry());
 
 	}
 
-	public static void configureInMemoryApplicationContext() {
+	public static void configureInMemoryApplicationContext(
+			final String configurationPropertiesFilename) {
 		ApplicationContext.getInstance().reset();
 
-		configureMinimalApplicationContext();
+		configureMinimalApplicationContext(configurationPropertiesFilename);
 
 		ApplicationContext.getInstance().setBankAccountDAO(
 				new compecon.engine.dao.inmemory.impl.BankAccountDAOImpl());
@@ -164,10 +168,11 @@ public class ApplicationContextFactory {
 				new compecon.engine.dao.inmemory.impl.TraderDAOImpl());
 	}
 
-	public static void configureHibernateApplicationContext() {
+	public static void configureHibernateApplicationContext(
+			final String configurationPropertiesFilename) {
 		ApplicationContext.getInstance().reset();
 
-		configureMinimalApplicationContext();
+		configureMinimalApplicationContext(configurationPropertiesFilename);
 
 		ApplicationContext.getInstance().setBankAccountDAO(
 				new compecon.engine.dao.hibernate.impl.BankAccountDAOImpl());
@@ -192,5 +197,4 @@ public class ApplicationContextFactory {
 		ApplicationContext.getInstance().setTraderDAO(
 				new compecon.engine.dao.hibernate.impl.TraderDAOImpl());
 	}
-
 }

@@ -31,7 +31,6 @@ import compecon.engine.timesystem.impl.HourType;
 public class Configuration {
 
 	public final AgentConfig agentConfig = new AgentConfig();
-
 	public final BudgetingBehaviourConfig budgetingBehaviourConfig = new BudgetingBehaviourConfig();
 	public final CentralBankConfig centralBankConfig = new CentralBankConfig();
 	public final CreditBankConfig creditBankConfig = new CreditBankConfig();
@@ -508,6 +507,7 @@ public class Configuration {
 
 	public Configuration(final String configFilename) {
 		try {
+			System.out.println("Loading configuration file " + configFilename);
 			this.configFile.load(Configuration.class.getClassLoader()
 					.getResourceAsStream(configFilename));
 		} catch (IOException e) {

@@ -49,12 +49,15 @@ public class OptimizationRunner extends AbstractConfigurationRunnerImpl {
 				/*
 				 * setup
 				 */
+				final String configurationPropertiesFilename = System
+						.getProperty("configuration.properties");
+
 				if (HibernateUtil.isActive()) {
 					ApplicationContextFactory
-							.configureHibernateApplicationContext();
+							.configureHibernateApplicationContext(configurationPropertiesFilename);
 				} else {
 					ApplicationContextFactory
-							.configureInMemoryApplicationContext();
+							.configureInMemoryApplicationContext(configurationPropertiesFilename);
 				}
 
 				ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;

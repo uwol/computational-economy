@@ -60,12 +60,12 @@ public class AgentServiceTest extends CompEconTestSupport {
 					.getAgentService().findRandomCreditBank(currency));
 
 			// factories
-			Assert.assertEquals(1, ApplicationContext.getInstance()
+			Assert.assertEquals(2, ApplicationContext.getInstance()
 					.getAgentService().findFactories(currency).size());
 
 			// traders
 			Assert.assertEquals(1, ApplicationContext.getInstance()
-					.getAgentService().getTraders(currency).size());
+					.getAgentService().findTraders(currency).size());
 
 			// households
 			Assert.assertEquals(2, ApplicationContext.getInstance()

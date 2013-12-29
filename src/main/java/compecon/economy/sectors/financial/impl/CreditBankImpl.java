@@ -575,8 +575,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				to.deposit(amount);
 			} else { // transfer to another bank
 				CentralBank centralBank = ApplicationContext.getInstance()
-						.getAgentService()
-						.findCentralBank(from.getCurrency());
+						.getAgentService().findCentralBank(from.getCurrency());
 
 				// transfer money to central bank account of this bank
 				centralBank.transferMoney(from,
@@ -686,8 +685,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		public void onEvent() {
 			CreditBankImpl.this.assureBankAccountCentralBankMoneyReserves();
 
-			CentralBank centralBank = ApplicationContext
-					.getInstance()
+			CentralBank centralBank = ApplicationContext.getInstance()
 					.getAgentService()
 					.findCentralBank(CreditBankImpl.this.primaryCurrency);
 
@@ -1156,8 +1154,8 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 						.getBalance();
 				final FixedRateBond fixedRateBond = ApplicationContext
 						.getInstance()
-						.getStateDAO()
-						.findByCurrency(CreditBankImpl.this.primaryCurrency)
+						.getAgentService()
+						.findState(CreditBankImpl.this.primaryCurrency)
 						.obtainBond(difference, CreditBankImpl.this,
 								getBankAccountBondLoanDelegate());
 				assert (fixedRateBond.getOwner() == CreditBankImpl.this);
@@ -1206,9 +1204,11 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			// bonds bought from other agents
 			double faceValueSumOfBonds = 0.0;
 
-			for (Property property : ApplicationContext.getInstance()
+			for (Property property : ApplicationContext
+					.getInstance()
 					.getPropertyService()
-					.findAllPropertiesOfPropertyOwner(CreditBankImpl.this, FixedRateBond.class)) {
+					.findAllPropertiesOfPropertyOwner(CreditBankImpl.this,
+							FixedRateBond.class)) {
 				assert (property instanceof FixedRateBond);
 				FixedRateBond bond = (FixedRateBond) property;
 				assert (bond.getOwner() == CreditBankImpl.this);

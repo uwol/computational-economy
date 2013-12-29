@@ -63,6 +63,12 @@ public class AgentServiceImpl implements AgentService {
 	}
 
 	@Override
+	public CreditBank findRandomCreditBank(final Currency currency) {
+		return ApplicationContext.getInstance().getCreditBankDAO()
+				.findRandom(currency);
+	}
+
+	@Override
 	public State findState(final Currency currency) {
 		final State state = ApplicationContext.getInstance().getStateDAO()
 				.findByCurrency(currency);
@@ -74,18 +80,12 @@ public class AgentServiceImpl implements AgentService {
 	}
 
 	@Override
-	public CreditBank findRandomCreditBank(final Currency currency) {
-		return ApplicationContext.getInstance().getCreditBankDAO()
-				.findRandom(currency);
-	}
-
-	@Override
 	public Factory findRandomFactory() {
 		return ApplicationContext.getInstance().getFactoryDAO().findRandom();
 	}
 
 	@Override
-	public List<Trader> getTraders(final Currency currency) {
+	public List<Trader> findTraders(final Currency currency) {
 		return ApplicationContext.getInstance().getTraderDAO()
 				.findAllByCurrency(currency);
 	}

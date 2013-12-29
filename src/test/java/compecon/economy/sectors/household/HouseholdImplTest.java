@@ -1,0 +1,125 @@
+/*
+Copyright (C) 2013 u.wol@wwu.de 
+ 
+This file is part of ComputationalEconomy.
+
+ComputationalEconomy is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ComputationalEconomy is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package compecon.economy.sectors.household;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import compecon.CompEconTestSupport;
+import compecon.economy.materia.GoodType;
+import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.impl.HouseholdImpl;
+import compecon.economy.sectors.industry.Factory;
+import compecon.engine.applicationcontext.ApplicationContext;
+import compecon.engine.timesystem.TimeSystemEvent;
+
+public class HouseholdImplTest extends CompEconTestSupport {
+
+	@Before
+	public void setup() {
+		super.setUpApplicationContextWithAgents();
+	}
+
+	@After
+	public void tearDown() {
+		super.tearDown();
+	}
+
+	@Test
+	public void testDailyLifeEvent() {
+		Currency currency = Currency.EURO;
+
+		Household household1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(0);
+		Household household2_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(1);
+		Factory factory1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findFactories(currency).get(0);
+		Factory factory2_EUR = ApplicationContext.getInstance()
+				.getAgentService().findFactories(currency).get(1);
+
+		// provide money to household 1
+		household1_EUR.initialize();
+		household2_EUR
+				.getBankAccountTransactionsDelegate()
+				.getBankAccount()
+				.getManagingBank()
+				.transferMoney(
+						household2_EUR.getBankAccountTransactionsDelegate()
+								.getBankAccount(),
+						household1_EUR.getBankAccountTransactionsDelegate()
+								.getBankAccount(), 10.0, "");
+
+		assertEquals(10.0, household1_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getBalance(), epsilon);
+
+		// provide WHEAT on good market
+		ApplicationContext.getInstance().getPropertyService()
+				.incrementGoodTypeAmount(factory1_EUR, GoodType.WHEAT, 20.0);
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(GoodType.WHEAT, factory1_EUR,
+						factory1_EUR.getBankAccountTransactionsDelegate(),
+						20.0, 1.0);
+
+		// provide COAL on good market
+		ApplicationContext.getInstance().getPropertyService()
+				.incrementGoodTypeAmount(factory2_EUR, GoodType.COAL, 20.0);
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(GoodType.COAL, factory2_EUR,
+						factory2_EUR.getBankAccountTransactionsDelegate(),
+						20.0, 1.0);
+
+		for (TimeSystemEvent timeSystemEvent : household1_EUR
+				.getTimeSystemEvents()) {
+			if (timeSystemEvent instanceof HouseholdImpl.DailyLifeEvent) {
+				// household 1 buys goods from factories and consumes them
+				timeSystemEvent.onEvent();
+			}
+		}
+
+		assertEquals(0.0, household1_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getBalance(), epsilon);
+
+		assertEquals(15.0, ApplicationContext.getInstance()
+				.getPropertyService().getBalance(factory1_EUR, GoodType.WHEAT),
+				epsilon);
+		assertEquals(5.0, factory1_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getBalance(), epsilon);
+
+		assertEquals(15.0, ApplicationContext.getInstance()
+				.getPropertyService().getBalance(factory2_EUR, GoodType.COAL),
+				epsilon);
+		assertEquals(5.0, factory2_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getBalance(), epsilon);
+
+		assertEquals(
+				1.552464255,
+				ApplicationContext.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityOutputModel
+						.getValue(), epsilon);
+	}
+}

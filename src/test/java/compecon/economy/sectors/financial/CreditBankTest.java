@@ -35,7 +35,7 @@ import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.household.impl.HouseholdImpl;
 import compecon.engine.applicationcontext.ApplicationContext;
 
-public class BankTest extends CompEconTestSupport {
+public class CreditBankTest extends CompEconTestSupport {
 
 	@Before
 	public void setup() {
@@ -52,9 +52,9 @@ public class BankTest extends CompEconTestSupport {
 		Currency currency = Currency.EURO;
 
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
 		Household household2_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(1);
+				.getAgentService().findHouseholds(currency).get(1);
 
 		assertEquals(0.0, household1_EUR.getBankAccountTransactionsDelegate()
 				.getBankAccount().getBalance(), epsilon);
@@ -87,9 +87,9 @@ public class BankTest extends CompEconTestSupport {
 
 		// init household 1
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
 		CreditBank creditBank1_EUR = ApplicationContext.getInstance()
-				.getCreditBankDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findCreditBanks(currency).get(0);
 		BankAccount bankAccount1_EUR = creditBank1_EUR.openBankAccount(
 				household1_EUR, currency, true, "transactions",
 				TermType.SHORT_TERM, MoneyType.DEPOSITS);
@@ -101,9 +101,9 @@ public class BankTest extends CompEconTestSupport {
 
 		// init household 2
 		Household household2_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(1);
+				.getAgentService().findHouseholds(currency).get(1);
 		CreditBank creditBank2_EUR = ApplicationContext.getInstance()
-				.getCreditBankDAO().findAllByCurrency(currency).get(1);
+				.getAgentService().findCreditBanks(currency).get(1);
 		BankAccount bankAccount2_EUR = creditBank2_EUR.openBankAccount(
 				household2_EUR, currency, true, "transactions",
 				TermType.SHORT_TERM, MoneyType.DEPOSITS);

@@ -525,8 +525,8 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			// profits are transferred to the state, instead of dividends to
 			// share holders etc.
 			if (CentralBankImpl.this.bankAccountTransactions.getBalance() > 0.0) {
-				State state = ApplicationContext.getInstance().getStateDAO()
-						.findByCurrency(primaryCurrency);
+				final State state = ApplicationContext.getInstance()
+						.getAgentService().findState(primaryCurrency);
 				CentralBankImpl.this.transferMoney(
 						CentralBankImpl.this.bankAccountTransactions, state
 								.getBankAccountTransactionsDelegate()

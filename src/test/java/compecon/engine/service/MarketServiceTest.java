@@ -62,11 +62,11 @@ public class MarketServiceTest extends CompEconTestSupport {
 		GoodType goodType = GoodType.LABOURHOUR;
 
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
 		Household household2_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(1);
+				.getAgentService().findHouseholds(currency).get(1);
 		Factory factory1_WHEAT_EUR = ApplicationContext.getInstance()
-				.getFactoryDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findFactories(currency).get(0);
 
 		MarketPriceFunction marketPriceFunction = ApplicationContext
 				.getInstance().getMarketService()
@@ -200,10 +200,10 @@ public class MarketServiceTest extends CompEconTestSupport {
 	public void testOfferProperty() {
 		Currency currency = Currency.EURO;
 
-		Factory factory1_WHEAT_EUR = ApplicationContext.getInstance()
-				.getFactoryDAO().findAllByCurrency(currency).get(0);
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
+		Factory factory1_WHEAT_EUR = ApplicationContext.getInstance()
+				.getAgentService().findFactories(currency).get(0);
 
 		// check marginal price
 		assertEquals(Double.NaN,
@@ -262,11 +262,11 @@ public class MarketServiceTest extends CompEconTestSupport {
 		Currency commodityCurrency = Currency.USDOLLAR;
 
 		CreditBank creditBank1_EUR = ApplicationContext.getInstance()
-				.getCreditBankDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findCreditBanks(currency).get(0);
 		CreditBank creditBank2_EUR = ApplicationContext.getInstance()
-				.getCreditBankDAO().findAllByCurrency(currency).get(1);
-		Trader trader1_EUR = ApplicationContext.getInstance().getTraderDAO()
-				.findAllByCurrency(currency).get(0);
+				.getAgentService().findCreditBanks(currency).get(1);
+		Trader trader1_EUR = ApplicationContext.getInstance().getAgentService()
+				.findTraders(currency).get(0);
 
 		// check marginal price
 		assertEquals(Double.NaN,
@@ -399,9 +399,9 @@ public class MarketServiceTest extends CompEconTestSupport {
 		GoodType goodType = GoodType.LABOURHOUR;
 
 		Household household1_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(0);
+				.getAgentService().findHouseholds(currency).get(0);
 		Household household2_EUR = ApplicationContext.getInstance()
-				.getHouseholdDAO().findAllByCurrency(currency).get(1);
+				.getAgentService().findHouseholds(currency).get(1);
 
 		assertEquals(Double.NaN, ApplicationContext.getInstance()
 				.getMarketService().getMarginalMarketPrice(currency, goodType),

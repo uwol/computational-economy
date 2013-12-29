@@ -34,7 +34,7 @@ public class InputOutputModelMinimalImpl implements InputOutputModel {
 	@Override
 	public UtilityFunction getUtilityFunctionOfHousehold() {
 		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.IRON, 0.3);
+		preferences.put(GoodType.WHEAT, 0.3);
 		preferences.put(GoodType.COAL, 0.3);
 		preferences.put(GoodType.LABOURHOUR, 0.3);
 		return new CESUtilityFunctionImpl(1.0, preferences, -0.7, 0.5);
@@ -43,7 +43,7 @@ public class InputOutputModelMinimalImpl implements InputOutputModel {
 	@Override
 	public UtilityFunction getUtilityFunctionOfState() {
 		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.IRON, 0.3);
+		preferences.put(GoodType.WHEAT, 0.3);
 		preferences.put(GoodType.COAL, 0.3);
 		preferences.put(GoodType.LABOURHOUR, 0.3);
 		return new CESUtilityFunctionImpl(1.0, preferences, -0.7, 0.5);
@@ -53,7 +53,7 @@ public class InputOutputModelMinimalImpl implements InputOutputModel {
 	public ProductionFunction getProductionFunction(
 			final GoodType outputGoodType) {
 		switch (outputGoodType) {
-		case IRON:
+		case WHEAT:
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
 		case COAL:
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);

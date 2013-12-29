@@ -126,10 +126,14 @@ public abstract class CompEconTestSupport {
 	}
 
 	protected void setUpApplicationContext() {
+		final String configurationPropertiesFilename = "testing.configuration.properties";
+
 		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory.configureHibernateApplicationContext();
+			ApplicationContextFactory
+					.configureHibernateApplicationContext(configurationPropertiesFilename);
 		} else {
-			ApplicationContextFactory.configureInMemoryApplicationContext();
+			ApplicationContextFactory
+					.configureInMemoryApplicationContext(configurationPropertiesFilename);
 		}
 
 		// init database connection
@@ -150,6 +154,8 @@ public abstract class CompEconTestSupport {
 
 			ApplicationContext.getInstance().getFactoryFactory()
 					.newInstanceFactory(GoodType.WHEAT, currency);
+			ApplicationContext.getInstance().getFactoryFactory()
+					.newInstanceFactory(GoodType.COAL, currency);
 
 			ApplicationContext.getInstance().getHouseholdFactory()
 					.newInstanceHousehold(currency, 0);
