@@ -29,7 +29,7 @@ import compecon.math.production.impl.RootProductionFunctionImpl;
 import compecon.math.utility.UtilityFunction;
 import compecon.math.utility.impl.CESUtilityFunctionImpl;
 
-public class InputOutputModelMinimalImpl implements InputOutputModel {
+public class InputOutputModelTestingImpl implements InputOutputModel {
 
 	@Override
 	public UtilityFunction getUtilityFunctionOfHousehold() {
@@ -57,9 +57,9 @@ public class InputOutputModelMinimalImpl implements InputOutputModel {
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
 		case COAL:
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
+
 		default:
 			return null;
 		}
 	}
-
 }

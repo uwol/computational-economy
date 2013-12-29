@@ -21,6 +21,8 @@ package compecon.economy.sectors.household;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +38,8 @@ import compecon.engine.timesystem.TimeSystemEvent;
 public class HouseholdImplTest extends CompEconTestSupport {
 
 	@Before
-	public void setup() {
-		super.setUpApplicationContextWithAgents();
+	public void setup() throws IOException {
+		super.setUpApplicationContextWithAgents(configurationPropertiesFilename);
 	}
 
 	@After

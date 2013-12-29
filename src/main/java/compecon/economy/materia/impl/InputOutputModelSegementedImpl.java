@@ -70,7 +70,6 @@ public class InputOutputModelSegementedImpl implements InputOutputModel {
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
 		case WHEAT:
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
-
 		case KILOWATT:
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
 		case CLOTHING:

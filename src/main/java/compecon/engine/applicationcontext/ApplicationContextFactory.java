@@ -19,8 +19,10 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.applicationcontext;
 
+import java.io.IOException;
+
 import compecon.economy.materia.impl.InputOutputModelInterdependenciesImpl;
-import compecon.economy.materia.impl.InputOutputModelMinimalImpl;
+import compecon.economy.materia.impl.InputOutputModelTestingImpl;
 import compecon.economy.materia.impl.InputOutputModelSegementedImpl;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
 import compecon.engine.factory.impl.AgentImplFactoryImpl;
@@ -45,27 +47,36 @@ import compecon.engine.timesystem.impl.TimeSystemImpl;
 
 public class ApplicationContextFactory {
 
-	public final static String defaultConfigFilename = "interdependencies.configuration.properties";
-
 	protected static void configureMinimalApplicationContext(
-			String configurationPropertiesFilename) {
+			final String configurationPropertiesFilename) throws IOException {
 		ApplicationContext.getInstance().reset();
 
 		/*
 		 * configuration
 		 */
-		if (configurationPropertiesFilename == null
-				|| configurationPropertiesFilename.isEmpty()) {
-			System.out
-					.println("No configuration file set via VM arg configuration.properties");
-
-			// if no configuration properties are set via VM args use
-			// default configuration properties
-			configurationPropertiesFilename = defaultConfigFilename;
-		}
-
 		ApplicationContext.getInstance().setConfiguration(
 				new Configuration(configurationPropertiesFilename));
+
+		/*
+		 * input-output model
+		 */
+		switch (ApplicationContext.getInstance().getConfiguration().inputOutputModelConfig
+				.getInputOutputModelSetup()) {
+		case InputOutputModelTesting:
+			ApplicationContext.getInstance().setInputOutputModel(
+					new InputOutputModelTestingImpl());
+			break;
+		case InputOutputModelSegmented:
+			ApplicationContext.getInstance().setInputOutputModel(
+					new InputOutputModelSegementedImpl());
+			break;
+		case InputOutputModelInterdependencies:
+			ApplicationContext.getInstance().setInputOutputModel(
+					new InputOutputModelInterdependenciesImpl());
+			break;
+		default:
+			break;
+		}
 
 		/*
 		 * factory classes
@@ -108,27 +119,6 @@ public class ApplicationContextFactory {
 		ApplicationContext.getInstance().setMarketService(
 				new SettlementMarketServiceImpl());
 
-		/*
-		 * input-output model
-		 */
-		switch (ApplicationContext.getInstance().getConfiguration().inputOutputModelConfig
-				.getInputOutputModelSetup()) {
-		case InputOutputModelMinimal:
-			ApplicationContext.getInstance().setInputOutputModel(
-					new InputOutputModelMinimalImpl());
-			break;
-		case InputOutputModelSegmented:
-			ApplicationContext.getInstance().setInputOutputModel(
-					new InputOutputModelSegementedImpl());
-			break;
-		case InputOutputModelInterdependencies:
-			ApplicationContext.getInstance().setInputOutputModel(
-					new InputOutputModelInterdependenciesImpl());
-			break;
-		default:
-			break;
-		}
-
 		ApplicationContext.getInstance().setSequenceNumberGenerator(
 				new SequenceNumberGeneratorImpl());
 		ApplicationContext.getInstance()
@@ -139,7 +129,7 @@ public class ApplicationContextFactory {
 	}
 
 	public static void configureInMemoryApplicationContext(
-			final String configurationPropertiesFilename) {
+			final String configurationPropertiesFilename) throws IOException {
 		ApplicationContext.getInstance().reset();
 
 		configureMinimalApplicationContext(configurationPropertiesFilename);
@@ -169,7 +159,7 @@ public class ApplicationContextFactory {
 	}
 
 	public static void configureHibernateApplicationContext(
-			final String configurationPropertiesFilename) {
+			final String configurationPropertiesFilename) throws IOException {
 		ApplicationContext.getInstance().reset();
 
 		configureMinimalApplicationContext(configurationPropertiesFilename);

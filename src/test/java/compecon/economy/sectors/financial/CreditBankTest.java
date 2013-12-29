@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +40,8 @@ import compecon.engine.applicationcontext.ApplicationContext;
 public class CreditBankTest extends CompEconTestSupport {
 
 	@Before
-	public void setup() {
-		super.setUpApplicationContextWithAgents();
+	public void setup() throws IOException {
+		super.setUpApplicationContextWithAgents(configurationPropertiesFilename);
 	}
 
 	@After

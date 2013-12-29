@@ -19,6 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon;
 
+import java.io.IOException;
 import java.util.GregorianCalendar;
 
 import compecon.economy.materia.GoodType;
@@ -36,7 +37,7 @@ import compecon.jmx.JMXRegistration;
  */
 public class OptimizationRunner extends AbstractConfigurationRunnerImpl {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		double highestTotalUtility = 0.0;
 		double optimalI = -1;
@@ -50,7 +51,8 @@ public class OptimizationRunner extends AbstractConfigurationRunnerImpl {
 				 * setup
 				 */
 				final String configurationPropertiesFilename = System
-						.getProperty("configuration.properties");
+						.getProperty("configuration.properties",
+								"interdependencies.configuration.properties");
 
 				if (HibernateUtil.isActive()) {
 					ApplicationContextFactory

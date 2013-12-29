@@ -21,6 +21,7 @@ package compecon.math;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +43,8 @@ public class CESFunctionTest extends CompEconTestSupport {
 	final int numberOfIterations = 500;
 
 	@Before
-	public void setup() {
-		super.setUpApplicationContextWithAgents();
+	public void setup() throws IOException {
+		super.setUpApplicationContextWithAgents(configurationPropertiesFilename);
 	}
 
 	@After

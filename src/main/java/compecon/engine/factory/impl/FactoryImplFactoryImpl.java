@@ -47,9 +47,12 @@ public class FactoryImplFactoryImpl implements FactoryFactory {
 		factory.setReferenceCredit(ApplicationContext.getInstance()
 				.getConfiguration().factoryConfig.getReferenceCredit());
 
-		ProductionFunction productionFunction = ApplicationContext
+		final ProductionFunction productionFunction = ApplicationContext
 				.getInstance().getInputOutputModel()
 				.getProductionFunction(goodType);
+
+		assert (productionFunction != null);
+
 		factory.setProductionFunction(productionFunction);
 
 		ApplicationContext.getInstance().getFactoryDAO().save(factory);

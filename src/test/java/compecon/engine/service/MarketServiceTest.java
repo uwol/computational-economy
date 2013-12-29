@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.SortedMap;
 
 import org.junit.After;
@@ -46,8 +47,8 @@ import compecon.math.price.PriceFunction.PriceFunctionConfig;
 public class MarketServiceTest extends CompEconTestSupport {
 
 	@Before
-	public void setup() {
-		super.setUpApplicationContextWithAgents();
+	public void setup() throws IOException {
+		super.setUpApplicationContextWithAgents(configurationPropertiesFilename);
 	}
 
 	@After

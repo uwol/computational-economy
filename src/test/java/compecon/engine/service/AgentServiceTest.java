@@ -19,6 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.service;
 
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,8 +33,8 @@ import compecon.engine.applicationcontext.ApplicationContext;
 public class AgentServiceTest extends CompEconTestSupport {
 
 	@Before
-	public void setup() {
-		super.setUpApplicationContextWithAgents();
+	public void setup() throws IOException {
+		super.setUpApplicationContextWithAgents(configurationPropertiesFilename);
 	}
 
 	@After

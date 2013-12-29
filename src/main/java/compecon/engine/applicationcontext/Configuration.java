@@ -342,7 +342,7 @@ public class Configuration {
 	}
 
 	public enum InputOutputModelConfigSetting {
-		InputOutputModelMinimal, InputOutputModelSegmented, InputOutputModelInterdependencies
+		InputOutputModelTesting, InputOutputModelSegmented, InputOutputModelInterdependencies
 	}
 
 	public class InputOutputModelConfig {
@@ -352,8 +352,7 @@ public class Configuration {
 		public InputOutputModelConfigSetting getInputOutputModelSetup() {
 			if (inputOutputModelSetup == null)
 				inputOutputModelSetup = InputOutputModelConfigSetting
-						.valueOf(configFile
-								.getProperty("inputOutputModel.setup"));
+						.valueOf(configFile.getProperty("inputOutputModel"));
 			assert (inputOutputModelSetup != null);
 			return inputOutputModelSetup;
 		}
@@ -505,13 +504,9 @@ public class Configuration {
 
 	protected final Properties configFile = new Properties();
 
-	public Configuration(final String configFilename) {
-		try {
-			System.out.println("Loading configuration file " + configFilename);
-			this.configFile.load(Configuration.class.getClassLoader()
-					.getResourceAsStream(configFilename));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public Configuration(final String configFilename) throws IOException {
+		System.out.println("Loading configuration file " + configFilename);
+		this.configFile.load(Configuration.class.getClassLoader()
+				.getResourceAsStream(configFilename));
 	}
 }

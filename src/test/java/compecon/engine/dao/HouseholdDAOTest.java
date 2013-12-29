@@ -21,6 +21,8 @@ package compecon.engine.dao;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +35,8 @@ import compecon.engine.applicationcontext.ApplicationContext;
 public class HouseholdDAOTest extends CompEconTestSupport {
 
 	@Before
-	public void setup() {
-		super.setUpApplicationContext();
+	public void setup() throws IOException {
+		super.setUpApplicationContext(configurationPropertiesFilename);
 	}
 
 	@After

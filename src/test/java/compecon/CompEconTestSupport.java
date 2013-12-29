@@ -22,6 +22,7 @@ package compecon;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -40,6 +41,8 @@ import compecon.math.impl.FunctionImpl;
 import compecon.math.price.PriceFunction;
 
 public abstract class CompEconTestSupport {
+
+	protected final String configurationPropertiesFilename = "testing.configuration.properties";
 
 	protected final double epsilon = 0.01;
 
@@ -125,9 +128,8 @@ public abstract class CompEconTestSupport {
 		}
 	}
 
-	protected void setUpApplicationContext() {
-		final String configurationPropertiesFilename = "testing.configuration.properties";
-
+	protected void setUpApplicationContext(
+			final String configurationPropertiesFilename) throws IOException {
 		if (HibernateUtil.isActive()) {
 			ApplicationContextFactory
 					.configureHibernateApplicationContext(configurationPropertiesFilename);
@@ -140,8 +142,9 @@ public abstract class CompEconTestSupport {
 		HibernateUtil.openSession();
 	}
 
-	protected void setUpApplicationContextWithAgents() {
-		this.setUpApplicationContext();
+	protected void setUpApplicationContextWithAgents(
+			final String configurationPropertiesFilename) throws IOException {
+		this.setUpApplicationContext(configurationPropertiesFilename);
 
 		for (Currency currency : Currency.values()) {
 			ApplicationContext.getInstance().getAgentService()

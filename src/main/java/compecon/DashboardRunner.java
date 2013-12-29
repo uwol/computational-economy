@@ -19,6 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon;
 
+import java.io.IOException;
+
 import compecon.dashboard.Dashboard;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.applicationcontext.ApplicationContextFactory;
@@ -31,12 +33,13 @@ import compecon.jmx.JMXRegistration;
  */
 public class DashboardRunner extends AbstractConfigurationRunnerImpl {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		/*
 		 * setup
 		 */
-		final String configurationPropertiesFilename = System
-				.getProperty("configuration.properties");
+		final String configurationPropertiesFilename = System.getProperty(
+				"configuration.properties",
+				"interdependencies.configuration.properties");
 
 		if (HibernateUtil.isActive()) {
 			ApplicationContextFactory
@@ -45,6 +48,7 @@ public class DashboardRunner extends AbstractConfigurationRunnerImpl {
 			ApplicationContextFactory
 					.configureInMemoryApplicationContext(configurationPropertiesFilename);
 		}
+
 		new Dashboard();
 
 		HibernateUtil.openSession();

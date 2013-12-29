@@ -164,17 +164,18 @@ public class ModelRegistry {
 						currency.getIso4217Code() + " " + goodType
 								+ " inventory");
 
-				if (!GoodType.LABOURHOUR.equals(goodType)) {
-					ProductionFunction productionFunction = ApplicationContext
-							.getInstance().getInputOutputModel()
-							.getProductionFunction(goodType);
-					for (GoodType inputGoodType : productionFunction
-							.getInputGoodTypes()) {
-						inputModels.put(inputGoodType,
-								new PeriodDataAccumulatorTimeSeriesModel(
-										currency.getIso4217Code() + " "
-												+ inputGoodType + " input"));
-					}
+				final ProductionFunction productionFunction = ApplicationContext
+						.getInstance().getInputOutputModel()
+						.getProductionFunction(goodType);
+				for (GoodType inputGoodType : productionFunction
+						.getInputGoodTypes()) {
+					inputModels.put(
+							inputGoodType,
+							new PeriodDataAccumulatorTimeSeriesModel(currency
+									.getIso4217Code()
+									+ " "
+									+ inputGoodType
+									+ " input"));
 				}
 
 				for (ConvexProductionFunctionTerminationCause cause : ConvexProductionFunctionTerminationCause
