@@ -26,7 +26,8 @@ import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.applicationcontext.ApplicationContextFactory;
-import compecon.engine.runner.impl.AbstractConfigurationRunnerImpl;
+import compecon.engine.runner.SimulationRunner;
+import compecon.engine.runner.impl.ConfigurationSimulationRunnerImpl;
 import compecon.engine.util.HibernateUtil;
 import compecon.jmx.JMXRegistration;
 
@@ -35,7 +36,7 @@ import compecon.jmx.JMXRegistration;
  * dashboard. The goal is ceteris paribus to determine system parameters, which
  * maximize a metric, e. g. household utility.
  */
-public class OptimizationRunner extends AbstractConfigurationRunnerImpl {
+public class OptimizationRunner {
 
 	public static void main(String[] args) throws IOException {
 
@@ -53,13 +54,18 @@ public class OptimizationRunner extends AbstractConfigurationRunnerImpl {
 				final String configurationPropertiesFilename = System
 						.getProperty("configuration.properties",
 								"interdependencies.configuration.properties");
+				final SimulationRunner simulationRunner = new ConfigurationSimulationRunnerImpl();
 
 				if (HibernateUtil.isActive()) {
 					ApplicationContextFactory
-							.configureHibernateApplicationContext(configurationPropertiesFilename);
+							.configureHibernateApplicationContext(
+									configurationPropertiesFilename,
+									simulationRunner);
 				} else {
 					ApplicationContextFactory
-							.configureInMemoryApplicationContext(configurationPropertiesFilename);
+							.configureInMemoryApplicationContext(
+									configurationPropertiesFilename,
+									simulationRunner);
 				}
 
 				ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
@@ -76,8 +82,6 @@ public class OptimizationRunner extends AbstractConfigurationRunnerImpl {
 								+ ApplicationContext.getInstance()
 										.getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit);
 
-				ApplicationContext.getInstance().setRunner(
-						new OptimizationRunner());
 				ApplicationContext.getInstance().getRunner()
 						.run(new GregorianCalendar(2000, 7, 1).getTime());
 

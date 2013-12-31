@@ -19,6 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.runner.impl;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -34,10 +35,16 @@ import compecon.economy.sectors.trading.Trader;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.util.HibernateUtil;
 
-public abstract class AbstractConfigurationRunnerImpl extends
-		AbstractRunnerImpl {
+public class ConfigurationSimulationRunnerImpl extends SimulationRunnerImpl {
 
 	protected final Random random = new Random();
+
+	@Override
+	public void run(final Date endDate) {
+		this.setUp();
+		super.run(endDate);
+		this.tearDown();
+	}
 
 	protected void setUp() {
 		for (Currency currency : Currency.values()) {
@@ -140,6 +147,5 @@ public abstract class AbstractConfigurationRunnerImpl extends
 				.findAll()) {
 			state.deconstruct();
 		}
-
 	}
 }

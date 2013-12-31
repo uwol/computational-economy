@@ -24,14 +24,15 @@ import java.io.IOException;
 import compecon.dashboard.Dashboard;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.applicationcontext.ApplicationContextFactory;
-import compecon.engine.runner.impl.AbstractConfigurationRunnerImpl;
+import compecon.engine.runner.SimulationRunner;
+import compecon.engine.runner.impl.ConfigurationSimulationRunnerImpl;
 import compecon.engine.util.HibernateUtil;
 import compecon.jmx.JMXRegistration;
 
 /**
  * This is the regular main method for starting a simulation with a dashboard.
  */
-public class DashboardRunner extends AbstractConfigurationRunnerImpl {
+public class DashboardRunner {
 
 	public static void main(String[] args) throws IOException {
 		/*
@@ -40,13 +41,14 @@ public class DashboardRunner extends AbstractConfigurationRunnerImpl {
 		final String configurationPropertiesFilename = System.getProperty(
 				"configuration.properties",
 				"interdependencies.configuration.properties");
+		final SimulationRunner simulationRunner = new ConfigurationSimulationRunnerImpl();
 
 		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory
-					.configureHibernateApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureHibernateApplicationContext(
+					configurationPropertiesFilename, simulationRunner);
 		} else {
-			ApplicationContextFactory
-					.configureInMemoryApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureInMemoryApplicationContext(
+					configurationPropertiesFilename, simulationRunner);
 		}
 
 		new Dashboard();
@@ -57,7 +59,6 @@ public class DashboardRunner extends AbstractConfigurationRunnerImpl {
 		/*
 		 * run simulation
 		 */
-		ApplicationContext.getInstance().setRunner(new DashboardRunner());
 		ApplicationContext.getInstance().getRunner().run(null);
 
 		/*

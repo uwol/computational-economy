@@ -36,6 +36,7 @@ import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.trading.Trader;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.applicationcontext.ApplicationContextFactory;
+import compecon.engine.runner.SimulationRunner;
 import compecon.engine.util.HibernateUtil;
 import compecon.math.impl.FunctionImpl;
 import compecon.math.price.PriceFunction;
@@ -52,7 +53,7 @@ public abstract class CompEconTestSupport {
 			final Map<GoodType, PriceFunction> priceFunctions,
 			final Map<GoodType, Double> referenceBundleOfInputs) {
 
-		Map<GoodType, Double> rangeScanBundleOfInputs = function
+		final Map<GoodType, Double> rangeScanBundleOfInputs = function
 				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
 						budgetRestriction);
 
@@ -60,8 +61,8 @@ public abstract class CompEconTestSupport {
 		double sumOfCostsOfOptimalBundleOfInputs = 0.0;
 		for (Entry<GoodType, Double> inputEntry : rangeScanBundleOfInputs
 				.entrySet()) {
-			double priceOfGoodType = priceFunctions.get(inputEntry.getKey())
-					.getPrice(inputEntry.getValue());
+			final double priceOfGoodType = priceFunctions.get(
+					inputEntry.getKey()).getPrice(inputEntry.getValue());
 			if (!Double.isNaN(priceOfGoodType)) {
 				sumOfCostsOfOptimalBundleOfInputs += priceFunctions.get(
 						inputEntry.getKey()).getPrice(inputEntry.getValue())
@@ -76,8 +77,8 @@ public abstract class CompEconTestSupport {
 		double sumOfCostsOfReferenceBundleOfInputs = 0.0;
 		for (Entry<GoodType, Double> inputEntry : referenceBundleOfInputs
 				.entrySet()) {
-			double priceOfGoodType = priceFunctions.get(inputEntry.getKey())
-					.getPrice(inputEntry.getValue());
+			final double priceOfGoodType = priceFunctions.get(
+					inputEntry.getKey()).getPrice(inputEntry.getValue());
 			if (!Double.isNaN(priceOfGoodType)) {
 				sumOfCostsOfReferenceBundleOfInputs += priceOfGoodType
 						* inputEntry.getValue();
@@ -98,27 +99,27 @@ public abstract class CompEconTestSupport {
 			final FunctionImpl<GoodType> function,
 			final Map<GoodType, Double> bundleOfInputs,
 			final Map<GoodType, PriceFunction> priceFunctions) {
-		Map<GoodType, Double> partialDerivatives = function
+		final Map<GoodType, Double> partialDerivatives = function
 				.partialDerivatives(bundleOfInputs);
 		for (Entry<GoodType, Double> outerPartialDerivativeEntry : partialDerivatives
 				.entrySet()) {
-			PriceFunction outerPriceFunction = priceFunctions
+			final PriceFunction outerPriceFunction = priceFunctions
 					.get(outerPartialDerivativeEntry.getKey());
-			double outerMarginalPrice = outerPriceFunction
+			final double outerMarginalPrice = outerPriceFunction
 					.getMarginalPrice(bundleOfInputs
 							.get(outerPartialDerivativeEntry.getKey()));
 			if (!Double.isNaN(outerMarginalPrice)) {
 				for (Entry<GoodType, Double> innerPartialDerivativeEntry : partialDerivatives
 						.entrySet()) {
-					PriceFunction innerPriceFunction = priceFunctions
+					final PriceFunction innerPriceFunction = priceFunctions
 							.get(innerPartialDerivativeEntry.getKey());
-					double innerMarginalPrice = innerPriceFunction
+					final double innerMarginalPrice = innerPriceFunction
 							.getMarginalPrice(bundleOfInputs
 									.get(innerPartialDerivativeEntry.getKey()));
 					if (!Double.isNaN(innerMarginalPrice)) {
-						double innerPartialDerivativePerPrice = innerPartialDerivativeEntry
+						final double innerPartialDerivativePerPrice = innerPartialDerivativeEntry
 								.getValue() / innerMarginalPrice;
-						double outerPartialDerivativePerPrice = outerPartialDerivativeEntry
+						final double outerPartialDerivativePerPrice = outerPartialDerivativeEntry
 								.getValue() / outerMarginalPrice;
 						assertEquals(innerPartialDerivativePerPrice,
 								outerPartialDerivativePerPrice, epsilon);
@@ -129,23 +130,21 @@ public abstract class CompEconTestSupport {
 	}
 
 	protected void setUpApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
+			final String configurationPropertiesFilename,
+			final SimulationRunner simulationRunner) throws IOException {
 		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory
-					.configureHibernateApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureHibernateApplicationContext(
+					configurationPropertiesFilename, simulationRunner);
 		} else {
-			ApplicationContextFactory
-					.configureInMemoryApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureInMemoryApplicationContext(
+					configurationPropertiesFilename, simulationRunner);
 		}
 
 		// init database connection
 		HibernateUtil.openSession();
 	}
 
-	protected void setUpApplicationContextWithAgents(
-			final String configurationPropertiesFilename) throws IOException {
-		this.setUpApplicationContext(configurationPropertiesFilename);
-
+	protected void setUpAgents() {
 		for (Currency currency : Currency.values()) {
 			ApplicationContext.getInstance().getAgentService()
 					.findCentralBank(currency);

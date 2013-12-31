@@ -25,7 +25,7 @@ import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.runner.SimulationRunner;
 import compecon.engine.timesystem.impl.HourType;
 
-public abstract class AbstractRunnerImpl implements SimulationRunner {
+public class SimulationRunnerImpl implements SimulationRunner {
 
 	protected boolean killFlag = false;
 
@@ -37,9 +37,8 @@ public abstract class AbstractRunnerImpl implements SimulationRunner {
 
 	protected int millisecondsToSleepPerHourType = 0;
 
+	@Override
 	public void run(final Date endDate) {
-		setUp();
-
 		try {
 			// start simulation
 			while (true) {
@@ -80,34 +79,32 @@ public abstract class AbstractRunnerImpl implements SimulationRunner {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			tearDown();
 		}
 	}
 
-	protected abstract void setUp();
-
+	@Override
 	public void setMillisecondsToSleepPerHourType(
 			final int millisecondsToSleepPerHourType) {
 		this.millisecondsToSleepPerHourType = millisecondsToSleepPerHourType;
 	}
 
+	@Override
 	public void setPaused(boolean paused) {
 		this.paused = paused;
 	}
 
+	@Override
 	public void setSingleDayStep() {
 		this.singleDayStep = true;
 	}
 
+	@Override
 	public void setSingleHourStep() {
 		this.singleHourStep = true;
 	}
 
+	@Override
 	public void stop() {
 		this.killFlag = true;
 	}
-
-	protected abstract void tearDown();
-
 }

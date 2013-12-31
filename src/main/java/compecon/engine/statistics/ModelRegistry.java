@@ -24,8 +24,8 @@ import java.util.Map;
 
 import compecon.economy.behaviour.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.materia.GoodType;
+import compecon.economy.materia.InputOutputModel;
 import compecon.economy.sectors.financial.Currency;
-import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.statistics.timeseries.PeriodDataPercentageTimeSeriesModel;
 import compecon.engine.statistics.timeseries.PeriodDataQuotientTimeSeriesModel;
@@ -68,7 +68,8 @@ public class ModelRegistry {
 			public final PeriodDataAccumulatorTimeSeriesModel wageModel;
 			public final UtilityModel utilityModel;
 
-			public HouseholdsModel(Currency currency) {
+			public HouseholdsModel(final Currency currency,
+					final InputOutputModel inputOutputModel) {
 				this.currency = currency;
 
 				for (ConvexFunctionTerminationCause cause : ConvexFunctionTerminationCause
@@ -104,7 +105,8 @@ public class ModelRegistry {
 						currency.getIso4217Code() + " saving rate");
 				this.wageModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " wage");
-				this.utilityModel = new UtilityModel(this.currency);
+				this.utilityModel = new UtilityModel(this.currency,
+						inputOutputModel);
 			}
 
 			public void nextPeriod() {
@@ -152,7 +154,9 @@ public class ModelRegistry {
 			 */
 			public final Map<ConvexProductionFunctionTerminationCause, PeriodDataAccumulatorTimeSeriesModel> convexProductionFunctionTerminationCauseModels = new HashMap<ConvexProductionFunctionTerminationCause, PeriodDataAccumulatorTimeSeriesModel>();
 
-			public IndustryModel(Currency currency, GoodType goodType) {
+			public IndustryModel(final Currency currency,
+					final GoodType goodType,
+					final InputOutputModel inputOutputModel) {
 				assert (!GoodType.LABOURHOUR.equals(goodType));
 
 				this.currency = currency;
@@ -164,8 +168,7 @@ public class ModelRegistry {
 						currency.getIso4217Code() + " " + goodType
 								+ " inventory");
 
-				final ProductionFunction productionFunction = ApplicationContext
-						.getInstance().getInputOutputModel()
+				final ProductionFunction productionFunction = inputOutputModel
 						.getProductionFunction(goodType);
 				for (GoodType inputGoodType : productionFunction
 						.getInputGoodTypes()) {
@@ -213,10 +216,12 @@ public class ModelRegistry {
 
 			public final UtilityModel utilityModel;
 
-			public StateModel(Currency currency) {
+			public StateModel(final Currency currency,
+					final InputOutputModel inputOutputModel) {
 				this.currency = currency;
 
-				this.utilityModel = new UtilityModel(this.currency);
+				this.utilityModel = new UtilityModel(this.currency,
+						inputOutputModel);
 			}
 
 			public void nextPeriod() {
@@ -236,13 +241,13 @@ public class ModelRegistry {
 
 			public final Map<GoodType, PeriodDataAccumulatorTimeSeriesModel> utilityInputModels = new HashMap<GoodType, PeriodDataAccumulatorTimeSeriesModel>();
 
-			public UtilityModel(Currency currency) {
+			public UtilityModel(final Currency currency,
+					final InputOutputModel inputOutputModel) {
 				this.currency = currency;
 				this.utilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " utility");
-				for (GoodType goodType : ApplicationContext.getInstance()
-						.getInputOutputModel().getUtilityFunctionOfHousehold()
-						.getInputGoodTypes()) {
+				for (GoodType goodType : inputOutputModel
+						.getUtilityFunctionOfHousehold().getInputGoodTypes()) {
 					this.utilityInputModels.put(
 							goodType,
 							new PeriodDataAccumulatorTimeSeriesModel(currency
@@ -381,16 +386,16 @@ public class ModelRegistry {
 		 */
 		public final PeriodDataAccumulatorTimeSeriesModel totalUtilityOutputModel;
 
-		public NationalEconomyModel(Currency currency) {
+		public NationalEconomyModel(final Currency currency,
+				final InputOutputModel inputOutputModel) {
 			this.currency = currency;
 
 			for (GoodType goodType : GoodType.values()) {
-				// labour hours are collected via household model
+				// labour hours are logged via household model
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
-					if (ApplicationContext.getInstance().getInputOutputModel()
-							.getProductionFunction(goodType) != null) {
+					if (inputOutputModel.getProductionFunction(goodType) != null) {
 						this.industryModels.put(goodType, new IndustryModel(
-								currency, goodType));
+								currency, goodType, inputOutputModel));
 					}
 				}
 			}
@@ -400,8 +405,9 @@ public class ModelRegistry {
 						new PricingBehaviourModel(currency, goodType));
 			}
 
-			this.householdsModel = new HouseholdsModel(currency);
-			this.stateModel = new StateModel(currency);
+			this.householdsModel = new HouseholdsModel(currency,
+					inputOutputModel);
+			this.stateModel = new StateModel(currency, inputOutputModel);
 			this.numberOfAgentsModel = new NumberOfAgentsModel(currency);
 			this.pricesModel = new PricesModel();
 			this.marketDepthModel = new MarketDepthModel();
@@ -474,10 +480,13 @@ public class ModelRegistry {
 
 	protected final TimeSystemModel timeSystemModel = new TimeSystemModel();
 
-	public ModelRegistry() {
+	/**
+	 * Requires the input-output model to be set in the application context.
+	 */
+	public ModelRegistry(final InputOutputModel inputOutputModel) {
 		for (Currency currency : Currency.values())
 			nationalEconomyModels.put(currency, new NationalEconomyModel(
-					currency));
+					currency, inputOutputModel));
 	}
 
 	public AgentDetailModel getAgentDetailModel() {

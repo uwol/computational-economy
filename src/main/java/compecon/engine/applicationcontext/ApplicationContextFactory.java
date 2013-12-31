@@ -21,9 +21,10 @@ package compecon.engine.applicationcontext;
 
 import java.io.IOException;
 
+import compecon.economy.materia.InputOutputModel;
 import compecon.economy.materia.impl.InputOutputModelInterdependenciesImpl;
-import compecon.economy.materia.impl.InputOutputModelTestingImpl;
 import compecon.economy.materia.impl.InputOutputModelSegementedImpl;
+import compecon.economy.materia.impl.InputOutputModelTestingImpl;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
 import compecon.engine.factory.impl.AgentImplFactoryImpl;
 import compecon.engine.factory.impl.BankAccountImplFactoryImpl;
@@ -38,6 +39,7 @@ import compecon.engine.factory.impl.ShareImplFactoryImpl;
 import compecon.engine.factory.impl.StateImplFactoryImpl;
 import compecon.engine.factory.impl.TraderImplFactoryImpl;
 import compecon.engine.log.impl.LogImpl;
+import compecon.engine.runner.SimulationRunner;
 import compecon.engine.service.impl.AgentServiceImpl;
 import compecon.engine.service.impl.HardCashServiceImpl;
 import compecon.engine.service.impl.PropertyServiceImpl;
@@ -48,40 +50,17 @@ import compecon.engine.timesystem.impl.TimeSystemImpl;
 public class ApplicationContextFactory {
 
 	protected static void configureMinimalApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
+			final String configurationPropertiesFilename,
+			final SimulationRunner simulationRunner) throws IOException {
+		// reset application context
 		ApplicationContext.getInstance().reset();
 
-		/*
-		 * configuration
-		 */
-		ApplicationContext.getInstance().setConfiguration(
-				new Configuration(configurationPropertiesFilename));
-
-		/*
-		 * input-output model
-		 */
-		switch (ApplicationContext.getInstance().getConfiguration().inputOutputModelConfig
-				.getInputOutputModelSetup()) {
-		case InputOutputModelTesting:
-			ApplicationContext.getInstance().setInputOutputModel(
-					new InputOutputModelTestingImpl());
-			break;
-		case InputOutputModelSegmented:
-			ApplicationContext.getInstance().setInputOutputModel(
-					new InputOutputModelSegementedImpl());
-			break;
-		case InputOutputModelInterdependencies:
-			ApplicationContext.getInstance().setInputOutputModel(
-					new InputOutputModelInterdependenciesImpl());
-			break;
-		default:
-			break;
-		}
+		ApplicationContext.getInstance().setSequenceNumberGenerator(
+				new SequenceNumberGeneratorImpl());
 
 		/*
 		 * factory classes
 		 */
-
 		ApplicationContext.getInstance().setAgentFactory(
 				new AgentImplFactoryImpl());
 		ApplicationContext.getInstance().setBankAccountFactory(
@@ -119,20 +98,61 @@ public class ApplicationContextFactory {
 		ApplicationContext.getInstance().setMarketService(
 				new SettlementMarketServiceImpl());
 
-		ApplicationContext.getInstance().setSequenceNumberGenerator(
-				new SequenceNumberGeneratorImpl());
 		ApplicationContext.getInstance()
 				.setTimeSystem(new TimeSystemImpl(2000));
-		ApplicationContext.getInstance().setLog(new LogImpl());
-		ApplicationContext.getInstance().setModelRegistry(new ModelRegistry());
 
+		/*
+		 * configuration
+		 */
+		final Configuration configuration = new Configuration(
+				configurationPropertiesFilename);
+		ApplicationContext.getInstance().setConfiguration(configuration);
+
+		/*
+		 * input-output model
+		 */
+		final InputOutputModel inputOutputModel;
+
+		switch (configuration.inputOutputModelConfig.getInputOutputModelSetup()) {
+		case InputOutputModelTesting:
+			inputOutputModel = new InputOutputModelTestingImpl();
+			break;
+		case InputOutputModelSegmented:
+			inputOutputModel = new InputOutputModelSegementedImpl();
+			break;
+		case InputOutputModelInterdependencies:
+			inputOutputModel = new InputOutputModelInterdependenciesImpl();
+			break;
+		default:
+			throw new IllegalStateException("inputOutputModel not set");
+		}
+
+		ApplicationContext.getInstance().setInputOutputModel(inputOutputModel);
+
+		/*
+		 * model registry
+		 */
+		ApplicationContext.getInstance().setModelRegistry(
+				new ModelRegistry(inputOutputModel));
+		ApplicationContext.getInstance().setLog(new LogImpl());
+
+		/*
+		 * simulation runner
+		 */
+		ApplicationContext.getInstance().setRunner(simulationRunner);
 	}
 
+	/**
+	 * Configures the application context with in-memory DAOs.
+	 */
 	public static void configureInMemoryApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
-		ApplicationContext.getInstance().reset();
+			final String configurationPropertiesFilename,
+			final SimulationRunner simulationRunner) throws IOException {
 
-		configureMinimalApplicationContext(configurationPropertiesFilename);
+		configureMinimalApplicationContext(configurationPropertiesFilename,
+				simulationRunner);
+
+		// in-memory DAOs
 
 		ApplicationContext.getInstance().setBankAccountDAO(
 				new compecon.engine.dao.inmemory.impl.BankAccountDAOImpl());
@@ -158,11 +178,17 @@ public class ApplicationContextFactory {
 				new compecon.engine.dao.inmemory.impl.TraderDAOImpl());
 	}
 
+	/**
+	 * Configures the application context with Hibernate DAOs.
+	 */
 	public static void configureHibernateApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
-		ApplicationContext.getInstance().reset();
+			final String configurationPropertiesFilename,
+			final SimulationRunner simulationRunner) throws IOException {
 
-		configureMinimalApplicationContext(configurationPropertiesFilename);
+		configureMinimalApplicationContext(configurationPropertiesFilename,
+				simulationRunner);
+
+		// Hibernate DAOs
 
 		ApplicationContext.getInstance().setBankAccountDAO(
 				new compecon.engine.dao.hibernate.impl.BankAccountDAOImpl());
