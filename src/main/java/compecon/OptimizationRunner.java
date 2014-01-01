@@ -26,8 +26,6 @@ import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.applicationcontext.ApplicationContextFactory;
-import compecon.engine.runner.SimulationRunner;
-import compecon.engine.runner.impl.ConfigurationSimulationRunnerImpl;
 import compecon.engine.util.HibernateUtil;
 import compecon.jmx.JMXRegistration;
 
@@ -54,18 +52,13 @@ public class OptimizationRunner {
 				final String configurationPropertiesFilename = System
 						.getProperty("configuration.properties",
 								"interdependencies.configuration.properties");
-				final SimulationRunner simulationRunner = new ConfigurationSimulationRunnerImpl();
 
 				if (HibernateUtil.isActive()) {
 					ApplicationContextFactory
-							.configureHibernateApplicationContext(
-									configurationPropertiesFilename,
-									simulationRunner);
+							.configureHibernateApplicationContext(configurationPropertiesFilename);
 				} else {
 					ApplicationContextFactory
-							.configureInMemoryApplicationContext(
-									configurationPropertiesFilename,
-									simulationRunner);
+							.configureInMemoryApplicationContext(configurationPropertiesFilename);
 				}
 
 				ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
@@ -82,8 +75,12 @@ public class OptimizationRunner {
 								+ ApplicationContext.getInstance()
 										.getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit);
 
+				ApplicationContext.getInstance().getAgentFactory()
+						.constructAgentsFromConfiguration();
 				ApplicationContext.getInstance().getRunner()
 						.run(new GregorianCalendar(2000, 7, 1).getTime());
+				ApplicationContext.getInstance().getAgentFactory()
+						.deconstructAgents();
 
 				final double totalUtility = ApplicationContext.getInstance()
 						.getModelRegistry()

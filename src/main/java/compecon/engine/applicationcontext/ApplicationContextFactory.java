@@ -39,7 +39,7 @@ import compecon.engine.factory.impl.ShareImplFactoryImpl;
 import compecon.engine.factory.impl.StateImplFactoryImpl;
 import compecon.engine.factory.impl.TraderImplFactoryImpl;
 import compecon.engine.log.impl.LogImpl;
-import compecon.engine.runner.SimulationRunner;
+import compecon.engine.runner.impl.SimulationRunnerImpl;
 import compecon.engine.service.impl.AgentServiceImpl;
 import compecon.engine.service.impl.HardCashServiceImpl;
 import compecon.engine.service.impl.PropertyServiceImpl;
@@ -50,8 +50,7 @@ import compecon.engine.timesystem.impl.TimeSystemImpl;
 public class ApplicationContextFactory {
 
 	protected static void configureMinimalApplicationContext(
-			final String configurationPropertiesFilename,
-			final SimulationRunner simulationRunner) throws IOException {
+			final String configurationPropertiesFilename) throws IOException {
 		// reset application context
 		ApplicationContext.getInstance().reset();
 
@@ -139,18 +138,16 @@ public class ApplicationContextFactory {
 		/*
 		 * simulation runner
 		 */
-		ApplicationContext.getInstance().setRunner(simulationRunner);
+		ApplicationContext.getInstance().setRunner(new SimulationRunnerImpl());
 	}
 
 	/**
 	 * Configures the application context with in-memory DAOs.
 	 */
 	public static void configureInMemoryApplicationContext(
-			final String configurationPropertiesFilename,
-			final SimulationRunner simulationRunner) throws IOException {
+			final String configurationPropertiesFilename) throws IOException {
 
-		configureMinimalApplicationContext(configurationPropertiesFilename,
-				simulationRunner);
+		configureMinimalApplicationContext(configurationPropertiesFilename);
 
 		// in-memory DAOs
 
@@ -182,11 +179,9 @@ public class ApplicationContextFactory {
 	 * Configures the application context with Hibernate DAOs.
 	 */
 	public static void configureHibernateApplicationContext(
-			final String configurationPropertiesFilename,
-			final SimulationRunner simulationRunner) throws IOException {
+			final String configurationPropertiesFilename) throws IOException {
 
-		configureMinimalApplicationContext(configurationPropertiesFilename,
-				simulationRunner);
+		configureMinimalApplicationContext(configurationPropertiesFilename);
 
 		// Hibernate DAOs
 

@@ -44,7 +44,7 @@ public class CESFunctionTest extends CompEconTestSupport {
 
 	@Before
 	public void setup() throws IOException {
-		super.setUpApplicationContext(configurationPropertiesFilename, null);
+		super.setUpApplicationContext(configurationPropertiesFilename);
 		super.setUpAgents();
 	}
 

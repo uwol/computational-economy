@@ -20,16 +20,29 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.factory.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.materia.GoodType;
+import compecon.economy.sectors.financial.CentralBank;
+import compecon.economy.sectors.financial.CreditBank;
+import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.CentralBankImpl;
 import compecon.economy.sectors.financial.impl.CreditBankImpl;
+import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.household.impl.HouseholdImpl;
+import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.industry.impl.FactoryImpl;
+import compecon.economy.sectors.state.State;
 import compecon.economy.sectors.state.impl.StateImpl;
+import compecon.economy.sectors.trading.Trader;
 import compecon.economy.sectors.trading.impl.TraderImpl;
+import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.factory.AgentFactory;
+import compecon.engine.util.HibernateUtil;
 
 public class AgentImplFactoryImpl implements AgentFactory {
 
@@ -44,6 +57,115 @@ public class AgentImplFactoryImpl implements AgentFactory {
 		this.agentTypes.add(TraderImpl.class);
 	}
 
+	@Override
+	public void constructAgentsFromConfiguration() {
+		final Random random = new Random();
+
+		for (Currency currency : Currency.values()) {
+			if (ApplicationContext.getInstance().getConfiguration().stateConfig
+					.getNumber(currency) == 1) {
+				// initialize states
+				ApplicationContext.getInstance().getAgentService()
+						.findState(currency);
+			}
+		}
+
+		for (Currency currency : Currency.values()) {
+			if (ApplicationContext.getInstance().getConfiguration().centralBankConfig
+					.getNumber(currency) == 1) {
+				// initialize central banks
+				ApplicationContext.getInstance().getAgentService()
+						.findCentralBank(currency);
+			}
+		}
+
+		for (Currency currency : Currency.values()) {
+			Set<Currency> offeredCurrencies = new HashSet<Currency>();
+			offeredCurrencies.add(currency);
+
+			// initialize credit banks
+			for (int i = 0; i < ApplicationContext.getInstance()
+					.getConfiguration().creditBankConfig.getNumber(currency); i++) {
+				ApplicationContext.getInstance().getCreditBankFactory()
+						.newInstanceCreditBank(offeredCurrencies, currency);
+			}
+		}
+
+		for (Currency currency : Currency.values()) {
+			// initialize factories
+			for (GoodType goodType : GoodType.values()) {
+				if (!GoodType.LABOURHOUR.equals(goodType)) {
+					for (int i = 0; i < ApplicationContext.getInstance()
+							.getConfiguration().factoryConfig.getNumber(
+							currency, goodType); i++) {
+						ApplicationContext.getInstance().getFactoryFactory()
+								.newInstanceFactory(goodType, currency);
+					}
+				}
+			}
+		}
+
+		for (Currency currency : Currency.values()) {
+			// initialize traders
+			for (int i = 0; i < ApplicationContext.getInstance()
+					.getConfiguration().traderConfig.getNumber(currency); i++) {
+				ApplicationContext.getInstance().getTraderFactory()
+						.newInstanceTrader(currency);
+			}
+		}
+
+		for (Currency currency : Currency.values()) {
+			// initialize households
+			for (int i = 0; i < ApplicationContext.getInstance()
+					.getConfiguration().householdConfig.getNumber(currency); i++) {
+				// division, so that households have time left until
+				// retirement
+				int ageInDays = random
+						.nextInt(ApplicationContext.getInstance()
+								.getConfiguration().householdConfig
+								.getLifespanInDays()) / 2;
+				ApplicationContext.getInstance().getHouseholdFactory()
+						.newInstanceHousehold(currency, ageInDays);
+			}
+		}
+
+		HibernateUtil.flushSession();
+	}
+
+	@Override
+	public void deconstructAgents() {
+		for (Household household : ApplicationContext.getInstance()
+				.getHouseholdDAO().findAll()) {
+			household.deconstruct();
+		}
+
+		for (Trader trader : ApplicationContext.getInstance().getTraderDAO()
+				.findAll()) {
+			trader.deconstruct();
+		}
+
+		for (Factory factory : ApplicationContext.getInstance().getFactoryDAO()
+				.findAll()) {
+			factory.deconstruct();
+		}
+
+		for (CreditBank creditBank : ApplicationContext.getInstance()
+				.getCreditBankDAO().findAll()) {
+			creditBank.deconstruct();
+		}
+
+		for (CentralBank centralBank : ApplicationContext.getInstance()
+				.getCentralBankDAO().findAll()) {
+			centralBank.deconstruct();
+		}
+
+		for (State state : ApplicationContext.getInstance().getStateDAO()
+				.findAll()) {
+			state.deconstruct();
+		}
+	}
+
+	@Override
 	public List<Class<? extends Agent>> getAgentTypes() {
 		return this.agentTypes;
 	}

@@ -25,5 +25,9 @@ import compecon.economy.agent.Agent;
 
 public interface AgentFactory {
 
+	public void constructAgentsFromConfiguration();
+
+	public void deconstructAgents();
+
 	public List<Class<? extends Agent>> getAgentTypes();
 }

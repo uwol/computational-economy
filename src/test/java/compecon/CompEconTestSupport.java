@@ -27,16 +27,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import compecon.economy.materia.GoodType;
-import compecon.economy.sectors.financial.CentralBank;
-import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
-import compecon.economy.sectors.household.Household;
-import compecon.economy.sectors.industry.Factory;
-import compecon.economy.sectors.state.State;
-import compecon.economy.sectors.trading.Trader;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.applicationcontext.ApplicationContextFactory;
-import compecon.engine.runner.SimulationRunner;
 import compecon.engine.util.HibernateUtil;
 import compecon.math.impl.FunctionImpl;
 import compecon.math.price.PriceFunction;
@@ -130,14 +123,13 @@ public abstract class CompEconTestSupport {
 	}
 
 	protected void setUpApplicationContext(
-			final String configurationPropertiesFilename,
-			final SimulationRunner simulationRunner) throws IOException {
+			final String configurationPropertiesFilename) throws IOException {
 		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory.configureHibernateApplicationContext(
-					configurationPropertiesFilename, simulationRunner);
+			ApplicationContextFactory
+					.configureHibernateApplicationContext(configurationPropertiesFilename);
 		} else {
-			ApplicationContextFactory.configureInMemoryApplicationContext(
-					configurationPropertiesFilename, simulationRunner);
+			ApplicationContextFactory
+					.configureInMemoryApplicationContext(configurationPropertiesFilename);
 		}
 
 		// init database connection
@@ -172,35 +164,7 @@ public abstract class CompEconTestSupport {
 	}
 
 	protected void tearDown() {
-		for (Household household : ApplicationContext.getInstance()
-				.getHouseholdDAO().findAll()) {
-			household.deconstruct();
-		}
-
-		for (Trader trader : ApplicationContext.getInstance().getTraderDAO()
-				.findAll()) {
-			trader.deconstruct();
-		}
-
-		for (Factory factory : ApplicationContext.getInstance().getFactoryDAO()
-				.findAll()) {
-			factory.deconstruct();
-		}
-
-		for (State state : ApplicationContext.getInstance().getStateDAO()
-				.findAll()) {
-			state.deconstruct();
-		}
-
-		for (CreditBank creditBank : ApplicationContext.getInstance()
-				.getCreditBankDAO().findAll()) {
-			creditBank.deconstruct();
-		}
-
-		for (CentralBank centralBank : ApplicationContext.getInstance()
-				.getCentralBankDAO().findAll()) {
-			centralBank.deconstruct();
-		}
+		ApplicationContext.getInstance().getAgentFactory().deconstructAgents();
 
 		HibernateUtil.flushSession();
 		HibernateUtil.closeSession();
