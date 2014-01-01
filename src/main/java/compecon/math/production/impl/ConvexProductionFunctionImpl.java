@@ -33,13 +33,13 @@ import compecon.math.util.MathUtil;
 public abstract class ConvexProductionFunctionImpl extends
 		ProductionFunctionImpl implements ConvexProductionFunction {
 
-	protected ConvexProductionFunctionImpl(Function<GoodType> delegate) {
+	protected ConvexProductionFunctionImpl(final Function<GoodType> delegate) {
 		super(delegate);
 	}
 
 	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(
-			double priceOfProducedGoodType,
-			Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
+			final double priceOfProducedGoodType,
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
 			final double budget, final double maxOutput, final double margin) {
 		return this.calculateProfitMaximizingProductionFactorsIterative(
 				priceOfProducedGoodType, priceFunctionsOfInputTypes, budget,
@@ -48,8 +48,8 @@ public abstract class ConvexProductionFunctionImpl extends
 	}
 
 	public Map<GoodType, Double> calculateProfitMaximizingProductionFactorsIterative(
-			double priceOfProducedGoodType,
-			Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
+			final double priceOfProducedGoodType,
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
 			final double budget, final double maxOutput, final double margin,
 			final int numberOfIterations) {
 		return this.calculateProfitMaximizingProductionFactorsIterative(
@@ -67,8 +67,8 @@ public abstract class ConvexProductionFunctionImpl extends
 	 * 
 	 */
 	protected Map<GoodType, Double> calculateProfitMaximizingProductionFactorsIterative(
-			double priceOfProducedGoodType,
-			Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
+			final double priceOfProducedGoodType,
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
 			final double budget, final double maxOutput, final double margin,
 			final int numberOfIterations, final double initializationValue) {
 

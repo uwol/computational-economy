@@ -23,7 +23,7 @@ import java.util.List;
 
 public interface GenericDAO<T> {
 
-	public T find(int id);
+	public T find(final int id);
 
 	public T findRandom();
 
@@ -33,17 +33,17 @@ public interface GenericDAO<T> {
 	 * WARNING: Should only be called from factory classes, which ensure a
 	 * subsequent Hibernate flush.
 	 */
-	public void save(T entity);
+	public void save(final T entity);
 
 	/**
 	 * WARNING: Should only be called from factory classes, which ensure a
 	 * subsequent Hibernate flush.
 	 */
-	public void merge(T entity);
+	public void merge(final T entity);
 
 	/**
 	 * WARNING: Should only be called from factory classes, which ensure a
 	 * subsequent Hibernate flush.
 	 */
-	public void delete(T entity);
+	public void delete(final T entity);
 }

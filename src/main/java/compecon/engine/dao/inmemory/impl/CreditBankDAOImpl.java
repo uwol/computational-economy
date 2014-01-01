@@ -30,7 +30,7 @@ public class CreditBankDAOImpl extends
 		CreditBankDAO {
 
 	@Override
-	public synchronized CreditBank findRandom(Currency currency) {
+	public synchronized CreditBank findRandom(final Currency currency) {
 		final List<CreditBank> creditBanks = this.findAllByCurrency(currency);
 		if (creditBanks != null && !creditBanks.isEmpty()) {
 			int id = this.randomizer.nextInt(creditBanks.size());
@@ -40,12 +40,13 @@ public class CreditBankDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<CreditBank> findAllByCurrency(Currency currency) {
+	public synchronized List<CreditBank> findAllByCurrency(
+			final Currency currency) {
 		return this.getInstancesForKey(currency);
 	}
 
 	@Override
-	public synchronized void save(CreditBank entity) {
+	public synchronized void save(final CreditBank entity) {
 		super.save(entity.getPrimaryCurrency(), entity);
 	}
 }

@@ -42,10 +42,12 @@ public class SimulationRunnerImpl implements SimulationRunner {
 		try {
 			// start simulation
 			while (true) {
-				// simulation ends
+				// explicit end of simulation
 				if (killFlag) {
 					break;
-				} else if (endDate != null
+				}
+				// end date reached
+				else if (endDate != null
 						&& ApplicationContext.getInstance().getTimeSystem()
 								.getCurrentDate().after(endDate)) {
 					break;
@@ -77,7 +79,7 @@ public class SimulationRunnerImpl implements SimulationRunner {
 					Thread.sleep(50);
 				}
 			}
-		} catch (Exception e) {
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
@@ -89,7 +91,7 @@ public class SimulationRunnerImpl implements SimulationRunner {
 	}
 
 	@Override
-	public void setPaused(boolean paused) {
+	public void setPaused(final boolean paused) {
 		this.paused = paused;
 	}
 

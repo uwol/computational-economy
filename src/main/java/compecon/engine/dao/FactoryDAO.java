@@ -21,10 +21,14 @@ package compecon.engine.dao;
 
 import java.util.List;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.industry.Factory;
 
 public interface FactoryDAO extends GenericDAO<Factory> {
 
-	public List<Factory> findAllByCurrency(Currency currency);
+	public List<Factory> findAllByCurrency(final Currency currency);
+
+	public List<Factory> findAllByCurrencyAndProducedGoodType(
+			final Currency currency, final GoodType producedGoodType);
 }

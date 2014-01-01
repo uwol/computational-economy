@@ -41,7 +41,7 @@ public class BankAccountDAOImpl extends
 	 * helpers
 	 */
 
-	private void assureInitializedDataStructure(Bank bank) {
+	private void assureInitializedDataStructure(final Bank bank) {
 		if (!this.bankAccounts.containsKey(bank)) {
 			this.bankAccounts.put(bank, new ArrayList<BankAccount>());
 		}
@@ -52,7 +52,7 @@ public class BankAccountDAOImpl extends
 	 */
 
 	@Override
-	public synchronized void delete(BankAccount bankAccount) {
+	public synchronized void delete(final BankAccount bankAccount) {
 		final List<BankAccount> bankAccountsOfBank = this.bankAccounts
 				.get(bankAccount.getManagingBank());
 		if (bankAccountsOfBank != null) {
@@ -63,7 +63,7 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllBankAccounts(Bank managingBank) {
+	public synchronized void deleteAllBankAccounts(final Bank managingBank) {
 		final List<BankAccount> bankAccountsOfBank = this.bankAccounts
 				.get(managingBank);
 		if (bankAccountsOfBank != null) {
@@ -76,8 +76,8 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllBankAccounts(Bank managingBank,
-			BankCustomer owner) {
+	public synchronized void deleteAllBankAccounts(final Bank managingBank,
+			final BankCustomer owner) {
 		final List<BankAccount> bankAccountsOfOwner = this
 				.getInstancesForKey(owner);
 		if (bankAccountsOfOwner != null) {
@@ -92,7 +92,7 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized List<BankAccount> findAllBankAccountsManagedByBank(
-			Bank managingBank) {
+			final Bank managingBank) {
 		assureInitializedDataStructure(managingBank);
 
 		final List<BankAccount> bankAccountManagedByBank = this.bankAccounts
@@ -102,7 +102,7 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized List<BankAccount> findAllBankAccountsOfAgent(
-			BankCustomer owner) {
+			final BankCustomer owner) {
 		final List<BankAccount> bankAccounts = this.getInstancesForKey(owner);
 		if (bankAccounts != null) {
 			return new ArrayList<BankAccount>(bankAccounts);
@@ -111,8 +111,8 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<BankAccount> findAll(Bank managingBank,
-			BankCustomer owner) {
+	public synchronized List<BankAccount> findAll(final Bank managingBank,
+			final BankCustomer owner) {
 		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank) {
@@ -123,8 +123,8 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<BankAccount> findAll(Bank managingBank,
-			BankCustomer owner, Currency currency) {
+	public synchronized List<BankAccount> findAll(final Bank managingBank,
+			final BankCustomer owner, final Currency currency) {
 		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank
@@ -136,7 +136,7 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized void save(BankAccount bankAccount) {
+	public synchronized void save(final BankAccount bankAccount) {
 		assureInitializedDataStructure(bankAccount.getManagingBank());
 
 		this.bankAccounts.get(bankAccount.getManagingBank()).add(bankAccount);

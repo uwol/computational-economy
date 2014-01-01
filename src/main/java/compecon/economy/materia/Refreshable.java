@@ -21,9 +21,9 @@ package compecon.economy.materia;
 
 public interface Refreshable {
 
-	public void refresh();
-
 	public void exhaust();
 
 	public boolean isExhausted();
+
+	public void refresh();
 }

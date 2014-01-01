@@ -30,21 +30,21 @@ public interface ProductionFunction {
 	public Set<GoodType> getInputGoodTypes();
 
 	public double calculateOutput(
-			Map<GoodType, Double> bundleOfProductionFactors);
+			final Map<GoodType, Double> bundleOfProductionFactors);
 
 	public double calculateMarginalOutput(
-			Map<GoodType, Double> bundleOfProductionFactors,
-			GoodType differentialGoodType);
+			final Map<GoodType, Double> bundleOfProductionFactors,
+			final GoodType differentialGoodType);
 
 	/**
 	 * @return Key: GoodType to buy, Value: Amount to buy
 	 */
 	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(
-			double priceOfProducedGoodType,
-			Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
-			double budget, double maxOutput, double margin);
+			final double priceOfProducedGoodType,
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
+			final double budget, final double maxOutput, final double margin);
 
 	public double getProductivity();
 
-	public void setProductivity(double productivity);
+	public void setProductivity(final double productivity);
 }

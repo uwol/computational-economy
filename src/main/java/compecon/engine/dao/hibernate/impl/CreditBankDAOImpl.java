@@ -35,7 +35,7 @@ public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements
 		CreditBankDAO {
 
 	@Override
-	public CreditBank findRandom(Currency currency) {
+	public CreditBank findRandom(final Currency currency) {
 		Criteria crit = getSession().createCriteria(CreditBankImpl.class);
 		crit.add(Restrictions.eq("primaryCurrency", currency));
 		crit.setProjection(Projections.rowCount());
@@ -52,7 +52,7 @@ public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CreditBank> findAllByCurrency(Currency currency) {
+	public List<CreditBank> findAllByCurrency(final Currency currency) {
 		return (List<CreditBank>) getSession()
 				.createCriteria(CreditBankImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency)).list();

@@ -36,7 +36,7 @@ public class HouseholdDAOTest extends CompEconTestSupport {
 
 	@Before
 	public void setup() throws IOException {
-		super.setUpApplicationContext(configurationPropertiesFilename);
+		super.setUpApplicationContext(testConfigurationPropertiesFilename);
 	}
 
 	@After

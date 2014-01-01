@@ -26,5 +26,5 @@ import compecon.economy.sectors.trading.Trader;
 
 public interface TraderDAO extends GenericDAO<Trader> {
 
-	public List<Trader> findAllByCurrency(Currency currency);
+	public List<Trader> findAllByCurrency(final Currency currency);
 }

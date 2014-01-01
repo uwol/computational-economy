@@ -48,7 +48,7 @@ public class MarketOrderDAOImpl extends
 	 * helpers
 	 */
 
-	private void assureInitializedDataStructure(Currency currency) {
+	private void assureInitializedDataStructure(final Currency currency) {
 		if (!this.marketOrdersForGoodTypes.containsKey(currency)) {
 			this.marketOrdersForGoodTypes.put(currency,
 					new HashMap<GoodType, SortedSet<MarketOrder>>());
@@ -66,8 +66,8 @@ public class MarketOrderDAOImpl extends
 		}
 	}
 
-	private void assureInitializedDataStructure(Currency currency,
-			GoodType goodType) {
+	private void assureInitializedDataStructure(final Currency currency,
+			final GoodType goodType) {
 		assureInitializedDataStructure(currency);
 
 		final Map<GoodType, SortedSet<MarketOrder>> marketOrdersForGoodTypesAndCurrency = this.marketOrdersForGoodTypes
@@ -78,8 +78,8 @@ public class MarketOrderDAOImpl extends
 		}
 	}
 
-	private void assureInitializedDataStructure(Currency currency,
-			Currency commodityCurrency) {
+	private void assureInitializedDataStructure(final Currency currency,
+			final Currency commodityCurrency) {
 		assureInitializedDataStructure(currency);
 
 		final Map<Currency, SortedSet<MarketOrder>> marketOrdersForCurrency = this.marketOrdersForCurrencies
@@ -90,8 +90,8 @@ public class MarketOrderDAOImpl extends
 		}
 	}
 
-	private void assureInitializedDataStructure(Currency currency,
-			Class<? extends Property> propertyClass) {
+	private void assureInitializedDataStructure(final Currency currency,
+			final Class<? extends Property> propertyClass) {
 		assureInitializedDataStructure(currency);
 
 		final Map<Class<? extends Property>, SortedSet<MarketOrder>> marketOrdersForPropertyClass = this.marketOrdersForPropertyClasses
@@ -106,31 +106,32 @@ public class MarketOrderDAOImpl extends
 	 * get market offers for type
 	 */
 
-	private SortedSet<MarketOrder> getMarketOrders(Currency currency,
-			GoodType goodType) {
+	private SortedSet<MarketOrder> getMarketOrders(final Currency currency,
+			final GoodType goodType) {
 		this.assureInitializedDataStructure(currency, goodType);
 
 		return this.marketOrdersForGoodTypes.get(currency).get(goodType);
 	}
 
-	private SortedSet<MarketOrder> getMarketOrders(Currency currency,
-			Currency commodityCurrency) {
+	private SortedSet<MarketOrder> getMarketOrders(final Currency currency,
+			final Currency commodityCurrency) {
 		this.assureInitializedDataStructure(currency, commodityCurrency);
 
 		return this.marketOrdersForCurrencies.get(currency).get(
 				commodityCurrency);
 	}
 
-	private SortedSet<MarketOrder> getMarketOrders(Currency currency,
-			Class<? extends Property> propertyIndexInterface) {
+	private SortedSet<MarketOrder> getMarketOrders(final Currency currency,
+			final Class<? extends Property> propertyIndexInterface) {
 		this.assureInitializedDataStructure(currency, propertyIndexInterface);
 
 		return this.marketOrdersForPropertyClasses.get(currency).get(
 				propertyIndexInterface);
 	}
 
-	private SortedSet<MarketOrder> findMarketOrders(MarketParticipant offeror,
-			Currency currency, GoodType goodType) {
+	private SortedSet<MarketOrder> findMarketOrders(
+			final MarketParticipant offeror, final Currency currency,
+			final GoodType goodType) {
 		final SortedSet<MarketOrder> marketOrders = new TreeSet<MarketOrder>();
 		final List<MarketOrder> marketOrdersForOfferor = this
 				.getInstancesForKey(offeror);
@@ -145,8 +146,9 @@ public class MarketOrderDAOImpl extends
 		return marketOrders;
 	}
 
-	private SortedSet<MarketOrder> findMarketOrders(MarketParticipant offeror,
-			Currency currency, Currency commodityCurrency) {
+	private SortedSet<MarketOrder> findMarketOrders(
+			final MarketParticipant offeror, final Currency currency,
+			final Currency commodityCurrency) {
 		final SortedSet<MarketOrder> marketOrders = new TreeSet<MarketOrder>();
 		final List<MarketOrder> marketOrdersForOfferor = this
 				.getInstancesForKey(offeror);
@@ -162,8 +164,9 @@ public class MarketOrderDAOImpl extends
 		return marketOrders;
 	}
 
-	private SortedSet<MarketOrder> findMarketOrders(MarketParticipant offeror,
-			Currency currency, Class<? extends Property> propertyClass) {
+	private SortedSet<MarketOrder> findMarketOrders(
+			final MarketParticipant offeror, final Currency currency,
+			final Class<? extends Property> propertyClass) {
 		final SortedSet<MarketOrder> marketOrders = new TreeSet<MarketOrder>();
 		final List<MarketOrder> marketOrdersForOfferor = this
 				.getInstancesForKey(offeror);
@@ -185,7 +188,7 @@ public class MarketOrderDAOImpl extends
 	 */
 
 	@Override
-	public synchronized void save(MarketOrder marketOrder) {
+	public synchronized void save(final MarketOrder marketOrder) {
 		if (marketOrder.getGoodType() != null) {
 			this.getMarketOrders(marketOrder.getCurrency(),
 					marketOrder.getGoodType()).add(marketOrder);
@@ -207,7 +210,7 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized void delete(MarketOrder marketOrder) {
+	public synchronized void delete(final MarketOrder marketOrder) {
 		if (marketOrder.getGoodType() != null) {
 			final SortedSet<MarketOrder> marketOrders = this.getMarketOrders(
 					marketOrder.getCurrency(), marketOrder.getGoodType());
@@ -233,7 +236,8 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllSellingOrders(MarketParticipant offeror) {
+	public synchronized void deleteAllSellingOrders(
+			final MarketParticipant offeror) {
 		if (this.getInstancesForKey(offeror) != null) {
 			for (MarketOrder marketOrder : new HashSet<MarketOrder>(
 					this.getInstancesForKey(offeror))) {
@@ -243,8 +247,9 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllSellingOrders(MarketParticipant offeror,
-			Currency currency, GoodType goodType) {
+	public synchronized void deleteAllSellingOrders(
+			final MarketParticipant offeror, final Currency currency,
+			final GoodType goodType) {
 		for (MarketOrder marketOrder : this.findMarketOrders(offeror, currency,
 				goodType)) {
 			this.delete(marketOrder);
@@ -252,8 +257,9 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllSellingOrders(MarketParticipant offeror,
-			Currency currency, Currency commodityCurrency) {
+	public synchronized void deleteAllSellingOrders(
+			final MarketParticipant offeror, final Currency currency,
+			final Currency commodityCurrency) {
 		for (MarketOrder marketOrder : this.findMarketOrders(offeror, currency,
 				commodityCurrency)) {
 			this.delete(marketOrder);
@@ -261,8 +267,9 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllSellingOrders(MarketParticipant offeror,
-			Currency currency, Class<? extends Property> propertyClass) {
+	public synchronized void deleteAllSellingOrders(
+			final MarketParticipant offeror, final Currency currency,
+			final Class<? extends Property> propertyClass) {
 		for (MarketOrder marketOrder : this.findMarketOrders(offeror, currency,
 				propertyClass)) {
 			this.delete(marketOrder);
@@ -270,8 +277,8 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized double findMarginalPrice(Currency currency,
-			GoodType goodType) {
+	public synchronized double findMarginalPrice(final Currency currency,
+			final GoodType goodType) {
 		for (MarketOrder marketOrder : this.getMarketOrders(currency, goodType)) {
 			return marketOrder.getPricePerUnit();
 		}
@@ -279,8 +286,8 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized double findMarginalPrice(Currency currency,
-			Currency commodityCurrency) {
+	public synchronized double findMarginalPrice(final Currency currency,
+			final Currency commodityCurrency) {
 		for (MarketOrder marketOrder : this.getMarketOrders(currency,
 				commodityCurrency)) {
 			return marketOrder.getPricePerUnit();
@@ -289,8 +296,8 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized double findMarginalPrice(Currency currency,
-			Class<? extends Property> propertyClass) {
+	public synchronized double findMarginalPrice(final Currency currency,
+			final Class<? extends Property> propertyClass) {
 		final Class<? extends Property> propertyIndexInterface = this
 				.getIndexInterface(propertyClass);
 		for (MarketOrder marketOrder : getMarketOrders(currency,
@@ -300,20 +307,21 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized Iterator<MarketOrder> getIterator(Currency currency,
-			GoodType goodType) {
+	public synchronized Iterator<MarketOrder> getIterator(
+			final Currency currency, final GoodType goodType) {
 		return this.getMarketOrders(currency, goodType).iterator();
 	}
 
 	@Override
-	public synchronized Iterator<MarketOrder> getIterator(Currency currency,
-			Currency commodityCurrency) {
+	public synchronized Iterator<MarketOrder> getIterator(
+			final Currency currency, final Currency commodityCurrency) {
 		return this.getMarketOrders(currency, commodityCurrency).iterator();
 	}
 
 	@Override
-	public synchronized Iterator<MarketOrder> getIterator(Currency currency,
-			Class<? extends Property> propertyClass) {
+	public synchronized Iterator<MarketOrder> getIterator(
+			final Currency currency,
+			final Class<? extends Property> propertyClass) {
 		final Class<? extends Property> propertyIndexInterface = this
 				.getIndexInterface(propertyClass);
 		return this.getMarketOrders(currency, propertyIndexInterface)
@@ -322,20 +330,21 @@ public class MarketOrderDAOImpl extends
 
 	@Override
 	public synchronized Iterator<MarketOrder> getIteratorThreadsafe(
-			Currency currency, GoodType goodType) {
+			final Currency currency, final GoodType goodType) {
 		return new TreeSet<MarketOrder>(
 				this.getMarketOrders(currency, goodType)).iterator();
 	}
 
 	@Override
 	public synchronized Iterator<MarketOrder> getIteratorThreadsafe(
-			Currency currency, Currency commodityCurrency) {
+			final Currency currency, final Currency commodityCurrency) {
 		return new TreeSet<MarketOrder>(this.getMarketOrders(currency,
 				commodityCurrency)).iterator();
 	}
 
 	@Override
-	public synchronized double getAmountSum(Currency currency, GoodType goodType) {
+	public synchronized double getAmountSum(final Currency currency,
+			final GoodType goodType) {
 		final Iterator<MarketOrder> iterator = this.getIterator(currency,
 				goodType);
 		double totalAmountSum = 0.0;
@@ -346,8 +355,8 @@ public class MarketOrderDAOImpl extends
 	}
 
 	@Override
-	public synchronized double getAmountSum(Currency currency,
-			Currency commodityCurrency) {
+	public synchronized double getAmountSum(final Currency currency,
+			final Currency commodityCurrency) {
 		final Iterator<MarketOrder> iterator = this.getIterator(currency,
 				commodityCurrency);
 		double totalAmountSum = 0.0;

@@ -23,17 +23,29 @@ import java.util.List;
 
 import org.hibernate.criterion.Restrictions;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.industry.Factory;
 import compecon.economy.sectors.industry.impl.FactoryImpl;
 import compecon.engine.dao.FactoryDAO;
 
-public class FactoryDAOImpl extends HibernateDAOImpl<Factory> implements FactoryDAO {
+public class FactoryDAOImpl extends HibernateDAOImpl<Factory> implements
+		FactoryDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Factory> findAllByCurrency(Currency currency) {
+	public List<Factory> findAllByCurrency(final Currency currency) {
 		return (List<Factory>) getSession().createCriteria(FactoryImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency)).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Factory> findAllByCurrencyAndProducedGoodType(
+			final Currency currency, final GoodType producedGoodType) {
+		return (List<Factory>) getSession().createCriteria(FactoryImpl.class)
+				.add(Restrictions.eq("primaryCurrency", currency))
+				.add(Restrictions.eq("producedGoodType", producedGoodType))
+				.list();
 	}
 }

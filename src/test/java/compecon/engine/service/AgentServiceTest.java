@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import compecon.CompEconTestSupport;
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 
@@ -34,8 +35,8 @@ public class AgentServiceTest extends CompEconTestSupport {
 
 	@Before
 	public void setup() throws IOException {
-		super.setUpApplicationContext(configurationPropertiesFilename);
-		super.setUpAgents();
+		super.setUpApplicationContext(testConfigurationPropertiesFilename);
+		super.setUpTestAgents();
 	}
 
 	@After
@@ -65,6 +66,14 @@ public class AgentServiceTest extends CompEconTestSupport {
 			// factories
 			Assert.assertEquals(2, ApplicationContext.getInstance()
 					.getAgentService().findFactories(currency).size());
+
+			Assert.assertEquals(1, ApplicationContext.getInstance()
+					.getAgentService().findFactories(currency, GoodType.WHEAT)
+					.size());
+
+			Assert.assertEquals(1, ApplicationContext.getInstance()
+					.getAgentService().findFactories(currency, GoodType.COAL)
+					.size());
 
 			// traders
 			Assert.assertEquals(1, ApplicationContext.getInstance()

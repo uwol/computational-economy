@@ -24,6 +24,6 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface CentralBankDAO extends GenericDAO<CentralBank> {
 
-	public CentralBank findByCurrency(Currency currency);
+	public CentralBank findByCurrency(final Currency currency);
 
 }

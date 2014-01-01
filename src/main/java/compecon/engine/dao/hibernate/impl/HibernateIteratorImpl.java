@@ -33,7 +33,7 @@ public class HibernateIteratorImpl<T> implements Iterator<T> {
 	private boolean didNext = false;
 	private boolean hasNext = false;
 
-	public HibernateIteratorImpl(ScrollableResults itemCursor) {
+	public HibernateIteratorImpl(final ScrollableResults itemCursor) {
 		super();
 		this.itemCursor = itemCursor;
 	}

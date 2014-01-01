@@ -26,7 +26,7 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface CreditBankDAO extends GenericDAO<CreditBank> {
 
-	public CreditBank findRandom(Currency currency);
+	public CreditBank findRandom(final Currency currency);
 
-	public List<CreditBank> findAllByCurrency(Currency currency);
+	public List<CreditBank> findAllByCurrency(final Currency currency);
 }

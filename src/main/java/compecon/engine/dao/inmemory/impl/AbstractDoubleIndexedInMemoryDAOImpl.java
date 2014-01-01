@@ -35,19 +35,19 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 	 * get instances for key
 	 */
 
-	protected synchronized List<V> getInstancesForFirstKey(K firstKey) {
+	protected synchronized List<V> getInstancesForFirstKey(final K firstKey) {
 		return super.getInstancesForKey(firstKey);
 	}
 
-	protected synchronized List<V> getInstancesForSecondKey(K secondKey) {
+	protected synchronized List<V> getInstancesForSecondKey(final K secondKey) {
 		return this.indexedInstances.get(secondKey);
 	}
 
-	protected synchronized List<K> getFirstKeysForInstance(V instance) {
+	protected synchronized List<K> getFirstKeysForInstance(final V instance) {
 		return super.getKeysForInstance(instance);
 	}
 
-	protected synchronized List<K> getSecondKeysForInstance(V instance) {
+	protected synchronized List<K> getSecondKeysForInstance(final V instance) {
 		return this.instanceIndexedKeys.get(instance);
 	}
 
@@ -55,7 +55,8 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 	 * actions
 	 */
 
-	protected synchronized void save(K firstKey, K secondKey, V instance) {
+	protected synchronized void save(final K firstKey, final K secondKey,
+			final V instance) {
 		if (secondKey != null && instance != null) {
 			// store the value
 			List<V> indexedInstancesForKey = this.indexedInstances
@@ -80,7 +81,7 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 		super.save(firstKey, instance);
 	}
 
-	public synchronized void delete(V instance) {
+	public synchronized void delete(final V instance) {
 		final List<K> secondKeys = getSecondKeysForInstance(instance);
 		if (secondKeys != null) {
 			for (K secondKey : new ArrayList<K>(secondKeys)) {

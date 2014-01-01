@@ -177,7 +177,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			FactoryImpl.this
 					.transferBankAccountBalanceToDividendBankAccount(FactoryImpl.this.bankAccountTransactions);
 
-			double budget = FactoryImpl.this.budgetingBehaviour
+			final double budget = FactoryImpl.this.budgetingBehaviour
 					.calculateTransmissionBasedBudgetForPeriod(
 							FactoryImpl.this.bankAccountTransactions
 									.getCurrency(),
@@ -187,7 +187,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 
 			this.buyOptimalProductionFactorsForBudget(budget);
 
-			double producedOutput = this.produce();
+			final double producedOutput = this.produce();
 
 			this.offerProducedGoodType(producedOutput);
 		}
@@ -248,10 +248,10 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			double budgetSpent = 0.0;
 			for (Entry<GoodType, Double> entry : productionFactorsToBuy
 					.entrySet()) {
-				GoodType goodTypeToBuy = entry.getKey();
-				double amountToBuy = entry.getValue();
+				final GoodType goodTypeToBuy = entry.getKey();
+				final double amountToBuy = entry.getValue();
 				if (MathUtil.greater(amountToBuy, 0.0)) {
-					double[] priceAndAmount = ApplicationContext
+					final double[] priceAndAmount = ApplicationContext
 							.getInstance()
 							.getMarketService()
 							.buy(goodTypeToBuy, amountToBuy, Double.NaN,
@@ -267,7 +267,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			/*
 			 * produce with production factors
 			 */
-			Map<GoodType, Double> productionFactorsOwned = new HashMap<GoodType, Double>();
+			final Map<GoodType, Double> productionFactorsOwned = new HashMap<GoodType, Double>();
 			for (GoodType productionFactor : FactoryImpl.this.productionFunction
 					.getInputGoodTypes()) {
 				productionFactorsOwned
@@ -279,7 +279,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 												productionFactor));
 			}
 
-			double producedOutput = FactoryImpl.this.productionFunction
+			final double producedOutput = FactoryImpl.this.productionFunction
 					.calculateOutput(productionFactorsOwned);
 			ApplicationContext
 					.getInstance()
@@ -324,12 +324,12 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 					.removeAllSellingOffers(FactoryImpl.this,
 							FactoryImpl.this.primaryCurrency,
 							FactoryImpl.this.producedGoodType);
-			double amountInInventory = ApplicationContext
+			final double amountInInventory = ApplicationContext
 					.getInstance()
 					.getPropertyService()
 					.getBalance(FactoryImpl.this,
 							FactoryImpl.this.producedGoodType);
-			double[] prices = FactoryImpl.this.pricingBehaviour
+			final double[] prices = FactoryImpl.this.pricingBehaviour
 					.getCurrentPriceArray();
 			for (double price : prices) {
 				ApplicationContext

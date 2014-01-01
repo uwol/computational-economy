@@ -29,8 +29,9 @@ import compecon.engine.dao.CentralBankDAO;
 public class CentralBankDAOImpl extends HibernateDAOImpl<CentralBank> implements
 		CentralBankDAO {
 
-	public CentralBank findByCurrency(Currency currency) {
-		Object object = getSession().createCriteria(CentralBankImpl.class)
+	public CentralBank findByCurrency(final Currency currency) {
+		final Object object = getSession()
+				.createCriteria(CentralBankImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency))
 				.uniqueResult();
 		if (object == null)

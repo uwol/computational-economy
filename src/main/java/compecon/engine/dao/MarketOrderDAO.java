@@ -35,7 +35,7 @@ public interface MarketOrderDAO extends GenericDAO<MarketOrder> {
 	 * 
 	 * @see compecon.engine.factory.MarketOrderFactory
 	 */
-	public void deleteAllSellingOrders(MarketParticipant offeror);
+	public void deleteAllSellingOrders(final MarketParticipant offeror);
 
 	/**
 	 * WARNING: Should only be called from the market order factory, which
@@ -43,8 +43,8 @@ public interface MarketOrderDAO extends GenericDAO<MarketOrder> {
 	 * 
 	 * @see compecon.engine.factory.MarketOrderFactory
 	 */
-	public void deleteAllSellingOrders(MarketParticipant offeror,
-			Currency currency, GoodType goodType);
+	public void deleteAllSellingOrders(final MarketParticipant offeror,
+			final Currency currency, final GoodType goodType);
 
 	/**
 	 * WARNING: Should only be called from the market order factory, which
@@ -52,8 +52,8 @@ public interface MarketOrderDAO extends GenericDAO<MarketOrder> {
 	 * 
 	 * @see compecon.engine.factory.MarketOrderFactory
 	 */
-	public void deleteAllSellingOrders(MarketParticipant offeror,
-			Currency currency, Currency commodityCurrency);
+	public void deleteAllSellingOrders(final MarketParticipant offeror,
+			final Currency currency, final Currency commodityCurrency);
 
 	/**
 	 * WARNING: Should only be called from the market order factory, which
@@ -61,33 +61,36 @@ public interface MarketOrderDAO extends GenericDAO<MarketOrder> {
 	 * 
 	 * @see compecon.engine.factory.MarketOrderFactory
 	 */
-	public void deleteAllSellingOrders(MarketParticipant offeror,
-			Currency currency, Class<? extends Property> propertyClass);
+	public void deleteAllSellingOrders(final MarketParticipant offeror,
+			final Currency currency,
+			final Class<? extends Property> propertyClass);
 
-	public double findMarginalPrice(Currency currency, GoodType goodType);
+	public double findMarginalPrice(final Currency currency,
+			final GoodType goodType);
 
-	public double findMarginalPrice(Currency currency,
-			Currency commodityCurrency);
+	public double findMarginalPrice(final Currency currency,
+			final Currency commodityCurrency);
 
-	public double findMarginalPrice(Currency currency,
-			Class<? extends Property> propertyClass);
+	public double findMarginalPrice(final Currency currency,
+			final Class<? extends Property> propertyClass);
 
-	public Iterator<MarketOrder> getIterator(Currency currency,
-			GoodType goodType);
+	public Iterator<MarketOrder> getIterator(final Currency currency,
+			final GoodType goodType);
 
-	public Iterator<MarketOrder> getIterator(Currency currency,
-			Currency commodityCurrency);
+	public Iterator<MarketOrder> getIterator(final Currency currency,
+			final Currency commodityCurrency);
 
-	public Iterator<MarketOrder> getIterator(Currency currency,
-			Class<? extends Property> propertyClass);
+	public Iterator<MarketOrder> getIterator(final Currency currency,
+			final Class<? extends Property> propertyClass);
 
-	public Iterator<MarketOrder> getIteratorThreadsafe(Currency currency,
-			GoodType goodType);
+	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency,
+			final GoodType goodType);
 
-	public Iterator<MarketOrder> getIteratorThreadsafe(Currency currency,
-			Currency commodityCurrency);
+	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency,
+			final Currency commodityCurrency);
 
-	public double getAmountSum(Currency currency, GoodType goodType);
+	public double getAmountSum(final Currency currency, final GoodType goodType);
 
-	public double getAmountSum(Currency currency, Currency commodityCurrency);
+	public double getAmountSum(final Currency currency,
+			final Currency commodityCurrency);
 }

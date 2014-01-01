@@ -39,83 +39,81 @@ public class OptimizationRunner {
 	public static void main(String[] args) throws IOException {
 
 		double highestTotalUtility = 0.0;
-		double optimalI = -1;
+		double maxI = -1;
 
 		/*
 		 * iterate
 		 */
 		for (double i = 0.01; i < 0.5; i += 0.03) {
 			for (int repetition = 0; repetition < 3; repetition++) {
-				/*
-				 * setup
-				 */
-				final String configurationPropertiesFilename = System
-						.getProperty("configuration.properties",
-								"interdependencies.configuration.properties");
+				System.out.println("starting simulation run for i: " + i);
 
-				if (HibernateUtil.isActive()) {
-					ApplicationContextFactory
-							.configureHibernateApplicationContext(configurationPropertiesFilename);
-				} else {
-					ApplicationContextFactory
-							.configureInMemoryApplicationContext(configurationPropertiesFilename);
-				}
+				final double totalUtility = runSimulationIteration(i);
 
-				ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
-
-				overwriteConfiguration();
-				HibernateUtil.openSession();
-				JMXRegistration.init();
-
-				/*
-				 * run simulation
-				 */
-				System.out
-						.println("starting simulation run for defaultPriceChangeIncrement: "
-								+ ApplicationContext.getInstance()
-										.getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit);
-
-				ApplicationContext.getInstance().getAgentFactory()
-						.constructAgentsFromConfiguration();
-				ApplicationContext.getInstance().getRunner()
-						.run(new GregorianCalendar(2000, 7, 1).getTime());
-				ApplicationContext.getInstance().getAgentFactory()
-						.deconstructAgents();
-
-				final double totalUtility = ApplicationContext.getInstance()
-						.getModelRegistry()
-						.getNationalEconomyModel(Currency.EURO).totalUtilityOutputModel
-						.getValue();
-
-				System.out
-						.println("simulation run finished for defaultPriceChangeIncrement: "
-								+ ApplicationContext.getInstance()
-										.getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit
-								+ " with totalUtility: " + totalUtility);
+				System.out.println("simulation run finished for i: " + i
+						+ " with totalUtility: " + totalUtility);
 
 				if (totalUtility > highestTotalUtility) {
 					System.out.println("total utility improved");
 					highestTotalUtility = totalUtility;
-					optimalI = ApplicationContext.getInstance()
-							.getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit;
+					maxI = i;
 				}
-
-				/*
-				 * reset application context
-				 */
-				JMXRegistration.close();
-				HibernateUtil.flushSession();
-				HibernateUtil.closeSession();
-				ApplicationContext.getInstance().reset();
 			}
 		}
 
-		System.out.println("best simulation run had total utility: "
-				+ highestTotalUtility + " with defaultPriceChangeIncrement: "
-				+ optimalI);
+		System.out.println("max simulation run had total utility: "
+				+ highestTotalUtility + " with i: " + maxI);
 	}
 
-	public static void overwriteConfiguration() {
+	protected static double runSimulationIteration(final double i)
+			throws IOException {
+		/*
+		 * setup
+		 */
+		final String configurationPropertiesFilename = System.getProperty(
+				"configuration.properties",
+				"interdependencies.configuration.properties");
+
+		if (HibernateUtil.isActive()) {
+			ApplicationContextFactory
+					.configureHibernateApplicationContext(configurationPropertiesFilename);
+		} else {
+			ApplicationContextFactory
+					.configureInMemoryApplicationContext(configurationPropertiesFilename);
+		}
+
+		overwriteConfiguration(i);
+
+		HibernateUtil.openSession();
+		JMXRegistration.init();
+
+		/*
+		 * run simulation
+		 */
+		ApplicationContext.getInstance().getAgentFactory()
+				.constructAgentsFromConfiguration();
+		ApplicationContext.getInstance().getRunner()
+				.run(new GregorianCalendar(2000, 7, 1).getTime());
+		ApplicationContext.getInstance().getAgentFactory().deconstructAgents();
+
+		final double totalUtility = ApplicationContext.getInstance()
+				.getModelRegistry().getNationalEconomyModel(Currency.EURO).totalUtilityOutputModel
+				.getValue();
+
+		/*
+		 * reset application context
+		 */
+		JMXRegistration.close();
+		HibernateUtil.flushSession();
+		HibernateUtil.closeSession();
+		ApplicationContext.getInstance().reset();
+
+		return totalUtility;
+	}
+
+	protected static void overwriteConfiguration(final double i) {
+		System.out.println("overwriting configuration");
+
 		/*
 		 * overwrite default configuration.
 		 */
@@ -135,5 +133,10 @@ public class OptimizationRunner {
 				.put(Currency.USDOLLAR, 0);
 		ApplicationContext.getInstance().getConfiguration().traderConfig.number
 				.put(Currency.YEN, 0);
+
+		/*
+		 * set values for iteration
+		 */
+		ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
 	}
 }

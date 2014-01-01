@@ -49,7 +49,7 @@ public class HibernateDAOImpl<T> implements GenericDAO<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public T find(int id) {
+	public T find(final int id) {
 		return (T) getSession().load(getPersistentClass(), id);
 	}
 
@@ -73,15 +73,15 @@ public class HibernateDAOImpl<T> implements GenericDAO<T> {
 		return getSession().createCriteria(getPersistentClass()).list();
 	}
 
-	public void save(T entity) {
+	public void save(final T entity) {
 		getSession().saveOrUpdate(entity);
 	}
 
-	public void merge(T entity) {
+	public void merge(final T entity) {
 		getSession().merge(entity);
 	}
 
-	public void delete(T entity) {
+	public void delete(final T entity) {
 		getSession().delete(entity);
 		// getSession().evict(entity);
 	}

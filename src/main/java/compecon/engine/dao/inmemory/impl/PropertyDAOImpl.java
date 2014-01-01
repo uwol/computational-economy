@@ -34,7 +34,7 @@ public class PropertyDAOImpl extends
 
 	@Override
 	public synchronized List<Property> findAllPropertiesOfPropertyOwner(
-			PropertyOwner propertyOwner) {
+			final PropertyOwner propertyOwner) {
 		final List<Property> propertiesOfPropertyOwner = this
 				.getInstancesForFirstKey(propertyOwner);
 		if (propertiesOfPropertyOwner != null) {
@@ -45,7 +45,8 @@ public class PropertyDAOImpl extends
 
 	@Override
 	public List<Property> findAllPropertiesOfPropertyOwner(
-			PropertyOwner propertyOwner, Class<? extends Property> propertyClass) {
+			final PropertyOwner propertyOwner,
+			final Class<? extends Property> propertyClass) {
 		final List<Property> propertiesOfClass = new ArrayList<Property>();
 		for (Property property : this
 				.findAllPropertiesOfPropertyOwner(propertyOwner)) {
@@ -57,7 +58,7 @@ public class PropertyDAOImpl extends
 	}
 
 	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer) {
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
 		final List<Property> propertiesIssuedByAgent = this
 				.getInstancesForSecondKey(issuer);
 		if (propertiesIssuedByAgent != null) {
@@ -67,8 +68,8 @@ public class PropertyDAOImpl extends
 	}
 
 	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer,
-			Class<? extends PropertyIssued> propertyClass) {
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
+			final Class<? extends PropertyIssued> propertyClass) {
 		final List<Property> propertiesIssuedByAgent = new ArrayList<Property>();
 		for (Property propertyIssued : this
 				.findAllPropertiesIssuedByAgent(issuer)) {
@@ -80,7 +81,7 @@ public class PropertyDAOImpl extends
 	}
 
 	@Override
-	public synchronized void save(Property property) {
+	public synchronized void save(final Property property) {
 		if (property instanceof PropertyIssued) {
 			super.save(property.getOwner(),
 					((PropertyIssued) property).getIssuer(), property);
@@ -90,8 +91,8 @@ public class PropertyDAOImpl extends
 	}
 
 	@Override
-	public synchronized void transferProperty(PropertyOwner oldOwner,
-			PropertyOwner newOwner, Property property) {
+	public synchronized void transferProperty(final PropertyOwner oldOwner,
+			final PropertyOwner newOwner, final Property property) {
 		// the property is deleted and re-saved, so that the
 		// agent-property-index is updated
 		this.delete(property);

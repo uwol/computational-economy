@@ -30,12 +30,13 @@ public class HouseholdDAOImpl extends
 		HouseholdDAO {
 
 	@Override
-	public synchronized List<Household> findAllByCurrency(Currency currency) {
+	public synchronized List<Household> findAllByCurrency(
+			final Currency currency) {
 		return this.getInstancesForKey(currency);
 	}
 
 	@Override
-	public synchronized void save(Household entity) {
+	public synchronized void save(final Household entity) {
 		super.save(entity.getPrimaryCurrency(), entity);
 	}
 }

@@ -26,5 +26,5 @@ import compecon.economy.sectors.household.Household;
 
 public interface HouseholdDAO extends GenericDAO<Household> {
 
-	public List<Household> findAllByCurrency(Currency currency);
+	public List<Household> findAllByCurrency(final Currency currency);
 }

@@ -505,7 +505,7 @@ public class Configuration {
 	protected final Properties configFile = new Properties();
 
 	public Configuration(final String configFilename) throws IOException {
-		System.out.println("Loading configuration file " + configFilename);
+		System.out.println("loading configuration file " + configFilename);
 		this.configFile.load(Configuration.class.getClassLoader()
 				.getResourceAsStream(configFilename));
 	}

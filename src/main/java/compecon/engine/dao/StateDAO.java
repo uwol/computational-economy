@@ -24,5 +24,5 @@ import compecon.economy.sectors.state.State;
 
 public interface StateDAO extends GenericDAO<State> {
 
-	public State findByCurrency(Currency currency);
+	public State findByCurrency(final Currency currency);
 }

@@ -50,7 +50,7 @@ public abstract class MarketServiceImpl implements MarketService {
 			final double maxTotalPrice, final double maxPricePerUnit,
 			final GoodType goodType) {
 		return this.findBestFulfillmentSet(denominatedInCurrency, maxAmount,
-				maxTotalPrice, maxPricePerUnit, goodType.getWholeNumber(),
+				maxTotalPrice, maxPricePerUnit, goodType.isWholeNumber(),
 				goodType, null, null);
 	}
 

@@ -30,7 +30,7 @@ public class CentralBankDAOImpl extends
 		CentralBankDAO {
 
 	@Override
-	public synchronized CentralBank findByCurrency(Currency currency) {
+	public synchronized CentralBank findByCurrency(final Currency currency) {
 		// should contain only one element
 		final List<CentralBank> centralBanksForCurrency = this
 				.getInstancesForKey(currency);
@@ -44,7 +44,7 @@ public class CentralBankDAOImpl extends
 	}
 
 	@Override
-	public synchronized void save(CentralBank entity) {
+	public synchronized void save(final CentralBank entity) {
 		super.save(entity.getPrimaryCurrency(), entity);
 	}
 }

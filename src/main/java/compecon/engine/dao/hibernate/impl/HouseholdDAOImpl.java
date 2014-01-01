@@ -33,7 +33,7 @@ public class HouseholdDAOImpl extends HibernateDAOImpl<Household> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Household> findAllByCurrency(Currency currency) {
+	public List<Household> findAllByCurrency(final Currency currency) {
 		return (List<Household>) getSession()
 				.createCriteria(HouseholdImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency)).list();

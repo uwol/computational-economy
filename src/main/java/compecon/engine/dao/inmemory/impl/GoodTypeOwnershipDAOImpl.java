@@ -32,7 +32,7 @@ public class GoodTypeOwnershipDAOImpl extends
 
 	@Override
 	public synchronized List<GoodTypeOwnership> findAllByPropertyOwner(
-			PropertyOwner propertyOwner) {
+			final PropertyOwner propertyOwner) {
 		final List<GoodTypeOwnership> goodTypeOwnerships = this
 				.getInstancesForKey(propertyOwner);
 		if (goodTypeOwnerships != null) {
@@ -43,7 +43,7 @@ public class GoodTypeOwnershipDAOImpl extends
 
 	@Override
 	public synchronized GoodTypeOwnership findFirstByPropertyOwner(
-			PropertyOwner propertyOwner) {
+			final PropertyOwner propertyOwner) {
 		final List<GoodTypeOwnership> goodTypeOwnerships = this
 				.getInstancesForKey(propertyOwner);
 		if (goodTypeOwnerships != null && !goodTypeOwnerships.isEmpty()) {
@@ -53,7 +53,7 @@ public class GoodTypeOwnershipDAOImpl extends
 	}
 
 	@Override
-	public synchronized void save(GoodTypeOwnership goodTypeOwnership) {
+	public synchronized void save(final GoodTypeOwnership goodTypeOwnership) {
 		super.save(goodTypeOwnership.getPropertyOwner(), goodTypeOwnership);
 	}
 }

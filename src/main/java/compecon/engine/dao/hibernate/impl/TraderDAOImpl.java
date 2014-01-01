@@ -28,11 +28,12 @@ import compecon.economy.sectors.trading.Trader;
 import compecon.economy.sectors.trading.impl.TraderImpl;
 import compecon.engine.dao.TraderDAO;
 
-public class TraderDAOImpl extends HibernateDAOImpl<Trader> implements TraderDAO {
+public class TraderDAOImpl extends HibernateDAOImpl<Trader> implements
+		TraderDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Trader> findAllByCurrency(Currency currency) {
+	public List<Trader> findAllByCurrency(final Currency currency) {
 		return (List<Trader>) getSession().createCriteria(TraderImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency)).list();
 	}

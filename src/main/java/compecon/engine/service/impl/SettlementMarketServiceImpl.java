@@ -45,7 +45,7 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 			final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate) {
 		return this.buy(goodType, null, null, maxAmount, maxTotalPrice,
-				maxPricePerUnit, goodType.getWholeNumber(), buyer,
+				maxPricePerUnit, goodType.isWholeNumber(), buyer,
 				buyersBankAccountDelegate, null);
 	}
 

@@ -36,11 +36,11 @@ import compecon.math.price.PriceFunction;
 
 public abstract class CompEconTestSupport {
 
-	protected final String configurationPropertiesFilename = "testing.configuration.properties";
+	protected final String testConfigurationPropertiesFilename = "testing.configuration.properties";
 
 	protected final double epsilon = 0.01;
 
-	public void assertOutputIsOptimalUnderBudget(
+	protected void assertOutputIsOptimalUnderBudget(
 			final FunctionImpl<GoodType> function,
 			final double budgetRestriction,
 			final Map<GoodType, PriceFunction> priceFunctions,
@@ -86,9 +86,10 @@ public abstract class CompEconTestSupport {
 	}
 
 	/**
-	 * in an optimum partial derivatives per price have to be identical
+	 * check that partial derivatives per price are identical. Criterion for an
+	 * optimum.
 	 */
-	public void assertPartialDerivativesPerPriceAreEqual(
+	protected void assertPartialDerivativesPerPriceAreEqual(
 			final FunctionImpl<GoodType> function,
 			final Map<GoodType, Double> bundleOfInputs,
 			final Map<GoodType, PriceFunction> priceFunctions) {
@@ -136,7 +137,7 @@ public abstract class CompEconTestSupport {
 		HibernateUtil.openSession();
 	}
 
-	protected void setUpAgents() {
+	protected void setUpTestAgents() {
 		for (Currency currency : Currency.values()) {
 			ApplicationContext.getInstance().getAgentService()
 					.findCentralBank(currency);

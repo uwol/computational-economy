@@ -21,6 +21,7 @@ package compecon.engine.service.impl;
 
 import java.util.List;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -54,6 +55,16 @@ public class AgentServiceImpl implements AgentService {
 	public List<Factory> findFactories(final Currency currency) {
 		return ApplicationContext.getInstance().getFactoryDAO()
 				.findAllByCurrency(currency);
+	}
+
+	@Override
+	public List<Factory> findFactories(final Currency currency,
+			final GoodType producedGoodType) {
+		return ApplicationContext
+				.getInstance()
+				.getFactoryDAO()
+				.findAllByCurrencyAndProducedGoodType(currency,
+						producedGoodType);
 	}
 
 	@Override

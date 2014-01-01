@@ -37,7 +37,7 @@ public interface SimulationRunner {
 	/**
 	 * pauses the simulation loop.
 	 */
-	public void setPaused(boolean paused);
+	public void setPaused(final boolean paused);
 
 	/**
 	 * set a flag that the simulation loop should advance one day.

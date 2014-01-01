@@ -36,7 +36,7 @@ public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 	protected Random randomizer = new Random();
 
 	@Override
-	public synchronized T find(int id) {
+	public synchronized T find(final int id) {
 		return this.instancesByIds.get(id);
 	}
 
@@ -54,18 +54,18 @@ public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 	}
 
 	@Override
-	public synchronized void save(T entity) {
+	public synchronized void save(final T entity) {
 		this.instancesByIds.put(this.lastId, entity);
 		this.lastId++;
 	}
 
 	@Override
-	public synchronized void merge(T entity) {
+	public synchronized void merge(final T entity) {
 		// in-memory entities are never dirty -> no merge necessary
 	}
 
 	@Override
-	public synchronized void delete(T entity) {
+	public synchronized void delete(final T entity) {
 		this.instancesByIds.inverse().remove(entity);
 	}
 }

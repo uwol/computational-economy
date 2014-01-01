@@ -33,15 +33,17 @@ public class GoodTypeOwnershipDAOImpl extends
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<GoodTypeOwnership> findAllByPropertyOwner(PropertyOwner propertyOwner) {
+	public List<GoodTypeOwnership> findAllByPropertyOwner(
+			final PropertyOwner propertyOwner) {
 		return (List<GoodTypeOwnership>) getSession()
 				.createCriteria(GoodTypeOwnershipImpl.class)
 				.add(Restrictions.eq("propertyOwner", propertyOwner)).list();
 	}
 
 	@Override
-	public GoodTypeOwnership findFirstByPropertyOwner(PropertyOwner propertyOwner) {
-		Object object = getSession()
+	public GoodTypeOwnership findFirstByPropertyOwner(
+			final PropertyOwner propertyOwner) {
+		final Object object = getSession()
 				.createCriteria(GoodTypeOwnershipImpl.class)
 				.add(Restrictions.eq("propertyOwner", propertyOwner))
 				.setMaxResults(1).uniqueResult();

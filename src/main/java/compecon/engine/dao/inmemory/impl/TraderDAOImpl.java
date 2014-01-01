@@ -29,12 +29,12 @@ public class TraderDAOImpl extends
 		AbstractIndexedInMemoryDAOImpl<Currency, Trader> implements TraderDAO {
 
 	@Override
-	public synchronized List<Trader> findAllByCurrency(Currency currency) {
+	public synchronized List<Trader> findAllByCurrency(final Currency currency) {
 		return this.getInstancesForKey(currency);
 	}
 
 	@Override
-	public synchronized void save(Trader entity) {
+	public synchronized void save(final Trader entity) {
 		super.save(entity.getPrimaryCurrency(), entity);
 	}
 }

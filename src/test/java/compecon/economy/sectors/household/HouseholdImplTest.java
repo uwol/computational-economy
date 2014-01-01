@@ -39,8 +39,9 @@ public class HouseholdImplTest extends CompEconTestSupport {
 
 	@Before
 	public void setup() throws IOException {
-		super.setUpApplicationContext(configurationPropertiesFilename);
-		super.setUpAgents();
+		super.setUpApplicationContext(testConfigurationPropertiesFilename);
+		ApplicationContext.getInstance().getAgentFactory()
+				.constructAgentsFromConfiguration();
 	}
 
 	@After
@@ -56,10 +57,13 @@ public class HouseholdImplTest extends CompEconTestSupport {
 				.getAgentService().findHouseholds(currency).get(0);
 		Household household2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(1);
+
 		Factory factory1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findFactories(currency).get(0);
+				.getAgentService().findFactories(currency, GoodType.WHEAT)
+				.get(0);
 		Factory factory2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findFactories(currency).get(1);
+				.getAgentService().findFactories(currency, GoodType.COAL)
+				.get(0);
 
 		// provide money to household 1
 		household1_EUR.initialize();

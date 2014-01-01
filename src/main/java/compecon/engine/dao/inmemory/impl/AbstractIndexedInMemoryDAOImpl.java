@@ -35,11 +35,11 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 	 * get instances for key
 	 */
 
-	protected synchronized List<V> getInstancesForKey(K key) {
+	protected synchronized List<V> getInstancesForKey(final K key) {
 		return this.indexedInstances.get(key);
 	}
 
-	protected synchronized List<K> getKeysForInstance(V instance) {
+	protected synchronized List<K> getKeysForInstance(final V instance) {
 		return this.instanceIndexedKeys.get(instance);
 	}
 
@@ -47,7 +47,7 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 	 * actions
 	 */
 
-	protected synchronized void save(K key, V instance) {
+	protected synchronized void save(final K key, final V instance) {
 		if (key != null && instance != null) {
 			// store the value
 			List<V> indexedInstancesForKey = this.indexedInstances.get(key);
@@ -71,7 +71,7 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 		super.save(instance);
 	}
 
-	public synchronized void delete(V instance) {
+	public synchronized void delete(final V instance) {
 		final List<K> keys = getKeysForInstance(instance);
 		if (keys != null) {
 			for (K key : new ArrayList<K>(keys)) {

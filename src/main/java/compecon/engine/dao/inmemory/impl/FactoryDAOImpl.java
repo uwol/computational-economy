@@ -19,8 +19,10 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.dao.inmemory.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.industry.Factory;
 import compecon.engine.dao.FactoryDAO;
@@ -29,12 +31,24 @@ public class FactoryDAOImpl extends
 		AbstractIndexedInMemoryDAOImpl<Currency, Factory> implements FactoryDAO {
 
 	@Override
-	public synchronized List<Factory> findAllByCurrency(Currency currency) {
+	public synchronized List<Factory> findAllByCurrency(final Currency currency) {
 		return this.getInstancesForKey(currency);
 	}
 
 	@Override
-	public synchronized void save(Factory entity) {
+	public synchronized List<Factory> findAllByCurrencyAndProducedGoodType(
+			final Currency currency, final GoodType producedGoodType) {
+		final List<Factory> factoriesProducingGoodType = new ArrayList<Factory>();
+		for (Factory factory : this.getInstancesForKey(currency)) {
+			if (producedGoodType.equals(factory.getProducedGoodType())) {
+				factoriesProducingGoodType.add(factory);
+			}
+		}
+		return factoriesProducingGoodType;
+	}
+
+	@Override
+	public synchronized void save(final Factory entity) {
 		super.save(entity.getPrimaryCurrency(), entity);
 	}
 }

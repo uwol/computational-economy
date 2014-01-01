@@ -54,7 +54,7 @@ public class BankAccountImplFactoryImpl implements BankAccountFactory {
 	}
 
 	public BankAccount newInstanceBankAccount(final BankCustomer owner,
-			final Currency currency, boolean overdraftPossible,
+			final Currency currency, final boolean overdraftPossible,
 			final Bank managingBank, final String name,
 			final TermType termType, final MoneyType moneyType) {
 		BankAccountImpl bankAccount = new BankAccountImpl();

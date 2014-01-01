@@ -31,7 +31,7 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 		BankAccountDAO {
 
 	@Override
-	public void deleteAllBankAccounts(Bank managingBank) {
+	public void deleteAllBankAccounts(final Bank managingBank) {
 		final List<BankAccount> bankAccounts = this
 				.findAllBankAccountsManagedByBank(managingBank);
 		for (BankAccount bankAccount : bankAccounts) {
@@ -40,7 +40,8 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 	}
 
 	@Override
-	public void deleteAllBankAccounts(Bank managingBank, BankCustomer owner) {
+	public void deleteAllBankAccounts(final Bank managingBank,
+			final BankCustomer owner) {
 		final List<BankAccount> bankAccounts = this
 				.findAll(managingBank, owner);
 		for (BankAccount bankAccount : bankAccounts) {
@@ -50,23 +51,25 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAllBankAccountsManagedByBank(Bank managingBank) {
-		String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank";
+	public List<BankAccount> findAllBankAccountsManagedByBank(
+			final Bank managingBank) {
+		final String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank";
 		return getSession().createQuery(hql)
 				.setEntity("managingBank", managingBank).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAllBankAccountsOfAgent(BankCustomer owner) {
-		String hql = "FROM BankAccountImpl ba WHERE ba.owner = :owner";
+	public List<BankAccount> findAllBankAccountsOfAgent(final BankCustomer owner) {
+		final String hql = "FROM BankAccountImpl ba WHERE ba.owner = :owner";
 		return getSession().createQuery(hql).setEntity("owner", owner).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAll(Bank managingBank, BankCustomer owner) {
-		String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank AND ba.owner = :owner";
+	public List<BankAccount> findAll(final Bank managingBank,
+			final BankCustomer owner) {
+		final String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank AND ba.owner = :owner";
 		return getSession().createQuery(hql)
 				.setEntity("managingBank", managingBank)
 				.setEntity("owner", owner).list();
@@ -74,9 +77,9 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAll(Bank managingBank, BankCustomer owner,
-			Currency currency) {
-		String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank AND ba.owner = :owner AND ba.currency = :currency";
+	public List<BankAccount> findAll(final Bank managingBank,
+			final BankCustomer owner, final Currency currency) {
+		final String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank AND ba.owner = :owner AND ba.currency = :currency";
 		return getSession().createQuery(hql)
 				.setEntity("managingBank", managingBank)
 				.setEntity("owner", owner).setParameter("currency", currency)

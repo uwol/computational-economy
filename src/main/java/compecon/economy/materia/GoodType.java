@@ -21,35 +21,53 @@ package compecon.economy.materia;
 
 public enum GoodType {
 
-	LABOURHOUR(false, Sector.TERTIARY), IRON(false, Sector.PRIMARY), COAL(
-			false, Sector.PRIMARY), COTTON(false, Sector.PRIMARY), WHEAT(false,
-			Sector.PRIMARY), FOOD(false, Sector.SECONDARY), CLOTHING(false,
-			Sector.SECONDARY), KILOWATT(false, Sector.SECONDARY), REALESTATE(
-			false, Sector.SECONDARY);
+	LABOURHOUR(false, false, Sector.TERTIARY), IRON(false, false,
+			Sector.PRIMARY), COAL(false, false, Sector.PRIMARY), COTTON(false,
+			false, Sector.PRIMARY), WHEAT(false, false, Sector.PRIMARY), FOOD(
+			false, false, Sector.SECONDARY), CLOTHING(false, false,
+			Sector.SECONDARY), KILOWATT(false, false, Sector.SECONDARY), REALESTATE(
+			false, false, Sector.SECONDARY);
 
-	// CRAFT(false, Sector.TERTIARY), EDUCATION(false, Sector.TERTIARY),
-	// ADMINISTRATION(false, Sector.TERTIARY), CONSULTING(false,
-	// Sector.TERTIARY)
+	// CRAFT(false, false, Sector.TERTIARY), EDUCATION(false, false,
+	// Sector.TERTIARY),
+	// ADMINISTRATION(false, false, Sector.TERTIARY), CONSULTING(false,
+	// false, Sector.TERTIARY)
 
 	public enum Sector {
 		PRIMARY, SECONDARY, TERTIARY;
 	}
 
-	protected final boolean wholeNumber;
+	/**
+	 * capital goods are durable goods <br />
+	 * consumption goods mostly are not durable goods, but can be (e. g. cars) <br />
+	 * <br />
+	 * http://en.wikipedia.org/wiki/Capital_good
+	 */
+	protected final boolean durable;
 
 	protected final Sector sector;
 
-	private GoodType(boolean wholeNumber, Sector sector) {
+	protected final boolean wholeNumber;
+
+	private GoodType(final boolean wholeNumber, final boolean durable,
+			final Sector sector) {
+		this.durable = durable;
 		this.wholeNumber = wholeNumber;
 		this.sector = sector;
-	}
-
-	public boolean getWholeNumber() {
-		return this.wholeNumber;
 	}
 
 	public Sector getSector() {
 		return this.sector;
 	}
 
+	/**
+	 * @see #durable
+	 */
+	public boolean isDurable() {
+		return this.durable;
+	}
+
+	public boolean isWholeNumber() {
+		return this.wholeNumber;
+	}
 }

@@ -28,8 +28,8 @@ import compecon.engine.dao.StateDAO;
 
 public class StateDAOImpl extends HibernateDAOImpl<State> implements StateDAO {
 
-	public StateImpl findByCurrency(Currency currency) {
-		Object object = getSession().createCriteria(StateImpl.class)
+	public StateImpl findByCurrency(final Currency currency) {
+		final Object object = getSession().createCriteria(StateImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency))
 				.uniqueResult();
 		if (object == null)

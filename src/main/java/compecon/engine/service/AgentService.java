@@ -21,6 +21,7 @@ package compecon.engine.service;
 
 import java.util.List;
 
+import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
@@ -36,6 +37,9 @@ public interface AgentService {
 	public List<CreditBank> findCreditBanks(final Currency currency);
 
 	public List<Factory> findFactories(final Currency currency);
+
+	public List<Factory> findFactories(final Currency currency,
+			final GoodType producedGoodType);
 
 	public List<Household> findHouseholds(final Currency currency);
 

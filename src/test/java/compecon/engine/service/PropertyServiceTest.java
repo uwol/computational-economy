@@ -40,8 +40,8 @@ public class PropertyServiceTest extends CompEconTestSupport {
 
 	@Before
 	public void setup() throws IOException {
-		super.setUpApplicationContext(configurationPropertiesFilename);
-		super.setUpAgents();
+		super.setUpApplicationContext(testConfigurationPropertiesFilename);
+		super.setUpTestAgents();
 	}
 
 	@After

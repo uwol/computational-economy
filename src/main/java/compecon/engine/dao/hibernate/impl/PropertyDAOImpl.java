@@ -37,7 +37,7 @@ public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Property> findAllPropertiesOfPropertyOwner(
-			PropertyOwner propertyOwner) {
+			final PropertyOwner propertyOwner) {
 		return (List<Property>) getSession().createCriteria(PropertyImpl.class)
 				.add(Restrictions.eq("owner", propertyOwner)).list();
 	}
@@ -45,14 +45,15 @@ public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Property> findAllPropertiesOfPropertyOwner(
-			PropertyOwner propertyOwner, Class<? extends Property> propertyClass) {
+			final PropertyOwner propertyOwner,
+			final Class<? extends Property> propertyClass) {
 		return (List<Property>) getSession().createCriteria(propertyClass)
 				.add(Restrictions.eq("owner", propertyOwner)).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer) {
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
 		return (List<Property>) getSession()
 				.createCriteria(PropertyIssuedImpl.class)
 				.add(Restrictions.eq("issuer", issuer)).list();
@@ -60,15 +61,15 @@ public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(Agent issuer,
-			Class<? extends PropertyIssued> propertyClass) {
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
+			final Class<? extends PropertyIssued> propertyClass) {
 		return (List<Property>) getSession().createCriteria(propertyClass)
 				.add(Restrictions.eq("issuer", issuer)).list();
 	}
 
 	@Override
-	public void transferProperty(PropertyOwner oldOwner,
-			PropertyOwner newOwner, Property property) {
+	public void transferProperty(final PropertyOwner oldOwner,
+			final PropertyOwner newOwner, final Property property) {
 		property.setOwner(newOwner);
 	}
 }

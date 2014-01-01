@@ -25,9 +25,19 @@ import compecon.economy.agent.Agent;
 
 public interface AgentFactory {
 
+	/**
+	 * constructs agents according to the configuration file supplied to the
+	 * application context.
+	 */
 	public void constructAgentsFromConfiguration();
 
+	/**
+	 * deconstructs all agents by calling the deconstruct method on those.
+	 */
 	public void deconstructAgents();
 
+	/**
+	 * returns a list of all agent types.
+	 */
 	public List<Class<? extends Agent>> getAgentTypes();
 }
