@@ -561,6 +561,9 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			final Map<GoodType, Double> effectiveConsumptionGoodsBundle = new HashMap<GoodType, Double>();
 			for (GoodType goodType : HouseholdImpl.this.utilityFunction
 					.getInputGoodTypes()) {
+				// only non-durable consumption goods should be consumed
+				assert (!goodType.isDurable());
+
 				double balance = ApplicationContext.getInstance()
 						.getPropertyService()
 						.getBalance(HouseholdImpl.this, goodType);

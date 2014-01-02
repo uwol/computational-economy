@@ -342,19 +342,19 @@ public class Configuration {
 	}
 
 	public enum InputOutputModelConfigSetting {
-		InputOutputModelTesting, InputOutputModelSegmented, InputOutputModelInterdependencies
+		InputOutputModelTesting, InputOutputModelNoDependencies, InputOutputModelInterdependencies
 	}
 
 	public class InputOutputModelConfig {
 
-		public InputOutputModelConfigSetting inputOutputModelSetup;
+		public InputOutputModelConfigSetting inputOutputModelSetting;
 
-		public InputOutputModelConfigSetting getInputOutputModelSetup() {
-			if (inputOutputModelSetup == null)
-				inputOutputModelSetup = InputOutputModelConfigSetting
+		public InputOutputModelConfigSetting getInputOutputModelSetting() {
+			if (inputOutputModelSetting == null)
+				inputOutputModelSetting = InputOutputModelConfigSetting
 						.valueOf(configFile.getProperty("inputOutputModel"));
-			assert (inputOutputModelSetup != null);
-			return inputOutputModelSetup;
+			assert (inputOutputModelSetting != null);
+			return inputOutputModelSetting;
 		}
 	}
 

@@ -51,7 +51,8 @@ public class FactoryImplFactoryImpl implements FactoryFactory {
 				.getInstance().getInputOutputModel()
 				.getProductionFunction(goodType);
 
-		assert (productionFunction != null);
+		assert (productionFunction != null) : "no production function defined for good type "
+				+ goodType;
 
 		factory.setProductionFunction(productionFunction);
 

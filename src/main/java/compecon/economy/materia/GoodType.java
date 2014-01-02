@@ -26,7 +26,8 @@ public enum GoodType {
 			false, Sector.PRIMARY), WHEAT(false, false, Sector.PRIMARY), FOOD(
 			false, false, Sector.SECONDARY), CLOTHING(false, false,
 			Sector.SECONDARY), KILOWATT(false, false, Sector.SECONDARY), REALESTATE(
-			false, false, Sector.SECONDARY);
+			false, false, Sector.SECONDARY), MACHINE(false, true,
+			Sector.SECONDARY);
 
 	// CRAFT(false, false, Sector.TERTIARY), EDUCATION(false, false,
 	// Sector.TERTIARY),

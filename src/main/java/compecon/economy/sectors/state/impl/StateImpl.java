@@ -318,6 +318,9 @@ public class StateImpl extends AgentImpl implements State {
 			final Map<GoodType, Double> effectiveConsumptionGoodsBundle = new HashMap<GoodType, Double>();
 			for (GoodType goodType : StateImpl.this.utilityFunction
 					.getInputGoodTypes()) {
+				// only non-durable consumption goods should be consumed
+				assert (!goodType.isDurable());
+
 				double amountToConsume = ApplicationContext.getInstance()
 						.getPropertyService()
 						.getBalance(StateImpl.this, goodType);

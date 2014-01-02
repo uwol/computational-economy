@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import compecon.economy.materia.InputOutputModel;
 import compecon.economy.materia.impl.InputOutputModelInterdependenciesImpl;
-import compecon.economy.materia.impl.InputOutputModelSegementedImpl;
+import compecon.economy.materia.impl.InputOutputModelNoDependenciesImpl;
 import compecon.economy.materia.impl.InputOutputModelTestingImpl;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
 import compecon.engine.factory.impl.AgentImplFactoryImpl;
@@ -112,12 +112,12 @@ public class ApplicationContextFactory {
 		 */
 		final InputOutputModel inputOutputModel;
 
-		switch (configuration.inputOutputModelConfig.getInputOutputModelSetup()) {
+		switch (configuration.inputOutputModelConfig.getInputOutputModelSetting()) {
 		case InputOutputModelTesting:
 			inputOutputModel = new InputOutputModelTestingImpl();
 			break;
-		case InputOutputModelSegmented:
-			inputOutputModel = new InputOutputModelSegementedImpl();
+		case InputOutputModelNoDependencies:
+			inputOutputModel = new InputOutputModelNoDependenciesImpl();
 			break;
 		case InputOutputModelInterdependencies:
 			inputOutputModel = new InputOutputModelInterdependenciesImpl();

@@ -26,6 +26,7 @@ import compecon.economy.materia.GoodType;
 import compecon.economy.materia.InputOutputModel;
 import compecon.math.production.ProductionFunction;
 import compecon.math.production.impl.CESProductionFunctionImpl;
+import compecon.math.production.impl.RootProductionFunctionImpl;
 import compecon.math.utility.UtilityFunction;
 import compecon.math.utility.impl.CESUtilityFunctionImpl;
 
@@ -61,14 +62,19 @@ public class InputOutputModelInterdependenciesImpl implements InputOutputModel {
 
 	public ProductionFunction getProductionFunction(GoodType outputGoodType) {
 		switch (outputGoodType) {
+		case MACHINE:
+			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 5.0);
+
 		case IRON:
 			Map<GoodType, Double> parametersIron = new LinkedHashMap<GoodType, Double>();
 			parametersIron.put(GoodType.LABOURHOUR, 1.0);
+			parametersIron.put(GoodType.MACHINE, 0.2);
 			return new CESProductionFunctionImpl(50.0, parametersIron, -0.7,
 					0.65);
 		case COAL:
 			Map<GoodType, Double> parametersCoal = new LinkedHashMap<GoodType, Double>();
 			parametersCoal.put(GoodType.LABOURHOUR, 1.0);
+			parametersCoal.put(GoodType.MACHINE, 0.2);
 			return new CESProductionFunctionImpl(50.0, parametersCoal, -0.7,
 					0.65);
 		case COTTON:
@@ -76,11 +82,13 @@ public class InputOutputModelInterdependenciesImpl implements InputOutputModel {
 			parametersSteel.put(GoodType.COAL, 0.25);
 			parametersSteel.put(GoodType.LABOURHOUR, 0.25);
 			parametersSteel.put(GoodType.KILOWATT, 0.25);
+			parametersSteel.put(GoodType.MACHINE, 0.2);
 			return new CESProductionFunctionImpl(1.0, parametersSteel, -0.8,
 					0.7);
 		case WHEAT:
 			Map<GoodType, Double> parametersWheat = new LinkedHashMap<GoodType, Double>();
 			parametersWheat.put(GoodType.LABOURHOUR, 1.0);
+			parametersWheat.put(GoodType.MACHINE, 0.2);
 			return new CESProductionFunctionImpl(50.0, parametersWheat, -0.7,
 					0.65);
 

@@ -304,11 +304,17 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			 */
 			for (Entry<GoodType, Double> entry : productionFactorsOwned
 					.entrySet()) {
-				ApplicationContext
-						.getInstance()
-						.getPropertyService()
-						.decrementGoodTypeAmount(FactoryImpl.this,
-								entry.getKey(), entry.getValue());
+				final GoodType productionFactor = entry.getKey();
+
+				// only non-durable production inputs are exhausted; durable
+				// production inputs are capital goods
+				if (!productionFactor.isDurable()) {
+					ApplicationContext
+							.getInstance()
+							.getPropertyService()
+							.decrementGoodTypeAmount(FactoryImpl.this,
+									entry.getKey(), entry.getValue());
+				}
 			}
 
 			return producedOutput;

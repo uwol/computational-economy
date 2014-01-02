@@ -29,7 +29,7 @@ import compecon.math.production.impl.RootProductionFunctionImpl;
 import compecon.math.utility.UtilityFunction;
 import compecon.math.utility.impl.CESUtilityFunctionImpl;
 
-public class InputOutputModelSegementedImpl implements InputOutputModel {
+public class InputOutputModelNoDependenciesImpl implements InputOutputModel {
 
 	public UtilityFunction getUtilityFunctionOfHousehold() {
 		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
