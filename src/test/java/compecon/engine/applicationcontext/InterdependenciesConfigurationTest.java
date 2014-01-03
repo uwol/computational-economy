@@ -46,7 +46,7 @@ public class InterdependenciesConfigurationTest extends CompEconTestSupport {
 	}
 
 	@Test
-	public void dummy() {
+	public void testDummy() {
 
 	}
 }

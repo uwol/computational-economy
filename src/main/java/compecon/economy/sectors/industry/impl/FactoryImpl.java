@@ -203,7 +203,9 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 								FactoryImpl.this.productionFunction
 										.getInputGoodTypes());
 
-				// calculate optimal production plan
+				/*
+				 * calculate optimal production plan
+				 */
 				final double priceOfProducedGoodType = ApplicationContext
 						.getInstance()
 						.getMarketService()
@@ -211,25 +213,51 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 								FactoryImpl.this.primaryCurrency,
 								FactoryImpl.this.producedGoodType);
 
+				final Map<GoodType, Double> capital = ApplicationContext
+						.getInstance().getPropertyService()
+						.getCapitalBalances(FactoryImpl.this);
+
 				getLog().setAgentCurrentlyActive(FactoryImpl.this);
-				final Map<GoodType, Double> productionFactorsToBuy = FactoryImpl.this.productionFunction
+				final Map<GoodType, Double> profitMaximizingProductionFactors = FactoryImpl.this.productionFunction
 						.calculateProfitMaximizingProductionFactors(
 								priceOfProducedGoodType,
-								priceFunctionsOfProductionFactors, budget,
-								Double.NaN, ApplicationContext.getInstance()
+								priceFunctionsOfProductionFactors, capital,
+								budget, Double.NaN,
+								ApplicationContext.getInstance()
 										.getConfiguration().factoryConfig
 										.getMargin());
 
+				final Map<GoodType, Double> profitMaximizingProductionFactorsToBuy = new HashMap<GoodType, Double>(
+						profitMaximizingProductionFactors);
+
+				/*
+				 * the optimal production plan includes capital goods. Only
+				 * surplus capital goods should be bought!
+				 */
+				for (Entry<GoodType, Double> entry : profitMaximizingProductionFactorsToBuy
+						.entrySet()) {
+					final GoodType goodType = entry.getKey();
+					final double profitMaximizingAmountOfGoodType = entry
+							.getValue();
+					final double ownedAmountOfGoodType = MathUtil
+							.nullSafeValue(capital.get(goodType));
+					final double amountOfCapitalGoodTypeToBuy = Math.max(
+							profitMaximizingAmountOfGoodType
+									- ownedAmountOfGoodType, 0.0);
+					profitMaximizingProductionFactorsToBuy.put(goodType,
+							amountOfCapitalGoodTypeToBuy);
+				}
+
 				// buy production factors
 				final double budgetSpent = this
-						.buyProductionFactors(productionFactorsToBuy);
+						.buyProductionFactors(profitMaximizingProductionFactorsToBuy);
 
 				assert (MathUtil.lesserEqual(budgetSpent, budget * 1.2));
 
 				// log credit capacity utilization
-				double creditBudgetCapacity = FactoryImpl.this.budgetingBehaviour
+				final double creditBudgetCapacity = FactoryImpl.this.budgetingBehaviour
 						.getCreditBasedBudgetCapacity();
-				double creditUtilization = -1.0
+				final double creditUtilization = -1.0
 						* FactoryImpl.this.getBankAccountTransactions()
 								.getBalance();
 				getLog().agent_CreditUtilization(FactoryImpl.this,
@@ -270,13 +298,13 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			final Map<GoodType, Double> productionFactorsOwned = new HashMap<GoodType, Double>();
 			for (GoodType productionFactor : FactoryImpl.this.productionFunction
 					.getInputGoodTypes()) {
-				productionFactorsOwned
-						.put(productionFactor,
-								ApplicationContext
-										.getInstance()
-										.getPropertyService()
-										.getBalance(FactoryImpl.this,
-												productionFactor));
+				productionFactorsOwned.put(
+						productionFactor,
+						ApplicationContext
+								.getInstance()
+								.getPropertyService()
+								.getGoodTypeBalance(FactoryImpl.this,
+										productionFactor));
 			}
 
 			final double producedOutput = FactoryImpl.this.productionFunction
@@ -333,7 +361,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			final double amountInInventory = ApplicationContext
 					.getInstance()
 					.getPropertyService()
-					.getBalance(FactoryImpl.this,
+					.getGoodTypeBalance(FactoryImpl.this,
 							FactoryImpl.this.producedGoodType);
 			final double[] prices = FactoryImpl.this.pricingBehaviour
 					.getCurrentPriceArray();

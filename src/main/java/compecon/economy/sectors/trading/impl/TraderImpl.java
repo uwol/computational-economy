@@ -442,7 +442,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 									TraderImpl.this.primaryCurrency, goodType);
 					double amount = ApplicationContext.getInstance()
 							.getPropertyService()
-							.getBalance(TraderImpl.this, goodType);
+							.getGoodTypeBalance(TraderImpl.this, goodType);
 					double marketPrice = ApplicationContext
 							.getInstance()
 							.getMarketService()

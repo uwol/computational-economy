@@ -37,12 +37,19 @@ public interface ProductionFunction {
 			final GoodType differentialGoodType);
 
 	/**
-	 * @return Key: GoodType to buy, Value: Amount to buy
+	 * returns the optimal production plan for this production function under a
+	 * given price of produced good type, prices, capital goods, budget, maximal
+	 * output and minimal margin.
+	 * 
+	 * @param capital
+	 *            Capital goods; have to be durable good types.
+	 * @return Key: Input good type, Value: Amount of good type input
 	 */
 	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(
 			final double priceOfProducedGoodType,
 			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
-			final double budget, final double maxOutput, final double margin);
+			final Map<GoodType, Double> capital, final double budget,
+			final double maxOutput, final double margin);
 
 	public double getProductivity();
 

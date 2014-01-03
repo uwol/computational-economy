@@ -20,6 +20,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -131,35 +133,56 @@ public class PropertyServiceTest extends CompEconTestSupport {
 				.getAgentService().findHouseholds(currency).get(0);
 
 		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
-				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+				.getGoodTypeBalance(household1_EUR, GoodType.IRON), epsilon);
 
 		// increment
 		ApplicationContext.getInstance().getPropertyService()
 				.incrementGoodTypeAmount(household1_EUR, GoodType.IRON, 1.1);
 
 		assertEquals(1.1, ApplicationContext.getInstance().getPropertyService()
-				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+				.getGoodTypeBalance(household1_EUR, GoodType.IRON), epsilon);
 		assertEquals(1.1, ApplicationContext.getInstance().getPropertyService()
-				.getBalances(household1_EUR).get(GoodType.IRON), epsilon);
+				.getGoodTypeBalances(household1_EUR).get(GoodType.IRON), epsilon);
 
 		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
-				.getBalance(household1_EUR, GoodType.WHEAT), epsilon);
+				.getGoodTypeBalance(household1_EUR, GoodType.WHEAT), epsilon);
 		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
-				.getBalances(household1_EUR).get(GoodType.WHEAT), epsilon);
+				.getGoodTypeBalances(household1_EUR).get(GoodType.WHEAT), epsilon);
 
 		// decrement
 		ApplicationContext.getInstance().getPropertyService()
 				.decrementGoodTypeAmount(household1_EUR, GoodType.IRON, 1.0);
 
 		assertEquals(0.1, ApplicationContext.getInstance().getPropertyService()
-				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+				.getGoodTypeBalance(household1_EUR, GoodType.IRON), epsilon);
 
 		// reset
 		ApplicationContext.getInstance().getPropertyService()
 				.resetGoodTypeAmount(household1_EUR, GoodType.IRON);
 
 		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
-				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+				.getGoodTypeBalance(household1_EUR, GoodType.IRON), epsilon);
+	}
+
+	@Test
+	public void testFindCapital() {
+		Currency currency = Currency.EURO;
+
+		Factory factory1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findFactories(currency).get(0);
+
+		// increment
+		ApplicationContext.getInstance().getPropertyService()
+				.incrementGoodTypeAmount(factory1_EUR, GoodType.IRON, 1.0);
+		ApplicationContext.getInstance().getPropertyService()
+				.incrementGoodTypeAmount(factory1_EUR, GoodType.MACHINE, 2.0);
+
+		assertFalse(ApplicationContext.getInstance().getPropertyService()
+				.getCapitalBalances(factory1_EUR).containsKey(GoodType.IRON));
+		assertTrue(ApplicationContext.getInstance().getPropertyService()
+				.getCapitalBalances(factory1_EUR).containsKey(GoodType.MACHINE));
+		assertEquals(2.0, ApplicationContext.getInstance().getPropertyService()
+				.getCapitalBalances(factory1_EUR).get(GoodType.MACHINE), epsilon);
 	}
 
 	@Test
@@ -176,7 +199,7 @@ public class PropertyServiceTest extends CompEconTestSupport {
 				.incrementGoodTypeAmount(household1_EUR, GoodType.IRON, 1.1);
 
 		assertEquals(1.1, ApplicationContext.getInstance().getPropertyService()
-				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+				.getGoodTypeBalance(household1_EUR, GoodType.IRON), epsilon);
 
 		// transfer
 		ApplicationContext
@@ -186,9 +209,9 @@ public class PropertyServiceTest extends CompEconTestSupport {
 						household2_EUR, 1.0);
 
 		assertEquals(0.1, ApplicationContext.getInstance().getPropertyService()
-				.getBalance(household1_EUR, GoodType.IRON), epsilon);
+				.getGoodTypeBalance(household1_EUR, GoodType.IRON), epsilon);
 		assertEquals(1.0, ApplicationContext.getInstance().getPropertyService()
-				.getBalance(household2_EUR, GoodType.IRON), epsilon);
+				.getGoodTypeBalance(household2_EUR, GoodType.IRON), epsilon);
 	}
 
 	@Test

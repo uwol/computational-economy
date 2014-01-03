@@ -42,7 +42,7 @@ public class TestingConfigurationTest extends CompEconTestSupport {
 	}
 
 	@Test
-	public void dummy() {
+	public void testDummy() {
 
 	}
 }

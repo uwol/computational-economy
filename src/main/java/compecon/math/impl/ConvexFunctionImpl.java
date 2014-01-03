@@ -19,6 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.math.impl;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -73,13 +74,26 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 
 		assert (numberOfIterations > 0);
 
-		// check, whether inputs have NaN prices
-		boolean pricesAreNaN = false;
+		// ------ preparation -----------------------------------------
+
+		// initialize inventory
+		final Map<T, Double> inventoryNullSafe = new HashMap<T, Double>();
 		for (T inputType : this.getInputTypes()) {
-			if (Double.isNaN(priceFunctionsOfInputTypes.get(inputType)
-					.getPrice(0.0))) {
-				pricesAreNaN = true;
-				break;
+			inventoryNullSafe.put(inputType, 0.0);
+		}
+
+		// check, whether inputs have NaN prices
+		boolean inputsAreUnavailable = false;
+		for (T inputType : this.getInputTypes()) {
+			final double inventoryAmount = inventoryNullSafe.get(inputType);
+			// if the input type is not available in the inventory
+			if (inventoryAmount <= 0.0) {
+				// if the good type is not available on markets
+				if (Double.isNaN(priceFunctionsOfInputTypes.get(inputType)
+						.getPrice(0.0))) {
+					inputsAreUnavailable = true;
+					break;
+				}
 			}
 		}
 
@@ -90,7 +104,8 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 		// special case: if some prices are NaN, then not all inputs can be set.
 		// This becomes a problem, if all inputs have to be set -> return zero
 		// input
-		if (pricesAreNaN && this.needsAllInputFactorsNonZeroForPartialDerivate) {
+		if (inputsAreUnavailable
+				&& this.needsAllInputFactorsNonZeroForPartialDerivate) {
 			getLog().log(
 					"at least one of the prices is Double.NaN, but the function needs all inputs set -> no calculation");
 			getLog().agent_onCalculateOutputMaximizingInputsIterative(budget,
@@ -116,11 +131,12 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 		}
 
 		/*
-		 * regular calculation
+		 * initialization
 		 */
-		double budgetSpent = 0.0;
-		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
+		final Map<T, Double> bundleOfInputs = new HashMap<T, Double>(
+				inventoryNullSafe);
 
+		// determine initialization value
 		final double initializationValueForInputs;
 		if (this.needsAllInputFactorsNonZeroForPartialDerivate) {
 			initializationValueForInputs = initializationValue;
@@ -128,10 +144,19 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 			initializationValueForInputs = 0.0;
 		}
 
-		// initialize
+		// set initialization value
 		for (T inputType : this.getInputTypes()) {
-			bundleOfInputs.put(inputType, initializationValueForInputs);
+			bundleOfInputs.put(inputType,
+					MathUtil.nullSafeValue(bundleOfInputs.get(inputType))
+							+ initializationValueForInputs);
 		}
+
+		// ------ calculation -----------------------------------------
+
+		/*
+		 * iterative calculation of maximizing inputs
+		 */
+		double budgetSpent = 0.0;
 
 		// maximize output
 		final int NUMBER_OF_ITERATIONS = bundleOfInputs.size()
@@ -150,7 +175,8 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 			}
 
 			final T optimalInputType = this.findHighestPartialDerivatePerPrice(
-					bundleOfInputs, priceFunctionsOfInputTypes);
+					bundleOfInputs, priceFunctionsOfInputTypes,
+					inventoryNullSafe);
 
 			// no optimal input type could be found, i. e. markets are sold out
 			if (optimalInputType == null) {
@@ -162,15 +188,18 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 			} else {
 				final double oldAmountOfOptimalInputType = bundleOfInputs
 						.get(optimalInputType);
+				final double priceRelevantAmountOfOptimalInputType = Math.max(
+						bundleOfInputs.get(optimalInputType)
+								- inventoryNullSafe.get(optimalInputType), 0.0);
 				final double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
 						.get(optimalInputType).getMarginalPrice(
-								bundleOfInputs.get(optimalInputType));
+								priceRelevantAmountOfOptimalInputType);
 
 				// additional amounts have to grow slowly, so that the solution
 				// space is not left
 				final double additionalAmountOfInputType = Math.min(
 						budgetPerIteration / marginalPriceOfOptimalInputType,
-						Math.max(bundleOfInputs.get(optimalInputType),
+						Math.max(priceRelevantAmountOfOptimalInputType,
 								initializationValue));
 				bundleOfInputs.put(optimalInputType,
 						oldAmountOfOptimalInputType
@@ -183,11 +212,12 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 			}
 		}
 
+		// ------ cleanup -----------------------------------------
+
 		// reset initialization values
 		for (T inputType : this.getInputTypes()) {
 			bundleOfInputs.put(inputType, bundleOfInputs.get(inputType)
 					- initializationValueForInputs);
-
 		}
 
 		return bundleOfInputs;

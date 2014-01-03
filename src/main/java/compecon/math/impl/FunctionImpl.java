@@ -38,14 +38,14 @@ public abstract class FunctionImpl<T> implements Function<T> {
 		this.needsAllInputFactorsNonZeroForPartialDerivate = needsAllInputFactorsNonZeroForPartialDerivate;
 	}
 
-	public T findLargestPartialDerivate(Map<T, Double> bundleOfInputs) {
+	public T findLargestPartialDerivate(final Map<T, Double> bundleOfInputs) {
 		@SuppressWarnings("unchecked")
 		T optimalInputType = (T) this.getInputTypes().toArray()[0];
 		double optimalPartialDerivate = 0;
 
 		for (T inputType : this.getInputTypes()) {
-			double partialDerivate = this.partialDerivative(bundleOfInputs,
-					inputType);
+			final double partialDerivate = this.partialDerivative(
+					bundleOfInputs, inputType);
 			if (optimalInputType == null
 					|| MathUtil
 							.greater(partialDerivate, optimalPartialDerivate)) {
@@ -56,17 +56,21 @@ public abstract class FunctionImpl<T> implements Function<T> {
 		return optimalInputType;
 	}
 
-	public T findHighestPartialDerivatePerPrice(Map<T, Double> bundleOfInputs,
-			Map<T, PriceFunction> priceFunctionsOfInputTypes) {
+	public T findHighestPartialDerivatePerPrice(
+			final Map<T, Double> bundleOfInputs,
+			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
+			final Map<T, Double> inventory) {
 		T optimalInputType = null;
 		double highestPartialDerivatePerPrice = 0.0;
 		for (T inputType : this.getInputTypes()) {
-			double partialDerivative = this.partialDerivative(bundleOfInputs,
-					inputType);
-			double marginalPrice = priceFunctionsOfInputTypes.get(inputType)
-					.getMarginalPrice(bundleOfInputs.get(inputType));
+			final double partialDerivative = this.partialDerivative(
+					bundleOfInputs, inputType);
+			final double amountToBuy = Math.max(bundleOfInputs.get(inputType)
+					- inventory.get(inputType), 0.0);
+			final double marginalPrice = priceFunctionsOfInputTypes.get(
+					inputType).getMarginalPrice(amountToBuy);
 			if (!Double.isNaN(marginalPrice)) {
-				double partialDerivativePerPrice = partialDerivative
+				final double partialDerivativePerPrice = partialDerivative
 						/ marginalPrice;
 
 				assert (!Double.isNaN(partialDerivativePerPrice));
@@ -80,11 +84,13 @@ public abstract class FunctionImpl<T> implements Function<T> {
 		return optimalInputType;
 	}
 
-	public Map<T, Double> partialDerivatives(Map<T, Double> forBundleOfInputs) {
-		Map<T, Double> partialDerivatives = new HashMap<T, Double>();
-		for (T inputType : this.getInputTypes())
+	public Map<T, Double> partialDerivatives(
+			final Map<T, Double> forBundleOfInputs) {
+		final Map<T, Double> partialDerivatives = new HashMap<T, Double>();
+		for (T inputType : this.getInputTypes()) {
 			partialDerivatives.put(inputType,
 					this.partialDerivative(forBundleOfInputs, inputType));
+		}
 		return partialDerivatives;
 	}
 
@@ -102,7 +108,7 @@ public abstract class FunctionImpl<T> implements Function<T> {
 	public Map<T, Double> calculateOutputMaximizingInputsByRangeScan(
 			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
 			final double budget) {
-		Map<T, Double> optimalBundleOfInputs = this
+		final Map<T, Double> optimalBundleOfInputs = this
 				.calculateOutputMaximizingInputsByRangeScan(
 						priceFunctionsOfInputTypes, budget, 0.0,
 						new HashMap<T, Double>());
@@ -126,16 +132,17 @@ public abstract class FunctionImpl<T> implements Function<T> {
 		T currentInputType = identifyNextUnsetInputType(currentBundleOfInputs);
 		// if a bundle of inputs has been chosen
 		if (currentInputType == null) {
-			if (this.f(currentBundleOfInputs) > minOutput)
+			if (this.f(currentBundleOfInputs) > minOutput) {
 				return currentBundleOfInputs;
-			else
+			} else {
 				return new HashMap<T, Double>();
+			}
 		}
 		// if at least one input good type has not been chosen
 		else {
 			// the amount of this input type is limited by the remaining budget
-			double maxInputOfCurrentInputType;
-			double initialPriceOfCurrentInputType = priceFunctionsOfInputTypes
+			final double maxInputOfCurrentInputType;
+			final double initialPriceOfCurrentInputType = priceFunctionsOfInputTypes
 					.get(currentInputType).getPrice(0.0);
 
 			if (Double.isNaN(initialPriceOfCurrentInputType)) {
@@ -194,10 +201,11 @@ public abstract class FunctionImpl<T> implements Function<T> {
 		}
 	}
 
-	private T identifyNextUnsetInputType(Map<T, Double> bundleOfInputs) {
+	private T identifyNextUnsetInputType(final Map<T, Double> bundleOfInputs) {
 		for (T inputType : this.getInputTypes()) {
-			if (!bundleOfInputs.containsKey(inputType))
+			if (!bundleOfInputs.containsKey(inputType)) {
 				return inputType;
+			}
 		}
 		return null;
 	}

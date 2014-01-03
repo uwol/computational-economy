@@ -94,4 +94,7 @@ public class MathUtil {
 		return Math.log(num) / Math.log(base);
 	}
 
+	public static double nullSafeValue(final Double number) {
+		return number == null ? 0.0 : number;
+	}
 }

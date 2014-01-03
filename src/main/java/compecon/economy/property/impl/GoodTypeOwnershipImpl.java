@@ -85,4 +85,10 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 	public void setPropertyOwner(PropertyOwner propertyOwner) {
 		this.propertyOwner = propertyOwner;
 	}
+
+	@Override
+	public String toString() {
+		return "id=[" + this.id + "], propertyOwner=[" + this.propertyOwner
+				+ "], ownedGoodTypes=[" + this.ownedGoodTypes + "]";
+	}
 }

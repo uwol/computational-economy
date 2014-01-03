@@ -75,7 +75,7 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 
 		Map<GoodType, Double> optimalInputsIterative = cobbDouglasProductionFunction
 				.calculateProfitMaximizingProductionFactorsIterative(10.0,
-						priceFunctions, budget, Double.NaN, 0.0,
+						priceFunctions, null, budget, Double.NaN, 0.0,
 						numberOfIterations);
 
 		/*
@@ -155,7 +155,7 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 
 		Map<GoodType, Double> optimalInputsIterative = cobbDouglasProductionFunction
 				.calculateProfitMaximizingProductionFactorsIterative(10.0,
-						priceFunctions, budget, Double.NaN, 0.0,
+						priceFunctions, null, budget, Double.NaN, 0.0,
 						numberOfIterations);
 
 		/*
@@ -182,5 +182,101 @@ public class CobbDouglasProductionFunctionTest extends CompEconTestSupport {
 		assertEquals(0.7914,
 				cobbDouglasProductionFunction.calculateMarginalOutput(
 						optimalInputsIterative, GoodType.WHEAT), epsilon);
+	}
+
+	@Test
+	public void testCalculateProductionOutputWithMarketPricesAndCapital() {
+		Currency currency = Currency.EURO;
+
+		Household household1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(0);
+		Household household2_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(1);
+
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						10, 2);
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						10, 1);
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						10, 1);
+
+		/*
+		 * capital
+		 */
+		Map<GoodType, Double> capital = new HashMap<GoodType, Double>();
+		capital.put(GoodType.MACHINE, 5.0);
+
+		/*
+		 * prepare function
+		 */
+		Map<GoodType, Double> exponents = new HashMap<GoodType, Double>();
+		exponents.put(GoodType.KILOWATT, 0.4);
+		exponents.put(GoodType.WHEAT, 0.5);
+		exponents.put(GoodType.MACHINE, 0.1);
+		CobbDouglasProductionFunctionImpl cobbDouglasProductionFunction = new CobbDouglasProductionFunctionImpl(
+				1.0, exponents);
+
+		/*
+		 * maximize output under budget restriction
+		 */
+		Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
+		priceFunctions.put(GoodType.KILOWATT,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarketPriceFunction(currency, GoodType.KILOWATT));
+		priceFunctions.put(GoodType.WHEAT,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarketPriceFunction(currency, GoodType.WHEAT));
+		priceFunctions.put(GoodType.MACHINE,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarketPriceFunction(currency, GoodType.MACHINE));
+
+		double budget = 50.0;
+
+		Map<GoodType, Double> optimalInputsIterative = cobbDouglasProductionFunction
+				.calculateProfitMaximizingProductionFactorsIterative(10.0,
+						priceFunctions, capital, budget, Double.NaN, 0.0,
+						numberOfIterations);
+
+		/*
+		 * assert inputs
+		 */
+		assertEquals(20.0, optimalInputsIterative.get(GoodType.KILOWATT),
+				epsilon * 2.0);
+		assertEquals(10.0, optimalInputsIterative.get(GoodType.WHEAT),
+				epsilon * 2.0);
+		assertEquals(5.0, optimalInputsIterative.get(GoodType.MACHINE),
+				epsilon * 2.0);
+
+		/*
+		 * assert output
+		 */
+		assertEquals(12.31144413,
+				cobbDouglasProductionFunction
+						.calculateOutput(optimalInputsIterative), epsilon);
+
+		/*
+		 * assert marginal outputs
+		 */
+		assertEquals(0.246228883,
+				cobbDouglasProductionFunction.calculateMarginalOutput(
+						optimalInputsIterative, GoodType.KILOWATT), epsilon);
+		assertEquals(0.615572207,
+				cobbDouglasProductionFunction.calculateMarginalOutput(
+						optimalInputsIterative, GoodType.WHEAT), epsilon);
+		assertEquals(0.246228883,
+				cobbDouglasProductionFunction.calculateMarginalOutput(
+						optimalInputsIterative, GoodType.MACHINE), epsilon);
 	}
 }

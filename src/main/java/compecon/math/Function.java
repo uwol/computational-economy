@@ -38,18 +38,29 @@ public interface Function<T> {
 
 	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate();
 
-	public double f(Map<T, Double> bundleOfInputs);
+	public double f(final Map<T, Double> bundleOfInputs);
 
-	public double partialDerivative(Map<T, Double> forBundleOfInputs,
-			T withRespectToInput);
+	public double partialDerivative(final Map<T, Double> forBundleOfInputs,
+			final T withRespectToInput);
 
-	public Map<T, Double> partialDerivatives(Map<T, Double> forBundleOfInputs);
+	public Map<T, Double> partialDerivatives(
+			final Map<T, Double> forBundleOfInputs);
 
-	public T findLargestPartialDerivate(Map<T, Double> forBundleOfInputs);
+	public T findLargestPartialDerivate(final Map<T, Double> forBundleOfInputs);
 
 	/**
-	 * @return null, if markets are sold out
+	 * @param bundleOfInputs
+	 *            has to contain all elements from {@link #getInputTypes()} as
+	 *            keys.
+	 * @param priceFunctionsOfInputTypes
+	 *            has to contain all elements from {@link #getInputTypes()} as
+	 *            keys.
+	 * @param inventory
+	 *            null allowed.
+	 * @return null, if markets are sold out.
 	 */
-	public T findHighestPartialDerivatePerPrice(Map<T, Double> bundleOfInputs,
-			Map<T, PriceFunction> priceFunctionsOfInputTypes);
+	public T findHighestPartialDerivatePerPrice(
+			final Map<T, Double> bundleOfInputs,
+			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
+			final Map<T, Double> inventory);
 }

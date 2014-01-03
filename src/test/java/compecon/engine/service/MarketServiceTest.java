@@ -192,7 +192,7 @@ public class MarketServiceTest extends CompEconTestSupport {
 
 		// check property and money transaction
 		assertEquals(5, ApplicationContext.getInstance().getPropertyService()
-				.getBalance(factory1_WHEAT_EUR, goodType), epsilon);
+				.getGoodTypeBalance(factory1_WHEAT_EUR, goodType), epsilon);
 		assertEquals(-15.0, factory1_WHEAT_EUR
 				.getBankAccountTransactionsDelegate().getBankAccount()
 				.getBalance(), epsilon);

@@ -31,7 +31,7 @@ public abstract class UtilityFunctionImpl implements UtilityFunction {
 
 	protected Function<GoodType> delegate;
 
-	protected UtilityFunctionImpl(Function<GoodType> delegate) {
+	protected UtilityFunctionImpl(final Function<GoodType> delegate) {
 		this.delegate = delegate;
 	}
 
@@ -41,31 +41,32 @@ public abstract class UtilityFunctionImpl implements UtilityFunction {
 	}
 
 	@Override
-	public double calculateUtility(Map<GoodType, Double> bundleOfInputGoods) {
+	public double calculateUtility(
+			final Map<GoodType, Double> bundleOfInputGoods) {
 		return this.delegate.f(bundleOfInputGoods);
 	}
 
 	@Override
 	public double calculateMarginalUtility(
-			Map<GoodType, Double> bundleOfInputGoods,
-			GoodType differentialInputGoodType) {
+			final Map<GoodType, Double> bundleOfInputGoods,
+			final GoodType differentialInputGoodType) {
 		return this.delegate.partialDerivative(bundleOfInputGoods,
 				differentialInputGoodType);
 	}
 
 	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputs(
-			Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
-			double budget) {
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
+			final double budget) {
 		return ((Function<GoodType>) this.delegate)
 				.calculateOutputMaximizingInputs(priceFunctionsOfInputGoods,
 						budget);
 	}
 
 	protected GoodType selectInputWithHighestMarginalUtilityPerPrice(
-			Map<GoodType, Double> bundleOfInputGoods,
-			Map<GoodType, PriceFunction> priceFunctionsOfInputGoods) {
+			final Map<GoodType, Double> bundleOfInputGoods,
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods) {
 		return this.delegate.findHighestPartialDerivatePerPrice(
-				bundleOfInputGoods, priceFunctionsOfInputGoods);
+				bundleOfInputGoods, priceFunctionsOfInputGoods, null);
 	}
 }

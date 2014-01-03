@@ -70,15 +70,22 @@ public interface PropertyService {
 			final Class<? extends PropertyIssued> propertyClass);
 
 	/**
+	 * returns the amounts of all capital owned by the given property owner.
+	 */
+	public Map<GoodType, Double> getCapitalBalances(
+			final PropertyOwner propertyOwner);
+
+	/**
 	 * returns the amount of given good type owned by the given property owner.
 	 */
-	public double getBalance(final PropertyOwner propertyOwner,
+	public double getGoodTypeBalance(final PropertyOwner propertyOwner,
 			final GoodType goodType);
 
 	/**
 	 * returns the amounts of all good types owned by the given property owner.
 	 */
-	public Map<GoodType, Double> getBalances(final PropertyOwner propertyOwner);
+	public Map<GoodType, Double> getGoodTypeBalances(
+			final PropertyOwner propertyOwner);
 
 	/**
 	 * @see #decrementGoodTypeAmount(PropertyOwner, GoodType, double)

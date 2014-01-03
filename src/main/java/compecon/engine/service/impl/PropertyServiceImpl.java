@@ -19,6 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -61,16 +62,18 @@ public class PropertyServiceImpl implements PropertyService {
 		return goodTypeOwnership;
 	}
 
+	@Override
 	public double decrementGoodTypeAmount(final PropertyOwner propertyOwner,
 			final GoodType goodType, double amount) {
 		assert (amount >= 0.0);
 
-		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
-		double oldBalance = goodTypeOwnership.getOwnedGoodTypes().get(goodType);
+		final GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
+		final double oldBalance = goodTypeOwnership.getOwnedGoodTypes().get(
+				goodType);
 
 		assert (oldBalance >= amount || MathUtil.equal(oldBalance, amount));
 
-		double newBalance = Math.max(oldBalance - amount, 0);
+		final double newBalance = Math.max(oldBalance - amount, 0);
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, newBalance);
 
 		HibernateUtil.flushSession();
@@ -78,17 +81,20 @@ public class PropertyServiceImpl implements PropertyService {
 		return newBalance;
 	}
 
+	@Override
 	public void deleteProperty(final Property property) {
 		ApplicationContext.getInstance().getPropertyDAO().delete(property);
 		HibernateUtil.flushSession();
 	}
 
+	@Override
 	public List<Property> findAllPropertiesOfPropertyOwner(
 			final PropertyOwner propertyOwner) {
 		return ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesOfPropertyOwner(propertyOwner);
 	}
 
+	@Override
 	public List<Property> findAllPropertiesOfPropertyOwner(
 			final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass) {
@@ -96,40 +102,61 @@ public class PropertyServiceImpl implements PropertyService {
 				.findAllPropertiesOfPropertyOwner(propertyOwner, propertyClass);
 	}
 
+	@Override
 	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
 		return ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesIssuedByAgent(issuer);
 	}
 
+	@Override
 	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
 			final Class<? extends PropertyIssued> propertyClass) {
 		return ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesIssuedByAgent(issuer, propertyClass);
 	}
 
-	public double getBalance(final PropertyOwner propertyOwner,
+	@Override
+	public Map<GoodType, Double> getCapitalBalances(
+			final PropertyOwner propertyOwner) {
+		final Map<GoodType, Double> capital = new HashMap<GoodType, Double>();
+		for (Entry<GoodType, Double> entry : this.getGoodTypeBalances(
+				propertyOwner).entrySet()) {
+			if (entry.getKey().isDurable()) {
+				capital.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return capital;
+	}
+
+	@Override
+	public double getGoodTypeBalance(final PropertyOwner propertyOwner,
 			final GoodType goodType) {
 		assureGoodTypeOwnership(propertyOwner);
 
-		GoodTypeOwnership goodTypeOwnership = ApplicationContext.getInstance()
-				.getGoodTypeOwnershipDAO()
+		final GoodTypeOwnership goodTypeOwnership = ApplicationContext
+				.getInstance().getGoodTypeOwnershipDAO()
 				.findFirstByPropertyOwner(propertyOwner);
 		return goodTypeOwnership.getOwnedGoodTypes().get(goodType);
 	}
 
-	public Map<GoodType, Double> getBalances(final PropertyOwner propertyOwner) {
+	@Override
+	public Map<GoodType, Double> getGoodTypeBalances(
+			final PropertyOwner propertyOwner) {
 		assureGoodTypeOwnership(propertyOwner);
 
-		return ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
-				.findFirstByPropertyOwner(propertyOwner).getOwnedGoodTypes();
+		return new HashMap<GoodType, Double>(ApplicationContext.getInstance()
+				.getGoodTypeOwnershipDAO()
+				.findFirstByPropertyOwner(propertyOwner).getOwnedGoodTypes());
 	}
 
+	@Override
 	public double incrementGoodTypeAmount(final PropertyOwner propertyOwner,
 			final GoodType goodType, double amount) {
 		assert (amount >= 0.0);
 
-		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
-		double newBalance = goodTypeOwnership.getOwnedGoodTypes().get(goodType)
+		final GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
+		final double newBalance = goodTypeOwnership.getOwnedGoodTypes().get(
+				goodType)
 				+ amount;
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, newBalance);
 
@@ -138,14 +165,16 @@ public class PropertyServiceImpl implements PropertyService {
 		return newBalance;
 	}
 
+	@Override
 	public void resetGoodTypeAmount(final PropertyOwner propertyOwner,
 			final GoodType goodType) {
-		GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
+		final GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, 0.0);
 
 		HibernateUtil.flushSession();
 	}
 
+	@Override
 	public void transferGoodTypeAmount(final GoodType goodType,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner,
 			final double amount) {
@@ -158,6 +187,7 @@ public class PropertyServiceImpl implements PropertyService {
 	/**
 	 * newOwner with value null is allowed, e. g. for shares
 	 */
+	@Override
 	public void transferProperty(final Property property,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner) {
 
@@ -175,6 +205,7 @@ public class PropertyServiceImpl implements PropertyService {
 		HibernateUtil.flushSession();
 	}
 
+	@Override
 	public void transferEverythingToRandomAgent(final PropertyOwner oldOwner) {
 		if (oldOwner == null)
 			return;

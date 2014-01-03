@@ -25,6 +25,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import compecon.economy.sectors.financial.CreditBankTest;
 import compecon.economy.sectors.household.HouseholdImplTest;
+import compecon.economy.sectors.industry.FactoryImplTest;
 import compecon.engine.applicationcontext.InterdependenciesConfigurationTest;
 import compecon.engine.applicationcontext.NoDependenciesConfigurationTest;
 import compecon.engine.applicationcontext.TestingConfigurationTest;
@@ -45,8 +46,8 @@ import compecon.math.utility.CobbDouglasUtilityFunctionTest;
 		BankAccountDAOTest.class, HouseholdDAOTest.class,
 		PropertyDAOTest.class, AgentServiceTest.class, MarketServiceTest.class,
 		PropertyServiceTest.class, CreditBankTest.class,
-		HouseholdImplTest.class, CobbDouglasFunctionTest.class,
-		CobbDouglasUtilityFunctionTest.class,
+		HouseholdImplTest.class, FactoryImplTest.class,
+		CobbDouglasFunctionTest.class, CobbDouglasUtilityFunctionTest.class,
 		CobbDouglasProductionFunctionTest.class, CESFunctionTest.class })
 public class CompEconTestSuite {
 }

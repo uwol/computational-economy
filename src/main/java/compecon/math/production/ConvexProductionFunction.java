@@ -19,7 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.math.production;
 
-public interface ConvexProductionFunction {
+public interface ConvexProductionFunction extends ProductionFunction {
 
 	public enum ConvexProductionFunctionTerminationCause {
 		INPUT_FACTOR_UNAVAILABLE, ESTIMATED_REVENUE_PER_UNIT_ZERO, NO_INPUT_AVAILABLE, MARGINAL_REVENUE_EXCEEDED, MAX_OUTPUT_EXCEEDED, BUDGET_PLANNED;

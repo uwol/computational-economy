@@ -357,12 +357,13 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			/*
 			 * economic actions
 			 */
-			double budget = this.saveMoney();
+			final double budget = this.saveMoney();
 
-			double numberOfLabourHoursToConsume = this
+			final double numberOfLabourHoursToConsume = this
 					.buyOptimalGoodsForBudget(budget);
 
-			double utility = this.consumeGoods(numberOfLabourHoursToConsume);
+			final double utility = this
+					.consumeGoods(numberOfLabourHoursToConsume);
 
 			this.offerLabourHours();
 
@@ -398,7 +399,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			// do households save for retirement?
 			if (ApplicationContext.getInstance().getConfiguration().householdConfig
 					.getRetirementSaving()) {
-				Map<Period, Double> intertemporalConsumptionPlan = HouseholdImpl.this.intertemporalConsumptionFunction
+				final Map<Period, Double> intertemporalConsumptionPlan = HouseholdImpl.this.intertemporalConsumptionFunction
 						.calculateUtilityMaximizingConsumptionPlan(
 								income,
 								HouseholdImpl.this.bankAccountSavings
@@ -489,7 +490,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 			if (MathUtil.greater(budget, 0.0)) {
 				// get prices for good types
-				Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
+				final Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
 						.getInstance()
 						.getMarketService()
 						.getFixedPriceFunctions(
@@ -499,18 +500,18 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 				// calculate optimal consumption plan
 				getLog().setAgentCurrentlyActive(HouseholdImpl.this);
-				Map<GoodType, Double> plannedConsumptionGoodsBundle = HouseholdImpl.this.utilityFunction
+				final Map<GoodType, Double> utilityMaximizingGoodsBundle = HouseholdImpl.this.utilityFunction
 						.calculateUtilityMaximizingInputs(priceFunctions,
 								budget);
-				numberOfLabourHoursToConsume = plannedConsumptionGoodsBundle
+				numberOfLabourHoursToConsume = utilityMaximizingGoodsBundle
 						.get(GoodType.LABOURHOUR);
 
 				// no labour hours should be bought on markets
-				plannedConsumptionGoodsBundle.remove(GoodType.LABOURHOUR);
+				utilityMaximizingGoodsBundle.remove(GoodType.LABOURHOUR);
 
 				// buy goods
-				double budgetSpent = this.buyGoods(
-						plannedConsumptionGoodsBundle, priceFunctions, budget);
+				final double budgetSpent = this.buyGoods(
+						utilityMaximizingGoodsBundle, priceFunctions, budget);
 
 				assert (MathUtil.lesserEqual(budgetSpent, budget * 1.1));
 			}
@@ -527,16 +528,16 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			 */
 			double budgetSpent = 0.0;
 			for (Entry<GoodType, Double> entry : goodsToBuy.entrySet()) {
-				GoodType goodTypeToBuy = entry.getKey();
-				double amountToBuy = entry.getValue();
+				final GoodType goodTypeToBuy = entry.getKey();
+				final double amountToBuy = entry.getValue();
 				if (MathUtil.greater(amountToBuy, 0.0)) {
-					double marginalPrice = priceFunctions.get(goodTypeToBuy)
-							.getMarginalPrice(0.0);
+					final double marginalPrice = priceFunctions.get(
+							goodTypeToBuy).getMarginalPrice(0.0);
 
 					// maxPricePerUnit is significantly important for price
 					// equilibrium; also budget, as in the depth of the markets,
 					// prices can rise, leading to overspending
-					double[] priceAndAmount = ApplicationContext
+					final double[] priceAndAmount = ApplicationContext
 							.getInstance()
 							.getMarketService()
 							.buy(goodTypeToBuy,
@@ -564,10 +565,10 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				// only non-durable consumption goods should be consumed
 				assert (!goodType.isDurable());
 
-				double balance = ApplicationContext.getInstance()
+				final double balance = ApplicationContext.getInstance()
 						.getPropertyService()
-						.getBalance(HouseholdImpl.this, goodType);
-				double amountToConsume;
+						.getGoodTypeBalance(HouseholdImpl.this, goodType);
+				final double amountToConsume;
 				if (GoodType.LABOURHOUR.equals(goodType)) {
 					amountToConsume = Math.min(numberOfLabourHoursToConsume,
 							balance);
@@ -581,7 +582,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 						.decrementGoodTypeAmount(HouseholdImpl.this, goodType,
 								amountToConsume);
 			}
-			double utility = HouseholdImpl.this.utilityFunction
+			final double utility = HouseholdImpl.this.utilityFunction
 					.calculateUtility(effectiveConsumptionGoodsBundle);
 			getLog().household_onUtility(HouseholdImpl.this,
 					HouseholdImpl.this.bankAccountTransactions.getCurrency(),
@@ -608,10 +609,12 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				/*
 				 * offer labour hours
 				 */
-				double amountOfLabourHours = ApplicationContext.getInstance()
+				final double amountOfLabourHours = ApplicationContext
+						.getInstance()
 						.getPropertyService()
-						.getBalance(HouseholdImpl.this, GoodType.LABOURHOUR);
-				double prices[] = HouseholdImpl.this.pricingBehaviour
+						.getGoodTypeBalance(HouseholdImpl.this,
+								GoodType.LABOURHOUR);
+				final double prices[] = HouseholdImpl.this.pricingBehaviour
 						.getCurrentPriceArray();
 				for (double price : prices) {
 					ApplicationContext
@@ -706,14 +709,18 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	protected class LabourPower implements Refreshable {
 
 		public double getNumberOfLabourHoursAvailable() {
-			return ApplicationContext.getInstance().getPropertyService()
-					.getBalance(HouseholdImpl.this, GoodType.LABOURHOUR);
+			return ApplicationContext
+					.getInstance()
+					.getPropertyService()
+					.getGoodTypeBalance(HouseholdImpl.this, GoodType.LABOURHOUR);
 		}
 
 		@Override
 		public boolean isExhausted() {
-			return ApplicationContext.getInstance().getPropertyService()
-					.getBalance(HouseholdImpl.this, GoodType.LABOURHOUR) <= 0;
+			return ApplicationContext
+					.getInstance()
+					.getPropertyService()
+					.getGoodTypeBalance(HouseholdImpl.this, GoodType.LABOURHOUR) <= 0;
 		}
 
 		@Override

@@ -25,7 +25,7 @@ import java.util.Map;
 import compecon.economy.materia.GoodType;
 import compecon.economy.materia.InputOutputModel;
 import compecon.math.production.ProductionFunction;
-import compecon.math.production.impl.RootProductionFunctionImpl;
+import compecon.math.production.impl.CESProductionFunctionImpl;
 import compecon.math.utility.UtilityFunction;
 import compecon.math.utility.impl.CESUtilityFunctionImpl;
 
@@ -54,9 +54,17 @@ public class InputOutputModelTestingImpl implements InputOutputModel {
 			final GoodType outputGoodType) {
 		switch (outputGoodType) {
 		case WHEAT:
-			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
+			Map<GoodType, Double> parametersWheat = new LinkedHashMap<GoodType, Double>();
+			parametersWheat.put(GoodType.LABOURHOUR, 1.0);
+			parametersWheat.put(GoodType.MACHINE, 0.2);
+			return new CESProductionFunctionImpl(50.0, parametersWheat, -0.7,
+					0.65);
 		case COAL:
-			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);
+			Map<GoodType, Double> parametersCoal = new LinkedHashMap<GoodType, Double>();
+			parametersCoal.put(GoodType.LABOURHOUR, 1.0);
+			parametersCoal.put(GoodType.MACHINE, 0.2);
+			return new CESProductionFunctionImpl(50.0, parametersCoal, -0.7,
+					0.65);
 
 		default:
 			return null;

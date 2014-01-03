@@ -31,7 +31,7 @@ public abstract class ProductionFunctionImpl implements ProductionFunction {
 
 	protected Function<GoodType> delegate;
 
-	protected ProductionFunctionImpl(Function<GoodType> delegate) {
+	protected ProductionFunctionImpl(final Function<GoodType> delegate) {
 		this.delegate = delegate;
 	}
 
@@ -42,14 +42,14 @@ public abstract class ProductionFunctionImpl implements ProductionFunction {
 
 	@Override
 	public double calculateOutput(
-			Map<GoodType, Double> bundleOfProductionFactors) {
+			final Map<GoodType, Double> bundleOfProductionFactors) {
 		return this.delegate.f(bundleOfProductionFactors);
 	}
 
 	@Override
 	public double calculateMarginalOutput(
-			Map<GoodType, Double> bundleOfProductionFactors,
-			GoodType differentialGoodType) {
+			final Map<GoodType, Double> bundleOfProductionFactors,
+			final GoodType differentialGoodType) {
 		return this.delegate.partialDerivative(bundleOfProductionFactors,
 				differentialGoodType);
 	}
@@ -58,9 +58,10 @@ public abstract class ProductionFunctionImpl implements ProductionFunction {
 	 * @return null, if markets are sold out
 	 */
 	protected GoodType selectProductionFactorWithHighestMarginalOutputPerPrice(
-			Map<GoodType, Double> bundleOfInputGoods,
-			Map<GoodType, PriceFunction> priceFunctionsOfInputGoods) {
+			final Map<GoodType, Double> bundleOfInputGoods,
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
+			final Map<GoodType, Double> capital) {
 		return this.delegate.findHighestPartialDerivatePerPrice(
-				bundleOfInputGoods, priceFunctionsOfInputGoods);
+				bundleOfInputGoods, priceFunctionsOfInputGoods, capital);
 	}
 }

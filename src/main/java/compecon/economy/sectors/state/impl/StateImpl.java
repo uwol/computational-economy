@@ -323,7 +323,7 @@ public class StateImpl extends AgentImpl implements State {
 
 				double amountToConsume = ApplicationContext.getInstance()
 						.getPropertyService()
-						.getBalance(StateImpl.this, goodType);
+						.getGoodTypeBalance(StateImpl.this, goodType);
 				effectiveConsumptionGoodsBundle.put(goodType, amountToConsume);
 				ApplicationContext
 						.getInstance()

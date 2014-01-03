@@ -112,13 +112,13 @@ public class HouseholdImplTest extends CompEconTestSupport {
 				.getBankAccount().getBalance(), epsilon);
 
 		assertEquals(15.0, ApplicationContext.getInstance()
-				.getPropertyService().getBalance(factory1_EUR, GoodType.WHEAT),
+				.getPropertyService().getGoodTypeBalance(factory1_EUR, GoodType.WHEAT),
 				epsilon);
 		assertEquals(5.0, factory1_EUR.getBankAccountTransactionsDelegate()
 				.getBankAccount().getBalance(), epsilon);
 
 		assertEquals(15.0, ApplicationContext.getInstance()
-				.getPropertyService().getBalance(factory2_EUR, GoodType.COAL),
+				.getPropertyService().getGoodTypeBalance(factory2_EUR, GoodType.COAL),
 				epsilon);
 		assertEquals(5.0, factory2_EUR.getBankAccountTransactionsDelegate()
 				.getBankAccount().getBalance(), epsilon);
