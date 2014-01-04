@@ -49,6 +49,7 @@ public class CreditBankImplFactoryImpl implements CreditBankFactory {
 	public CreditBank newInstanceCreditBank(
 			final Set<Currency> offeredCurrencies,
 			final Currency primaryCurrency) {
+		assert (primaryCurrency != null);
 		assert (offeredCurrencies.contains(primaryCurrency));
 
 		final CreditBankImpl creditBank = new CreditBankImpl();

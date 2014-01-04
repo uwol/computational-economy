@@ -37,7 +37,9 @@ public class CentralBankImplFactoryImpl implements CentralBankFactory {
 
 	@Override
 	public CentralBank newInstanceCentralBank(Currency currency) {
-		CentralBankImpl centralBank = new CentralBankImpl();
+		assert (currency != null);
+
+		final CentralBankImpl centralBank = new CentralBankImpl();
 		if (!HibernateUtil.isActive())
 			centralBank.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());

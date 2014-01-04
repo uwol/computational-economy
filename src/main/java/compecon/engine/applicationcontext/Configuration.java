@@ -210,6 +210,8 @@ public class Configuration {
 
 	public class FactoryConfig {
 
+		public Double capitalDepreciationRatioPerPeriod;
+
 		public Double margin;
 
 		public Map<Currency, Map<GoodType, Integer>> number = new HashMap<Currency, Map<GoodType, Integer>>();
@@ -219,6 +221,14 @@ public class Configuration {
 		{
 			for (Currency currency : Currency.values())
 				number.put(currency, new HashMap<GoodType, Integer>());
+		}
+
+		public double getCapitalDepreciationRatioPerPeriod() {
+			if (capitalDepreciationRatioPerPeriod == null)
+				capitalDepreciationRatioPerPeriod = Double
+						.parseDouble(configFile
+								.getProperty("factory.capitalDepreciationRatioPerPeriod"));
+			return capitalDepreciationRatioPerPeriod;
 		}
 
 		public double getMargin() {

@@ -71,7 +71,8 @@ public class PropertyServiceImpl implements PropertyService {
 		final double oldBalance = goodTypeOwnership.getOwnedGoodTypes().get(
 				goodType);
 
-		assert (oldBalance >= amount || MathUtil.equal(oldBalance, amount));
+		assert (MathUtil.lesserEqual(amount, oldBalance)) : "cannot decrement "
+				+ amount + " from " + oldBalance + " " + goodType;
 
 		final double newBalance = Math.max(oldBalance - amount, 0);
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, newBalance);

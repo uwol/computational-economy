@@ -87,7 +87,10 @@ public class PropertyServiceTest extends CompEconTestSupport {
 				.getInstance()
 				.getFixedRateBondFactory()
 				.newInstanceFixedRateBond(factory1_EUR, factory1_EUR,
-						Currency.EURO, null, null, 100, 1);
+						Currency.EURO,
+						factory1_EUR.getBankAccountTransactionsDelegate(),
+						factory1_EUR.getBankAccountTransactionsDelegate(), 100,
+						1);
 
 		assertEquals(2, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesOfPropertyOwner(factory1_EUR).size());
@@ -113,7 +116,10 @@ public class PropertyServiceTest extends CompEconTestSupport {
 				.getInstance()
 				.getFixedRateBondFactory()
 				.newInstanceFixedRateBond(factory1_EUR, factory1_EUR,
-						Currency.EURO, null, null, 100, 1);
+						Currency.EURO,
+						factory1_EUR.getBankAccountTransactionsDelegate(),
+						factory1_EUR.getBankAccountTransactionsDelegate(), 100,
+						1);
 
 		assertEquals(2, ApplicationContext.getInstance().getPropertyService()
 				.findAllPropertiesIssuedByAgent(factory1_EUR).size());
@@ -142,12 +148,14 @@ public class PropertyServiceTest extends CompEconTestSupport {
 		assertEquals(1.1, ApplicationContext.getInstance().getPropertyService()
 				.getGoodTypeBalance(household1_EUR, GoodType.IRON), epsilon);
 		assertEquals(1.1, ApplicationContext.getInstance().getPropertyService()
-				.getGoodTypeBalances(household1_EUR).get(GoodType.IRON), epsilon);
+				.getGoodTypeBalances(household1_EUR).get(GoodType.IRON),
+				epsilon);
 
 		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
 				.getGoodTypeBalance(household1_EUR, GoodType.WHEAT), epsilon);
 		assertEquals(0.0, ApplicationContext.getInstance().getPropertyService()
-				.getGoodTypeBalances(household1_EUR).get(GoodType.WHEAT), epsilon);
+				.getGoodTypeBalances(household1_EUR).get(GoodType.WHEAT),
+				epsilon);
 
 		// decrement
 		ApplicationContext.getInstance().getPropertyService()
@@ -182,7 +190,8 @@ public class PropertyServiceTest extends CompEconTestSupport {
 		assertTrue(ApplicationContext.getInstance().getPropertyService()
 				.getCapitalBalances(factory1_EUR).containsKey(GoodType.MACHINE));
 		assertEquals(2.0, ApplicationContext.getInstance().getPropertyService()
-				.getCapitalBalances(factory1_EUR).get(GoodType.MACHINE), epsilon);
+				.getCapitalBalances(factory1_EUR).get(GoodType.MACHINE),
+				epsilon);
 	}
 
 	@Test

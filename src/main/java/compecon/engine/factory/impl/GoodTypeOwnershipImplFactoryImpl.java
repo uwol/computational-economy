@@ -31,8 +31,10 @@ public class GoodTypeOwnershipImplFactoryImpl implements
 
 	@Override
 	public GoodTypeOwnership newInstanceGoodTypeOwnership(
-			PropertyOwner propertyOwner) {
-		GoodTypeOwnershipImpl goodTypeOwnership = new GoodTypeOwnershipImpl();
+			final PropertyOwner propertyOwner) {
+		assert (propertyOwner != null);
+
+		final GoodTypeOwnershipImpl goodTypeOwnership = new GoodTypeOwnershipImpl();
 		goodTypeOwnership.setPropertyOwner(propertyOwner);
 		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
 				.save(goodTypeOwnership);
@@ -41,7 +43,8 @@ public class GoodTypeOwnershipImplFactoryImpl implements
 	}
 
 	@Override
-	public void deleteGoodTypeOwnership(GoodTypeOwnership goodTypeOwnership) {
+	public void deleteGoodTypeOwnership(
+			final GoodTypeOwnership goodTypeOwnership) {
 		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
 				.delete(goodTypeOwnership);
 		HibernateUtil.flushSession();

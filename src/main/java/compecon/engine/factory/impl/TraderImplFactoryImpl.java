@@ -36,7 +36,9 @@ public class TraderImplFactoryImpl implements TraderFactory {
 	}
 
 	public Trader newInstanceTrader(final Currency primaryCurrency) {
-		TraderImpl trader = new TraderImpl();
+		assert (primaryCurrency != null);
+
+		final TraderImpl trader = new TraderImpl();
 		if (!HibernateUtil.isActive())
 			trader.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());

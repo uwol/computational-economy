@@ -57,7 +57,13 @@ public class BankAccountImplFactoryImpl implements BankAccountFactory {
 			final Currency currency, final boolean overdraftPossible,
 			final Bank managingBank, final String name,
 			final TermType termType, final MoneyType moneyType) {
-		BankAccountImpl bankAccount = new BankAccountImpl();
+		assert (owner != null);
+		assert (currency != null);
+		assert (managingBank != null);
+		assert (termType != null);
+		assert (moneyType != null);
+
+		final BankAccountImpl bankAccount = new BankAccountImpl();
 		if (!HibernateUtil.isActive())
 			bankAccount.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());

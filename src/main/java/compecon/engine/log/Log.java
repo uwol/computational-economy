@@ -114,6 +114,9 @@ public interface Log {
 			final double budget, final double moneySpent,
 			final ConvexProductionFunctionTerminationCause terminationCause);
 
+	public void factory_onCapitalDepreciation(final Factory factory,
+			final GoodType capital, final double depreciation);
+
 	public void state_onUtility(final State state, final Currency currency,
 			final Map<GoodType, Double> bundleOfGoodsToConsume,
 			final double utility);

@@ -39,7 +39,9 @@ public class HouseholdImplFactoryImpl implements HouseholdFactory {
 	@Override
 	public Household newInstanceHousehold(final Currency primaryCurrency,
 			final int ageInDays) {
-		HouseholdImpl household = new HouseholdImpl();
+		assert (primaryCurrency != null);
+
+		final HouseholdImpl household = new HouseholdImpl();
 		if (!HibernateUtil.isActive())
 			household.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());

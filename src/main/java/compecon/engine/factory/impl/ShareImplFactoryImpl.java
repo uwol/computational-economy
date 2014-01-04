@@ -31,6 +31,9 @@ public class ShareImplFactoryImpl implements ShareFactory {
 
 	public Share newInstanceShare(final Agent owner,
 			final JointStockCompany issuer) {
+		assert (owner != null);
+		assert (issuer != null);
+
 		final ShareImpl share = new ShareImpl();
 		share.setIssuer(issuer);
 		share.setOwner(owner);

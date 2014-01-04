@@ -139,6 +139,8 @@ public class ModelRegistry {
 
 			public final GoodType goodType;
 
+			public final PeriodDataAccumulatorTimeSeriesModel capitalDepreciationModel;
+
 			public final PeriodDataAccumulatorTimeSeriesModel outputModel;
 
 			public final Map<GoodType, PeriodDataAccumulatorTimeSeriesModel> inputModels = new HashMap<GoodType, PeriodDataAccumulatorTimeSeriesModel>();
@@ -156,20 +158,23 @@ public class ModelRegistry {
 
 			public IndustryModel(final Currency currency,
 					final GoodType goodType,
-					final InputOutputModel inputOutputModel) {
+					final InputOutputModel inputOutputModel,
+					final ProductionFunction productionFunction) {
 				assert (!GoodType.LABOURHOUR.equals(goodType));
+				assert (productionFunction != null);
 
 				this.currency = currency;
 				this.goodType = goodType;
 
+				this.capitalDepreciationModel = new PeriodDataAccumulatorTimeSeriesModel(
+						currency.getIso4217Code() + " " + goodType
+								+ " capital depreciation");
 				this.outputModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " " + goodType + " output");
 				this.inventoryModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " " + goodType
 								+ " inventory");
 
-				final ProductionFunction productionFunction = inputOutputModel
-						.getProductionFunction(goodType);
 				for (GoodType inputGoodType : productionFunction
 						.getInputGoodTypes()) {
 					inputModels.put(
@@ -191,6 +196,7 @@ public class ModelRegistry {
 			}
 
 			public void nextPeriod() {
+				this.capitalDepreciationModel.nextPeriod();
 				this.outputModel.nextPeriod();
 				this.budgetModel.nextPeriod();
 				this.inventoryModel.nextPeriod();
@@ -393,9 +399,13 @@ public class ModelRegistry {
 			for (GoodType goodType : GoodType.values()) {
 				// labour hours are logged via household model
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
-					if (inputOutputModel.getProductionFunction(goodType) != null) {
+					final ProductionFunction productionFunction = inputOutputModel
+							.getProductionFunction(goodType);
+					// only good types that can be produced form an industry
+					if (productionFunction != null) {
 						this.industryModels.put(goodType, new IndustryModel(
-								currency, goodType, inputOutputModel));
+								currency, goodType, inputOutputModel,
+								productionFunction));
 					}
 				}
 			}

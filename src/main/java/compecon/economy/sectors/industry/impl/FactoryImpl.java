@@ -177,6 +177,12 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			FactoryImpl.this
 					.transferBankAccountBalanceToDividendBankAccount(FactoryImpl.this.bankAccountTransactions);
 
+			/*
+			 * has to happen before offering good on market; otherwise there is
+			 * offered more than owned.
+			 */
+			this.capitalDepreciation();
+
 			final double budget = FactoryImpl.this.budgetingBehaviour
 					.calculateTransmissionBasedBudgetForPeriod(
 							FactoryImpl.this.bankAccountTransactions
@@ -382,6 +388,38 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 					FactoryImpl.this.producedGoodType, amountInInventory,
 					amountInInventory);
 		}
-	}
 
+		/**
+		 * capital depreciation according to the Solow–Swan model <br />
+		 * <br />
+		 * http://en.wikipedia.org/wiki/Solow%E2%80%93Swan_model
+		 */
+		protected void capitalDepreciation() {
+			final Map<GoodType, Double> capital = ApplicationContext
+					.getInstance().getPropertyService()
+					.getCapitalBalances(FactoryImpl.this);
+			final double depreciationRatio = ApplicationContext.getInstance()
+					.getConfiguration().factoryConfig
+					.getCapitalDepreciationRatioPerPeriod();
+
+			for (Entry<GoodType, Double> entry : capital.entrySet()) {
+				final GoodType capitalGoodType = entry.getKey();
+				final double capitalGoodTypeAmount = entry.getValue();
+				final double depreciation = depreciationRatio
+						* capitalGoodTypeAmount;
+
+				ApplicationContext
+						.getInstance()
+						.getPropertyService()
+						.decrementGoodTypeAmount(FactoryImpl.this,
+								capitalGoodType, depreciation);
+
+				ApplicationContext
+						.getInstance()
+						.getLog()
+						.factory_onCapitalDepreciation(FactoryImpl.this,
+								capitalGoodType, depreciation);
+			}
+		}
+	}
 }

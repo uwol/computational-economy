@@ -35,6 +35,13 @@ public class FixedRateBondImplFactoryImpl implements FixedRateBondFactory {
 			final BankAccountDelegate faceValueFromBankAccountDelegate,
 			final BankAccountDelegate couponFromBankAccountDelegate,
 			final double faceValue, final double coupon) {
+		assert (owner != null);
+		assert (issuer != null);
+		assert (currency != null);
+		assert (faceValueFromBankAccountDelegate != null);
+		assert (couponFromBankAccountDelegate != null);
+		assert (faceValue > 0);
+
 		final FixedRateBondImpl fixedRateBond = new FixedRateBondImpl();
 		fixedRateBond.setOwner(owner);
 		fixedRateBond.setIssuer(issuer);

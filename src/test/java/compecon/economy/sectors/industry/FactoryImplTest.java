@@ -112,6 +112,8 @@ public class FactoryImplTest extends CompEconTestSupport {
 
 	@Test
 	public void testProductionEventWithCapital() {
+		ApplicationContext.getInstance().getConfiguration().factoryConfig.capitalDepreciationRatioPerPeriod = 0.0;
+
 		Currency currency = Currency.EURO;
 
 		Household household1_EUR = ApplicationContext.getInstance()

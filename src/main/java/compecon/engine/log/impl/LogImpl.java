@@ -364,6 +364,17 @@ public class LogImpl implements Log {
 		}
 	}
 
+	@Override
+	public void factory_onCapitalDepreciation(final Factory factory,
+			final GoodType capitalGoodType, final double depreciation) {
+		this.log(factory, "depreciation of " + depreciation
+				+ " units on capital good " + capitalGoodType);
+		ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(factory.getPrimaryCurrency()).industryModels
+				.get(capitalGoodType).capitalDepreciationModel
+				.add(depreciation);
+	}
+
 	// --------
 
 	public void state_onUtility(final State state, final Currency currency,

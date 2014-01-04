@@ -86,8 +86,11 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 			final GoodType goodType, final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double amount, final double pricePerUnit) {
+		assert (goodType != null);
+		assert (offeror != null);
+		assert (offerorsBankAcountDelegate != null);
 
-		MarketOrderImpl marketOrder = new MarketOrderImpl();
+		final MarketOrderImpl marketOrder = new MarketOrderImpl();
 		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
 				.getCurrency());
 		marketOrder.setGoodType(goodType);
@@ -109,8 +112,12 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 			final double amount,
 			final double pricePerUnit,
 			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate) {
+		assert (currencyToBeOffered != null);
+		assert (offeror != null);
+		assert (offerorsBankAcountDelegate != null);
+		assert (commodityCurrencyOfferorsBankAcountDelegate != null);
 
-		MarketOrderImpl marketOrder = new MarketOrderImpl();
+		final MarketOrderImpl marketOrder = new MarketOrderImpl();
 		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
 				.getCurrency());
 		marketOrder.setCommodityCurrency(currencyToBeOffered);
@@ -131,7 +138,11 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 			final Property property, final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
 			final double pricePerUnit) {
-		MarketOrderImpl marketOrder = new MarketOrderImpl();
+		assert (property != null);
+		assert (offeror != null);
+		assert (offerorsBankAcountDelegate != null);
+
+		final MarketOrderImpl marketOrder = new MarketOrderImpl();
 		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
 				.getCurrency());
 		marketOrder.setProperty(property);

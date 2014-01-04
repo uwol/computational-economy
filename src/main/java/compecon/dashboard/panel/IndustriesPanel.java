@@ -77,6 +77,11 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 				this.add(createPricingBehaviourMechanicsPanel(currency,
 						goodType));
 
+				// only capital goods are depreciated
+				if (goodType.isDurable()) {
+					this.add(createCapitalDepreciationPanel(currency, goodType));
+				}
+
 				ApplicationContext.getInstance().getModelRegistry()
 						.getNationalEconomyModel(currency).pricesModel
 						.registerListener(this);
@@ -278,6 +283,23 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
 				outputGoodType.toString() + " Production Function Mechanics",
 				"Date", "Budget Spent", (XYDataset) timeSeriesCollection, true,
+				true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createCapitalDepreciationPanel(Currency currency,
+			GoodType outputGoodType) {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance()
+				.getModelRegistry().getNationalEconomyModel(currency)
+				.getIndustryModel(outputGoodType).capitalDepreciationModel
+				.getTimeSeries());
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				outputGoodType.toString() + " Capital Depreciation", "Date",
+				"Capital Depreciation", (XYDataset) timeSeriesCollection, true,
 				true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
