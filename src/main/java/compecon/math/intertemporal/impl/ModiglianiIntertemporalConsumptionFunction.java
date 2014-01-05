@@ -30,15 +30,17 @@ public class ModiglianiIntertemporalConsumptionFunction implements
 
 	@Override
 	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(
-			double averageIncomePerPeriod, double currentAssets,
-			double keyInterestRate, int ageInDays, int retirementAgeInDays,
-			int averageRemainingLifeDays) {
-		int remainingDaysUntilRetirement = Math.max(retirementAgeInDays
+			final double averageIncomePerPeriod, final double currentAssets,
+			final double keyInterestRate, final int ageInDays,
+			final int lifeSpanInDays, final int retirementAgeInDays) {
+		final int averageRemainingLifeDays = lifeSpanInDays - ageInDays;
+		final int remainingDaysUntilRetirement = Math.max(retirementAgeInDays
 				- ageInDays, 0);
 
-		double dailyConsumption;
+		final double dailyConsumption;
 		if (averageRemainingLifeDays > 0) {
-			double lifeConsumption = currentAssets + averageIncomePerPeriod
+			final double lifeConsumption = currentAssets
+					+ averageIncomePerPeriod
 					* (double) remainingDaysUntilRetirement;
 			dailyConsumption = lifeConsumption
 					/ (double) averageRemainingLifeDays;
@@ -52,7 +54,7 @@ public class ModiglianiIntertemporalConsumptionFunction implements
 
 		assert (!Double.isNaN(dailyConsumption));
 
-		Map<Period, Double> optimalConsumptionPlan = new HashMap<Period, Double>();
+		final Map<Period, Double> optimalConsumptionPlan = new HashMap<Period, Double>();
 		for (Period period : Period.values()) {
 			optimalConsumptionPlan.put(period, dailyConsumption);
 		}

@@ -37,6 +37,7 @@ import compecon.engine.service.MarketServiceTest;
 import compecon.engine.service.PropertyServiceTest;
 import compecon.math.CESFunctionTest;
 import compecon.math.CobbDouglasFunctionTest;
+import compecon.math.intertemporal.ModiglianiIntertemporalConsumptionFunctionTest;
 import compecon.math.production.CobbDouglasProductionFunctionTest;
 import compecon.math.utility.CobbDouglasUtilityFunctionTest;
 
@@ -47,6 +48,7 @@ import compecon.math.utility.CobbDouglasUtilityFunctionTest;
 		PropertyDAOTest.class, AgentServiceTest.class, MarketServiceTest.class,
 		PropertyServiceTest.class, CreditBankTest.class,
 		HouseholdImplTest.class, FactoryImplTest.class,
+		ModiglianiIntertemporalConsumptionFunctionTest.class,
 		CobbDouglasFunctionTest.class, CobbDouglasUtilityFunctionTest.class,
 		CobbDouglasProductionFunctionTest.class, CESFunctionTest.class })
 public class CompEconTestSuite {

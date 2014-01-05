@@ -38,17 +38,17 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 	protected final ConvexFunctionImpl<Period> delegate;
 
 	protected IrvingFisherIntertemporalConsumptionFunction(
-			ConvexFunctionImpl<Period> delegate) {
+			final ConvexFunctionImpl<Period> delegate) {
 		this.delegate = delegate;
 	}
 
 	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(
-			double averageIncomePerPeriod, double currentAssets,
-			double keyInterestRate, int ageInDays, int retirementAgeInDays,
-			int averageRemainingLifeDays) {
+			final double averageIncomePerPeriod, final double currentAssets,
+			final double keyInterestRate, final int ageInDays,
+			final int lifeSpanInDays, final int retirementAgeInDays) {
 
 		// price levels
-		Map<Period, PriceFunction> priceLevelsOfPeriods = new HashMap<Period, PriceFunction>();
+		final Map<Period, PriceFunction> priceLevelsOfPeriods = new HashMap<Period, PriceFunction>();
 		for (Period period : Period.values()) {
 			// price levels in periods
 			priceLevelsOfPeriods.put(period, new FixedPriceFunctionImpl(1.0));
@@ -58,21 +58,21 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 		double discountedBudget = 0.0;
 		for (Period period : Period.values()) {
 			// budget, discounted to current period
-			double periodIncome = averageIncomePerPeriod;
-			int periodNumber = period.ordinal();
+			final double periodIncome = averageIncomePerPeriod;
+			final int periodNumber = period.ordinal();
 			discountedBudget += periodIncome
 					/ Math.pow(1.0 + keyInterestRate, periodNumber);
 		}
 
 		// resulting consumption plan
-		Map<Period, Double> intermediateResult = delegate
+		final Map<Period, Double> intermediateResult = delegate
 				.calculateOutputMaximizingInputs(priceLevelsOfPeriods,
 						discountedBudget);
 		for (Entry<Period, Double> entry : intermediateResult.entrySet()) {
 			// add interest to consumption plan
-			double periodConsumption = entry.getValue();
-			int periodNumber = entry.getKey().ordinal();
-			double discountedValue = periodConsumption
+			final double periodConsumption = entry.getValue();
+			final int periodNumber = entry.getKey().ordinal();
+			final double discountedValue = periodConsumption
 					* Math.pow(1.0 + keyInterestRate, periodNumber);
 			intermediateResult.put(entry.getKey(), discountedValue);
 		}

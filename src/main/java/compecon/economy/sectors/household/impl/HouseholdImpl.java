@@ -400,19 +400,16 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			if (ApplicationContext.getInstance().getConfiguration().householdConfig
 					.getRetirementSaving()) {
 				final Map<Period, Double> intertemporalConsumptionPlan = HouseholdImpl.this.intertemporalConsumptionFunction
-						.calculateUtilityMaximizingConsumptionPlan(
-								income,
+						.calculateUtilityMaximizingConsumptionPlan(income,
 								HouseholdImpl.this.bankAccountSavings
-										.getBalance(),
-								keyInterestRate,
+										.getBalance(), keyInterestRate,
 								HouseholdImpl.this.ageInDays,
 								ApplicationContext.getInstance()
 										.getConfiguration().householdConfig
-										.getRetirementAgeInDays(),
+										.getLifespanInDays(),
 								ApplicationContext.getInstance()
 										.getConfiguration().householdConfig
-										.getLifespanInDays()
-										- HouseholdImpl.this.ageInDays);
+										.getRetirementAgeInDays());
 				budget = intertemporalConsumptionPlan.get(Period.CURRENT);
 			} else {
 				budget = income;

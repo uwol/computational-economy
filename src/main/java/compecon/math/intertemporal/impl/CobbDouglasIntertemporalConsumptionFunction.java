@@ -22,13 +22,14 @@ package compecon.math.intertemporal.impl;
 import java.util.Map;
 
 import compecon.math.impl.CobbDouglasFunctionImpl;
-import compecon.math.intertemporal.impl.IrvingFisherIntertemporalConsumptionFunction.Period;
 
 public class CobbDouglasIntertemporalConsumptionFunction extends
 		IrvingFisherIntertemporalConsumptionFunction {
 
 	public CobbDouglasIntertemporalConsumptionFunction(
-			Map<Period, Double> intertemporalPreferences) {
-		super(new CobbDouglasFunctionImpl<Period>(1.0, intertemporalPreferences));
+			final Map<Period, Double> intertemporalPreferences) {
+		super(
+				new CobbDouglasFunctionImpl<Period>(1.0,
+						intertemporalPreferences));
 	}
 }
