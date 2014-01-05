@@ -84,6 +84,9 @@ public abstract class AgentImpl implements Agent {
 	@Column(name = "isDeconstructed")
 	protected boolean isDeconstructed = false;
 
+	@Transient
+	private boolean isInitialized = false;
+
 	@Column(name = "primaryCurrency")
 	@Enumerated(EnumType.STRING)
 	@Index(name = "IDX_A_PRIMARYCURRENCY")
@@ -113,6 +116,8 @@ public abstract class AgentImpl implements Agent {
 	};
 
 	public void initialize() {
+		assert (!isInitialized);
+
 		// balance sheet publication
 		final TimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
 		this.timeSystemEvents.add(balanceSheetPublicationEvent);
@@ -128,6 +133,8 @@ public abstract class AgentImpl implements Agent {
 								.getBalanceSheetPublicationHourType());
 
 		getLog().agent_onConstruct(this);
+
+		isInitialized = true;
 	}
 
 	/**

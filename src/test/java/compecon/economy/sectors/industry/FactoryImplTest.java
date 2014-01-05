@@ -112,6 +112,7 @@ public class FactoryImplTest extends CompEconTestSupport {
 
 	@Test
 	public void testProductionEventWithCapital() {
+		// deactivate capital depreciation
 		ApplicationContext.getInstance().getConfiguration().factoryConfig.capitalDepreciationRatioPerPeriod = 0.0;
 
 		Currency currency = Currency.EURO;

@@ -66,7 +66,6 @@ public class HouseholdImplTest extends CompEconTestSupport {
 				.get(0);
 
 		// provide money to household 1
-		household1_EUR.initialize();
 		household2_EUR
 				.getBankAccountTransactionsDelegate()
 				.getBankAccount()
@@ -100,6 +99,8 @@ public class HouseholdImplTest extends CompEconTestSupport {
 						factory2_EUR.getBankAccountTransactionsDelegate(),
 						20.0, 1.0);
 
+		int currentAge = household1_EUR.getAgeInDays();
+
 		for (TimeSystemEvent timeSystemEvent : household1_EUR
 				.getTimeSystemEvents()) {
 			if (timeSystemEvent instanceof HouseholdImpl.DailyLifeEvent) {
@@ -108,17 +109,21 @@ public class HouseholdImplTest extends CompEconTestSupport {
 			}
 		}
 
+		assertEquals(currentAge + 1, household1_EUR.getAgeInDays());
+
 		assertEquals(0.0, household1_EUR.getBankAccountTransactionsDelegate()
 				.getBankAccount().getBalance(), epsilon);
 
-		assertEquals(15.0, ApplicationContext.getInstance()
-				.getPropertyService().getGoodTypeBalance(factory1_EUR, GoodType.WHEAT),
+		assertEquals(15.0,
+				ApplicationContext.getInstance().getPropertyService()
+						.getGoodTypeBalance(factory1_EUR, GoodType.WHEAT),
 				epsilon);
 		assertEquals(5.0, factory1_EUR.getBankAccountTransactionsDelegate()
 				.getBankAccount().getBalance(), epsilon);
 
-		assertEquals(15.0, ApplicationContext.getInstance()
-				.getPropertyService().getGoodTypeBalance(factory2_EUR, GoodType.COAL),
+		assertEquals(15.0,
+				ApplicationContext.getInstance().getPropertyService()
+						.getGoodTypeBalance(factory2_EUR, GoodType.COAL),
 				epsilon);
 		assertEquals(5.0, factory2_EUR.getBankAccountTransactionsDelegate()
 				.getBankAccount().getBalance(), epsilon);

@@ -23,4 +23,9 @@ import compecon.economy.agent.Agent;
 
 public interface Household extends Agent {
 
+	public int getAgeInDays();
+
+	public int getContinuousDaysWithUtility();
+
+	public int getDaysWithoutUtility();
 }
