@@ -51,29 +51,30 @@ public class LogImpl implements Log {
 	// --------
 
 	public boolean isAgentSelectedByClient(final Agent agent) {
-		return agent != null && agentSelectedByClient == agent;
+		return agent != null && this.agentSelectedByClient == agent;
 	}
 
 	public boolean isAgentSelectedByClient(final BankCustomer bankCustomer) {
-		return bankCustomer != null && agentSelectedByClient == bankCustomer;
+		return bankCustomer != null
+				&& this.agentSelectedByClient == bankCustomer;
 	}
 
 	public boolean isAgentSelectedByClient(
 			final MarketParticipant marketParticipant) {
 		return marketParticipant != null
-				&& agentSelectedByClient == marketParticipant;
+				&& this.agentSelectedByClient == marketParticipant;
 	}
 
 	public Agent getAgentSelectedByClient() {
-		return agentSelectedByClient;
+		return this.agentSelectedByClient;
 	}
 
 	public void setAgentSelectedByClient(final Agent agent) {
-		agentSelectedByClient = agent;
+		this.agentSelectedByClient = agent;
 	}
 
 	public void setAgentCurrentlyActive(final Agent agent) {
-		agentCurrentlyActive = agent;
+		this.agentCurrentlyActive = agent;
 	}
 
 	// --------
@@ -130,25 +131,33 @@ public class LogImpl implements Log {
 	public void agent_onConstruct(final Agent agent) {
 		ApplicationContext.getInstance().getModelRegistry()
 				.getAgentDetailModel().agent_onConstruct(agent);
-		if (isAgentSelectedByClient(agent))
+		if (isAgentSelectedByClient(agent)) {
 			log(agent, agent + " constructed");
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(agent.getPrimaryCurrency()).numberOfAgentsModel
-				.agent_onConstruct(agent.getClass());
+		}
 	}
 
 	public void agent_onDeconstruct(final Agent agent) {
 		ApplicationContext.getInstance().getModelRegistry()
 				.getAgentDetailModel().agent_onDeconstruct(agent);
-		if (isAgentSelectedByClient(agent))
+		if (isAgentSelectedByClient(agent)) {
 			log(agent, agent + " deconstructed");
+		}
+
+		if (this.agentCurrentlyActive == agent) {
+			this.agentCurrentlyActive = null;
+		}
+
+		if (this.agentSelectedByClient == agent) {
+			this.agentSelectedByClient = null;
+		}
+	}
+
+	public void agent_onLifesign(final Agent agent) {
+		final Class<? extends Agent> agentType = agent.getClass();
+
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(agent.getPrimaryCurrency()).numberOfAgentsModel
-				.agent_onDeconstruct(agent.getClass());
-		if (agentCurrentlyActive == agent)
-			agentCurrentlyActive = null;
-		if (agentSelectedByClient == agent)
-			agentSelectedByClient = null;
+				.getNationalEconomyModel(agent.getPrimaryCurrency()).numberOfAgentsModels
+				.get(agentType).add(1);
 	}
 
 	public void agent_onPublishBalanceSheet(final Agent agent,
@@ -283,14 +292,6 @@ public class LogImpl implements Log {
 		}
 	}
 
-	public void household_AmountSold(final Currency currency,
-			final double labourHoursSold) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency)
-				.getPricingBehaviourModel(GoodType.LABOURHOUR).soldModel
-				.add(labourHoursSold);
-	}
-
 	public void household_onOfferResult(final Currency currency,
 			final double labourHoursOffered, final double labourHourCapacity) {
 		ApplicationContext.getInstance().getModelRegistry()
@@ -300,6 +301,20 @@ public class LogImpl implements Log {
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(currency).householdsModel.labourHourCapacityModel
 				.add(labourHourCapacity);
+	}
+
+	public void household_onRetired(final Household household) {
+		ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(household.getPrimaryCurrency()).householdsModel.retiredModel
+				.add(1);
+	}
+
+	public void household_AmountSold(final Currency currency,
+			final double labourHoursSold) {
+		ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(GoodType.LABOURHOUR).soldModel
+				.add(labourHoursSold);
 	}
 
 	// --------
@@ -344,7 +359,7 @@ public class LogImpl implements Log {
 		if (agentCurrentlyActive != null) {
 			assert (agentCurrentlyActive instanceof Factory);
 
-			Currency currency = agentCurrentlyActive.getPrimaryCurrency();
+			final Currency currency = agentCurrentlyActive.getPrimaryCurrency();
 			ApplicationContext
 					.getInstance()
 					.getModelRegistry()
@@ -406,8 +421,8 @@ public class LogImpl implements Log {
 		}
 
 		if (isAgentSelectedByClient(from.getOwner())) {
-			String message = " --- " + Currency.formatMoneySum(value) + " "
-					+ currency.getIso4217Code() + " ---> " + to + ": "
+			final String message = " --- " + Currency.formatMoneySum(value)
+					+ " " + currency.getIso4217Code() + " ---> " + to + ": "
 					+ subject;
 			ApplicationContext
 					.getInstance()
@@ -470,7 +485,7 @@ public class LogImpl implements Log {
 	public void pricingBehaviour_onCalculateNewPrice(final Agent agent,
 			final PricingBehaviourNewPriceDecisionCause decisionCause,
 			final double weight) {
-		GoodType goodType;
+		final GoodType goodType;
 		if (agent instanceof Household) {
 			goodType = GoodType.LABOURHOUR;
 		} else if (agent instanceof Factory) {
@@ -480,7 +495,7 @@ public class LogImpl implements Log {
 		}
 
 		if (goodType != null) {
-			Currency currency = agent.getPrimaryCurrency();
+			final Currency currency = agent.getPrimaryCurrency();
 			ApplicationContext.getInstance().getModelRegistry()
 					.getNationalEconomyModel(currency)
 					.getPricingBehaviourModel(goodType).pricingBehaviourPriceDecisionCauseModels

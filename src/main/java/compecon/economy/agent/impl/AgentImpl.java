@@ -396,6 +396,9 @@ public abstract class AgentImpl implements Agent {
 			final BalanceSheetDTO balanceSheet = AgentImpl.this
 					.issueBalanceSheet();
 
+			// TODO: could be placed in its own life sign event
+			getLog().agent_onLifesign(AgentImpl.this);
+
 			getLog().agent_onPublishBalanceSheet(AgentImpl.this, balanceSheet);
 		}
 	}

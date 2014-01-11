@@ -34,6 +34,7 @@ import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Currency;
+import compecon.economy.sectors.household.Household;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.NotificationListenerModel.ModelListener;
 
@@ -68,8 +69,18 @@ public class AgentsPanel extends AbstractChartsPanel implements ModelListener {
 
 		timeSeriesCollection
 				.addSeries(ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).numberOfAgentsModel
-						.getNumberOfAgentsTimeSeries(agentType));
+						.getNationalEconomyModel(currency).numberOfAgentsModels
+						.get(agentType).getTimeSeries());
+
+		// in case of households
+		if (Household.class.isAssignableFrom(agentType)) {
+			// show retired households
+			timeSeriesCollection
+					.addSeries(ApplicationContext.getInstance()
+							.getModelRegistry()
+							.getNationalEconomyModel(currency).householdsModel.retiredModel
+							.getTimeSeries());
+		}
 
 		JFreeChart chart = ChartFactory
 				.createTimeSeriesChart("# " + agentType.getSimpleName()

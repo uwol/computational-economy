@@ -461,6 +461,8 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				 * intertemporal consumption function)
 				 */
 
+				getLog().household_onRetired(HouseholdImpl.this);
+
 				/*
 				 * spend saved retirement money
 				 */
@@ -468,7 +470,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 						.transferMoney(HouseholdImpl.this.bankAccountSavings,
 								HouseholdImpl.this.bankAccountTransactions,
 								-1.0 * moneySumToSave, "retirement dissavings");
-				if (getLog().isAgentSelectedByClient(HouseholdImpl.this))
+				if (getLog().isAgentSelectedByClient(HouseholdImpl.this)) {
 					getLog().log(
 							HouseholdImpl.this,
 							"unsaving "
@@ -477,6 +479,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 									+ " "
 									+ HouseholdImpl.this.bankAccountSavings
 											.getCurrency().getIso4217Code());
+				}
 			}
 
 			return budget;

@@ -22,10 +22,12 @@ package compecon.engine.statistics;
 import java.util.HashMap;
 import java.util.Map;
 
+import compecon.economy.agent.Agent;
 import compecon.economy.behaviour.PricingBehaviour.PricingBehaviourNewPriceDecisionCause;
 import compecon.economy.materia.GoodType;
 import compecon.economy.materia.InputOutputModel;
 import compecon.economy.sectors.financial.Currency;
+import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 import compecon.engine.statistics.timeseries.PeriodDataPercentageTimeSeriesModel;
 import compecon.engine.statistics.timeseries.PeriodDataQuotientTimeSeriesModel;
@@ -63,6 +65,7 @@ public class ModelRegistry {
 			public final PeriodDataDistributionModel incomeDistributionModel;
 			public final PeriodDataPercentageTimeSeriesModel<IncomeSource> incomeSourceModel;
 			public final PeriodDataAccumulatorTimeSeriesModel labourHourCapacityModel;
+			public final PeriodDataAccumulatorTimeSeriesModel retiredModel;
 			public final PeriodDataAccumulatorTimeSeriesModel savingModel;
 			public final PeriodDataQuotientTimeSeriesModel savingRateModel;
 			public final PeriodDataAccumulatorTimeSeriesModel wageModel;
@@ -98,7 +101,8 @@ public class ModelRegistry {
 				this.labourHourCapacityModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " " + GoodType.LABOURHOUR
 								+ " cap.");
-
+				this.retiredModel = new PeriodDataAccumulatorTimeSeriesModel(
+						currency.getIso4217Code() + " retired Households");
 				this.savingModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " saving");
 				this.savingRateModel = new PeriodDataQuotientTimeSeriesModel(
@@ -122,6 +126,7 @@ public class ModelRegistry {
 				this.incomeSourceModel.nextPeriod();
 				this.incomeDistributionModel.nextPeriod();
 				this.labourHourCapacityModel.nextPeriod();
+				this.retiredModel.nextPeriod();
 				this.savingModel.nextPeriod();
 				this.savingRateModel.nextPeriod();
 				this.utilityModel.nextPeriod();
@@ -333,7 +338,7 @@ public class ModelRegistry {
 		 * agents
 		 */
 
-		public final NumberOfAgentsModel numberOfAgentsModel;
+		public final Map<Class<? extends Agent>, PeriodDataAccumulatorTimeSeriesModel> numberOfAgentsModels = new HashMap<Class<? extends Agent>, PeriodDataAccumulatorTimeSeriesModel>();
 
 		/*
 		 * households: consumption and saving
@@ -418,7 +423,17 @@ public class ModelRegistry {
 			this.householdsModel = new HouseholdsModel(currency,
 					inputOutputModel);
 			this.stateModel = new StateModel(currency, inputOutputModel);
-			this.numberOfAgentsModel = new NumberOfAgentsModel(currency);
+
+			for (Class<? extends Agent> agentType : ApplicationContext
+					.getInstance().getAgentFactory().getAgentTypes()) {
+				this.numberOfAgentsModels.put(
+						agentType,
+						new PeriodDataAccumulatorTimeSeriesModel(currency
+								.getIso4217Code()
+								+ " "
+								+ agentType.getSimpleName()));
+			}
+
 			this.pricesModel = new PricesModel();
 			this.marketDepthModel = new MarketDepthModel();
 			this.keyInterestRateModel = new PeriodDataAccumulatorTimeSeriesModel(
@@ -477,7 +492,12 @@ public class ModelRegistry {
 			this.moneySupplyM2Model.nextPeriod();
 			this.moneyCirculationModel.nextPeriod();
 			this.moneyVelocityModel.nextPeriod();
-			this.numberOfAgentsModel.nextPeriod();
+
+			for (PeriodDataAccumulatorTimeSeriesModel numberOfAgentsModel : this.numberOfAgentsModels
+					.values()) {
+				numberOfAgentsModel.nextPeriod();
+			}
+
 			this.pricesModel.nextPeriod();
 			this.priceIndexModel.nextPeriod();
 			this.stateModel.nextPeriod();

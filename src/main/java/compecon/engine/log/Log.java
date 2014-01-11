@@ -73,6 +73,8 @@ public interface Log {
 
 	public void agent_onDeconstruct(final Agent agent);
 
+	public void agent_onLifesign(final Agent agent);
+
 	public void agent_onPublishBalanceSheet(final Agent agent,
 			final BalanceSheetDTO balanceSheet);
 
@@ -92,6 +94,8 @@ public interface Log {
 			final Currency currency,
 			final Map<GoodType, Double> bundleOfGoodsToConsume,
 			final double utility);
+
+	public void household_onRetired(final Household household);
 
 	public void household_AmountSold(final Currency currency,
 			final double labourHoursSold);
