@@ -13,7 +13,7 @@ Agent types:
 
 Other entities / features:
 * General equilibrium: Macroeconomic equilibria reproducibly emerge from non-stochastic microeconomic decision making of agents (-> Arrow-Debreu).
-* Markets: Sellers offer goods on markets. Settlement markets transfers ownership of goods and money, automatically.
+* Markets: Sellers offer goods on markets. Settlement markets transfer ownership of goods and money, automatically.
 * Currencies: National currency zones, foreign exchange markets, arbitrage.
 * Shares: Joint-stock companies are owned by agents and pay dividends to them every period.
 * Bonds: Bonds are given as security for credit in open market operations between central and credit banks.
