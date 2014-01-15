@@ -5,13 +5,12 @@ Computational Economy is an agent-based computational economics simulator implem
 
 Features:
 * Agent type *Household*: Households offer labour hours and consume goods according to CES or Cobb-Douglas utility functions. Intertemporal consumption and retirement saving preferences are modeled by Irving-Fisher and Modigliani intertemporal choice models.
-* Agent type *Factory*: Factories produce multiple goods (e. g. iron, coal, ...) according to an input-output-model based on Cobb-Douglas, CES and root production functions. Depending on the configured economic model, factories produce and accumulate capital goods, which induce economic growth and depreciate over time (-> SolowÐSwan). 
+* Agent type *Factory*: Factories produce multiple goods (e. g. iron, coal, ...) according to an input-output-model based on Cobb-Douglas, CES and root production functions. Depending on the configured economic model, factories produce and accumulate capital goods, which induce economic growth and depreciate over time (-> Solow-Swan). 
 * Agent type *Credit bank*: Credit banks manage bank accounts, create money by credit, trade currencies, follow minimum reserve requirements of central banks and buy bonds for deposits (fractional reserve banking).
 * Agent type *Central bank*: Central banks adjust key interest rates based on price indices. Key interest rates induce changes in buying behaviour via a monetary transmission mechanism.
 * Agent type *Trader*: Traders import goods from foreign markets for arbitrage.
 * Agent type *State*: States emit bonds, which are bought by credit banks for customer savings deposits. Thereby, national debt represents retirement savings of households. 
-
-* General equilibrium: Macroeconomic equilibria reproducibly emerge from non-stochastic microeconomic decision making of agents (-> ArrowÐDebreu).
+* General equilibrium: Macroeconomic equilibria reproducibly emerge from non-stochastic microeconomic decision making of agents (-> Arrow-Debreu).
 * Markets: Sellers offer goods on markets. Settlement markets transfers ownership of goods and money, automatically.
 * Currencies: National currency zones, foreign exchange markets, arbitrage.
 * Shares: Joint-stock companies are owned by agents and pay dividends to them every period.
