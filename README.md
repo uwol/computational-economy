@@ -9,7 +9,8 @@ Features:
 * Agent type *Credit bank*: Credit banks manage bank accounts, create money by credit, trade currencies, follow minimum reserve requirements of central banks and buy bonds for deposits (fractional reserve banking).
 * Agent type *Central bank*: Central banks adjust key interest rates based on price indices. Key interest rates induce changes in buying behaviour via a monetary transmission mechanism.
 * Agent type *Trader*: Traders import goods from foreign markets for arbitrage.
-* Agent type *State*: States emit bonds, which are bought by credit banks for customer savings deposits. Thereby, national debt represents retirement savings of households. 
+* Agent type *State*: States emit bonds, which are bought by credit banks for customer savings deposits. Thereby, national debt represents retirement savings of households.
+
 * General equilibrium: Macroeconomic equilibria reproducibly emerge from non-stochastic microeconomic decision making of agents (-> Arrow-Debreu).
 * Markets: Sellers offer goods on markets. Settlement markets transfers ownership of goods and money, automatically.
 * Currencies: National currency zones, foreign exchange markets, arbitrage.
@@ -21,6 +22,7 @@ Technologies:
 * Java 1.7, JUnit, Hibernate, JFreeChart, Maven
 * Stand-alone calculation engine; architecturally separate from visualization dashboard.
 * Optional: SQL server
+
 
 ![screenshot1](http://img.literaturedb.com/compecon1.png)
 
