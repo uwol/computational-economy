@@ -408,17 +408,19 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				final double depreciation = depreciationRatio
 						* capitalGoodTypeAmount;
 
-				ApplicationContext
-						.getInstance()
-						.getPropertyService()
-						.decrementGoodTypeAmount(FactoryImpl.this,
-								capitalGoodType, depreciation);
+				if (depreciation > 0) {
+					ApplicationContext
+							.getInstance()
+							.getPropertyService()
+							.decrementGoodTypeAmount(FactoryImpl.this,
+									capitalGoodType, depreciation);
 
-				ApplicationContext
-						.getInstance()
-						.getLog()
-						.factory_onCapitalDepreciation(FactoryImpl.this,
-								capitalGoodType, depreciation);
+					ApplicationContext
+							.getInstance()
+							.getLog()
+							.factory_onCapitalDepreciation(FactoryImpl.this,
+									capitalGoodType, depreciation);
+				}
 			}
 		}
 	}

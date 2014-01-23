@@ -38,7 +38,7 @@ public class DashboardRunner {
 		 */
 		final String configurationPropertiesFilename = System.getProperty(
 				"configuration.properties",
-				"interdependencies.configuration.properties");
+				"nodependencies.configuration.properties");
 
 		if (HibernateUtil.isActive()) {
 			ApplicationContextFactory
