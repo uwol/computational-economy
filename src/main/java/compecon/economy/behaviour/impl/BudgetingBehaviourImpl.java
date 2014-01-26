@@ -35,7 +35,7 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 
 	protected final Agent agent;
 
-	protected double lastMaxCredit = Double.NaN;
+	protected double lastMaxCreditRate = Double.NaN;
 
 	public BudgetingBehaviourImpl(Agent agent) {
 		this.agent = agent;
@@ -53,28 +53,28 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 		 * set / adjust reference credit
 		 */
 
-		if (Double.isNaN(this.lastMaxCredit)) {
-			this.lastMaxCredit = referenceCredit;
+		if (Double.isNaN(this.lastMaxCreditRate)) {
+			this.lastMaxCreditRate = referenceCredit;
 		}
 
-		double keyInterestRate = ApplicationContext.getInstance()
+		final double keyInterestRate = ApplicationContext.getInstance()
 				.getAgentService().findCentralBank(currency)
 				.getEffectiveKeyInterestRate();
-		double internalRateOfReturn = ApplicationContext.getInstance()
+		final double internalRateOfReturn = ApplicationContext.getInstance()
 				.getConfiguration().budgetingBehaviourConfig
 				.getInternalRateOfReturn();
-		double keyInterestRateTransmissionDamper = ApplicationContext
+		final double keyInterestRateTransmissionDamper = ApplicationContext
 				.getInstance().getConfiguration().budgetingBehaviourConfig
 				.getKeyInterestRateTransmissionDamper();
-		lastMaxCredit = lastMaxCredit
+		lastMaxCreditRate = lastMaxCreditRate
 				* (1.0 + ((internalRateOfReturn - keyInterestRate) / keyInterestRateTransmissionDamper));
 
 		/*
 		 * transmission mechanism
 		 */
 
-		double creditBasedBudget = Math.max(0.0, bankAccountBalance
-				+ this.lastMaxCredit);
+		final double creditBasedBudget = Math.max(0.0, bankAccountBalance
+				+ this.lastMaxCreditRate);
 
 		if (getLog().isAgentSelectedByClient(BudgetingBehaviourImpl.this.agent))
 			getLog().log(
@@ -84,13 +84,13 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 							+ Currency.formatMoneySum(bankAccountBalance) + " "
 							+ currency.getIso4217Code()
 							+ " bankAccountBalance + "
-							+ Currency.formatMoneySum(lastMaxCredit) + " "
+							+ Currency.formatMoneySum(lastMaxCreditRate) + " "
 							+ currency.getIso4217Code() + " maxCredit)");
 		return creditBasedBudget;
 	}
 
 	public double getCreditBasedBudgetCapacity() {
-		return lastMaxCredit;
+		return lastMaxCreditRate;
 	}
 
 	private Log getLog() {

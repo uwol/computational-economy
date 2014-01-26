@@ -1116,6 +1116,13 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			CreditBankImpl.this.assureBankAccountInterestTransactions();
 
 			/*
+			 * transfer received coupons to dividends bank account, so that
+			 * money is not hoarded
+			 */
+			CreditBankImpl.this
+					.transferBankAccountBalanceToDividendBankAccount(bankAccountInterestTransactions);
+
+			/*
 			 * the credit bank is doing fractional reserve banking -> buy bonds
 			 * for passive bank accounts
 			 */

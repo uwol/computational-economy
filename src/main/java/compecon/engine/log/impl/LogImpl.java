@@ -188,17 +188,25 @@ public class LogImpl implements Log {
 	}
 
 	public void agent_onCalculateOutputMaximizingInputsIterative(
-			final double budget, final double moneySpent,
+			final double budget, final double budgetSpent,
 			final ConvexFunctionTerminationCause terminationCause) {
 		if (agentCurrentlyActive != null) {
 			assert (agentCurrentlyActive instanceof Household || agentCurrentlyActive instanceof State);
+
+			final double weightForCause;
+			if (ConvexFunctionTerminationCause.BUDGET_PLANNED
+					.equals(terminationCause)) {
+				weightForCause = budgetSpent;
+			} else {
+				weightForCause = budget - budgetSpent;
+			}
 
 			ApplicationContext
 					.getInstance()
 					.getModelRegistry()
 					.getNationalEconomyModel(
 							agentCurrentlyActive.getPrimaryCurrency()).householdsModel.convexFunctionTerminationCauseModels
-					.get(terminationCause).add(moneySpent);
+					.get(terminationCause).add(weightForCause);
 			ApplicationContext
 					.getInstance()
 					.getModelRegistry()
@@ -354,10 +362,18 @@ public class LogImpl implements Log {
 	}
 
 	public void factory_onCalculateProfitMaximizingProductionFactorsIterative(
-			final double budget, final double moneySpent,
+			final double budget, final double budgetSpent,
 			final ConvexProductionFunctionTerminationCause terminationCause) {
 		if (agentCurrentlyActive != null) {
 			assert (agentCurrentlyActive instanceof Factory);
+
+			final double weightForCause;
+			if (ConvexProductionFunctionTerminationCause.BUDGET_PLANNED
+					.equals(terminationCause)) {
+				weightForCause = budgetSpent;
+			} else {
+				weightForCause = budget - budgetSpent;
+			}
 
 			final Currency currency = agentCurrentlyActive.getPrimaryCurrency();
 			ApplicationContext
@@ -367,7 +383,7 @@ public class LogImpl implements Log {
 					.getIndustryModel(
 							((Factory) agentCurrentlyActive)
 									.getProducedGoodType()).convexProductionFunctionTerminationCauseModels
-					.get(terminationCause).add(moneySpent);
+					.get(terminationCause).add(weightForCause);
 			ApplicationContext
 					.getInstance()
 					.getModelRegistry()

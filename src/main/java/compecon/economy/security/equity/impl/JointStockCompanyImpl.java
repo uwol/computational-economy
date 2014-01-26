@@ -60,7 +60,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 	 */
 	@OneToOne(targetEntity = BankAccountImpl.class)
 	@JoinColumn(name = "bankAccountDividends_id")
-	@Index(name = "IDX_A_BA_DIVIDENDSS")
+	@Index(name = "IDX_A_BA_DIVIDENDS")
 	protected BankAccount bankAccountDividends;
 
 	@Transient
