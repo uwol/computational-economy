@@ -44,9 +44,6 @@ public class StateImplFactoryImpl implements StateFactory {
 					.getSequenceNumberGenerator().getNextId());
 		}
 
-		state.setUtilityFunction(ApplicationContext.getInstance()
-				.getInputOutputModel().getUtilityFunctionOfState());
-
 		state.setPrimaryCurrency(currency);
 		ApplicationContext.getInstance().getStateDAO().save(state);
 		state.initialize();

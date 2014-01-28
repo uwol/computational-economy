@@ -42,15 +42,6 @@ public class InputOutputModelTestingImpl implements InputOutputModel {
 	}
 
 	@Override
-	public UtilityFunction getUtilityFunctionOfState() {
-		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.WHEAT, 0.3);
-		preferences.put(GoodType.COAL, 0.3);
-		preferences.put(GoodType.LABOURHOUR, 0.3);
-		return new CESUtilityFunctionImpl(1.0, preferences, -0.7, 0.5);
-	}
-
-	@Override
 	public ProductionFunction getProductionFunction(
 			final GoodType outputGoodType) {
 		switch (outputGoodType) {

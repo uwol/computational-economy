@@ -225,6 +225,7 @@ public class ModelRegistry {
 
 			public final Currency currency;
 
+			// currently not used
 			public final UtilityModel utilityModel;
 
 			public StateModel(final Currency currency,

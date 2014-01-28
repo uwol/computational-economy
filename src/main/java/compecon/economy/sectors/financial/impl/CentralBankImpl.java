@@ -64,7 +64,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	protected BankAccount bankAccountCentralBankMoney;
 
 	@Column(name = "effectiveKeyInterestRate")
-	protected double effectiveKeyInterestRate = 0.1;
+	protected double effectiveKeyInterestRate = 0.01;
 
 	@Transient
 	protected int NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
@@ -575,11 +575,11 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		@Transient
 		protected double calculateEffectiveKeyInterestRate() {
-			double targetPriceIndexForCurrentPeriod = this
+			final double targetPriceIndexForCurrentPeriod = this
 					.calculateTargetPriceIndexForPeriod();
-			double currentPriceIndex = CentralBankImpl.this.statisticalOffice
+			final double currentPriceIndex = CentralBankImpl.this.statisticalOffice
 					.getPriceIndex();
-			double newEffectiveKeyInterestRate = 0.03 + (((currentPriceIndex - targetPriceIndexForCurrentPeriod) / currentPriceIndex) / 10.0);
+			final double newEffectiveKeyInterestRate = 0.02 + (((currentPriceIndex - targetPriceIndexForCurrentPeriod) / currentPriceIndex) / 10.0);
 
 			if (!Double.isNaN(newEffectiveKeyInterestRate)
 					&& !Double.isInfinite(newEffectiveKeyInterestRate)) {
@@ -596,29 +596,29 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		@Transient
 		protected double calculateTargetPriceIndexForPeriod() {
-			int yearNumber = ApplicationContext.getInstance().getTimeSystem()
-					.getCurrentYear()
+			final int yearNumber = ApplicationContext.getInstance()
+					.getTimeSystem().getCurrentYear()
 					- ApplicationContext.getInstance().getTimeSystem()
 							.getStartYear();
-			double targetPriceLevelForYear = Math
+			final double targetPriceLevelForYear = Math
 					.pow((1.0 + ApplicationContext.getInstance()
 							.getConfiguration().centralBankConfig
 							.getInflationTarget()), yearNumber);
 
-			double monthlyNominalInflationTarget = MathUtil
+			final double monthlyNominalInflationTarget = MathUtil
 					.calculateMonthlyNominalInterestRate(ApplicationContext
 							.getInstance().getConfiguration().centralBankConfig
 							.getInflationTarget());
 
-			double targetPriceLevelForMonth = Math.pow(
+			final double targetPriceLevelForMonth = Math.pow(
 					1.0 + monthlyNominalInflationTarget,
 					(double) ApplicationContext.getInstance().getTimeSystem()
 							.getCurrentMonthNumberInYear() - 1.0) - 1.0;
-			double targetPriceLevelForDay = (monthlyNominalInflationTarget / 30.0)
+			final double targetPriceLevelForDay = (monthlyNominalInflationTarget / 30.0)
 					* ApplicationContext.getInstance().getTimeSystem()
 							.getCurrentDayNumberInMonth();
 
-			double combinedTargetPriceLevel = (targetPriceLevelForYear
+			final double combinedTargetPriceLevel = (targetPriceLevelForYear
 					+ targetPriceLevelForMonth + targetPriceLevelForDay);
 			return ApplicationContext.getInstance().getConfiguration().centralBankConfig
 					.getTargetPriceIndex() * combinedTargetPriceLevel;
@@ -651,11 +651,10 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			/*
 			 * set price index weights, must sum up to 1.0
 			 */
-
 			double priceIndexWeightSum = 0.0;
 			for (GoodType goodType : GoodType.values()) {
-				double priceIndexWeight = ApplicationContext.getInstance()
-						.getConfiguration().centralBankConfig.statisticalOfficeConfig
+				final double priceIndexWeight = ApplicationContext
+						.getInstance().getConfiguration().centralBankConfig.statisticalOfficeConfig
 						.getPriceIndexWeight(goodType);
 				this.priceIndexWeights.put(goodType, priceIndexWeight);
 				priceIndexWeightSum += priceIndexWeight;
@@ -690,10 +689,10 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			// store marginal prices of monitored good types for this period
 			for (Entry<GoodType, double[]> entry : this.monitoredMarginalPricesForGoodTypesAndPeriods
 					.entrySet()) {
-				double[] pricesForGoodType = entry.getValue();
+				final double[] pricesForGoodType = entry.getValue();
 
 				// fetch and store current price for this good type
-				double marginalPriceForGoodType = ApplicationContext
+				final double marginalPriceForGoodType = ApplicationContext
 						.getInstance()
 						.getMarketService()
 						.getMarginalMarketPrice(
@@ -714,19 +713,20 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			// for each monitored good type
 			for (Entry<GoodType, double[]> entry : this.monitoredMarginalPricesForGoodTypesAndPeriods
 					.entrySet()) {
-				double[] monitoredMarginalPricesForGoodType = entry.getValue();
+				final double[] monitoredMarginalPricesForGoodType = entry
+						.getValue();
 
 				double priceSumForGoodType = 0.0;
 				double totalWeight = 0;
 
 				// recalculate average price
 				for (int i = 0; i < monitoredMarginalPricesForGoodType.length; i++) {
-					double marginalPriceForGoodType = monitoredMarginalPricesForGoodType[i];
+					final double marginalPriceForGoodType = monitoredMarginalPricesForGoodType[i];
 					if (marginalPriceForGoodType != 0.0
 							&& !Double.isNaN(marginalPriceForGoodType)
 							&& !Double.isInfinite(marginalPriceForGoodType)) {
 						// weight period by age
-						double weight = monitoredMarginalPricesForGoodType.length
+						final double weight = monitoredMarginalPricesForGoodType.length
 								- i;
 						priceSumForGoodType += marginalPriceForGoodType
 								* weight;
@@ -734,12 +734,13 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 					}
 				}
 
-				double averagePriceForGoodType = priceSumForGoodType
+				final double averagePriceForGoodType = priceSumForGoodType
 						/ (double) totalWeight;
 				if (!Double.isNaN(totalWeight)
-						&& !Double.isInfinite(totalWeight))
+						&& !Double.isInfinite(totalWeight)) {
 					this.averageMarginalPricesForGoodTypes.put(entry.getKey(),
 							averagePriceForGoodType);
+				}
 			}
 		}
 
@@ -749,24 +750,26 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			// for basket of good types
 			for (Entry<GoodType, Double> entry : this.priceIndexWeights
 					.entrySet()) {
-				GoodType goodType = entry.getKey();
-				Double weight = entry.getValue();
+				final GoodType goodType = entry.getKey();
+				final Double weight = entry.getValue();
 
 				// average marginal price of the good type
-				double averageMarginalPrice = this.averageMarginalPricesForGoodTypes
+				final double averageMarginalPrice = this.averageMarginalPricesForGoodTypes
 						.get(goodType);
 
 				// add marginal price for good type to price index, weighted by
 				// defined weight
-				double newPriceIndexForGoodType = weight * averageMarginalPrice;
+				final double newPriceIndexForGoodType = weight
+						* averageMarginalPrice;
 
 				if (!Double.isNaN(newPriceIndexForGoodType)
 						&& !Double.isInfinite(newPriceIndexForGoodType)) {
 					if (Double.isNaN(newPriceIndex)
-							|| Double.isInfinite(newPriceIndex))
+							|| Double.isInfinite(newPriceIndex)) {
 						newPriceIndex = newPriceIndexForGoodType;
-					else
+					} else {
 						newPriceIndex += newPriceIndexForGoodType;
+					}
 				}
 			}
 
@@ -782,5 +785,4 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			return this.averageMarginalPricesForGoodTypes.get(goodType);
 		}
 	}
-
 }

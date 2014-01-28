@@ -19,9 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.sectors.state.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -45,6 +43,7 @@ import compecon.economy.sectors.financial.CentralBank;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.BankAccountImpl;
+import compecon.economy.sectors.household.Household;
 import compecon.economy.sectors.state.State;
 import compecon.economy.security.debt.FixedRateBond;
 import compecon.engine.applicationcontext.ApplicationContext;
@@ -52,9 +51,7 @@ import compecon.engine.timesystem.TimeSystemEvent;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 import compecon.engine.timesystem.impl.MonthType;
-import compecon.math.price.PriceFunction;
 import compecon.math.util.MathUtil;
-import compecon.math.utility.UtilityFunction;
 
 @Entity
 public class StateImpl extends AgentImpl implements State {
@@ -69,9 +66,6 @@ public class StateImpl extends AgentImpl implements State {
 
 	@Transient
 	protected PricingBehaviour pricingBehaviour;
-
-	@Transient
-	protected UtilityFunction utilityFunction;
 
 	@Transient
 	protected final BankAccountDelegate bankAccountCouponLoansDelegate = new BankAccountDelegate() {
@@ -91,17 +85,17 @@ public class StateImpl extends AgentImpl implements State {
 		super.initialize();
 
 		/*
-		 * buy and consume goods: has to happen every hour, so that not all
-		 * money is spent on one distinct hour a day! else this would lead to
-		 * significant distortions on markets, as the savings of the whole
-		 * economy flow through the state via state bonds
+		 * has to happen every hour, so that not all money is spent on one
+		 * distinct hour a day! else this would lead to significant distortions
+		 * on markets, as the savings of the whole economy flow through the
+		 * state via state bonds.
 		 */
-		final TimeSystemEvent buyAndConsumeGoodsEvent = new BuyAndConsumeGoodsEvent();
-		this.timeSystemEvents.add(buyAndConsumeGoodsEvent);
+		final TimeSystemEvent governmentTransferEvent = new GovernmentTransferEvent();
+		this.timeSystemEvents.add(governmentTransferEvent);
 		ApplicationContext
 				.getInstance()
 				.getTimeSystem()
-				.addEventEvery(buyAndConsumeGoodsEvent, -1, MonthType.EVERY,
+				.addEventEvery(governmentTransferEvent, -1, MonthType.EVERY,
 						DayType.EVERY, HourType.EVERY);
 
 		double initialInterestRate = ApplicationContext.getInstance()
@@ -126,16 +120,8 @@ public class StateImpl extends AgentImpl implements State {
 		return bankAccountCouponLoans;
 	}
 
-	public UtilityFunction getUtilityFunction() {
-		return utilityFunction;
-	}
-
 	public void setBankAccountCouponLoans(BankAccount bankAccountCouponLoans) {
 		this.bankAccountCouponLoans = bankAccountCouponLoans;
-	}
-
-	public void setUtilityFunction(UtilityFunction utilityFunction) {
-		this.utilityFunction = utilityFunction;
 	}
 
 	/*
@@ -265,7 +251,7 @@ public class StateImpl extends AgentImpl implements State {
 		}
 	}
 
-	public class BuyAndConsumeGoodsEvent implements TimeSystemEvent {
+	public class GovernmentTransferEvent implements TimeSystemEvent {
 		@Override
 		public boolean isDeconstructed() {
 			return StateImpl.this.isDeconstructed;
@@ -273,70 +259,38 @@ public class StateImpl extends AgentImpl implements State {
 
 		@Override
 		public void onEvent() {
-			buyAndConsumeGoods();
+			transferBudgetToHouseholds();
 		}
 
 		@Transient
-		private double buyAndConsumeGoods() {
+		private void transferBudgetToHouseholds() {
 			StateImpl.this.assureBankAccountTransactions();
 
-			/*
-			 * buy goods for sold bonds -> prevent hoarding of money
-			 */
-			Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
-					.getInstance()
-					.getMarketService()
-					.getMarketPriceFunctions(
-							StateImpl.this.bankAccountTransactions
-									.getCurrency(),
-							StateImpl.this.utilityFunction.getInputGoodTypes());
 			final double budget = StateImpl.this.bankAccountTransactions
 					.getBalance();
 			if (MathUtil.greater(budget, 0.0)) {
-				getLog().setAgentCurrentlyActive(StateImpl.this);
-				Map<GoodType, Double> optimalBundleOfGoods = StateImpl.this.utilityFunction
-						.calculateUtilityMaximizingInputs(priceFunctions,
-								budget);
+				final List<Household> households = ApplicationContext
+						.getInstance().getHouseholdDAO()
+						.findAllByCurrency(StateImpl.this.primaryCurrency);
 
-				for (Entry<GoodType, Double> entry : optimalBundleOfGoods
-						.entrySet()) {
-					GoodType goodType = entry.getKey();
-					double maxAmount = entry.getValue();
+				if (households.size() > 0) {
+					final double budgetPerHousehold = budget
+							/ (double) households.size();
 
-					ApplicationContext
-							.getInstance()
-							.getMarketService()
-							.buy(goodType, maxAmount, Double.NaN, Double.NaN,
-									StateImpl.this,
-									getBankAccountTransactionsDelegate());
+					for (Household household : households) {
+						final BankAccount householdBankAccount = household
+								.getBankAccountTransactionsDelegate()
+								.getBankAccount();
+
+						StateImpl.this.bankAccountTransactions
+								.getManagingBank().transferMoney(
+										StateImpl.this.bankAccountTransactions,
+										householdBankAccount,
+										budgetPerHousehold,
+										"government transfer");
+					}
 				}
 			}
-
-			/*
-			 * consume bought goods
-			 */
-			final Map<GoodType, Double> effectiveConsumptionGoodsBundle = new HashMap<GoodType, Double>();
-			for (GoodType goodType : StateImpl.this.utilityFunction
-					.getInputGoodTypes()) {
-				// only non-durable consumption goods should be consumed
-				assert (!goodType.isDurable());
-
-				double amountToConsume = ApplicationContext.getInstance()
-						.getPropertyService()
-						.getGoodTypeBalance(StateImpl.this, goodType);
-				effectiveConsumptionGoodsBundle.put(goodType, amountToConsume);
-				ApplicationContext
-						.getInstance()
-						.getPropertyService()
-						.decrementGoodTypeAmount(StateImpl.this, goodType,
-								amountToConsume);
-			}
-			double utility = StateImpl.this.utilityFunction
-					.calculateUtility(effectiveConsumptionGoodsBundle);
-			getLog().state_onUtility(StateImpl.this,
-					StateImpl.this.bankAccountTransactions.getCurrency(),
-					effectiveConsumptionGoodsBundle, utility);
-			return utility;
 		}
 	}
 

@@ -39,10 +39,5 @@ public interface InputOutputModel {
 	 */
 	public UtilityFunction getUtilityFunctionOfHousehold();
 
-	/**
-	 * @see #getUtilityFunctionOfHousehold()
-	 */
-	public UtilityFunction getUtilityFunctionOfState();
-
 	public ProductionFunction getProductionFunction(GoodType outputGoodType);
 }

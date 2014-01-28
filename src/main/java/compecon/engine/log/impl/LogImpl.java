@@ -191,6 +191,7 @@ public class LogImpl implements Log {
 			final double budget, final double budgetSpent,
 			final ConvexFunctionTerminationCause terminationCause) {
 		if (agentCurrentlyActive != null) {
+			// TODO temporary assumption
 			assert (agentCurrentlyActive instanceof Household || agentCurrentlyActive instanceof State);
 
 			final double weightForCause;
@@ -408,6 +409,7 @@ public class LogImpl implements Log {
 
 	// --------
 
+	// currently not used
 	public void state_onUtility(final State state, final Currency currency,
 			final Map<GoodType, Double> bundleOfGoodsToConsume,
 			final double utility) {
