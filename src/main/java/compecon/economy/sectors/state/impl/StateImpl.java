@@ -278,8 +278,10 @@ public class StateImpl extends AgentImpl implements State {
 							/ (double) households.size();
 
 					for (Household household : households) {
+						assert (!household.isDeconstructed());
+
 						final BankAccount householdBankAccount = household
-								.getBankAccountTransactionsDelegate()
+								.getBankAccountGovernmentTransfersDelegate()
 								.getBankAccount();
 
 						StateImpl.this.bankAccountTransactions
@@ -288,6 +290,9 @@ public class StateImpl extends AgentImpl implements State {
 										householdBankAccount,
 										budgetPerHousehold,
 										"government transfer");
+
+						household.getBankAccountGovernmentTransfersDelegate()
+								.onTransfer(budgetPerHousehold);
 					}
 				}
 			}

@@ -306,10 +306,15 @@ public class HouseholdsPanel extends AbstractChartsPanel implements
 				.addSeries(ApplicationContext.getInstance().getModelRegistry()
 						.getNationalEconomyModel(currency).householdsModel.dividendModel
 						.getTimeSeries());
+		timeSeriesCollection
+				.addSeries(ApplicationContext.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.governmentTransfersModel
+						.getTimeSeries());
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Wage & Dividend", "Date", "Wage & Dividend",
-				timeSeriesCollection, true, true, false);
+				"Wage, Dividend & Transfers", "Date",
+				"Wage, Dividend & Transfers", timeSeriesCollection, true, true,
+				false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}

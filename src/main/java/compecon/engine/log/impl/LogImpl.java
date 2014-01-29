@@ -245,10 +245,11 @@ public class LogImpl implements Log {
 		}
 	}
 
-	public void household_onIncomeWageDividendConsumptionSaving(
+	public void household_onIncomeWageDividendTransfersConsumptionSaving(
 			final Currency currency, final double income,
 			final double consumptionAmount, final double savingAmount,
-			final double wage, final double dividend) {
+			final double wage, final double dividend,
+			final double governmentTransfers) {
 
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(currency).householdsModel.consumptionModel
@@ -275,11 +276,17 @@ public class LogImpl implements Log {
 				.getNationalEconomyModel(currency).householdsModel.dividendModel
 				.add(dividend);
 		ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).householdsModel.governmentTransfersModel
+				.add(governmentTransfers);
+		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(currency).householdsModel.incomeSourceModel
 				.add(IncomeSource.WAGE, wage);
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(currency).householdsModel.incomeSourceModel
 				.add(IncomeSource.DIVIDEND, dividend);
+		ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).householdsModel.incomeSourceModel
+				.add(IncomeSource.TRANSFERS, governmentTransfers);
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
 				.add(income);

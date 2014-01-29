@@ -64,7 +64,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	protected BankAccount bankAccountCentralBankMoney;
 
 	@Column(name = "effectiveKeyInterestRate")
-	protected double effectiveKeyInterestRate = 0.01;
+	protected double effectiveKeyInterestRate = 0.02;
 
 	@Transient
 	protected int NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;

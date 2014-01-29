@@ -89,6 +89,9 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	protected double dividendSinceLastPeriod;
 
 	@Transient
+	protected double governmentTransfersSinceLastPeriod;
+
+	@Transient
 	protected IntertemporalConsumptionFunction intertemporalConsumptionFunction;
 
 	@Transient
@@ -111,6 +114,20 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		@Override
 		public void onTransfer(final double amount) {
 			HouseholdImpl.this.dividendSinceLastPeriod += amount;
+		}
+	};
+
+	@Transient
+	protected final BankAccountDelegate bankAccountGovernmentTransfersDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			HouseholdImpl.this.assureBankAccountTransactions();
+			return HouseholdImpl.this.bankAccountTransactions;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+			HouseholdImpl.this.governmentTransfersSinceLastPeriod += amount;
 		}
 	};
 
@@ -247,6 +264,11 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	@Transient
 	public BankAccountDelegate getBankAccountDividendDelegate() {
 		return this.bankAccountDividendDelegate;
+	}
+
+	@Transient
+	public BankAccountDelegate getBankAccountGovernmentTransfersDelegate() {
+		return this.bankAccountGovernmentTransfersDelegate;
 	}
 
 	@Override
@@ -421,12 +443,14 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			/*
 			 * logging
 			 */
-			getLog().household_onIncomeWageDividendConsumptionSaving(
+			getLog().household_onIncomeWageDividendTransfersConsumptionSaving(
 					primaryCurrency, income, moneySumToConsume, moneySumToSave,
 					HouseholdImpl.this.pricingBehaviour.getLastSoldValue(),
-					HouseholdImpl.this.dividendSinceLastPeriod);
+					HouseholdImpl.this.dividendSinceLastPeriod,
+					HouseholdImpl.this.governmentTransfersSinceLastPeriod);
 
 			HouseholdImpl.this.dividendSinceLastPeriod = 0;
+			HouseholdImpl.this.governmentTransfersSinceLastPeriod = 0;
 
 			if (moneySumToSave > 0.0) {
 				/*

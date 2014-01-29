@@ -20,10 +20,13 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.economy.sectors.household;
 
 import compecon.economy.agent.Agent;
+import compecon.economy.sectors.financial.BankAccountDelegate;
 
 public interface Household extends Agent {
 
 	public int getAgeInDays();
+
+	public BankAccountDelegate getBankAccountGovernmentTransfersDelegate();
 
 	public int getContinuousDaysWithUtility();
 

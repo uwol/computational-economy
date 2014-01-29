@@ -38,7 +38,7 @@ import compecon.math.production.ProductionFunction;
 public class ModelRegistry {
 
 	public enum IncomeSource {
-		WAGE, DIVIDEND
+		WAGE, DIVIDEND, TRANSFERS
 	}
 
 	public class NationalEconomyModel {
@@ -61,6 +61,7 @@ public class ModelRegistry {
 			public final PeriodDataQuotientTimeSeriesModel consumptionRateModel;
 			public final PeriodDataQuotientTimeSeriesModel consumptionIncomeRatioModel;
 			public final PeriodDataAccumulatorTimeSeriesModel dividendModel;
+			public final PeriodDataAccumulatorTimeSeriesModel governmentTransfersModel;
 			public final PeriodDataAccumulatorTimeSeriesModel incomeModel;
 			public final PeriodDataDistributionModel incomeDistributionModel;
 			public final PeriodDataPercentageTimeSeriesModel<IncomeSource> incomeSourceModel;
@@ -91,6 +92,8 @@ public class ModelRegistry {
 						"");
 				this.dividendModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " dividend");
+				this.governmentTransfersModel = new PeriodDataAccumulatorTimeSeriesModel(
+						currency.getIso4217Code() + " government transfers");
 				this.incomeModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " income");
 				this.incomeDistributionModel = new PeriodDataDistributionModel(
@@ -122,6 +125,7 @@ public class ModelRegistry {
 				this.consumptionModel.nextPeriod();
 				this.consumptionRateModel.nextPeriod();
 				this.dividendModel.nextPeriod();
+				this.governmentTransfersModel.nextPeriod();
 				this.incomeModel.nextPeriod();
 				this.incomeSourceModel.nextPeriod();
 				this.incomeDistributionModel.nextPeriod();

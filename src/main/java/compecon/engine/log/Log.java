@@ -85,10 +85,11 @@ public interface Log {
 			final double budget, final double moneySpent,
 			final ConvexFunctionTerminationCause terminationCause);
 
-	public void household_onIncomeWageDividendConsumptionSaving(
+	public void household_onIncomeWageDividendTransfersConsumptionSaving(
 			final Currency currency, final double income,
 			final double consumptionAmount, final double savingAmount,
-			final double wage, final double dividend);
+			final double wage, final double dividend,
+			final double governmentTransfers);
 
 	public void household_onUtility(final Household household,
 			final Currency currency,

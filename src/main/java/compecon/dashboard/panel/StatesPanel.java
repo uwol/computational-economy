@@ -48,6 +48,7 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 
 			this.add(createStateBalanceSheetPanel(currency));
 			this.add(createUtilityPanel(currency));
+			this.add(createGovernmentTransfersPanel(currency));
 
 			this.setLayout(new GridLayout(0, 2));
 		}
@@ -103,6 +104,21 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 		JFreeChart chart = ChartFactory.createTimeSeriesChart("State Utility",
 				"Date", "Utility", (XYDataset) timeSeriesCollection, true,
 				true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createGovernmentTransfersPanel(Currency currency) {
+		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		timeSeriesCollection
+				.addSeries(ApplicationContext.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.governmentTransfersModel
+						.getTimeSeries());
+
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				"Government Transfers", "Date", "Government Transfers",
+				(XYDataset) timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}
