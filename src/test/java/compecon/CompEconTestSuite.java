@@ -39,10 +39,11 @@ import compecon.math.CESFunctionTest;
 import compecon.math.CobbDouglasFunctionTest;
 import compecon.math.intertemporal.ModiglianiIntertemporalConsumptionFunctionTest;
 import compecon.math.production.CobbDouglasProductionFunctionTest;
+import compecon.math.util.MathUtilTest;
 import compecon.math.utility.CobbDouglasUtilityFunctionTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ InterdependenciesConfigurationTest.class,
+@SuiteClasses({ MathUtilTest.class, InterdependenciesConfigurationTest.class,
 		NoDependenciesConfigurationTest.class, TestingConfigurationTest.class,
 		BankAccountDAOTest.class, HouseholdDAOTest.class,
 		PropertyDAOTest.class, AgentServiceTest.class, MarketServiceTest.class,

@@ -106,21 +106,42 @@ public class Configuration {
 
 		public final StatisticalOfficeConfig statisticalOfficeConfig = new StatisticalOfficeConfig();
 
-		public Double reserveRatio;
+		public Double defaultEffectiveKeyInterestRate;
 
 		public Double inflationTarget;
 
+		public Double maxEffectiveKeyInterestRate;
+
+		public Double minEffectiveKeyInterestRate;
+
 		public Map<Currency, Integer> number = new HashMap<Currency, Integer>();
+
+		public Double reserveRatio;
 
 		public Double targetPriceIndex;
 
-		public Boolean allowNegativeKeyInterestRate;
+		public double getMaxEffectiveKeyInterestRate() {
+			if (maxEffectiveKeyInterestRate == null)
+				maxEffectiveKeyInterestRate = Double
+						.parseDouble(configFile
+								.getProperty("centralBank.maxEffectiveKeyInterestRate"));
+			return maxEffectiveKeyInterestRate;
+		}
 
-		public double getReserveRatio() {
-			if (reserveRatio == null)
-				reserveRatio = Double.parseDouble(configFile
-						.getProperty("centralBank.reserveRatio"));
-			return reserveRatio;
+		public double getMinEffectiveKeyInterestRate() {
+			if (minEffectiveKeyInterestRate == null)
+				minEffectiveKeyInterestRate = Double
+						.parseDouble(configFile
+								.getProperty("centralBank.minEffectiveKeyInterestRate"));
+			return minEffectiveKeyInterestRate;
+		}
+
+		public double getDefaultEffectiveKeyInterestRate() {
+			if (defaultEffectiveKeyInterestRate == null)
+				defaultEffectiveKeyInterestRate = Double
+						.parseDouble(configFile
+								.getProperty("centralBank.defaultEffectiveKeyInterestRate"));
+			return defaultEffectiveKeyInterestRate;
 		}
 
 		public double getInflationTarget() {
@@ -140,6 +161,13 @@ public class Configuration {
 			return number.get(currency);
 		}
 
+		public double getReserveRatio() {
+			if (reserveRatio == null)
+				reserveRatio = Double.parseDouble(configFile
+						.getProperty("centralBank.reserveRatio"));
+			return reserveRatio;
+		}
+
 		public double getTargetPriceIndex() {
 			if (targetPriceIndex == null)
 				targetPriceIndex = Double.parseDouble(configFile
@@ -147,13 +175,6 @@ public class Configuration {
 			return targetPriceIndex;
 		}
 
-		public boolean getAllowNegativeKeyInterestRate() {
-			if (allowNegativeKeyInterestRate == null)
-				allowNegativeKeyInterestRate = Boolean
-						.parseBoolean(configFile
-								.getProperty("centralBank.allowNegativeKeyInterestRate"));
-			return allowNegativeKeyInterestRate;
-		}
 	}
 
 	public class CreditBankConfig {

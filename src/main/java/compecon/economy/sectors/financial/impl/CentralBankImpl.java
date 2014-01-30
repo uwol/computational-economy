@@ -64,7 +64,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	protected BankAccount bankAccountCentralBankMoney;
 
 	@Column(name = "effectiveKeyInterestRate")
-	protected double effectiveKeyInterestRate = 0.02;
+	protected double effectiveKeyInterestRate;
 
 	@Transient
 	protected int NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
@@ -134,14 +134,20 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		// count number of snapshots that are taken per day
 		int numberOfSnapshotsPerDay = 0;
-		for (TimeSystemEvent event : CentralBankImpl.this.timeSystemEvents)
-			if (event instanceof MarginalPriceSnapshotEvent)
+		for (TimeSystemEvent event : CentralBankImpl.this.timeSystemEvents) {
+			if (event instanceof MarginalPriceSnapshotEvent) {
 				numberOfSnapshotsPerDay++;
+			}
+		}
 		this.NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY = numberOfSnapshotsPerDay;
 
 		// statistical office; has to be initialized after calculating
 		// NUMBER_OF_SNAPSHOTS_PER_DAY
 		this.statisticalOffice = new StatisticalOffice();
+
+		this.effectiveKeyInterestRate = ApplicationContext.getInstance()
+				.getConfiguration().centralBankConfig
+				.getDefaultEffectiveKeyInterestRate();
 	}
 
 	@Override
@@ -579,18 +585,27 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 					.calculateTargetPriceIndexForPeriod();
 			final double currentPriceIndex = CentralBankImpl.this.statisticalOffice
 					.getPriceIndex();
-			final double newEffectiveKeyInterestRate = 0.02 + (((currentPriceIndex - targetPriceIndexForCurrentPeriod) / currentPriceIndex) / 10.0);
 
-			if (!Double.isNaN(newEffectiveKeyInterestRate)
-					&& !Double.isInfinite(newEffectiveKeyInterestRate)) {
-				if (ApplicationContext.getInstance().getConfiguration().centralBankConfig
-						.getAllowNegativeKeyInterestRate()) {
-					return newEffectiveKeyInterestRate;
-				} else {
-					return Math.max(0.0, newEffectiveKeyInterestRate);
-				}
+			final double defaultEffectiveKeyInterestRate = ApplicationContext
+					.getInstance().getConfiguration().centralBankConfig
+					.getDefaultEffectiveKeyInterestRate();
+			final double maxEffectiveKeyInterestRate = ApplicationContext
+					.getInstance().getConfiguration().centralBankConfig
+					.getMaxEffectiveKeyInterestRate();
+			final double minEffectiveKeyInterestRate = ApplicationContext
+					.getInstance().getConfiguration().centralBankConfig
+					.getMinEffectiveKeyInterestRate();
+
+			final double newEffectiveKeyInterestRate = defaultEffectiveKeyInterestRate
+					+ (((currentPriceIndex - targetPriceIndexForCurrentPeriod) / currentPriceIndex) / 10.0);
+
+			if (Double.isNaN(newEffectiveKeyInterestRate)
+					|| Double.isInfinite(newEffectiveKeyInterestRate)) {
+				return defaultEffectiveKeyInterestRate;
 			} else {
-				return CentralBankImpl.this.effectiveKeyInterestRate;
+				return Math.max(Math.min(newEffectiveKeyInterestRate,
+						maxEffectiveKeyInterestRate),
+						minEffectiveKeyInterestRate);
 			}
 		}
 

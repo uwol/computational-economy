@@ -35,8 +35,8 @@ public class MathUtil {
 	 */
 	public static double calculateMonthlyNominalInterestRate(
 			final double effectiveInterestRate) {
-		return effectiveInterestRate / (1 + 11 / 24 * effectiveInterestRate)
-				/ 12;
+		return effectiveInterestRate
+				/ (1 + ((11 / 24) * effectiveInterestRate)) / 12;
 	}
 
 	public static boolean equal(final double value1, final double value2) {

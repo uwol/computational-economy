@@ -42,6 +42,7 @@ public class HouseholdImplTest extends CompEconTestSupport {
 		super.setUpApplicationContext(testConfigurationPropertiesFilename);
 		ApplicationContext.getInstance().getAgentFactory()
 				.constructAgentsFromConfiguration();
+		ApplicationContext.getInstance().getConfiguration().householdConfig.retirementSaving = false;
 	}
 
 	@After
