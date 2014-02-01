@@ -19,9 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.timesystem.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import compecon.engine.timesystem.TimeSystemEvent;
@@ -39,12 +38,12 @@ public class YearImpl implements Year {
 		this.months.get(monthType).addEvent(event, dayType, hourType);
 	}
 
-	public List<TimeSystemEvent> getEvents(final MonthType monthType,
+	public Set<TimeSystemEvent> getEvents(final MonthType monthType,
 			final DayType dayType, final HourType hourType) {
 		final MonthImpl monthExact = this.months.get(monthType);
 		final MonthImpl monthEvery = this.months.get(MonthType.EVERY);
 
-		final List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
+		final Set<TimeSystemEvent> events = new HashSet<TimeSystemEvent>();
 
 		if (monthExact != null) {
 			events.addAll(monthExact.getEvents(dayType, hourType));

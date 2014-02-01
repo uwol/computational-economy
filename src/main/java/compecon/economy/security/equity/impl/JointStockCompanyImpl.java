@@ -80,7 +80,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 	public void initialize() {
 		super.initialize();
 
-		// pay dividend
+		// pay dividend; every hour, so that no money is hoarded
 		final TimeSystemEvent payDividendEvent = new PayDividendEvent();
 		this.timeSystemEvents.add(payDividendEvent);
 		ApplicationContext
@@ -227,7 +227,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 						.getBalance();
 
 				// dividend to be payed?
-				if (totalDividend > 0.0) {
+				if (MathUtil.greater(totalDividend, 0.0)) {
 					double totalDividendPayed = 0.0;
 
 					final Currency currency = JointStockCompanyImpl.this.bankAccountDividends

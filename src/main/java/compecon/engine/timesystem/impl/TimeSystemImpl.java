@@ -21,6 +21,7 @@ package compecon.engine.timesystem.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -228,6 +229,13 @@ public class TimeSystemImpl implements TimeSystem {
 			events.addAll(yearEvery.getEvents(currentMonthType, currentDayType,
 					currentHourType));
 		}
+
+		/*
+		 * important: every time this method is called, events have to be
+		 * shuffled, so that each day gives each agent a new chance of being
+		 * first
+		 */
+		Collections.shuffle(events);
 
 		for (TimeSystemEvent event : events) {
 			try {

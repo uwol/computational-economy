@@ -19,9 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.timesystem.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import compecon.engine.timesystem.Month;
@@ -48,18 +47,20 @@ public class MonthImpl implements Month {
 		this.days.get(dayType).addEvent(event, hourType);
 	}
 
-	public List<TimeSystemEvent> getEvents(final DayType dayType,
+	public Set<TimeSystemEvent> getEvents(final DayType dayType,
 			final HourType hourType) {
 		final DayImpl dayExact = this.days.get(dayType);
 		final DayImpl dayEvery = this.days.get(DayType.EVERY);
 
-		final List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
+		final Set<TimeSystemEvent> events = new HashSet<TimeSystemEvent>();
 
-		if (dayExact != null)
+		if (dayExact != null) {
 			events.addAll(dayExact.getEvents(hourType));
+		}
 
-		if (dayEvery != null)
+		if (dayEvery != null) {
 			events.addAll(dayEvery.getEvents(hourType));
+		}
 
 		return events;
 	}

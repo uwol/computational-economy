@@ -19,18 +19,18 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.timesystem;
 
-import java.util.List;
 import java.util.Set;
 
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.HourType;
 
 public interface Day {
+
 	public DayType getDayType();
 
 	public void addEvent(final TimeSystemEvent event, final HourType hourType);
 
-	public List<TimeSystemEvent> getEvents(final HourType hourType);
+	public Set<TimeSystemEvent> getEvents(final HourType hourType);
 
 	public void removeEvents(final Set<TimeSystemEvent> events);
 }

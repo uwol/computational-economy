@@ -19,9 +19,7 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.timesystem.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import compecon.engine.timesystem.Hour;
@@ -31,7 +29,7 @@ public class HourImpl implements Hour {
 
 	private HourType hourType;
 
-	private List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
+	private Set<TimeSystemEvent> events = new HashSet<TimeSystemEvent>();
 
 	public HourImpl(final HourType hourType) {
 		this.hourType = hourType;
@@ -45,11 +43,7 @@ public class HourImpl implements Hour {
 		this.events.add(event);
 	}
 
-	public List<TimeSystemEvent> getEvents() {
-		// every time this method is called, events have to be shuffled, so
-		// that
-		// each day gives each agent a new chance of being first
-		Collections.shuffle(this.events);
+	public Set<TimeSystemEvent> getEvents() {
 		return this.events;
 	}
 

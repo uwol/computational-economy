@@ -60,6 +60,9 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 		final double keyInterestRate = ApplicationContext.getInstance()
 				.getAgentService().findCentralBank(currency)
 				.getEffectiveKeyInterestRate();
+
+		assert (!Double.isNaN(keyInterestRate));
+
 		final double internalRateOfReturn = ApplicationContext.getInstance()
 				.getConfiguration().budgetingBehaviourConfig
 				.getInternalRateOfReturn();
