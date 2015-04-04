@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -41,181 +41,207 @@ import compecon.engine.util.HibernateUtil;
  */
 public class TimeSystemImpl implements TimeSystem {
 
-	private final int startYear;
+	private final SimpleDateFormat dayFormat = new SimpleDateFormat(
+			"dd.MM.yyyy HH:mm");
 
 	private int dayNumber = 0;
 
-	private Random random = new Random();
+	private final List<TimeSystemEvent> externalEvents = new ArrayList<TimeSystemEvent>();
 
 	private GregorianCalendar gregorianCalendar = new GregorianCalendar();
 
-	private SimpleDateFormat dayFormat = new SimpleDateFormat(
-			"dd.MM.yyyy HH:mm");
+	private final Random random = new Random();
 
-	private Map<Integer, YearImpl> years = new HashMap<Integer, YearImpl>();
+	private final int startYear;
 
-	private List<TimeSystemEvent> externalEvents = new ArrayList<TimeSystemEvent>();
+	private final Map<Integer, YearImpl> years = new HashMap<Integer, YearImpl>();
 
-	public TimeSystemImpl(int year) {
+	public TimeSystemImpl(final int year) {
 		gregorianCalendar = new GregorianCalendar(year,
 				MonthType.JANUARY.getMonthNumber(),
 				DayType.DAY_01.getDayNumber());
 		startYear = year;
 	}
 
+	/**
+	 * @param year
+	 *            -1 for every year
+	 */
+	@Override
+	public void addEvent(final TimeSystemEvent event, final int year,
+			final MonthType monthType, final DayType dayType,
+			final HourType hourType) {
+		if (!years.containsKey(year)) {
+			years.put(year, new YearImpl());
+		}
+
+		years.get(year).addEvent(event, monthType, dayType, hourType);
+	}
+
+	/**
+	 * @param year
+	 *            -1 for every year
+	 */
+	@Override
+	public void addEventEvery(final TimeSystemEvent event, final int year,
+			final MonthType monthType, final DayType dayType,
+			final HourType excepthourType) {
+		assert (excepthourType != null);
+
+		if (!years.containsKey(year)) {
+			years.put(year, new YearImpl());
+		}
+
+		for (final HourType hourType : HourType.values()) {
+			if (!HourType.EVERY.equals(hourType)
+					&& !excepthourType.equals(hourType)) {
+				years.get(year).addEvent(event, monthType, dayType, hourType);
+			}
+		}
+	}
+
+	@Override
+	public void addEventForEveryDay(final TimeSystemEvent event) {
+		addEvent(event, -1, MonthType.EVERY, DayType.EVERY, HourType.HOUR_12);
+	}
+
+	@Override
+	public void addEventForEveryEvening(final TimeSystemEvent event) {
+		addEvent(event, -1, MonthType.EVERY, DayType.EVERY, HourType.HOUR_18);
+	}
+
+	@Override
+	public void addEventForEveryHour(final TimeSystemEvent event) {
+		addEvent(event, -1, MonthType.EVERY, DayType.EVERY, HourType.EVERY);
+	}
+
+	@Override
+	public void addEventForEveryMorning(final TimeSystemEvent event) {
+		addEvent(event, -1, MonthType.EVERY, DayType.EVERY, HourType.HOUR_07);
+	}
+
+	@Override
+	public synchronized void addExternalEvent(
+			final TimeSystemEvent timeSystemEvent) {
+		externalEvents.add(timeSystemEvent);
+	}
+
+	@Override
 	public Date getCurrentDate() {
-		return this.gregorianCalendar.getTime();
+		return gregorianCalendar.getTime();
 	}
 
-	public int getCurrentYear() {
-		return this.gregorianCalendar.get(GregorianCalendar.YEAR);
-	}
-
-	public int getCurrentMonthNumberInYear() {
-		return this.gregorianCalendar.get(GregorianCalendar.MONTH) + 1;
-	}
-
+	@Override
 	public int getCurrentDayNumberInMonth() {
-		return this.gregorianCalendar.get(GregorianCalendar.DAY_OF_MONTH);
+		return gregorianCalendar.get(GregorianCalendar.DAY_OF_MONTH);
 	}
 
-	public int getStartYear() {
-		return this.startYear;
-	}
-
-	public MonthType getCurrentMonthType() {
-		return MonthType.getMonthType(this.gregorianCalendar
-				.get(GregorianCalendar.MONTH));
-	}
-
+	@Override
 	public DayType getCurrentDayType() {
-		return DayType.getDayType(this.gregorianCalendar
+		return DayType.getDayType(gregorianCalendar
 				.get(GregorianCalendar.DAY_OF_MONTH));
 	}
 
+	@Override
 	public HourType getCurrentHourType() {
-		return HourType.getHourType(this.gregorianCalendar
+		return HourType.getHourType(gregorianCalendar
 				.get(GregorianCalendar.HOUR_OF_DAY));
-	}
-
-	public HourType suggestRandomHourType() {
-		// HourType.HOUR_23 and HourType.HOUR_00 are reserved for balance sheet
-		// publication, interest calculation, ...
-		return this.suggestRandomHourType(HourType.HOUR_01, HourType.HOUR_22);
-	}
-
-	public HourType suggestRandomHourType(final HourType minHourType,
-			final HourType maxHourType) {
-		int randomNumber = this.random.nextInt(maxHourType.getHourNumber() + 1
-				- minHourType.getHourNumber());
-		return HourType.getHourType(minHourType.getHourNumber() + randomNumber);
-	}
-
-	public boolean isInitializationPhase() {
-		return this.dayNumber < ApplicationContext.getInstance()
-				.getConfiguration().timeSystemConfig
-				.getInitializationPhaseInDays();
 	}
 
 	/*
 	 * methods for adding ITimeSystemEvents
 	 */
 
-	/**
-	 * @param year
-	 *            -1 for every year
-	 */
-	public void addEvent(final TimeSystemEvent event, final int year,
-			final MonthType monthType, final DayType dayType,
-			final HourType hourType) {
-		if (!this.years.containsKey(year))
-			this.years.put(year, new YearImpl());
-		this.years.get(year).addEvent(event, monthType, dayType, hourType);
+	@Override
+	public int getCurrentMonthNumberInYear() {
+		return gregorianCalendar.get(GregorianCalendar.MONTH) + 1;
 	}
 
-	/**
-	 * @param year
-	 *            -1 for every year
-	 */
-	public void addEventEvery(final TimeSystemEvent event, final int year,
-			final MonthType monthType, DayType dayType,
-			final HourType excepthourType) {
-		assert (excepthourType != null);
+	@Override
+	public MonthType getCurrentMonthType() {
+		return MonthType.getMonthType(gregorianCalendar
+				.get(GregorianCalendar.MONTH));
+	}
 
-		if (!this.years.containsKey(year))
-			this.years.put(year, new YearImpl());
-		for (HourType hourType : HourType.values()) {
-			if (!HourType.EVERY.equals(hourType)
-					&& !excepthourType.equals(hourType)) {
-				this.years.get(year).addEvent(event, monthType, dayType,
-						hourType);
-			}
+	@Override
+	public int getCurrentYear() {
+		return gregorianCalendar.get(GregorianCalendar.YEAR);
+	}
+
+	@Override
+	public int getStartYear() {
+		return startYear;
+	}
+
+	@Override
+	public boolean isInitializationPhase() {
+		return dayNumber < ApplicationContext.getInstance().getConfiguration().timeSystemConfig
+				.getInitializationPhaseInDays();
+	}
+
+	@Override
+	public void nextHour() {
+		gregorianCalendar.add(GregorianCalendar.HOUR_OF_DAY, 1);
+		ApplicationContext.getInstance().getLog()
+				.notifyTimeSystem_nextHour(getCurrentDate());
+
+		if (HourType.getHourType(gregorianCalendar
+				.get(GregorianCalendar.HOUR_OF_DAY)) == HourType.HOUR_00) {
+			ApplicationContext.getInstance().getLog()
+					.notifyTimeSystem_nextDay(getCurrentDate());
+			dayNumber++;
 		}
-	}
 
-	public void addEventForEveryDay(final TimeSystemEvent event) {
-		this.addEvent(event, -1, MonthType.EVERY, DayType.EVERY,
-				HourType.HOUR_12);
-	}
-
-	public void addEventForEveryMorning(final TimeSystemEvent event) {
-		this.addEvent(event, -1, MonthType.EVERY, DayType.EVERY,
-				HourType.HOUR_07);
-	}
-
-	public void addEventForEveryEvening(final TimeSystemEvent event) {
-		this.addEvent(event, -1, MonthType.EVERY, DayType.EVERY,
-				HourType.HOUR_18);
-	}
-
-	public void addEventForEveryHour(final TimeSystemEvent event) {
-		this.addEvent(event, -1, MonthType.EVERY, DayType.EVERY, HourType.EVERY);
+		triggerEvents();
 	}
 
 	/*
 	 * methods for events induced by the dashboard
 	 */
 
-	public synchronized void addExternalEvent(
-			final TimeSystemEvent timeSystemEvent) {
-		this.externalEvents.add(timeSystemEvent);
+	@Override
+	public void removeEvents(final Set<TimeSystemEvent> events) {
+		for (final YearImpl year : years.values()) {
+			year.removeEvents(events);
+		}
 	}
 
 	/*
 	 * methods for removing ITimeSystemEvents
 	 */
 
-	public void removeEvents(final Set<TimeSystemEvent> events) {
-		for (YearImpl year : this.years.values()) {
-			year.removeEvents(events);
-		}
+	@Override
+	public HourType suggestRandomHourType() {
+		// HourType.HOUR_23 and HourType.HOUR_00 are reserved for balance sheet
+		// publication, interest calculation, ...
+		return this.suggestRandomHourType(HourType.HOUR_01, HourType.HOUR_22);
 	}
 
 	/*
 	 * methods for proceeding in time
 	 */
 
-	public void nextHour() {
-		this.gregorianCalendar.add(GregorianCalendar.HOUR_OF_DAY, 1);
-		ApplicationContext.getInstance().getLog()
-				.notifyTimeSystem_nextHour(getCurrentDate());
-		if (HourType.getHourType(this.gregorianCalendar
-				.get(GregorianCalendar.HOUR_OF_DAY)) == HourType.HOUR_00) {
-			ApplicationContext.getInstance().getLog()
-					.notifyTimeSystem_nextDay(getCurrentDate());
-			this.dayNumber++;
-		}
-		this.triggerEvents();
+	@Override
+	public HourType suggestRandomHourType(final HourType minHourType,
+			final HourType maxHourType) {
+		final int randomNumber = random.nextInt(maxHourType.getHourNumber() + 1
+				- minHourType.getHourNumber());
+		return HourType.getHourType(minHourType.getHourNumber() + randomNumber);
+	}
+
+	@Override
+	public String toString() {
+		return dayFormat.format(gregorianCalendar.getTime());
 	}
 
 	private synchronized void triggerEvents() {
 		// determine current date
-		final YearImpl yearExact = this.years.get(this.getCurrentYear());
-		final YearImpl yearEvery = this.years.get(-1);
+		final YearImpl yearExact = years.get(getCurrentYear());
+		final YearImpl yearEvery = years.get(-1);
 
-		final MonthType currentMonthType = this.getCurrentMonthType();
-		final DayType currentDayType = this.getCurrentDayType();
-		final HourType currentHourType = this.getCurrentHourType();
+		final MonthType currentMonthType = getCurrentMonthType();
+		final DayType currentDayType = getCurrentDayType();
+		final HourType currentHourType = getCurrentHourType();
 
 		// select events for this date
 		final List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
@@ -237,7 +263,7 @@ public class TimeSystemImpl implements TimeSystem {
 		 */
 		Collections.shuffle(events);
 
-		for (TimeSystemEvent event : events) {
+		for (final TimeSystemEvent event : events) {
 			try {
 				/*
 				 * it may happen, that an event deconstructs an agent, and that
@@ -248,28 +274,24 @@ public class TimeSystemImpl implements TimeSystem {
 				if (!event.isDeconstructed()) {
 					event.onEvent();
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 		}
 
 		if (HourType.HOUR_00.equals(currentHourType)) {
 			// potential external events from GUI
-			for (TimeSystemEvent event : this.externalEvents) {
+			for (final TimeSystemEvent event : externalEvents) {
 				try {
 					event.onEvent();
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					e.printStackTrace();
 				}
 			}
-			this.externalEvents.clear();
+			externalEvents.clear();
 		}
 
 		// flush state to database
 		HibernateUtil.flushSession();
-	}
-
-	public String toString() {
-		return this.dayFormat.format(gregorianCalendar.getTime());
 	}
 }
