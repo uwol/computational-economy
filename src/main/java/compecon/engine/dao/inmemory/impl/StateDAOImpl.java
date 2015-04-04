@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ public class StateDAOImpl extends AbstractInMemoryDAOImpl<State> implements
 
 	@Override
 	public synchronized State findByCurrency(final Currency currency) {
-		for (State state : this.findAll()) {
+		for (final State state : findAll()) {
 			if (state.getPrimaryCurrency().equals(currency)) {
 				return state;
 			}

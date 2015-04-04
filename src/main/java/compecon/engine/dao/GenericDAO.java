@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -23,17 +23,17 @@ import java.util.List;
 
 public interface GenericDAO<T> {
 
-	public T find(final int id);
-
-	public T findRandom();
-
-	public List<T> findAll();
-
 	/**
 	 * WARNING: Should only be called from factory classes, which ensure a
 	 * subsequent Hibernate flush.
 	 */
-	public void save(final T entity);
+	public void delete(final T entity);
+
+	public T find(final int id);
+
+	public List<T> findAll();
+
+	public T findRandom();
 
 	/**
 	 * WARNING: Should only be called from factory classes, which ensure a
@@ -45,5 +45,5 @@ public interface GenericDAO<T> {
 	 * WARNING: Should only be called from factory classes, which ensure a
 	 * subsequent Hibernate flush.
 	 */
-	public void delete(final T entity);
+	public void save(final T entity);
 }

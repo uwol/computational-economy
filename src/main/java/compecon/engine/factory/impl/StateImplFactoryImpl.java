@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ public class StateImplFactoryImpl implements StateFactory {
 
 	@Override
 	public void deleteState(final State agent) {
-		ApplicationContext.getInstance().getStateDAO().delete((State) agent);
+		ApplicationContext.getInstance().getStateDAO().delete(agent);
 		HibernateUtil.flushSession();
 	}
 

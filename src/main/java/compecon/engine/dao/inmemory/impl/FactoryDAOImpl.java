@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,14 +32,14 @@ public class FactoryDAOImpl extends
 
 	@Override
 	public synchronized List<Factory> findAllByCurrency(final Currency currency) {
-		return this.getInstancesForKey(currency);
+		return getInstancesForKey(currency);
 	}
 
 	@Override
 	public synchronized List<Factory> findAllByCurrencyAndProducedGoodType(
 			final Currency currency, final GoodType producedGoodType) {
 		final List<Factory> factoriesProducingGoodType = new ArrayList<Factory>();
-		for (Factory factory : this.getInstancesForKey(currency)) {
+		for (final Factory factory : getInstancesForKey(currency)) {
 			if (producedGoodType.equals(factory.getProducedGoodType())) {
 				factoriesProducingGoodType.add(factory);
 			}

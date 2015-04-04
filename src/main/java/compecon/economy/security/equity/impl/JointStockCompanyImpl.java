@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -55,155 +55,6 @@ import compecon.math.util.MathUtil;
 public abstract class JointStockCompanyImpl extends AgentImpl implements
 		JointStockCompany {
 
-	/**
-	 * bank account for dividends to be payed to share holders
-	 */
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountDividends_id")
-	@Index(name = "IDX_A_BA_DIVIDENDS")
-	protected BankAccount bankAccountDividends;
-
-	@Transient
-	protected final BankAccountDelegate bankAccountDividendsDelegate = new BankAccountDelegate() {
-		@Override
-		public BankAccount getBankAccount() {
-			JointStockCompanyImpl.this.assureBankAccountDividends();
-			return JointStockCompanyImpl.this.bankAccountDividends;
-		}
-
-		@Override
-		public void onTransfer(final double amount) {
-		}
-	};
-
-	@Override
-	public void initialize() {
-		super.initialize();
-
-		// pay dividend; every hour, so that no money is hoarded
-		final TimeSystemEvent payDividendEvent = new PayDividendEvent();
-		this.timeSystemEvents.add(payDividendEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(payDividendEvent, -1, MonthType.EVERY, DayType.EVERY,
-						HourType.EVERY);
-	}
-
-	/*
-	 * accessors
-	 */
-
-	public BankAccount getBankAccountDividends() {
-		return bankAccountDividends;
-	}
-
-	public void setBankAccountDividends(BankAccount bankAccountDividends) {
-		this.bankAccountDividends = bankAccountDividends;
-	}
-
-	/*
-	 * assertions
-	 */
-
-	@Transient
-	public void assureBankAccountDividends() {
-		if (this.isDeconstructed)
-			return;
-
-		// initialize bank account
-		if (this.bankAccountDividends == null) {
-			// overdraft not allowed
-			this.bankAccountDividends = this.getPrimaryBank().openBankAccount(
-					this, this.primaryCurrency, false, "dividends",
-					TermType.SHORT_TERM, MoneyType.DEPOSITS);
-		}
-	}
-
-	/*
-	 * business logic
-	 */
-
-	@Transient
-	public BankAccountDelegate getBankAccountDividendsDelegate() {
-		return this.bankAccountDividendsDelegate;
-	}
-
-	@Override
-	@Transient
-	protected BalanceSheetDTO issueBalanceSheet() {
-		this.assureBankAccountDividends();
-
-		final BalanceSheetDTO balanceSheet = super.issueBalanceSheet();
-
-		// bank account for paying dividends
-		balanceSheet.addBankAccountBalance(this.bankAccountDividends);
-
-		return balanceSheet;
-	}
-
-	@Transient
-	public void issueShares() {
-		// issue initial shares
-		for (int i = 0; i < ApplicationContext.getInstance().getConfiguration().jointStockCompanyConfig
-				.getInitialNumberOfShares(); i++) {
-			final Share initialShare = ApplicationContext
-					.getInstance()
-					.getShareFactory()
-					.newInstanceShare(JointStockCompanyImpl.this,
-							JointStockCompanyImpl.this);
-			ApplicationContext
-					.getInstance()
-					.getMarketService()
-					.placeSellingOffer(initialShare,
-							JointStockCompanyImpl.this,
-							getBankAccountTransactionsDelegate(), 0.0);
-		}
-	}
-
-	@Override
-	@Transient
-	public void onBankCloseBankAccount(BankAccount bankAccount) {
-		if (this.bankAccountDividends != null
-				&& this.bankAccountDividends == bankAccount) {
-			this.bankAccountDividends = null;
-		}
-
-		super.onBankCloseBankAccount(bankAccount);
-	}
-
-	@Override
-	public void onMarketSettlement(GoodType goodType, double amount,
-			double pricePerUnit, Currency currency) {
-	}
-
-	@Override
-	public void onMarketSettlement(Currency commodityCurrency, double amount,
-			double pricePerUnit, Currency currency) {
-	}
-
-	@Override
-	public void onMarketSettlement(Property property, double pricePerUnit,
-			Currency currency) {
-	}
-
-	/**
-	 * Transfers money on account to dividend account, so that on the next
-	 * dividend event the money is transfered to share holders.
-	 * 
-	 * @param bankAccount
-	 */
-	protected void transferBankAccountBalanceToDividendBankAccount(
-			final BankAccount bankAccount) {
-		this.assureBankAccountDividends();
-
-		if (MathUtil.greater(bankAccount.getBalance(), 0.0)) {
-			bankAccount.getManagingBank().transferMoney(bankAccount,
-					JointStockCompanyImpl.this.bankAccountDividends,
-					bankAccount.getBalance(), "converting profit to dividend");
-		}
-	}
-
 	public class PayDividendEvent implements TimeSystemEvent {
 		@Override
 		public boolean isDeconstructed() {
@@ -221,22 +72,21 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 			if (propertiesIssued.size() == 0) {
 				issueShares();
 			} else {
-				JointStockCompanyImpl.this.assureBankAccountDividends();
+				assureBankAccountDividends();
 
-				final double totalDividend = JointStockCompanyImpl.this.bankAccountDividends
-						.getBalance();
+				final double totalDividend = bankAccountDividends.getBalance();
 
 				// dividend to be payed?
 				if (MathUtil.greater(totalDividend, 0.0)) {
 					double totalDividendPayed = 0.0;
 
-					final Currency currency = JointStockCompanyImpl.this.bankAccountDividends
+					final Currency currency = bankAccountDividends
 							.getCurrency();
 					final double dividendPerShare = totalDividend
 							/ propertiesIssued.size();
 
 					// pay dividend for each share
-					for (Property propertyIssued : propertiesIssued) {
+					for (final Property propertyIssued : propertiesIssued) {
 						final Share share = (Share) propertyIssued;
 						if (share.getOwner() != null
 								&& share.getOwner() != JointStockCompanyImpl.this) {
@@ -245,14 +95,13 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 							if (currency.equals(share
 									.getDividendBankAccountDelegate()
 									.getBankAccount().getCurrency())) {
-								final double dividend = Math
-										.min(dividendPerShare,
-												JointStockCompanyImpl.this.bankAccountDividends
-														.getBalance());
-								JointStockCompanyImpl.this.bankAccountDividends
+								final double dividend = Math.min(
+										dividendPerShare,
+										bankAccountDividends.getBalance());
+								bankAccountDividends
 										.getManagingBank()
 										.transferMoney(
-												JointStockCompanyImpl.this.bankAccountDividends,
+												bankAccountDividends,
 												share.getDividendBankAccountDelegate()
 														.getBankAccount(),
 												dividend, "dividend");
@@ -276,6 +125,158 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * bank account for dividends to be payed to share holders
+	 */
+	@OneToOne(targetEntity = BankAccountImpl.class)
+	@JoinColumn(name = "bankAccountDividends_id")
+	@Index(name = "IDX_A_BA_DIVIDENDS")
+	protected BankAccount bankAccountDividends;
+
+	@Transient
+	protected final BankAccountDelegate bankAccountDividendsDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			JointStockCompanyImpl.this.assureBankAccountDividends();
+			return bankAccountDividends;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
+
+	/*
+	 * accessors
+	 */
+
+	@Transient
+	public void assureBankAccountDividends() {
+		if (isDeconstructed) {
+			return;
+		}
+
+		// initialize bank account
+		if (bankAccountDividends == null) {
+			// overdraft not allowed
+			bankAccountDividends = getPrimaryBank().openBankAccount(this,
+					primaryCurrency, false, "dividends", TermType.SHORT_TERM,
+					MoneyType.DEPOSITS);
+		}
+	}
+
+	public BankAccount getBankAccountDividends() {
+		return bankAccountDividends;
+	}
+
+	/*
+	 * assertions
+	 */
+
+	@Transient
+	public BankAccountDelegate getBankAccountDividendsDelegate() {
+		return bankAccountDividendsDelegate;
+	}
+
+	/*
+	 * business logic
+	 */
+
+	@Override
+	public void initialize() {
+		super.initialize();
+
+		// pay dividend; every hour, so that no money is hoarded
+		final TimeSystemEvent payDividendEvent = new PayDividendEvent();
+		timeSystemEvents.add(payDividendEvent);
+		ApplicationContext
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(payDividendEvent, -1, MonthType.EVERY, DayType.EVERY,
+						HourType.EVERY);
+	}
+
+	@Override
+	@Transient
+	protected BalanceSheetDTO issueBalanceSheet() {
+		assureBankAccountDividends();
+
+		final BalanceSheetDTO balanceSheet = super.issueBalanceSheet();
+
+		// bank account for paying dividends
+		balanceSheet.addBankAccountBalance(bankAccountDividends);
+
+		return balanceSheet;
+	}
+
+	@Override
+	@Transient
+	public void issueShares() {
+		// issue initial shares
+		for (int i = 0; i < ApplicationContext.getInstance().getConfiguration().jointStockCompanyConfig
+				.getInitialNumberOfShares(); i++) {
+			final Share initialShare = ApplicationContext
+					.getInstance()
+					.getShareFactory()
+					.newInstanceShare(JointStockCompanyImpl.this,
+							JointStockCompanyImpl.this);
+			ApplicationContext
+					.getInstance()
+					.getMarketService()
+					.placeSellingOffer(initialShare,
+							JointStockCompanyImpl.this,
+							getBankAccountTransactionsDelegate(), 0.0);
+		}
+	}
+
+	@Override
+	@Transient
+	public void onBankCloseBankAccount(final BankAccount bankAccount) {
+		if (bankAccountDividends != null && bankAccountDividends == bankAccount) {
+			bankAccountDividends = null;
+		}
+
+		super.onBankCloseBankAccount(bankAccount);
+	}
+
+	@Override
+	public void onMarketSettlement(final Currency commodityCurrency,
+			final double amount, final double pricePerUnit,
+			final Currency currency) {
+	}
+
+	@Override
+	public void onMarketSettlement(final GoodType goodType,
+			final double amount, final double pricePerUnit,
+			final Currency currency) {
+	}
+
+	@Override
+	public void onMarketSettlement(final Property property,
+			final double pricePerUnit, final Currency currency) {
+	}
+
+	public void setBankAccountDividends(final BankAccount bankAccountDividends) {
+		this.bankAccountDividends = bankAccountDividends;
+	}
+
+	/**
+	 * Transfers money on account to dividend account, so that on the next
+	 * dividend event the money is transfered to share holders.
+	 *
+	 * @param bankAccount
+	 */
+	protected void transferBankAccountBalanceToDividendBankAccount(
+			final BankAccount bankAccount) {
+		assureBankAccountDividends();
+
+		if (MathUtil.greater(bankAccount.getBalance(), 0.0)) {
+			bankAccount.getManagingBank().transferMoney(bankAccount,
+					JointStockCompanyImpl.this.bankAccountDividends,
+					bankAccount.getBalance(), "converting profit to dividend");
 		}
 	}
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -19,36 +19,35 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.economy.sectors.financial;
 
-
 public interface BankAccount {
 
-	public enum TermType {
-		SHORT_TERM, LONG_TERM;
+	public enum MoneyType {
+		CENTRALBANK_MONEY, DEPOSITS
 	}
 
-	public enum MoneyType {
-		DEPOSITS, CENTRALBANK_MONEY
+	public enum TermType {
+		LONG_TERM, SHORT_TERM;
 	}
 
 	public void deposit(final double amount);
 
 	public double getBalance();
 
-	public int getId();
-
-	public TermType getTermType();
-
 	public Currency getCurrency();
 
-	public MoneyType getMoneyType();
+	public int getId();
 
 	public Bank getManagingBank();
+
+	public MoneyType getMoneyType();
 
 	public String getName();
 
 	public boolean getOverdraftPossible();
 
 	public BankCustomer getOwner();
+
+	public TermType getTermType();
 
 	public void withdraw(final double amount);
 

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,10 +32,9 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 
 	@Override
 	public void deleteAllBankAccounts(final Bank managingBank) {
-		final List<BankAccount> bankAccounts = this
-				.findAllBankAccountsManagedByBank(managingBank);
-		for (BankAccount bankAccount : bankAccounts) {
-			this.delete(bankAccount);
+		final List<BankAccount> bankAccounts = findAllBankAccountsManagedByBank(managingBank);
+		for (final BankAccount bankAccount : bankAccounts) {
+			delete(bankAccount);
 		}
 	}
 
@@ -44,25 +43,9 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 			final BankCustomer owner) {
 		final List<BankAccount> bankAccounts = this
 				.findAll(managingBank, owner);
-		for (BankAccount bankAccount : bankAccounts) {
-			this.delete(bankAccount);
+		for (final BankAccount bankAccount : bankAccounts) {
+			delete(bankAccount);
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<BankAccount> findAllBankAccountsManagedByBank(
-			final Bank managingBank) {
-		final String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank";
-		return getSession().createQuery(hql)
-				.setEntity("managingBank", managingBank).list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<BankAccount> findAllBankAccountsOfAgent(final BankCustomer owner) {
-		final String hql = "FROM BankAccountImpl ba WHERE ba.owner = :owner";
-		return getSession().createQuery(hql).setEntity("owner", owner).list();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -84,5 +67,21 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 				.setEntity("managingBank", managingBank)
 				.setEntity("owner", owner).setParameter("currency", currency)
 				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<BankAccount> findAllBankAccountsManagedByBank(
+			final Bank managingBank) {
+		final String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank";
+		return getSession().createQuery(hql)
+				.setEntity("managingBank", managingBank).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<BankAccount> findAllBankAccountsOfAgent(final BankCustomer owner) {
+		final String hql = "FROM BankAccountImpl ba WHERE ba.owner = :owner";
+		return getSession().createQuery(hql).setEntity("owner", owner).list();
 	}
 }

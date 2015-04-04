@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,15 +36,12 @@ public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 	protected Random randomizer = new Random();
 
 	@Override
-	public synchronized T find(final int id) {
-		return this.instancesByIds.get(id);
+	public synchronized void delete(final T entity) {
+		this.instancesByIds.inverse().remove(entity);
 	}
 
 	@Override
-	public synchronized T findRandom() {
-		final List<Integer> keys = new ArrayList<Integer>(
-				this.instancesByIds.keySet());
-		int id = keys.get(this.randomizer.nextInt(keys.size()));
+	public synchronized T find(final int id) {
 		return this.instancesByIds.get(id);
 	}
 
@@ -54,9 +51,11 @@ public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 	}
 
 	@Override
-	public synchronized void save(final T entity) {
-		this.instancesByIds.put(this.lastId, entity);
-		this.lastId++;
+	public synchronized T findRandom() {
+		final List<Integer> keys = new ArrayList<Integer>(
+				this.instancesByIds.keySet());
+		final int id = keys.get(this.randomizer.nextInt(keys.size()));
+		return this.instancesByIds.get(id);
 	}
 
 	@Override
@@ -65,7 +64,8 @@ public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 	}
 
 	@Override
-	public synchronized void delete(final T entity) {
-		this.instancesByIds.inverse().remove(entity);
+	public synchronized void save(final T entity) {
+		this.instancesByIds.put(this.lastId, entity);
+		this.lastId++;
 	}
 }

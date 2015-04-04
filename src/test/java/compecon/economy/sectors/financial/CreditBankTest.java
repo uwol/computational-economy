@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -45,55 +45,22 @@ public class CreditBankTest extends CompEconTestSupport {
 		super.setUpTestAgents();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
 	}
 
 	@Test
-	public void testTransferMoney() {
-		Currency currency = Currency.EURO;
-
-		Household household1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(0);
-		Household household2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(1);
-
-		assertEquals(0.0, household1_EUR.getBankAccountTransactionsDelegate()
-				.getBankAccount().getBalance(), epsilon);
-		assertEquals(0.0, household2_EUR.getBankAccountTransactionsDelegate()
-				.getBankAccount().getBalance(), epsilon);
-
-		Bank source = household1_EUR.getBankAccountTransactionsDelegate()
-				.getBankAccount().getManagingBank();
-		Bank target = household2_EUR.getBankAccountTransactionsDelegate()
-				.getBankAccount().getManagingBank();
-
-		// transfer money
-		for (int i = 1; i < 1000; i++) {
-			source.transferMoney(household1_EUR
-					.getBankAccountTransactionsDelegate().getBankAccount(),
-					household2_EUR.getBankAccountTransactionsDelegate()
-							.getBankAccount(), 10, "Transaction" + i);
-			assertEquals(-10.0 * i, household1_EUR
-					.getBankAccountTransactionsDelegate().getBankAccount()
-					.getBalance(), epsilon);
-			assertEquals(10.0 * i, household2_EUR
-					.getBankAccountTransactionsDelegate().getBankAccount()
-					.getBalance(), epsilon);
-		}
-	}
-
-	@Test
 	public void testCreditBankDeconstruction() {
-		Currency currency = Currency.EURO;
+		final Currency currency = Currency.EURO;
 
 		// init household 1
-		Household household1_EUR = ApplicationContext.getInstance()
+		final Household household1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(0);
-		CreditBank creditBank1_EUR = ApplicationContext.getInstance()
+		final CreditBank creditBank1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findCreditBanks(currency).get(0);
-		BankAccount bankAccount1_EUR = creditBank1_EUR.openBankAccount(
+		final BankAccount bankAccount1_EUR = creditBank1_EUR.openBankAccount(
 				household1_EUR, currency, true, "transactions",
 				TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		((HouseholdImpl) household1_EUR)
@@ -103,11 +70,11 @@ public class CreditBankTest extends CompEconTestSupport {
 				.getBankAccount().getBalance(), epsilon);
 
 		// init household 2
-		Household household2_EUR = ApplicationContext.getInstance()
+		final Household household2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(1);
-		CreditBank creditBank2_EUR = ApplicationContext.getInstance()
+		final CreditBank creditBank2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findCreditBanks(currency).get(1);
-		BankAccount bankAccount2_EUR = creditBank2_EUR.openBankAccount(
+		final BankAccount bankAccount2_EUR = creditBank2_EUR.openBankAccount(
 				household2_EUR, currency, true, "transactions",
 				TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		((HouseholdImpl) household2_EUR)
@@ -152,5 +119,39 @@ public class CreditBankTest extends CompEconTestSupport {
 		// the new bank account has a balance of 0.0 EUR, instead of 10.0 EUR
 		assertEquals(0.0, household2_EUR.getBankAccountTransactionsDelegate()
 				.getBankAccount().getBalance(), epsilon);
+	}
+
+	@Test
+	public void testTransferMoney() {
+		final Currency currency = Currency.EURO;
+
+		final Household household1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(0);
+		final Household household2_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(1);
+
+		assertEquals(0.0, household1_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getBalance(), epsilon);
+		assertEquals(0.0, household2_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getBalance(), epsilon);
+
+		final Bank source = household1_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getManagingBank();
+		final Bank target = household2_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getManagingBank();
+
+		// transfer money
+		for (int i = 1; i < 1000; i++) {
+			source.transferMoney(household1_EUR
+					.getBankAccountTransactionsDelegate().getBankAccount(),
+					household2_EUR.getBankAccountTransactionsDelegate()
+							.getBankAccount(), 10, "Transaction" + i);
+			assertEquals(-10.0 * i, household1_EUR
+					.getBankAccountTransactionsDelegate().getBankAccount()
+					.getBalance(), epsilon);
+			assertEquals(10.0 * i, household2_EUR
+					.getBankAccountTransactionsDelegate().getBankAccount()
+					.getBalance(), epsilon);
+		}
 	}
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import compecon.engine.util.HibernateUtil;
 
 public class FixedRateBondImplFactoryImpl implements FixedRateBondFactory {
 
+	@Override
 	public FixedRateBond newInstanceFixedRateBond(final Agent owner,
 			final Agent issuer, final Currency currency,
 			final BankAccountDelegate faceValueFromBankAccountDelegate,

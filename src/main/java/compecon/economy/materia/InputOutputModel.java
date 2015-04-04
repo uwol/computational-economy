@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -25,10 +25,12 @@ import compecon.math.utility.UtilityFunction;
 /**
  * Factory class for production and household functions, which relates inputs /
  * production factors to outputs.
- * 
+ *
  * http://en.wikipedia.org/wiki/Input-output_model
  */
 public interface InputOutputModel {
+
+	public ProductionFunction getProductionFunction(GoodType outputGoodType);
 
 	/**
 	 * utility function for households modeling consumption preferences; each
@@ -38,6 +40,4 @@ public interface InputOutputModel {
 	 * so that labour hour prices do not fall endlessly
 	 */
 	public UtilityFunction getUtilityFunctionOfHousehold();
-
-	public ProductionFunction getProductionFunction(GoodType outputGoodType);
 }

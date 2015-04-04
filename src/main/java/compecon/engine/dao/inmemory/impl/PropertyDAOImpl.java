@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -33,10 +33,31 @@ public class PropertyDAOImpl extends
 		PropertyDAO {
 
 	@Override
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
+		final List<Property> propertiesIssuedByAgent = getInstancesForSecondKey(issuer);
+		if (propertiesIssuedByAgent != null) {
+			return new ArrayList<Property>(propertiesIssuedByAgent);
+		}
+		return new ArrayList<Property>();
+	}
+
+	@Override
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
+			final Class<? extends PropertyIssued> propertyClass) {
+		final List<Property> propertiesIssuedByAgent = new ArrayList<Property>();
+		for (final Property propertyIssued : this
+				.findAllPropertiesIssuedByAgent(issuer)) {
+			if (propertyClass.isAssignableFrom(propertyIssued.getClass())) {
+				propertiesIssuedByAgent.add(propertyIssued);
+			}
+		}
+		return propertiesIssuedByAgent;
+	}
+
+	@Override
 	public synchronized List<Property> findAllPropertiesOfPropertyOwner(
 			final PropertyOwner propertyOwner) {
-		final List<Property> propertiesOfPropertyOwner = this
-				.getInstancesForFirstKey(propertyOwner);
+		final List<Property> propertiesOfPropertyOwner = getInstancesForFirstKey(propertyOwner);
 		if (propertiesOfPropertyOwner != null) {
 			return new ArrayList<Property>(propertiesOfPropertyOwner);
 		}
@@ -48,36 +69,13 @@ public class PropertyDAOImpl extends
 			final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass) {
 		final List<Property> propertiesOfClass = new ArrayList<Property>();
-		for (Property property : this
+		for (final Property property : this
 				.findAllPropertiesOfPropertyOwner(propertyOwner)) {
 			if (propertyClass.isAssignableFrom(property.getClass())) {
 				propertiesOfClass.add(property);
 			}
 		}
 		return propertiesOfClass;
-	}
-
-	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
-		final List<Property> propertiesIssuedByAgent = this
-				.getInstancesForSecondKey(issuer);
-		if (propertiesIssuedByAgent != null) {
-			return new ArrayList<Property>(propertiesIssuedByAgent);
-		}
-		return new ArrayList<Property>();
-	}
-
-	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
-			final Class<? extends PropertyIssued> propertyClass) {
-		final List<Property> propertiesIssuedByAgent = new ArrayList<Property>();
-		for (Property propertyIssued : this
-				.findAllPropertiesIssuedByAgent(issuer)) {
-			if (propertyClass.isAssignableFrom(propertyIssued.getClass())) {
-				propertiesIssuedByAgent.add(propertyIssued);
-			}
-		}
-		return propertiesIssuedByAgent;
 	}
 
 	@Override
@@ -95,7 +93,7 @@ public class PropertyDAOImpl extends
 			final PropertyOwner newOwner, final Property property) {
 		// the property is deleted and re-saved, so that the
 		// agent-property-index is updated
-		this.delete(property);
+		delete(property);
 		property.setOwner(newOwner);
 		this.save(property);
 	}

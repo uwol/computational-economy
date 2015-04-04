@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ import compecon.engine.util.HibernateUtil;
 
 public class HibernateDAOImpl<T> implements GenericDAO<T> {
 
-	private Class<T> persistentClass;
+	private final Class<T> persistentClass;
 
 	@SuppressWarnings("unchecked")
 	public HibernateDAOImpl() {
@@ -40,49 +40,55 @@ public class HibernateDAOImpl<T> implements GenericDAO<T> {
 				.getGenericSuperclass()).getActualTypeArguments()[0];
 	}
 
-	protected Session getSession() {
-		return HibernateUtil.getSession();
+	@Override
+	public void delete(final T entity) {
+		getSession().delete(entity);
+		// getSession().evict(entity);
 	}
 
-	public Class<T> getPersistentClass() {
-		return persistentClass;
-	}
-
+	@Override
 	@SuppressWarnings("unchecked")
 	public T find(final int id) {
 		return (T) getSession().load(getPersistentClass(), id);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<T> findAll() {
+		return getSession().createCriteria(getPersistentClass()).list();
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public T findRandom() {
 		Criteria crit = getSession().createCriteria(persistentClass);
 		crit.setProjection(Projections.rowCount());
-		int count = ((Number) crit.uniqueResult()).intValue();
+		final int count = ((Number) crit.uniqueResult()).intValue();
 		if (0 != count) {
-			int index = new Random().nextInt(count);
+			final int index = new Random().nextInt(count);
 			crit = getSession().createCriteria(persistentClass);
-			T entity = (T) crit.setFirstResult(index).setMaxResults(1)
+			final T entity = (T) crit.setFirstResult(index).setMaxResults(1)
 					.uniqueResult();
 			return entity;
 		}
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<T> findAll() {
-		return getSession().createCriteria(getPersistentClass()).list();
+	public Class<T> getPersistentClass() {
+		return persistentClass;
 	}
 
-	public void save(final T entity) {
-		getSession().saveOrUpdate(entity);
+	protected Session getSession() {
+		return HibernateUtil.getSession();
 	}
 
+	@Override
 	public void merge(final T entity) {
 		getSession().merge(entity);
 	}
 
-	public void delete(final T entity) {
-		getSession().delete(entity);
-		// getSession().evict(entity);
+	@Override
+	public void save(final T entity) {
+		getSession().saveOrUpdate(entity);
 	}
 }

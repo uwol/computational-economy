@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,6 +36,38 @@ import compecon.math.util.MathUtil;
 public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 		Comparable<FixedRateBond> {
 
+	public class TransferCouponEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return FixedRateBondImpl.this.isDeconstructed;
+		}
+
+		@Override
+		public void onEvent() {
+			assert (couponFromBankAccountDelegate != null);
+			assertValidOwner();
+			assertValidIssuer();
+
+			if (couponToBankAccountDelegate != null) {
+				final double dailyCouponValue = MathUtil
+						.calculateMonthlyNominalInterestRate(coupon)
+						/ 30.0
+						* FixedRateBondImpl.this.faceValue;
+				if (dailyCouponValue > 0) {
+					couponFromBankAccountDelegate
+							.getBankAccount()
+							.getManagingBank()
+							.transferMoney(
+									couponFromBankAccountDelegate
+											.getBankAccount(),
+									couponToBankAccountDelegate
+											.getBankAccount(),
+									dailyCouponValue, "bond coupon");
+				}
+			}
+		}
+	}
+
 	@Column(name = "coupon")
 	protected double coupon; // interest rate in percent
 
@@ -54,13 +86,69 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 	@Transient
 	protected BankAccountDelegate couponToBankAccountDelegate;
 
+	/*
+	 * accessors
+	 */
+
+	@Override
+	protected void assertValidIssuer() {
+		super.assertValidIssuer();
+
+		assert (getIssuer() == couponFromBankAccountDelegate.getBankAccount()
+				.getOwner());
+	}
+
+	@Override
+	protected void assertValidOwner() {
+		super.assertValidOwner();
+
+		assert (couponToBankAccountDelegate == null || owner
+				.equals(couponToBankAccountDelegate.getBankAccount().getOwner()));
+	}
+
+	@Override
+	@Transient
+	public int compareTo(final FixedRateBond fixedRateBond) {
+		if (this == fixedRateBond) {
+			return 0;
+		}
+		if (coupon > fixedRateBond.getCoupon()) {
+			return 1;
+		}
+		if (coupon < fixedRateBond.getCoupon()) {
+			return -1;
+		}
+		// important, so that two bonds with same price can exists
+		return hashCode() - fixedRateBond.hashCode();
+	}
+
+	@Override
+	public double getCoupon() {
+		return coupon;
+	}
+
+	@Override
+	public BankAccountDelegate getCouponFromBankAccountDelegate() {
+		return couponFromBankAccountDelegate;
+	}
+
+	@Override
+	public BankAccountDelegate getCouponToBankAccountDelegate() {
+		return couponToBankAccountDelegate;
+	}
+
+	/*
+	 * assertions
+	 */
+
+	@Override
 	public void initialize() {
 		super.initialize();
 
 		// transfer coupon event; has to be HOUR_00, so that the coupon is
 		// payed before possible deconstruction at HOUR_01
 		final TimeSystemEvent transferCouponEvent = new TransferCouponEvent();
-		this.timeSystemEvents.add(transferCouponEvent);
+		timeSystemEvents.add(transferCouponEvent);
 		ApplicationContext
 				.getInstance()
 				.getTimeSystem()
@@ -68,21 +156,16 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 						DayType.EVERY, HourType.HOUR_00);
 	}
 
+	@Override
+	@Transient
+	public void resetOwner() {
+		super.resetOwner();
+		couponToBankAccountDelegate = null;
+	}
+
 	/*
-	 * accessors
+	 * business logic
 	 */
-
-	public double getCoupon() {
-		return this.coupon;
-	}
-
-	public BankAccountDelegate getCouponFromBankAccountDelegate() {
-		return this.couponFromBankAccountDelegate;
-	}
-
-	public BankAccountDelegate getCouponToBankAccountDelegate() {
-		return this.couponToBankAccountDelegate;
-	}
 
 	public void setCoupon(final double coupon) {
 		this.coupon = coupon;
@@ -93,88 +176,15 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 		this.couponFromBankAccountDelegate = couponFromBankAccountDelegate;
 	}
 
+	@Override
 	public void setCouponToBankAccountDelegate(
 			final BankAccountDelegate couponToBankAccountDelegate) {
 		this.couponToBankAccountDelegate = couponToBankAccountDelegate;
 	}
 
-	/*
-	 * assertions
-	 */
-
 	@Override
-	protected void assertValidOwner() {
-		super.assertValidOwner();
-
-		assert (this.couponToBankAccountDelegate == null || this.owner
-				.equals(this.couponToBankAccountDelegate.getBankAccount()
-						.getOwner()));
-	}
-
-	protected void assertValidIssuer() {
-		super.assertValidIssuer();
-
-		assert (this.getIssuer() == this.couponFromBankAccountDelegate
-				.getBankAccount().getOwner());
-	}
-
-	/*
-	 * business logic
-	 */
-
-	@Override
-	@Transient
-	public int compareTo(FixedRateBond fixedRateBond) {
-		if (this == fixedRateBond)
-			return 0;
-		if (this.coupon > fixedRateBond.getCoupon())
-			return 1;
-		if (this.coupon < fixedRateBond.getCoupon())
-			return -1;
-		// important, so that two bonds with same price can exists
-		return this.hashCode() - fixedRateBond.hashCode();
-	}
-
-	@Override
-	@Transient
-	public void resetOwner() {
-		super.resetOwner();
-		this.couponToBankAccountDelegate = null;
-	}
-
 	@Transient
 	public String toString() {
-		return super.toString() + ", coupon=[" + this.coupon + "]";
-	}
-
-	public class TransferCouponEvent implements TimeSystemEvent {
-		@Override
-		public boolean isDeconstructed() {
-			return FixedRateBondImpl.this.isDeconstructed;
-		}
-
-		@Override
-		public void onEvent() {
-			assert (FixedRateBondImpl.this.couponFromBankAccountDelegate != null);
-			assertValidOwner();
-			assertValidIssuer();
-
-			if (FixedRateBondImpl.this.couponToBankAccountDelegate != null) {
-				final double dailyCouponValue = MathUtil
-						.calculateMonthlyNominalInterestRate(FixedRateBondImpl.this.coupon)
-						/ 30.0 * FixedRateBondImpl.this.faceValue;
-				if (dailyCouponValue > 0) {
-					FixedRateBondImpl.this.couponFromBankAccountDelegate
-							.getBankAccount()
-							.getManagingBank()
-							.transferMoney(
-									FixedRateBondImpl.this.couponFromBankAccountDelegate
-											.getBankAccount(),
-									FixedRateBondImpl.this.couponToBankAccountDelegate
-											.getBankAccount(),
-									dailyCouponValue, "bond coupon");
-				}
-			}
-		}
+		return super.toString() + ", coupon=[" + coupon + "]";
 	}
 }

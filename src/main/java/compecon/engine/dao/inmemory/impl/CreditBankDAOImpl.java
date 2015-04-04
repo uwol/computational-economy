@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,19 +30,19 @@ public class CreditBankDAOImpl extends
 		CreditBankDAO {
 
 	@Override
-	public synchronized CreditBank findRandom(final Currency currency) {
-		final List<CreditBank> creditBanks = this.findAllByCurrency(currency);
-		if (creditBanks != null && !creditBanks.isEmpty()) {
-			int id = this.randomizer.nextInt(creditBanks.size());
-			return creditBanks.get(id);
-		}
-		return null;
+	public synchronized List<CreditBank> findAllByCurrency(
+			final Currency currency) {
+		return getInstancesForKey(currency);
 	}
 
 	@Override
-	public synchronized List<CreditBank> findAllByCurrency(
-			final Currency currency) {
-		return this.getInstancesForKey(currency);
+	public synchronized CreditBank findRandom(final Currency currency) {
+		final List<CreditBank> creditBanks = findAllByCurrency(currency);
+		if (creditBanks != null && !creditBanks.isEmpty()) {
+			final int id = randomizer.nextInt(creditBanks.size());
+			return creditBanks.get(id);
+		}
+		return null;
 	}
 
 	@Override

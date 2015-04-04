@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -45,10 +45,10 @@ public interface AgentService {
 
 	public CreditBank findRandomCreditBank(final Currency currency);
 
+	public Factory findRandomFactory();
+
 	public State findState(final Currency currency);
 
 	public List<Trader> findTraders(final Currency currency);
-
-	public Factory findRandomFactory();
 
 }

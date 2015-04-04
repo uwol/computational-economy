@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -35,8 +35,7 @@ public class GoodTypeOwnershipDAOImpl extends
 	@Override
 	public List<GoodTypeOwnership> findAllByPropertyOwner(
 			final PropertyOwner propertyOwner) {
-		return (List<GoodTypeOwnership>) getSession()
-				.createCriteria(GoodTypeOwnershipImpl.class)
+		return getSession().createCriteria(GoodTypeOwnershipImpl.class)
 				.add(Restrictions.eq("propertyOwner", propertyOwner)).list();
 	}
 
@@ -47,8 +46,9 @@ public class GoodTypeOwnershipDAOImpl extends
 				.createCriteria(GoodTypeOwnershipImpl.class)
 				.add(Restrictions.eq("propertyOwner", propertyOwner))
 				.setMaxResults(1).uniqueResult();
-		if (object == null)
+		if (object == null) {
 			return null;
+		}
 		return (GoodTypeOwnershipImpl) object;
 	}
 

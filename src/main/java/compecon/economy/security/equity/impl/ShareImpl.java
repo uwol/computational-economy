@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,19 +32,21 @@ public class ShareImpl extends PropertyIssuedImpl implements Share {
 	@Transient
 	protected BankAccountDelegate dividendBankAccountDelegate;
 
+	@Override
 	public BankAccountDelegate getDividendBankAccountDelegate() {
 		return dividendBankAccountDelegate;
-	}
-
-	public void setDividendBankAccountDelegate(
-			BankAccountDelegate dividendBankAccountDelegate) {
-		this.dividendBankAccountDelegate = dividendBankAccountDelegate;
 	}
 
 	@Override
 	@Transient
 	public void resetOwner() {
 		super.resetOwner();
-		this.dividendBankAccountDelegate = null;
+		dividendBankAccountDelegate = null;
+	}
+
+	@Override
+	public void setDividendBankAccountDelegate(
+			final BankAccountDelegate dividendBankAccountDelegate) {
+		this.dividendBankAccountDelegate = dividendBankAccountDelegate;
 	}
 }

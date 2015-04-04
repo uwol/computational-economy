@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import compecon.engine.util.HibernateUtil;
 
 public class ShareImplFactoryImpl implements ShareFactory {
 
+	@Override
 	public Share newInstanceShare(final Agent owner,
 			final JointStockCompany issuer) {
 		assert (owner != null);

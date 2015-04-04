@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,13 +28,15 @@ import org.hibernate.ScrollableResults;
  */
 public class HibernateIteratorImpl<T> implements Iterator<T> {
 
-	protected ScrollableResults itemCursor;
-
 	private boolean didNext = false;
+
 	private boolean hasNext = false;
+
+	protected ScrollableResults itemCursor;
 
 	public HibernateIteratorImpl(final ScrollableResults itemCursor) {
 		super();
+
 		this.itemCursor = itemCursor;
 	}
 
@@ -55,7 +57,7 @@ public class HibernateIteratorImpl<T> implements Iterator<T> {
 		}
 		didNext = false;
 
-		Object object = itemCursor.get(0);
+		final Object object = itemCursor.get(0);
 		return (T) object;
 	}
 

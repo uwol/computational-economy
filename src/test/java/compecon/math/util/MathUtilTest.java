@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,22 +36,10 @@ public class MathUtilTest extends CompEconTestSupport {
 		super.setUpTestAgents();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
-	}
-
-	@Test
-	public void testCalculateMonthlyNominalInterestRate3() {
-		final double effectiveInterestRate = 0.03;
-		final double monthlyNominalInterestRate = MathUtil
-				.calculateMonthlyNominalInterestRate(effectiveInterestRate);
-
-		double effectiveInterestRateCheck = Math.pow(
-				monthlyNominalInterestRate + 1.0, 12) - 1.0;
-
-		Assert.assertEquals(effectiveInterestRate, effectiveInterestRateCheck,
-				epsilon);
 	}
 
 	@Test
@@ -60,7 +48,20 @@ public class MathUtilTest extends CompEconTestSupport {
 		final double monthlyNominalInterestRate = MathUtil
 				.calculateMonthlyNominalInterestRate(effectiveInterestRate);
 
-		double effectiveInterestRateCheck = Math.pow(
+		final double effectiveInterestRateCheck = Math.pow(
+				monthlyNominalInterestRate + 1.0, 12) - 1.0;
+
+		Assert.assertEquals(effectiveInterestRate, effectiveInterestRateCheck,
+				epsilon);
+	}
+
+	@Test
+	public void testCalculateMonthlyNominalInterestRate3() {
+		final double effectiveInterestRate = 0.03;
+		final double monthlyNominalInterestRate = MathUtil
+				.calculateMonthlyNominalInterestRate(effectiveInterestRate);
+
+		final double effectiveInterestRateCheck = Math.pow(
 				monthlyNominalInterestRate + 1.0, 12) - 1.0;
 
 		Assert.assertEquals(effectiveInterestRate, effectiveInterestRateCheck,

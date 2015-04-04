@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -43,6 +43,7 @@ public class BankAccountDAOTest extends CompEconTestSupport {
 		super.setUpTestAgents();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
@@ -50,14 +51,14 @@ public class BankAccountDAOTest extends CompEconTestSupport {
 
 	@Test
 	public void testCreateAndDeletePropertyOwnedAndIssuedBy() {
-		Currency currency = Currency.EURO;
+		final Currency currency = Currency.EURO;
 
 		// prepare
-		CreditBank creditBank1_EUR = ApplicationContext.getInstance()
+		final CreditBank creditBank1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findCreditBanks(currency).get(0);
-		Household household1_EUR = ApplicationContext.getInstance()
+		final Household household1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(0);
-		Household household2_EUR = ApplicationContext.getInstance()
+		final Household household2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(1);
 
 		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()

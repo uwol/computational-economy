@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -42,8 +42,8 @@ public class BankAccountDAOImpl extends
 	 */
 
 	private void assureInitializedDataStructure(final Bank bank) {
-		if (!this.bankAccounts.containsKey(bank)) {
-			this.bankAccounts.put(bank, new ArrayList<BankAccount>());
+		if (!bankAccounts.containsKey(bank)) {
+			bankAccounts.put(bank, new ArrayList<BankAccount>());
 		}
 	}
 
@@ -53,7 +53,7 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized void delete(final BankAccount bankAccount) {
-		final List<BankAccount> bankAccountsOfBank = this.bankAccounts
+		final List<BankAccount> bankAccountsOfBank = bankAccounts
 				.get(bankAccount.getManagingBank());
 		if (bankAccountsOfBank != null) {
 			bankAccountsOfBank.remove(bankAccount);
@@ -64,57 +64,36 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized void deleteAllBankAccounts(final Bank managingBank) {
-		final List<BankAccount> bankAccountsOfBank = this.bankAccounts
+		final List<BankAccount> bankAccountsOfBank = bankAccounts
 				.get(managingBank);
 		if (bankAccountsOfBank != null) {
-			for (BankAccount bankAccount : new HashSet<BankAccount>(
+			for (final BankAccount bankAccount : new HashSet<BankAccount>(
 					bankAccountsOfBank)) {
-				this.delete(bankAccount);
+				delete(bankAccount);
 			}
 		}
-		this.bankAccounts.remove(managingBank);
+		bankAccounts.remove(managingBank);
 	}
 
 	@Override
 	public synchronized void deleteAllBankAccounts(final Bank managingBank,
 			final BankCustomer owner) {
-		final List<BankAccount> bankAccountsOfOwner = this
-				.getInstancesForKey(owner);
+		final List<BankAccount> bankAccountsOfOwner = getInstancesForKey(owner);
 		if (bankAccountsOfOwner != null) {
-			for (BankAccount bankAccount : new HashSet<BankAccount>(
+			for (final BankAccount bankAccount : new HashSet<BankAccount>(
 					bankAccountsOfOwner)) {
 				if (bankAccount.getManagingBank() == managingBank) {
-					this.delete(bankAccount);
+					delete(bankAccount);
 				}
 			}
 		}
 	}
 
 	@Override
-	public synchronized List<BankAccount> findAllBankAccountsManagedByBank(
-			final Bank managingBank) {
-		assureInitializedDataStructure(managingBank);
-
-		final List<BankAccount> bankAccountManagedByBank = this.bankAccounts
-				.get(managingBank);
-		return new ArrayList<BankAccount>(bankAccountManagedByBank);
-	}
-
-	@Override
-	public synchronized List<BankAccount> findAllBankAccountsOfAgent(
-			final BankCustomer owner) {
-		final List<BankAccount> bankAccounts = this.getInstancesForKey(owner);
-		if (bankAccounts != null) {
-			return new ArrayList<BankAccount>(bankAccounts);
-		}
-		return new ArrayList<BankAccount>();
-	}
-
-	@Override
 	public synchronized List<BankAccount> findAll(final Bank managingBank,
 			final BankCustomer owner) {
 		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
-		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
+		for (final BankAccount bankAccount : findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank) {
 				bankAccounts.add(bankAccount);
 			}
@@ -126,7 +105,7 @@ public class BankAccountDAOImpl extends
 	public synchronized List<BankAccount> findAll(final Bank managingBank,
 			final BankCustomer owner, final Currency currency) {
 		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
-		for (BankAccount bankAccount : this.findAllBankAccountsOfAgent(owner)) {
+		for (final BankAccount bankAccount : findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank
 					&& currency.equals(bankAccount.getCurrency())) {
 				bankAccounts.add(bankAccount);
@@ -136,10 +115,30 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
+	public synchronized List<BankAccount> findAllBankAccountsManagedByBank(
+			final Bank managingBank) {
+		assureInitializedDataStructure(managingBank);
+
+		final List<BankAccount> bankAccountManagedByBank = bankAccounts
+				.get(managingBank);
+		return new ArrayList<BankAccount>(bankAccountManagedByBank);
+	}
+
+	@Override
+	public synchronized List<BankAccount> findAllBankAccountsOfAgent(
+			final BankCustomer owner) {
+		final List<BankAccount> bankAccounts = getInstancesForKey(owner);
+		if (bankAccounts != null) {
+			return new ArrayList<BankAccount>(bankAccounts);
+		}
+		return new ArrayList<BankAccount>();
+	}
+
+	@Override
 	public synchronized void save(final BankAccount bankAccount) {
 		assureInitializedDataStructure(bankAccount.getManagingBank());
 
-		this.bankAccounts.get(bankAccount.getManagingBank()).add(bankAccount);
+		bankAccounts.get(bankAccount.getManagingBank()).add(bankAccount);
 		super.save(bankAccount.getOwner(), bankAccount);
 	}
 }

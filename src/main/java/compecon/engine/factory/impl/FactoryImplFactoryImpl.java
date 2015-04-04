@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,21 +30,23 @@ import compecon.math.production.ProductionFunction;
 
 public class FactoryImplFactoryImpl implements FactoryFactory {
 
+	@Override
 	public void deleteFactory(final Factory agent) {
-		ApplicationContext.getInstance().getFactoryDAO()
-				.delete((Factory) agent);
+		ApplicationContext.getInstance().getFactoryDAO().delete(agent);
 		HibernateUtil.flushSession();
 	}
 
+	@Override
 	public Factory newInstanceFactory(final GoodType goodType,
 			final Currency primaryCurrency) {
 		assert (goodType != null);
 		assert (primaryCurrency != null);
 
 		final FactoryImpl factory = new FactoryImpl();
-		if (!HibernateUtil.isActive())
+		if (!HibernateUtil.isActive()) {
 			factory.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
+		}
 		factory.setProducedGoodType(goodType);
 		factory.setPrimaryCurrency(primaryCurrency);
 		factory.setReferenceCredit(ApplicationContext.getInstance()

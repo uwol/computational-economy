@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -33,8 +33,7 @@ public class CreditBankImplFactoryImpl implements CreditBankFactory {
 
 	@Override
 	public void deleteCreditBank(final CreditBank agent) {
-		ApplicationContext.getInstance().getCreditBankDAO()
-				.delete((CreditBank) agent);
+		ApplicationContext.getInstance().getCreditBankDAO().delete(agent);
 		HibernateUtil.flushSession();
 	}
 
@@ -53,9 +52,10 @@ public class CreditBankImplFactoryImpl implements CreditBankFactory {
 		assert (offeredCurrencies.contains(primaryCurrency));
 
 		final CreditBankImpl creditBank = new CreditBankImpl();
-		if (!HibernateUtil.isActive())
+		if (!HibernateUtil.isActive()) {
 			creditBank.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
+		}
 		creditBank.setPrimaryCurrency(primaryCurrency);
 		ApplicationContext.getInstance().getCreditBankDAO().save(creditBank);
 		creditBank.initialize();

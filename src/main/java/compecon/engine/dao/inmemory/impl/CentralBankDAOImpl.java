@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,8 +32,7 @@ public class CentralBankDAOImpl extends
 	@Override
 	public synchronized CentralBank findByCurrency(final Currency currency) {
 		// should contain only one element
-		final List<CentralBank> centralBanksForCurrency = this
-				.getInstancesForKey(currency);
+		final List<CentralBank> centralBanksForCurrency = getInstancesForKey(currency);
 		if (centralBanksForCurrency == null) {
 			return null;
 		}

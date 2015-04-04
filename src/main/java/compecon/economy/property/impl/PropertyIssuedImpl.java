@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -39,20 +39,22 @@ public abstract class PropertyIssuedImpl extends PropertyImpl implements
 	@Index(name = "IDX_P_ISSUER")
 	protected Agent issuer;
 
-	public Agent getIssuer() {
-		return this.issuer;
-	}
-
-	public void setIssuer(Agent issuer) {
-		this.issuer = issuer;
-	}
-
 	@Transient
 	protected void assertValidIssuer() {
 	}
 
 	@Override
+	public Agent getIssuer() {
+		return issuer;
+	}
+
+	@Override
+	public void setIssuer(final Agent issuer) {
+		this.issuer = issuer;
+	}
+
+	@Override
 	public String toString() {
-		return super.toString() + ", issuer=[" + this.issuer + "]";
+		return super.toString() + ", issuer=[" + issuer + "]";
 	}
 }

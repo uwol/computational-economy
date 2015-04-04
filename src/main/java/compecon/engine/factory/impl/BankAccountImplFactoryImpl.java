@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,12 +32,6 @@ import compecon.engine.util.HibernateUtil;
 
 public class BankAccountImplFactoryImpl implements BankAccountFactory {
 
-	public void deleteBankAccount(final BankAccount bankAccount) {
-		ApplicationContext.getInstance().getBankAccountDAO()
-				.delete(bankAccount);
-		HibernateUtil.flushSession();
-	}
-
 	@Override
 	public void deleteAllBankAccounts(final Bank managingBank) {
 		ApplicationContext.getInstance().getBankAccountDAO()
@@ -53,6 +47,14 @@ public class BankAccountImplFactoryImpl implements BankAccountFactory {
 		HibernateUtil.flushSession();
 	}
 
+	@Override
+	public void deleteBankAccount(final BankAccount bankAccount) {
+		ApplicationContext.getInstance().getBankAccountDAO()
+				.delete(bankAccount);
+		HibernateUtil.flushSession();
+	}
+
+	@Override
 	public BankAccount newInstanceBankAccount(final BankCustomer owner,
 			final Currency currency, final boolean overdraftPossible,
 			final Bank managingBank, final String name,
@@ -64,9 +66,10 @@ public class BankAccountImplFactoryImpl implements BankAccountFactory {
 		assert (moneyType != null);
 
 		final BankAccountImpl bankAccount = new BankAccountImpl();
-		if (!HibernateUtil.isActive())
+		if (!HibernateUtil.isActive()) {
 			bankAccount.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
+		}
 
 		bankAccount.setOwner(owner);
 		bankAccount.setOverdraftPossible(overdraftPossible);

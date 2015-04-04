@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -41,35 +41,10 @@ public class ModiglianiIntertemporalConsumptionFunctionTest extends
 		super.setUpTestAgents();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
-	}
-
-	@Test
-	public void testCalculateUtilityMaximizingConsumptionPlanBeforeRetirement() {
-		/*
-		 * prepare function
-		 */
-		IntertemporalConsumptionFunction consumptionFunction = new ModiglianiIntertemporalConsumptionFunction();
-
-		/*
-		 * calculate distribution of income
-		 */
-		double income = 100;
-		double assets = 0;
-		double keyInterestRate = 0.01;
-		int ageInDays = 20 * 365;
-		int lifeSpanInDays = 80 * 365;
-		int retirementAgeInDays = 65 * 365;
-
-		Map<Period, Double> consumptionPlan = consumptionFunction
-				.calculateUtilityMaximizingConsumptionPlan(income, assets,
-						keyInterestRate, ageInDays, lifeSpanInDays,
-						retirementAgeInDays);
-
-		assertEquals(75.0, consumptionPlan.get(Period.CURRENT), epsilon);
-		assertEquals(75.0, consumptionPlan.get(Period.NEXT), epsilon);
 	}
 
 	@Test
@@ -77,19 +52,19 @@ public class ModiglianiIntertemporalConsumptionFunctionTest extends
 		/*
 		 * prepare function
 		 */
-		IntertemporalConsumptionFunction consumptionFunction = new ModiglianiIntertemporalConsumptionFunction();
+		final IntertemporalConsumptionFunction consumptionFunction = new ModiglianiIntertemporalConsumptionFunction();
 
 		/*
 		 * calculate distribution of income
 		 */
-		double income = 0;
-		double assets = 100000;
-		double keyInterestRate = 0.01;
-		int ageInDays = 70 * 365;
-		int lifeSpanInDays = 80 * 365;
-		int retirementAgeInDays = 65 * 365;
+		final double income = 0;
+		final double assets = 100000;
+		final double keyInterestRate = 0.01;
+		final int ageInDays = 70 * 365;
+		final int lifeSpanInDays = 80 * 365;
+		final int retirementAgeInDays = 65 * 365;
 
-		Map<Period, Double> consumptionPlan = consumptionFunction
+		final Map<Period, Double> consumptionPlan = consumptionFunction
 				.calculateUtilityMaximizingConsumptionPlan(income, assets,
 						keyInterestRate, ageInDays, lifeSpanInDays,
 						retirementAgeInDays);
@@ -98,5 +73,31 @@ public class ModiglianiIntertemporalConsumptionFunctionTest extends
 				epsilon);
 		assertEquals(27.397260273972602, consumptionPlan.get(Period.NEXT),
 				epsilon);
+	}
+
+	@Test
+	public void testCalculateUtilityMaximizingConsumptionPlanBeforeRetirement() {
+		/*
+		 * prepare function
+		 */
+		final IntertemporalConsumptionFunction consumptionFunction = new ModiglianiIntertemporalConsumptionFunction();
+
+		/*
+		 * calculate distribution of income
+		 */
+		final double income = 100;
+		final double assets = 0;
+		final double keyInterestRate = 0.01;
+		final int ageInDays = 20 * 365;
+		final int lifeSpanInDays = 80 * 365;
+		final int retirementAgeInDays = 65 * 365;
+
+		final Map<Period, Double> consumptionPlan = consumptionFunction
+				.calculateUtilityMaximizingConsumptionPlan(income, assets,
+						keyInterestRate, ageInDays, lifeSpanInDays,
+						retirementAgeInDays);
+
+		assertEquals(75.0, consumptionPlan.get(Period.CURRENT), epsilon);
+		assertEquals(75.0, consumptionPlan.get(Period.NEXT), epsilon);
 	}
 }

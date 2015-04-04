@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -34,7 +34,7 @@ public class TraderDAOImpl extends HibernateDAOImpl<Trader> implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Trader> findAllByCurrency(final Currency currency) {
-		return (List<Trader>) getSession().createCriteria(TraderImpl.class)
+		return getSession().createCriteria(TraderImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency)).list();
 	}
 }

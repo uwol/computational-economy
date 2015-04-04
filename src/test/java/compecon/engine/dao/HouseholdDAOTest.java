@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -39,6 +39,7 @@ public class HouseholdDAOTest extends CompEconTestSupport {
 		super.setUpApplicationContext(testConfigurationPropertiesFilename);
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
@@ -50,7 +51,7 @@ public class HouseholdDAOTest extends CompEconTestSupport {
 				.newInstanceHousehold(Currency.EURO, 0);
 		ApplicationContext.getInstance().getHouseholdFactory()
 				.newInstanceHousehold(Currency.EURO, 0);
-		Household household = ApplicationContext.getInstance()
+		final Household household = ApplicationContext.getInstance()
 				.getHouseholdFactory().newInstanceHousehold(Currency.EURO, 0);
 
 		ApplicationContext.getInstance().getHouseholdFactory()

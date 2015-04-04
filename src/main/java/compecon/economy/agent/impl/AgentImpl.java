@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -69,6 +69,23 @@ import compecon.engine.timesystem.impl.MonthType;
 @DiscriminatorColumn(name = "DTYPE")
 public abstract class AgentImpl implements Agent {
 
+	public class BalanceSheetPublicationEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return isDeconstructed;
+		}
+
+		@Override
+		public void onEvent() {
+			final BalanceSheetDTO balanceSheet = issueBalanceSheet();
+
+			// TODO: could be placed in its own life sign event
+			getLog().agent_onLifesign(AgentImpl.this);
+
+			getLog().agent_onPublishBalanceSheet(AgentImpl.this, balanceSheet);
+		}
+	}
+
 	/**
 	 * bank account for basic daily transactions
 	 */
@@ -76,6 +93,19 @@ public abstract class AgentImpl implements Agent {
 	@JoinColumn(name = "bankAccountTransactions_id")
 	@Index(name = "IDX_A_BA_TRANSACTIONS")
 	protected BankAccount bankAccountTransactions;
+
+	@Transient
+	protected final BankAccountDelegate bankAccountTransactionsDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			AgentImpl.this.assureBankAccountTransactions();
+			return bankAccountTransactions;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
@@ -103,24 +133,117 @@ public abstract class AgentImpl implements Agent {
 	protected Set<TimeSystemEvent> timeSystemEvents = new HashSet<TimeSystemEvent>();
 
 	@Transient
-	protected final BankAccountDelegate bankAccountTransactionsDelegate = new BankAccountDelegate() {
-		@Override
-		public BankAccount getBankAccount() {
-			AgentImpl.this.assureBankAccountTransactions();
-			return AgentImpl.this.bankAccountTransactions;
+	protected void assureBankAccountTransactions() {
+		if (isDeconstructed) {
+			return;
 		}
 
-		@Override
-		public void onTransfer(final double amount) {
+		// initialize bank account
+		if (bankAccountTransactions == null) {
+			final Bank randomBank = ApplicationContext.getInstance()
+					.getAgentService().findRandomCreditBank(primaryCurrency);
+			bankAccountTransactions = randomBank.openBankAccount(this,
+					primaryCurrency, true, "transactions", TermType.SHORT_TERM,
+					MoneyType.DEPOSITS);
 		}
-	};
+	}
 
+	/*
+	 * accessors
+	 */
+
+	/**
+	 * deregisters the agent from all referencing objects
+	 */
+	@Override
+	@Transient
+	public void deconstruct() {
+		isDeconstructed = true;
+
+		getLog().agent_onDeconstruct(this);
+
+		// deregister from time system
+		ApplicationContext.getInstance().getTimeSystem()
+				.removeEvents(timeSystemEvents);
+		timeSystemEvents = null;
+
+		// remove selling offers from market
+		ApplicationContext.getInstance().getMarketService()
+				.removeAllSellingOffers(this);
+
+		// delete properties issued by this agent
+		for (final Property propertyIssued : ApplicationContext.getInstance()
+				.getPropertyDAO().findAllPropertiesIssuedByAgent(this)) {
+			ApplicationContext.getInstance().getPropertyService()
+					.deleteProperty(propertyIssued);
+		}
+
+		// deregister from property register
+		ApplicationContext.getInstance().getPropertyService()
+				.transferEverythingToRandomAgent(this);
+
+		// close bank accounts
+		for (final BankAccount bankAccount : ApplicationContext.getInstance()
+				.getBankAccountDAO().findAllBankAccountsOfAgent(this)) {
+			if (bankAccount.getOwner() == this) {
+				bankAccount.getManagingBank().closeCustomerAccount(this);
+			}
+		}
+
+		assert (ApplicationContext.getInstance().getBankAccountDAO()
+				.findAllBankAccountsOfAgent(this).size() == 0);
+
+		// deregister from cash register
+		ApplicationContext.getInstance().getHardCashService().deregister(this);
+	}
+
+	public BankAccount getBankAccountTransactions() {
+		return bankAccountTransactions;
+	}
+
+	@Override
+	@Transient
+	public BankAccountDelegate getBankAccountTransactionsDelegate() {
+		return bankAccountTransactionsDelegate;
+	}
+
+	@Override
+	public int getId() {
+		return id;
+	}
+
+	@Transient
+	protected Log getLog() {
+		return ApplicationContext.getInstance().getLog();
+	}
+
+	@Transient
+	protected Bank getPrimaryBank() {
+		assureBankAccountTransactions();
+		return bankAccountTransactions.getManagingBank();
+	}
+
+	@Override
+	public Currency getPrimaryCurrency() {
+		return primaryCurrency;
+	}
+
+	public double getReferenceCredit() {
+		return referenceCredit;
+	}
+
+	@Override
+	public Set<TimeSystemEvent> getTimeSystemEvents() {
+		return timeSystemEvents;
+	}
+
+	@Override
 	public void initialize() {
 		assert (!isInitialized);
 
 		// balance sheet publication
 		final TimeSystemEvent balanceSheetPublicationEvent = new BalanceSheetPublicationEvent();
-		this.timeSystemEvents.add(balanceSheetPublicationEvent);
+		timeSystemEvents.add(balanceSheetPublicationEvent);
 		ApplicationContext
 				.getInstance()
 				.getTimeSystem()
@@ -137,148 +260,16 @@ public abstract class AgentImpl implements Agent {
 		isInitialized = true;
 	}
 
-	/**
-	 * deregisters the agent from all referencing objects
-	 */
-	@Transient
-	public void deconstruct() {
-		this.isDeconstructed = true;
-
-		getLog().agent_onDeconstruct(this);
-
-		// deregister from time system
-		ApplicationContext.getInstance().getTimeSystem()
-				.removeEvents(this.timeSystemEvents);
-		this.timeSystemEvents = null;
-
-		// remove selling offers from market
-		ApplicationContext.getInstance().getMarketService()
-				.removeAllSellingOffers(this);
-
-		// delete properties issued by this agent
-		for (Property propertyIssued : ApplicationContext.getInstance()
-				.getPropertyDAO().findAllPropertiesIssuedByAgent(this)) {
-			ApplicationContext.getInstance().getPropertyService()
-					.deleteProperty(propertyIssued);
-		}
-
-		// deregister from property register
-		ApplicationContext.getInstance().getPropertyService()
-				.transferEverythingToRandomAgent(this);
-
-		// close bank accounts
-		for (BankAccount bankAccount : ApplicationContext.getInstance()
-				.getBankAccountDAO().findAllBankAccountsOfAgent(this)) {
-			if (bankAccount.getOwner() == this) {
-				bankAccount.getManagingBank().closeCustomerAccount(this);
-			}
-		}
-
-		assert (ApplicationContext.getInstance().getBankAccountDAO()
-				.findAllBankAccountsOfAgent(this).size() == 0);
-
-		// deregister from cash register
-		ApplicationContext.getInstance().getHardCashService().deregister(this);
-	}
-
-	/*
-	 * accessors
-	 */
-
-	public BankAccount getBankAccountTransactions() {
-		return bankAccountTransactions;
-	}
-
-	public int getId() {
-		return id;
-	}
-
+	@Override
 	public boolean isDeconstructed() {
 		return isDeconstructed;
 	}
 
-	public Set<TimeSystemEvent> getTimeSystemEvents() {
-		return timeSystemEvents;
-	}
-
-	public Currency getPrimaryCurrency() {
-		return primaryCurrency;
-	}
-
-	public double getReferenceCredit() {
-		return this.referenceCredit;
-	}
-
-	public void setBankAccountTransactions(
-			final BankAccount bankAccountTransactions) {
-		this.bankAccountTransactions = bankAccountTransactions;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public void setDeconstructed(boolean isDeconstructed) {
-		this.isDeconstructed = isDeconstructed;
-	}
-
-	public void setTimeSystemEvents(final Set<TimeSystemEvent> timeSystemEvents) {
-		this.timeSystemEvents = timeSystemEvents;
-	}
-
-	public void setPrimaryCurrency(final Currency primaryCurrency) {
-		this.primaryCurrency = primaryCurrency;
-	}
-
-	public void setReferenceCredit(final double referenceCredit) {
-		this.referenceCredit = referenceCredit;
-	}
-
-	/*
-	 * assertions
-	 */
-
-	@Transient
-	protected void assureBankAccountTransactions() {
-		if (this.isDeconstructed)
-			return;
-
-		// initialize bank account
-		if (this.bankAccountTransactions == null) {
-			final Bank randomBank = ApplicationContext.getInstance()
-					.getAgentService()
-					.findRandomCreditBank(this.primaryCurrency);
-			this.bankAccountTransactions = randomBank.openBankAccount(this,
-					this.primaryCurrency, true, "transactions",
-					TermType.SHORT_TERM, MoneyType.DEPOSITS);
-		}
-	}
-
-	/*
-	 * business logic
-	 */
-
-	@Transient
-	protected Log getLog() {
-		return ApplicationContext.getInstance().getLog();
-	}
-
-	@Transient
-	protected Bank getPrimaryBank() {
-		this.assureBankAccountTransactions();
-		return this.bankAccountTransactions.getManagingBank();
-	}
-
-	@Transient
-	public BankAccountDelegate getBankAccountTransactionsDelegate() {
-		return this.bankAccountTransactionsDelegate;
-	}
-
 	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
-		this.assureBankAccountTransactions();
+		assureBankAccountTransactions();
 
-		final Currency referenceCurrency = this.bankAccountTransactions
+		final Currency referenceCurrency = bankAccountTransactions
 				.getCurrency();
 
 		assert (referenceCurrency != null);
@@ -291,10 +282,10 @@ public abstract class AgentImpl implements Agent {
 				.getHardCashService().getBalance(this, referenceCurrency);
 
 		// bank deposits
-		balanceSheet.addBankAccountBalance(this.bankAccountTransactions);
+		balanceSheet.addBankAccountBalance(bankAccountTransactions);
 
 		// owned properties
-		for (Property property : ApplicationContext.getInstance()
+		for (final Property property : ApplicationContext.getInstance()
 				.getPropertyService().findAllPropertiesOfPropertyOwner(this)) {
 			assert (property.getOwner() == AgentImpl.this);
 
@@ -320,9 +311,8 @@ public abstract class AgentImpl implements Agent {
 
 		// inventory by value
 		final Map<GoodType, Double> prices = ApplicationContext.getInstance()
-				.getMarketService()
-				.getMarginalMarketPrices(this.primaryCurrency);
-		for (Entry<GoodType, Double> balanceEntry : ApplicationContext
+				.getMarketService().getMarginalMarketPrices(primaryCurrency);
+		for (final Entry<GoodType, Double> balanceEntry : ApplicationContext
 				.getInstance().getPropertyService().getGoodTypeBalances(this)
 				.entrySet()) {
 			final GoodType goodType = balanceEntry.getKey();
@@ -340,7 +330,7 @@ public abstract class AgentImpl implements Agent {
 		// --------------
 
 		// issued properties
-		for (Property property : ApplicationContext.getInstance()
+		for (final Property property : ApplicationContext.getInstance()
 				.getPropertyService().findAllPropertiesIssuedByAgent(this)) {
 			final PropertyIssued propertyIssued = (PropertyIssued) property;
 
@@ -366,40 +356,57 @@ public abstract class AgentImpl implements Agent {
 		return balanceSheet;
 	}
 
+	/*
+	 * assertions
+	 */
+
+	@Override
 	@Transient
-	public void onBankCloseBankAccount(BankAccount bankAccount) {
-		if (this.bankAccountTransactions == bankAccount) {
-			this.bankAccountTransactions = null;
+	public void onBankCloseBankAccount(final BankAccount bankAccount) {
+		if (bankAccountTransactions == bankAccount) {
+			bankAccountTransactions = null;
 		}
 	}
 
+	/*
+	 * business logic
+	 */
+
+	@Override
 	@Transient
 	public void onPropertyTransferred(final Property property,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner) {
 	}
 
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName() + ": id=[" + this.id
-				+ "], primaryCurrency=["
-				+ this.primaryCurrency.getIso4217Code() + "]";
+	public void setBankAccountTransactions(
+			final BankAccount bankAccountTransactions) {
+		this.bankAccountTransactions = bankAccountTransactions;
 	}
 
-	public class BalanceSheetPublicationEvent implements TimeSystemEvent {
-		@Override
-		public boolean isDeconstructed() {
-			return AgentImpl.this.isDeconstructed;
-		}
+	public void setDeconstructed(final boolean isDeconstructed) {
+		this.isDeconstructed = isDeconstructed;
+	}
 
-		@Override
-		public void onEvent() {
-			final BalanceSheetDTO balanceSheet = AgentImpl.this
-					.issueBalanceSheet();
+	public void setId(final int id) {
+		this.id = id;
+	}
 
-			// TODO: could be placed in its own life sign event
-			getLog().agent_onLifesign(AgentImpl.this);
+	public void setPrimaryCurrency(final Currency primaryCurrency) {
+		this.primaryCurrency = primaryCurrency;
+	}
 
-			getLog().agent_onPublishBalanceSheet(AgentImpl.this, balanceSheet);
-		}
+	public void setReferenceCredit(final double referenceCredit) {
+		this.referenceCredit = referenceCredit;
+	}
+
+	public void setTimeSystemEvents(final Set<TimeSystemEvent> timeSystemEvents) {
+		this.timeSystemEvents = timeSystemEvents;
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + ": id=[" + id
+				+ "], primaryCurrency=[" + primaryCurrency.getIso4217Code()
+				+ "]";
 	}
 }

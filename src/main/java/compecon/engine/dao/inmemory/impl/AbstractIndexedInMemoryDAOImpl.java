@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -27,25 +27,53 @@ import java.util.Map;
 public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 		AbstractInMemoryDAOImpl<V> {
 
-	private Map<K, List<V>> indexedInstances = new HashMap<K, List<V>>();
+	private final Map<K, List<V>> indexedInstances = new HashMap<K, List<V>>();
 
-	private Map<V, List<K>> instanceIndexedKeys = new HashMap<V, List<K>>();
+	private final Map<V, List<K>> instanceIndexedKeys = new HashMap<V, List<K>>();
 
 	/*
 	 * get instances for key
 	 */
 
-	protected synchronized List<V> getInstancesForKey(final K key) {
-		return this.indexedInstances.get(key);
+	@Override
+	public synchronized void delete(final V instance) {
+		final List<K> keys = getKeysForInstance(instance);
+		if (keys != null) {
+			for (final K key : new ArrayList<K>(keys)) {
+				final List<V> indexedInstancesForKey = this.indexedInstances
+						.get(key);
+				if (indexedInstancesForKey != null) {
+					indexedInstancesForKey.remove(instance);
+					if (indexedInstancesForKey.isEmpty()) {
+						this.indexedInstances.remove(key);
+					}
+				}
+
+				final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
+						.get(instance);
+				if (instanceIndexedKeysForInstance != null) {
+					instanceIndexedKeysForInstance.remove(key);
+					if (instanceIndexedKeysForInstance.isEmpty()) {
+						this.instanceIndexedKeys.remove(instance);
+					}
+				}
+			}
+		}
+
+		super.delete(instance);
 	}
 
-	protected synchronized List<K> getKeysForInstance(final V instance) {
-		return this.instanceIndexedKeys.get(instance);
+	protected synchronized List<V> getInstancesForKey(final K key) {
+		return this.indexedInstances.get(key);
 	}
 
 	/*
 	 * actions
 	 */
+
+	protected synchronized List<K> getKeysForInstance(final V instance) {
+		return this.instanceIndexedKeys.get(instance);
+	}
 
 	protected synchronized void save(final K key, final V instance) {
 		if (key != null && instance != null) {
@@ -69,31 +97,5 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 		}
 
 		super.save(instance);
-	}
-
-	public synchronized void delete(final V instance) {
-		final List<K> keys = getKeysForInstance(instance);
-		if (keys != null) {
-			for (K key : new ArrayList<K>(keys)) {
-				final List<V> indexedInstancesForKey = this.indexedInstances
-						.get(key);
-				if (indexedInstancesForKey != null) {
-					indexedInstancesForKey.remove(instance);
-					if (indexedInstancesForKey.isEmpty()) {
-						this.indexedInstances.remove(key);
-					}
-				}
-
-				final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
-						.get(instance);
-				if (instanceIndexedKeysForInstance != null) {
-					instanceIndexedKeysForInstance.remove(key);
-					if (instanceIndexedKeysForInstance.isEmpty())
-						this.instanceIndexedKeys.remove(instance);
-				}
-			}
-		}
-
-		super.delete(instance);
 	}
 }

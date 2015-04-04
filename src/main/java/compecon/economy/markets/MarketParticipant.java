@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -26,11 +26,11 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface MarketParticipant extends PropertyOwner {
 
-	public void onMarketSettlement(final GoodType goodType,
+	public void onMarketSettlement(final Currency commodityCurrency,
 			final double amount, final double pricePerUnit,
 			final Currency currency);
 
-	public void onMarketSettlement(final Currency commodityCurrency,
+	public void onMarketSettlement(final GoodType goodType,
 			final double amount, final double pricePerUnit,
 			final Currency currency);
 

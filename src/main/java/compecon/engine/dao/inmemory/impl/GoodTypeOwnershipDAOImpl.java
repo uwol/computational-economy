@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -33,8 +33,7 @@ public class GoodTypeOwnershipDAOImpl extends
 	@Override
 	public synchronized List<GoodTypeOwnership> findAllByPropertyOwner(
 			final PropertyOwner propertyOwner) {
-		final List<GoodTypeOwnership> goodTypeOwnerships = this
-				.getInstancesForKey(propertyOwner);
+		final List<GoodTypeOwnership> goodTypeOwnerships = getInstancesForKey(propertyOwner);
 		if (goodTypeOwnerships != null) {
 			return new ArrayList<GoodTypeOwnership>(goodTypeOwnerships);
 		}
@@ -44,8 +43,7 @@ public class GoodTypeOwnershipDAOImpl extends
 	@Override
 	public synchronized GoodTypeOwnership findFirstByPropertyOwner(
 			final PropertyOwner propertyOwner) {
-		final List<GoodTypeOwnership> goodTypeOwnerships = this
-				.getInstancesForKey(propertyOwner);
+		final List<GoodTypeOwnership> goodTypeOwnerships = getInstancesForKey(propertyOwner);
 		if (goodTypeOwnerships != null && !goodTypeOwnerships.isEmpty()) {
 			return goodTypeOwnerships.get(0);
 		}

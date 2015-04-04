@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -42,6 +42,19 @@ public interface PropertyService {
 	public void deleteProperty(final Property property);
 
 	/**
+	 * returns all properties issued by the given agent.
+	 */
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer);
+
+	/**
+	 * returns all properties issued by the given agent, which are assignable to
+	 * the given property class. E. g. for the property class "Share" all owned
+	 * objects of "ShareImpl" are returned.
+	 */
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
+			final Class<? extends PropertyIssued> propertyClass);
+
+	/**
 	 * returns all properties owned by the given property owner.
 	 */
 	public List<Property> findAllPropertiesOfPropertyOwner(
@@ -55,19 +68,6 @@ public interface PropertyService {
 	public List<Property> findAllPropertiesOfPropertyOwner(
 			final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass);
-
-	/**
-	 * returns all properties issued by the given agent.
-	 */
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer);
-
-	/**
-	 * returns all properties issued by the given agent, which are assignable to
-	 * the given property class. E. g. for the property class "Share" all owned
-	 * objects of "ShareImpl" are returned.
-	 */
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
-			final Class<? extends PropertyIssued> propertyClass);
 
 	/**
 	 * returns the amounts of all capital owned by the given property owner.
@@ -101,6 +101,12 @@ public interface PropertyService {
 			final GoodType goodType);
 
 	/**
+	 * transfers all properties from the given oldOwner to a random new owner.
+	 * Needed for cases, when property owners are deconstructed.
+	 */
+	public void transferEverythingToRandomAgent(final PropertyOwner oldOwner);
+
+	/**
 	 * Transfers the given amount of good from the old owner to the new owner.
 	 */
 	public void transferGoodTypeAmount(final GoodType goodType,
@@ -113,10 +119,4 @@ public interface PropertyService {
 	 */
 	public void transferProperty(final Property property,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner);
-
-	/**
-	 * transfers all properties from the given oldOwner to a random new owner.
-	 * Needed for cases, when property owners are deconstructed.
-	 */
-	public void transferEverythingToRandomAgent(final PropertyOwner oldOwner);
 }

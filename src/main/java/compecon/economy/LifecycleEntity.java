@@ -6,9 +6,9 @@ package compecon.economy;
  */
 public interface LifecycleEntity {
 
+	public void deconstruct();
+
 	public void initialize();
 
 	public boolean isDeconstructed();
-
-	public void deconstruct();
 }

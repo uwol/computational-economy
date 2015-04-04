@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -33,13 +33,6 @@ import compecon.engine.util.HibernateUtil;
 public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 	@Override
-	public void deleteSellingOrder(final MarketOrder marketOrder) {
-		ApplicationContext.getInstance().getMarketOrderDAO()
-				.delete(marketOrder);
-		HibernateUtil.flushSession();
-	}
-
-	@Override
 	public void deleteAllSellingOrders(final MarketParticipant offeror) {
 		ApplicationContext.getInstance().getMarketOrderDAO()
 				.deleteAllSellingOrders(offeror);
@@ -48,12 +41,13 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 	@Override
 	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency, final GoodType goodType) {
+			final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass) {
 		ApplicationContext
 				.getInstance()
 				.getMarketOrderDAO()
 				.deleteAllSellingOrders(offeror, denominatedInCurrency,
-						goodType);
+						propertyClass);
 		HibernateUtil.flushSession();
 	}
 
@@ -71,37 +65,20 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 	@Override
 	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency,
-			final Class<? extends Property> propertyClass) {
+			final Currency denominatedInCurrency, final GoodType goodType) {
 		ApplicationContext
 				.getInstance()
 				.getMarketOrderDAO()
 				.deleteAllSellingOrders(offeror, denominatedInCurrency,
-						propertyClass);
+						goodType);
 		HibernateUtil.flushSession();
 	}
 
 	@Override
-	public MarketOrderImpl newInstanceGoodTypeMarketOrder(
-			final GoodType goodType, final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount, final double pricePerUnit) {
-		assert (goodType != null);
-		assert (offeror != null);
-		assert (offerorsBankAcountDelegate != null);
-
-		final MarketOrderImpl marketOrder = new MarketOrderImpl();
-		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
-				.getCurrency());
-		marketOrder.setGoodType(goodType);
-		marketOrder.setOfferor(offeror);
-		marketOrder.setOfferorsBankAcountDelegate(offerorsBankAcountDelegate);
-		marketOrder.setAmount(amount);
-		marketOrder.setPricePerUnit(pricePerUnit);
-
-		ApplicationContext.getInstance().getMarketOrderDAO().save(marketOrder);
+	public void deleteSellingOrder(final MarketOrder marketOrder) {
+		ApplicationContext.getInstance().getMarketOrderDAO()
+				.delete(marketOrder);
 		HibernateUtil.flushSession();
-		return marketOrder;
 	}
 
 	@Override
@@ -127,6 +104,29 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		marketOrder.setPricePerUnit(pricePerUnit);
 		marketOrder
 				.setCommodityCurrencyOfferorsBankAccountDelegate(commodityCurrencyOfferorsBankAcountDelegate);
+
+		ApplicationContext.getInstance().getMarketOrderDAO().save(marketOrder);
+		HibernateUtil.flushSession();
+		return marketOrder;
+	}
+
+	@Override
+	public MarketOrderImpl newInstanceGoodTypeMarketOrder(
+			final GoodType goodType, final MarketParticipant offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate,
+			final double amount, final double pricePerUnit) {
+		assert (goodType != null);
+		assert (offeror != null);
+		assert (offerorsBankAcountDelegate != null);
+
+		final MarketOrderImpl marketOrder = new MarketOrderImpl();
+		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
+				.getCurrency());
+		marketOrder.setGoodType(goodType);
+		marketOrder.setOfferor(offeror);
+		marketOrder.setOfferorsBankAcountDelegate(offerorsBankAcountDelegate);
+		marketOrder.setAmount(amount);
+		marketOrder.setPricePerUnit(pricePerUnit);
 
 		ApplicationContext.getInstance().getMarketOrderDAO().save(marketOrder);
 		HibernateUtil.flushSession();

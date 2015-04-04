@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,19 +30,19 @@ public class CentralBankImplFactoryImpl implements CentralBankFactory {
 
 	@Override
 	public void deleteCentralBank(final CentralBank agent) {
-		ApplicationContext.getInstance().getCentralBankDAO()
-				.delete((CentralBank) agent);
+		ApplicationContext.getInstance().getCentralBankDAO().delete(agent);
 		HibernateUtil.flushSession();
 	}
 
 	@Override
-	public CentralBank newInstanceCentralBank(Currency currency) {
+	public CentralBank newInstanceCentralBank(final Currency currency) {
 		assert (currency != null);
 
 		final CentralBankImpl centralBank = new CentralBankImpl();
-		if (!HibernateUtil.isActive())
+		if (!HibernateUtil.isActive()) {
 			centralBank.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
+		}
 		centralBank.setPrimaryCurrency(currency);
 		ApplicationContext.getInstance().getCentralBankDAO().save(centralBank);
 		centralBank.initialize();

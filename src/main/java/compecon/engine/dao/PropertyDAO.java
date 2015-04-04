@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,6 +28,11 @@ import compecon.economy.property.PropertyOwner;
 
 public interface PropertyDAO extends GenericDAO<Property> {
 
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer);
+
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
+			final Class<? extends PropertyIssued> propertyClass);
+
 	public List<Property> findAllPropertiesOfPropertyOwner(
 			final PropertyOwner propertyOwner);
 
@@ -35,15 +40,10 @@ public interface PropertyDAO extends GenericDAO<Property> {
 			final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass);
 
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer);
-
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
-			final Class<? extends PropertyIssued> propertyClass);
-
 	/**
 	 * WARNING: Should only be called from the property service, which ensures a
 	 * subsequent Hibernate flush.
-	 * 
+	 *
 	 * @see compecon.engine.service.PropertyService
 	 */
 	public void transferProperty(final PropertyOwner oldOwner,

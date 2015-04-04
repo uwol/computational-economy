@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -44,6 +44,7 @@ public class FactoryImplTest extends CompEconTestSupport {
 				.constructAgentsFromConfiguration();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
@@ -51,17 +52,17 @@ public class FactoryImplTest extends CompEconTestSupport {
 
 	@Test
 	public void testProductionEvent() {
-		Currency currency = Currency.EURO;
+		final Currency currency = Currency.EURO;
 
-		Household household1_EUR = ApplicationContext.getInstance()
+		final Household household1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(0);
-		Household household2_EUR = ApplicationContext.getInstance()
+		final Household household2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(1);
 
-		Factory factory1_EUR = ApplicationContext.getInstance()
+		final Factory factory1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency, GoodType.WHEAT)
 				.get(0);
-		Factory factory2_EUR = ApplicationContext.getInstance()
+		final Factory factory2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency, GoodType.COAL)
 				.get(0);
 
@@ -79,7 +80,7 @@ public class FactoryImplTest extends CompEconTestSupport {
 						household2_EUR.getBankAccountTransactionsDelegate(),
 						16.0, 1.0);
 
-		for (TimeSystemEvent timeSystemEvent : factory1_EUR
+		for (final TimeSystemEvent timeSystemEvent : factory1_EUR
 				.getTimeSystemEvents()) {
 			if (timeSystemEvent instanceof FactoryImpl.ProductionEvent) {
 				// factory 1 buys LABOURHOUR from households and produces WHEAT
@@ -115,17 +116,17 @@ public class FactoryImplTest extends CompEconTestSupport {
 		// deactivate capital depreciation
 		ApplicationContext.getInstance().getConfiguration().factoryConfig.capitalDepreciationRatioPerPeriod = 0.0;
 
-		Currency currency = Currency.EURO;
+		final Currency currency = Currency.EURO;
 
-		Household household1_EUR = ApplicationContext.getInstance()
+		final Household household1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(0);
-		Household household2_EUR = ApplicationContext.getInstance()
+		final Household household2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(1);
 
-		Factory factory1_EUR = ApplicationContext.getInstance()
+		final Factory factory1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency, GoodType.WHEAT)
 				.get(0);
-		Factory factory2_EUR = ApplicationContext.getInstance()
+		final Factory factory2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency, GoodType.COAL)
 				.get(0);
 
@@ -147,7 +148,7 @@ public class FactoryImplTest extends CompEconTestSupport {
 		ApplicationContext.getInstance().getPropertyService()
 				.incrementGoodTypeAmount(factory1_EUR, GoodType.MACHINE, 10.0);
 
-		for (TimeSystemEvent timeSystemEvent : factory1_EUR
+		for (final TimeSystemEvent timeSystemEvent : factory1_EUR
 				.getTimeSystemEvents()) {
 			if (timeSystemEvent instanceof FactoryImpl.ProductionEvent) {
 				// factory 1 buys LABOURHOUR from households and produces WHEAT
@@ -184,17 +185,17 @@ public class FactoryImplTest extends CompEconTestSupport {
 
 	@Test
 	public void testProductionEventWithInventory() {
-		Currency currency = Currency.EURO;
+		final Currency currency = Currency.EURO;
 
-		Household household1_EUR = ApplicationContext.getInstance()
+		final Household household1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(0);
-		Household household2_EUR = ApplicationContext.getInstance()
+		final Household household2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(1);
 
-		Factory factory1_EUR = ApplicationContext.getInstance()
+		final Factory factory1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency, GoodType.WHEAT)
 				.get(0);
-		Factory factory2_EUR = ApplicationContext.getInstance()
+		final Factory factory2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency, GoodType.COAL)
 				.get(0);
 
@@ -219,7 +220,7 @@ public class FactoryImplTest extends CompEconTestSupport {
 				.incrementGoodTypeAmount(factory1_EUR, GoodType.LABOURHOUR,
 						10.0);
 
-		for (TimeSystemEvent timeSystemEvent : factory1_EUR
+		for (final TimeSystemEvent timeSystemEvent : factory1_EUR
 				.getTimeSystemEvents()) {
 			if (timeSystemEvent instanceof FactoryImpl.ProductionEvent) {
 				// factory 1 buys LABOURHOUR from households and produces WHEAT

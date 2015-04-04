@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -43,28 +43,25 @@ import compecon.economy.sectors.financial.Currency;
 @Table(name = "BankAccount")
 public class BankAccountImpl implements BankAccount {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	protected int id;
-
 	@Column(name = "balance")
 	protected double balance;
-
-	@Enumerated(EnumType.STRING)
-	protected TermType termType;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "currency")
 	@Index(name = "IDX_BA_CURRENCY")
 	protected Currency currency;
 
-	@Enumerated(EnumType.STRING)
-	protected MoneyType moneyType;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	protected int id;
 
 	@ManyToOne(targetEntity = BankImpl.class)
 	@JoinColumn(name = "managingBank_id")
 	@Index(name = "IDX_BA_MANAGINGBANK")
 	protected Bank managingBank;
+
+	@Enumerated(EnumType.STRING)
+	protected MoneyType moneyType;
 
 	@Column(name = "name")
 	protected String name;
@@ -77,63 +74,75 @@ public class BankAccountImpl implements BankAccount {
 	@Index(name = "IDX_BA_OWNER")
 	protected BankCustomer owner;
 
+	@Enumerated(EnumType.STRING)
+	protected TermType termType;
+
 	/*
 	 * Accessors
 	 */
 
+	@Override
+	@Transient
+	public void deposit(final double amount) {
+		assert (!Double.isNaN(amount) && !Double.isInfinite(amount) && amount >= 0.0);
+
+		balance = balance + amount;
+	}
+
+	@Override
 	public double getBalance() {
-		return this.balance;
+		return balance;
 	}
 
-	public TermType getTermType() {
-		return termType;
-	}
-
+	@Override
 	public Currency getCurrency() {
-		return this.currency;
+		return currency;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
-	public MoneyType getMoneyType() {
-		return this.moneyType;
-	}
-
+	@Override
 	public Bank getManagingBank() {
-		return this.managingBank;
+		return managingBank;
 	}
 
+	@Override
+	public MoneyType getMoneyType() {
+		return moneyType;
+	}
+
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public boolean getOverdraftPossible() {
-		return this.overdraftPossible;
+		return overdraftPossible;
 	}
 
+	@Override
 	public BankCustomer getOwner() {
-		return this.owner;
+		return owner;
 	}
 
-	public void setBalance(double balance) {
+	@Override
+	public TermType getTermType() {
+		return termType;
+	}
+
+	public void setBalance(final double balance) {
 		this.balance = balance;
-	}
-
-	public void setTermType(final TermType termType) {
-		this.termType = termType;
 	}
 
 	public void setCurrency(final Currency currency) {
 		this.currency = currency;
 	}
 
-	public void setMoneyType(final MoneyType moneyType) {
-		this.moneyType = moneyType;
-	}
-
-	public void setId(int id) {
+	public void setId(final int id) {
 		this.id = id;
 	}
 
@@ -141,7 +150,11 @@ public class BankAccountImpl implements BankAccount {
 		this.managingBank = managingBank;
 	}
 
-	public void setName(String name) {
+	public void setMoneyType(final MoneyType moneyType) {
+		this.moneyType = moneyType;
+	}
+
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -149,7 +162,7 @@ public class BankAccountImpl implements BankAccount {
 		this.overdraftPossible = overdraftPossible;
 	}
 
-	public void setOwner(BankCustomer owner) {
+	public void setOwner(final BankCustomer owner) {
 		this.owner = owner;
 	}
 
@@ -157,27 +170,25 @@ public class BankAccountImpl implements BankAccount {
 	 * Business logic
 	 */
 
-	@Transient
-	public void deposit(final double amount) {
-		assert (!Double.isNaN(amount) && !Double.isInfinite(amount) && amount >= 0.0);
-
-		this.balance = this.balance + amount;
-	}
-
-	@Transient
-	public void withdraw(final double amount) {
-		assert (!Double.isNaN(amount) && !Double.isInfinite(amount) && amount >= 0.0);
-		assert (amount <= this.balance || this.overdraftPossible);
-
-		this.balance = this.balance - amount;
+	public void setTermType(final TermType termType) {
+		this.termType = termType;
 	}
 
 	@Override
 	public String toString() {
-		return "BankAccount [ID: " + this.id + ", Balance: "
-				+ Currency.formatMoneySum(this.balance) + " "
-				+ this.currency.getIso4217Code() + ", Name: " + this.name
-				+ ", Owner: " + this.owner + "]";
+		return "BankAccount [ID: " + id + ", Balance: "
+				+ Currency.formatMoneySum(balance) + " "
+				+ currency.getIso4217Code() + ", Name: " + name + ", Owner: "
+				+ owner + "]";
+	}
+
+	@Override
+	@Transient
+	public void withdraw(final double amount) {
+		assert (!Double.isNaN(amount) && !Double.isInfinite(amount) && amount >= 0.0);
+		assert (amount <= balance || overdraftPossible);
+
+		balance = balance - amount;
 	}
 
 }

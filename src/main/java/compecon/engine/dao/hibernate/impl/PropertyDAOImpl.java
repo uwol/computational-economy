@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,9 +36,24 @@ public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
+		return getSession().createCriteria(PropertyIssuedImpl.class)
+				.add(Restrictions.eq("issuer", issuer)).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
+			final Class<? extends PropertyIssued> propertyClass) {
+		return getSession().createCriteria(propertyClass)
+				.add(Restrictions.eq("issuer", issuer)).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
 	public List<Property> findAllPropertiesOfPropertyOwner(
 			final PropertyOwner propertyOwner) {
-		return (List<Property>) getSession().createCriteria(PropertyImpl.class)
+		return getSession().createCriteria(PropertyImpl.class)
 				.add(Restrictions.eq("owner", propertyOwner)).list();
 	}
 
@@ -47,24 +62,8 @@ public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements
 	public List<Property> findAllPropertiesOfPropertyOwner(
 			final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass) {
-		return (List<Property>) getSession().createCriteria(propertyClass)
+		return getSession().createCriteria(propertyClass)
 				.add(Restrictions.eq("owner", propertyOwner)).list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
-		return (List<Property>) getSession()
-				.createCriteria(PropertyIssuedImpl.class)
-				.add(Restrictions.eq("issuer", issuer)).list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
-			final Class<? extends PropertyIssued> propertyClass) {
-		return (List<Property>) getSession().createCriteria(propertyClass)
-				.add(Restrictions.eq("issuer", issuer)).list();
 	}
 
 	@Override

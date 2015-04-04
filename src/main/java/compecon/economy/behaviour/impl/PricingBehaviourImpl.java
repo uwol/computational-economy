@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -34,43 +34,34 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 
 	protected final AgentImpl agent;
 
+	protected final Currency denominatedInCurrency;
+
 	protected final double initialPrice;
 
-	protected final Currency denominatedInCurrency;
+	protected final double initialPriceChangeIncrement;
+
+	double[] offeredAmount_InPeriods = new double[10]; // x, x-1, x-2, x-3,
+														// ...
 
 	protected final Object offeredObject;
 
 	protected boolean periodDataInitialized = false;
 
-	protected final double initialPriceChangeIncrement;
+	// the decision
 
 	protected double priceChangeIncrement;
 
-	// the decision
+	// and the results of this decision
 
 	double[] prices_InPeriods = new double[10]; // x, x-1, x-2, x-3, ...
-
-	// and the results of this decision
 
 	double[] soldAmount_InPeriods = new double[10]; // x, x-1, x-2, x-3, ...
 
 	double[] soldValue_InPeriods = new double[10]; // x, x-1, x-2, x-3, ...
 
-	double[] offeredAmount_InPeriods = new double[10]; // x, x-1, x-2, x-3,
-														// ...
-
-	public PricingBehaviourImpl(AgentImpl agent, Object offeredObject,
-			Currency denominatedInCurrency, double initialPrice,
-			double priceChangeIncrement) {
-		this.agent = agent;
-		this.initialPrice = initialPrice;
-		this.denominatedInCurrency = denominatedInCurrency;
-		this.offeredObject = offeredObject;
-		this.initialPriceChangeIncrement = priceChangeIncrement;
-	}
-
-	public PricingBehaviourImpl(AgentImpl agent, Object offeredObject,
-			Currency denominatedInCurrency, double initialPrice) {
+	public PricingBehaviourImpl(final AgentImpl agent,
+			final Object offeredObject, final Currency denominatedInCurrency,
+			final double initialPrice) {
 		this(
 				agent,
 				offeredObject,
@@ -80,49 +71,84 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 						.getDefaultPriceChangeIncrementExplicit());
 	}
 
+	public PricingBehaviourImpl(final AgentImpl agent,
+			final Object offeredObject, final Currency denominatedInCurrency,
+			final double initialPrice, final double priceChangeIncrement) {
+		this.agent = agent;
+		this.initialPrice = initialPrice;
+		this.denominatedInCurrency = denominatedInCurrency;
+		this.offeredObject = offeredObject;
+		initialPriceChangeIncrement = priceChangeIncrement;
+	}
+
 	public void assurePeriodDataInitialized() {
-		if (!this.periodDataInitialized) {
+		if (!periodDataInitialized) {
 			if (!Double.isNaN(initialPrice) && !Double.isInfinite(initialPrice)) {
-				this.prices_InPeriods[0] = initialPrice;
+				prices_InPeriods[0] = initialPrice;
 			} else {
-				this.prices_InPeriods[0] = ApplicationContext.getInstance()
+				prices_InPeriods[0] = ApplicationContext.getInstance()
 						.getConfiguration().pricingBehaviourConfig
 						.getDefaultInitialPrice();
 			}
 
-			this.periodDataInitialized = true;
+			periodDataInitialized = true;
 		}
 	}
 
-	protected double calculateNewPrice() {
-		double oldPrice = this.prices_InPeriods[1];
+	protected double calculateHigherPriceExplicit(final double price) {
+		updatePriceChangeIncrement(true);
+		// if the price is 0.0, multiplication does not work -> reset price
+		if (MathUtil.lesserEqual(price, 0.0)) {
+			return 0.0001;
+		}
+		return price * (1.0 + priceChangeIncrement);
+	}
 
-		String prefix = "offered " + MathUtil.round(offeredAmount_InPeriods[1])
-				+ " units of " + offeredObject + " for "
-				+ Currency.formatMoneySum(this.prices_InPeriods[1]) + " "
-				+ this.denominatedInCurrency.getIso4217Code()
+	protected double calculateHigherPriceImplicit(final double price) {
+		return price
+				* (1.0 + ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig
+						.getDefaultPriceChangeIncrementImplicit());
+	}
+
+	/*
+	 * {@link #calculateHigherPrice(double)}
+	 */
+	protected double calculateLowerPriceExplicit(final double price) {
+		updatePriceChangeIncrement(false);
+		return price / (1.0 + priceChangeIncrement);
+	}
+
+	protected double calculateNewPrice() {
+		final double oldPrice = prices_InPeriods[1];
+
+		final String prefix = "offered "
+				+ MathUtil.round(offeredAmount_InPeriods[1]) + " units of "
+				+ offeredObject + " for "
+				+ Currency.formatMoneySum(prices_InPeriods[1]) + " "
+				+ denominatedInCurrency.getIso4217Code()
 				+ " per unit and sold "
 				+ MathUtil.round(soldAmount_InPeriods[1]) + " units -> ";
 
-		final double offeredAmountInLastPeriod = this.offeredAmount_InPeriods[1];
-		final double offeredAmountInPenultimatePeriod = this.offeredAmount_InPeriods[2];
+		final double offeredAmountInLastPeriod = offeredAmount_InPeriods[1];
+		final double offeredAmountInPenultimatePeriod = offeredAmount_InPeriods[2];
 
-		final double soldAmountInLastPeriod = this.soldAmount_InPeriods[1];
-		final double soldAmountInPenultimatePeriod = this.soldAmount_InPeriods[2];
+		final double soldAmountInLastPeriod = soldAmount_InPeriods[1];
+		final double soldAmountInPenultimatePeriod = soldAmount_InPeriods[2];
 
 		// nothing sold?
 		if (MathUtil.greater(offeredAmountInLastPeriod, 0.0)
 				&& MathUtil.lesserEqual(soldAmountInLastPeriod, 0.0)) {
-			double newPrice = calculateLowerPriceExplicit(oldPrice);
-			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+			final double newPrice = calculateLowerPriceExplicit(oldPrice);
+			getLog().pricingBehaviour_onCalculateNewPrice(agent,
 					PricingBehaviourNewPriceDecisionCause.SOLD_NOTHING,
-					-1.0 * this.priceChangeIncrement);
-			if (getLog().isAgentSelectedByClient(this.agent))
+					-1.0 * priceChangeIncrement);
+			if (getLog().isAgentSelectedByClient(agent)) {
 				getLog().log(
-						this.agent,
+						agent,
 						prefix + "sold nothing -> lowering price to "
 								+ Currency.formatMoneySum(newPrice) + " "
-								+ this.denominatedInCurrency.getIso4217Code());
+								+ denominatedInCurrency.getIso4217Code());
+			}
 			return newPrice;
 		}
 
@@ -130,16 +156,17 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 		if (MathUtil.greater(offeredAmountInLastPeriod, 0.0)
 				&& MathUtil.equal(soldAmountInLastPeriod,
 						offeredAmountInLastPeriod)) {
-			double newPrice = calculateHigherPriceExplicit(oldPrice);
-			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+			final double newPrice = calculateHigherPriceExplicit(oldPrice);
+			getLog().pricingBehaviour_onCalculateNewPrice(agent,
 					PricingBehaviourNewPriceDecisionCause.SOLD_EVERYTHING,
-					this.priceChangeIncrement);
-			if (getLog().isAgentSelectedByClient(this.agent))
+					priceChangeIncrement);
+			if (getLog().isAgentSelectedByClient(agent)) {
 				getLog().log(
-						this.agent,
+						agent,
 						prefix + "sold everything -> raising price to "
 								+ Currency.formatMoneySum(newPrice) + " "
-								+ this.denominatedInCurrency.getIso4217Code());
+								+ denominatedInCurrency.getIso4217Code());
+			}
 			return newPrice;
 		}
 
@@ -159,18 +186,19 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 				// period
 				&& MathUtil.greaterEqual(offeredAmountInLastPeriod,
 						soldAmountInPenultimatePeriod)) {
-			double newPrice = calculateLowerPriceExplicit(oldPrice);
-			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+			final double newPrice = calculateLowerPriceExplicit(oldPrice);
+			getLog().pricingBehaviour_onCalculateNewPrice(agent,
 					PricingBehaviourNewPriceDecisionCause.SOLD_LESS,
-					-1.0 * this.priceChangeIncrement);
-			if (getLog().isAgentSelectedByClient(this.agent))
+					-1.0 * priceChangeIncrement);
+			if (getLog().isAgentSelectedByClient(agent)) {
 				getLog().log(
-						this.agent,
+						agent,
 						prefix + "sold less (before: "
 								+ MathUtil.round(soldAmountInPenultimatePeriod)
 								+ ") -> lowering price to "
 								+ Currency.formatMoneySum(newPrice) + " "
-								+ this.denominatedInCurrency.getIso4217Code());
+								+ denominatedInCurrency.getIso4217Code());
+			}
 			return newPrice;
 		}
 
@@ -190,29 +218,31 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 				// period
 				&& MathUtil.greaterEqual(offeredAmountInPenultimatePeriod,
 						soldAmountInLastPeriod)) {
-			double newPrice = calculateHigherPriceExplicit(oldPrice);
-			getLog().pricingBehaviour_onCalculateNewPrice(this.agent,
+			final double newPrice = calculateHigherPriceExplicit(oldPrice);
+			getLog().pricingBehaviour_onCalculateNewPrice(agent,
 					PricingBehaviourNewPriceDecisionCause.SOLD_MORE,
-					this.priceChangeIncrement);
-			if (getLog().isAgentSelectedByClient(this.agent))
+					priceChangeIncrement);
+			if (getLog().isAgentSelectedByClient(agent)) {
 				getLog().log(
-						this.agent,
+						agent,
 						prefix + "sold more (before: "
 								+ MathUtil.round(soldAmountInPenultimatePeriod)
 								+ ") -> raising price to "
 								+ Currency.formatMoneySum(newPrice) + " "
-								+ this.denominatedInCurrency.getIso4217Code());
+								+ denominatedInCurrency.getIso4217Code());
+			}
 			return newPrice;
 		}
 
-		if (getLog().isAgentSelectedByClient(this.agent))
+		if (getLog().isAgentSelectedByClient(agent)) {
 			getLog().log(
-					this.agent,
+					agent,
 					prefix + " newPrice := oldPrice = "
 							+ Currency.formatMoneySum(oldPrice) + " "
-							+ this.denominatedInCurrency.getIso4217Code());
+							+ denominatedInCurrency.getIso4217Code());
+		}
 		getLog().pricingBehaviour_onCalculateNewPrice(
-				this.agent,
+				agent,
 				PricingBehaviourNewPriceDecisionCause.IMPLICIT_RAISE,
 				ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig
 						.getDefaultPriceChangeIncrementImplicit());
@@ -220,154 +250,138 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 		return calculateHigherPriceImplicit(oldPrice);
 	}
 
-	protected double calculateHigherPriceExplicit(final double price) {
-		updatePriceChangeIncrement(true);
-		// if the price is 0.0, multiplication does not work -> reset price
-		if (MathUtil.lesserEqual(price, 0.0))
-			return 0.0001;
-		return price * (1.0 + this.priceChangeIncrement);
-	}
-
-	protected double calculateHigherPriceImplicit(final double price) {
-		return price
-				* (1.0 + ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig
-						.getDefaultPriceChangeIncrementImplicit());
-	}
-
-	/*
-	 * {@link #calculateHigherPrice(double)}
-	 */
-	protected double calculateLowerPriceExplicit(final double price) {
-		updatePriceChangeIncrement(false);
-		return price / (1.0 + this.priceChangeIncrement);
-	}
-
-	protected void updatePriceChangeIncrement(boolean raisingPrice) {
-		if (MathUtil.lesserEqual(this.priceChangeIncrement, 0.0))
-			this.priceChangeIncrement = this.initialPriceChangeIncrement;
-
-		final double priceInLastPeriod = this.prices_InPeriods[1];
-		final double priceInPenultimatePeriod = this.prices_InPeriods[2];
-
-		// price will rise after adaption of price increment
-		if (raisingPrice) {
-			// rising steadily since two periods
-			if (MathUtil.greater(priceInLastPeriod, priceInPenultimatePeriod)) {
-				this.priceChangeIncrement = Math.min(
-						this.initialPriceChangeIncrement,
-						this.priceChangeIncrement * 1.1);
-			}
-			// oscillating
-			else if (MathUtil.lesser(priceInLastPeriod,
-					priceInPenultimatePeriod)) {
-				this.priceChangeIncrement = Math.min(
-						this.initialPriceChangeIncrement,
-						this.priceChangeIncrement / 1.1);
-			}
-		}
-		// price will fall after adaption of price increment
-		else {
-			// falling steadily since two periods
-			if (MathUtil.lesser(priceInLastPeriod, priceInPenultimatePeriod)) {
-				this.priceChangeIncrement = Math.min(
-						this.initialPriceChangeIncrement,
-						this.priceChangeIncrement * 1.1);
-			}
-			// oscillating
-			else if (MathUtil.greater(priceInLastPeriod,
-					priceInPenultimatePeriod)) {
-				this.priceChangeIncrement = Math.min(
-						this.initialPriceChangeIncrement,
-						this.priceChangeIncrement / 1.1);
-			}
-		}
-	}
-
+	@Override
 	public double getCurrentPrice() {
-		return this.prices_InPeriods[0];
+		return prices_InPeriods[0];
 	}
 
 	/**
 	 * prices encompassing the current price, used for price differentiation.
 	 */
+	@Override
 	public double[] getCurrentPriceArray() {
-		int numberOfPrices = ApplicationContext.getInstance()
+		final int numberOfPrices = ApplicationContext.getInstance()
 				.getConfiguration().pricingBehaviourConfig
 				.getDefaultNumberOfPrices();
 		assert (numberOfPrices > 0);
-		double[] prices = new double[numberOfPrices];
+		final double[] prices = new double[numberOfPrices];
 
 		if (numberOfPrices == 1) {
 			prices[0] = getCurrentPrice();
 		} else {
-			double minPrice = Math.max(0, getCurrentPrice()
-					- this.priceChangeIncrement);
-			double maxPrice = getCurrentPrice() + this.priceChangeIncrement;
-			double maxMinPriceDifference = maxPrice - minPrice;
-			double priceGap = maxMinPriceDifference / (numberOfPrices - 1.0);
+			final double minPrice = Math.max(0, getCurrentPrice()
+					- priceChangeIncrement);
+			final double maxPrice = getCurrentPrice() + priceChangeIncrement;
+			final double maxMinPriceDifference = maxPrice - minPrice;
+			final double priceGap = maxMinPriceDifference
+					/ (numberOfPrices - 1.0);
 
 			for (int i = 0; i < numberOfPrices; i++) {
 				prices[i] = minPrice + priceGap * i;
 			}
 		}
 
-		assert (this.getCurrentPrice() >= prices[0] && this.getCurrentPrice() <= prices[prices.length - 1]);
+		assert (getCurrentPrice() >= prices[0] && getCurrentPrice() <= prices[prices.length - 1]);
 
 		return prices;
 	}
 
+	@Override
 	public double getLastOfferedAmount() {
-		return this.offeredAmount_InPeriods[1];
+		return offeredAmount_InPeriods[1];
 	}
 
+	@Override
 	public double getLastSoldAmount() {
-		return this.soldAmount_InPeriods[1];
+		return soldAmount_InPeriods[1];
 	}
 
+	@Override
 	public double getLastSoldValue() {
-		return this.soldValue_InPeriods[1];
-	}
-
-	public void nextPeriod() {
-		assurePeriodDataInitialized();
-
-		// shift arrays -> a new period x, old period x becomes period x-1
-		System.arraycopy(this.prices_InPeriods, 0, this.prices_InPeriods, 1,
-				this.prices_InPeriods.length - 1);
-		System.arraycopy(this.soldAmount_InPeriods, 0,
-				this.soldAmount_InPeriods, 1,
-				this.soldAmount_InPeriods.length - 1);
-		System.arraycopy(this.soldValue_InPeriods, 0, this.soldValue_InPeriods,
-				1, this.soldValue_InPeriods.length - 1);
-		System.arraycopy(this.offeredAmount_InPeriods, 0,
-				this.offeredAmount_InPeriods, 1,
-				this.offeredAmount_InPeriods.length - 1);
-
-		// copy price from last period to current period; important for having a
-		// non-zero price every period
-		this.prices_InPeriods[0] = this.prices_InPeriods[1];
-		this.offeredAmount_InPeriods[0] = 0.0;
-		this.soldAmount_InPeriods[0] = 0.0;
-		this.soldValue_InPeriods[0] = 0.0;
-
-		this.prices_InPeriods[0] = calculateNewPrice();
-	}
-
-	public void registerSelling(double numberOfProducts, double totalValue) {
-		if (!Double.isNaN(numberOfProducts)
-				&& !Double.isInfinite(numberOfProducts)) {
-			this.soldAmount_InPeriods[0] += numberOfProducts;
-			this.soldValue_InPeriods[0] += totalValue;
-		}
-	}
-
-	public void registerOfferedAmount(double numberOfProducts) {
-		if (!Double.isNaN(numberOfProducts)
-				&& !Double.isInfinite(numberOfProducts))
-			this.offeredAmount_InPeriods[0] += numberOfProducts;
+		return soldValue_InPeriods[1];
 	}
 
 	private Log getLog() {
 		return ApplicationContext.getInstance().getLog();
+	}
+
+	@Override
+	public void nextPeriod() {
+		assurePeriodDataInitialized();
+
+		// shift arrays -> a new period x, old period x becomes period x-1
+		System.arraycopy(prices_InPeriods, 0, prices_InPeriods, 1,
+				prices_InPeriods.length - 1);
+		System.arraycopy(soldAmount_InPeriods, 0, soldAmount_InPeriods, 1,
+				soldAmount_InPeriods.length - 1);
+		System.arraycopy(soldValue_InPeriods, 0, soldValue_InPeriods, 1,
+				soldValue_InPeriods.length - 1);
+		System.arraycopy(offeredAmount_InPeriods, 0, offeredAmount_InPeriods,
+				1, offeredAmount_InPeriods.length - 1);
+
+		// copy price from last period to current period; important for having a
+		// non-zero price every period
+		prices_InPeriods[0] = prices_InPeriods[1];
+		offeredAmount_InPeriods[0] = 0.0;
+		soldAmount_InPeriods[0] = 0.0;
+		soldValue_InPeriods[0] = 0.0;
+
+		prices_InPeriods[0] = calculateNewPrice();
+	}
+
+	@Override
+	public void registerOfferedAmount(final double numberOfProducts) {
+		if (!Double.isNaN(numberOfProducts)
+				&& !Double.isInfinite(numberOfProducts)) {
+			offeredAmount_InPeriods[0] += numberOfProducts;
+		}
+	}
+
+	@Override
+	public void registerSelling(final double numberOfProducts,
+			final double totalValue) {
+		if (!Double.isNaN(numberOfProducts)
+				&& !Double.isInfinite(numberOfProducts)) {
+			soldAmount_InPeriods[0] += numberOfProducts;
+			soldValue_InPeriods[0] += totalValue;
+		}
+	}
+
+	protected void updatePriceChangeIncrement(final boolean raisingPrice) {
+		if (MathUtil.lesserEqual(priceChangeIncrement, 0.0)) {
+			priceChangeIncrement = initialPriceChangeIncrement;
+		}
+
+		final double priceInLastPeriod = prices_InPeriods[1];
+		final double priceInPenultimatePeriod = prices_InPeriods[2];
+
+		// price will rise after adaption of price increment
+		if (raisingPrice) {
+			// rising steadily since two periods
+			if (MathUtil.greater(priceInLastPeriod, priceInPenultimatePeriod)) {
+				priceChangeIncrement = Math.min(initialPriceChangeIncrement,
+						priceChangeIncrement * 1.1);
+			}
+			// oscillating
+			else if (MathUtil.lesser(priceInLastPeriod,
+					priceInPenultimatePeriod)) {
+				priceChangeIncrement = Math.min(initialPriceChangeIncrement,
+						priceChangeIncrement / 1.1);
+			}
+		}
+		// price will fall after adaption of price increment
+		else {
+			// falling steadily since two periods
+			if (MathUtil.lesser(priceInLastPeriod, priceInPenultimatePeriod)) {
+				priceChangeIncrement = Math.min(initialPriceChangeIncrement,
+						priceChangeIncrement * 1.1);
+			}
+			// oscillating
+			else if (MathUtil.greater(priceInLastPeriod,
+					priceInPenultimatePeriod)) {
+				priceChangeIncrement = Math.min(initialPriceChangeIncrement,
+						priceChangeIncrement / 1.1);
+			}
+		}
 	}
 }

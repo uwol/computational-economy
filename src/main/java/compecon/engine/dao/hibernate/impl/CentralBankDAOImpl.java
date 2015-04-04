@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -29,13 +29,15 @@ import compecon.engine.dao.CentralBankDAO;
 public class CentralBankDAOImpl extends HibernateDAOImpl<CentralBank> implements
 		CentralBankDAO {
 
+	@Override
 	public CentralBank findByCurrency(final Currency currency) {
 		final Object object = getSession()
 				.createCriteria(CentralBankImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency))
 				.uniqueResult();
-		if (object == null)
+		if (object == null) {
 			return null;
+		}
 		return (CentralBank) object;
 	}
 }

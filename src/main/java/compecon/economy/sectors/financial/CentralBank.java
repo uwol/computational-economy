@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@ import compecon.economy.security.debt.FixedRateBond;
 
 public interface CentralBank extends Bank {
 
+	@Override
 	public void closeCustomerAccount(final BankCustomer customer);
 
 	public double getAverageMarginalPriceForGoodType(final GoodType goodType);

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,25 +28,20 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface MarketOrderFactory {
 
-	public void deleteSellingOrder(final MarketOrder marketOrder);
-
 	public void deleteAllSellingOrders(final MarketParticipant offeror);
 
 	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency, final GoodType goodType);
+			final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass);
 
 	public void deleteAllSellingOrders(final MarketParticipant offeror,
 			final Currency denominatedInCurrency,
 			final Currency commodityCurrency);
 
 	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency,
-			final Class<? extends Property> propertyClass);
+			final Currency denominatedInCurrency, final GoodType goodType);
 
-	public MarketOrder newInstanceGoodTypeMarketOrder(final GoodType goodType,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount, final double pricePerUnit);
+	public void deleteSellingOrder(final MarketOrder marketOrder);
 
 	public MarketOrder newInstanceCurrencyMarketOrder(
 			final Currency currencyToBeOffered,
@@ -55,6 +50,11 @@ public interface MarketOrderFactory {
 			final double amount,
 			final double pricePerUnit,
 			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate);
+
+	public MarketOrder newInstanceGoodTypeMarketOrder(final GoodType goodType,
+			final MarketParticipant offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate,
+			final double amount, final double pricePerUnit);
 
 	public MarketOrder newInstancePropertyMarketOrder(final Property property,
 			final MarketParticipant offeror,

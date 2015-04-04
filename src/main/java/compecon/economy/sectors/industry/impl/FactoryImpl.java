@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -52,152 +52,7 @@ import compecon.math.util.MathUtil;
 @Entity
 public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 
-	@Transient
-	protected BudgetingBehaviour budgetingBehaviour;
-
-	@Enumerated(EnumType.STRING)
-	protected GoodType producedGoodType;
-
-	@Transient
-	protected ProductionFunction productionFunction;
-
-	@Transient
-	protected PricingBehaviour pricingBehaviour;
-
-	@Override
-	public void initialize() {
-		super.initialize();
-
-		// production event at random HourType
-		final TimeSystemEvent productionEvent = new ProductionEvent();
-		this.timeSystemEvents.add(productionEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(
-						productionEvent,
-						-1,
-						MonthType.EVERY,
-						DayType.EVERY,
-						ApplicationContext.getInstance().getTimeSystem()
-								.suggestRandomHourType());
-
-		final double marketPrice = ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.getMarginalMarketPrice(this.primaryCurrency,
-						this.producedGoodType);
-		this.pricingBehaviour = new PricingBehaviourImpl(this,
-				this.producedGoodType, this.primaryCurrency, marketPrice);
-		this.budgetingBehaviour = new BudgetingBehaviourImpl(this);
-	}
-
-	@Override
-	public void deconstruct() {
-		super.deconstruct();
-
-		ApplicationContext.getInstance().getFactoryFactory()
-				.deleteFactory(this);
-	}
-
-	/*
-	 * accessors
-	 */
-
-	public GoodType getProducedGoodType() {
-		return producedGoodType;
-	}
-
-	@Transient
-	public ProductionFunction getProductionFunction() {
-		return this.productionFunction;
-	}
-
-	public void setProducedGoodType(GoodType producedGoodType) {
-		this.producedGoodType = producedGoodType;
-	}
-
-	@Transient
-	public void setProductionFunction(ProductionFunction productionFunction) {
-		this.productionFunction = productionFunction;
-	}
-
-	/*
-	 * business logic
-	 */
-
-	@Override
-	public void onMarketSettlement(GoodType goodType, double amount,
-			double pricePerUnit, Currency currency) {
-		FactoryImpl.this.assureBankAccountTransactions();
-		if (FactoryImpl.this.producedGoodType.equals(goodType)) {
-			FactoryImpl.this.pricingBehaviour.registerSelling(amount, amount
-					* pricePerUnit);
-		}
-	}
-
-	@Override
-	public void onMarketSettlement(Currency commodityCurrency, double amount,
-			double pricePerUnit, Currency currency) {
-	}
-
-	@Override
-	public void onMarketSettlement(Property property, double totalPrice,
-			Currency currency) {
-	}
-
-	@Override
-	public String toString() {
-		return super.toString() + ", producedGoodType=["
-				+ this.producedGoodType + "]";
-	}
-
 	public class ProductionEvent implements TimeSystemEvent {
-		@Override
-		public boolean isDeconstructed() {
-			return FactoryImpl.this.isDeconstructed;
-		}
-
-		@Override
-		public void onEvent() {
-			FactoryImpl.this.assureBankAccountTransactions();
-
-			getLog().factory_AmountSold(FactoryImpl.this.primaryCurrency,
-					FactoryImpl.this.producedGoodType,
-					FactoryImpl.this.pricingBehaviour.getLastSoldAmount());
-
-			/*
-			 * simulation mechanics
-			 */
-			FactoryImpl.this.pricingBehaviour.nextPeriod();
-
-			/*
-			 * economic actions
-			 */
-			FactoryImpl.this
-					.transferBankAccountBalanceToDividendBankAccount(FactoryImpl.this.bankAccountTransactions);
-
-			/*
-			 * has to happen before offering good on market; otherwise there is
-			 * offered more than owned.
-			 */
-			this.capitalDepreciation();
-
-			final double budget = FactoryImpl.this.budgetingBehaviour
-					.calculateTransmissionBasedBudgetForPeriod(
-							FactoryImpl.this.bankAccountTransactions
-									.getCurrency(),
-							FactoryImpl.this.bankAccountTransactions
-									.getBalance(),
-							FactoryImpl.this.referenceCredit);
-
-			this.buyOptimalProductionFactorsForBudget(budget);
-
-			final double producedOutput = this.produce();
-
-			this.offerProducedGoodType(producedOutput);
-		}
-
 		protected void buyOptimalProductionFactorsForBudget(final double budget) {
 			if (MathUtil.greater(budget, 0.0)) {
 				// get prices for production factors
@@ -206,8 +61,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 						.getMarketService()
 						.getMarketPriceFunctions(
 								FactoryImpl.this.primaryCurrency,
-								FactoryImpl.this.productionFunction
-										.getInputGoodTypes());
+								productionFunction.getInputGoodTypes());
 
 				/*
 				 * calculate optimal production plan
@@ -217,14 +71,14 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 						.getMarketService()
 						.getMarginalMarketPrice(
 								FactoryImpl.this.primaryCurrency,
-								FactoryImpl.this.producedGoodType);
+								producedGoodType);
 
 				final Map<GoodType, Double> capital = ApplicationContext
 						.getInstance().getPropertyService()
 						.getCapitalBalances(FactoryImpl.this);
 
 				getLog().setAgentCurrentlyActive(FactoryImpl.this);
-				final Map<GoodType, Double> profitMaximizingProductionFactors = FactoryImpl.this.productionFunction
+				final Map<GoodType, Double> profitMaximizingProductionFactors = productionFunction
 						.calculateProfitMaximizingProductionFactors(
 								priceOfProducedGoodType,
 								priceFunctionsOfProductionFactors, capital,
@@ -240,7 +94,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				 * the optimal production plan includes capital goods. Only
 				 * surplus capital goods should be bought!
 				 */
-				for (Entry<GoodType, Double> entry : profitMaximizingProductionFactorsToBuy
+				for (final Entry<GoodType, Double> entry : profitMaximizingProductionFactorsToBuy
 						.entrySet()) {
 					final GoodType goodType = entry.getKey();
 					final double profitMaximizingAmountOfGoodType = entry
@@ -255,17 +109,15 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				}
 
 				// buy production factors
-				final double budgetSpent = this
-						.buyProductionFactors(profitMaximizingProductionFactorsToBuy);
+				final double budgetSpent = buyProductionFactors(profitMaximizingProductionFactorsToBuy);
 
 				assert (MathUtil.lesserEqual(budgetSpent, budget * 1.2));
 
 				// log credit capacity utilization
-				final double creditBudgetCapacity = FactoryImpl.this.budgetingBehaviour
+				final double creditBudgetCapacity = budgetingBehaviour
 						.getCreditBasedBudgetCapacity();
 				final double creditUtilization = -1.0
-						* FactoryImpl.this.getBankAccountTransactions()
-								.getBalance();
+						* getBankAccountTransactions().getBalance();
 				getLog().agent_CreditUtilization(FactoryImpl.this,
 						creditUtilization, creditBudgetCapacity);
 				assert (MathUtil.lesserEqual(creditUtilization,
@@ -280,7 +132,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			 * important for price equilibrium
 			 */
 			double budgetSpent = 0.0;
-			for (Entry<GoodType, Double> entry : productionFactorsToBuy
+			for (final Entry<GoodType, Double> entry : productionFactorsToBuy
 					.entrySet()) {
 				final GoodType goodTypeToBuy = entry.getKey();
 				final double amountToBuy = entry.getValue();
@@ -297,98 +149,6 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			return budgetSpent;
 		}
 
-		protected double produce() {
-			/*
-			 * produce with production factors
-			 */
-			final Map<GoodType, Double> productionFactorsOwned = new HashMap<GoodType, Double>();
-			for (GoodType productionFactor : FactoryImpl.this.productionFunction
-					.getInputGoodTypes()) {
-				productionFactorsOwned.put(
-						productionFactor,
-						ApplicationContext
-								.getInstance()
-								.getPropertyService()
-								.getGoodTypeBalance(FactoryImpl.this,
-										productionFactor));
-			}
-
-			final double producedOutput = FactoryImpl.this.productionFunction
-					.calculateOutput(productionFactorsOwned);
-			ApplicationContext
-					.getInstance()
-					.getPropertyService()
-					.incrementGoodTypeAmount(FactoryImpl.this,
-							FactoryImpl.this.producedGoodType, producedOutput);
-
-			getLog().factory_onProduction(FactoryImpl.this,
-					FactoryImpl.this.primaryCurrency,
-					FactoryImpl.this.producedGoodType, producedOutput,
-					productionFactorsOwned);
-			if (getLog().isAgentSelectedByClient(FactoryImpl.this)) {
-				getLog().log(
-						FactoryImpl.this,
-						ProductionEvent.class,
-						"produced " + MathUtil.round(producedOutput) + " "
-								+ FactoryImpl.this.producedGoodType);
-			}
-
-			/*
-			 * deregister production factors from property register
-			 */
-			for (Entry<GoodType, Double> entry : productionFactorsOwned
-					.entrySet()) {
-				final GoodType productionFactor = entry.getKey();
-
-				// only non-durable production inputs are exhausted; durable
-				// production inputs are capital goods
-				if (!productionFactor.isDurable()) {
-					ApplicationContext
-							.getInstance()
-							.getPropertyService()
-							.decrementGoodTypeAmount(FactoryImpl.this,
-									entry.getKey(), entry.getValue());
-				}
-			}
-
-			return producedOutput;
-		}
-
-		protected void offerProducedGoodType(double producedOutput) {
-			/*
-			 * refresh prices / offer
-			 */
-			ApplicationContext
-					.getInstance()
-					.getMarketService()
-					.removeAllSellingOffers(FactoryImpl.this,
-							FactoryImpl.this.primaryCurrency,
-							FactoryImpl.this.producedGoodType);
-			final double amountInInventory = ApplicationContext
-					.getInstance()
-					.getPropertyService()
-					.getGoodTypeBalance(FactoryImpl.this,
-							FactoryImpl.this.producedGoodType);
-			final double[] prices = FactoryImpl.this.pricingBehaviour
-					.getCurrentPriceArray();
-			for (double price : prices) {
-				ApplicationContext
-						.getInstance()
-						.getMarketService()
-						.placeSellingOffer(FactoryImpl.this.producedGoodType,
-								FactoryImpl.this,
-								getBankAccountTransactionsDelegate(),
-								amountInInventory / ((double) prices.length),
-								price);
-			}
-			FactoryImpl.this.pricingBehaviour
-					.registerOfferedAmount(amountInInventory);
-
-			getLog().factory_onOfferGoodType(FactoryImpl.this.primaryCurrency,
-					FactoryImpl.this.producedGoodType, amountInInventory,
-					amountInInventory);
-		}
-
 		/**
 		 * capital depreciation according to the Solow–Swan model <br />
 		 * <br />
@@ -402,7 +162,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 					.getConfiguration().factoryConfig
 					.getCapitalDepreciationRatioPerPeriod();
 
-			for (Entry<GoodType, Double> entry : capital.entrySet()) {
+			for (final Entry<GoodType, Double> entry : capital.entrySet()) {
 				final GoodType capitalGoodType = entry.getKey();
 				final double capitalGoodTypeAmount = entry.getValue();
 				final double depreciation = depreciationRatio
@@ -423,5 +183,234 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				}
 			}
 		}
+
+		@Override
+		public boolean isDeconstructed() {
+			return FactoryImpl.this.isDeconstructed;
+		}
+
+		protected void offerProducedGoodType(final double producedOutput) {
+			/*
+			 * refresh prices / offer
+			 */
+			ApplicationContext
+					.getInstance()
+					.getMarketService()
+					.removeAllSellingOffers(FactoryImpl.this,
+							FactoryImpl.this.primaryCurrency, producedGoodType);
+			final double amountInInventory = ApplicationContext.getInstance()
+					.getPropertyService()
+					.getGoodTypeBalance(FactoryImpl.this, producedGoodType);
+			final double[] prices = pricingBehaviour.getCurrentPriceArray();
+			for (final double price : prices) {
+				ApplicationContext
+						.getInstance()
+						.getMarketService()
+						.placeSellingOffer(producedGoodType, FactoryImpl.this,
+								getBankAccountTransactionsDelegate(),
+								amountInInventory / (prices.length), price);
+			}
+			pricingBehaviour.registerOfferedAmount(amountInInventory);
+
+			getLog().factory_onOfferGoodType(FactoryImpl.this.primaryCurrency,
+					producedGoodType, amountInInventory, amountInInventory);
+		}
+
+		@Override
+		public void onEvent() {
+			assureBankAccountTransactions();
+
+			getLog().factory_AmountSold(FactoryImpl.this.primaryCurrency,
+					producedGoodType, pricingBehaviour.getLastSoldAmount());
+
+			/*
+			 * simulation mechanics
+			 */
+			pricingBehaviour.nextPeriod();
+
+			/*
+			 * economic actions
+			 */
+			transferBankAccountBalanceToDividendBankAccount(FactoryImpl.this.bankAccountTransactions);
+
+			/*
+			 * has to happen before offering good on market; otherwise there is
+			 * offered more than owned.
+			 */
+			capitalDepreciation();
+
+			final double budget = budgetingBehaviour
+					.calculateTransmissionBasedBudgetForPeriod(
+							FactoryImpl.this.bankAccountTransactions
+									.getCurrency(),
+							FactoryImpl.this.bankAccountTransactions
+									.getBalance(),
+							FactoryImpl.this.referenceCredit);
+
+			buyOptimalProductionFactorsForBudget(budget);
+
+			final double producedOutput = produce();
+
+			offerProducedGoodType(producedOutput);
+		}
+
+		protected double produce() {
+			/*
+			 * produce with production factors
+			 */
+			final Map<GoodType, Double> productionFactorsOwned = new HashMap<GoodType, Double>();
+			for (final GoodType productionFactor : productionFunction
+					.getInputGoodTypes()) {
+				productionFactorsOwned.put(
+						productionFactor,
+						ApplicationContext
+								.getInstance()
+								.getPropertyService()
+								.getGoodTypeBalance(FactoryImpl.this,
+										productionFactor));
+			}
+
+			final double producedOutput = productionFunction
+					.calculateOutput(productionFactorsOwned);
+			ApplicationContext
+					.getInstance()
+					.getPropertyService()
+					.incrementGoodTypeAmount(FactoryImpl.this,
+							producedGoodType, producedOutput);
+
+			getLog().factory_onProduction(FactoryImpl.this,
+					FactoryImpl.this.primaryCurrency, producedGoodType,
+					producedOutput, productionFactorsOwned);
+			if (getLog().isAgentSelectedByClient(FactoryImpl.this)) {
+				getLog().log(
+						FactoryImpl.this,
+						ProductionEvent.class,
+						"produced " + MathUtil.round(producedOutput) + " "
+								+ producedGoodType);
+			}
+
+			/*
+			 * deregister production factors from property register
+			 */
+			for (final Entry<GoodType, Double> entry : productionFactorsOwned
+					.entrySet()) {
+				final GoodType productionFactor = entry.getKey();
+
+				// only non-durable production inputs are exhausted; durable
+				// production inputs are capital goods
+				if (!productionFactor.isDurable()) {
+					ApplicationContext
+							.getInstance()
+							.getPropertyService()
+							.decrementGoodTypeAmount(FactoryImpl.this,
+									entry.getKey(), entry.getValue());
+				}
+			}
+
+			return producedOutput;
+		}
+	}
+
+	@Transient
+	protected BudgetingBehaviour budgetingBehaviour;
+
+	@Transient
+	protected PricingBehaviour pricingBehaviour;
+
+	@Enumerated(EnumType.STRING)
+	protected GoodType producedGoodType;
+
+	@Transient
+	protected ProductionFunction productionFunction;
+
+	@Override
+	public void deconstruct() {
+		super.deconstruct();
+
+		ApplicationContext.getInstance().getFactoryFactory()
+				.deleteFactory(this);
+	}
+
+	/*
+	 * accessors
+	 */
+
+	@Override
+	public GoodType getProducedGoodType() {
+		return producedGoodType;
+	}
+
+	@Override
+	@Transient
+	public ProductionFunction getProductionFunction() {
+		return productionFunction;
+	}
+
+	@Override
+	public void initialize() {
+		super.initialize();
+
+		// production event at random HourType
+		final TimeSystemEvent productionEvent = new ProductionEvent();
+		timeSystemEvents.add(productionEvent);
+		ApplicationContext
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						productionEvent,
+						-1,
+						MonthType.EVERY,
+						DayType.EVERY,
+						ApplicationContext.getInstance().getTimeSystem()
+								.suggestRandomHourType());
+
+		final double marketPrice = ApplicationContext.getInstance()
+				.getMarketService()
+				.getMarginalMarketPrice(primaryCurrency, producedGoodType);
+		pricingBehaviour = new PricingBehaviourImpl(this, producedGoodType,
+				primaryCurrency, marketPrice);
+		budgetingBehaviour = new BudgetingBehaviourImpl(this);
+	}
+
+	@Override
+	public void onMarketSettlement(final Currency commodityCurrency,
+			final double amount, final double pricePerUnit,
+			final Currency currency) {
+	}
+
+	/*
+	 * business logic
+	 */
+
+	@Override
+	public void onMarketSettlement(final GoodType goodType,
+			final double amount, final double pricePerUnit,
+			final Currency currency) {
+		FactoryImpl.this.assureBankAccountTransactions();
+		if (FactoryImpl.this.producedGoodType.equals(goodType)) {
+			FactoryImpl.this.pricingBehaviour.registerSelling(amount, amount
+					* pricePerUnit);
+		}
+	}
+
+	@Override
+	public void onMarketSettlement(final Property property,
+			final double totalPrice, final Currency currency) {
+	}
+
+	public void setProducedGoodType(final GoodType producedGoodType) {
+		this.producedGoodType = producedGoodType;
+	}
+
+	@Transient
+	public void setProductionFunction(
+			final ProductionFunction productionFunction) {
+		this.productionFunction = productionFunction;
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + ", producedGoodType=[" + producedGoodType
+				+ "]";
 	}
 }

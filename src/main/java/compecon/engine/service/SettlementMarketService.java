@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,14 +30,14 @@ public interface SettlementMarketService extends MarketService {
 	/**
 	 * @return total price and total amount
 	 */
-	public double[] buy(final GoodType goodType, final double maxAmount,
-			final double maxTotalPrice, final double maxPricePerUnit,
-			final MarketParticipant buyer,
+	public double[] buy(final Class<? extends Property> propertyClass,
+			final double maxAmount, final double maxTotalPrice,
+			final double maxPricePerUnit, final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate);
 
 	/**
 	 * Buy a foreign currency with another currency
-	 * 
+	 *
 	 * @param commodityCurrency
 	 *            Currency to buy
 	 * @param maxAmount
@@ -64,8 +64,8 @@ public interface SettlementMarketService extends MarketService {
 	/**
 	 * @return total price and total amount
 	 */
-	public double[] buy(final Class<? extends Property> propertyClass,
-			final double maxAmount, final double maxTotalPrice,
-			final double maxPricePerUnit, final MarketParticipant buyer,
+	public double[] buy(final GoodType goodType, final double maxAmount,
+			final double maxTotalPrice, final double maxPricePerUnit,
+			final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate);
 }

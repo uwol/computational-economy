@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface CreditBankDAO extends GenericDAO<CreditBank> {
 
-	public CreditBank findRandom(final Currency currency);
-
 	public List<CreditBank> findAllByCurrency(final Currency currency);
+
+	public CreditBank findRandom(final Currency currency);
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -24,8 +24,8 @@ import java.util.Set;
 import compecon.economy.LifecycleEntity;
 import compecon.economy.markets.MarketParticipant;
 import compecon.economy.property.PropertyOwner;
-import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.BankAccountDelegate;
+import compecon.economy.sectors.financial.BankCustomer;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.timesystem.TimeSystemEvent;
 
@@ -36,8 +36,8 @@ public interface Agent extends LifecycleEntity, PropertyOwner,
 
 	public int getId();
 
-	public Set<TimeSystemEvent> getTimeSystemEvents();
-
 	public Currency getPrimaryCurrency();
+
+	public Set<TimeSystemEvent> getTimeSystemEvents();
 
 }

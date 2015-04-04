@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,55 +28,61 @@ import compecon.engine.service.HardCashService;
 public class HardCashServiceImpl implements HardCashService {
 
 	// TODO Services have to be stateless, move state into DAO / database
-	private HashMap<HardCashOwner, HashMap<Currency, Double>> balances = new HashMap<HardCashOwner, HashMap<Currency, Double>>();
+	private final HashMap<HardCashOwner, HashMap<Currency, Double>> balances = new HashMap<HardCashOwner, HashMap<Currency, Double>>();
 
-	public double getBalance(final HardCashOwner owner, final Currency currency) {
-		this.assureAgentHasBalances(owner);
-
-		HashMap<Currency, Double> balancesForIAgent = this.balances.get(owner);
-		double balance = 0;
-		if (balancesForIAgent.containsKey(currency))
-			balance = balancesForIAgent.get(currency);
-
-		return balance;
+	private void assureAgentHasBalances(final HardCashOwner owner) {
+		if (!balances.containsKey(owner)) {
+			balances.put(owner, new HashMap<Currency, Double>());
+		}
 	}
 
-	public double increment(final HardCashOwner owner, final Currency currency,
-			final double amount) {
-		this.assureAgentHasBalances(owner);
-
-		assert (amount > 0.0);
-
-		double oldBalance = this.getBalance(owner, currency);
-		double newBalance = oldBalance + amount;
-		this.balances.get(owner).put(currency, newBalance);
-		return newBalance;
-	}
-
+	@Override
 	public double decrement(final HardCashOwner owner, final Currency currency,
 			final double amount) {
-		this.assureAgentHasBalances(owner);
+		assureAgentHasBalances(owner);
 
 		assert (amount >= 0.0);
 
-		double oldBalance = this.getBalance(owner, currency);
+		final double oldBalance = getBalance(owner, currency);
 
 		assert (oldBalance >= amount);
 
-		double newBalance = oldBalance - amount;
-		this.balances.get(owner).put(currency, newBalance);
+		final double newBalance = oldBalance - amount;
+		balances.get(owner).put(currency, newBalance);
 		return newBalance;
-	}
-
-	private void assureAgentHasBalances(final HardCashOwner owner) {
-		if (!this.balances.containsKey(owner))
-			this.balances.put(owner, new HashMap<Currency, Double>());
 	}
 
 	/*
 	 * deregister
 	 */
+	@Override
 	public void deregister(final HardCashOwner owner) {
-		this.balances.remove(owner); // TODO transfer to other agent?
+		balances.remove(owner); // TODO transfer to other agent?
+	}
+
+	@Override
+	public double getBalance(final HardCashOwner owner, final Currency currency) {
+		assureAgentHasBalances(owner);
+
+		final HashMap<Currency, Double> balancesForIAgent = balances.get(owner);
+		double balance = 0;
+		if (balancesForIAgent.containsKey(currency)) {
+			balance = balancesForIAgent.get(currency);
+		}
+
+		return balance;
+	}
+
+	@Override
+	public double increment(final HardCashOwner owner, final Currency currency,
+			final double amount) {
+		assureAgentHasBalances(owner);
+
+		assert (amount > 0.0);
+
+		final double oldBalance = getBalance(owner, currency);
+		final double newBalance = oldBalance + amount;
+		balances.get(owner).put(currency, newBalance);
+		return newBalance;
 	}
 }

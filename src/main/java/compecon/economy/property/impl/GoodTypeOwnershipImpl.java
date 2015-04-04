@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -47,18 +47,18 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	protected int id;
 
-	@OneToOne(targetEntity = AgentImpl.class)
-	@JoinColumn(name = "propertyOwner_id", nullable = false)
-	protected PropertyOwner propertyOwner;
-
 	@ElementCollection
 	@CollectionTable(name = "GoodTypeOwnership_OwnedGoodTypes", joinColumns = @JoinColumn(name = "goodtypeownership_id"))
 	@MapKeyEnumerated(EnumType.STRING)
 	private Map<GoodType, Double> ownedGoodTypes = new HashMap<GoodType, Double>();
 
+	@OneToOne(targetEntity = AgentImpl.class)
+	@JoinColumn(name = "propertyOwner_id", nullable = false)
+	protected PropertyOwner propertyOwner;
+
 	public GoodTypeOwnershipImpl() {
-		for (GoodType goodType : GoodType.values()) {
-			this.ownedGoodTypes.put(goodType, 0.0);
+		for (final GoodType goodType : GoodType.values()) {
+			ownedGoodTypes.put(goodType, 0.0);
 		}
 	}
 
@@ -66,29 +66,31 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 		return id;
 	}
 
+	@Override
 	public Map<GoodType, Double> getOwnedGoodTypes() {
 		return ownedGoodTypes;
 	}
 
+	@Override
 	public PropertyOwner getPropertyOwner() {
 		return propertyOwner;
 	}
 
-	public void setId(int id) {
+	public void setId(final int id) {
 		this.id = id;
 	}
 
-	public void setOwnedGoodTypes(Map<GoodType, Double> ownedGoodTypes) {
+	public void setOwnedGoodTypes(final Map<GoodType, Double> ownedGoodTypes) {
 		this.ownedGoodTypes = ownedGoodTypes;
 	}
 
-	public void setPropertyOwner(PropertyOwner propertyOwner) {
+	public void setPropertyOwner(final PropertyOwner propertyOwner) {
 		this.propertyOwner = propertyOwner;
 	}
 
 	@Override
 	public String toString() {
-		return "id=[" + this.id + "], propertyOwner=[" + this.propertyOwner
-				+ "], ownedGoodTypes=[" + this.ownedGoodTypes + "]";
+		return "id=[" + id + "], propertyOwner=[" + propertyOwner
+				+ "], ownedGoodTypes=[" + ownedGoodTypes + "]";
 	}
 }

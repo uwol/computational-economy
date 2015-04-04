@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -34,27 +34,26 @@ import compecon.engine.dao.CreditBankDAO;
 public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements
 		CreditBankDAO {
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<CreditBank> findAllByCurrency(final Currency currency) {
+		return getSession().createCriteria(CreditBankImpl.class)
+				.add(Restrictions.eq("primaryCurrency", currency)).list();
+	}
+
 	@Override
 	public CreditBank findRandom(final Currency currency) {
 		Criteria crit = getSession().createCriteria(CreditBankImpl.class);
 		crit.add(Restrictions.eq("primaryCurrency", currency));
 		crit.setProjection(Projections.rowCount());
-		int count = ((Number) crit.uniqueResult()).intValue();
+		final int count = ((Number) crit.uniqueResult()).intValue();
 		if (0 != count) {
-			int index = new Random().nextInt(count);
+			final int index = new Random().nextInt(count);
 			crit = getSession().createCriteria(CreditBankImpl.class);
 			crit.add(Restrictions.eq("primaryCurrency", currency));
 			return (CreditBankImpl) crit.setFirstResult(index).setMaxResults(1)
 					.uniqueResult();
 		}
 		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<CreditBank> findAllByCurrency(final Currency currency) {
-		return (List<CreditBank>) getSession()
-				.createCriteria(CreditBankImpl.class)
-				.add(Restrictions.eq("primaryCurrency", currency)).list();
 	}
 }

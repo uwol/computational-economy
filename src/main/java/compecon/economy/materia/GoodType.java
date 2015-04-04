@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -21,13 +21,12 @@ package compecon.economy.materia;
 
 public enum GoodType {
 
-	LABOURHOUR(false, false, Sector.TERTIARY), IRON(false, false,
-			Sector.PRIMARY), COAL(false, false, Sector.PRIMARY), COTTON(false,
-			false, Sector.PRIMARY), WHEAT(false, false, Sector.PRIMARY), FOOD(
-			false, false, Sector.SECONDARY), CLOTHING(false, false,
-			Sector.SECONDARY), KILOWATT(false, false, Sector.SECONDARY), REALESTATE(
-			false, false, Sector.SECONDARY), MACHINE(false, true,
-			Sector.SECONDARY);
+	CLOTHING(false, false, Sector.SECONDARY), COAL(false, false, Sector.PRIMARY), COTTON(
+			false, false, Sector.PRIMARY), FOOD(false, false, Sector.SECONDARY), IRON(
+			false, false, Sector.PRIMARY), KILOWATT(false, false,
+			Sector.SECONDARY), LABOURHOUR(false, false, Sector.TERTIARY), MACHINE(
+			false, true, Sector.SECONDARY), REALESTATE(false, false,
+			Sector.SECONDARY), WHEAT(false, false, Sector.PRIMARY);
 
 	// CRAFT(false, false, Sector.TERTIARY), EDUCATION(false, false,
 	// Sector.TERTIARY),
@@ -58,17 +57,17 @@ public enum GoodType {
 	}
 
 	public Sector getSector() {
-		return this.sector;
+		return sector;
 	}
 
 	/**
 	 * @see #durable
 	 */
 	public boolean isDurable() {
-		return this.durable;
+		return durable;
 	}
 
 	public boolean isWholeNumber() {
-		return this.wholeNumber;
+		return wholeNumber;
 	}
 }

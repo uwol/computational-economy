@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -39,21 +39,21 @@ public class CobbDouglasUtilityFunctionTest extends CompEconTestSupport {
 		/*
 		 * prepare function
 		 */
-		Map<GoodType, Double> preferences = new HashMap<GoodType, Double>();
+		final Map<GoodType, Double> preferences = new HashMap<GoodType, Double>();
 		preferences.put(GoodType.KILOWATT, 0.4);
 		preferences.put(GoodType.WHEAT, 0.6);
-		CobbDouglasUtilityFunctionImpl cobbDouglasUtilityFunction = new CobbDouglasUtilityFunctionImpl(
+		final CobbDouglasUtilityFunctionImpl cobbDouglasUtilityFunction = new CobbDouglasUtilityFunctionImpl(
 				1.0, preferences);
 
 		/*
 		 * maximize output under budget restriction
 		 */
-		Map<GoodType, PriceFunction> prices = new HashMap<GoodType, PriceFunction>();
+		final Map<GoodType, PriceFunction> prices = new HashMap<GoodType, PriceFunction>();
 		prices.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
 		prices.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
-		double budget = 10.0;
+		final double budget = 10.0;
 
-		Map<GoodType, Double> optimalInputs = cobbDouglasUtilityFunction
+		final Map<GoodType, Double> optimalInputs = cobbDouglasUtilityFunction
 				.calculateUtilityMaximizingInputs(prices, budget);
 		assertEquals(4.0, optimalInputs.get(GoodType.KILOWATT), epsilon);
 		assertEquals(3.0, optimalInputs.get(GoodType.WHEAT), epsilon);

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -69,23 +69,52 @@ public abstract class PropertyImpl implements Property {
 	 * accessors
 	 */
 
-	public boolean isDeconstructed() {
-		return isDeconstructed;
+	@Transient
+	protected void assertValidOwner() {
+	}
+
+	@Override
+	@Transient
+	public void deconstruct() {
+		isDeconstructed = true;
+		ApplicationContext.getInstance().getPropertyService()
+				.deleteProperty(this);
 	}
 
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public PropertyOwner getOwner() {
 		return owner;
 	}
 
-	public void setDeconstructed(boolean isDeconstructed) {
+	@Override
+	@Transient
+	public void initialize() {
+	}
+
+	@Override
+	public boolean isDeconstructed() {
+		return isDeconstructed;
+	}
+
+	/*
+	 * business logic
+	 */
+
+	@Override
+	@Transient
+	public void resetOwner() {
+		owner = null;
+	}
+
+	public void setDeconstructed(final boolean isDeconstructed) {
 		this.isDeconstructed = isDeconstructed;
 	}
 
-	public void setId(int id) {
+	public void setId(final int id) {
 		this.id = id;
 	}
 
@@ -93,36 +122,13 @@ public abstract class PropertyImpl implements Property {
 	 * only to be called via
 	 * {@link PropertyDAO#transferProperty(AgentImpl, AgentImpl, Property)}
 	 */
-	public void setOwner(PropertyOwner owner) {
+	@Override
+	public void setOwner(final PropertyOwner owner) {
 		this.owner = owner;
-	}
-
-	/*
-	 * business logic
-	 */
-
-	@Transient
-	protected void assertValidOwner() {
-	}
-
-	@Transient
-	public void deconstruct() {
-		this.isDeconstructed = true;
-		ApplicationContext.getInstance().getPropertyService()
-				.deleteProperty(this);
-	}
-
-	@Transient
-	public void initialize() {
-	}
-
-	@Transient
-	public void resetOwner() {
-		this.owner = null;
 	}
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + ": owner=[" + this.owner + "]";
+		return this.getClass().getSimpleName() + ": owner=[" + owner + "]";
 	}
 }

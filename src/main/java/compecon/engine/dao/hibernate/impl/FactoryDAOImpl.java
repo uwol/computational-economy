@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -35,7 +35,7 @@ public class FactoryDAOImpl extends HibernateDAOImpl<Factory> implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Factory> findAllByCurrency(final Currency currency) {
-		return (List<Factory>) getSession().createCriteria(FactoryImpl.class)
+		return getSession().createCriteria(FactoryImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency)).list();
 	}
 
@@ -43,7 +43,7 @@ public class FactoryDAOImpl extends HibernateDAOImpl<Factory> implements
 	@Override
 	public List<Factory> findAllByCurrencyAndProducedGoodType(
 			final Currency currency, final GoodType producedGoodType) {
-		return (List<Factory>) getSession().createCriteria(FactoryImpl.class)
+		return getSession().createCriteria(FactoryImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency))
 				.add(Restrictions.eq("producedGoodType", producedGoodType))
 				.list();

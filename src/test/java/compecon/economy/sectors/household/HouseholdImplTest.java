@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -45,6 +45,7 @@ public class HouseholdImplTest extends CompEconTestSupport {
 		ApplicationContext.getInstance().getConfiguration().householdConfig.retirementSaving = false;
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
@@ -52,17 +53,17 @@ public class HouseholdImplTest extends CompEconTestSupport {
 
 	@Test
 	public void testDailyLifeEvent() {
-		Currency currency = Currency.EURO;
+		final Currency currency = Currency.EURO;
 
-		Household household1_EUR = ApplicationContext.getInstance()
+		final Household household1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(0);
-		Household household2_EUR = ApplicationContext.getInstance()
+		final Household household2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(1);
 
-		Factory factory1_EUR = ApplicationContext.getInstance()
+		final Factory factory1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency, GoodType.WHEAT)
 				.get(0);
-		Factory factory2_EUR = ApplicationContext.getInstance()
+		final Factory factory2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency, GoodType.COAL)
 				.get(0);
 
@@ -100,9 +101,9 @@ public class HouseholdImplTest extends CompEconTestSupport {
 						factory2_EUR.getBankAccountTransactionsDelegate(),
 						20.0, 1.0);
 
-		int currentAge = household1_EUR.getAgeInDays();
+		final int currentAge = household1_EUR.getAgeInDays();
 
-		for (TimeSystemEvent timeSystemEvent : household1_EUR
+		for (final TimeSystemEvent timeSystemEvent : household1_EUR
 				.getTimeSystemEvents()) {
 			if (timeSystemEvent instanceof HouseholdImpl.DailyLifeEvent) {
 				// household 1 buys goods from factories and consumes them

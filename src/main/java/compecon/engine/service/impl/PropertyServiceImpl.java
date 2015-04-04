@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -64,7 +64,7 @@ public class PropertyServiceImpl implements PropertyService {
 
 	@Override
 	public double decrementGoodTypeAmount(final PropertyOwner propertyOwner,
-			final GoodType goodType, double amount) {
+			final GoodType goodType, final double amount) {
 		assert (amount >= 0.0);
 
 		final GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
@@ -89,6 +89,19 @@ public class PropertyServiceImpl implements PropertyService {
 	}
 
 	@Override
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
+		return ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesIssuedByAgent(issuer);
+	}
+
+	@Override
+	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
+			final Class<? extends PropertyIssued> propertyClass) {
+		return ApplicationContext.getInstance().getPropertyDAO()
+				.findAllPropertiesIssuedByAgent(issuer, propertyClass);
+	}
+
+	@Override
 	public List<Property> findAllPropertiesOfPropertyOwner(
 			final PropertyOwner propertyOwner) {
 		return ApplicationContext.getInstance().getPropertyDAO()
@@ -104,23 +117,10 @@ public class PropertyServiceImpl implements PropertyService {
 	}
 
 	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
-		return ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(issuer);
-	}
-
-	@Override
-	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
-			final Class<? extends PropertyIssued> propertyClass) {
-		return ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(issuer, propertyClass);
-	}
-
-	@Override
 	public Map<GoodType, Double> getCapitalBalances(
 			final PropertyOwner propertyOwner) {
 		final Map<GoodType, Double> capital = new HashMap<GoodType, Double>();
-		for (Entry<GoodType, Double> entry : this.getGoodTypeBalances(
+		for (final Entry<GoodType, Double> entry : getGoodTypeBalances(
 				propertyOwner).entrySet()) {
 			if (entry.getKey().isDurable()) {
 				capital.put(entry.getKey(), entry.getValue());
@@ -152,7 +152,7 @@ public class PropertyServiceImpl implements PropertyService {
 
 	@Override
 	public double incrementGoodTypeAmount(final PropertyOwner propertyOwner,
-			final GoodType goodType, double amount) {
+			final GoodType goodType, final double amount) {
 		assert (amount >= 0.0);
 
 		final GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
@@ -176,11 +176,65 @@ public class PropertyServiceImpl implements PropertyService {
 	}
 
 	@Override
+	public void transferEverythingToRandomAgent(final PropertyOwner oldOwner) {
+		if (oldOwner == null) {
+			return;
+		}
+
+		// fetch a random new owner
+		Household newOwnerHousehold = null;
+		while ((newOwnerHousehold == null || oldOwner == newOwnerHousehold)
+				&& ApplicationContext.getInstance().getHouseholdDAO().findAll()
+						.size() > 1) {
+			newOwnerHousehold = ApplicationContext.getInstance()
+					.getHouseholdDAO().findRandom();
+		}
+
+		assert (newOwnerHousehold != oldOwner);
+		assert (newOwnerHousehold == null || !newOwnerHousehold
+				.isDeconstructed());
+
+		// transfer all goods
+		if (newOwnerHousehold != null) {
+			assureGoodTypeOwnership(newOwnerHousehold);
+
+			for (final GoodTypeOwnership goodTypeOwnership : ApplicationContext
+					.getInstance().getGoodTypeOwnershipDAO()
+					.findAllByPropertyOwner(oldOwner)) {
+				for (final Entry<GoodType, Double> entry : goodTypeOwnership
+						.getOwnedGoodTypes().entrySet()) {
+					if (!entry.getKey().equals(GoodType.LABOURHOUR)) {
+						transferGoodTypeAmount(entry.getKey(), oldOwner,
+								newOwnerHousehold, entry.getValue());
+					}
+				}
+			}
+		}
+
+		// transfer all properties, eventually to null property owner!
+		for (final Property property : ApplicationContext.getInstance()
+				.getPropertyDAO().findAllPropertiesOfPropertyOwner(oldOwner)) {
+			transferProperty(property, oldOwner, newOwnerHousehold);
+		}
+
+		// remove good type ownerships as they should have been zeroed
+		for (final GoodTypeOwnership goodTypeOwnership : ApplicationContext
+				.getInstance().getGoodTypeOwnershipDAO()
+				.findAllByPropertyOwner(oldOwner)) {
+			ApplicationContext.getInstance().getGoodTypeOwnershipFactory()
+					.deleteGoodTypeOwnership(goodTypeOwnership);
+		}
+
+		assert (ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
+				.findAllByPropertyOwner(oldOwner).size() == 0);
+	}
+
+	@Override
 	public void transferGoodTypeAmount(final GoodType goodType,
 			final PropertyOwner oldOwner, final PropertyOwner newOwner,
 			final double amount) {
-		this.decrementGoodTypeAmount(oldOwner, goodType, amount);
-		this.incrementGoodTypeAmount(newOwner, goodType, amount);
+		decrementGoodTypeAmount(oldOwner, goodType, amount);
+		incrementGoodTypeAmount(newOwner, goodType, amount);
 
 		HibernateUtil.flushSession();
 	}
@@ -204,58 +258,5 @@ public class PropertyServiceImpl implements PropertyService {
 		}
 
 		HibernateUtil.flushSession();
-	}
-
-	@Override
-	public void transferEverythingToRandomAgent(final PropertyOwner oldOwner) {
-		if (oldOwner == null)
-			return;
-
-		// fetch a random new owner
-		Household newOwnerHousehold = null;
-		while ((newOwnerHousehold == null || oldOwner == newOwnerHousehold)
-				&& ApplicationContext.getInstance().getHouseholdDAO().findAll()
-						.size() > 1) {
-			newOwnerHousehold = ApplicationContext.getInstance()
-					.getHouseholdDAO().findRandom();
-		}
-
-		assert (newOwnerHousehold != oldOwner);
-		assert (newOwnerHousehold == null || !newOwnerHousehold
-				.isDeconstructed());
-
-		// transfer all goods
-		if (newOwnerHousehold != null) {
-			assureGoodTypeOwnership(newOwnerHousehold);
-
-			for (GoodTypeOwnership goodTypeOwnership : ApplicationContext
-					.getInstance().getGoodTypeOwnershipDAO()
-					.findAllByPropertyOwner(oldOwner)) {
-				for (Entry<GoodType, Double> entry : goodTypeOwnership
-						.getOwnedGoodTypes().entrySet()) {
-					if (!entry.getKey().equals(GoodType.LABOURHOUR)) {
-						this.transferGoodTypeAmount(entry.getKey(), oldOwner,
-								newOwnerHousehold, entry.getValue());
-					}
-				}
-			}
-		}
-
-		// transfer all properties, eventually to null property owner!
-		for (Property property : ApplicationContext.getInstance()
-				.getPropertyDAO().findAllPropertiesOfPropertyOwner(oldOwner)) {
-			this.transferProperty(property, oldOwner, newOwnerHousehold);
-		}
-
-		// remove good type ownerships as they should have been zeroed
-		for (GoodTypeOwnership goodTypeOwnership : ApplicationContext
-				.getInstance().getGoodTypeOwnershipDAO()
-				.findAllByPropertyOwner(oldOwner)) {
-			ApplicationContext.getInstance().getGoodTypeOwnershipFactory()
-					.deleteGoodTypeOwnership(goodTypeOwnership);
-		}
-
-		assert (ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
-				.findAllByPropertyOwner(oldOwner).size() == 0);
 	}
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -39,6 +39,7 @@ public class AgentServiceTest extends CompEconTestSupport {
 		super.setUpTestAgents();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
@@ -46,7 +47,7 @@ public class AgentServiceTest extends CompEconTestSupport {
 
 	@Test
 	public void testGetAgentMethods() {
-		for (Currency currency : Currency.values()) {
+		for (final Currency currency : Currency.values()) {
 			// state
 			Assert.assertNotNull(ApplicationContext.getInstance()
 					.getAgentService().findState(currency));

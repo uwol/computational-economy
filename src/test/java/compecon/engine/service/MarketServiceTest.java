@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -46,31 +46,285 @@ import compecon.math.price.PriceFunction.PriceFunctionConfig;
 
 public class MarketServiceTest extends CompEconTestSupport {
 
+	private void assertValidPriceFunctionConfig(
+			final PriceFunction marketPriceFunction, final double maxBudget,
+			final int numberOfOffers) {
+		final PriceFunctionConfig[] priceFunctionConfigs = marketPriceFunction
+				.getAnalyticalPriceFunctionParameters(maxBudget);
+		assertEquals(numberOfOffers, priceFunctionConfigs.length);
+
+		// check intervals
+		double lastPriceAtIntervalRightBoundary = 0.0;
+		for (final PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs) {
+			// check interval boundaries
+			assertNotEquals(priceFunctionConfig.intervalLeftBoundary,
+					priceFunctionConfig.intervalRightBoundary, epsilon);
+
+			final double intervalMiddle = priceFunctionConfig.intervalRightBoundary
+					- ((priceFunctionConfig.intervalRightBoundary - priceFunctionConfig.intervalLeftBoundary) / 2.0);
+
+			// calculate analytical prices
+			final double priceAtIntervalRightBoundary = priceFunctionConfig.coefficientXPower0
+					+ priceFunctionConfig.coefficientXPowerMinus1
+					/ priceFunctionConfig.intervalRightBoundary;
+			final double priceAtIntervalMiddle = priceFunctionConfig.coefficientXPower0
+					+ priceFunctionConfig.coefficientXPowerMinus1
+					/ intervalMiddle;
+
+			// compare analytical prices with prices from market price function
+			assertEquals(priceAtIntervalMiddle,
+					marketPriceFunction.getPrice(intervalMiddle), epsilon);
+			assertEquals(
+					priceAtIntervalRightBoundary,
+					marketPriceFunction
+							.getPrice(priceFunctionConfig.intervalRightBoundary),
+					epsilon);
+
+			if (priceFunctionConfig.intervalLeftBoundary > 0.0) {
+				final double priceAtIntervalLeftBoundary = priceFunctionConfig.coefficientXPower0
+						+ priceFunctionConfig.coefficientXPowerMinus1
+						/ priceFunctionConfig.intervalLeftBoundary;
+
+				// assert that the analytical price function does not have
+				// discontinuities
+				assertEquals(lastPriceAtIntervalRightBoundary,
+						priceAtIntervalLeftBoundary, epsilon);
+
+				// assert that the analytical price function is continuous
+				assertTrue(priceAtIntervalLeftBoundary < priceAtIntervalMiddle);
+				assertTrue(priceAtIntervalMiddle < priceAtIntervalRightBoundary);
+
+				assertEquals(
+						priceAtIntervalLeftBoundary,
+						marketPriceFunction
+								.getPrice(priceFunctionConfig.intervalLeftBoundary),
+						epsilon);
+			}
+
+			// store the current right interval boundary as the new left
+			// interval boundary for the next step of the step price function
+			lastPriceAtIntervalRightBoundary = priceAtIntervalRightBoundary;
+		}
+	}
+
 	@Before
 	public void setup() throws IOException {
 		super.setUpApplicationContext(testConfigurationPropertiesFilename);
 		super.setUpTestAgents();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
 	}
 
 	@Test
+	public void testCalculateMarketPriceFunction() {
+		final Currency currency = Currency.EURO;
+		final GoodType goodType = GoodType.LABOURHOUR;
+
+		final Household household1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(0);
+		final Household household2_EUR = ApplicationContext.getInstance()
+				.getAgentService().findHouseholds(currency).get(1);
+
+		assertEquals(Double.NaN, ApplicationContext.getInstance()
+				.getMarketService().getMarginalMarketPrice(currency, goodType),
+				epsilon);
+
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(goodType, household1_EUR,
+						household1_EUR.getBankAccountTransactionsDelegate(),
+						10, 5);
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(goodType, household2_EUR,
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						10, 4);
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(goodType, household2_EUR,
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						10, 6);
+
+		assertValidPriceFunctionConfig(ApplicationContext.getInstance()
+				.getMarketService().getMarketPriceFunction(currency, goodType),
+				150.0, 3);
+
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(goodType, household2_EUR,
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						100, 2);
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(goodType, household2_EUR,
+						household2_EUR.getBankAccountTransactionsDelegate(),
+						20, 20);
+
+		assertValidPriceFunctionConfig(ApplicationContext.getInstance()
+				.getMarketService().getMarketPriceFunction(currency, goodType),
+				1500.0, 5);
+	}
+
+	@Test
+	public void testOfferCurrency() {
+		final Currency currency = Currency.EURO;
+		final Currency commodityCurrency = Currency.USDOLLAR;
+
+		final CreditBank creditBank1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findCreditBanks(currency).get(0);
+		final CreditBank creditBank2_EUR = ApplicationContext.getInstance()
+				.getAgentService().findCreditBanks(currency).get(1);
+		final Trader trader1_EUR = ApplicationContext.getInstance()
+				.getAgentService().findTraders(currency).get(0);
+
+		// check marginal price
+		assertEquals(Double.NaN,
+				ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(currency, commodityCurrency),
+				epsilon);
+
+		// offer currency
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(
+						commodityCurrency,
+						creditBank1_EUR,
+						creditBank1_EUR.getBankAccountTransactionsDelegate(),
+						10,
+						2,
+						creditBank1_EUR
+								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
+
+		// offer currency
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(
+						commodityCurrency,
+						creditBank2_EUR,
+						creditBank2_EUR.getBankAccountTransactionsDelegate(),
+						10,
+						3,
+						creditBank2_EUR
+								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
+
+		// check marginal price
+		assertEquals(2.0, ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
+
+		// remove all offers of credit bank 1
+		ApplicationContext.getInstance().getMarketService()
+				.removeAllSellingOffers(creditBank1_EUR);
+
+		// check marginal price
+		assertEquals(3, ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
+
+		// offer currency
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(
+						commodityCurrency,
+						creditBank1_EUR,
+						creditBank1_EUR.getBankAccountTransactionsDelegate(),
+						10,
+						1,
+						creditBank1_EUR
+								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
+
+		// check marginal price
+		assertEquals(1.0, ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
+
+		// remove all offers of credit bank 1
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.removeAllSellingOffers(creditBank1_EUR, currency,
+						commodityCurrency);
+
+		// check marginal price
+		assertEquals(3.0, ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
+
+		// offer curency
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.placeSellingOffer(
+						commodityCurrency,
+						creditBank1_EUR,
+						creditBank1_EUR.getBankAccountTransactionsDelegate(),
+						10,
+						1,
+						creditBank1_EUR
+								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
+
+		// check marginal price
+		assertEquals(1.0, ApplicationContext.getInstance().getMarketService()
+				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
+
+		// find best fulfillment set
+		final SortedMap<MarketOrder, Double> marketOffers1 = ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.findBestFulfillmentSet(currency, 20, Double.NaN, 1,
+						commodityCurrency);
+		assertEquals(1, marketOffers1.size());
+
+		final SortedMap<MarketOrder, Double> marketOffers2 = ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.findBestFulfillmentSet(currency, 20, Double.NaN, 5,
+						commodityCurrency);
+		assertEquals(2, marketOffers2.size());
+
+		// buy
+		ApplicationContext
+				.getInstance()
+				.getMarketService()
+				.buy(commodityCurrency,
+						5,
+						Double.NaN,
+						8,
+						trader1_EUR,
+						trader1_EUR.getBankAccountTransactionsDelegate(),
+						trader1_EUR
+								.getBankAccountGoodsTradeDelegate(commodityCurrency));
+
+		// check transaction
+		assertEquals(-5.0, trader1_EUR.getBankAccountTransactionsDelegate()
+				.getBankAccount().getBalance(), epsilon);
+		assertEquals(5.0,
+				trader1_EUR.getBankAccountGoodsTradeDelegate(commodityCurrency)
+						.getBankAccount().getBalance(), epsilon);
+	}
+
+	@Test
 	public void testOfferGoodType() {
 		// test market for good type
-		Currency currency = Currency.EURO;
-		GoodType goodType = GoodType.LABOURHOUR;
+		final Currency currency = Currency.EURO;
+		final GoodType goodType = GoodType.LABOURHOUR;
 
-		Household household1_EUR = ApplicationContext.getInstance()
+		final Household household1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(0);
-		Household household2_EUR = ApplicationContext.getInstance()
+		final Household household2_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(1);
-		Factory factory1_WHEAT_EUR = ApplicationContext.getInstance()
+		final Factory factory1_WHEAT_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency).get(0);
 
-		MarketPriceFunction marketPriceFunction = ApplicationContext
+		final MarketPriceFunction marketPriceFunction = ApplicationContext
 				.getInstance().getMarketService()
 				.getMarketPriceFunction(currency, goodType);
 
@@ -173,12 +427,12 @@ public class MarketServiceTest extends CompEconTestSupport {
 				.getMarginalMarketPrice(currency, goodType), epsilon);
 
 		// find best fulfillment sets
-		SortedMap<MarketOrder, Double> marketOffers1 = ApplicationContext
+		final SortedMap<MarketOrder, Double> marketOffers1 = ApplicationContext
 				.getInstance().getMarketService()
 				.findBestFulfillmentSet(currency, 20, Double.NaN, 3, goodType);
 		assertEquals(1, marketOffers1.size());
 
-		SortedMap<MarketOrder, Double> marketOffers2 = ApplicationContext
+		final SortedMap<MarketOrder, Double> marketOffers2 = ApplicationContext
 				.getInstance().getMarketService()
 				.findBestFulfillmentSet(currency, 20, Double.NaN, 5, goodType);
 		assertEquals(2, marketOffers2.size());
@@ -200,11 +454,11 @@ public class MarketServiceTest extends CompEconTestSupport {
 
 	@Test
 	public void testOfferProperty() {
-		Currency currency = Currency.EURO;
+		final Currency currency = Currency.EURO;
 
-		Household household1_EUR = ApplicationContext.getInstance()
+		final Household household1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findHouseholds(currency).get(0);
-		Factory factory1_WHEAT_EUR = ApplicationContext.getInstance()
+		final Factory factory1_WHEAT_EUR = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency).get(0);
 
 		// check marginal price
@@ -256,258 +510,5 @@ public class MarketServiceTest extends CompEconTestSupport {
 		assertEquals(Double.NaN,
 				ApplicationContext.getInstance().getMarketService()
 						.getMarginalMarketPrice(currency, Share.class), epsilon);
-	}
-
-	@Test
-	public void testOfferCurrency() {
-		Currency currency = Currency.EURO;
-		Currency commodityCurrency = Currency.USDOLLAR;
-
-		CreditBank creditBank1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findCreditBanks(currency).get(0);
-		CreditBank creditBank2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findCreditBanks(currency).get(1);
-		Trader trader1_EUR = ApplicationContext.getInstance().getAgentService()
-				.findTraders(currency).get(0);
-
-		// check marginal price
-		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, commodityCurrency),
-				epsilon);
-
-		// offer currency
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(
-						commodityCurrency,
-						creditBank1_EUR,
-						creditBank1_EUR.getBankAccountTransactionsDelegate(),
-						10,
-						2,
-						creditBank1_EUR
-								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
-
-		// offer currency
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(
-						commodityCurrency,
-						creditBank2_EUR,
-						creditBank2_EUR.getBankAccountTransactionsDelegate(),
-						10,
-						3,
-						creditBank2_EUR
-								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
-
-		// check marginal price
-		assertEquals(2.0, ApplicationContext.getInstance().getMarketService()
-				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
-
-		// remove all offers of credit bank 1
-		ApplicationContext.getInstance().getMarketService()
-				.removeAllSellingOffers(creditBank1_EUR);
-
-		// check marginal price
-		assertEquals(3, ApplicationContext.getInstance().getMarketService()
-				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
-
-		// offer currency
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(
-						commodityCurrency,
-						creditBank1_EUR,
-						creditBank1_EUR.getBankAccountTransactionsDelegate(),
-						10,
-						1,
-						creditBank1_EUR
-								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
-
-		// check marginal price
-		assertEquals(1.0, ApplicationContext.getInstance().getMarketService()
-				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
-
-		// remove all offers of credit bank 1
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.removeAllSellingOffers(creditBank1_EUR, currency,
-						commodityCurrency);
-
-		// check marginal price
-		assertEquals(3.0, ApplicationContext.getInstance().getMarketService()
-				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
-
-		// offer curency
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(
-						commodityCurrency,
-						creditBank1_EUR,
-						creditBank1_EUR.getBankAccountTransactionsDelegate(),
-						10,
-						1,
-						creditBank1_EUR
-								.getBankAccountCurrencyTradeDelegate(commodityCurrency));
-
-		// check marginal price
-		assertEquals(1.0, ApplicationContext.getInstance().getMarketService()
-				.getMarginalMarketPrice(currency, commodityCurrency), epsilon);
-
-		// find best fulfillment set
-		SortedMap<MarketOrder, Double> marketOffers1 = ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.findBestFulfillmentSet(currency, 20, Double.NaN, 1,
-						commodityCurrency);
-		assertEquals(1, marketOffers1.size());
-
-		SortedMap<MarketOrder, Double> marketOffers2 = ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.findBestFulfillmentSet(currency, 20, Double.NaN, 5,
-						commodityCurrency);
-		assertEquals(2, marketOffers2.size());
-
-		// buy
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.buy(commodityCurrency,
-						5,
-						Double.NaN,
-						8,
-						trader1_EUR,
-						trader1_EUR.getBankAccountTransactionsDelegate(),
-						trader1_EUR
-								.getBankAccountGoodsTradeDelegate(commodityCurrency));
-
-		// check transaction
-		assertEquals(-5.0, trader1_EUR.getBankAccountTransactionsDelegate()
-				.getBankAccount().getBalance(), epsilon);
-		assertEquals(5.0,
-				trader1_EUR.getBankAccountGoodsTradeDelegate(commodityCurrency)
-						.getBankAccount().getBalance(), epsilon);
-	}
-
-	@Test
-	public void testCalculateMarketPriceFunction() {
-		Currency currency = Currency.EURO;
-		GoodType goodType = GoodType.LABOURHOUR;
-
-		Household household1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(0);
-		Household household2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(1);
-
-		assertEquals(Double.NaN, ApplicationContext.getInstance()
-				.getMarketService().getMarginalMarketPrice(currency, goodType),
-				epsilon);
-
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(goodType, household1_EUR,
-						household1_EUR.getBankAccountTransactionsDelegate(),
-						10, 5);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(goodType, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						10, 4);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(goodType, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						10, 6);
-
-		assertValidPriceFunctionConfig(ApplicationContext.getInstance()
-				.getMarketService().getMarketPriceFunction(currency, goodType),
-				150.0, 3);
-
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(goodType, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						100, 2);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(goodType, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						20, 20);
-
-		assertValidPriceFunctionConfig(ApplicationContext.getInstance()
-				.getMarketService().getMarketPriceFunction(currency, goodType),
-				1500.0, 5);
-	}
-
-	private void assertValidPriceFunctionConfig(
-			PriceFunction marketPriceFunction, double maxBudget,
-			int numberOfOffers) {
-		PriceFunctionConfig[] priceFunctionConfigs = marketPriceFunction
-				.getAnalyticalPriceFunctionParameters(maxBudget);
-		assertEquals(numberOfOffers, priceFunctionConfigs.length);
-
-		// check intervals
-		double lastPriceAtIntervalRightBoundary = 0.0;
-		for (PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs) {
-			// check interval boundaries
-			assertNotEquals(priceFunctionConfig.intervalLeftBoundary,
-					priceFunctionConfig.intervalRightBoundary, epsilon);
-
-			double intervalMiddle = priceFunctionConfig.intervalRightBoundary
-					- ((priceFunctionConfig.intervalRightBoundary - priceFunctionConfig.intervalLeftBoundary) / 2.0);
-
-			// calculate analytical prices
-			double priceAtIntervalRightBoundary = priceFunctionConfig.coefficientXPower0
-					+ priceFunctionConfig.coefficientXPowerMinus1
-					/ priceFunctionConfig.intervalRightBoundary;
-			double priceAtIntervalMiddle = priceFunctionConfig.coefficientXPower0
-					+ priceFunctionConfig.coefficientXPowerMinus1
-					/ intervalMiddle;
-
-			// compare analytical prices with prices from market price function
-			assertEquals(priceAtIntervalMiddle,
-					marketPriceFunction.getPrice(intervalMiddle), epsilon);
-			assertEquals(
-					priceAtIntervalRightBoundary,
-					marketPriceFunction
-							.getPrice(priceFunctionConfig.intervalRightBoundary),
-					epsilon);
-
-			if (priceFunctionConfig.intervalLeftBoundary > 0.0) {
-				double priceAtIntervalLeftBoundary = priceFunctionConfig.coefficientXPower0
-						+ priceFunctionConfig.coefficientXPowerMinus1
-						/ priceFunctionConfig.intervalLeftBoundary;
-
-				// assert that the analytical price function does not have
-				// discontinuities
-				assertEquals(lastPriceAtIntervalRightBoundary,
-						priceAtIntervalLeftBoundary, epsilon);
-
-				// assert that the analytical price function is continuous
-				assertTrue(priceAtIntervalLeftBoundary < priceAtIntervalMiddle);
-				assertTrue(priceAtIntervalMiddle < priceAtIntervalRightBoundary);
-
-				assertEquals(
-						priceAtIntervalLeftBoundary,
-						marketPriceFunction
-								.getPrice(priceFunctionConfig.intervalLeftBoundary),
-						epsilon);
-			}
-
-			// store the current right interval boundary as the new left
-			// interval boundary for the next step of the step price function
-			lastPriceAtIntervalRightBoundary = priceAtIntervalRightBoundary;
-		}
 	}
 }

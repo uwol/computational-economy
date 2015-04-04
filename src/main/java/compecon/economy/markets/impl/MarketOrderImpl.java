@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -56,10 +56,21 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	@Column(name = "amount")
 	protected double amount;
 
+	@Column(name = "commodityCurrency")
+	@Enumerated(EnumType.STRING)
+	protected Currency commodityCurrency;
+
+	@Transient
+	protected BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "currency")
 	@Index(name = "IDX_MO_CURRENCY")
 	protected Currency currency;
+
+	@Column
+	@Enumerated(EnumType.STRING)
+	protected GoodType goodType;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
@@ -69,192 +80,200 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	@JoinColumn(name = "offeror_id")
 	protected MarketParticipant offeror;
 
+	// market offer type 1: market offer for good type
+
 	@Transient
 	protected BankAccountDelegate offerorsBankAcountDelegate;
 
-	@Column(name = "pricePerUnit")
-	protected double pricePerUnit;
-
-	@Column
-	@Enumerated(EnumType.STRING)
-	protected ValidityPeriod validityPeriod;
-
-	// market offer type 1: market offer for good type
-
-	@Column
-	@Enumerated(EnumType.STRING)
-	protected GoodType goodType;
-
 	// market offer type 2: market offer for currency / money
 
-	@Column(name = "commodityCurrency")
-	@Enumerated(EnumType.STRING)
-	protected Currency commodityCurrency;
-
-	@Transient
-	protected BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate;
-
-	// market offer type 3: market offer for property (e.g. shares)
+	@Column(name = "pricePerUnit")
+	protected double pricePerUnit;
 
 	@ManyToOne(targetEntity = PropertyImpl.class)
 	@Index(name = "IDX_MO_PROPERTY")
 	@JoinColumn(name = "property_id")
 	protected Property property;
 
+	// market offer type 3: market offer for property (e.g. shares)
+
+	@Column
+	@Enumerated(EnumType.STRING)
+	protected ValidityPeriod validityPeriod;
+
 	// accessors
 
+	@Override
+	@Transient
+	public int compareTo(final MarketOrder marketOrder) {
+		if (this == marketOrder) {
+			return 0;
+		}
+		if (getPricePerUnit() > marketOrder.getPricePerUnit()) {
+			return 1;
+		}
+		if (getPricePerUnit() < marketOrder.getPricePerUnit()) {
+			return -1;
+		}
+		// important, so that two market offers with same price can exists
+		return hashCode() - marketOrder.hashCode();
+	}
+
+	@Override
+	@Transient
+	public void decrementAmount(final double amount) {
+		this.amount -= amount;
+	}
+
+	@Override
 	public double getAmount() {
 		return amount;
 	}
 
-	public Currency getCurrency() {
-		return this.currency;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public MarketParticipant getOfferor() {
-		return offeror;
+	@Override
+	@Transient
+	public Object getCommodity() {
+		if (CommodityType.CURRENCY.equals(getCommodityType())) {
+			return commodityCurrency;
+		}
+		if (CommodityType.PROPERTY.equals(getCommodityType())) {
+			return property;
+		}
+		return goodType;
 	}
 
 	/**
 	 * the currency to be traded as the commodity; not the currency of the
 	 * offeror's bank account!
 	 */
+	@Override
 	public Currency getCommodityCurrency() {
 		return commodityCurrency;
 	}
 
+	@Override
 	@Transient
 	public BankAccountDelegate getCommodityCurrencyOfferorsBankAccountDelegate() {
-		return this.commodityCurrencyOfferorsBankAcountDelegate;
+		return commodityCurrencyOfferorsBankAcountDelegate;
 	}
 
+	@Override
+	@Transient
+	public CommodityType getCommodityType() {
+		if (commodityCurrency != null) {
+			return CommodityType.CURRENCY;
+		}
+		if (property != null) {
+			return CommodityType.PROPERTY;
+		}
+		return CommodityType.GOODTYPE;
+	}
+
+	@Override
+	public Currency getCurrency() {
+		return currency;
+	}
+
+	@Override
 	public GoodType getGoodType() {
 		return goodType;
 	}
 
+	public int getId() {
+		return id;
+	}
+
+	@Override
+	public MarketParticipant getOfferor() {
+		return offeror;
+	}
+
+	@Override
 	@Transient
 	public BankAccountDelegate getOfferorsBankAcountDelegate() {
 		return offerorsBankAcountDelegate;
 	}
 
+	@Override
 	public double getPricePerUnit() {
 		return pricePerUnit;
 	}
 
+	@Transient
+	public double getPriceTotal() {
+		return pricePerUnit * getAmount();
+	}
+
+	@Override
 	public Property getProperty() {
 		return property;
 	}
 
+	@Override
 	public ValidityPeriod getValidityPeriod() {
 		return validityPeriod;
 	}
 
-	public void setAmount(double amount) {
+	public void setAmount(final double amount) {
 		this.amount = amount;
+	}
+
+	/**
+	 * @see #getCommodityCurrency()
+	 */
+	public void setCommodityCurrency(final Currency currency) {
+		commodityCurrency = currency;
+	}
+
+	@Transient
+	public void setCommodityCurrencyOfferorsBankAccountDelegate(
+			final BankAccountDelegate bankAccountDelegate) {
+		commodityCurrencyOfferorsBankAcountDelegate = bankAccountDelegate;
 	}
 
 	public void setCurrency(final Currency currency) {
 		this.currency = currency;
 	}
 
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public void setGoodType(GoodType goodType) {
+	public void setGoodType(final GoodType goodType) {
 		this.goodType = goodType;
 	}
 
-	public void setOfferor(MarketParticipant offeror) {
-		this.offeror = offeror;
-	}
-
-	/**
-	 * @see #getCommodityCurrency()
-	 */
-	public void setCommodityCurrency(Currency currency) {
-		this.commodityCurrency = currency;
-	}
-
-	@Transient
-	public void setCommodityCurrencyOfferorsBankAccountDelegate(
-			BankAccountDelegate bankAccountDelegate) {
-		this.commodityCurrencyOfferorsBankAcountDelegate = bankAccountDelegate;
-	}
-
-	@Transient
-	public void setOfferorsBankAcountDelegate(
-			BankAccountDelegate offerorsBankAcountDelegate) {
-		this.offerorsBankAcountDelegate = offerorsBankAcountDelegate;
-	}
-
-	public void setPricePerUnit(double pricePerUnit) {
-		this.pricePerUnit = pricePerUnit;
-	}
-
-	public void setProperty(Property property) {
-		this.property = property;
-	}
-
-	public void setValidityPeriod(ValidityPeriod validityPeriod) {
-		this.validityPeriod = validityPeriod;
+	public void setId(final int id) {
+		this.id = id;
 	}
 
 	/*
 	 * business logic
 	 */
 
-	@Override
-	@Transient
-	public int compareTo(MarketOrder marketOrder) {
-		if (this == marketOrder)
-			return 0;
-		if (this.getPricePerUnit() > marketOrder.getPricePerUnit())
-			return 1;
-		if (this.getPricePerUnit() < marketOrder.getPricePerUnit())
-			return -1;
-		// important, so that two market offers with same price can exists
-		return this.hashCode() - marketOrder.hashCode();
+	public void setOfferor(final MarketParticipant offeror) {
+		this.offeror = offeror;
 	}
 
 	@Transient
-	public double getPriceTotal() {
-		return this.pricePerUnit * this.getAmount();
+	public void setOfferorsBankAcountDelegate(
+			final BankAccountDelegate offerorsBankAcountDelegate) {
+		this.offerorsBankAcountDelegate = offerorsBankAcountDelegate;
 	}
 
-	@Transient
-	public void decrementAmount(double amount) {
-		this.amount -= amount;
+	public void setPricePerUnit(final double pricePerUnit) {
+		this.pricePerUnit = pricePerUnit;
 	}
 
-	@Transient
-	public CommodityType getCommodityType() {
-		if (this.commodityCurrency != null)
-			return CommodityType.CURRENCY;
-		if (this.property != null)
-			return CommodityType.PROPERTY;
-		return CommodityType.GOODTYPE;
+	public void setProperty(final Property property) {
+		this.property = property;
 	}
 
-	@Transient
-	public Object getCommodity() {
-		if (CommodityType.CURRENCY.equals(getCommodityType()))
-			return this.commodityCurrency;
-		if (CommodityType.PROPERTY.equals(getCommodityType()))
-			return this.property;
-		return this.goodType;
+	public void setValidityPeriod(final ValidityPeriod validityPeriod) {
+		this.validityPeriod = validityPeriod;
 	}
 
 	@Override
 	public String toString() {
-		return "id=[" + this.id + "], currency=[" + this.currency
-				+ "], amount=[" + this.amount + "], pricePerUnit=["
-				+ this.pricePerUnit + "], goodType=[" + this.goodType
-				+ "], commodityCurrency=[" + this.commodityCurrency
-				+ "], property=[" + this.property + "]";
+		return "id=[" + id + "], currency=[" + currency + "], amount=["
+				+ amount + "], pricePerUnit=[" + pricePerUnit + "], goodType=["
+				+ goodType + "], commodityCurrency=[" + commodityCurrency
+				+ "], property=[" + property + "]";
 	}
 }

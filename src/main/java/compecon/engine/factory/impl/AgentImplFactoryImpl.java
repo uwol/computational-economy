@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -49,19 +49,19 @@ public class AgentImplFactoryImpl implements AgentFactory {
 	protected final List<Class<? extends Agent>> agentTypes = new ArrayList<Class<? extends Agent>>();
 
 	public AgentImplFactoryImpl() {
-		this.agentTypes.add(HouseholdImpl.class);
-		this.agentTypes.add(CreditBankImpl.class);
-		this.agentTypes.add(CentralBankImpl.class);
-		this.agentTypes.add(StateImpl.class);
-		this.agentTypes.add(FactoryImpl.class);
-		this.agentTypes.add(TraderImpl.class);
+		agentTypes.add(HouseholdImpl.class);
+		agentTypes.add(CreditBankImpl.class);
+		agentTypes.add(CentralBankImpl.class);
+		agentTypes.add(StateImpl.class);
+		agentTypes.add(FactoryImpl.class);
+		agentTypes.add(TraderImpl.class);
 	}
 
 	@Override
 	public void constructAgentsFromConfiguration() {
 		final Random random = new Random();
 
-		for (Currency currency : Currency.values()) {
+		for (final Currency currency : Currency.values()) {
 			if (ApplicationContext.getInstance().getConfiguration().stateConfig
 					.getNumber(currency) == 1) {
 				// initialize states
@@ -70,7 +70,7 @@ public class AgentImplFactoryImpl implements AgentFactory {
 			}
 		}
 
-		for (Currency currency : Currency.values()) {
+		for (final Currency currency : Currency.values()) {
 			if (ApplicationContext.getInstance().getConfiguration().centralBankConfig
 					.getNumber(currency) == 1) {
 				// initialize central banks
@@ -79,8 +79,8 @@ public class AgentImplFactoryImpl implements AgentFactory {
 			}
 		}
 
-		for (Currency currency : Currency.values()) {
-			Set<Currency> offeredCurrencies = new HashSet<Currency>();
+		for (final Currency currency : Currency.values()) {
+			final Set<Currency> offeredCurrencies = new HashSet<Currency>();
 			offeredCurrencies.add(currency);
 
 			// initialize credit banks
@@ -91,9 +91,9 @@ public class AgentImplFactoryImpl implements AgentFactory {
 			}
 		}
 
-		for (Currency currency : Currency.values()) {
+		for (final Currency currency : Currency.values()) {
 			// initialize factories
-			for (GoodType goodType : GoodType.values()) {
+			for (final GoodType goodType : GoodType.values()) {
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
 					for (int i = 0; i < ApplicationContext.getInstance()
 							.getConfiguration().factoryConfig.getNumber(
@@ -105,7 +105,7 @@ public class AgentImplFactoryImpl implements AgentFactory {
 			}
 		}
 
-		for (Currency currency : Currency.values()) {
+		for (final Currency currency : Currency.values()) {
 			// initialize traders
 			for (int i = 0; i < ApplicationContext.getInstance()
 					.getConfiguration().traderConfig.getNumber(currency); i++) {
@@ -114,16 +114,15 @@ public class AgentImplFactoryImpl implements AgentFactory {
 			}
 		}
 
-		for (Currency currency : Currency.values()) {
+		for (final Currency currency : Currency.values()) {
 			// initialize households
 			for (int i = 0; i < ApplicationContext.getInstance()
 					.getConfiguration().householdConfig.getNumber(currency); i++) {
 				// division, so that households have time left until
 				// retirement
-				int ageInDays = random
-						.nextInt(ApplicationContext.getInstance()
-								.getConfiguration().householdConfig
-								.getLifespanInDays()) / 2;
+				final int ageInDays = random.nextInt(ApplicationContext
+						.getInstance().getConfiguration().householdConfig
+						.getLifespanInDays()) / 2;
 				ApplicationContext.getInstance().getHouseholdFactory()
 						.newInstanceHousehold(currency, ageInDays);
 			}
@@ -134,32 +133,32 @@ public class AgentImplFactoryImpl implements AgentFactory {
 
 	@Override
 	public void deconstructAgents() {
-		for (Household household : ApplicationContext.getInstance()
+		for (final Household household : ApplicationContext.getInstance()
 				.getHouseholdDAO().findAll()) {
 			household.deconstruct();
 		}
 
-		for (Trader trader : ApplicationContext.getInstance().getTraderDAO()
-				.findAll()) {
+		for (final Trader trader : ApplicationContext.getInstance()
+				.getTraderDAO().findAll()) {
 			trader.deconstruct();
 		}
 
-		for (Factory factory : ApplicationContext.getInstance().getFactoryDAO()
-				.findAll()) {
+		for (final Factory factory : ApplicationContext.getInstance()
+				.getFactoryDAO().findAll()) {
 			factory.deconstruct();
 		}
 
-		for (CreditBank creditBank : ApplicationContext.getInstance()
+		for (final CreditBank creditBank : ApplicationContext.getInstance()
 				.getCreditBankDAO().findAll()) {
 			creditBank.deconstruct();
 		}
 
-		for (CentralBank centralBank : ApplicationContext.getInstance()
+		for (final CentralBank centralBank : ApplicationContext.getInstance()
 				.getCentralBankDAO().findAll()) {
 			centralBank.deconstruct();
 		}
 
-		for (State state : ApplicationContext.getInstance().getStateDAO()
+		for (final State state : ApplicationContext.getInstance().getStateDAO()
 				.findAll()) {
 			state.deconstruct();
 		}
@@ -167,6 +166,6 @@ public class AgentImplFactoryImpl implements AgentFactory {
 
 	@Override
 	public List<Class<? extends Agent>> getAgentTypes() {
-		return this.agentTypes;
+		return agentTypes;
 	}
 }

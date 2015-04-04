@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@ public interface MarketService {
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
-			final GoodType goodType);
+			final Class<? extends Property> propertyClass);
 
 	/**
 	 * @return A map of {@link MarketOrder}s conjoint with the amount to take
@@ -58,27 +58,24 @@ public interface MarketService {
 	public SortedMap<MarketOrder, Double> findBestFulfillmentSet(
 			final Currency denominatedInCurrency, final double maxAmount,
 			final double maxTotalPrice, final double maxPricePerUnit,
+			final GoodType goodType);
+
+	public PriceFunction getFixedPriceFunction(
+			final Currency denominatedInCurrency,
 			final Class<? extends Property> propertyClass);
+
+	public PriceFunction getFixedPriceFunction(
+			final Currency denominatedInCurrency,
+			final Currency commodityCurrency);
 
 	public PriceFunction getFixedPriceFunction(
 			final Currency denominatedInCurrency, final GoodType goodType);
-
-	public PriceFunction getFixedPriceFunction(
-			final Currency denominatedInCurrency,
-			final Currency commodityCurrency);
-
-	public PriceFunction getFixedPriceFunction(
-			final Currency denominatedInCurrency,
-			final Class<? extends Property> propertyClass);
 
 	public Map<GoodType, PriceFunction> getFixedPriceFunctions(
 			final Currency denominatedInCurrency, final Set<GoodType> goodTypes);
 
 	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
-			final GoodType goodType);
-
-	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
-			final GoodType goodType, final double atAmount);
+			final Class<? extends Property> propertyClass);
 
 	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
 			final Currency commodityCurrency);
@@ -87,23 +84,19 @@ public interface MarketService {
 			final Currency commodityCurrency, final double atAmount);
 
 	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
-			final Class<? extends Property> propertyClass);
+			final GoodType goodType);
+
+	public double getMarginalMarketPrice(final Currency denominatedInCurrency,
+			final GoodType goodType, final double atAmount);
+
+	public Map<GoodType, Double> getMarginalMarketPrices(
+			final Currency denominatedInCurrency);
 
 	public Map<GoodType, Double> getMarginalMarketPrices(
 			final Currency denominatedInCurrency, final GoodType[] goodTypes);
 
 	public Map<GoodType, Double> getMarginalMarketPrices(
 			final Currency denominatedInCurrency, final Set<GoodType> goodTypes);
-
-	public Map<GoodType, Double> getMarginalMarketPrices(
-			final Currency denominatedInCurrency);
-
-	/**
-	 * returns the market depth of the given good type on the market for the
-	 * given currency, i. e. the total amount available on that market.
-	 */
-	public double getMarketDepth(final Currency denominatedInCurrency,
-			final GoodType goodType);
 
 	/**
 	 * returns the market depth of the given commodity currency on the market
@@ -112,12 +105,19 @@ public interface MarketService {
 	public double getMarketDepth(final Currency denominatedInCurrency,
 			final Currency commodityCurrency);
 
-	public MarketPriceFunction getMarketPriceFunction(
-			final Currency denominatedInCurrency, final GoodType goodType);
+	/**
+	 * returns the market depth of the given good type on the market for the
+	 * given currency, i. e. the total amount available on that market.
+	 */
+	public double getMarketDepth(final Currency denominatedInCurrency,
+			final GoodType goodType);
 
 	public MarketPriceFunction getMarketPriceFunction(
 			final Currency denominatedInCurrency,
 			final Currency commodityCurrency);
+
+	public MarketPriceFunction getMarketPriceFunction(
+			final Currency denominatedInCurrency, final GoodType goodType);
 
 	public Map<GoodType, PriceFunction> getMarketPriceFunctions(
 			final Currency denominatedInCurrency, final GoodType[] goodTypes);
@@ -125,14 +125,9 @@ public interface MarketService {
 	public Map<GoodType, PriceFunction> getMarketPriceFunctions(
 			final Currency denominatedInCurrency, final Set<GoodType> goodTypes);
 
-	public void placeSellingOffer(final GoodType goodType,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount, final double pricePerUnit);
-
 	/**
 	 * Place offer for a certain amount of money.
-	 * 
+	 *
 	 * @param commodityCurrency
 	 *            Currency of money to be offered, e.g. EURO.
 	 * @param offeror
@@ -156,6 +151,11 @@ public interface MarketService {
 			final double pricePerUnit,
 			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate);
 
+	public void placeSellingOffer(final GoodType goodType,
+			final MarketParticipant offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate,
+			final double amount, final double pricePerUnit);
+
 	public void placeSellingOffer(final Property property,
 			final MarketParticipant offeror,
 			final BankAccountDelegate offerorsBankAcountDelegate,
@@ -164,13 +164,13 @@ public interface MarketService {
 	public void removeAllSellingOffers(final MarketParticipant offeror);
 
 	public void removeAllSellingOffers(final MarketParticipant offeror,
-			final Currency denominatedInCurrency, final GoodType goodType);
+			final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass);
 
 	public void removeAllSellingOffers(final MarketParticipant offeror,
 			final Currency denominatedInCurrency,
 			final Currency commodityCurrency);
 
 	public void removeAllSellingOffers(final MarketParticipant offeror,
-			final Currency denominatedInCurrency,
-			final Class<? extends Property> propertyClass);
+			final Currency denominatedInCurrency, final GoodType goodType);
 }

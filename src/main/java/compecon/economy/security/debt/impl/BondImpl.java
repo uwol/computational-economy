@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -39,6 +39,32 @@ import compecon.engine.timesystem.impl.HourType;
 @Entity
 public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 
+	public class TransferFaceValueEvent implements TimeSystemEvent {
+		@Override
+		public boolean isDeconstructed() {
+			return BondImpl.this.isDeconstructed;
+		}
+
+		@Override
+		public void onEvent() {
+			assert (faceValueFromBankAccountDelegate != null);
+			assertValidOwner();
+			assertValidIssuer();
+
+			if (faceValueToBankAccountDelegate != null) {
+				faceValueFromBankAccountDelegate
+						.getBankAccount()
+						.getManagingBank()
+						.transferMoney(
+								faceValueFromBankAccountDelegate
+										.getBankAccount(),
+								faceValueToBankAccountDelegate.getBankAccount(),
+								faceValue, "bond face value");
+			}
+			deconstruct(); // delete bond from simulation
+		}
+	}
+
 	@Column(name = "faceValue")
 	protected double faceValue; // par value or principal
 
@@ -65,31 +91,36 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	@Transient
 	protected Set<TimeSystemEvent> timeSystemEvents = new HashSet<TimeSystemEvent>();
 
-	public void initialize() {
-		super.initialize();
-
-		// repay face value event;
-		// has to be at HOUR_01, so that at HOUR_00 the last coupon can be payed
-		final TimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
-		this.timeSystemEvents.add(transferFaceValueEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(
-						transferFaceValueEvent,
-						ApplicationContext.getInstance().getTimeSystem()
-								.getCurrentYear()
-								+ this.termInYears,
-						ApplicationContext.getInstance().getTimeSystem()
-								.getCurrentMonthType(),
-						ApplicationContext.getInstance().getTimeSystem()
-								.getCurrentDayType(), HourType.HOUR_01);
-	}
-
 	/*
 	 * accessors
 	 */
 
+	@Override
+	protected void assertValidIssuer() {
+		super.assertValidIssuer();
+
+		assert (getIssuer() == faceValueFromBankAccountDelegate
+				.getBankAccount().getOwner());
+	}
+
+	@Override
+	protected void assertValidOwner() {
+		assert (faceValueToBankAccountDelegate == null || owner
+				.equals(faceValueToBankAccountDelegate.getBankAccount()
+						.getOwner()));
+	}
+
+	@Override
+	@Transient
+	public void deconstruct() {
+		super.deconstruct();
+
+		// deregister from TimeSystem
+		ApplicationContext.getInstance().getTimeSystem()
+				.removeEvents(timeSystemEvents);
+	}
+
+	@Override
 	public double getFaceValue() {
 		return faceValue;
 	}
@@ -97,6 +128,7 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	/**
 	 * @see #faceValueFromBankAccountDelegate
 	 */
+	@Override
 	public BankAccountDelegate getFaceValueFromBankAccountDelegate() {
 		return faceValueFromBankAccountDelegate;
 	}
@@ -104,17 +136,53 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	/**
 	 * @see #faceValueToBankAccountDelegate
 	 */
+	@Override
 	public BankAccountDelegate getFaceValueToBankAccountDelegate() {
 		return faceValueToBankAccountDelegate;
 	}
 
+	@Override
 	public Currency getIssuedInCurrency() {
 		return issuedInCurrency;
 	}
 
+	@Override
 	public int getTermInYears() {
 		return termInYears;
 	}
+
+	@Override
+	public void initialize() {
+		super.initialize();
+
+		// repay face value event;
+		// has to be at HOUR_01, so that at HOUR_00 the last coupon can be payed
+		final TimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
+		timeSystemEvents.add(transferFaceValueEvent);
+		ApplicationContext
+				.getInstance()
+				.getTimeSystem()
+				.addEvent(
+						transferFaceValueEvent,
+						ApplicationContext.getInstance().getTimeSystem()
+								.getCurrentYear()
+								+ termInYears,
+						ApplicationContext.getInstance().getTimeSystem()
+								.getCurrentMonthType(),
+						ApplicationContext.getInstance().getTimeSystem()
+								.getCurrentDayType(), HourType.HOUR_01);
+	}
+
+	@Override
+	@Transient
+	public void resetOwner() {
+		super.resetOwner();
+		faceValueToBankAccountDelegate = null;
+	}
+
+	/*
+	 * assertions
+	 */
 
 	public void setFaceValue(final double faceValue) {
 		this.faceValue = faceValue;
@@ -125,6 +193,11 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 		this.faceValueFromBankAccountDelegate = faceValueFromBankAccountDelegate;
 	}
 
+	/*
+	 * business logic
+	 */
+
+	@Override
 	public void setFaceValueToBankAccountDelegate(
 			final BankAccountDelegate faceValueToBankAccountDelegate) {
 		this.faceValueToBankAccountDelegate = faceValueToBankAccountDelegate;
@@ -138,77 +211,11 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 		this.termInYears = termInYears;
 	}
 
-	/*
-	 * assertions
-	 */
-
 	@Override
-	protected void assertValidOwner() {
-		assert (this.faceValueToBankAccountDelegate == null || this.owner
-				.equals(this.faceValueToBankAccountDelegate.getBankAccount()
-						.getOwner()));
-	}
-
-	@Override
-	protected void assertValidIssuer() {
-		super.assertValidIssuer();
-
-		assert (this.getIssuer() == this.faceValueFromBankAccountDelegate
-				.getBankAccount().getOwner());
-	}
-
-	/*
-	 * business logic
-	 */
-
-	@Transient
-	public void deconstruct() {
-		super.deconstruct();
-
-		// deregister from TimeSystem
-		ApplicationContext.getInstance().getTimeSystem()
-				.removeEvents(this.timeSystemEvents);
-	}
-
-	@Override
-	@Transient
-	public void resetOwner() {
-		super.resetOwner();
-		this.faceValueToBankAccountDelegate = null;
-	}
-
 	@Transient
 	public String toString() {
-		return super.toString() + ", issuer=[" + this.getIssuer()
-				+ "], facevalue=[" + Currency.formatMoneySum(this.faceValue)
-				+ "], issuedInCurrency=["
-				+ this.issuedInCurrency.getIso4217Code() + "]";
-	}
-
-	public class TransferFaceValueEvent implements TimeSystemEvent {
-		@Override
-		public boolean isDeconstructed() {
-			return BondImpl.this.isDeconstructed;
-		}
-
-		@Override
-		public void onEvent() {
-			assert (BondImpl.this.faceValueFromBankAccountDelegate != null);
-			assertValidOwner();
-			assertValidIssuer();
-
-			if (BondImpl.this.faceValueToBankAccountDelegate != null) {
-				BondImpl.this.faceValueFromBankAccountDelegate
-						.getBankAccount()
-						.getManagingBank()
-						.transferMoney(
-								BondImpl.this.faceValueFromBankAccountDelegate
-										.getBankAccount(),
-								BondImpl.this.faceValueToBankAccountDelegate
-										.getBankAccount(),
-								BondImpl.this.faceValue, "bond face value");
-			}
-			BondImpl.this.deconstruct(); // delete bond from simulation
-		}
+		return super.toString() + ", issuer=[" + getIssuer() + "], facevalue=["
+				+ Currency.formatMoneySum(faceValue) + "], issuedInCurrency=["
+				+ issuedInCurrency.getIso4217Code() + "]";
 	}
 }

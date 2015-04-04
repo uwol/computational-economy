@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -20,7 +20,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.service.impl;
 
 import compecon.math.price.PriceFunction;
-import compecon.math.price.PriceFunction.PriceFunctionConfig;
 
 public class FixedPriceFunctionImpl implements PriceFunction {
 
@@ -31,19 +30,19 @@ public class FixedPriceFunctionImpl implements PriceFunction {
 	}
 
 	@Override
-	public double getPrice(double numberOfGoods) {
-		return this.fixedPrice;
-	}
-
-	@Override
-	public double getMarginalPrice(double numberOfGoods) {
-		return this.fixedPrice;
-	}
-
-	@Override
 	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(
-			double maxBudget) {
+			final double maxBudget) {
 		return new PriceFunctionConfig[] { new PriceFunctionConfig(0.0,
-				Double.POSITIVE_INFINITY, this.fixedPrice, 0.0) };
+				Double.POSITIVE_INFINITY, fixedPrice, 0.0) };
+	}
+
+	@Override
+	public double getMarginalPrice(final double numberOfGoods) {
+		return fixedPrice;
+	}
+
+	@Override
+	public double getPrice(final double numberOfGoods) {
+		return fixedPrice;
 	}
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -43,6 +43,7 @@ public class PropertyDAOTest extends CompEconTestSupport {
 		super.setUpTestAgents();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();
@@ -50,15 +51,15 @@ public class PropertyDAOTest extends CompEconTestSupport {
 
 	@Test
 	public void testCreateAndDeletePropertyOwnedAndIssuedBy() {
-		Currency currency = Currency.EURO;
+		final Currency currency = Currency.EURO;
 
 		// prepare
-		State state_EUR = ApplicationContext.getInstance().getAgentService()
-				.findState(currency);
-		CreditBank creditBank1_EUR = ApplicationContext.getInstance()
+		final State state_EUR = ApplicationContext.getInstance()
+				.getAgentService().findState(currency);
+		final CreditBank creditBank1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findCreditBanks(currency).get(0);
 
-		Bond bond = state_EUR.obtainBond(1000, creditBank1_EUR,
+		final Bond bond = state_EUR.obtainBond(1000, creditBank1_EUR,
 				creditBank1_EUR.getBankAccountTransactionsDelegate());
 
 		// total number
@@ -108,19 +109,19 @@ public class PropertyDAOTest extends CompEconTestSupport {
 
 	@Test
 	public void testTransferProperty() {
-		Currency currency = Currency.EURO;
+		final Currency currency = Currency.EURO;
 
 		// prepare
-		State state_EUR = ApplicationContext.getInstance().getAgentService()
-				.findState(currency);
-		CreditBank creditBank1_EUR = ApplicationContext.getInstance()
+		final State state_EUR = ApplicationContext.getInstance()
+				.getAgentService().findState(currency);
+		final CreditBank creditBank1_EUR = ApplicationContext.getInstance()
 				.getAgentService().findCreditBanks(currency).get(0);
 
-		Bond bond1 = state_EUR.obtainBond(1000, creditBank1_EUR,
+		final Bond bond1 = state_EUR.obtainBond(1000, creditBank1_EUR,
 				creditBank1_EUR.getBankAccountTransactionsDelegate());
-		Bond bond2 = state_EUR.obtainBond(1000, creditBank1_EUR,
+		final Bond bond2 = state_EUR.obtainBond(1000, creditBank1_EUR,
 				creditBank1_EUR.getBankAccountTransactionsDelegate());
-		Share share1 = ApplicationContext.getInstance().getShareFactory()
+		final Share share1 = ApplicationContext.getInstance().getShareFactory()
 				.newInstanceShare(creditBank1_EUR, creditBank1_EUR);
 
 		// total number

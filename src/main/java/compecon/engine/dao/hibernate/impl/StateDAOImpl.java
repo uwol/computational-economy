@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,12 +28,14 @@ import compecon.engine.dao.StateDAO;
 
 public class StateDAOImpl extends HibernateDAOImpl<State> implements StateDAO {
 
+	@Override
 	public StateImpl findByCurrency(final Currency currency) {
 		final Object object = getSession().createCriteria(StateImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency))
 				.uniqueResult();
-		if (object == null)
+		if (object == null) {
 			return null;
+		}
 		return (StateImpl) object;
 	}
 }

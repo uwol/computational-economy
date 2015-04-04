@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -56,201 +56,6 @@ import compecon.math.util.MathUtil;
 @Entity
 public class StateImpl extends AgentImpl implements State {
 
-	/**
-	 * bank account for financing the coupon of issued bonds
-	 */
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountCouponLoans_id")
-	@Index(name = "IDX_A_BA_COUPONLOANS")
-	protected BankAccount bankAccountCouponLoans;
-
-	@Transient
-	protected PricingBehaviour pricingBehaviour;
-
-	@Transient
-	protected final BankAccountDelegate bankAccountCouponLoansDelegate = new BankAccountDelegate() {
-		@Override
-		public BankAccount getBankAccount() {
-			StateImpl.this.assureBankAccountCouponLoans();
-			return StateImpl.this.bankAccountCouponLoans;
-		}
-
-		@Override
-		public void onTransfer(final double amount) {
-		}
-	};
-
-	@Override
-	public void initialize() {
-		super.initialize();
-
-		/*
-		 * has to happen every hour, so that not all money is spent on one
-		 * distinct hour a day! else this would lead to significant distortions
-		 * on markets, as the savings of the whole economy flow through the
-		 * state via state bonds.
-		 */
-		final TimeSystemEvent governmentTransferEvent = new GovernmentTransferEvent();
-		this.timeSystemEvents.add(governmentTransferEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEventEvery(governmentTransferEvent, -1, MonthType.EVERY,
-						DayType.EVERY, HourType.EVERY);
-
-		double initialInterestRate = ApplicationContext.getInstance()
-				.getAgentService().findCentralBank(primaryCurrency)
-				.getEffectiveKeyInterestRate() + 0.02;
-		this.pricingBehaviour = new PricingBehaviourImpl(this,
-				FixedRateBond.class, this.primaryCurrency, initialInterestRate);
-	}
-
-	@Override
-	public void deconstruct() {
-		super.deconstruct();
-
-		ApplicationContext.getInstance().getStateFactory().deleteState(this);
-	}
-
-	/*
-	 * accessors
-	 */
-
-	public BankAccount getBankAccountCouponLoans() {
-		return bankAccountCouponLoans;
-	}
-
-	public void setBankAccountCouponLoans(BankAccount bankAccountCouponLoans) {
-		this.bankAccountCouponLoans = bankAccountCouponLoans;
-	}
-
-	/*
-	 * assertions
-	 */
-
-	@Transient
-	public void assureBankAccountCouponLoans() {
-		if (this.isDeconstructed)
-			return;
-
-		// initialize bank account
-		if (this.bankAccountCouponLoans == null) {
-			this.bankAccountCouponLoans = this.getPrimaryBank()
-					.openBankAccount(this, this.primaryCurrency, true, "loans",
-							TermType.LONG_TERM, MoneyType.DEPOSITS);
-		}
-	}
-
-	/*
-	 * business logic
-	 */
-
-	@Transient
-	public void doDeficitSpending() {
-		this.assureBankAccountTransactions();
-
-		for (CreditBank creditBank : ApplicationContext.getInstance()
-				.getAgentService().findCreditBanks(this.primaryCurrency)) {
-			for (BankAccount bankAccount : ApplicationContext.getInstance()
-					.getBankAccountDAO()
-					.findAllBankAccountsManagedByBank(creditBank)) {
-				if (bankAccount.getOwner() != this) {
-					this.bankAccountTransactions.getManagingBank()
-							.transferMoney(this.bankAccountTransactions,
-									bankAccount, 5000, "deficit spending");
-				}
-			}
-		}
-	}
-
-	@Transient
-	public BankAccountDelegate getBankAccountCouponLoansDelegate() {
-		return this.bankAccountCouponLoansDelegate;
-	}
-
-	@Override
-	@Transient
-	protected BalanceSheetDTO issueBalanceSheet() {
-		final BalanceSheetDTO balanceSheet = super.issueBalanceSheet();
-
-		// bank deposits
-		balanceSheet.addBankAccountBalance(this.bankAccountCouponLoans);
-
-		return balanceSheet;
-	}
-
-	@Transient
-	public FixedRateBond obtainBond(final double faceValue,
-			final PropertyOwner buyer,
-			final BankAccountDelegate buyerBankAccountDelegate) {
-		this.assureBankAccountCouponLoans();
-
-		assert (buyer == buyerBankAccountDelegate.getBankAccount().getOwner());
-
-		// TODO alternative: price := this.pricingBehaviour.getCurrentPrice();
-		final CentralBank centralBank = ApplicationContext.getInstance()
-				.getAgentService().findCentralBank(this.primaryCurrency);
-		final double coupon = centralBank.getEffectiveKeyInterestRate()
-				+ ApplicationContext.getInstance().getConfiguration().stateConfig
-						.getBondMargin();
-
-		// coupons have to be payed from a separate bank account, so that bonds
-		// can be re-bought with same face value after bond deconstruction
-		final FixedRateBond fixedRateBond = ApplicationContext
-				.getInstance()
-				.getFixedRateBondFactory()
-				.newInstanceFixedRateBond(this, this, this.primaryCurrency,
-						getBankAccountTransactionsDelegate(),
-						getBankAccountCouponLoansDelegate(), faceValue, coupon);
-
-		// transfer money
-		buyerBankAccountDelegate
-				.getBankAccount()
-				.getManagingBank()
-				.transferMoney(buyerBankAccountDelegate.getBankAccount(),
-						this.bankAccountTransactions, faceValue,
-						"payment for " + fixedRateBond);
-
-		// transfer bond
-		ApplicationContext.getInstance().getPropertyService()
-				.transferProperty(fixedRateBond, this, buyer);
-
-		assert (fixedRateBond.getOwner() == buyerBankAccountDelegate
-				.getBankAccount().getOwner());
-
-		return fixedRateBond;
-	}
-
-	@Override
-	@Transient
-	public void onBankCloseBankAccount(BankAccount bankAccount) {
-		if (this.bankAccountCouponLoans != null
-				&& this.bankAccountCouponLoans == bankAccount) {
-			this.bankAccountCouponLoans = null;
-		}
-
-		super.onBankCloseBankAccount(bankAccount);
-	}
-
-	@Override
-	public void onMarketSettlement(GoodType goodType, double amount,
-			double pricePerUnit, Currency currency) {
-	}
-
-	@Override
-	public void onMarketSettlement(Currency commodityCurrency, double amount,
-			double pricePerUnit, Currency currency) {
-	}
-
-	@Override
-	public void onMarketSettlement(Property property, double totalPrice,
-			Currency currency) {
-		if (property instanceof FixedRateBond) {
-			StateImpl.this.pricingBehaviour.registerSelling(
-					((FixedRateBond) property).getFaceValue(), totalPrice);
-		}
-	}
-
 	public class GovernmentTransferEvent implements TimeSystemEvent {
 		@Override
 		public boolean isDeconstructed() {
@@ -264,7 +69,7 @@ public class StateImpl extends AgentImpl implements State {
 
 		@Transient
 		private void transferBudgetToHouseholds() {
-			StateImpl.this.assureBankAccountTransactions();
+			assureBankAccountTransactions();
 
 			final double budget = StateImpl.this.bankAccountTransactions
 					.getBalance();
@@ -275,9 +80,9 @@ public class StateImpl extends AgentImpl implements State {
 
 				if (households.size() > 0) {
 					final double budgetPerHousehold = budget
-							/ (double) households.size();
+							/ households.size();
 
-					for (Household household : households) {
+					for (final Household household : households) {
 						assert (!household.isDeconstructed());
 
 						final BankAccount householdBankAccount = household
@@ -297,6 +102,208 @@ public class StateImpl extends AgentImpl implements State {
 				}
 			}
 		}
+	}
+
+	/**
+	 * bank account for financing the coupon of issued bonds
+	 */
+	@OneToOne(targetEntity = BankAccountImpl.class)
+	@JoinColumn(name = "bankAccountCouponLoans_id")
+	@Index(name = "IDX_A_BA_COUPONLOANS")
+	protected BankAccount bankAccountCouponLoans;
+
+	@Transient
+	protected final BankAccountDelegate bankAccountCouponLoansDelegate = new BankAccountDelegate() {
+		@Override
+		public BankAccount getBankAccount() {
+			StateImpl.this.assureBankAccountCouponLoans();
+			return bankAccountCouponLoans;
+		}
+
+		@Override
+		public void onTransfer(final double amount) {
+		}
+	};
+
+	@Transient
+	protected PricingBehaviour pricingBehaviour;
+
+	@Transient
+	public void assureBankAccountCouponLoans() {
+		if (isDeconstructed) {
+			return;
+		}
+
+		// initialize bank account
+		if (bankAccountCouponLoans == null) {
+			bankAccountCouponLoans = getPrimaryBank().openBankAccount(this,
+					primaryCurrency, true, "loans", TermType.LONG_TERM,
+					MoneyType.DEPOSITS);
+		}
+	}
+
+	/*
+	 * accessors
+	 */
+
+	@Override
+	public void deconstruct() {
+		super.deconstruct();
+
+		ApplicationContext.getInstance().getStateFactory().deleteState(this);
+	}
+
+	@Override
+	@Transient
+	public void doDeficitSpending() {
+		assureBankAccountTransactions();
+
+		for (final CreditBank creditBank : ApplicationContext.getInstance()
+				.getAgentService().findCreditBanks(primaryCurrency)) {
+			for (final BankAccount bankAccount : ApplicationContext
+					.getInstance().getBankAccountDAO()
+					.findAllBankAccountsManagedByBank(creditBank)) {
+				if (bankAccount.getOwner() != this) {
+					bankAccountTransactions.getManagingBank().transferMoney(
+							bankAccountTransactions, bankAccount, 5000,
+							"deficit spending");
+				}
+			}
+		}
+	}
+
+	/*
+	 * assertions
+	 */
+
+	public BankAccount getBankAccountCouponLoans() {
+		return bankAccountCouponLoans;
+	}
+
+	/*
+	 * business logic
+	 */
+
+	@Override
+	@Transient
+	public BankAccountDelegate getBankAccountCouponLoansDelegate() {
+		return bankAccountCouponLoansDelegate;
+	}
+
+	@Override
+	public void initialize() {
+		super.initialize();
+
+		/*
+		 * has to happen every hour, so that not all money is spent on one
+		 * distinct hour a day! else this would lead to significant distortions
+		 * on markets, as the savings of the whole economy flow through the
+		 * state via state bonds.
+		 */
+		final TimeSystemEvent governmentTransferEvent = new GovernmentTransferEvent();
+		timeSystemEvents.add(governmentTransferEvent);
+		ApplicationContext
+				.getInstance()
+				.getTimeSystem()
+				.addEventEvery(governmentTransferEvent, -1, MonthType.EVERY,
+						DayType.EVERY, HourType.EVERY);
+
+		final double initialInterestRate = ApplicationContext.getInstance()
+				.getAgentService().findCentralBank(primaryCurrency)
+				.getEffectiveKeyInterestRate() + 0.02;
+		pricingBehaviour = new PricingBehaviourImpl(this, FixedRateBond.class,
+				primaryCurrency, initialInterestRate);
+	}
+
+	@Override
+	@Transient
+	protected BalanceSheetDTO issueBalanceSheet() {
+		final BalanceSheetDTO balanceSheet = super.issueBalanceSheet();
+
+		// bank deposits
+		balanceSheet.addBankAccountBalance(bankAccountCouponLoans);
+
+		return balanceSheet;
+	}
+
+	@Override
+	@Transient
+	public FixedRateBond obtainBond(final double faceValue,
+			final PropertyOwner buyer,
+			final BankAccountDelegate buyerBankAccountDelegate) {
+		assureBankAccountCouponLoans();
+
+		assert (buyer == buyerBankAccountDelegate.getBankAccount().getOwner());
+
+		// TODO alternative: price := this.pricingBehaviour.getCurrentPrice();
+		final CentralBank centralBank = ApplicationContext.getInstance()
+				.getAgentService().findCentralBank(primaryCurrency);
+		final double coupon = centralBank.getEffectiveKeyInterestRate()
+				+ ApplicationContext.getInstance().getConfiguration().stateConfig
+						.getBondMargin();
+
+		// coupons have to be payed from a separate bank account, so that bonds
+		// can be re-bought with same face value after bond deconstruction
+		final FixedRateBond fixedRateBond = ApplicationContext
+				.getInstance()
+				.getFixedRateBondFactory()
+				.newInstanceFixedRateBond(this, this, primaryCurrency,
+						getBankAccountTransactionsDelegate(),
+						getBankAccountCouponLoansDelegate(), faceValue, coupon);
+
+		// transfer money
+		buyerBankAccountDelegate
+				.getBankAccount()
+				.getManagingBank()
+				.transferMoney(buyerBankAccountDelegate.getBankAccount(),
+						bankAccountTransactions, faceValue,
+						"payment for " + fixedRateBond);
+
+		// transfer bond
+		ApplicationContext.getInstance().getPropertyService()
+				.transferProperty(fixedRateBond, this, buyer);
+
+		assert (fixedRateBond.getOwner() == buyerBankAccountDelegate
+				.getBankAccount().getOwner());
+
+		return fixedRateBond;
+	}
+
+	@Override
+	@Transient
+	public void onBankCloseBankAccount(final BankAccount bankAccount) {
+		if (bankAccountCouponLoans != null
+				&& bankAccountCouponLoans == bankAccount) {
+			bankAccountCouponLoans = null;
+		}
+
+		super.onBankCloseBankAccount(bankAccount);
+	}
+
+	@Override
+	public void onMarketSettlement(final Currency commodityCurrency,
+			final double amount, final double pricePerUnit,
+			final Currency currency) {
+	}
+
+	@Override
+	public void onMarketSettlement(final GoodType goodType,
+			final double amount, final double pricePerUnit,
+			final Currency currency) {
+	}
+
+	@Override
+	public void onMarketSettlement(final Property property,
+			final double totalPrice, final Currency currency) {
+		if (property instanceof FixedRateBond) {
+			StateImpl.this.pricingBehaviour.registerSelling(
+					((FixedRateBond) property).getFaceValue(), totalPrice);
+		}
+	}
+
+	public void setBankAccountCouponLoans(
+			final BankAccount bankAccountCouponLoans) {
+		this.bankAccountCouponLoans = bankAccountCouponLoans;
 	}
 
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ package compecon.economy.behaviour;
 public interface PricingBehaviour {
 
 	public enum PricingBehaviourNewPriceDecisionCause {
-		SOLD_NOTHING, SOLD_EVERYTHING, SOLD_LESS, SOLD_MORE, IMPLICIT_RAISE;
+		IMPLICIT_RAISE, SOLD_EVERYTHING, SOLD_LESS, SOLD_MORE, SOLD_NOTHING;
 	}
 
 	public double getCurrentPrice();
@@ -37,7 +37,7 @@ public interface PricingBehaviour {
 
 	public void nextPeriod();
 
-	public void registerSelling(double numberOfProducts, double totalValue);
-
 	public void registerOfferedAmount(double numberOfProducts);
+
+	public void registerSelling(double numberOfProducts, double totalValue);
 }

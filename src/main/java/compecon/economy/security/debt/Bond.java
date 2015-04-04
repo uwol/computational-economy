@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -25,6 +25,7 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface Bond extends PropertyIssued {
 
+	@Override
 	public void deconstruct();
 
 	public double getFaceValue();

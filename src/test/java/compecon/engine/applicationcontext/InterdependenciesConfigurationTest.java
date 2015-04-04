@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -40,6 +40,7 @@ public class InterdependenciesConfigurationTest extends CompEconTestSupport {
 		}
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		super.tearDown();

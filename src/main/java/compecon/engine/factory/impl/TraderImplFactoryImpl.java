@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,25 +30,27 @@ import compecon.engine.util.HibernateUtil;
 public class TraderImplFactoryImpl implements TraderFactory {
 
 	@Override
-	public void deleteTrader(Trader agent) {
-		ApplicationContext.getInstance().getTraderDAO().delete((Trader) agent);
+	public void deleteTrader(final Trader agent) {
+		ApplicationContext.getInstance().getTraderDAO().delete(agent);
 		HibernateUtil.flushSession();
 	}
 
+	@Override
 	public Trader newInstanceTrader(final Currency primaryCurrency) {
 		assert (primaryCurrency != null);
 
 		final TraderImpl trader = new TraderImpl();
-		if (!HibernateUtil.isActive())
+		if (!HibernateUtil.isActive()) {
 			trader.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
+		}
 		trader.setPrimaryCurrency(primaryCurrency);
 		trader.setReferenceCredit(ApplicationContext.getInstance()
 				.getConfiguration().traderConfig.getReferenceCredit());
 
 		// excluded good types
 		trader.getExcludedGoodTypes().add(GoodType.LABOURHOUR);
-		for (GoodType goodType : GoodType.values()) {
+		for (final GoodType goodType : GoodType.values()) {
 			if (GoodType.Sector.TERTIARY.equals(goodType.getSector())) {
 				trader.getExcludedGoodTypes().add(goodType);
 			}

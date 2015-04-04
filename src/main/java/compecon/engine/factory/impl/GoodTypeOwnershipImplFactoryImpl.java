@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,6 +30,14 @@ public class GoodTypeOwnershipImplFactoryImpl implements
 		GoodTypeOwnershipFactory {
 
 	@Override
+	public void deleteGoodTypeOwnership(
+			final GoodTypeOwnership goodTypeOwnership) {
+		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
+				.delete(goodTypeOwnership);
+		HibernateUtil.flushSession();
+	}
+
+	@Override
 	public GoodTypeOwnership newInstanceGoodTypeOwnership(
 			final PropertyOwner propertyOwner) {
 		assert (propertyOwner != null);
@@ -40,13 +48,5 @@ public class GoodTypeOwnershipImplFactoryImpl implements
 				.save(goodTypeOwnership);
 		HibernateUtil.flushSession();
 		return goodTypeOwnership;
-	}
-
-	@Override
-	public void deleteGoodTypeOwnership(
-			final GoodTypeOwnership goodTypeOwnership) {
-		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
-				.delete(goodTypeOwnership);
-		HibernateUtil.flushSession();
 	}
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -80,6 +80,11 @@ public class AgentServiceImpl implements AgentService {
 	}
 
 	@Override
+	public Factory findRandomFactory() {
+		return ApplicationContext.getInstance().getFactoryDAO().findRandom();
+	}
+
+	@Override
 	public State findState(final Currency currency) {
 		final State state = ApplicationContext.getInstance().getStateDAO()
 				.findByCurrency(currency);
@@ -88,11 +93,6 @@ public class AgentServiceImpl implements AgentService {
 					.newInstanceState(currency);
 		}
 		return state;
-	}
-
-	@Override
-	public Factory findRandomFactory() {
-		return ApplicationContext.getInstance().getFactoryDAO().findRandom();
 	}
 
 	@Override

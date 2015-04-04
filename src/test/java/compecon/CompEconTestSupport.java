@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,9 +36,9 @@ import compecon.math.price.PriceFunction;
 
 public abstract class CompEconTestSupport {
 
-	protected final String testConfigurationPropertiesFilename = "testing.configuration.properties";
-
 	protected final double epsilon = 0.01;
+
+	protected final String testConfigurationPropertiesFilename = "testing.configuration.properties";
 
 	protected void assertOutputIsOptimalUnderBudget(
 			final FunctionImpl<GoodType> function,
@@ -52,7 +52,7 @@ public abstract class CompEconTestSupport {
 
 		// check that budget restriction is not violated
 		double sumOfCostsOfOptimalBundleOfInputs = 0.0;
-		for (Entry<GoodType, Double> inputEntry : rangeScanBundleOfInputs
+		for (final Entry<GoodType, Double> inputEntry : rangeScanBundleOfInputs
 				.entrySet()) {
 			final double priceOfGoodType = priceFunctions.get(
 					inputEntry.getKey()).getPrice(inputEntry.getValue());
@@ -68,7 +68,7 @@ public abstract class CompEconTestSupport {
 
 		// check that budget restriction is not violated
 		double sumOfCostsOfReferenceBundleOfInputs = 0.0;
-		for (Entry<GoodType, Double> inputEntry : referenceBundleOfInputs
+		for (final Entry<GoodType, Double> inputEntry : referenceBundleOfInputs
 				.entrySet()) {
 			final double priceOfGoodType = priceFunctions.get(
 					inputEntry.getKey()).getPrice(inputEntry.getValue());
@@ -95,7 +95,7 @@ public abstract class CompEconTestSupport {
 			final Map<GoodType, PriceFunction> priceFunctions) {
 		final Map<GoodType, Double> partialDerivatives = function
 				.partialDerivatives(bundleOfInputs);
-		for (Entry<GoodType, Double> outerPartialDerivativeEntry : partialDerivatives
+		for (final Entry<GoodType, Double> outerPartialDerivativeEntry : partialDerivatives
 				.entrySet()) {
 			final PriceFunction outerPriceFunction = priceFunctions
 					.get(outerPartialDerivativeEntry.getKey());
@@ -103,7 +103,7 @@ public abstract class CompEconTestSupport {
 					.getMarginalPrice(bundleOfInputs
 							.get(outerPartialDerivativeEntry.getKey()));
 			if (!Double.isNaN(outerMarginalPrice)) {
-				for (Entry<GoodType, Double> innerPartialDerivativeEntry : partialDerivatives
+				for (final Entry<GoodType, Double> innerPartialDerivativeEntry : partialDerivatives
 						.entrySet()) {
 					final PriceFunction innerPriceFunction = priceFunctions
 							.get(innerPartialDerivativeEntry.getKey());
@@ -138,7 +138,7 @@ public abstract class CompEconTestSupport {
 	}
 
 	protected void setUpTestAgents() {
-		for (Currency currency : Currency.values()) {
+		for (final Currency currency : Currency.values()) {
 			ApplicationContext.getInstance().getAgentService()
 					.findCentralBank(currency);
 

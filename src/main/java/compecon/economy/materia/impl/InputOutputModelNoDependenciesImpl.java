@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,21 +32,6 @@ import compecon.math.utility.impl.CESUtilityFunctionImpl;
 public class InputOutputModelNoDependenciesImpl implements InputOutputModel {
 
 	@Override
-	public UtilityFunction getUtilityFunctionOfHousehold() {
-		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
-		preferences.put(GoodType.IRON, 0.2);
-		preferences.put(GoodType.COAL, 0.2);
-		preferences.put(GoodType.COTTON, 0.2);
-		preferences.put(GoodType.WHEAT, 0.2);
-		preferences.put(GoodType.FOOD, 0.2);
-		preferences.put(GoodType.CLOTHING, 0.2);
-		preferences.put(GoodType.REALESTATE, 0.2);
-		preferences.put(GoodType.KILOWATT, 0.2);
-		preferences.put(GoodType.LABOURHOUR, 0.2);
-		return new CESUtilityFunctionImpl(1.0, preferences, -0.7, 0.5);
-	}
-
-	@Override
 	public ProductionFunction getProductionFunction(
 			final GoodType outputGoodType) {
 		switch (outputGoodType) {
@@ -70,5 +55,20 @@ public class InputOutputModelNoDependenciesImpl implements InputOutputModel {
 		default:
 			return null;
 		}
+	}
+
+	@Override
+	public UtilityFunction getUtilityFunctionOfHousehold() {
+		final Map<GoodType, Double> preferences = new LinkedHashMap<GoodType, Double>();
+		preferences.put(GoodType.IRON, 0.2);
+		preferences.put(GoodType.COAL, 0.2);
+		preferences.put(GoodType.COTTON, 0.2);
+		preferences.put(GoodType.WHEAT, 0.2);
+		preferences.put(GoodType.FOOD, 0.2);
+		preferences.put(GoodType.CLOTHING, 0.2);
+		preferences.put(GoodType.REALESTATE, 0.2);
+		preferences.put(GoodType.KILOWATT, 0.2);
+		preferences.put(GoodType.LABOURHOUR, 0.2);
+		return new CESUtilityFunctionImpl(1.0, preferences, -0.7, 0.5);
 	}
 }

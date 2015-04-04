@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -31,8 +31,7 @@ public class HouseholdImplFactoryImpl implements HouseholdFactory {
 
 	@Override
 	public void deleteHousehold(final Household agent) {
-		ApplicationContext.getInstance().getHouseholdDAO()
-				.delete((Household) agent);
+		ApplicationContext.getInstance().getHouseholdDAO().delete(agent);
 		HibernateUtil.flushSession();
 	}
 
@@ -42,9 +41,10 @@ public class HouseholdImplFactoryImpl implements HouseholdFactory {
 		assert (primaryCurrency != null);
 
 		final HouseholdImpl household = new HouseholdImpl();
-		if (!HibernateUtil.isActive())
+		if (!HibernateUtil.isActive()) {
 			household.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
+		}
 		household.setAgeInDays(ageInDays);
 		household.setPrimaryCurrency(primaryCurrency);
 

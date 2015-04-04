@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,21 +28,10 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface BankAccountDAO extends GenericDAO<BankAccount> {
 
-	public List<BankAccount> findAllBankAccountsManagedByBank(
-			final Bank managingBank);
-
-	public List<BankAccount> findAllBankAccountsOfAgent(final BankCustomer owner);
-
-	public List<BankAccount> findAll(final Bank managingBank,
-			final BankCustomer owner);
-
-	public List<BankAccount> findAll(final Bank managingBank,
-			final BankCustomer owner, final Currency currency);
-
 	/**
 	 * WARNING: Should only be called from the bank account factory, which
 	 * ensures a subsequent Hibernate flush.
-	 * 
+	 *
 	 * @see compecon.engine.factory.BankAccountFactory
 	 */
 	public void deleteAllBankAccounts(final Bank managingBank);
@@ -50,9 +39,20 @@ public interface BankAccountDAO extends GenericDAO<BankAccount> {
 	/**
 	 * WARNING: Should only be called from the bank account factory, which
 	 * ensures a subsequent Hibernate flush.
-	 * 
+	 *
 	 * @see compecon.engine.factory.BankAccountFactory
 	 */
 	public void deleteAllBankAccounts(final Bank managingBank,
 			final BankCustomer owner);
+
+	public List<BankAccount> findAll(final Bank managingBank,
+			final BankCustomer owner);
+
+	public List<BankAccount> findAll(final Bank managingBank,
+			final BankCustomer owner, final Currency currency);
+
+	public List<BankAccount> findAllBankAccountsManagedByBank(
+			final Bank managingBank);
+
+	public List<BankAccount> findAllBankAccountsOfAgent(final BankCustomer owner);
 }

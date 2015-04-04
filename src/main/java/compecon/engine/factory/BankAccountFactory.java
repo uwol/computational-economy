@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,12 +28,12 @@ import compecon.economy.sectors.financial.Currency;
 
 public interface BankAccountFactory {
 
-	public void deleteBankAccount(final BankAccount bankAccount);
-
 	public void deleteAllBankAccounts(final Bank managingBank);
 
 	public void deleteAllBankAccounts(final Bank managingBank,
 			final BankCustomer customer);
+
+	public void deleteBankAccount(final BankAccount bankAccount);
 
 	public BankAccount newInstanceBankAccount(final BankCustomer owner,
 			final Currency currency, final boolean overdraftPossible,

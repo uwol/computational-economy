@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -22,33 +22,36 @@ package compecon.economy.sectors.financial;
 public enum Currency {
 	EURO("EUR"), USDOLLAR("USD"), YEN("YEN");
 
+	public static String formatMoneySum(final double value) {
+		final double million = 1000000;
+		final double billion = 1000000000;
+
+		if (Double.isNaN(value) || Double.isInfinite(value)) {
+			return "" + value;
+		}
+		if (Math.abs(value) < million) {
+			return String.format("%.2f", value);
+		} else if (Math.abs(value) < billion) {
+			return String.format("%.2f M", value / million);
+		} else {
+			return String.format("%.2f B", value / billion);
+		}
+	}
+
+	public static double round(final double value) {
+		if (Double.isNaN(value) || Double.isInfinite(value)) {
+			return value;
+		}
+		return Math.round(value * 100.) / 100.;
+	}
+
 	protected String iso4217Code;
 
-	private Currency(String iso4217Code) {
+	private Currency(final String iso4217Code) {
 		this.iso4217Code = iso4217Code;
 	}
 
 	public String getIso4217Code() {
-		return this.iso4217Code;
-	}
-
-	public static double round(double value) {
-		if (Double.isNaN(value) || Double.isInfinite(value))
-			return value;
-		return Math.round(value * 100.) / 100.;
-	}
-
-	public static String formatMoneySum(double value) {
-		double million = 1000000;
-		double billion = 1000000000;
-
-		if (Double.isNaN(value) || Double.isInfinite(value))
-			return "" + value;
-		if (Math.abs(value) < million)
-			return String.format("%.2f", value);
-		else if (Math.abs(value) < billion)
-			return String.format("%.2f M", value / million);
-		else
-			return String.format("%.2f B", value / billion);
+		return iso4217Code;
 	}
 }

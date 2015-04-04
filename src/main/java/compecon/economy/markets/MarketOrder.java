@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -27,11 +27,11 @@ import compecon.economy.sectors.financial.Currency;
 public interface MarketOrder {
 
 	public enum CommodityType {
-		GOODTYPE, PROPERTY, CURRENCY
+		CURRENCY, GOODTYPE, PROPERTY
 	}
 
 	public enum ValidityPeriod {
-		GoodForDay, GoodTillDate, GoodTillCancelled
+		GoodForDay, GoodTillCancelled, GoodTillDate
 	}
 
 	public void decrementAmount(double amount);

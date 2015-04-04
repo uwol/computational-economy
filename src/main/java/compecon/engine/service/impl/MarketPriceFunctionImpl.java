@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,7 +28,6 @@ import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.service.MarketPriceFunction;
-import compecon.math.price.PriceFunction.PriceFunctionConfig;
 import compecon.math.util.MathUtil;
 
 /**
@@ -38,31 +37,32 @@ import compecon.math.util.MathUtil;
  */
 public class MarketPriceFunctionImpl implements MarketPriceFunction {
 
-	protected final Currency denominatedInCurrency;
-
-	protected final GoodType goodType;
-
-	protected final Currency commodityCurrency;
-
-	protected final Class<? extends Property> propertyClass;
-
-	protected final MarketServiceImpl marketService;
-
 	protected double amountUntilCurrentMarketOrder = 0.0;
 
 	protected double averagePricePerUnitUntilCurrentMarketOrder = Double.NaN;
 
+	protected final Currency commodityCurrency;
+
 	protected MarketOrder currentMarketOrder;
+
+	protected final Currency denominatedInCurrency;
+
+	protected final GoodType goodType;
 
 	protected Iterator<MarketOrder> marketOrderIterator;
 
+	protected final MarketServiceImpl marketService;
+
+	protected final Class<? extends Property> propertyClass;
+
 	public MarketPriceFunctionImpl(final MarketServiceImpl marketService,
-			final Currency denominatedInCurrency, final GoodType goodType) {
+			final Currency denominatedInCurrency,
+			final Class<? extends Property> propertyClass) {
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.marketService = marketService;
-		this.commodityCurrency = null;
-		this.goodType = goodType;
-		this.propertyClass = null;
+		commodityCurrency = null;
+		goodType = null;
+		this.propertyClass = propertyClass;
 	}
 
 	public MarketPriceFunctionImpl(final MarketServiceImpl marketService,
@@ -71,63 +71,28 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.marketService = marketService;
 		this.commodityCurrency = commodityCurrency;
-		this.goodType = null;
-		this.propertyClass = null;
+		goodType = null;
+		propertyClass = null;
 	}
 
 	public MarketPriceFunctionImpl(final MarketServiceImpl marketService,
-			final Currency denominatedInCurrency,
-			final Class<? extends Property> propertyClass) {
+			final Currency denominatedInCurrency, final GoodType goodType) {
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.marketService = marketService;
-		this.commodityCurrency = null;
-		this.goodType = null;
-		this.propertyClass = propertyClass;
+		commodityCurrency = null;
+		this.goodType = goodType;
+		propertyClass = null;
 	}
 
-	@Override
-	public double getPrice(double atAmount) {
-		checkReset(atAmount);
-
-		// case 1: no market depth -> marginal price is searched
-		if (MathUtil.equal(atAmount, 0.0)) {
-			return this.getMarginalPrice(atAmount);
-		}
-
+	protected void checkReset(final double forAmount) {
 		/*
-		 * a market price in the depth of the market is searched
+		 * if a preceding call of the market price function has iterated to far
+		 * on market orders, we have to restart on the first market order
 		 */
-		do {
-			if (this.currentMarketOrder != null) {
-				if (this.amountUntilCurrentMarketOrder
-						+ this.currentMarketOrder.getAmount() >= atAmount) {
-					// case 2: regular case
-					return (this.averagePricePerUnitUntilCurrentMarketOrder
-							* this.amountUntilCurrentMarketOrder + (atAmount - this.amountUntilCurrentMarketOrder)
-							* this.currentMarketOrder.getPricePerUnit())
-							/ atAmount;
-				}
-			}
-		} while (this.nextMarketOrder());
-
-		// case 3: numberOfGoods is not offered on market, completely
-		return Double.NaN;
-	}
-
-	@Override
-	public double getMarginalPrice(double atAmount) {
-		checkReset(atAmount);
-
-		do {
-			if (this.currentMarketOrder != null) {
-				if (this.amountUntilCurrentMarketOrder
-						+ this.currentMarketOrder.getAmount() >= atAmount) {
-					return this.currentMarketOrder.getPricePerUnit();
-				}
-			}
-		} while (nextMarketOrder());
-
-		return Double.NaN;
+		if (marketOrderIterator == null
+				|| amountUntilCurrentMarketOrder > forAmount) {
+			reset();
+		}
 	}
 
 	/**
@@ -182,63 +147,95 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 					* marketOrder.getAmount();
 			intervalLeftBoundary = intervalRightBoundary;
 
-			if (sumOfPriceTimesAmount > maxBudget)
+			if (sumOfPriceTimesAmount > maxBudget) {
 				break;
+			}
 		}
 		return parameterSets.toArray(new PriceFunctionConfig[0]);
 	}
 
-	protected boolean nextMarketOrder() {
-		if (this.marketOrderIterator.hasNext()) {
-			this.averagePricePerUnitUntilCurrentMarketOrder = (this.averagePricePerUnitUntilCurrentMarketOrder
-					* this.amountUntilCurrentMarketOrder + this.currentMarketOrder
-					.getPricePerUnit() * this.currentMarketOrder.getAmount())
-					/ (this.amountUntilCurrentMarketOrder + this.currentMarketOrder
-							.getAmount());
-			this.amountUntilCurrentMarketOrder += this.currentMarketOrder
-					.getAmount();
+	@Override
+	public double getMarginalPrice(final double atAmount) {
+		checkReset(atAmount);
 
-			this.currentMarketOrder = this.marketOrderIterator.next();
+		do {
+			if (currentMarketOrder != null) {
+				if (amountUntilCurrentMarketOrder
+						+ currentMarketOrder.getAmount() >= atAmount) {
+					return currentMarketOrder.getPricePerUnit();
+				}
+			}
+		} while (nextMarketOrder());
+
+		return Double.NaN;
+	}
+
+	@Override
+	public double getPrice(final double atAmount) {
+		checkReset(atAmount);
+
+		// case 1: no market depth -> marginal price is searched
+		if (MathUtil.equal(atAmount, 0.0)) {
+			return getMarginalPrice(atAmount);
+		}
+
+		/*
+		 * a market price in the depth of the market is searched
+		 */
+		do {
+			if (currentMarketOrder != null) {
+				if (amountUntilCurrentMarketOrder
+						+ currentMarketOrder.getAmount() >= atAmount) {
+					// case 2: regular case
+					return (averagePricePerUnitUntilCurrentMarketOrder
+							* amountUntilCurrentMarketOrder + (atAmount - amountUntilCurrentMarketOrder)
+							* currentMarketOrder.getPricePerUnit())
+							/ atAmount;
+				}
+			}
+		} while (nextMarketOrder());
+
+		// case 3: numberOfGoods is not offered on market, completely
+		return Double.NaN;
+	}
+
+	protected boolean nextMarketOrder() {
+		if (marketOrderIterator.hasNext()) {
+			averagePricePerUnitUntilCurrentMarketOrder = (averagePricePerUnitUntilCurrentMarketOrder
+					* amountUntilCurrentMarketOrder + currentMarketOrder
+					.getPricePerUnit() * currentMarketOrder.getAmount())
+					/ (amountUntilCurrentMarketOrder + currentMarketOrder
+							.getAmount());
+			amountUntilCurrentMarketOrder += currentMarketOrder.getAmount();
+
+			currentMarketOrder = marketOrderIterator.next();
 			return true;
 		}
 		return false;
 	}
 
-	protected void checkReset(final double forAmount) {
-		/*
-		 * if a preceding call of the market price function has iterated to far
-		 * on market orders, we have to restart on the first market order
-		 */
-		if (this.marketOrderIterator == null
-				|| amountUntilCurrentMarketOrder > forAmount) {
-			reset();
-		}
-	}
-
+	@Override
 	public void reset() {
-		this.amountUntilCurrentMarketOrder = 0.0;
-		this.currentMarketOrder = null;
-		this.averagePricePerUnitUntilCurrentMarketOrder = Double.NaN;
+		amountUntilCurrentMarketOrder = 0.0;
+		currentMarketOrder = null;
+		averagePricePerUnitUntilCurrentMarketOrder = Double.NaN;
 
-		if (this.goodType != null) {
-			this.marketOrderIterator = this.marketService
-					.getMarketOrderIterator(this.denominatedInCurrency,
-							this.goodType);
-		} else if (this.commodityCurrency != null) {
-			this.marketOrderIterator = this.marketService
-					.getMarketOrderIterator(this.denominatedInCurrency,
-							this.commodityCurrency);
-		} else if (this.propertyClass != null) {
-			this.marketOrderIterator = this.marketService
-					.getMarketOrderIterator(this.denominatedInCurrency,
-							this.propertyClass);
+		if (goodType != null) {
+			marketOrderIterator = marketService.getMarketOrderIterator(
+					denominatedInCurrency, goodType);
+		} else if (commodityCurrency != null) {
+			marketOrderIterator = marketService.getMarketOrderIterator(
+					denominatedInCurrency, commodityCurrency);
+		} else if (propertyClass != null) {
+			marketOrderIterator = marketService.getMarketOrderIterator(
+					denominatedInCurrency, propertyClass);
 		} else {
-			this.marketOrderIterator = null;
+			marketOrderIterator = null;
 		}
 
-		if (this.marketOrderIterator.hasNext()) {
-			this.currentMarketOrder = this.marketOrderIterator.next();
-			this.averagePricePerUnitUntilCurrentMarketOrder = this.currentMarketOrder
+		if (marketOrderIterator.hasNext()) {
+			currentMarketOrder = marketOrderIterator.next();
+			averagePricePerUnitUntilCurrentMarketOrder = currentMarketOrder
 					.getPricePerUnit();
 		}
 	}

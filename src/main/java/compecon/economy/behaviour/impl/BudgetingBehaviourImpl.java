@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 
 	protected double lastMaxCreditRate = Double.NaN;
 
-	public BudgetingBehaviourImpl(Agent agent) {
+	public BudgetingBehaviourImpl(final Agent agent) {
 		this.agent = agent;
 	}
 
@@ -45,6 +45,7 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 	 * maxCredit defines the maximum additional debt the buyer is going to
 	 * accept -> nexus with the monetary sphere
 	 */
+	@Override
 	public double calculateTransmissionBasedBudgetForPeriod(
 			final Currency currency, final double bankAccountBalance,
 			final double referenceCredit) {
@@ -53,8 +54,8 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 		 * set / adjust reference credit
 		 */
 
-		if (Double.isNaN(this.lastMaxCreditRate)) {
-			this.lastMaxCreditRate = referenceCredit;
+		if (Double.isNaN(lastMaxCreditRate)) {
+			lastMaxCreditRate = referenceCredit;
 		}
 
 		final double keyInterestRate = ApplicationContext.getInstance()
@@ -77,9 +78,9 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 		 */
 
 		final double creditBasedBudget = Math.max(0.0, bankAccountBalance
-				+ this.lastMaxCreditRate);
+				+ lastMaxCreditRate);
 
-		if (getLog().isAgentSelectedByClient(BudgetingBehaviourImpl.this.agent))
+		if (getLog().isAgentSelectedByClient(BudgetingBehaviourImpl.this.agent)) {
 			getLog().log(
 					BudgetingBehaviourImpl.this.agent,
 					Currency.formatMoneySum(creditBasedBudget) + " "
@@ -89,9 +90,11 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 							+ " bankAccountBalance + "
 							+ Currency.formatMoneySum(lastMaxCreditRate) + " "
 							+ currency.getIso4217Code() + " maxCredit)");
+		}
 		return creditBasedBudget;
 	}
 
+	@Override
 	public double getCreditBasedBudgetCapacity() {
 		return lastMaxCreditRate;
 	}
