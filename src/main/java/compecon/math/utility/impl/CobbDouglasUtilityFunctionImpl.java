@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -26,8 +26,8 @@ import compecon.math.impl.CobbDouglasFunctionImpl;
 
 public class CobbDouglasUtilityFunctionImpl extends ConvexUtilityFunctionImpl {
 
-	public CobbDouglasUtilityFunctionImpl(double coefficient,
-			Map<GoodType, Double> exponents) {
+	public CobbDouglasUtilityFunctionImpl(final double coefficient,
+			final Map<GoodType, Double> exponents) {
 		super(new CobbDouglasFunctionImpl<GoodType>(coefficient, exponents));
 	}
 }

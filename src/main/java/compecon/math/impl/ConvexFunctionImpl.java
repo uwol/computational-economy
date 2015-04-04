@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 		ConvexFunction<T> {
 
 	protected ConvexFunctionImpl(
-			boolean needsAllInputFactorsNonZeroForPartialDerivate) {
+			final boolean needsAllInputFactorsNonZeroForPartialDerivate) {
 		super(needsAllInputFactorsNonZeroForPartialDerivate);
 	}
 
@@ -52,7 +52,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 	/**
 	 * calculates the output maximizing bundle of inputs under a budget
 	 * restriction and given fixed markets prices of inputs.
-	 * 
+	 *
 	 * @param budget
 	 *            determines the granularity of the output, as the budget is
 	 *            divided by the numberOfIterations -> large budget leads to
@@ -78,13 +78,15 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 
 		// initialize inventory
 		final Map<T, Double> inventoryNullSafe = new HashMap<T, Double>();
-		for (T inputType : this.getInputTypes()) {
+
+		for (final T inputType : getInputTypes()) {
 			inventoryNullSafe.put(inputType, 0.0);
 		}
 
 		// check, whether inputs have NaN prices
 		boolean inputsAreUnavailable = false;
-		for (T inputType : this.getInputTypes()) {
+
+		for (final T inputType : getInputTypes()) {
 			final double inventoryAmount = inventoryNullSafe.get(inputType);
 			// if the input type is not available in the inventory
 			if (inventoryAmount <= 0.0) {
@@ -105,7 +107,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 		// This becomes a problem, if all inputs have to be set -> return zero
 		// input
 		if (inputsAreUnavailable
-				&& this.needsAllInputFactorsNonZeroForPartialDerivate) {
+				&& needsAllInputFactorsNonZeroForPartialDerivate) {
 			getLog().log(
 					"at least one of the prices is Double.NaN, but the function needs all inputs set -> no calculation");
 			getLog().agent_onCalculateOutputMaximizingInputsIterative(budget,
@@ -113,8 +115,11 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 					ConvexFunctionTerminationCause.INPUT_FACTOR_UNAVAILABLE);
 
 			final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
-			for (T inputType : this.getInputTypes())
+
+			for (final T inputType : getInputTypes()) {
 				bundleOfInputs.put(inputType, 0.0);
+			}
+
 			return bundleOfInputs;
 		}
 
@@ -125,8 +130,11 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 					0.0, ConvexFunctionTerminationCause.BUDGET_PLANNED);
 
 			final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
-			for (T inputType : this.getInputTypes())
+
+			for (final T inputType : getInputTypes()) {
 				bundleOfInputs.put(inputType, 0.0);
+			}
+
 			return bundleOfInputs;
 		}
 
@@ -138,14 +146,15 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 
 		// determine initialization value
 		final double initializationValueForInputs;
-		if (this.needsAllInputFactorsNonZeroForPartialDerivate) {
+
+		if (needsAllInputFactorsNonZeroForPartialDerivate) {
 			initializationValueForInputs = initializationValue;
 		} else {
 			initializationValueForInputs = 0.0;
 		}
 
 		// set initialization value
-		for (T inputType : this.getInputTypes()) {
+		for (final T inputType : getInputTypes()) {
 			bundleOfInputs.put(inputType,
 					MathUtil.nullSafeValue(bundleOfInputs.get(inputType))
 							+ initializationValueForInputs);
@@ -161,8 +170,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 		// maximize output
 		final int NUMBER_OF_ITERATIONS = bundleOfInputs.size()
 				* numberOfIterations;
-		final double budgetPerIteration = budget
-				/ (double) NUMBER_OF_ITERATIONS;
+		final double budgetPerIteration = budget / NUMBER_OF_ITERATIONS;
 
 		while (true) {
 			// would this iteration lead to overspending of the budget?
@@ -174,7 +182,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 				break;
 			}
 
-			final T optimalInputType = this.findHighestPartialDerivatePerPrice(
+			final T optimalInputType = findHighestPartialDerivatePerPrice(
 					bundleOfInputs, priceFunctionsOfInputTypes,
 					inventoryNullSafe);
 
@@ -215,7 +223,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 		// ------ cleanup -----------------------------------------
 
 		// reset initialization values
-		for (T inputType : this.getInputTypes()) {
+		for (final T inputType : getInputTypes()) {
 			bundleOfInputs.put(inputType, bundleOfInputs.get(inputType)
 					- initializationValueForInputs);
 		}

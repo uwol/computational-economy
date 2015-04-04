@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -22,6 +22,6 @@ package compecon.math.production;
 public interface ConvexProductionFunction extends ProductionFunction {
 
 	public enum ConvexProductionFunctionTerminationCause {
-		INPUT_FACTOR_UNAVAILABLE, ESTIMATED_REVENUE_PER_UNIT_ZERO, NO_INPUT_AVAILABLE, MARGINAL_REVENUE_EXCEEDED, MAX_OUTPUT_EXCEEDED, BUDGET_PLANNED;
+		BUDGET_PLANNED, ESTIMATED_REVENUE_PER_UNIT_ZERO, INPUT_FACTOR_UNAVAILABLE, MARGINAL_REVENUE_EXCEEDED, MAX_OUTPUT_EXCEEDED, NO_INPUT_AVAILABLE;
 	}
 }

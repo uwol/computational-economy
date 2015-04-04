@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,22 +36,22 @@ public abstract class ProductionFunctionImpl implements ProductionFunction {
 	}
 
 	@Override
-	public Set<GoodType> getInputGoodTypes() {
-		return this.delegate.getInputTypes();
+	public double calculateMarginalOutput(
+			final Map<GoodType, Double> bundleOfProductionFactors,
+			final GoodType differentialGoodType) {
+		return delegate.partialDerivative(bundleOfProductionFactors,
+				differentialGoodType);
 	}
 
 	@Override
 	public double calculateOutput(
 			final Map<GoodType, Double> bundleOfProductionFactors) {
-		return this.delegate.f(bundleOfProductionFactors);
+		return delegate.f(bundleOfProductionFactors);
 	}
 
 	@Override
-	public double calculateMarginalOutput(
-			final Map<GoodType, Double> bundleOfProductionFactors,
-			final GoodType differentialGoodType) {
-		return this.delegate.partialDerivative(bundleOfProductionFactors,
-				differentialGoodType);
+	public Set<GoodType> getInputGoodTypes() {
+		return delegate.getInputTypes();
 	}
 
 	/**
@@ -61,7 +61,7 @@ public abstract class ProductionFunctionImpl implements ProductionFunction {
 			final Map<GoodType, Double> bundleOfInputGoods,
 			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
 			final Map<GoodType, Double> capital) {
-		return this.delegate.findHighestPartialDerivatePerPrice(
-				bundleOfInputGoods, priceFunctionsOfInputGoods, capital);
+		return delegate.findHighestPartialDerivatePerPrice(bundleOfInputGoods,
+				priceFunctionsOfInputGoods, capital);
 	}
 }

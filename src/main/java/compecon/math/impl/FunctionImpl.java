@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,70 +30,12 @@ public abstract class FunctionImpl<T> implements Function<T> {
 
 	protected final boolean needsAllInputFactorsNonZeroForPartialDerivate;
 
-	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate() {
-		return this.needsAllInputFactorsNonZeroForPartialDerivate;
-	}
-
-	public FunctionImpl(boolean needsAllInputFactorsNonZeroForPartialDerivate) {
+	public FunctionImpl(
+			final boolean needsAllInputFactorsNonZeroForPartialDerivate) {
 		this.needsAllInputFactorsNonZeroForPartialDerivate = needsAllInputFactorsNonZeroForPartialDerivate;
 	}
 
-	public T findLargestPartialDerivate(final Map<T, Double> bundleOfInputs) {
-		@SuppressWarnings("unchecked")
-		T optimalInputType = (T) this.getInputTypes().toArray()[0];
-		double optimalPartialDerivate = 0;
-
-		for (T inputType : this.getInputTypes()) {
-			final double partialDerivate = this.partialDerivative(
-					bundleOfInputs, inputType);
-			if (optimalInputType == null
-					|| MathUtil
-							.greater(partialDerivate, optimalPartialDerivate)) {
-				optimalInputType = inputType;
-				optimalPartialDerivate = partialDerivate;
-			}
-		}
-		return optimalInputType;
-	}
-
-	public T findHighestPartialDerivatePerPrice(
-			final Map<T, Double> bundleOfInputs,
-			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
-			final Map<T, Double> inventory) {
-		T optimalInputType = null;
-		double highestPartialDerivatePerPrice = 0.0;
-		for (T inputType : this.getInputTypes()) {
-			final double partialDerivative = this.partialDerivative(
-					bundleOfInputs, inputType);
-			final double amountToBuy = Math.max(bundleOfInputs.get(inputType)
-					- inventory.get(inputType), 0.0);
-			final double marginalPrice = priceFunctionsOfInputTypes.get(
-					inputType).getMarginalPrice(amountToBuy);
-			if (!Double.isNaN(marginalPrice)) {
-				final double partialDerivativePerPrice = partialDerivative
-						/ marginalPrice;
-
-				assert (!Double.isNaN(partialDerivativePerPrice));
-
-				if (partialDerivativePerPrice > highestPartialDerivatePerPrice) {
-					optimalInputType = inputType;
-					highestPartialDerivatePerPrice = partialDerivativePerPrice;
-				}
-			}
-		}
-		return optimalInputType;
-	}
-
-	public Map<T, Double> partialDerivatives(
-			final Map<T, Double> forBundleOfInputs) {
-		final Map<T, Double> partialDerivatives = new HashMap<T, Double>();
-		for (T inputType : this.getInputTypes()) {
-			partialDerivatives.put(inputType,
-					this.partialDerivative(forBundleOfInputs, inputType));
-		}
-		return partialDerivatives;
-	}
-
+	@Override
 	public Map<T, Double> calculateOutputMaximizingInputs(
 			final Map<T, PriceFunction> priceFunctionsOfInputs,
 			final double budget) {
@@ -105,6 +47,7 @@ public abstract class FunctionImpl<T> implements Function<T> {
 	 * finds the optimal bundle of inputs under the budget restriction by a
 	 * discrete brute force search on the domain of the function -> slow
 	 */
+	@Override
 	public Map<T, Double> calculateOutputMaximizingInputsByRangeScan(
 			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
 			final double budget) {
@@ -112,11 +55,13 @@ public abstract class FunctionImpl<T> implements Function<T> {
 				.calculateOutputMaximizingInputsByRangeScan(
 						priceFunctionsOfInputTypes, budget, 0.0,
 						new HashMap<T, Double>());
+
 		if (optimalBundleOfInputs.isEmpty()) {
-			for (T inputType : this.getInputTypes()) {
+			for (final T inputType : getInputTypes()) {
 				optimalBundleOfInputs.put(inputType, 0.0);
 			}
 		}
+
 		return optimalBundleOfInputs;
 	}
 
@@ -129,10 +74,11 @@ public abstract class FunctionImpl<T> implements Function<T> {
 			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
 			final double budgetLeft, final double minOutput,
 			final Map<T, Double> currentBundleOfInputs) {
-		T currentInputType = identifyNextUnsetInputType(currentBundleOfInputs);
+		final T currentInputType = identifyNextUnsetInputType(currentBundleOfInputs);
+
 		// if a bundle of inputs has been chosen
 		if (currentInputType == null) {
-			if (this.f(currentBundleOfInputs) > minOutput) {
+			if (f(currentBundleOfInputs) > minOutput) {
 				return currentBundleOfInputs;
 			} else {
 				return new HashMap<T, Double>();
@@ -181,13 +127,13 @@ public abstract class FunctionImpl<T> implements Function<T> {
 					break;
 				}
 
-				Map<T, Double> betterBundleOfInputs = calculateOutputMaximizingInputsByRangeScan(
+				final Map<T, Double> betterBundleOfInputs = calculateOutputMaximizingInputsByRangeScan(
 						priceFunctionsOfInputTypes, budgetLeft
 								- priceSumOfCurrentInputType, bestOutput,
 						currentBundleOfInputs);
 				// if a better bundle of inputs has been found
 				if (!betterBundleOfInputs.isEmpty()) {
-					double betterOutput = this.f(betterBundleOfInputs);
+					final double betterOutput = f(betterBundleOfInputs);
 					bestOutput = betterOutput;
 					// clone the map, as the original map will be modified
 					// in next iteration
@@ -195,18 +141,89 @@ public abstract class FunctionImpl<T> implements Function<T> {
 							betterBundleOfInputs);
 				}
 			}
+
 			// remove this input, so that it will be set in next outer iteration
 			currentBundleOfInputs.remove(currentInputType);
 			return bestBundleOfInputs;
 		}
 	}
 
+	@Override
+	public T findHighestPartialDerivatePerPrice(
+			final Map<T, Double> bundleOfInputs,
+			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
+			final Map<T, Double> inventory) {
+		T optimalInputType = null;
+		double highestPartialDerivatePerPrice = 0.0;
+
+		for (final T inputType : getInputTypes()) {
+			final double partialDerivative = partialDerivative(bundleOfInputs,
+					inputType);
+			final double amountToBuy = Math.max(bundleOfInputs.get(inputType)
+					- inventory.get(inputType), 0.0);
+			final double marginalPrice = priceFunctionsOfInputTypes.get(
+					inputType).getMarginalPrice(amountToBuy);
+			if (!Double.isNaN(marginalPrice)) {
+				final double partialDerivativePerPrice = partialDerivative
+						/ marginalPrice;
+
+				assert (!Double.isNaN(partialDerivativePerPrice));
+
+				if (partialDerivativePerPrice > highestPartialDerivatePerPrice) {
+					optimalInputType = inputType;
+					highestPartialDerivatePerPrice = partialDerivativePerPrice;
+				}
+			}
+		}
+
+		return optimalInputType;
+	}
+
+	@Override
+	public T findLargestPartialDerivate(final Map<T, Double> bundleOfInputs) {
+		@SuppressWarnings("unchecked")
+		T optimalInputType = (T) getInputTypes().toArray()[0];
+		double optimalPartialDerivate = 0;
+
+		for (final T inputType : getInputTypes()) {
+			final double partialDerivate = partialDerivative(bundleOfInputs,
+					inputType);
+			if (optimalInputType == null
+					|| MathUtil
+							.greater(partialDerivate, optimalPartialDerivate)) {
+				optimalInputType = inputType;
+				optimalPartialDerivate = partialDerivate;
+			}
+		}
+
+		return optimalInputType;
+	}
+
+	@Override
+	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate() {
+		return this.needsAllInputFactorsNonZeroForPartialDerivate;
+	}
+
 	private T identifyNextUnsetInputType(final Map<T, Double> bundleOfInputs) {
-		for (T inputType : this.getInputTypes()) {
+		for (final T inputType : getInputTypes()) {
 			if (!bundleOfInputs.containsKey(inputType)) {
 				return inputType;
 			}
 		}
+
 		return null;
+	}
+
+	@Override
+	public Map<T, Double> partialDerivatives(
+			final Map<T, Double> forBundleOfInputs) {
+		final Map<T, Double> partialDerivatives = new HashMap<T, Double>();
+
+		for (final T inputType : getInputTypes()) {
+			partialDerivatives.put(inputType,
+					partialDerivative(forBundleOfInputs, inputType));
+		}
+
+		return partialDerivatives;
 	}
 }

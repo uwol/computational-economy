@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,16 +32,17 @@ import compecon.math.util.MathUtil;
 
 public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 
-	protected double mainCoefficient;
-
 	protected final Map<T, Double> coefficients;
-
-	protected final double substitutionFactor;
 
 	protected final double homogenityFactor;
 
-	public CESFunctionImpl(double mainCoefficient, Map<T, Double> coefficients,
-			double substitutionFactor, double homogenityFactor) {
+	protected double mainCoefficient;
+
+	protected final double substitutionFactor;
+
+	public CESFunctionImpl(final double mainCoefficient,
+			final Map<T, Double> coefficients, final double substitutionFactor,
+			final double homogenityFactor) {
 		super(false);
 
 		// mainCoefficient has to be > 0
@@ -54,7 +55,7 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 		// homogenityFactor has to be > 0
 		assert (MathUtil.greater(homogenityFactor, 0.0));
 
-		double exteriorExponent = -homogenityFactor / substitutionFactor;
+		final double exteriorExponent = -homogenityFactor / substitutionFactor;
 
 		// exterior exponent has to be in interval ]0, 1[ for a convex function
 		assert (exteriorExponent > 0.0 && exteriorExponent < 1.0);
@@ -66,76 +67,13 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	}
 
 	@Override
-	public Set<T> getInputTypes() {
-		return this.coefficients.keySet();
-	}
-
-	/**
-	 * y = a * [c_1 * (x_1)^(-r) + ... + c_n * (x_n)^(r)]^(-h/r)
-	 */
-	@Override
-	public double f(Map<T, Double> bundleOfInputs) {
-		double sum = 0.0;
-		for (Entry<T, Double> entry : this.coefficients.entrySet()) {
-			T inputType = entry.getKey();
-			double coefficient = entry.getValue();
-			double input = bundleOfInputs.get(inputType);
-			sum += coefficient * Math.pow(input, -this.substitutionFactor);
-		}
-		return this.mainCoefficient
-				* Math.pow(sum, (-1.0 * this.homogenityFactor)
-						/ this.substitutionFactor);
-	}
-
-	/**
-	 * dy/d(x_1) = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r
-	 * - 1)] * [-r * c_1 * (x_1)^(-r-1)]
-	 */
-	@Override
-	public double partialDerivative(Map<T, Double> forBundleOfInputs,
-			T withRespectToInputType) {
-		/*
-		 * exterior derivative
-		 */
-		double sum = 0.0;
-		for (Entry<T, Double> entry : this.coefficients.entrySet()) {
-			T inputType = entry.getKey();
-			double coefficient = entry.getValue();
-			double input = forBundleOfInputs.get(inputType);
-			sum += coefficient
-					* Math.pow(input, -1.0 * this.substitutionFactor);
-		}
-		double exponent = (-1.0 * this.homogenityFactor / this.substitutionFactor) - 1.0;
-		double exteriorDerivative = (-1.0 * this.homogenityFactor / this.substitutionFactor)
-				* this.mainCoefficient * Math.pow(sum, exponent);
-
-		/*
-		 * interior derivative
-		 */
-		double coefficient = this.coefficients.get(withRespectToInputType);
-		double differentialInput = forBundleOfInputs
-				.get(withRespectToInputType);
-		double interiorDerivative = -1.0
-				* this.substitutionFactor
-				* coefficient
-				* Math.pow(differentialInput,
-						(-1.0 * this.substitutionFactor) - 1.0);
-
-		// Java returns Double.NaN for 0 * Double.INFINITE -> return 0
-		if (exteriorDerivative == 0.0 && Double.isInfinite(interiorDerivative))
-			return 0.0;
-		if (interiorDerivative == 0.0 && Double.isInfinite(exteriorDerivative))
-			return 0.0;
-		return exteriorDerivative * interiorDerivative;
-	}
-
-	@Override
 	public Map<T, Double> calculateOutputMaximizingInputs(
 			final Map<T, PriceFunction> priceFunctionsOfInputs,
 			final double budget) {
 		// check whether the analytical solution is viable
-		Map<T, Double> fixedPrices = new HashMap<T, Double>();
-		for (Entry<T, PriceFunction> priceFunctionEntry : priceFunctionsOfInputs
+		final Map<T, Double> fixedPrices = new HashMap<T, Double>();
+
+		for (final Entry<T, PriceFunction> priceFunctionEntry : priceFunctionsOfInputs
 				.entrySet()) {
 			if (priceFunctionEntry.getValue() instanceof FixedPriceFunctionImpl) {
 				fixedPrices.put(priceFunctionEntry.getKey(), priceFunctionEntry
@@ -196,28 +134,29 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	 * [(p_1 * c_n) / (p_n * c_1)]^(1/(r+1))]
 	 */
 	public Map<T, Double> calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
-			Map<T, Double> pricesOfInputs, double budget) {
-		Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
+			final Map<T, Double> pricesOfInputs, final double budget) {
+		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 
 		/*
 		 * analytical formula for the optimal solution of a CES function under
 		 * given budget restriction -> lagrange function
 		 */
-		for (T referenceInputType : this.getInputTypes()) {
-			double referenceInputTypePrice = pricesOfInputs
+		for (final T referenceInputType : this.getInputTypes()) {
+			final double referenceInputTypePrice = pricesOfInputs
 					.get(referenceInputType);
 			double divisor = referenceInputTypePrice;
-			for (T inputType : this.getInputTypes()) {
+
+			for (final T inputType : this.getInputTypes()) {
 				if (!referenceInputType.equals(inputType)) {
-					double currentInputTypePrice = pricesOfInputs
+					final double currentInputTypePrice = pricesOfInputs
 							.get(inputType);
 					if (!Double.isNaN(referenceInputTypePrice)
 							&& !Double.isNaN(currentInputTypePrice)) {
-						double base = referenceInputTypePrice
+						final double base = referenceInputTypePrice
 								* this.coefficients.get(inputType)
 								/ (currentInputTypePrice * this.coefficients
 										.get(referenceInputType));
-						double exponent = 1.0 / (this.substitutionFactor + 1.0);
+						final double exponent = 1.0 / (this.substitutionFactor + 1.0);
 						divisor += currentInputTypePrice
 								* Math.pow(base, exponent);
 					}
@@ -225,8 +164,11 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 			}
 
 			double optimalAmount = budget / divisor;
-			if (Double.isNaN(optimalAmount))
+
+			if (Double.isNaN(optimalAmount)) {
 				optimalAmount = 0.0;
+			}
+
 			bundleOfInputs.put(referenceInputType, optimalAmount);
 		}
 
@@ -299,35 +241,39 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	 * c_1)]^(1/(r+1)) + ... + c_x0_(x_n) [(c_x0_(x_1) * c_n) / (c_x0_(x_n) *
 	 * c_1)]^(1/(r+1))]
 	 */
+	@Override
 	protected Map<T, Double> calculatePossiblyValidOutputMaximizingInputsAnalyticalWithMarketPrices(
-			Map<T, PriceFunctionConfig> priceFunctionConfigs, double budget) {
-		Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
+			final Map<T, PriceFunctionConfig> priceFunctionConfigs,
+			final double budget) {
+		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 
 		/*
 		 * analytical formula for the optimal solution of a CES function under
 		 * given budget restriction -> lagrange function
 		 */
 		double sumOfCoefficientXPowerMinus1 = 0.0;
-		for (PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs
+
+		for (final PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs
 				.values()) {
 			sumOfCoefficientXPowerMinus1 += priceFunctionConfig.coefficientXPowerMinus1;
 		}
 
-		for (T referenceInputType : this.getInputTypes()) {
-			double referenceCoefficientXPower0 = priceFunctionConfigs
+		for (final T referenceInputType : this.getInputTypes()) {
+			final double referenceCoefficientXPower0 = priceFunctionConfigs
 					.get(referenceInputType).coefficientXPower0;
 			double divisor = referenceCoefficientXPower0;
-			for (T inputType : this.getInputTypes()) {
+
+			for (final T inputType : this.getInputTypes()) {
 				if (!referenceInputType.equals(inputType)) {
-					double currentCoefficientXPower0 = priceFunctionConfigs
+					final double currentCoefficientXPower0 = priceFunctionConfigs
 							.get(inputType).coefficientXPower0;
 					if (!Double.isNaN(referenceCoefficientXPower0)
 							&& !Double.isNaN(currentCoefficientXPower0)) {
-						double base = referenceCoefficientXPower0
+						final double base = referenceCoefficientXPower0
 								* this.coefficients.get(inputType)
 								/ (currentCoefficientXPower0 * this.coefficients
 										.get(referenceInputType));
-						double exponent = 1.0 / (this.substitutionFactor + 1.0);
+						final double exponent = 1.0 / (this.substitutionFactor + 1.0);
 						divisor += currentCoefficientXPower0
 								* Math.pow(base, exponent);
 					}
@@ -336,19 +282,94 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 
 			double optimalAmount = (budget - sumOfCoefficientXPowerMinus1)
 					/ divisor;
-			if (Double.isNaN(optimalAmount))
+			if (Double.isNaN(optimalAmount)) {
 				optimalAmount = 0.0;
+			}
+
 			bundleOfInputs.put(referenceInputType, optimalAmount);
 		}
 
 		return bundleOfInputs;
 	}
 
+	/**
+	 * y = a * [c_1 * (x_1)^(-r) + ... + c_n * (x_n)^(r)]^(-h/r)
+	 */
+	@Override
+	public double f(final Map<T, Double> bundleOfInputs) {
+		double sum = 0.0;
+
+		for (final Entry<T, Double> entry : this.coefficients.entrySet()) {
+			final T inputType = entry.getKey();
+			final double coefficient = entry.getValue();
+			final double input = bundleOfInputs.get(inputType);
+			sum += coefficient * Math.pow(input, -this.substitutionFactor);
+		}
+
+		return this.mainCoefficient
+				* Math.pow(sum, (-1.0 * this.homogenityFactor)
+						/ this.substitutionFactor);
+	}
+
+	@Override
+	public Set<T> getInputTypes() {
+		return this.coefficients.keySet();
+	}
+
 	public double getMainCoefficient() {
 		return this.mainCoefficient;
 	}
 
-	public void setMainCoefficient(double mainCoefficient) {
+	/**
+	 * dy/d(x_1) = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r
+	 * - 1)] * [-r * c_1 * (x_1)^(-r-1)]
+	 */
+	@Override
+	public double partialDerivative(final Map<T, Double> forBundleOfInputs,
+			final T withRespectToInputType) {
+		/*
+		 * exterior derivative
+		 */
+		double sum = 0.0;
+
+		for (final Entry<T, Double> entry : this.coefficients.entrySet()) {
+			final T inputType = entry.getKey();
+			final double coefficient = entry.getValue();
+			final double input = forBundleOfInputs.get(inputType);
+			sum += coefficient
+					* Math.pow(input, -1.0 * this.substitutionFactor);
+		}
+
+		final double exponent = (-1.0 * this.homogenityFactor / this.substitutionFactor) - 1.0;
+		final double exteriorDerivative = (-1.0 * this.homogenityFactor / this.substitutionFactor)
+				* this.mainCoefficient * Math.pow(sum, exponent);
+
+		/*
+		 * interior derivative
+		 */
+		final double coefficient = this.coefficients
+				.get(withRespectToInputType);
+		final double differentialInput = forBundleOfInputs
+				.get(withRespectToInputType);
+		final double interiorDerivative = -1.0
+				* this.substitutionFactor
+				* coefficient
+				* Math.pow(differentialInput,
+						(-1.0 * this.substitutionFactor) - 1.0);
+
+		// Java returns Double.NaN for 0 * Double.INFINITE -> return 0
+		if (exteriorDerivative == 0.0 && Double.isInfinite(interiorDerivative)) {
+			return 0.0;
+		}
+
+		if (interiorDerivative == 0.0 && Double.isInfinite(exteriorDerivative)) {
+			return 0.0;
+		}
+
+		return exteriorDerivative * interiorDerivative;
+	}
+
+	public void setMainCoefficient(final double mainCoefficient) {
 		this.mainCoefficient = mainCoefficient;
 	}
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -22,6 +22,6 @@ package compecon.math;
 public interface ConvexFunction<T> extends Function<T> {
 
 	public enum ConvexFunctionTerminationCause {
-		INPUT_FACTOR_UNAVAILABLE, NO_INPUT_AVAILABLE, BUDGET_PLANNED;
+		BUDGET_PLANNED, INPUT_FACTOR_UNAVAILABLE, NO_INPUT_AVAILABLE;
 	}
 }

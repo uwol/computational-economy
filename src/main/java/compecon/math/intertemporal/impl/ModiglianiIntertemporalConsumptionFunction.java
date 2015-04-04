@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -38,12 +38,11 @@ public class ModiglianiIntertemporalConsumptionFunction implements
 				- ageInDays, 0);
 
 		final double dailyConsumption;
+
 		if (averageRemainingLifeDays > 0) {
 			final double lifeConsumption = currentAssets
-					+ averageIncomePerPeriod
-					* (double) remainingDaysUntilRetirement;
-			dailyConsumption = lifeConsumption
-					/ (double) averageRemainingLifeDays;
+					+ averageIncomePerPeriod * remainingDaysUntilRetirement;
+			dailyConsumption = lifeConsumption / averageRemainingLifeDays;
 		} else {
 			// household is deconstructed -> spend everything
 			dailyConsumption = averageIncomePerPeriod + currentAssets;
@@ -55,9 +54,11 @@ public class ModiglianiIntertemporalConsumptionFunction implements
 		assert (!Double.isNaN(dailyConsumption));
 
 		final Map<Period, Double> optimalConsumptionPlan = new HashMap<Period, Double>();
-		for (Period period : Period.values()) {
+
+		for (final Period period : Period.values()) {
 			optimalConsumptionPlan.put(period, dailyConsumption);
 		}
+
 		return optimalConsumptionPlan;
 	}
 }

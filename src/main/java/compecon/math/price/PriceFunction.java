@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,15 +30,11 @@ public interface PriceFunction {
 	 * p(x) = coefficientXPower0 * x^0 + coefficientXPowerMinus1 + x^-1 <br />
 	 * = coefficientXPower0 + coefficientXPowerMinus1 / x <br />
 	 * | x in [intervalLeftBoundary, intervalRightBoundary]
-	 * 
+	 *
 	 * @see compecon.engine.service.impl.MarketServiceImpl#getAnalyticalPriceFunctionConfigs(Currency,
 	 *      GoodType, double)
 	 */
 	public class PriceFunctionConfig {
-
-		public final double intervalLeftBoundary;
-
-		public final double intervalRightBoundary;
 
 		/**
 		 * i. e. pricePerUnit
@@ -56,15 +52,21 @@ public interface PriceFunction {
 		 */
 		public final double coefficientXPowerMinus1;
 
-		public PriceFunctionConfig(double intervalLeftBoundary,
-				double intervalRightBoundary, double coefficientXPower0,
-				double coefficientXPowerMinus1) {
+		public final double intervalLeftBoundary;
+
+		public final double intervalRightBoundary;
+
+		public PriceFunctionConfig(final double intervalLeftBoundary,
+				final double intervalRightBoundary,
+				final double coefficientXPower0,
+				final double coefficientXPowerMinus1) {
 			this.intervalLeftBoundary = intervalLeftBoundary;
 			this.intervalRightBoundary = intervalRightBoundary;
 			this.coefficientXPower0 = coefficientXPower0;
 			this.coefficientXPowerMinus1 = coefficientXPowerMinus1;
 		}
 
+		@Override
 		public String toString() {
 			return coefficientXPower0 + " + " + coefficientXPowerMinus1
 					+ "/x | x in [" + intervalLeftBoundary + ", "
@@ -73,9 +75,11 @@ public interface PriceFunction {
 	}
 
 	/**
-	 * average price per unit at the given amount
+	 * @return coefficients of polynomial price function; exponent = position in
+	 *         array
 	 */
-	public double getPrice(double atAmount);
+	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(
+			double maxBudget);
 
 	/**
 	 * marginal price at the given amount
@@ -83,9 +87,7 @@ public interface PriceFunction {
 	public double getMarginalPrice(double atAmount);
 
 	/**
-	 * @return coefficients of polynomial price function; exponent = position in
-	 *         array
+	 * average price per unit at the given amount
 	 */
-	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(
-			double maxBudget);
+	public double getPrice(double atAmount);
 }

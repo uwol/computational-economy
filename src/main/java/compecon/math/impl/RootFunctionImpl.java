@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -25,13 +25,14 @@ import java.util.Set;
 
 import compecon.math.Function;
 
-public class RootFunctionImpl<T> extends ConvexFunctionImpl<T> implements Function<T> {
-
-	protected T inputType;
+public class RootFunctionImpl<T> extends ConvexFunctionImpl<T> implements
+		Function<T> {
 
 	protected double coefficient;
 
-	public RootFunctionImpl(T inputType, double coefficient) {
+	protected T inputType;
+
+	public RootFunctionImpl(final T inputType, final double coefficient) {
 		super(false);
 
 		this.inputType = inputType;
@@ -39,32 +40,33 @@ public class RootFunctionImpl<T> extends ConvexFunctionImpl<T> implements Functi
 	}
 
 	@Override
-	public Set<T> getInputTypes() {
-		Set<T> inputTypes = new HashSet<T>();
-		inputTypes.add(this.inputType);
-		return inputTypes;
-	}
-
-	@Override
-	public double f(Map<T, Double> bundleOfInputs) {
+	public double f(final Map<T, Double> bundleOfInputs) {
 		return this.coefficient
 				* Math.pow(bundleOfInputs.get(this.inputType), 0.5);
-	}
-
-	@Override
-	public double partialDerivative(Map<T, Double> forBundleOfInputs,
-			T withRespectToInputType) {
-		if (this.inputType.equals(withRespectToInputType))
-			return this.coefficient * 0.5
-					* Math.pow(forBundleOfInputs.get(this.inputType), -0.5);
-		return 0.0;
 	}
 
 	public double getCoefficient() {
 		return this.coefficient;
 	}
 
-	public void setCoefficient(double coefficient) {
+	@Override
+	public Set<T> getInputTypes() {
+		final Set<T> inputTypes = new HashSet<T>();
+		inputTypes.add(this.inputType);
+		return inputTypes;
+	}
+
+	@Override
+	public double partialDerivative(final Map<T, Double> forBundleOfInputs,
+			final T withRespectToInputType) {
+		if (this.inputType.equals(withRespectToInputType)) {
+			return this.coefficient * 0.5
+					* Math.pow(forBundleOfInputs.get(this.inputType), -0.5);
+		}
+		return 0.0;
+	}
+
+	public void setCoefficient(final double coefficient) {
 		this.coefficient = coefficient;
 	}
 }

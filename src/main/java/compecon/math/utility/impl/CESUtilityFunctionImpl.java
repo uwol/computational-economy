@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -26,9 +26,9 @@ import compecon.math.impl.CESFunctionImpl;
 
 public class CESUtilityFunctionImpl extends ConvexUtilityFunctionImpl {
 
-	public CESUtilityFunctionImpl(double mainUtilityLevel,
-			Map<GoodType, Double> coefficients, double substitutionFactor,
-			double homogenityFactor) {
+	public CESUtilityFunctionImpl(final double mainUtilityLevel,
+			final Map<GoodType, Double> coefficients,
+			final double substitutionFactor, final double homogenityFactor) {
 		super(new CESFunctionImpl<GoodType>(mainUtilityLevel, coefficients,
 				substitutionFactor, homogenityFactor));
 	}

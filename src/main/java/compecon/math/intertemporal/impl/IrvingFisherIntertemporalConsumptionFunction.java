@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -42,6 +42,7 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 		this.delegate = delegate;
 	}
 
+	@Override
 	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(
 			final double averageIncomePerPeriod, final double currentAssets,
 			final double keyInterestRate, final int ageInDays,
@@ -49,14 +50,16 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 
 		// price levels
 		final Map<Period, PriceFunction> priceLevelsOfPeriods = new HashMap<Period, PriceFunction>();
-		for (Period period : Period.values()) {
+
+		for (final Period period : Period.values()) {
 			// price levels in periods
 			priceLevelsOfPeriods.put(period, new FixedPriceFunctionImpl(1.0));
 		}
 
 		// income cash flow discounted to current period -> intertemporal budget
 		double discountedBudget = 0.0;
-		for (Period period : Period.values()) {
+
+		for (final Period period : Period.values()) {
 			// budget, discounted to current period
 			final double periodIncome = averageIncomePerPeriod;
 			final int periodNumber = period.ordinal();
@@ -68,7 +71,8 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 		final Map<Period, Double> intermediateResult = delegate
 				.calculateOutputMaximizingInputs(priceLevelsOfPeriods,
 						discountedBudget);
-		for (Entry<Period, Double> entry : intermediateResult.entrySet()) {
+
+		for (final Entry<Period, Double> entry : intermediateResult.entrySet()) {
 			// add interest to consumption plan
 			final double periodConsumption = entry.getValue();
 			final int periodNumber = entry.getKey().ordinal();

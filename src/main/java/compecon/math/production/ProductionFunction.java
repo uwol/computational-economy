@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -27,20 +27,18 @@ import compecon.math.price.PriceFunction;
 
 public interface ProductionFunction {
 
-	public Set<GoodType> getInputGoodTypes();
-
-	public double calculateOutput(
-			final Map<GoodType, Double> bundleOfProductionFactors);
-
 	public double calculateMarginalOutput(
 			final Map<GoodType, Double> bundleOfProductionFactors,
 			final GoodType differentialGoodType);
+
+	public double calculateOutput(
+			final Map<GoodType, Double> bundleOfProductionFactors);
 
 	/**
 	 * returns the optimal production plan for this production function under a
 	 * given price of produced good type, prices, capital goods, budget, maximal
 	 * output and minimal margin.
-	 * 
+	 *
 	 * @param capital
 	 *            Capital goods; have to be durable good types.
 	 * @return Key: Input good type, Value: Amount of good type input
@@ -50,6 +48,8 @@ public interface ProductionFunction {
 			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
 			final Map<GoodType, Double> capital, final double budget,
 			final double maxOutput, final double margin);
+
+	public Set<GoodType> getInputGoodTypes();
 
 	public double getProductivity();
 

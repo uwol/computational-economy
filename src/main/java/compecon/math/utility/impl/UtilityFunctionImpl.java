@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,37 +36,36 @@ public abstract class UtilityFunctionImpl implements UtilityFunction {
 	}
 
 	@Override
-	public Set<GoodType> getInputGoodTypes() {
-		return this.delegate.getInputTypes();
+	public double calculateMarginalUtility(
+			final Map<GoodType, Double> bundleOfInputGoods,
+			final GoodType differentialInputGoodType) {
+		return delegate.partialDerivative(bundleOfInputGoods,
+				differentialInputGoodType);
 	}
 
 	@Override
 	public double calculateUtility(
 			final Map<GoodType, Double> bundleOfInputGoods) {
-		return this.delegate.f(bundleOfInputGoods);
-	}
-
-	@Override
-	public double calculateMarginalUtility(
-			final Map<GoodType, Double> bundleOfInputGoods,
-			final GoodType differentialInputGoodType) {
-		return this.delegate.partialDerivative(bundleOfInputGoods,
-				differentialInputGoodType);
+		return delegate.f(bundleOfInputGoods);
 	}
 
 	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputs(
 			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
 			final double budget) {
-		return ((Function<GoodType>) this.delegate)
-				.calculateOutputMaximizingInputs(priceFunctionsOfInputGoods,
-						budget);
+		return delegate.calculateOutputMaximizingInputs(
+				priceFunctionsOfInputGoods, budget);
+	}
+
+	@Override
+	public Set<GoodType> getInputGoodTypes() {
+		return delegate.getInputTypes();
 	}
 
 	protected GoodType selectInputWithHighestMarginalUtilityPerPrice(
 			final Map<GoodType, Double> bundleOfInputGoods,
 			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods) {
-		return this.delegate.findHighestPartialDerivatePerPrice(
-				bundleOfInputGoods, priceFunctionsOfInputGoods, null);
+		return delegate.findHighestPartialDerivatePerPrice(bundleOfInputGoods,
+				priceFunctionsOfInputGoods, null);
 	}
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -27,13 +27,11 @@ import compecon.math.price.PriceFunction;
 
 public interface UtilityFunction {
 
-	public Set<GoodType> getInputGoodTypes();
-
-	public double calculateUtility(Map<GoodType, Double> bundleOfInputGoods);
-
 	public double calculateMarginalUtility(
 			Map<GoodType, Double> bundleOfInputGoods,
 			GoodType differentialInputGoodType);
+
+	public double calculateUtility(Map<GoodType, Double> bundleOfInputGoods);
 
 	/**
 	 * This method implements the analytical solution for the lagrange function
@@ -43,4 +41,6 @@ public interface UtilityFunction {
 	public Map<GoodType, Double> calculateUtilityMaximizingInputs(
 			Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
 			double budget);
+
+	public Set<GoodType> getInputGoodTypes();
 }

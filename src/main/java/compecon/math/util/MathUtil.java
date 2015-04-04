@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -22,10 +22,10 @@ package compecon.math.util;
 public class MathUtil {
 
 	// epsilon for absolute values, not deviation from quotient etc.
-	private static final double epsilon = 0.00001;
+	private static final double defaultEpsilon = 0.00001;
 
 	private static final double defaultRoundPrecision = Math
-			.round(1.0 / epsilon);
+			.round(1.0 / defaultEpsilon);
 
 	/**
 	 * Calculates the monthly nominal interest rate for a given effective yearly
@@ -40,26 +40,32 @@ public class MathUtil {
 	}
 
 	public static boolean equal(final double value1, final double value2) {
-		if (Double.isNaN(value1) && Double.isNaN(value2))
+		if (Double.isNaN(value1) && Double.isNaN(value2)) {
 			return true;
-		if (Double.isInfinite(value1) && Double.isInfinite(value2))
+		}
+		if (Double.isInfinite(value1) && Double.isInfinite(value2)) {
 			return true;
+		}
 		// value1 - value2 are equal, if they differ minimally; has to hold
 		// under value1 = 0
-		return Math.abs(value1 - value2) <= epsilon;
+		return Math.abs(value1 - value2) <= defaultEpsilon;
 	}
 
 	public static boolean greater(final double value1, final double value2) {
-		if (Double.isNaN(value1) || Double.isNaN(value2))
+		if (Double.isNaN(value1) || Double.isNaN(value2)) {
 			return false;
-		if (!Double.isInfinite(value1) && Double.isInfinite(value2))
+		}
+		if (!Double.isInfinite(value1) && Double.isInfinite(value2)) {
 			return false;
-		if (Double.isInfinite(value1) && !Double.isInfinite(value2))
+		}
+		if (Double.isInfinite(value1) && !Double.isInfinite(value2)) {
 			return true;
-		if (Double.isInfinite(value1) && Double.isInfinite(value2))
+		}
+		if (Double.isInfinite(value1) && Double.isInfinite(value2)) {
 			return false;
+		}
 		// value1 has to be significantly greater than value2
-		return value1 - epsilon > value2;
+		return value1 - defaultEpsilon > value2;
 	}
 
 	public static boolean greaterEqual(final double value1, final double value2) {
@@ -67,27 +73,24 @@ public class MathUtil {
 	}
 
 	public static boolean lesser(final double value1, final double value2) {
-		if (Double.isNaN(value1) || Double.isNaN(value2))
+		if (Double.isNaN(value1) || Double.isNaN(value2)) {
 			return false;
-		if (Double.isInfinite(value1) && !Double.isInfinite(value2))
+		}
+		if (Double.isInfinite(value1) && !Double.isInfinite(value2)) {
 			return false;
-		if (!Double.isInfinite(value1) && Double.isInfinite(value2))
+		}
+		if (!Double.isInfinite(value1) && Double.isInfinite(value2)) {
 			return true;
-		if (Double.isInfinite(value1) && Double.isInfinite(value2))
+		}
+		if (Double.isInfinite(value1) && Double.isInfinite(value2)) {
 			return false;
+		}
 		// value1 has to be significantly lesser than value2
-		return value1 + epsilon < value2;
+		return value1 + defaultEpsilon < value2;
 	}
 
 	public static boolean lesserEqual(final double value1, final double value2) {
 		return equal(value1, value2) || lesser(value1, value2);
-	}
-
-	public static double round(final double value) {
-		if (Double.isNaN(value) || Double.isInfinite(value))
-			return value;
-		return Math.round(value * defaultRoundPrecision)
-				/ defaultRoundPrecision;
 	}
 
 	public static double log(final double num, final double base) {
@@ -96,5 +99,13 @@ public class MathUtil {
 
 	public static double nullSafeValue(final Double number) {
 		return number == null ? 0.0 : number;
+	}
+
+	public static double round(final double value) {
+		if (Double.isNaN(value) || Double.isInfinite(value)) {
+			return value;
+		}
+		return Math.round(value * defaultRoundPrecision)
+				/ defaultRoundPrecision;
 	}
 }

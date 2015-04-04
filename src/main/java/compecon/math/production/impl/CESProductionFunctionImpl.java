@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -25,21 +25,20 @@ import compecon.economy.materia.GoodType;
 import compecon.math.impl.CESFunctionImpl;
 
 public class CESProductionFunctionImpl extends ConvexProductionFunctionImpl {
-	public CESProductionFunctionImpl(double factorProductivity,
-			Map<GoodType, Double> coefficients, double substitutionFactor,
-			double homogenityFactor) {
+	public CESProductionFunctionImpl(final double factorProductivity,
+			final Map<GoodType, Double> coefficients,
+			final double substitutionFactor, final double homogenityFactor) {
 		super(new CESFunctionImpl<GoodType>(factorProductivity, coefficients,
 				substitutionFactor, homogenityFactor));
 	}
 
 	@Override
 	public double getProductivity() {
-		return ((CESFunctionImpl<GoodType>) this.delegate).getMainCoefficient();
+		return ((CESFunctionImpl<GoodType>) delegate).getMainCoefficient();
 	}
 
 	@Override
-	public void setProductivity(double productivity) {
-		((CESFunctionImpl<GoodType>) this.delegate)
-				.setMainCoefficient(productivity);
+	public void setProductivity(final double productivity) {
+		((CESFunctionImpl<GoodType>) delegate).setMainCoefficient(productivity);
 	}
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -24,17 +24,18 @@ import compecon.math.impl.RootFunctionImpl;
 
 public class RootProductionFunctionImpl extends ConvexProductionFunctionImpl {
 
-	public RootProductionFunctionImpl(GoodType inputGoodType, double coefficient) {
+	public RootProductionFunctionImpl(final GoodType inputGoodType,
+			final double coefficient) {
 		super(new RootFunctionImpl<GoodType>(inputGoodType, coefficient));
 	}
 
 	@Override
 	public double getProductivity() {
-		return ((RootFunctionImpl<GoodType>) this.delegate).getCoefficient();
+		return ((RootFunctionImpl<GoodType>) delegate).getCoefficient();
 	}
 
 	@Override
-	public void setProductivity(double productivity) {
-		((RootFunctionImpl<GoodType>) this.delegate).setCoefficient(productivity);
+	public void setProductivity(final double productivity) {
+		((RootFunctionImpl<GoodType>) delegate).setCoefficient(productivity);
 	}
 }

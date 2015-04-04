@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -26,10 +26,11 @@ import java.util.Map.Entry;
 import compecon.math.price.PriceFunction;
 import compecon.math.price.PriceFunction.PriceFunctionConfig;
 
-public abstract class AnalyticalConvexFunctionImpl<T> extends ConvexFunctionImpl<T> {
+public abstract class AnalyticalConvexFunctionImpl<T> extends
+		ConvexFunctionImpl<T> {
 
 	protected AnalyticalConvexFunctionImpl(
-			boolean needsAllInputFactorsNonZeroForPartialDerivate) {
+			final boolean needsAllInputFactorsNonZeroForPartialDerivate) {
 		super(needsAllInputFactorsNonZeroForPartialDerivate);
 	}
 
@@ -70,7 +71,8 @@ public abstract class AnalyticalConvexFunctionImpl<T> extends ConvexFunctionImpl
 		 * retrieve parameters/configs of price step functions
 		 */
 		final Map<T, PriceFunctionConfig[]> priceConfigsOfInputTypes = new HashMap<T, PriceFunctionConfig[]>();
-		for (Entry<T, PriceFunction> priceConfigEntry : priceFunctionsOfInputTypes
+
+		for (final Entry<T, PriceFunction> priceConfigEntry : priceFunctionsOfInputTypes
 				.entrySet()) {
 			priceConfigsOfInputTypes.put(priceConfigEntry.getKey(),
 					priceConfigEntry.getValue()
@@ -78,15 +80,31 @@ public abstract class AnalyticalConvexFunctionImpl<T> extends ConvexFunctionImpl
 		}
 
 		// select valid constellation of price function configs
-		Map<T, PriceFunctionConfig> validPriceFunctionConfigConstellation = this
+		final Map<T, PriceFunctionConfig> validPriceFunctionConfigConstellation = this
 				.searchValidPriceFunctionConfigConstellation(
 						priceConfigsOfInputTypes, budget,
 						new HashMap<T, PriceFunctionConfig>());
-		if (validPriceFunctionConfigConstellation == null)
+		if (validPriceFunctionConfigConstellation == null) {
 			return null;
+		}
+
 		return this
 				.calculatePossiblyValidOutputMaximizingInputsAnalyticalWithMarketPrices(
 						validPriceFunctionConfigConstellation, budget);
+	}
+
+	protected abstract Map<T, Double> calculatePossiblyValidOutputMaximizingInputsAnalyticalWithMarketPrices(
+			Map<T, PriceFunctionConfig> priceFunctionConfigs, double budget);
+
+	private T identifyNextUnsetInputType(
+			final Map<T, PriceFunctionConfig> priceFunctionConfigs) {
+		for (final T inputType : getInputTypes()) {
+			if (!priceFunctionConfigs.containsKey(inputType)) {
+				return inputType;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -98,24 +116,28 @@ public abstract class AnalyticalConvexFunctionImpl<T> extends ConvexFunctionImpl
 			final Map<T, PriceFunctionConfig[]> priceConfigsOfInputs,
 			final double budget,
 			final Map<T, PriceFunctionConfig> currentPriceFunctionConfigConstellation) {
-		T currentInputType = identifyNextUnsetInputType(currentPriceFunctionConfigConstellation);
+		final T currentInputType = identifyNextUnsetInputType(currentPriceFunctionConfigConstellation);
+
 		// if a constellation of price function configs has been chosen
 		if (currentInputType == null) {
 			final Map<T, Double> optimalBundleOfInputs = this
 					.calculatePossiblyValidOutputMaximizingInputsAnalyticalWithMarketPrices(
 							currentPriceFunctionConfigConstellation, budget);
-			for (Entry<T, PriceFunctionConfig> priceFunctionConfig : currentPriceFunctionConfigConstellation
+			for (final Entry<T, PriceFunctionConfig> priceFunctionConfig : currentPriceFunctionConfigConstellation
 					.entrySet()) {
-				double optimalAmountOfInputType = optimalBundleOfInputs
+				final double optimalAmountOfInputType = optimalBundleOfInputs
 						.get(priceFunctionConfig.getKey());
-				double intervalLeftBoundary = priceFunctionConfig.getValue().intervalLeftBoundary;
-				double intervalRightBoundary = priceFunctionConfig.getValue().intervalRightBoundary;
+				final double intervalLeftBoundary = priceFunctionConfig
+						.getValue().intervalLeftBoundary;
+				final double intervalRightBoundary = priceFunctionConfig
+						.getValue().intervalRightBoundary;
 
 				// if the optimalBundleOfInputs is not valid under the
 				// restrictions of the price function
 				if (intervalLeftBoundary > optimalAmountOfInputType
-						|| (!Double.isInfinite(intervalRightBoundary) && intervalRightBoundary < optimalAmountOfInputType))
+						|| (!Double.isInfinite(intervalRightBoundary) && intervalRightBoundary < optimalAmountOfInputType)) {
 					return null;
+				}
 			}
 			return currentPriceFunctionConfigConstellation;
 		}
@@ -124,13 +146,15 @@ public abstract class AnalyticalConvexFunctionImpl<T> extends ConvexFunctionImpl
 			// iterate over steps of price step function/configs of this input
 			// type
 			Map<T, PriceFunctionConfig> validPriceFunctionConfigConstellation = null;
-			for (PriceFunctionConfig currentPriceFunctionConfig : priceConfigsOfInputs
+
+			for (final PriceFunctionConfig currentPriceFunctionConfig : priceConfigsOfInputs
 					.get(currentInputType)) {
 				currentPriceFunctionConfigConstellation.put(currentInputType,
 						currentPriceFunctionConfig);
-				Map<T, PriceFunctionConfig> priceFunctionConfigConstellation = searchValidPriceFunctionConfigConstellation(
+				final Map<T, PriceFunctionConfig> priceFunctionConfigConstellation = searchValidPriceFunctionConfigConstellation(
 						priceConfigsOfInputs, budget,
 						currentPriceFunctionConfigConstellation);
+
 				// if the constellation of price function configs is valid
 				if (priceFunctionConfigConstellation != null) {
 					// clone the map, as the original map will be modified
@@ -141,21 +165,10 @@ public abstract class AnalyticalConvexFunctionImpl<T> extends ConvexFunctionImpl
 					break;
 				}
 			}
+
 			// remove this input, so that it will be set in next outer iteration
 			currentPriceFunctionConfigConstellation.remove(currentInputType);
 			return validPriceFunctionConfigConstellation;
 		}
-	}
-
-	protected abstract Map<T, Double> calculatePossiblyValidOutputMaximizingInputsAnalyticalWithMarketPrices(
-			Map<T, PriceFunctionConfig> priceFunctionConfigs, double budget);
-
-	private T identifyNextUnsetInputType(
-			Map<T, PriceFunctionConfig> priceFunctionConfigs) {
-		for (T inputType : this.getInputTypes()) {
-			if (!priceFunctionConfigs.containsKey(inputType))
-				return inputType;
-		}
-		return null;
 	}
 }

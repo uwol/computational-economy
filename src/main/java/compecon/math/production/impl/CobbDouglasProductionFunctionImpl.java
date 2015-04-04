@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -24,20 +24,22 @@ import java.util.Map;
 import compecon.economy.materia.GoodType;
 import compecon.math.impl.CobbDouglasFunctionImpl;
 
-public class CobbDouglasProductionFunctionImpl extends ConvexProductionFunctionImpl {
-	public CobbDouglasProductionFunctionImpl(double factorProductivity,
-			Map<GoodType, Double> exponents) {
-		super(new CobbDouglasFunctionImpl<GoodType>(factorProductivity, exponents));
+public class CobbDouglasProductionFunctionImpl extends
+		ConvexProductionFunctionImpl {
+	public CobbDouglasProductionFunctionImpl(final double factorProductivity,
+			final Map<GoodType, Double> exponents) {
+		super(new CobbDouglasFunctionImpl<GoodType>(factorProductivity,
+				exponents));
 	}
 
 	@Override
 	public double getProductivity() {
-		return ((CobbDouglasFunctionImpl<GoodType>) this.delegate).getCoefficient();
+		return ((CobbDouglasFunctionImpl<GoodType>) delegate).getCoefficient();
 	}
 
 	@Override
-	public void setProductivity(double productivity) {
-		((CobbDouglasFunctionImpl<GoodType>) this.delegate)
+	public void setProductivity(final double productivity) {
+		((CobbDouglasFunctionImpl<GoodType>) delegate)
 				.setCoefficient(productivity);
 	}
 }

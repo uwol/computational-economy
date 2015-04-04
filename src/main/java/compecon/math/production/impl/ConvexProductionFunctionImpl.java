@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -39,6 +39,7 @@ public abstract class ConvexProductionFunctionImpl extends
 		super(delegate);
 	}
 
+	@Override
 	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(
 			final double priceOfProducedGoodType,
 			final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
@@ -68,7 +69,7 @@ public abstract class ConvexProductionFunctionImpl extends
 	 * microeconomical marginal calculus. This function has a time complexity of
 	 * O(inputGoodTypes.length), as each input type has to be evaluated in each
 	 * iteration.
-	 * 
+	 *
 	 */
 	protected Map<GoodType, Double> calculateProfitMaximizingProductionFactorsIterative(
 			final double priceOfProducedGoodType,
@@ -80,7 +81,7 @@ public abstract class ConvexProductionFunctionImpl extends
 		assert (numberOfIterations > 0);
 
 		if (capital != null) {
-			for (Entry<GoodType, Double> entry : capital.entrySet()) {
+			for (final Entry<GoodType, Double> entry : capital.entrySet()) {
 				assert (entry.getKey().isDurable()) : "capital good "
 						+ entry.getKey() + " is not durable";
 				assert (entry.getValue() != null);
@@ -91,7 +92,7 @@ public abstract class ConvexProductionFunctionImpl extends
 
 		// initialize capital
 		final Map<GoodType, Double> capitalNullSafe = new HashMap<GoodType, Double>();
-		for (GoodType inputType : this.getInputGoodTypes()) {
+		for (final GoodType inputType : getInputGoodTypes()) {
 			if (capital != null) {
 				capitalNullSafe.put(inputType,
 						MathUtil.nullSafeValue(capital.get(inputType)));
@@ -102,7 +103,7 @@ public abstract class ConvexProductionFunctionImpl extends
 
 		// check, whether inputs have NaN prices
 		boolean inputsAreUnavailable = false;
-		for (GoodType inputType : this.getInputGoodTypes()) {
+		for (final GoodType inputType : getInputGoodTypes()) {
 			final double capitalAmount = capitalNullSafe.get(inputType);
 			// if the good type is not available as capital
 			if (capitalAmount <= 0.0) {
@@ -123,8 +124,7 @@ public abstract class ConvexProductionFunctionImpl extends
 		// be set. This becomes a problem, if all inputs have to be set ->
 		// return zero input
 		if (inputsAreUnavailable
-				&& this.delegate
-						.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
+				&& delegate.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
 			getLog().log(
 					"at least one of the prices is Double.NaN, but the production function needs all inputs set -> no calculation");
 			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
@@ -133,7 +133,7 @@ public abstract class ConvexProductionFunctionImpl extends
 					ConvexProductionFunctionTerminationCause.INPUT_FACTOR_UNAVAILABLE);
 
 			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
-			for (GoodType inputType : this.getInputGoodTypes()) {
+			for (final GoodType inputType : getInputGoodTypes()) {
 				bundleOfInputs.put(inputType, 0.0);
 			}
 			return bundleOfInputs;
@@ -147,7 +147,7 @@ public abstract class ConvexProductionFunctionImpl extends
 					ConvexProductionFunctionTerminationCause.BUDGET_PLANNED);
 
 			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
-			for (GoodType inputType : this.getInputGoodTypes()) {
+			for (final GoodType inputType : getInputGoodTypes()) {
 				bundleOfInputs.put(inputType, 0.0);
 			}
 			return bundleOfInputs;
@@ -164,7 +164,7 @@ public abstract class ConvexProductionFunctionImpl extends
 					ConvexProductionFunctionTerminationCause.ESTIMATED_REVENUE_PER_UNIT_ZERO);
 
 			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
-			for (GoodType inputType : this.getInputGoodTypes()) {
+			for (final GoodType inputType : getInputGoodTypes()) {
 				bundleOfInputs.put(inputType, 0.0);
 			}
 			return bundleOfInputs;
@@ -195,14 +195,14 @@ public abstract class ConvexProductionFunctionImpl extends
 
 		// determine initialization value
 		final double initializationValueForInputs;
-		if (this.delegate.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
+		if (delegate.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
 			initializationValueForInputs = initializationValue;
 		} else {
 			initializationValueForInputs = 0.0;
 		}
 
 		// set initialization value
-		for (GoodType inputType : this.getInputGoodTypes()) {
+		for (final GoodType inputType : getInputGoodTypes()) {
 			bundleOfInputFactors.put(inputType,
 					MathUtil.nullSafeValue(bundleOfInputFactors.get(inputType))
 							+ initializationValueForInputs);
@@ -216,10 +216,9 @@ public abstract class ConvexProductionFunctionImpl extends
 		double budgetSpent = 0.0;
 
 		// maximize profit
-		final int NUMBER_OF_ITERATIONS = this.getInputGoodTypes().size()
+		final int NUMBER_OF_ITERATIONS = getInputGoodTypes().size()
 				* numberOfIterations;
-		final double budgetPerIteration = budget
-				/ (double) NUMBER_OF_ITERATIONS;
+		final double budgetPerIteration = budget / NUMBER_OF_ITERATIONS;
 
 		while (true) {
 			// would this iteration lead to overspending of the budget?
@@ -231,10 +230,9 @@ public abstract class ConvexProductionFunctionImpl extends
 				break;
 			}
 
-			final GoodType optimalInputType = this
-					.selectProductionFactorWithHighestMarginalOutputPerPrice(
-							bundleOfInputFactors, priceFunctionsOfInputTypes,
-							capitalNullSafe);
+			final GoodType optimalInputType = selectProductionFactorWithHighestMarginalOutputPerPrice(
+					bundleOfInputFactors, priceFunctionsOfInputTypes,
+					capitalNullSafe);
 
 			// no optimal input type could be found, i. e. markets are sold out
 			if (optimalInputType == null) {
@@ -267,9 +265,8 @@ public abstract class ConvexProductionFunctionImpl extends
 				{
 					final double estimatedMarginalRevenueOfGoodType = priceOfProducedGoodType
 							/ (1.0 + margin);
-					final double marginalOutputOfOptimalInputType = this
-							.calculateMarginalOutput(bundleOfInputFactors,
-									optimalInputType);
+					final double marginalOutputOfOptimalInputType = calculateMarginalOutput(
+							bundleOfInputFactors, optimalInputType);
 					final double marginalPriceOfOptimalInputTypePerOutput = marginalPriceOfOptimalInputType
 							/ marginalOutputOfOptimalInputType;
 
@@ -311,8 +308,7 @@ public abstract class ConvexProductionFunctionImpl extends
 
 				{
 					// check maxOutput
-					final double newOutput = this
-							.calculateOutput(bundleOfInputFactors);
+					final double newOutput = calculateOutput(bundleOfInputFactors);
 					if (!Double.isNaN(maxOutput)
 							&& MathUtil.greater(newOutput, maxOutput)) {
 						// revert amount of optimal good type
@@ -343,7 +339,7 @@ public abstract class ConvexProductionFunctionImpl extends
 		// ------ cleanup -----------------------------------------
 
 		// reset initialization values
-		for (GoodType inputType : this.getInputGoodTypes()) {
+		for (final GoodType inputType : getInputGoodTypes()) {
 			bundleOfInputFactors.put(inputType,
 					bundleOfInputFactors.get(inputType)
 							- initializationValueForInputs);

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,7 +28,8 @@ import compecon.math.impl.ConvexFunctionImpl;
  */
 public abstract class ConvexUtilityFunctionImpl extends UtilityFunctionImpl {
 
-	protected ConvexUtilityFunctionImpl(ConvexFunctionImpl<GoodType> delegate) {
+	protected ConvexUtilityFunctionImpl(
+			final ConvexFunctionImpl<GoodType> delegate) {
 		super(delegate);
 	}
 }

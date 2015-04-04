@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,14 +36,15 @@ public class CobbDouglasFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> 
 
 	protected final Map<T, Double> exponents;
 
-	public CobbDouglasFunctionImpl(double coefficient, Map<T, Double> exponents) {
+	public CobbDouglasFunctionImpl(final double coefficient,
+			final Map<T, Double> exponents) {
 		super(true);
 
 		// coefficient has to be > 0
 		assert (MathUtil.greater(coefficient, 0.0));
 
 		double sumOfExponents = 0.0;
-		for (Double exponent : exponents.values()) {
+		for (final Double exponent : exponents.values()) {
 			// each exponent has to be in interval ]0, 1[
 			assert (exponent < 1.0 && exponent > 0.0);
 			sumOfExponents += exponent;
@@ -57,70 +58,13 @@ public class CobbDouglasFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> 
 	}
 
 	@Override
-	public Set<T> getInputTypes() {
-		return this.exponents.keySet();
-	}
-
-	/**
-	 * y = (x_1)^(e_1) * (x_2)^(e_2) * ... * (x_n)^(e_n) <br />
-	 * | e_1 + e_2 + ... + e_n = 1
-	 */
-	@Override
-	public double f(Map<T, Double> bundleOfInputs) {
-		double output = this.coefficient;
-		for (T inputType : this.getInputTypes()) {
-			double exponent = this.exponents.get(inputType);
-			double input = bundleOfInputs.get(inputType);
-			output = output * Math.pow(input, exponent);
-		}
-		return output;
-	}
-
-	/**
-	 * dy/d(x_1) = e_1 * (x_1)^(e_1 - 1) * (x_2)^(e_2) * ... * (x_n)^(e_n) <br />
-	 * | e_1 + e_2 + ... + e_n = 1
-	 */
-	@Override
-	public double partialDerivative(Map<T, Double> forBundleOfInputs,
-			T withRespectToInputType) {
-		/*
-		 * constant
-		 */
-		double constant = this.coefficient;
-		for (T inputType : this.getInputTypes()) {
-			if (!inputType.equals(withRespectToInputType)) {
-				double base = forBundleOfInputs.get(inputType);
-				double exponent = this.exponents.get(inputType);
-				constant = constant * Math.pow(base, exponent);
-			}
-		}
-
-		/*
-		 * differential factor
-		 */
-		double differentialInput = forBundleOfInputs
-				.get(withRespectToInputType);
-		double differentialExponent = this.exponents
-				.get(withRespectToInputType) - 1.0;
-		double differentialCoefficient = this.exponents
-				.get(withRespectToInputType);
-		double differentialFactor = differentialCoefficient
-				* Math.pow(differentialInput, differentialExponent);
-
-		// Java returns Double.NaN for 0 * Double.INFINITE -> return 0
-		if (constant == 0.0 && Double.isInfinite(differentialFactor))
-			return 0.0;
-
-		return constant * differentialFactor;
-	}
-
-	@Override
 	public Map<T, Double> calculateOutputMaximizingInputs(
 			final Map<T, PriceFunction> priceFunctionsOfInputs,
 			final double budget) {
 		// check whether the analytical solution is viable
-		Map<T, Double> fixedPrices = new HashMap<T, Double>();
-		for (Entry<T, PriceFunction> priceFunctionEntry : priceFunctionsOfInputs
+		final Map<T, Double> fixedPrices = new HashMap<T, Double>();
+
+		for (final Entry<T, PriceFunction> priceFunctionEntry : priceFunctionsOfInputs
 				.entrySet()) {
 			if (priceFunctionEntry.getValue() instanceof FixedPriceFunctionImpl) {
 				fixedPrices.put(priceFunctionEntry.getKey(), priceFunctionEntry
@@ -202,12 +146,13 @@ public class CobbDouglasFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> 
 	 * x_1 = b * e_1 / p_1
 	 */
 	public Map<T, Double> calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
-			Map<T, Double> pricesOfInputs, double budget) {
-		Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
-		Map<T, Double> exponents = this.getExponents();
+			final Map<T, Double> pricesOfInputs, final double budget) {
+		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
+		final Map<T, Double> exponents = this.getExponents();
 
 		boolean pricesAreNaN = false;
-		for (T inputType : this.getInputTypes()) {
+
+		for (final T inputType : this.getInputTypes()) {
 			if (Double.isNaN(pricesOfInputs.get(inputType))) {
 				pricesAreNaN = true;
 				break;
@@ -218,11 +163,14 @@ public class CobbDouglasFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> 
 		 * analytical formula for the optimal solution of a Cobb-Douglas
 		 * function under given budget restriction -> lagrange function
 		 */
-		for (T inputType : this.getInputTypes()) {
+		for (final T inputType : this.getInputTypes()) {
 			double optimalAmount = exponents.get(inputType) * budget
 					/ pricesOfInputs.get(inputType);
-			if (pricesAreNaN || Double.isNaN(optimalAmount))
+
+			if (pricesAreNaN || Double.isNaN(optimalAmount)) {
 				optimalAmount = 0.0;
+			}
+
 			bundleOfInputs.put(inputType, optimalAmount);
 		}
 
@@ -324,12 +272,14 @@ public class CobbDouglasFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> 
 	 */
 	@Override
 	protected Map<T, Double> calculatePossiblyValidOutputMaximizingInputsAnalyticalWithMarketPrices(
-			Map<T, PriceFunctionConfig> priceFunctionConfigs, double budget) {
-		Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
-		Map<T, Double> exponents = this.getExponents();
+			final Map<T, PriceFunctionConfig> priceFunctionConfigs,
+			final double budget) {
+		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
+		final Map<T, Double> exponents = this.getExponents();
 
 		boolean pricesAreNaN = false;
-		for (T inputType : this.getInputTypes()) {
+
+		for (final T inputType : this.getInputTypes()) {
 			if (!priceFunctionConfigs.containsKey(inputType)
 					|| Double
 							.isNaN(priceFunctionConfigs.get(inputType).coefficientXPower0)) {
@@ -343,32 +293,98 @@ public class CobbDouglasFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> 
 		 * function under given budget restriction -> lagrange function
 		 */
 		double sumOfCoefficientXPowerMinus1 = 0.0;
-		for (PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs
+
+		for (final PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs
 				.values()) {
 			sumOfCoefficientXPowerMinus1 += priceFunctionConfig.coefficientXPowerMinus1;
 		}
 
-		for (T inputType : this.getInputTypes()) {
+		for (final T inputType : this.getInputTypes()) {
 			double optimalAmount = exponents.get(inputType)
 					* (budget - sumOfCoefficientXPowerMinus1)
 					/ priceFunctionConfigs.get(inputType).coefficientXPower0;
-			if (pricesAreNaN || Double.isNaN(optimalAmount))
+
+			if (pricesAreNaN || Double.isNaN(optimalAmount)) {
 				optimalAmount = 0.0;
+			}
+
 			bundleOfInputs.put(inputType, optimalAmount);
 		}
 
 		return bundleOfInputs;
 	}
 
-	public Map<T, Double> getExponents() {
-		return this.exponents;
+	/**
+	 * y = (x_1)^(e_1) * (x_2)^(e_2) * ... * (x_n)^(e_n) <br />
+	 * | e_1 + e_2 + ... + e_n = 1
+	 */
+	@Override
+	public double f(final Map<T, Double> bundleOfInputs) {
+		double output = this.coefficient;
+
+		for (final T inputType : this.getInputTypes()) {
+			final double exponent = this.exponents.get(inputType);
+			final double input = bundleOfInputs.get(inputType);
+			output = output * Math.pow(input, exponent);
+		}
+
+		return output;
 	}
 
 	public double getCoefficient() {
 		return this.coefficient;
 	}
 
-	public void setCoefficient(double coefficient) {
+	public Map<T, Double> getExponents() {
+		return this.exponents;
+	}
+
+	@Override
+	public Set<T> getInputTypes() {
+		return this.exponents.keySet();
+	}
+
+	/**
+	 * dy/d(x_1) = e_1 * (x_1)^(e_1 - 1) * (x_2)^(e_2) * ... * (x_n)^(e_n) <br />
+	 * | e_1 + e_2 + ... + e_n = 1
+	 */
+	@Override
+	public double partialDerivative(final Map<T, Double> forBundleOfInputs,
+			final T withRespectToInputType) {
+		/*
+		 * constant
+		 */
+		double constant = this.coefficient;
+
+		for (final T inputType : this.getInputTypes()) {
+			if (!inputType.equals(withRespectToInputType)) {
+				final double base = forBundleOfInputs.get(inputType);
+				final double exponent = this.exponents.get(inputType);
+				constant = constant * Math.pow(base, exponent);
+			}
+		}
+
+		/*
+		 * differential factor
+		 */
+		final double differentialInput = forBundleOfInputs
+				.get(withRespectToInputType);
+		final double differentialExponent = this.exponents
+				.get(withRespectToInputType) - 1.0;
+		final double differentialCoefficient = this.exponents
+				.get(withRespectToInputType);
+		final double differentialFactor = differentialCoefficient
+				* Math.pow(differentialInput, differentialExponent);
+
+		// Java returns Double.NaN for 0 * Double.INFINITE -> return 0
+		if (constant == 0.0 && Double.isInfinite(differentialFactor)) {
+			return 0.0;
+		}
+
+		return constant * differentialFactor;
+	}
+
+	public void setCoefficient(final double coefficient) {
 		this.coefficient = coefficient;
 	}
 

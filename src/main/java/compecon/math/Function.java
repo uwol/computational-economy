@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -34,19 +34,7 @@ public interface Function<T> {
 			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
 			final double budget);
 
-	public Set<T> getInputTypes();
-
-	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate();
-
 	public double f(final Map<T, Double> bundleOfInputs);
-
-	public double partialDerivative(final Map<T, Double> forBundleOfInputs,
-			final T withRespectToInput);
-
-	public Map<T, Double> partialDerivatives(
-			final Map<T, Double> forBundleOfInputs);
-
-	public T findLargestPartialDerivate(final Map<T, Double> forBundleOfInputs);
 
 	/**
 	 * @param bundleOfInputs
@@ -63,4 +51,16 @@ public interface Function<T> {
 			final Map<T, Double> bundleOfInputs,
 			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
 			final Map<T, Double> inventory);
+
+	public T findLargestPartialDerivate(final Map<T, Double> forBundleOfInputs);
+
+	public Set<T> getInputTypes();
+
+	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate();
+
+	public double partialDerivative(final Map<T, Double> forBundleOfInputs,
+			final T withRespectToInput);
+
+	public Map<T, Double> partialDerivatives(
+			final Map<T, Double> forBundleOfInputs);
 }
