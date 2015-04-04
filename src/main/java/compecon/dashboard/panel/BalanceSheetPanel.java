@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -34,19 +34,21 @@ public class BalanceSheetPanel extends JPanel implements ModelListener {
 
 	protected final BalanceSheetTableModel balanceSheetTableModel;
 
-	public BalanceSheetPanel(Currency referenceCurrency,
-			final BalanceSheetTableModel balanceSheetTableModel, String title) {
+	public BalanceSheetPanel(final Currency referenceCurrency,
+			final BalanceSheetTableModel balanceSheetTableModel,
+			final String title) {
 		this.balanceSheetTableModel = balanceSheetTableModel;
-		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		TitledBorder titleBorder = BorderFactory.createTitledBorder(title);
+		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		final TitledBorder titleBorder = BorderFactory
+				.createTitledBorder(title);
 		titleBorder.setTitleJustification(TitledBorder.CENTER);
-		this.setBorder(titleBorder);
-		JTable balanceSheetTable = new JTable(balanceSheetTableModel);
+		setBorder(titleBorder);
+		final JTable balanceSheetTable = new JTable(balanceSheetTableModel);
 		this.add(new JScrollPane(balanceSheetTable));
 	}
 
 	@Override
 	public void notifyListener() {
-		this.balanceSheetTableModel.notifyListener();
+		balanceSheetTableModel.notifyListener();
 	}
 }

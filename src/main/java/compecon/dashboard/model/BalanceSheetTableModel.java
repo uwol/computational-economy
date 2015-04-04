@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -22,9 +22,9 @@ package compecon.dashboard.model;
 import javax.swing.table.AbstractTableModel;
 
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
-import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.BankAccount.MoneyType;
 import compecon.economy.sectors.financial.BankAccount.TermType;
+import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.statistics.NotificationListenerModel.ModelListener;
 
@@ -36,20 +36,22 @@ public abstract class BalanceSheetTableModel extends AbstractTableModel
 	protected final String columnNames[] = { "Active Account", "Value",
 			"Passive Account", "Value" };
 
-	public BalanceSheetTableModel(Currency currency) {
+	public BalanceSheetTableModel(final Currency currency) {
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(currency).balanceSheetsModel
 				.registerListener(this);
 	}
 
+	protected abstract BalanceSheetDTO getBalanceSheet();
+
 	@Override
 	public int getColumnCount() {
-		return this.columnNames.length;
+		return columnNames.length;
 	}
 
 	@Override
-	public String getColumnName(int columnIndex) {
-		return this.columnNames[columnIndex];
+	public String getColumnName(final int columnIndex) {
+		return columnNames[columnIndex];
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public abstract class BalanceSheetTableModel extends AbstractTableModel
 	}
 
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
+	public Object getValueAt(final int rowIndex, final int columnIndex) {
 
 		// active accounts
 		if (columnIndex == 0) {
@@ -181,15 +183,14 @@ public abstract class BalanceSheetTableModel extends AbstractTableModel
 			default:
 				return null;
 			}
-		} else
+		} else {
 			return null;
+		}
 	}
-
-	protected abstract BalanceSheetDTO getBalanceSheet();
 
 	@Override
 	public synchronized void notifyListener() {
-		this.balanceSheet = getBalanceSheet();
-		this.fireTableDataChanged();
+		balanceSheet = getBalanceSheet();
+		fireTableDataChanged();
 	}
 }

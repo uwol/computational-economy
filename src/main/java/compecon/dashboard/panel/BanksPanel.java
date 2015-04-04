@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -39,8 +39,8 @@ import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.sectors.financial.Currency;
 import compecon.engine.applicationcontext.ApplicationContext;
-import compecon.engine.statistics.PricesModel;
 import compecon.engine.statistics.NotificationListenerModel.ModelListener;
+import compecon.engine.statistics.PricesModel;
 import compecon.engine.statistics.PricesModel.PriceModel;
 
 public class BanksPanel extends AbstractChartsPanel implements ModelListener {
@@ -49,14 +49,14 @@ public class BanksPanel extends AbstractChartsPanel implements ModelListener {
 
 		protected final Currency currency;
 
-		protected Map<Currency, JPanel> priceTimeSeriesPanels = new HashMap<Currency, JPanel>();
-
 		protected Map<Currency, JPanel> marketDepthPanel = new HashMap<Currency, JPanel>();
 
-		public BanksPanelForCurrency(Currency currency) {
+		protected Map<Currency, JPanel> priceTimeSeriesPanels = new HashMap<Currency, JPanel>();
+
+		public BanksPanelForCurrency(final Currency currency) {
 			this.currency = currency;
 
-			this.setLayout(new GridLayout(0, 2));
+			setLayout(new GridLayout(0, 2));
 
 			this.add(createCreditBankBalanceSheetPanel(currency));
 			this.add(createCentralBankBalanceSheetPanel(currency));
@@ -72,21 +72,21 @@ public class BanksPanel extends AbstractChartsPanel implements ModelListener {
 
 		@Override
 		public synchronized void notifyListener() {
-			if (this.isShowing()) {
+			if (isShowing()) {
 				// remove prices panels
-				for (Entry<Currency, JPanel> pricePanel : priceTimeSeriesPanels
+				for (final Entry<Currency, JPanel> pricePanel : priceTimeSeriesPanels
 						.entrySet()) {
 					this.remove(pricePanel.getValue());
 				}
 
 				// remove market depth panels
-				for (Entry<Currency, JPanel> priceFunctionPanel : marketDepthPanel
+				for (final Entry<Currency, JPanel> priceFunctionPanel : marketDepthPanel
 						.entrySet()) {
 					this.remove(priceFunctionPanel.getValue());
 				}
 
 				// add prices & market depth panels
-				for (Currency commodityCurrency : Currency.values()) {
+				for (final Currency commodityCurrency : Currency.values()) {
 					if (!commodityCurrency.equals(currency)) {
 						priceTimeSeriesPanels.put(
 								commodityCurrency,
@@ -111,19 +111,20 @@ public class BanksPanel extends AbstractChartsPanel implements ModelListener {
 	protected final JTabbedPane jTabbedPaneCurrency = new JTabbedPane();
 
 	public BanksPanel() {
-		this.setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 
-		for (Currency currency : Currency.values()) {
-			JPanel panelForCurrency = new BanksPanelForCurrency(currency);
+		for (final Currency currency : Currency.values()) {
+			final JPanel panelForCurrency = new BanksPanelForCurrency(currency);
 			jTabbedPaneCurrency.addTab(currency.getIso4217Code(),
 					panelForCurrency);
 		}
 
 		jTabbedPaneCurrency.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
-					JTabbedPane pane = (JTabbedPane) e.getSource();
-					BanksPanelForCurrency selectedComponent = (BanksPanelForCurrency) pane
+					final JTabbedPane pane = (JTabbedPane) e.getSource();
+					final BanksPanelForCurrency selectedComponent = (BanksPanelForCurrency) pane
 							.getSelectedComponent();
 					selectedComponent.notifyListener();
 				}
@@ -133,52 +134,53 @@ public class BanksPanel extends AbstractChartsPanel implements ModelListener {
 		add(jTabbedPaneCurrency, BorderLayout.CENTER);
 	}
 
-	protected ChartPanel createPriceTimeSeriesChartPanel(Currency currency,
-			Currency commodityCurrency) {
-		JFreeChart priceChart = ChartFactory.createCandlestickChart(
-				commodityCurrency.getIso4217Code() + " Prices", "Time",
-				"Price in " + currency.getIso4217Code(),
-				this.getDefaultHighLowDataset(currency, commodityCurrency),
-				false);
-		ChartPanel chartPanel = new ChartPanel(priceChart);
-		chartPanel.setDomainZoomable(true);
-		chartPanel.setPreferredSize(new java.awt.Dimension(800, 400));
-		return chartPanel;
-	}
-
-	protected ChartPanel createMarketDepthPanel(Currency currency,
-			Currency commodityCurrency) {
-		XYDataset dataset = ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).marketDepthModel
+	protected ChartPanel createMarketDepthPanel(final Currency currency,
+			final Currency commodityCurrency) {
+		final XYDataset dataset = ApplicationContext.getInstance()
+				.getModelRegistry().getNationalEconomyModel(currency).marketDepthModel
 				.getMarketDepthDataset(currency, commodityCurrency);
-		JFreeChart chart = ChartFactory.createXYStepAreaChart(
+		final JFreeChart chart = ChartFactory.createXYStepAreaChart(
 				commodityCurrency.getIso4217Code() + " Market Depth", "Price",
 				"Volume", dataset, PlotOrientation.VERTICAL, true, true, false);
 		return new ChartPanel(chart);
 	}
 
-	protected DefaultHighLowDataset getDefaultHighLowDataset(Currency currency,
-			Currency commodityCurrency) {
-		PricesModel pricesModel = ApplicationContext.getInstance()
+	protected ChartPanel createPriceTimeSeriesChartPanel(
+			final Currency currency, final Currency commodityCurrency) {
+		final JFreeChart priceChart = ChartFactory.createCandlestickChart(
+				commodityCurrency.getIso4217Code() + " Prices", "Time",
+				"Price in " + currency.getIso4217Code(),
+				getDefaultHighLowDataset(currency, commodityCurrency), false);
+		final ChartPanel chartPanel = new ChartPanel(priceChart);
+		chartPanel.setDomainZoomable(true);
+		chartPanel.setPreferredSize(new java.awt.Dimension(800, 400));
+		return chartPanel;
+	}
+
+	protected DefaultHighLowDataset getDefaultHighLowDataset(
+			final Currency currency, final Currency commodityCurrency) {
+		final PricesModel pricesModel = ApplicationContext.getInstance()
 				.getModelRegistry().getNationalEconomyModel(currency).pricesModel;
-		if (pricesModel.getPriceModelsForCurrencies().containsKey(currency)) {
-			Map<Currency, PriceModel> priceModelsForCurrencies = pricesModel
-					.getPriceModelsForCurrencies().get(currency);
-			PriceModel priceModel = priceModelsForCurrencies
-					.get(commodityCurrency);
-			if (priceModel != null)
-				return new DefaultHighLowDataset("", priceModel.getDate(),
-						priceModel.getHigh(), priceModel.getLow(),
-						priceModel.getOpen(), priceModel.getClose(),
-						priceModel.getVolume());
+
+		final Map<Currency, PriceModel> priceModelsForCurrencies = pricesModel
+				.getPriceModelsForCurrencies();
+		final PriceModel priceModel = priceModelsForCurrencies
+				.get(commodityCurrency);
+
+		if (priceModel != null) {
+			return new DefaultHighLowDataset("", priceModel.getDate(),
+					priceModel.getHigh(), priceModel.getLow(),
+					priceModel.getOpen(), priceModel.getClose(),
+					priceModel.getVolume());
 		}
+
 		return null;
 	}
 
 	@Override
 	public void notifyListener() {
-		if (this.isShowing()) {
-			BanksPanelForCurrency banksPanelForCurrency = (BanksPanelForCurrency) jTabbedPaneCurrency
+		if (isShowing()) {
+			final BanksPanelForCurrency banksPanelForCurrency = (BanksPanelForCurrency) jTabbedPaneCurrency
 					.getSelectedComponent();
 			banksPanelForCurrency.notifyListener();
 		}

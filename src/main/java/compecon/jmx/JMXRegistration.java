@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -38,10 +38,21 @@ import compecon.engine.util.HibernateUtil;
 
 public class JMXRegistration {
 
+	private static Map<ObjectName, Object> mBeans = new HashMap<ObjectName, Object>();
+
 	private static MBeanServer mBeanServer = ManagementFactory
 			.getPlatformMBeanServer();
 
-	private static Map<ObjectName, Object> mBeans = new HashMap<ObjectName, Object>();
+	public static void close() {
+		for (final Entry<ObjectName, Object> entry : mBeans.entrySet()) {
+			try {
+				mBeanServer.unregisterMBean(entry.getKey());
+			} catch (MBeanRegistrationException | InstanceNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		mBeans.clear();
+	}
 
 	public static void init() {
 		mBeans.clear();
@@ -52,29 +63,18 @@ public class JMXRegistration {
 					new JmxTimeSystemModel());
 
 			// hibernate stats mbean
-			StatisticsService statsMBean = new StatisticsService();
+			final StatisticsService statsMBean = new StatisticsService();
 			statsMBean.setSessionFactory(HibernateUtil.getSessionFactory());
 			statsMBean.setStatisticsEnabled(true);
 			mBeans.put(new ObjectName("Hibernate:application=Statistics"),
 					statsMBean);
 
-			for (Entry<ObjectName, Object> entry : mBeans.entrySet()) {
+			for (final Entry<ObjectName, Object> entry : mBeans.entrySet()) {
 				mBeanServer.registerMBean(entry.getValue(), entry.getKey());
 			}
 		} catch (MalformedObjectNameException | InstanceAlreadyExistsException
 				| MBeanRegistrationException | NotCompliantMBeanException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static void close() {
-		for (Entry<ObjectName, Object> entry : mBeans.entrySet()) {
-			try {
-				mBeanServer.unregisterMBean(entry.getKey());
-			} catch (MBeanRegistrationException | InstanceNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-		mBeans.clear();
 	}
 }

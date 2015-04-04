@@ -485,7 +485,7 @@ public class LogImpl implements Log {
 			final double amount) {
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(currency).pricesModel.market_onTick(
-				pricePerUnit, commodityCurrency, currency, amount);
+				pricePerUnit, commodityCurrency, amount);
 	}
 
 	// --------
@@ -496,7 +496,7 @@ public class LogImpl implements Log {
 			final double amount) {
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(currency).pricesModel.market_onTick(
-				pricePerUnit, goodType, currency, amount);
+				pricePerUnit, goodType, amount);
 	}
 
 	@Override

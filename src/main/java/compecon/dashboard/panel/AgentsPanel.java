@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,7 +30,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.Currency;
@@ -42,18 +41,18 @@ public class AgentsPanel extends AbstractChartsPanel implements ModelListener {
 
 	public AgentsPanel() {
 
-		this.setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 
-		JTabbedPane jTabbedPane = new JTabbedPane();
+		final JTabbedPane jTabbedPane = new JTabbedPane();
 
-		for (Currency currency : Currency.values()) {
-			JPanel panelForCurrency = new JPanel();
+		for (final Currency currency : Currency.values()) {
+			final JPanel panelForCurrency = new JPanel();
 			panelForCurrency.setLayout(new GridLayout(0, 2));
 			jTabbedPane.addTab(currency.getIso4217Code(), panelForCurrency);
 
 			panelForCurrency.setBackground(Color.lightGray);
 
-			for (Class<? extends Agent> agentType : ApplicationContext
+			for (final Class<? extends Agent> agentType : ApplicationContext
 					.getInstance().getAgentFactory().getAgentTypes()) {
 				panelForCurrency
 						.add(createAgentNumberPanel(currency, agentType));
@@ -63,9 +62,9 @@ public class AgentsPanel extends AbstractChartsPanel implements ModelListener {
 		add(jTabbedPane, BorderLayout.CENTER);
 	}
 
-	protected ChartPanel createAgentNumberPanel(Currency currency,
-			Class<? extends Agent> agentType) {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+	protected ChartPanel createAgentNumberPanel(final Currency currency,
+			final Class<? extends Agent> agentType) {
+		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		timeSeriesCollection
 				.addSeries(ApplicationContext.getInstance().getModelRegistry()
@@ -82,10 +81,9 @@ public class AgentsPanel extends AbstractChartsPanel implements ModelListener {
 							.getTimeSeries());
 		}
 
-		JFreeChart chart = ChartFactory
-				.createTimeSeriesChart("# " + agentType.getSimpleName()
-						+ " Agents", "Date", "# Agents",
-						(XYDataset) timeSeriesCollection, true, true, false);
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("# "
+				+ agentType.getSimpleName() + " Agents", "Date", "# Agents",
+				timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}

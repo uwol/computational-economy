@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,10 +28,15 @@ import compecon.engine.statistics.NotificationListenerModel;
 
 public class ControlModel extends NotificationListenerModel {
 
+	public void deficitSpending(final Currency currency) {
+		ApplicationContext.getInstance().getAgentService().findState(currency)
+				.doDeficitSpending();
+	}
+
 	public void initEconomicGrowth(final Currency currency) {
 		final List<Factory> factories = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency);
-		for (Factory factory : factories) {
+		for (final Factory factory : factories) {
 			final double productivity = factory.getProductionFunction()
 					.getProductivity();
 			factory.getProductionFunction().setProductivity(productivity * 1.5);
@@ -43,10 +48,5 @@ public class ControlModel extends NotificationListenerModel {
 			ApplicationContext.getInstance().getHouseholdFactory()
 					.newInstanceHousehold(currency, 0);
 		}
-	}
-
-	public void deficitSpending(final Currency currency) {
-		ApplicationContext.getInstance().getAgentService().findState(currency)
-				.doDeficitSpending();
 	}
 }

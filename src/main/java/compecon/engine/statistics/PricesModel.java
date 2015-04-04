@@ -30,8 +30,16 @@ import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.timesystem.impl.DayType;
 import compecon.engine.timesystem.impl.MonthType;
 
+/**
+ * Model storing multiple price models for good types and commodity currencies
+ * denominated in a given currency.
+ */
 public class PricesModel extends NotificationListenerModel {
 
+	/**
+	 * Model storing prices for a good type or commodity currency, denominated
+	 * in a given currency.
+	 */
 	public class PriceModel {
 
 		double[] close = new double[NUMBER_OF_DAYS];
@@ -125,51 +133,37 @@ public class PricesModel extends NotificationListenerModel {
 
 	private final int NUMBER_OF_DAYS = 180;
 
-	protected final Map<Currency, Map<Currency, PriceModel>> priceModelsForCurrencies = new HashMap<Currency, Map<Currency, PriceModel>>();
+	protected final Map<Currency, PriceModel> priceModelsForCurrencies = new HashMap<Currency, PriceModel>();
 
-	protected final Map<Currency, Map<GoodType, PriceModel>> priceModelsForGoodTypes = new HashMap<Currency, Map<GoodType, PriceModel>>();
+	protected final Map<GoodType, PriceModel> priceModelsForGoodTypes = new HashMap<GoodType, PriceModel>();
 
-	public Map<Currency, Map<Currency, PriceModel>> getPriceModelsForCurrencies() {
+	public Map<Currency, PriceModel> getPriceModelsForCurrencies() {
 		return priceModelsForCurrencies;
 	}
 
-	public Map<Currency, Map<GoodType, PriceModel>> getPriceModelsForGoodTypes() {
+	public Map<GoodType, PriceModel> getPriceModelsForGoodTypes() {
 		return priceModelsForGoodTypes;
 	}
 
 	public void market_onTick(final double pricePerUnit,
-			final Currency commodityCurrency, final Currency currency,
-			final double amount) {
-		if (!priceModelsForCurrencies.containsKey(currency)) {
-			priceModelsForCurrencies.put(currency,
-					new HashMap<Currency, PriceModel>());
+			final Currency commodityCurrency, final double amount) {
+
+		if (!priceModelsForCurrencies.containsKey(commodityCurrency)) {
+			priceModelsForCurrencies.put(commodityCurrency, new PriceModel());
 		}
 
-		final Map<Currency, PriceModel> priceModelsForCurrency = priceModelsForCurrencies
-				.get(currency);
-		if (!priceModelsForCurrency.containsKey(commodityCurrency)) {
-			priceModelsForCurrency.put(commodityCurrency, new PriceModel());
-		}
-
-		priceModelsForCurrency.get(commodityCurrency)
-				.tick(pricePerUnit, amount);
+		priceModelsForCurrencies.get(commodityCurrency).tick(pricePerUnit,
+				amount);
 	}
 
 	public void market_onTick(final double pricePerUnit,
-			final GoodType goodType, final Currency currency,
-			final double amount) {
-		if (!priceModelsForGoodTypes.containsKey(currency)) {
-			priceModelsForGoodTypes.put(currency,
-					new HashMap<GoodType, PriceModel>());
+			final GoodType goodType, final double amount) {
+
+		if (!priceModelsForGoodTypes.containsKey(goodType)) {
+			priceModelsForGoodTypes.put(goodType, new PriceModel());
 		}
 
-		final Map<GoodType, PriceModel> priceModelsForCurrency = priceModelsForGoodTypes
-				.get(currency);
-		if (!priceModelsForCurrency.containsKey(goodType)) {
-			priceModelsForCurrency.put(goodType, new PriceModel());
-		}
-
-		priceModelsForCurrency.get(goodType).tick(pricePerUnit, amount);
+		priceModelsForGoodTypes.get(goodType).tick(pricePerUnit, amount);
 	}
 
 	public void nextPeriod() {

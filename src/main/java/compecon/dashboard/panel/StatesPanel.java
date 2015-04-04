@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -31,7 +31,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.xy.XYDataset;
 
 import compecon.economy.materia.GoodType;
 import compecon.economy.sectors.financial.Currency;
@@ -43,14 +42,14 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 	public class StatePanelForCurrency extends JPanel implements ModelListener {
 		protected final Currency currency;
 
-		public StatePanelForCurrency(Currency currency) {
+		public StatePanelForCurrency(final Currency currency) {
 			this.currency = currency;
 
 			this.add(createStateBalanceSheetPanel(currency));
 			this.add(createUtilityPanel(currency));
 			this.add(createGovernmentTransfersPanel(currency));
 
-			this.setLayout(new GridLayout(0, 2));
+			setLayout(new GridLayout(0, 2));
 		}
 
 		@Override
@@ -61,19 +60,20 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 	protected final JTabbedPane jTabbedPaneCurrency = new JTabbedPane();
 
 	public StatesPanel() {
-		this.setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 
-		for (Currency currency : Currency.values()) {
-			JPanel panelForCurrency = new StatePanelForCurrency(currency);
+		for (final Currency currency : Currency.values()) {
+			final JPanel panelForCurrency = new StatePanelForCurrency(currency);
 			jTabbedPaneCurrency.addTab(currency.getIso4217Code(),
 					panelForCurrency);
 		}
 
 		jTabbedPaneCurrency.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
-					JTabbedPane pane = (JTabbedPane) e.getSource();
-					StatePanelForCurrency selectedComponent = (StatePanelForCurrency) pane
+					final JTabbedPane pane = (JTabbedPane) e.getSource();
+					final StatePanelForCurrency selectedComponent = (StatePanelForCurrency) pane
 							.getSelectedComponent();
 					selectedComponent.notifyListener();
 				}
@@ -83,15 +83,30 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 		add(jTabbedPaneCurrency, BorderLayout.CENTER);
 	}
 
-	protected ChartPanel createUtilityPanel(Currency currency) {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+	protected ChartPanel createGovernmentTransfersPanel(final Currency currency) {
+		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
+
+		timeSeriesCollection
+				.addSeries(ApplicationContext.getInstance().getModelRegistry()
+						.getNationalEconomyModel(currency).householdsModel.governmentTransfersModel
+						.getTimeSeries());
+
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				"Government Transfers", "Date", "Government Transfers",
+				timeSeriesCollection, true, true, false);
+		configureChart(chart);
+		return new ChartPanel(chart);
+	}
+
+	protected ChartPanel createUtilityPanel(final Currency currency) {
+		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		timeSeriesCollection
 				.addSeries(ApplicationContext.getInstance().getModelRegistry()
 						.getNationalEconomyModel(currency).stateModel.utilityModel.utilityOutputModel
 						.getTimeSeries());
 
-		for (GoodType inputGoodType : ApplicationContext.getInstance()
+		for (final GoodType inputGoodType : ApplicationContext.getInstance()
 				.getModelRegistry().getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels
 				.keySet()) {
 			timeSeriesCollection
@@ -101,32 +116,17 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 							.get(inputGoodType).getTimeSeries());
 		}
 
-		JFreeChart chart = ChartFactory.createTimeSeriesChart("State Utility",
-				"Date", "Utility", (XYDataset) timeSeriesCollection, true,
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
+				"State Utility", "Date", "Utility", timeSeriesCollection, true,
 				true, false);
-		configureChart(chart);
-		return new ChartPanel(chart);
-	}
-
-	protected ChartPanel createGovernmentTransfersPanel(Currency currency) {
-		TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-
-		timeSeriesCollection
-				.addSeries(ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).householdsModel.governmentTransfersModel
-						.getTimeSeries());
-
-		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Government Transfers", "Date", "Government Transfers",
-				(XYDataset) timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
 	@Override
 	public synchronized void notifyListener() {
-		if (this.isShowing()) {
-			StatePanelForCurrency statePanelForCurrency = (StatePanelForCurrency) jTabbedPaneCurrency
+		if (isShowing()) {
+			final StatePanelForCurrency statePanelForCurrency = (StatePanelForCurrency) jTabbedPaneCurrency
 					.getSelectedComponent();
 			statePanelForCurrency.notifyListener();
 		}

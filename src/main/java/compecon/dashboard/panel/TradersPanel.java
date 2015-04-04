@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,14 +32,13 @@ import compecon.engine.statistics.NotificationListenerModel.ModelListener;
 
 public class TradersPanel extends AbstractChartsPanel implements ModelListener {
 
-	public class TraderPanelForCurrency extends JPanel implements
-			ModelListener {
+	public class TraderPanelForCurrency extends JPanel implements ModelListener {
 		protected final Currency currency;
 
-		public TraderPanelForCurrency(Currency currency) {
+		public TraderPanelForCurrency(final Currency currency) {
 			this.currency = currency;
 
-			this.setLayout(new GridLayout(0, 2));
+			setLayout(new GridLayout(0, 2));
 
 			this.add(createTraderBalanceSheetPanel(currency));
 
@@ -48,7 +47,7 @@ public class TradersPanel extends AbstractChartsPanel implements ModelListener {
 
 		@Override
 		public void notifyListener() {
-			if (this.isShowing()) {
+			if (isShowing()) {
 
 			}
 		}
@@ -57,19 +56,20 @@ public class TradersPanel extends AbstractChartsPanel implements ModelListener {
 	protected final JTabbedPane jTabbedPaneCurrency = new JTabbedPane();
 
 	public TradersPanel() {
-		this.setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 
-		for (Currency currency : Currency.values()) {
-			JPanel panelForCurrency = new TraderPanelForCurrency(currency);
+		for (final Currency currency : Currency.values()) {
+			final JPanel panelForCurrency = new TraderPanelForCurrency(currency);
 			jTabbedPaneCurrency.addTab(currency.getIso4217Code(),
 					panelForCurrency);
 		}
 
 		jTabbedPaneCurrency.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
-					JTabbedPane pane = (JTabbedPane) e.getSource();
-					TraderPanelForCurrency selectedComponent = (TraderPanelForCurrency) pane
+					final JTabbedPane pane = (JTabbedPane) e.getSource();
+					final TraderPanelForCurrency selectedComponent = (TraderPanelForCurrency) pane
 							.getSelectedComponent();
 					selectedComponent.notifyListener();
 				}
@@ -81,8 +81,8 @@ public class TradersPanel extends AbstractChartsPanel implements ModelListener {
 
 	@Override
 	public synchronized void notifyListener() {
-		if (this.isShowing()) {
-			TraderPanelForCurrency traderPanelForCurrency = (TraderPanelForCurrency) jTabbedPaneCurrency
+		if (isShowing()) {
+			final TraderPanelForCurrency traderPanelForCurrency = (TraderPanelForCurrency) jTabbedPaneCurrency
 					.getSelectedComponent();
 			traderPanelForCurrency.notifyListener();
 		}

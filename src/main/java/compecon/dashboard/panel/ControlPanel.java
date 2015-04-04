@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -43,16 +43,16 @@ import compecon.engine.timesystem.TimeSystemEvent;
 
 public class ControlPanel extends JPanel implements ModelListener {
 
-	private final int SLIDER_MAX = 100;
-
 	protected final ControlModel controlModel = new ControlModel();
 
 	protected final JLabel dateTimeLabel = new JLabel();
 
-	public ControlPanel() {
-		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+	private final int SLIDER_MAX = 100;
 
-		this.setPreferredSize(new Dimension(200, -1));
+	public ControlPanel() {
+		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+
+		setPreferredSize(new Dimension(200, -1));
 
 		this.add(createSpeedSliderPanel());
 
@@ -64,24 +64,112 @@ public class ControlPanel extends JPanel implements ModelListener {
 				.getTimeSystemModel().registerListener(this);
 	}
 
+	protected JTabbedPane createEconomicSectorsPane() {
+		final JTabbedPane economicSectorsPane = new JTabbedPane();
+
+		for (final Currency currency : Currency.values()) {
+			final JPanel economicSectorPane = new JPanel();
+			economicSectorsPane.addTab(currency.getIso4217Code(),
+					economicSectorPane);
+			economicSectorPane.setLayout(new BoxLayout(economicSectorPane,
+					BoxLayout.PAGE_AXIS));
+
+			/*
+			 * init economic growth
+			 */
+
+			final JButton initEconomicGrowthButton = new JButton(
+					"Economic growth");
+			initEconomicGrowthButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					ApplicationContext.getInstance().getTimeSystem()
+							.addExternalEvent(new TimeSystemEvent() {
+								@Override
+								public boolean isDeconstructed() {
+									return false;
+								}
+
+								@Override
+								public void onEvent() {
+									controlModel.initEconomicGrowth(currency);
+								}
+							});
+				}
+			});
+			economicSectorPane.add(initEconomicGrowthButton);
+
+			/*
+			 * deficit spending
+			 */
+
+			final JButton doDeficitSpendingButton = new JButton(
+					"Deficit spending");
+			doDeficitSpendingButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					ApplicationContext.getInstance().getTimeSystem()
+							.addExternalEvent(new TimeSystemEvent() {
+								@Override
+								public boolean isDeconstructed() {
+									return false;
+								}
+
+								@Override
+								public void onEvent() {
+									controlModel.deficitSpending(currency);
+								}
+							});
+				}
+			});
+			economicSectorPane.add(doDeficitSpendingButton);
+
+			/*
+			 * init households
+			 */
+
+			final JButton init100HouseholdsButton = new JButton(
+					"Init 100 Households");
+			init100HouseholdsButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					ApplicationContext.getInstance().getTimeSystem()
+							.addExternalEvent(new TimeSystemEvent() {
+								@Override
+								public boolean isDeconstructed() {
+									return false;
+								}
+
+								@Override
+								public void onEvent() {
+									controlModel.initHouseholds(currency);
+								}
+							});
+				}
+			});
+			economicSectorPane.add(init100HouseholdsButton);
+		}
+		return economicSectorsPane;
+	}
+
 	protected JPanel createSpeedSliderPanel() {
-		JPanel speedSliderPanel = new JPanel();
+		final JPanel speedSliderPanel = new JPanel();
 
 		final JButton dayStepButton = new JButton("+ 1 Day");
 		final JButton hourStepButton = new JButton("+ 1 Hour");
 
-		speedSliderPanel.add(this.dateTimeLabel);
+		speedSliderPanel.add(dateTimeLabel);
 
-		JSlider millisecondsToSleepPerHourType = new JSlider(
+		final JSlider millisecondsToSleepPerHourType = new JSlider(
 				JSlider.HORIZONTAL, 0, SLIDER_MAX, SLIDER_MAX);
 		millisecondsToSleepPerHourType.addChangeListener(new ChangeListener() {
 			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
+			public void stateChanged(final ChangeEvent e) {
+				final JSlider source = (JSlider) e.getSource();
 				if (!source.getValueIsAdjusting()) {
-					double sliderValue = (int) source.getValue();
-					double invertedSliderValue = SLIDER_MAX - sliderValue;
-					double millisecondsToSleep = ((invertedSliderValue * invertedSliderValue) / (SLIDER_MAX * SLIDER_MAX)) * 3000.0 / 24.0;
+					final double sliderValue = source.getValue();
+					final double invertedSliderValue = SLIDER_MAX - sliderValue;
+					final double millisecondsToSleep = ((invertedSliderValue * invertedSliderValue) / (SLIDER_MAX * SLIDER_MAX)) * 3000.0 / 24.0;
 					ApplicationContext
 							.getInstance()
 							.getSimulationRunner()
@@ -109,15 +197,18 @@ public class ControlPanel extends JPanel implements ModelListener {
 
 		dayStepButton.setEnabled(false);
 		dayStepButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ApplicationContext.getInstance().getSimulationRunner().stepSingleDay();
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				ApplicationContext.getInstance().getSimulationRunner()
+						.stepSingleDay();
 			}
 		});
 		speedSliderPanel.add(dayStepButton);
 
 		hourStepButton.setEnabled(false);
 		hourStepButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
 				ApplicationContext.getInstance().getSimulationRunner()
 						.stepSingleHour();
 			}
@@ -127,96 +218,13 @@ public class ControlPanel extends JPanel implements ModelListener {
 		return speedSliderPanel;
 	}
 
-	protected JTabbedPane createEconomicSectorsPane() {
-		JTabbedPane economicSectorsPane = new JTabbedPane();
-
-		for (final Currency currency : Currency.values()) {
-			JPanel economicSectorPane = new JPanel();
-			economicSectorsPane.addTab(currency.getIso4217Code(),
-					economicSectorPane);
-			economicSectorPane.setLayout(new BoxLayout(economicSectorPane,
-					BoxLayout.PAGE_AXIS));
-
-			/*
-			 * init economic growth
-			 */
-
-			JButton initEconomicGrowthButton = new JButton("Economic growth");
-			initEconomicGrowthButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ApplicationContext.getInstance().getTimeSystem()
-							.addExternalEvent(new TimeSystemEvent() {
-								@Override
-								public boolean isDeconstructed() {
-									return false;
-								}
-
-								@Override
-								public void onEvent() {
-									controlModel.initEconomicGrowth(currency);
-								}
-							});
-				}
-			});
-			economicSectorPane.add(initEconomicGrowthButton);
-
-			/*
-			 * deficit spending
-			 */
-
-			JButton doDeficitSpendingButton = new JButton("Deficit spending");
-			doDeficitSpendingButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ApplicationContext.getInstance().getTimeSystem()
-							.addExternalEvent(new TimeSystemEvent() {
-								@Override
-								public boolean isDeconstructed() {
-									return false;
-								}
-
-								@Override
-								public void onEvent() {
-									controlModel.deficitSpending(currency);
-								}
-							});
-				}
-			});
-			economicSectorPane.add(doDeficitSpendingButton);
-
-			/*
-			 * init households
-			 */
-
-			JButton init100HouseholdsButton = new JButton("Init 100 Households");
-			init100HouseholdsButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ApplicationContext.getInstance().getTimeSystem()
-							.addExternalEvent(new TimeSystemEvent() {
-								@Override
-								public boolean isDeconstructed() {
-									return false;
-								}
-
-								@Override
-								public void onEvent() {
-									controlModel.initHouseholds(currency);
-								}
-							});
-				}
-			});
-			economicSectorPane.add(init100HouseholdsButton);
-		}
-		return economicSectorsPane;
-	}
-
 	@Override
 	public void notifyListener() {
-		this.refreshDateTime();
+		refreshDateTime();
 	}
 
 	private void refreshDateTime() {
-		this.dateTimeLabel.setText(new SimpleDateFormat()
-				.format(ApplicationContext.getInstance().getTimeSystem()
-						.getCurrentDate()));
+		dateTimeLabel.setText(new SimpleDateFormat().format(ApplicationContext
+				.getInstance().getTimeSystem().getCurrentDate()));
 	}
 }

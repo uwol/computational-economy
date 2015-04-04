@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -51,94 +51,6 @@ import compecon.math.util.MathUtil;
 
 public class LogPanel extends JPanel implements ModelListener {
 
-	public class AgentListModel extends AbstractListModel<Agent> implements
-			ModelListener {
-
-		public AgentListModel() {
-			ApplicationContext.getInstance().getModelRegistry()
-					.getAgentDetailModel().registerListener(this);
-		}
-
-		@Override
-		public Agent getElementAt(int index) {
-			return LogPanel.this.agentDetailModel.getAgents().get(index);
-		}
-
-		@Override
-		public int getSize() {
-			return Math
-					.min(ApplicationContext.getInstance().getConfiguration().dashboardConfig
-							.getLogNumberOfAgentsLogSize(),
-							LogPanel.this.agentDetailModel.getAgents().size());
-		}
-
-		@Override
-		public synchronized void notifyListener() {
-			if (LogPanel.this.isShowing()) {
-				this.fireContentsChanged(this, 0,
-						LogPanel.this.agentDetailModel.getAgents().size());
-			}
-		}
-	}
-
-	public class AgentLogSelectionModel extends DefaultComboBoxModel<AgentLog> {
-		@Override
-		public int getSize() {
-			return ApplicationContext.getInstance().getModelRegistry()
-					.getAgentDetailModel().getLogsOfCurrentAgent().size();
-		}
-
-		@Override
-		public AgentLog getElementAt(int i) {
-			return ApplicationContext.getInstance().getModelRegistry()
-					.getAgentDetailModel().getLogsOfCurrentAgent().get(i);
-		}
-	}
-
-	public class AgentLogsTableModel extends AbstractTableModel implements
-			ModelListener {
-
-		protected final String columnNames[] = { "Message" };
-
-		public AgentLogsTableModel() {
-			ApplicationContext.getInstance().getModelRegistry()
-					.getAgentDetailModel().registerListener(this);
-		}
-
-		@Override
-		public int getColumnCount() {
-			return columnNames.length;
-		}
-
-		@Override
-		public int getRowCount() {
-			// -5, so that concurrent changes in the messages queue do not
-			// produce exceptions
-			return Math.max(LogPanel.this.agentDetailModel.getCurrentLog()
-					.getRows().size() - 5, 0);
-		}
-
-		@Override
-		public Object getValueAt(int rowIndex, int colIndex) {
-			return LogPanel.this.agentDetailModel.getCurrentLog().getRows()
-					.get(rowIndex);
-		}
-
-		@Override
-		public String getColumnName(int columnIndex) {
-			return this.columnNames[columnIndex];
-		}
-
-		@Override
-		public synchronized void notifyListener() {
-			if (LogPanel.this.isShowing()) {
-				if (ApplicationContext.getInstance().getLog()
-						.getAgentSelectedByClient() != null)
-					this.fireTableDataChanged();
-			}
-		}
-	}
-
 	public class AgentBankAccountsTableModel extends AbstractTableModel
 			implements ModelListener {
 
@@ -155,14 +67,18 @@ public class LogPanel extends JPanel implements ModelListener {
 		}
 
 		@Override
-		public int getRowCount() {
-			return LogPanel.this.agentDetailModel
-					.getBankAccountsOfCurrentAgent().size();
+		public String getColumnName(final int columnIndex) {
+			return columnNames[columnIndex];
 		}
 
 		@Override
-		public Object getValueAt(int rowIndex, int colIndex) {
-			BankAccount bankAccount = LogPanel.this.agentDetailModel
+		public int getRowCount() {
+			return agentDetailModel.getBankAccountsOfCurrentAgent().size();
+		}
+
+		@Override
+		public Object getValueAt(final int rowIndex, final int colIndex) {
+			final BankAccount bankAccount = agentDetailModel
 					.getBankAccountsOfCurrentAgent().get(rowIndex);
 
 			switch (colIndex) {
@@ -178,16 +94,12 @@ public class LogPanel extends JPanel implements ModelListener {
 		}
 
 		@Override
-		public String getColumnName(int columnIndex) {
-			return this.columnNames[columnIndex];
-		}
-
-		@Override
 		public synchronized void notifyListener() {
-			if (LogPanel.this.isShowing()) {
+			if (isShowing()) {
 				if (ApplicationContext.getInstance().getLog()
-						.getAgentSelectedByClient() != null)
-					this.fireTableDataChanged();
+						.getAgentSelectedByClient() != null) {
+					fireTableDataChanged();
+				}
 			}
 		}
 	}
@@ -208,16 +120,20 @@ public class LogPanel extends JPanel implements ModelListener {
 		}
 
 		@Override
-		public int getRowCount() {
-			return LogPanel.this.agentDetailModel.getGoodsOfCurrentAgent()
-					.size();
+		public String getColumnName(final int columnIndex) {
+			return columnNames[columnIndex];
 		}
 
 		@Override
-		public Object getValueAt(int rowIndex, int colIndex) {
-			GoodType goodType = GoodType.values()[rowIndex];
-			double balance = LogPanel.this.agentDetailModel
-					.getGoodsOfCurrentAgent().get(goodType);
+		public int getRowCount() {
+			return agentDetailModel.getGoodsOfCurrentAgent().size();
+		}
+
+		@Override
+		public Object getValueAt(final int rowIndex, final int colIndex) {
+			final GoodType goodType = GoodType.values()[rowIndex];
+			final double balance = agentDetailModel.getGoodsOfCurrentAgent()
+					.get(goodType);
 
 			switch (colIndex) {
 			case 0:
@@ -230,16 +146,100 @@ public class LogPanel extends JPanel implements ModelListener {
 		}
 
 		@Override
-		public String getColumnName(int columnIndex) {
-			return this.columnNames[columnIndex];
+		public synchronized void notifyListener() {
+			if (isShowing()) {
+				if (ApplicationContext.getInstance().getLog()
+						.getAgentSelectedByClient() != null) {
+					fireTableDataChanged();
+				}
+			}
+		}
+	}
+
+	public class AgentListModel extends AbstractListModel<Agent> implements
+			ModelListener {
+
+		public AgentListModel() {
+			ApplicationContext.getInstance().getModelRegistry()
+					.getAgentDetailModel().registerListener(this);
+		}
+
+		@Override
+		public Agent getElementAt(final int index) {
+			return agentDetailModel.getAgents().get(index);
+		}
+
+		@Override
+		public int getSize() {
+			return Math
+					.min(ApplicationContext.getInstance().getConfiguration().dashboardConfig
+							.getLogNumberOfAgentsLogSize(), agentDetailModel
+							.getAgents().size());
 		}
 
 		@Override
 		public synchronized void notifyListener() {
-			if (LogPanel.this.isShowing()) {
+			if (isShowing()) {
+				fireContentsChanged(this, 0, agentDetailModel.getAgents()
+						.size());
+			}
+		}
+	}
+
+	public class AgentLogSelectionModel extends DefaultComboBoxModel<AgentLog> {
+		@Override
+		public AgentLog getElementAt(final int i) {
+			return ApplicationContext.getInstance().getModelRegistry()
+					.getAgentDetailModel().getLogsOfCurrentAgent().get(i);
+		}
+
+		@Override
+		public int getSize() {
+			return ApplicationContext.getInstance().getModelRegistry()
+					.getAgentDetailModel().getLogsOfCurrentAgent().size();
+		}
+	}
+
+	public class AgentLogsTableModel extends AbstractTableModel implements
+			ModelListener {
+
+		protected final String columnNames[] = { "Message" };
+
+		public AgentLogsTableModel() {
+			ApplicationContext.getInstance().getModelRegistry()
+					.getAgentDetailModel().registerListener(this);
+		}
+
+		@Override
+		public int getColumnCount() {
+			return columnNames.length;
+		}
+
+		@Override
+		public String getColumnName(final int columnIndex) {
+			return columnNames[columnIndex];
+		}
+
+		@Override
+		public int getRowCount() {
+			// -5, so that concurrent changes in the messages queue do not
+			// produce exceptions
+			return Math.max(
+					agentDetailModel.getCurrentLog().getRows().size() - 5, 0);
+		}
+
+		@Override
+		public Object getValueAt(final int rowIndex, final int colIndex) {
+			return agentDetailModel.getCurrentLog().getRows().get(rowIndex);
+		}
+
+		@Override
+		public synchronized void notifyListener() {
+			if (isShowing()) {
 				if (ApplicationContext.getInstance().getLog()
-						.getAgentSelectedByClient() != null)
-					this.fireTableDataChanged();
+						.getAgentSelectedByClient() != null) {
+					fireTableDataChanged();
+				}
 			}
 		}
 	}
@@ -260,49 +260,49 @@ public class LogPanel extends JPanel implements ModelListener {
 		}
 
 		@Override
-		public int getRowCount() {
-			return LogPanel.this.agentDetailModel.getPropertiesOfCurrentAgent()
-					.size();
+		public String getColumnName(final int columnIndex) {
+			return columnNames[columnIndex];
 		}
 
 		@Override
-		public Object getValueAt(int rowIndex, int colIndex) {
+		public int getRowCount() {
+			return agentDetailModel.getPropertiesOfCurrentAgent().size();
+		}
+
+		@Override
+		public Object getValueAt(final int rowIndex, final int colIndex) {
 			switch (colIndex) {
 			case 0:
-				return LogPanel.this.agentDetailModel
-						.getPropertiesOfCurrentAgent().get(rowIndex);
+				return agentDetailModel.getPropertiesOfCurrentAgent().get(
+						rowIndex);
 			default:
 				return null;
 			}
 		}
 
 		@Override
-		public String getColumnName(int columnIndex) {
-			return this.columnNames[columnIndex];
-		}
-
-		@Override
 		public synchronized void notifyListener() {
-			if (LogPanel.this.isShowing()) {
+			if (isShowing()) {
 				if (ApplicationContext.getInstance().getLog()
-						.getAgentSelectedByClient() != null)
-					this.fireTableDataChanged();
+						.getAgentSelectedByClient() != null) {
+					fireTableDataChanged();
+				}
 			}
 		}
 	}
 
+	protected AgentBankAccountsTableModel agentBankAccountsTableModel = new AgentBankAccountsTableModel();
+
 	protected final AgentDetailModel agentDetailModel = ApplicationContext
 			.getInstance().getModelRegistry().getAgentDetailModel();
 
-	protected AgentListModel agentLogsListModel = new AgentListModel();
+	protected AgentGoodsTableModel agentGoodsTableModel = new AgentGoodsTableModel();
 
 	protected AgentLogSelectionModel agentLogSelectionModel = new AgentLogSelectionModel();
 
+	protected AgentListModel agentLogsListModel = new AgentListModel();
+
 	protected AgentLogsTableModel agentLogsTableModel = new AgentLogsTableModel();
-
-	protected AgentBankAccountsTableModel agentBankAccountsTableModel = new AgentBankAccountsTableModel();
-
-	protected AgentGoodsTableModel agentGoodsTableModel = new AgentGoodsTableModel();
 
 	protected AgentPropertyTableModel agentPropertyTableModel = new AgentPropertyTableModel();
 
@@ -314,12 +314,13 @@ public class LogPanel extends JPanel implements ModelListener {
 		/*
 		 * controls
 		 */
-		JPanel controlPanel = new JPanel(new FlowLayout());
+		final JPanel controlPanel = new JPanel(new FlowLayout());
 		final JComboBox<AgentLog> logSelection = new JComboBox<AgentLog>(
 				agentLogSelectionModel);
 		logSelection.setPreferredSize(new Dimension(400, 30));
 		logSelection.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
 				ApplicationContext
 						.getInstance()
 						.getModelRegistry()
@@ -334,56 +335,58 @@ public class LogPanel extends JPanel implements ModelListener {
 		/*
 		 * agents list
 		 */
-		agentsList = new JList<Agent>(this.agentLogsListModel);
+		agentsList = new JList<Agent>(agentLogsListModel);
 		agentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		agentsList.setLayoutOrientation(JList.VERTICAL);
 		agentsList.setVisibleRowCount(-1);
 		agentsList.addListSelectionListener(new ListSelectionListener() {
 			@Override
-			public void valueChanged(ListSelectionEvent e) {
+			public void valueChanged(final ListSelectionEvent e) {
 				if (e.getValueIsAdjusting() == false) {
-					LogPanel.this.agentDetailModel.setCurrentAgent(agentsList
+					agentDetailModel.setCurrentAgent(agentsList
 							.getSelectedIndex());
 				}
 			}
 		});
-		JScrollPane agentsListScroller = new JScrollPane(agentsList);
+		final JScrollPane agentsListScroller = new JScrollPane(agentsList);
 		agentsListScroller.setPreferredSize(new Dimension(250, 80));
 		this.add(agentsListScroller, BorderLayout.WEST);
 
 		/*
 		 * agent detail panel
 		 */
-		JPanel agentDetailPanel = new JPanel();
+		final JPanel agentDetailPanel = new JPanel();
 		agentDetailPanel.setLayout(new BoxLayout(agentDetailPanel,
 				BoxLayout.PAGE_AXIS));
 		this.add(agentDetailPanel, BorderLayout.CENTER);
 
 		// table with log entries for the agent
-		JTable agentLogTable = new JTable(this.agentLogsTableModel);
-		JScrollPane agentLogTablePane = new JScrollPane(agentLogTable);
+		final JTable agentLogTable = new JTable(agentLogsTableModel);
+		final JScrollPane agentLogTablePane = new JScrollPane(agentLogTable);
 		agentDetailPanel.add(agentLogTablePane);
 
 		// panel for money and goods owned by this agent
-		JPanel agentBankAccountsAndGoodsPanel = new JPanel(new GridLayout(0, 3));
+		final JPanel agentBankAccountsAndGoodsPanel = new JPanel(
+				new GridLayout(0, 3));
 		agentBankAccountsAndGoodsPanel.setPreferredSize(new Dimension(-1, 150));
 		agentDetailPanel.add(agentBankAccountsAndGoodsPanel);
 
 		// agent bank account table
 		final JTable agentBankAccountsTable = new JTable(
-				this.agentBankAccountsTableModel);
-		JScrollPane agentBankAccountsTablePane = new JScrollPane(
+				agentBankAccountsTableModel);
+		final JScrollPane agentBankAccountsTablePane = new JScrollPane(
 				agentBankAccountsTable);
 		agentBankAccountsAndGoodsPanel.add(agentBankAccountsTablePane);
 
 		// agent goods table
-		JTable agentGoodsTable = new JTable(this.agentGoodsTableModel);
-		JScrollPane agentGoodsTablePane = new JScrollPane(agentGoodsTable);
+		final JTable agentGoodsTable = new JTable(agentGoodsTableModel);
+		final JScrollPane agentGoodsTablePane = new JScrollPane(agentGoodsTable);
 		agentBankAccountsAndGoodsPanel.add(agentGoodsTablePane);
 
 		// agent property table
-		JTable agentPropertyTable = new JTable(this.agentPropertyTableModel);
-		JScrollPane agentPropertyTablePane = new JScrollPane(agentPropertyTable);
+		final JTable agentPropertyTable = new JTable(agentPropertyTableModel);
+		final JScrollPane agentPropertyTablePane = new JScrollPane(
+				agentPropertyTable);
 		agentBankAccountsAndGoodsPanel.add(agentPropertyTablePane);
 
 		setVisible(true);

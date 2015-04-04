@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -58,7 +58,8 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 					.getInstance().getAgentFactory().getAgentTypes().size()][ApplicationContext
 					.getInstance().getAgentFactory().getAgentTypes().size() + 1];
 
-			public MonetaryTransactionsTableModel(Currency referenceCurrency) {
+			public MonetaryTransactionsTableModel(
+					final Currency referenceCurrency) {
 				this.referenceCurrency = referenceCurrency;
 				ApplicationContext.getInstance().getModelRegistry()
 						.getNationalEconomyModel(referenceCurrency).monetaryTransactionsModel
@@ -71,27 +72,28 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 			}
 
 			@Override
-			public int getRowCount() {
-				return transientTableData.length;
-			}
-
-			@Override
-			public Object getValueAt(int rowIndex, int colIndex) {
-				return this.transientTableData[rowIndex][colIndex];
-			}
-
-			@Override
-			public String getColumnName(int columnIndex) {
-				if (columnIndex == 0)
+			public String getColumnName(final int columnIndex) {
+				if (columnIndex == 0) {
 					return "from / to";
+				}
 				return ApplicationContext.getInstance().getAgentFactory()
 						.getAgentTypes().get(columnIndex - 1).getSimpleName();
 			}
 
 			@Override
+			public int getRowCount() {
+				return transientTableData.length;
+			}
+
+			@Override
+			public Object getValueAt(final int rowIndex, final int colIndex) {
+				return transientTableData[rowIndex][colIndex];
+			}
+
+			@Override
 			public void notifyListener() {
 				// source data model
-				Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrixForCurrency = ApplicationContext
+				final Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrixForCurrency = ApplicationContext
 						.getInstance().getModelRegistry()
 						.getNationalEconomyModel(referenceCurrency).monetaryTransactionsModel
 						.getAdjacencyMatrix();
@@ -100,15 +102,14 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 				// -> rows
 				for (int i = 0; i < ApplicationContext.getInstance()
 						.getAgentFactory().getAgentTypes().size(); i++) {
-					Class<? extends Agent> agentTypeFrom = ApplicationContext
+					final Class<? extends Agent> agentTypeFrom = ApplicationContext
 							.getInstance().getAgentFactory().getAgentTypes()
 							.get(i);
-					Map<Class<? extends Agent>, PeriodDataAccumulator> adjacencyMatrixForCurrencyAndFromAgentType = adjacencyMatrixForCurrency
+					final Map<Class<? extends Agent>, PeriodDataAccumulator> adjacencyMatrixForCurrencyAndFromAgentType = adjacencyMatrixForCurrency
 							.get(agentTypeFrom);
 
 					// row name
-					this.transientTableData[i][0] = agentTypeFrom
-							.getSimpleName();
+					transientTableData[i][0] = agentTypeFrom.getSimpleName();
 
 					// for all agent types as destinations of monetary
 					// transactions
@@ -116,18 +117,18 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 					// columns
 					for (int j = 0; j < ApplicationContext.getInstance()
 							.getAgentFactory().getAgentTypes().size(); j++) {
-						Class<? extends Agent> agentTypeTo = ApplicationContext
+						final Class<? extends Agent> agentTypeTo = ApplicationContext
 								.getInstance().getAgentFactory()
 								.getAgentTypes().get(j);
-						PeriodDataAccumulator periodTransactionVolume = adjacencyMatrixForCurrencyAndFromAgentType
+						final PeriodDataAccumulator periodTransactionVolume = adjacencyMatrixForCurrencyAndFromAgentType
 								.get(agentTypeTo);
-						this.transientTableData[i][j + 1] = Currency
+						transientTableData[i][j + 1] = Currency
 								.formatMoneySum(periodTransactionVolume
 										.getAmount());
 						periodTransactionVolume.reset();
 					}
 				}
-				this.fireTableDataChanged();
+				fireTableDataChanged();
 			}
 		}
 
@@ -137,12 +138,12 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 		// period from adjacencyMatrix
 		protected final MonetaryTransactionsTableModel monetaryTransactionsTableModel;
 
-		public NationalAccountsPanelForCurrency(Currency currency) {
+		public NationalAccountsPanelForCurrency(final Currency currency) {
 			this.currency = currency;
-			this.monetaryTransactionsTableModel = new MonetaryTransactionsTableModel(
+			monetaryTransactionsTableModel = new MonetaryTransactionsTableModel(
 					currency);
 
-			this.setLayout(new GridLayout(0, 3));
+			setLayout(new GridLayout(0, 3));
 
 			// balance sheets
 			this.add(createNationalBalanceSheetPanel(currency));
@@ -154,14 +155,14 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 			this.add(createStateBalanceSheetPanel(currency));
 
 			// panel for monetary transactions
-			JTable monetaryTransactionsTable = new JTable(
+			final JTable monetaryTransactionsTable = new JTable(
 					monetaryTransactionsTableModel);
-			JScrollPane monetaryTransactionsJScrollPane = new JScrollPane(
+			final JScrollPane monetaryTransactionsJScrollPane = new JScrollPane(
 					monetaryTransactionsTable);
 			monetaryTransactionsJScrollPane.setPreferredSize(new Dimension(-1,
 					250));
 
-			JPanel monetaryTransactionsTablePanel = new JPanel();
+			final JPanel monetaryTransactionsTablePanel = new JPanel();
 			monetaryTransactionsTablePanel.setBorder(BorderFactory
 					.createTitledBorder(
 							BorderFactory.createEtchedBorder(),
@@ -181,10 +182,10 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 	protected JTabbedPane jTabbedPaneCurrency = new JTabbedPane();
 
 	public NationalAccountsPanel() {
-		this.setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 
-		for (Currency currency : Currency.values()) {
-			NationalAccountsPanelForCurrency panelForCurrency = new NationalAccountsPanelForCurrency(
+		for (final Currency currency : Currency.values()) {
+			final NationalAccountsPanelForCurrency panelForCurrency = new NationalAccountsPanelForCurrency(
 					currency);
 			jTabbedPaneCurrency.addTab(currency.getIso4217Code(),
 					panelForCurrency);
@@ -192,10 +193,11 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 		}
 
 		jTabbedPaneCurrency.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
-					JTabbedPane pane = (JTabbedPane) e.getSource();
-					NationalAccountsPanelForCurrency selectedComponent = (NationalAccountsPanelForCurrency) pane
+					final JTabbedPane pane = (JTabbedPane) e.getSource();
+					final NationalAccountsPanelForCurrency selectedComponent = (NationalAccountsPanelForCurrency) pane
 							.getSelectedComponent();
 					selectedComponent.notifyListener();
 				}
@@ -221,8 +223,8 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 
 	@Override
 	public synchronized void notifyListener() {
-		if (this.isShowing()) {
-			NationalAccountsPanelForCurrency accountsPanel = (NationalAccountsPanelForCurrency) jTabbedPaneCurrency
+		if (isShowing()) {
+			final NationalAccountsPanelForCurrency accountsPanel = (NationalAccountsPanelForCurrency) jTabbedPaneCurrency
 					.getSelectedComponent();
 			accountsPanel.notifyListener();
 		}

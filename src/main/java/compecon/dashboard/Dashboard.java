@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -40,9 +40,9 @@ import compecon.engine.statistics.NotificationListenerModel.ModelListener;
 
 public class Dashboard extends JFrame implements ModelListener {
 
-	protected final JTabbedPane jTabbedPane;
-
 	protected final AgentsPanel agentsPanel = new AgentsPanel();
+
+	protected final BanksPanel banksPanel = new BanksPanel();
 
 	protected final ControlPanel controlPanel = new ControlPanel();
 
@@ -50,17 +50,17 @@ public class Dashboard extends JFrame implements ModelListener {
 
 	protected final IndustriesPanel industriesPanel = new IndustriesPanel();
 
-	protected final TradersPanel tradersPanel = new TradersPanel();
+	protected final JTabbedPane jTabbedPane;
 
-	protected final BanksPanel banksPanel = new BanksPanel();
-
-	protected final StatesPanel statesPanel = new StatesPanel();
+	protected final LogPanel logPanel = new LogPanel();
 
 	protected final MoneyPanel moneyPanel = new MoneyPanel();
 
 	protected final NationalAccountsPanel nationalAccountsPanel = new NationalAccountsPanel();
 
-	protected final LogPanel logPanel = new LogPanel();
+	protected final StatesPanel statesPanel = new StatesPanel();
+
+	protected final TradersPanel tradersPanel = new TradersPanel();
 
 	public Dashboard() {
 		/*
@@ -77,29 +77,30 @@ public class Dashboard extends JFrame implements ModelListener {
 		/*
 		 * tabbed content panel
 		 */
-		this.jTabbedPane = new JTabbedPane();
-		this.jTabbedPane.addTab("Agents", this.agentsPanel);
-		this.jTabbedPane.addTab("Households", this.householdsPanel);
-		this.jTabbedPane.addTab("Industries", this.industriesPanel);
-		this.jTabbedPane.addTab("Traders", this.tradersPanel);
-		this.jTabbedPane.addTab("Banks", this.banksPanel);
-		this.jTabbedPane.addTab("States", this.statesPanel);
-		this.jTabbedPane.addTab("Money", this.moneyPanel);
-		this.jTabbedPane.addTab("National Accounts", nationalAccountsPanel);
-		this.jTabbedPane.addTab("Logs", this.logPanel);
+		jTabbedPane = new JTabbedPane();
+		jTabbedPane.addTab("Agents", agentsPanel);
+		jTabbedPane.addTab("Households", householdsPanel);
+		jTabbedPane.addTab("Industries", industriesPanel);
+		jTabbedPane.addTab("Traders", tradersPanel);
+		jTabbedPane.addTab("Banks", banksPanel);
+		jTabbedPane.addTab("States", statesPanel);
+		jTabbedPane.addTab("Money", moneyPanel);
+		jTabbedPane.addTab("National Accounts", nationalAccountsPanel);
+		jTabbedPane.addTab("Logs", logPanel);
 
 		jTabbedPane.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
-					JTabbedPane pane = (JTabbedPane) e.getSource();
-					ModelListener selectedComponent = (ModelListener) pane
+					final JTabbedPane pane = (JTabbedPane) e.getSource();
+					final ModelListener selectedComponent = (ModelListener) pane
 							.getSelectedComponent();
 					selectedComponent.notifyListener();
 				}
 			}
 		});
 
-		add(this.jTabbedPane, BorderLayout.CENTER);
+		add(jTabbedPane, BorderLayout.CENTER);
 
 		/*
 		 * Pack
@@ -111,13 +112,13 @@ public class Dashboard extends JFrame implements ModelListener {
 	}
 
 	public ControlPanel getControlPanel() {
-		return this.controlPanel;
+		return controlPanel;
 	}
 
 	@Override
 	public void notifyListener() {
-		if (this.isShowing()) {
-			ModelListener panel = (ModelListener) jTabbedPane
+		if (isShowing()) {
+			final ModelListener panel = (ModelListener) jTabbedPane
 					.getSelectedComponent();
 			panel.notifyListener();
 		}
