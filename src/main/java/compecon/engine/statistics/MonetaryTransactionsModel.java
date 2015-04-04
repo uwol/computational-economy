@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -35,38 +35,38 @@ public class MonetaryTransactionsModel extends NotificationListenerModel {
 
 	public MonetaryTransactionsModel() {
 		// from
-		for (Class<? extends Agent> agentTypeFrom : ApplicationContext
+		for (final Class<? extends Agent> agentTypeFrom : ApplicationContext
 				.getInstance().getAgentFactory().getAgentTypes()) {
-			Map<Class<? extends Agent>, PeriodDataAccumulator> toMap = new HashMap<Class<? extends Agent>, PeriodDataAccumulator>();
-			this.adjacencyMatrix.put(agentTypeFrom, toMap);
+			final Map<Class<? extends Agent>, PeriodDataAccumulator> toMap = new HashMap<Class<? extends Agent>, PeriodDataAccumulator>();
+			adjacencyMatrix.put(agentTypeFrom, toMap);
 
 			// to
-			for (Class<? extends Agent> agentTypeTo : ApplicationContext
+			for (final Class<? extends Agent> agentTypeTo : ApplicationContext
 					.getInstance().getAgentFactory().getAgentTypes()) {
 				toMap.put(agentTypeTo, new PeriodDataAccumulator());
 			}
 		}
 	}
 
-	public void nextPeriod() {
-		this.notifyListeners();
-
-		for (Class<? extends Agent> agentTypeFrom : ApplicationContext
-				.getInstance().getAgentFactory().getAgentTypes()) {
-			for (Class<? extends Agent> agentTypeTo : ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes()) {
-				this.adjacencyMatrix.get(agentTypeFrom).get(agentTypeTo)
-						.reset();
-			}
-		}
-	}
-
-	public void bank_onTransfer(Class<? extends BankCustomer> from,
-			Class<? extends BankCustomer> to, Currency currency, double value) {
-		this.adjacencyMatrix.get(from).get(to).add(value);
+	public void bank_onTransfer(final Class<? extends BankCustomer> from,
+			final Class<? extends BankCustomer> to, final Currency currency,
+			final double value) {
+		adjacencyMatrix.get(from).get(to).add(value);
 	}
 
 	public Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> getAdjacencyMatrix() {
 		return adjacencyMatrix;
+	}
+
+	public void nextPeriod() {
+		notifyListeners();
+
+		for (final Class<? extends Agent> agentTypeFrom : ApplicationContext
+				.getInstance().getAgentFactory().getAgentTypes()) {
+			for (final Class<? extends Agent> agentTypeTo : ApplicationContext
+					.getInstance().getAgentFactory().getAgentTypes()) {
+				adjacencyMatrix.get(agentTypeFrom).get(agentTypeTo).reset();
+			}
+		}
 	}
 }

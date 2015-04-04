@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,29 +28,28 @@ import compecon.engine.timesystem.TimeSystemEvent;
 
 public class MonthImpl implements Month {
 
-	private MonthType monthType;
+	private final HashMap<DayType, DayImpl> days = new HashMap<DayType, DayImpl>();
 
-	private HashMap<DayType, DayImpl> days = new HashMap<DayType, DayImpl>();
+	private final MonthType monthType;
 
 	public MonthImpl(final MonthType monthType) {
 		this.monthType = monthType;
 	}
 
-	public MonthType getMonthType() {
-		return this.monthType;
-	}
-
+	@Override
 	public void addEvent(final TimeSystemEvent event, final DayType dayType,
-			HourType hourType) {
-		if (!this.days.containsKey(dayType))
-			this.days.put(dayType, new DayImpl(dayType));
-		this.days.get(dayType).addEvent(event, hourType);
+			final HourType hourType) {
+		if (!days.containsKey(dayType)) {
+			days.put(dayType, new DayImpl(dayType));
+		}
+		days.get(dayType).addEvent(event, hourType);
 	}
 
+	@Override
 	public Set<TimeSystemEvent> getEvents(final DayType dayType,
 			final HourType hourType) {
-		final DayImpl dayExact = this.days.get(dayType);
-		final DayImpl dayEvery = this.days.get(DayType.EVERY);
+		final DayImpl dayExact = days.get(dayType);
+		final DayImpl dayEvery = days.get(DayType.EVERY);
 
 		final Set<TimeSystemEvent> events = new HashSet<TimeSystemEvent>();
 
@@ -65,8 +64,13 @@ public class MonthImpl implements Month {
 		return events;
 	}
 
+	@Override
+	public MonthType getMonthType() {
+		return monthType;
+	}
+
 	public void removeEvents(final Set<TimeSystemEvent> events) {
-		for (DayImpl day : this.days.values()) {
+		for (final DayImpl day : days.values()) {
 			day.removeEvents(events);
 		}
 	}

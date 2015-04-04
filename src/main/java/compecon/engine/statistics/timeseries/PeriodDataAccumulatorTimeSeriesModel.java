@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -29,22 +29,23 @@ public class PeriodDataAccumulatorTimeSeriesModel extends
 
 	protected final PeriodDataAccumulator periodDataAccumulator = new PeriodDataAccumulator();
 
-	public PeriodDataAccumulatorTimeSeriesModel(String title) {
+	public PeriodDataAccumulatorTimeSeriesModel(final String title) {
 		super(title);
 	}
 
-	public void add(double amount) {
-		this.periodDataAccumulator.add(amount);
+	public void add(final double amount) {
+		periodDataAccumulator.add(amount);
 	}
 
 	public double getValue() {
-		return this.periodDataAccumulator.getAmount();
+		return periodDataAccumulator.getAmount();
 	}
 
+	@Override
 	public void nextPeriod() {
-		this.timeSeries.addOrUpdate(new Day(ApplicationContext.getInstance()
+		timeSeries.addOrUpdate(new Day(ApplicationContext.getInstance()
 				.getTimeSystem().getCurrentDate()),
-				this.periodDataAccumulator.getAmount());
-		this.periodDataAccumulator.reset();
+				periodDataAccumulator.getAmount());
+		periodDataAccumulator.reset();
 	}
 }

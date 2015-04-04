@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,27 +28,31 @@ import compecon.engine.timesystem.TimeSystemEvent;
 
 public class DayImpl implements Day {
 
-	private DayType dayType;
+	private final DayType dayType;
 
-	private HashMap<HourType, HourImpl> hours = new HashMap<HourType, HourImpl>();
+	private final HashMap<HourType, HourImpl> hours = new HashMap<HourType, HourImpl>();
 
 	public DayImpl(final DayType dayType) {
 		this.dayType = dayType;
 	}
 
-	public DayType getDayType() {
-		return this.dayType;
-	}
-
+	@Override
 	public void addEvent(final TimeSystemEvent event, final HourType hourType) {
-		if (!this.hours.containsKey(hourType))
-			this.hours.put(hourType, new HourImpl(hourType));
-		this.hours.get(hourType).addEvent(event);
+		if (!hours.containsKey(hourType)) {
+			hours.put(hourType, new HourImpl(hourType));
+		}
+		hours.get(hourType).addEvent(event);
 	}
 
+	@Override
+	public DayType getDayType() {
+		return dayType;
+	}
+
+	@Override
 	public Set<TimeSystemEvent> getEvents(final HourType hourType) {
-		final HourImpl hourExact = this.hours.get(hourType);
-		final HourImpl hourEvery = this.hours.get(HourType.EVERY);
+		final HourImpl hourExact = hours.get(hourType);
+		final HourImpl hourEvery = hours.get(HourType.EVERY);
 
 		final Set<TimeSystemEvent> events = new HashSet<TimeSystemEvent>();
 
@@ -63,8 +67,9 @@ public class DayImpl implements Day {
 		return events;
 	}
 
+	@Override
 	public void removeEvents(final Set<TimeSystemEvent> events) {
-		for (HourImpl hour : this.hours.values()) {
+		for (final HourImpl hour : hours.values()) {
 			hour.removeEvents(events);
 		}
 	}

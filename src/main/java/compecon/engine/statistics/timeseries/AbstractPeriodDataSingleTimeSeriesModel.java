@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,11 +28,11 @@ public abstract class AbstractPeriodDataSingleTimeSeriesModel extends
 
 	protected String titleSuffix;
 
-	public AbstractPeriodDataSingleTimeSeriesModel(String title) {
-		this.timeSeries = createTimeSeries(title);
+	public AbstractPeriodDataSingleTimeSeriesModel(final String title) {
+		timeSeries = createTimeSeries(title);
 	}
 
 	public TimeSeries getTimeSeries() {
-		return this.timeSeries;
+		return timeSeries;
 	}
 }

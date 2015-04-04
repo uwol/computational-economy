@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -30,29 +30,15 @@ import compecon.engine.timesystem.impl.HourType;
 
 public class Configuration {
 
-	public final AgentConfig agentConfig = new AgentConfig();
-	public final BudgetingBehaviourConfig budgetingBehaviourConfig = new BudgetingBehaviourConfig();
-	public final CentralBankConfig centralBankConfig = new CentralBankConfig();
-	public final CreditBankConfig creditBankConfig = new CreditBankConfig();
-	public final DashboardConfig dashboardConfig = new DashboardConfig();
-	public final FactoryConfig factoryConfig = new FactoryConfig();
-	public final HouseholdConfig householdConfig = new HouseholdConfig();
-	public final InputOutputModelConfig inputOutputModelConfig = new InputOutputModelConfig();
-	public final JointStockCompanyConfig jointStockCompanyConfig = new JointStockCompanyConfig();
-	public final MathConfig mathConfig = new MathConfig();
-	public final PricingBehaviourConfig pricingBehaviourConfig = new PricingBehaviourConfig();
-	public final StateConfig stateConfig = new StateConfig();
-	public final TimeSystemConfig timeSystemConfig = new TimeSystemConfig();
-	public final TraderConfig traderConfig = new TraderConfig();
-
 	public class AgentConfig {
 
 		public HourType balanceSheetPublicationHourType;
 
 		public HourType getBalanceSheetPublicationHourType() {
-			if (balanceSheetPublicationHourType == null)
+			if (balanceSheetPublicationHourType == null) {
 				balanceSheetPublicationHourType = HourType.valueOf(configFile
 						.getProperty("agent.balanceSheetPublicationHourType"));
+			}
 			return balanceSheetPublicationHourType;
 		}
 	}
@@ -64,18 +50,20 @@ public class Configuration {
 		public Double keyInterestRateTransmissionDamper;
 
 		public double getInternalRateOfReturn() {
-			if (internalRateOfReturn == null)
+			if (internalRateOfReturn == null) {
 				internalRateOfReturn = Double
 						.parseDouble(configFile
 								.getProperty("budgetingBehaviour.internalRateOfReturn"));
+			}
 			return internalRateOfReturn;
 		}
 
 		public double getKeyInterestRateTransmissionDamper() {
-			if (keyInterestRateTransmissionDamper == null)
+			if (keyInterestRateTransmissionDamper == null) {
 				keyInterestRateTransmissionDamper = Double
 						.parseDouble(configFile
 								.getProperty("budgetingBehaviour.keyInterestRateTransmissionDamper"));
+			}
 			return keyInterestRateTransmissionDamper;
 		}
 	}
@@ -88,9 +76,9 @@ public class Configuration {
 			 */
 			public Map<GoodType, Double> priceIndexWeights = new HashMap<GoodType, Double>();
 
-			public double getPriceIndexWeight(GoodType goodType) {
+			public double getPriceIndexWeight(final GoodType goodType) {
 				if (!priceIndexWeights.containsKey(goodType)) {
-					String priceIndexWeightProperty = configFile
+					final String priceIndexWeightProperty = configFile
 							.getProperty("centralBank.statisticalOffice.priceIndexWeights."
 									+ goodType);
 					if (priceIndexWeightProperty != null) {
@@ -104,8 +92,6 @@ public class Configuration {
 			}
 		}
 
-		public final StatisticalOfficeConfig statisticalOfficeConfig = new StatisticalOfficeConfig();
-
 		public Double defaultEffectiveKeyInterestRate;
 
 		public Double inflationTarget;
@@ -118,60 +104,69 @@ public class Configuration {
 
 		public Double reserveRatio;
 
+		public final StatisticalOfficeConfig statisticalOfficeConfig = new StatisticalOfficeConfig();
+
 		public Double targetPriceIndex;
 
-		public double getMaxEffectiveKeyInterestRate() {
-			if (maxEffectiveKeyInterestRate == null)
-				maxEffectiveKeyInterestRate = Double
-						.parseDouble(configFile
-								.getProperty("centralBank.maxEffectiveKeyInterestRate"));
-			return maxEffectiveKeyInterestRate;
-		}
-
-		public double getMinEffectiveKeyInterestRate() {
-			if (minEffectiveKeyInterestRate == null)
-				minEffectiveKeyInterestRate = Double
-						.parseDouble(configFile
-								.getProperty("centralBank.minEffectiveKeyInterestRate"));
-			return minEffectiveKeyInterestRate;
-		}
-
 		public double getDefaultEffectiveKeyInterestRate() {
-			if (defaultEffectiveKeyInterestRate == null)
+			if (defaultEffectiveKeyInterestRate == null) {
 				defaultEffectiveKeyInterestRate = Double
 						.parseDouble(configFile
 								.getProperty("centralBank.defaultEffectiveKeyInterestRate"));
+			}
 			return defaultEffectiveKeyInterestRate;
 		}
 
 		public double getInflationTarget() {
-			if (inflationTarget == null)
+			if (inflationTarget == null) {
 				inflationTarget = Double.parseDouble(configFile
 						.getProperty("centralBank.inflationTarget"));
+			}
 			return inflationTarget;
 		}
 
-		public int getNumber(Currency currency) {
-			if (!number.containsKey(currency))
+		public double getMaxEffectiveKeyInterestRate() {
+			if (maxEffectiveKeyInterestRate == null) {
+				maxEffectiveKeyInterestRate = Double
+						.parseDouble(configFile
+								.getProperty("centralBank.maxEffectiveKeyInterestRate"));
+			}
+			return maxEffectiveKeyInterestRate;
+		}
+
+		public double getMinEffectiveKeyInterestRate() {
+			if (minEffectiveKeyInterestRate == null) {
+				minEffectiveKeyInterestRate = Double
+						.parseDouble(configFile
+								.getProperty("centralBank.minEffectiveKeyInterestRate"));
+			}
+			return minEffectiveKeyInterestRate;
+		}
+
+		public int getNumber(final Currency currency) {
+			if (!number.containsKey(currency)) {
 				number.put(
 						currency,
 						Integer.parseInt(configFile.getProperty("centralBank."
 								+ currency + ".number")));
+			}
 			assert (number.get(currency) == 0 || number.get(currency) == 1);
 			return number.get(currency);
 		}
 
 		public double getReserveRatio() {
-			if (reserveRatio == null)
+			if (reserveRatio == null) {
 				reserveRatio = Double.parseDouble(configFile
 						.getProperty("centralBank.reserveRatio"));
+			}
 			return reserveRatio;
 		}
 
 		public double getTargetPriceIndex() {
-			if (targetPriceIndex == null)
+			if (targetPriceIndex == null) {
 				targetPriceIndex = Double.parseDouble(configFile
 						.getProperty("centralBank.targetPriceIndex"));
+			}
 			return targetPriceIndex;
 		}
 
@@ -179,42 +174,46 @@ public class Configuration {
 
 	public class CreditBankConfig {
 
-		public Map<Currency, Integer> number = new HashMap<Currency, Integer>();
-
-		public Double priceChangeIncrement;
-
 		public Double maxCreditForCurrencyTrading;
 
 		public Double minArbitrageMargin;
 
-		public int getNumber(Currency currency) {
-			if (!number.containsKey(currency))
-				number.put(
-						currency,
-						Integer.parseInt(configFile.getProperty("creditBank."
-								+ currency + ".number")));
-			return number.get(currency);
-		}
+		public Map<Currency, Integer> number = new HashMap<Currency, Integer>();
 
-		public double getPriceChangeIncrement() {
-			if (priceChangeIncrement == null)
-				priceChangeIncrement = Double.parseDouble(configFile
-						.getProperty("creditBank.priceChangeIncrement"));
-			return priceChangeIncrement;
-		}
+		public Double priceChangeIncrement;
 
 		public double getMaxCreditForCurrencyTrading() {
-			if (maxCreditForCurrencyTrading == null)
+			if (maxCreditForCurrencyTrading == null) {
 				maxCreditForCurrencyTrading = Double.parseDouble(configFile
 						.getProperty("creditBank.maxCreditForCurrencyTrading"));
+			}
 			return maxCreditForCurrencyTrading;
 		}
 
 		public double getMinArbitrageMargin() {
-			if (minArbitrageMargin == null)
+			if (minArbitrageMargin == null) {
 				minArbitrageMargin = Double.parseDouble(configFile
 						.getProperty("creditBank.minArbitrageMargin"));
+			}
 			return minArbitrageMargin;
+		}
+
+		public int getNumber(final Currency currency) {
+			if (!number.containsKey(currency)) {
+				number.put(
+						currency,
+						Integer.parseInt(configFile.getProperty("creditBank."
+								+ currency + ".number")));
+			}
+			return number.get(currency);
+		}
+
+		public double getPriceChangeIncrement() {
+			if (priceChangeIncrement == null) {
+				priceChangeIncrement = Double.parseDouble(configFile
+						.getProperty("creditBank.priceChangeIncrement"));
+			}
+			return priceChangeIncrement;
 		}
 	}
 
@@ -222,9 +221,10 @@ public class Configuration {
 		public Integer logNumberOfAgentsLogSize;
 
 		public int getLogNumberOfAgentsLogSize() {
-			if (logNumberOfAgentsLogSize == null)
+			if (logNumberOfAgentsLogSize == null) {
 				logNumberOfAgentsLogSize = Integer.parseInt(configFile
 						.getProperty("dashboard.log.numberOfAgentsLogSize"));
+			}
 			return logNumberOfAgentsLogSize;
 		}
 	}
@@ -240,38 +240,43 @@ public class Configuration {
 		public Double referenceCredit;
 
 		{
-			for (Currency currency : Currency.values())
+			for (final Currency currency : Currency.values()) {
 				number.put(currency, new HashMap<GoodType, Integer>());
+			}
 		}
 
 		public double getCapitalDepreciationRatioPerPeriod() {
-			if (capitalDepreciationRatioPerPeriod == null)
+			if (capitalDepreciationRatioPerPeriod == null) {
 				capitalDepreciationRatioPerPeriod = Double
 						.parseDouble(configFile
 								.getProperty("factory.capitalDepreciationRatioPerPeriod"));
+			}
 			return capitalDepreciationRatioPerPeriod;
 		}
 
 		public double getMargin() {
-			if (margin == null)
+			if (margin == null) {
 				margin = Double.parseDouble(configFile
 						.getProperty("factory.margin"));
+			}
 			return margin;
 		}
 
-		public int getNumber(Currency currency, GoodType goodType) {
-			if (!number.get(currency).containsKey(goodType))
+		public int getNumber(final Currency currency, final GoodType goodType) {
+			if (!number.get(currency).containsKey(goodType)) {
 				number.get(currency).put(
 						goodType,
 						Integer.parseInt(configFile.getProperty("factory."
 								+ currency + "." + goodType + ".number")));
+			}
 			return number.get(currency).get(goodType);
 		}
 
 		public double getReferenceCredit() {
-			if (referenceCredit == null)
+			if (referenceCredit == null) {
 				referenceCredit = Double.parseDouble(configFile
 						.getProperty("factory.referenceCredit"));
+			}
 			return referenceCredit;
 		}
 	}
@@ -299,81 +304,87 @@ public class Configuration {
 		public Boolean retirementSaving;
 
 		public int getDaysWithoutUtilityUntilDestructor() {
-			if (daysWithoutUtilityUntilDestructor == null)
+			if (daysWithoutUtilityUntilDestructor == null) {
 				daysWithoutUtilityUntilDestructor = Integer
 						.parseInt(configFile
 								.getProperty("household.daysWithoutUtilityUntilDestructor"));
+			}
 			return daysWithoutUtilityUntilDestructor;
 		}
 
 		public int getLifespanInDays() {
-			if (lifespanInDays == null)
+			if (lifespanInDays == null) {
 				lifespanInDays = Integer.parseInt(configFile
 						.getProperty("household.lifespanInDays"));
+			}
 			return lifespanInDays;
 		}
 
 		public double getMaxPricePerUnitMultiplier() {
-			if (maxPricePerUnitMultiplier == null)
+			if (maxPricePerUnitMultiplier == null) {
 				maxPricePerUnitMultiplier = Double.parseDouble(configFile
 						.getProperty("household.maxPricePerUnitMultiplier"));
+			}
 			return maxPricePerUnitMultiplier;
 		}
 
 		public int getNewHouseholdEveryXDays() {
-			if (newHouseholdEveryXDays == null)
+			if (newHouseholdEveryXDays == null) {
 				newHouseholdEveryXDays = Integer.parseInt(configFile
 						.getProperty("household.newHouseholdEveryXDays"));
+			}
 			return newHouseholdEveryXDays;
 		}
 
 		public int getNewHouseholdFromAgeInDays() {
-			if (newHouseholdFromAgeInDays == null)
+			if (newHouseholdFromAgeInDays == null) {
 				newHouseholdFromAgeInDays = Integer.parseInt(configFile
 						.getProperty("household.newHouseholdFromAgeInDays"));
+			}
 			return newHouseholdFromAgeInDays;
 		}
 
-		public int getNumber(Currency currency) {
-			if (!number.containsKey(currency))
+		public int getNumber(final Currency currency) {
+			if (!number.containsKey(currency)) {
 				number.put(
 						currency,
 						Integer.parseInt(configFile.getProperty("household."
 								+ currency + ".number")));
+			}
 			return number.get(currency);
 		}
 
 		public int getNumberOfLabourHoursPerDay() {
-			if (numberOfLabourHoursPerDay == null)
+			if (numberOfLabourHoursPerDay == null) {
 				numberOfLabourHoursPerDay = Integer.parseInt(configFile
 						.getProperty("household.numberOfLabourHoursPerDay"));
+			}
 			return numberOfLabourHoursPerDay;
 		}
 
 		public double getRequiredUtilityPerDay() {
-			if (requiredUtilityPerDay == null)
+			if (requiredUtilityPerDay == null) {
 				requiredUtilityPerDay = Double.parseDouble(configFile
 						.getProperty("household.requiredUtilityPerDay"));
+			}
 			return requiredUtilityPerDay;
 		}
 
 		public int getRetirementAgeInDays() {
-			if (retirementAgeInDays == null)
+			if (retirementAgeInDays == null) {
 				retirementAgeInDays = Integer.parseInt(configFile
 						.getProperty("household.retirementAgeInDays"));
+			}
 			return retirementAgeInDays;
 		}
 
 		public boolean getRetirementSaving() {
-			if (retirementSaving == null)
+			if (retirementSaving == null) {
 				retirementSaving = Boolean.parseBoolean(configFile
 						.getProperty("household.retirementSaving"));
+			}
 			return retirementSaving;
 		}
-	}
-
-	public enum InputOutputModelConfigSetting {
-		InputOutputModelTesting, InputOutputModelNoDependencies, InputOutputModelInterdependencies
 	}
 
 	public class InputOutputModelConfig {
@@ -381,12 +392,17 @@ public class Configuration {
 		public InputOutputModelConfigSetting inputOutputModelSetting;
 
 		public InputOutputModelConfigSetting getInputOutputModelSetting() {
-			if (inputOutputModelSetting == null)
+			if (inputOutputModelSetting == null) {
 				inputOutputModelSetting = InputOutputModelConfigSetting
 						.valueOf(configFile.getProperty("inputOutputModel"));
+			}
 			assert (inputOutputModelSetting != null);
 			return inputOutputModelSetting;
 		}
+	}
+
+	public enum InputOutputModelConfigSetting {
+		InputOutputModelInterdependencies, InputOutputModelNoDependencies, InputOutputModelTesting
 	}
 
 	public class JointStockCompanyConfig {
@@ -394,10 +410,11 @@ public class Configuration {
 		public Integer initialNumberOfShares;
 
 		public int getInitialNumberOfShares() {
-			if (initialNumberOfShares == null)
+			if (initialNumberOfShares == null) {
 				initialNumberOfShares = Integer
 						.parseInt(configFile
 								.getProperty("jointStockCompany.initialNumberOfShares"));
+			}
 			return initialNumberOfShares;
 		}
 	}
@@ -409,59 +426,65 @@ public class Configuration {
 		public Integer numberOfIterations;
 
 		public double getInitializationValue() {
-			if (initializationValueForInputFactorsNonZero == null)
+			if (initializationValueForInputFactorsNonZero == null) {
 				initializationValueForInputFactorsNonZero = Double
 						.parseDouble(configFile
 								.getProperty("math.initializationValue"));
+			}
 			return initializationValueForInputFactorsNonZero;
 		}
 
 		public int getNumberOfIterations() {
-			if (numberOfIterations == null)
+			if (numberOfIterations == null) {
 				numberOfIterations = Integer.parseInt(configFile
 						.getProperty("math.numberOfIterations"));
+			}
 			return numberOfIterations;
 		}
 	}
 
 	public class PricingBehaviourConfig {
 
+		public Double defaultInitialPrice;
+
+		public Integer defaultNumberOfPrices;
+
 		public Double defaultPriceChangeIncrementExplicit;
 
 		public Double defaultPriceChangeIncrementImplicit;
 
-		public Integer defaultNumberOfPrices;
+		public double getDefaultInitialPrice() {
+			if (defaultInitialPrice == null) {
+				defaultInitialPrice = Double.parseDouble(configFile
+						.getProperty("pricingBehaviour.defaultInitialPrice"));
+			}
+			return defaultInitialPrice;
+		}
 
-		public Double defaultInitialPrice;
+		public int getDefaultNumberOfPrices() {
+			if (defaultNumberOfPrices == null) {
+				defaultNumberOfPrices = Integer.parseInt(configFile
+						.getProperty("pricingBehaviour.defaultNumberOfPrices"));
+			}
+			return defaultNumberOfPrices;
+		}
 
 		public double getDefaultPriceChangeIncrementExplicit() {
-			if (defaultPriceChangeIncrementExplicit == null)
+			if (defaultPriceChangeIncrementExplicit == null) {
 				defaultPriceChangeIncrementExplicit = Double
 						.parseDouble(configFile
 								.getProperty("pricingBehaviour.defaultPriceChangeIncrementExplicit"));
+			}
 			return defaultPriceChangeIncrementExplicit;
 		}
 
 		public double getDefaultPriceChangeIncrementImplicit() {
-			if (defaultPriceChangeIncrementImplicit == null)
+			if (defaultPriceChangeIncrementImplicit == null) {
 				defaultPriceChangeIncrementImplicit = Double
 						.parseDouble(configFile
 								.getProperty("pricingBehaviour.defaultPriceChangeIncrementImplicit"));
+			}
 			return defaultPriceChangeIncrementImplicit;
-		}
-
-		public int getDefaultNumberOfPrices() {
-			if (defaultNumberOfPrices == null)
-				defaultNumberOfPrices = Integer.parseInt(configFile
-						.getProperty("pricingBehaviour.defaultNumberOfPrices"));
-			return defaultNumberOfPrices;
-		}
-
-		public double getDefaultInitialPrice() {
-			if (defaultInitialPrice == null)
-				defaultInitialPrice = Double.parseDouble(configFile
-						.getProperty("pricingBehaviour.defaultInitialPrice"));
-			return defaultInitialPrice;
 		}
 	}
 
@@ -472,18 +495,20 @@ public class Configuration {
 		public Map<Currency, Integer> number = new HashMap<Currency, Integer>();
 
 		public double getBondMargin() {
-			if (bondMargin == null)
+			if (bondMargin == null) {
 				bondMargin = Double.parseDouble(configFile
 						.getProperty("state.bondMargin"));
+			}
 			return bondMargin;
 		}
 
-		public int getNumber(Currency currency) {
-			if (!number.containsKey(currency))
+		public int getNumber(final Currency currency) {
+			if (!number.containsKey(currency)) {
 				number.put(
 						currency,
 						Integer.parseInt(configFile.getProperty("state."
 								+ currency + ".number")));
+			}
 			assert (number.get(currency) == 0 || number.get(currency) == 1);
 			return number.get(currency);
 		}
@@ -494,50 +519,82 @@ public class Configuration {
 		public Integer initializationPhaseInDays;
 
 		public int getInitializationPhaseInDays() {
-			if (initializationPhaseInDays == null)
+			if (initializationPhaseInDays == null) {
 				initializationPhaseInDays = Integer.parseInt(configFile
 						.getProperty("timeSystem.initializationPhaseInDays"));
+			}
 			return initializationPhaseInDays;
 		}
 	}
 
 	public class TraderConfig {
 
-		public Map<Currency, Integer> number = new HashMap<Currency, Integer>();
-
 		public Double arbitrageMargin;
+
+		public Map<Currency, Integer> number = new HashMap<Currency, Integer>();
 
 		public Double referenceCredit;
 
-		public int getNumber(Currency currency) {
-			if (!number.containsKey(currency))
+		public double getArbitrageMargin() {
+			if (arbitrageMargin == null) {
+				arbitrageMargin = Double.parseDouble(configFile
+						.getProperty("trader.arbitrageMargin"));
+			}
+			return arbitrageMargin;
+		}
+
+		public int getNumber(final Currency currency) {
+			if (!number.containsKey(currency)) {
 				number.put(
 						currency,
 						Integer.parseInt(configFile.getProperty("trader."
 								+ currency + ".number")));
+			}
 			return number.get(currency);
 		}
 
-		public double getArbitrageMargin() {
-			if (arbitrageMargin == null)
-				arbitrageMargin = Double.parseDouble(configFile
-						.getProperty("trader.arbitrageMargin"));
-			return arbitrageMargin;
-		}
-
 		public double getReferenceCredit() {
-			if (referenceCredit == null)
+			if (referenceCredit == null) {
 				referenceCredit = Double.parseDouble(configFile
 						.getProperty("trader.referenceCredit"));
+			}
 			return referenceCredit;
 		}
 	}
 
+	public final AgentConfig agentConfig = new AgentConfig();
+
+	public final BudgetingBehaviourConfig budgetingBehaviourConfig = new BudgetingBehaviourConfig();
+
+	public final CentralBankConfig centralBankConfig = new CentralBankConfig();
+
 	protected final Properties configFile = new Properties();
+
+	public final CreditBankConfig creditBankConfig = new CreditBankConfig();
+
+	public final DashboardConfig dashboardConfig = new DashboardConfig();
+
+	public final FactoryConfig factoryConfig = new FactoryConfig();
+
+	public final HouseholdConfig householdConfig = new HouseholdConfig();
+
+	public final InputOutputModelConfig inputOutputModelConfig = new InputOutputModelConfig();
+
+	public final JointStockCompanyConfig jointStockCompanyConfig = new JointStockCompanyConfig();
+
+	public final MathConfig mathConfig = new MathConfig();
+
+	public final PricingBehaviourConfig pricingBehaviourConfig = new PricingBehaviourConfig();
+
+	public final StateConfig stateConfig = new StateConfig();
+
+	public final TimeSystemConfig timeSystemConfig = new TimeSystemConfig();
+
+	public final TraderConfig traderConfig = new TraderConfig();
 
 	public Configuration(final String configFilename) throws IOException {
 		System.out.println("loading configuration file " + configFilename);
-		this.configFile.load(Configuration.class.getClassLoader()
+		configFile.load(Configuration.class.getClassLoader()
 				.getResourceAsStream(configFilename));
 	}
 }

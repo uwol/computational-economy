@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -39,13 +39,13 @@ public class AgentDetailModel extends NotificationListenerModel {
 
 	public class AgentLog {
 
+		private final String logTitle;
+
+		private final LinkedList<String> rows = new LinkedList<String>();
+
 		protected final int ROWS_TO_STORE = 200;
 
-		private String logTitle;
-
-		private LinkedList<String> rows = new LinkedList<String>();
-
-		public AgentLog(String logTitle) {
+		public AgentLog(final String logTitle) {
 			this.logTitle = logTitle;
 		}
 
@@ -53,120 +53,125 @@ public class AgentDetailModel extends NotificationListenerModel {
 			return logTitle;
 		}
 
-		public void log(String row) {
-			this.rows.add(row);
-			if (this.rows.size() > ROWS_TO_STORE)
-				this.rows.poll();
-		}
-
 		public LinkedList<String> getRows() {
 			return rows;
 		}
 
+		public void log(final String row) {
+			rows.add(row);
+			if (rows.size() > ROWS_TO_STORE) {
+				rows.poll();
+			}
+		}
+
 		@Override
 		public String toString() {
-			return this.logTitle;
+			return logTitle;
 		}
 	}
+
+	protected AgentLog agentLog = new AgentLog("Agent");
+
+	protected ArrayList<Agent> agents = new ArrayList<Agent>();
+
+	protected Map<BankAccount, AgentLog> bankAccountLogs = new HashMap<BankAccount, AgentLog>();
+
+	protected AgentLog currentLog = agentLog;
 
 	protected DateFormat iso8601DateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
 
-	protected ArrayList<Agent> agents = new ArrayList<Agent>();
-
-	protected AgentLog agentLog = new AgentLog("Agent");
-
-	protected AgentLog currentLog = agentLog;
-
-	protected Map<BankAccount, AgentLog> bankAccountLogs = new HashMap<BankAccount, AgentLog>();
-
-	public void agent_onConstruct(Agent agent) {
-		this.agents.add(agent);
-		this.notifyListeners();
+	public void agent_onConstruct(final Agent agent) {
+		agents.add(agent);
+		notifyListeners();
 	}
 
-	public void agent_onDeconstruct(Agent agent) {
-		this.agents.remove(agent);
-		this.notifyListeners();
-	}
-
-	public void logAgentEvent(Date date, String message) {
-		this.agentLog.log(iso8601DateFormat.format(date) + "     " + message);
-		this.notifyListeners();
-	}
-
-	public void logBankAccountEvent(Date date, BankAccount bankAccount,
-			String message) {
-		this.bankAccountLogs.get(bankAccount).log(
-				iso8601DateFormat.format(date) + "     " + message);
-		this.notifyListeners();
+	public void agent_onDeconstruct(final Agent agent) {
+		agents.remove(agent);
+		notifyListeners();
 	}
 
 	public List<Agent> getAgents() {
-		return this.agents;
-	}
-
-	public List<AgentLog> getLogsOfCurrentAgent() {
-		final List<AgentLog> logs = new ArrayList<AgentLog>();
-		logs.add(this.agentLog);
-		for (AgentLog bankAccountLog : this.bankAccountLogs.values())
-			logs.add(bankAccountLog);
-		return logs;
+		return agents;
 	}
 
 	public List<BankAccount> getBankAccountsOfCurrentAgent() {
 		final Agent agent = getLog().getAgentSelectedByClient();
-		if (agent != null)
+		if (agent != null) {
 			return ApplicationContext.getInstance().getBankAccountDAO()
 					.findAllBankAccountsOfAgent(agent);
+		}
 		return new ArrayList<BankAccount>();
 	}
 
+	public AgentLog getCurrentLog() {
+		return currentLog;
+	}
+
 	public Map<GoodType, Double> getGoodsOfCurrentAgent() {
-		Agent agent = getLog().getAgentSelectedByClient();
-		if (agent != null)
+		final Agent agent = getLog().getAgentSelectedByClient();
+		if (agent != null) {
 			return ApplicationContext.getInstance().getPropertyService()
 					.getGoodTypeBalances(agent);
+		}
 		return new HashMap<GoodType, Double>();
 	}
 
+	private Log getLog() {
+		return ApplicationContext.getInstance().getLog();
+	}
+
+	public List<AgentLog> getLogsOfCurrentAgent() {
+		final List<AgentLog> logs = new ArrayList<AgentLog>();
+		logs.add(agentLog);
+		for (final AgentLog bankAccountLog : bankAccountLogs.values()) {
+			logs.add(bankAccountLog);
+		}
+		return logs;
+	}
+
 	public List<Property> getPropertiesOfCurrentAgent() {
-		Agent agent = getLog().getAgentSelectedByClient();
-		if (agent != null)
+		final Agent agent = getLog().getAgentSelectedByClient();
+		if (agent != null) {
 			return ApplicationContext.getInstance().getPropertyService()
 					.findAllPropertiesOfPropertyOwner(agent);
+		}
 		return new ArrayList<Property>();
 	}
 
-	public AgentLog getCurrentLog() {
-		return this.currentLog;
+	public void logAgentEvent(final Date date, final String message) {
+		agentLog.log(iso8601DateFormat.format(date) + "     " + message);
+		notifyListeners();
 	}
 
-	public void setCurrentLog(AgentLog log) {
-		this.currentLog = log;
-		this.notifyListeners();
+	public void logBankAccountEvent(final Date date,
+			final BankAccount bankAccount, final String message) {
+		bankAccountLogs.get(bankAccount).log(
+				iso8601DateFormat.format(date) + "     " + message);
+		notifyListeners();
 	}
 
 	public void setCurrentAgent(final Integer agentId) {
-		final Agent selectedAgent = this.agents.get(agentId);
+		final Agent selectedAgent = agents.get(agentId);
 		getLog().setAgentSelectedByClient(selectedAgent);
 
-		this.agentLog = new AgentLog("Agent");
-		this.bankAccountLogs.clear();
+		agentLog = new AgentLog("Agent");
+		bankAccountLogs.clear();
 
-		for (BankAccount bankAccount : this.getBankAccountsOfCurrentAgent()) {
-			this.bankAccountLogs.put(
+		for (final BankAccount bankAccount : getBankAccountsOfCurrentAgent()) {
+			bankAccountLogs.put(
 					bankAccount,
 					new AgentLog(bankAccount.getName() + " ["
 							+ bankAccount.getId() + ", "
 							+ bankAccount.getCurrency() + "]"));
 		}
 
-		this.currentLog = agentLog;
-		this.notifyListeners();
+		currentLog = agentLog;
+		notifyListeners();
 	}
 
-	private Log getLog() {
-		return ApplicationContext.getInstance().getLog();
+	public void setCurrentLog(final AgentLog log) {
+		currentLog = log;
+		notifyListeners();
 	}
 }

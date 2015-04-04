@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -37,48 +37,49 @@ import compecon.engine.applicationcontext.ApplicationContext;
  */
 public class MarketDepthModel extends NotificationListenerModel {
 
-	public XYDataset getMarketDepthDataset(Currency currency, GoodType goodType) {
-		XYSeries series = new XYSeries(goodType + " ask");
+	public XYDataset getMarketDepthDataset(final Currency currency,
+			final Currency commodityCurrency) {
+		final XYSeries series = new XYSeries(commodityCurrency.getIso4217Code()
+				+ " ask");
 
-		Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
-				.getMarketOrderDAO().getIteratorThreadsafe(currency, goodType);
+		final Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
+				.getMarketOrderDAO()
+				.getIteratorThreadsafe(currency, commodityCurrency);
 		double volume = 0.0;
 		while (iterator.hasNext()) {
-			MarketOrder marketOrder = iterator.next();
+			final MarketOrder marketOrder = iterator.next();
 			volume += marketOrder.getAmount();
 			// volume available at that price per unit or less
 			series.add(marketOrder.getPricePerUnit(), volume);
 		}
 
-		XYSeriesCollection dataset = new XYSeriesCollection();
+		final XYSeriesCollection dataset = new XYSeriesCollection();
 		dataset.removeAllSeries();
 		dataset.addSeries(series);
 		return dataset;
 	}
 
-	public XYDataset getMarketDepthDataset(Currency currency,
-			Currency commodityCurrency) {
-		XYSeries series = new XYSeries(commodityCurrency.getIso4217Code()
-				+ " ask");
+	public XYDataset getMarketDepthDataset(final Currency currency,
+			final GoodType goodType) {
+		final XYSeries series = new XYSeries(goodType + " ask");
 
-		Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
-				.getMarketOrderDAO()
-				.getIteratorThreadsafe(currency, commodityCurrency);
+		final Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
+				.getMarketOrderDAO().getIteratorThreadsafe(currency, goodType);
 		double volume = 0.0;
 		while (iterator.hasNext()) {
-			MarketOrder marketOrder = iterator.next();
+			final MarketOrder marketOrder = iterator.next();
 			volume += marketOrder.getAmount();
 			// volume available at that price per unit or less
 			series.add(marketOrder.getPricePerUnit(), volume);
 		}
 
-		XYSeriesCollection dataset = new XYSeriesCollection();
+		final XYSeriesCollection dataset = new XYSeriesCollection();
 		dataset.removeAllSeries();
 		dataset.addSeries(series);
 		return dataset;
 	}
 
 	public void nextPeriod() {
-		this.notifyListeners();
+		notifyListeners();
 	}
 }

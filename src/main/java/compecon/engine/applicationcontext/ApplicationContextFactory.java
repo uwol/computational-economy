@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -48,6 +48,74 @@ import compecon.engine.statistics.ModelRegistry;
 import compecon.engine.timesystem.impl.TimeSystemImpl;
 
 public class ApplicationContextFactory {
+
+	/**
+	 * Configures the application context with Hibernate DAOs.
+	 */
+	public static void configureHibernateApplicationContext(
+			final String configurationPropertiesFilename) throws IOException {
+
+		configureMinimalApplicationContext(configurationPropertiesFilename);
+
+		// Hibernate DAOs
+
+		ApplicationContext.getInstance().setBankAccountDAO(
+				new compecon.engine.dao.hibernate.impl.BankAccountDAOImpl());
+		ApplicationContext.getInstance().setCentralBankDAO(
+				new compecon.engine.dao.hibernate.impl.CentralBankDAOImpl());
+		ApplicationContext.getInstance().setCreditBankDAO(
+				new compecon.engine.dao.hibernate.impl.CreditBankDAOImpl());
+		ApplicationContext
+				.getInstance()
+				.setGoodTypeOwnershipDAO(
+						new compecon.engine.dao.hibernate.impl.GoodTypeOwnershipDAOImpl());
+		ApplicationContext.getInstance().setHouseholdDAO(
+				new compecon.engine.dao.hibernate.impl.HouseholdDAOImpl());
+		ApplicationContext.getInstance().setFactoryDAO(
+				new compecon.engine.dao.hibernate.impl.FactoryDAOImpl());
+		ApplicationContext.getInstance().setMarketOrderDAO(
+				new compecon.engine.dao.hibernate.impl.MarketOrderDAOImpl());
+		ApplicationContext.getInstance().setPropertyDAO(
+				new compecon.engine.dao.hibernate.impl.PropertyDAOImpl());
+		ApplicationContext.getInstance().setStateDAO(
+				new compecon.engine.dao.hibernate.impl.StateDAOImpl());
+		ApplicationContext.getInstance().setTraderDAO(
+				new compecon.engine.dao.hibernate.impl.TraderDAOImpl());
+	}
+
+	/**
+	 * Configures the application context with in-memory DAOs.
+	 */
+	public static void configureInMemoryApplicationContext(
+			final String configurationPropertiesFilename) throws IOException {
+
+		configureMinimalApplicationContext(configurationPropertiesFilename);
+
+		// in-memory DAOs
+
+		ApplicationContext.getInstance().setBankAccountDAO(
+				new compecon.engine.dao.inmemory.impl.BankAccountDAOImpl());
+		ApplicationContext.getInstance().setCentralBankDAO(
+				new compecon.engine.dao.inmemory.impl.CentralBankDAOImpl());
+		ApplicationContext.getInstance().setCreditBankDAO(
+				new compecon.engine.dao.inmemory.impl.CreditBankDAOImpl());
+		ApplicationContext
+				.getInstance()
+				.setGoodTypeOwnershipDAO(
+						new compecon.engine.dao.inmemory.impl.GoodTypeOwnershipDAOImpl());
+		ApplicationContext.getInstance().setHouseholdDAO(
+				new compecon.engine.dao.inmemory.impl.HouseholdDAOImpl());
+		ApplicationContext.getInstance().setFactoryDAO(
+				new compecon.engine.dao.inmemory.impl.FactoryDAOImpl());
+		ApplicationContext.getInstance().setMarketOrderDAO(
+				new compecon.engine.dao.inmemory.impl.MarketOrderDAOImpl());
+		ApplicationContext.getInstance().setPropertyDAO(
+				new compecon.engine.dao.inmemory.impl.PropertyDAOImpl());
+		ApplicationContext.getInstance().setStateDAO(
+				new compecon.engine.dao.inmemory.impl.StateDAOImpl());
+		ApplicationContext.getInstance().setTraderDAO(
+				new compecon.engine.dao.inmemory.impl.TraderDAOImpl());
+	}
 
 	protected static void configureMinimalApplicationContext(
 			final String configurationPropertiesFilename) throws IOException {
@@ -112,7 +180,8 @@ public class ApplicationContextFactory {
 		 */
 		final InputOutputModel inputOutputModel;
 
-		switch (configuration.inputOutputModelConfig.getInputOutputModelSetting()) {
+		switch (configuration.inputOutputModelConfig
+				.getInputOutputModelSetting()) {
 		case InputOutputModelTesting:
 			inputOutputModel = new InputOutputModelTestingImpl();
 			break;
@@ -138,74 +207,7 @@ public class ApplicationContextFactory {
 		/*
 		 * simulation runner
 		 */
-		ApplicationContext.getInstance().setSimulationRunner(new SimulationRunnerImpl());
-	}
-
-	/**
-	 * Configures the application context with in-memory DAOs.
-	 */
-	public static void configureInMemoryApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
-
-		configureMinimalApplicationContext(configurationPropertiesFilename);
-
-		// in-memory DAOs
-
-		ApplicationContext.getInstance().setBankAccountDAO(
-				new compecon.engine.dao.inmemory.impl.BankAccountDAOImpl());
-		ApplicationContext.getInstance().setCentralBankDAO(
-				new compecon.engine.dao.inmemory.impl.CentralBankDAOImpl());
-		ApplicationContext.getInstance().setCreditBankDAO(
-				new compecon.engine.dao.inmemory.impl.CreditBankDAOImpl());
-		ApplicationContext
-				.getInstance()
-				.setGoodTypeOwnershipDAO(
-						new compecon.engine.dao.inmemory.impl.GoodTypeOwnershipDAOImpl());
-		ApplicationContext.getInstance().setHouseholdDAO(
-				new compecon.engine.dao.inmemory.impl.HouseholdDAOImpl());
-		ApplicationContext.getInstance().setFactoryDAO(
-				new compecon.engine.dao.inmemory.impl.FactoryDAOImpl());
-		ApplicationContext.getInstance().setMarketOrderDAO(
-				new compecon.engine.dao.inmemory.impl.MarketOrderDAOImpl());
-		ApplicationContext.getInstance().setPropertyDAO(
-				new compecon.engine.dao.inmemory.impl.PropertyDAOImpl());
-		ApplicationContext.getInstance().setStateDAO(
-				new compecon.engine.dao.inmemory.impl.StateDAOImpl());
-		ApplicationContext.getInstance().setTraderDAO(
-				new compecon.engine.dao.inmemory.impl.TraderDAOImpl());
-	}
-
-	/**
-	 * Configures the application context with Hibernate DAOs.
-	 */
-	public static void configureHibernateApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
-
-		configureMinimalApplicationContext(configurationPropertiesFilename);
-
-		// Hibernate DAOs
-
-		ApplicationContext.getInstance().setBankAccountDAO(
-				new compecon.engine.dao.hibernate.impl.BankAccountDAOImpl());
-		ApplicationContext.getInstance().setCentralBankDAO(
-				new compecon.engine.dao.hibernate.impl.CentralBankDAOImpl());
-		ApplicationContext.getInstance().setCreditBankDAO(
-				new compecon.engine.dao.hibernate.impl.CreditBankDAOImpl());
-		ApplicationContext
-				.getInstance()
-				.setGoodTypeOwnershipDAO(
-						new compecon.engine.dao.hibernate.impl.GoodTypeOwnershipDAOImpl());
-		ApplicationContext.getInstance().setHouseholdDAO(
-				new compecon.engine.dao.hibernate.impl.HouseholdDAOImpl());
-		ApplicationContext.getInstance().setFactoryDAO(
-				new compecon.engine.dao.hibernate.impl.FactoryDAOImpl());
-		ApplicationContext.getInstance().setMarketOrderDAO(
-				new compecon.engine.dao.hibernate.impl.MarketOrderDAOImpl());
-		ApplicationContext.getInstance().setPropertyDAO(
-				new compecon.engine.dao.hibernate.impl.PropertyDAOImpl());
-		ApplicationContext.getInstance().setStateDAO(
-				new compecon.engine.dao.hibernate.impl.StateDAOImpl());
-		ApplicationContext.getInstance().setTraderDAO(
-				new compecon.engine.dao.hibernate.impl.TraderDAOImpl());
+		ApplicationContext.getInstance().setSimulationRunner(
+				new SimulationRunnerImpl());
 	}
 }

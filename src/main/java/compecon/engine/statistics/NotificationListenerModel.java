@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -33,12 +33,13 @@ public abstract class NotificationListenerModel {
 	protected NotificationListenerModel() {
 	}
 
-	public void registerListener(ModelListener listener) {
-		this.listeners.add(listener);
+	public void notifyListeners() {
+		for (final ModelListener listener : listeners) {
+			listener.notifyListener();
+		}
 	}
 
-	public void notifyListeners() {
-		for (ModelListener listener : this.listeners)
-			listener.notifyListener();
+	public void registerListener(final ModelListener listener) {
+		listeners.add(listener);
 	}
 }

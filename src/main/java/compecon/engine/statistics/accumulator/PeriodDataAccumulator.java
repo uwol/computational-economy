@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -20,20 +20,21 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.statistics.accumulator;
 
 public class PeriodDataAccumulator {
+
 	double sumPerPeriod = 0;
 
-	public void add(double amount) {
-		this.sumPerPeriod += amount;
+	public void add(final double amount) {
+		sumPerPeriod += amount;
 	}
 
 	public double getAmount() {
-		return this.sumPerPeriod;
+		return sumPerPeriod;
 	}
 
 	/**
 	 * Reset values to zero
 	 */
 	public void reset() {
-		this.sumPerPeriod = 0;
+		sumPerPeriod = 0;
 	}
 }

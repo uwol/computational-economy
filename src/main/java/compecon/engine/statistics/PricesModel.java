@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -33,140 +33,146 @@ import compecon.engine.timesystem.impl.MonthType;
 public class PricesModel extends NotificationListenerModel {
 
 	public class PriceModel {
-		private final int NUMBER_OF_DAYS = 180;
 
-		private int lastDate_year;
-		private MonthType lastDate_monthType;
-		private DayType lastDate_dayType;
-
+		double[] close = new double[NUMBER_OF_DAYS];
 		Date[] date = new Date[NUMBER_OF_DAYS];
 		double[] high = new double[NUMBER_OF_DAYS];
-		double[] low = new double[NUMBER_OF_DAYS];
-		double[] open = new double[NUMBER_OF_DAYS];
-		double[] close = new double[NUMBER_OF_DAYS];
-		double[] volume = new double[NUMBER_OF_DAYS];
 
 		int i = -1;
+		private DayType lastDate_dayType;
+		private MonthType lastDate_monthType;
+		private int lastDate_year;
+		double[] low = new double[NUMBER_OF_DAYS];
+		double[] open = new double[NUMBER_OF_DAYS];
 
-		public void tick(double price, double volume) {
-			// current day?
-			if (this.lastDate_year == ApplicationContext.getInstance()
-					.getTimeSystem().getCurrentYear()
-					&& this.lastDate_monthType == ApplicationContext
-							.getInstance().getTimeSystem()
-							.getCurrentMonthType()
-					&& this.lastDate_dayType == ApplicationContext
-							.getInstance().getTimeSystem().getCurrentDayType()) {
-				this.volume[i] += volume;
-				if (price > this.high[i])
-					this.high[i] = price;
-				if (price < this.low[i])
-					this.low[i] = price;
-				this.close[i] = price;
-			} else { // new day
-				if (i < this.NUMBER_OF_DAYS - 1) {
-					i++;
-				} else {
-					System.arraycopy(this.date, 1, this.date, 0,
-							this.NUMBER_OF_DAYS - 1);
-					System.arraycopy(this.high, 1, this.high, 0,
-							this.NUMBER_OF_DAYS - 1);
-					System.arraycopy(this.low, 1, this.low, 0,
-							this.NUMBER_OF_DAYS - 1);
-					System.arraycopy(this.open, 1, this.open, 0,
-							this.NUMBER_OF_DAYS - 1);
-					System.arraycopy(this.close, 1, this.close, 0,
-							this.NUMBER_OF_DAYS - 1);
-					System.arraycopy(this.volume, 1, this.volume, 0,
-							this.NUMBER_OF_DAYS - 1);
-				}
+		double[] volume = new double[NUMBER_OF_DAYS];
 
-				this.date[i] = ApplicationContext.getInstance().getTimeSystem()
-						.getCurrentDate();
-				this.high[i] = price;
-				this.low[i] = price;
-				this.open[i] = price;
-				this.close[i] = price;
-				this.volume[i] = volume;
-
-				this.lastDate_year = ApplicationContext.getInstance()
-						.getTimeSystem().getCurrentYear();
-				this.lastDate_monthType = ApplicationContext.getInstance()
-						.getTimeSystem().getCurrentMonthType();
-				this.lastDate_dayType = ApplicationContext.getInstance()
-						.getTimeSystem().getCurrentDayType();
-			}
+		public double[] getClose() {
+			return Arrays.copyOf(close, i);
 		}
 
 		public Date[] getDate() {
-			return Arrays.copyOf(this.date, i);
+			return Arrays.copyOf(date, i);
 		}
 
 		public double[] getHigh() {
-			return Arrays.copyOf(this.high, i);
+			return Arrays.copyOf(high, i);
 		}
 
 		public double[] getLow() {
-			return Arrays.copyOf(this.low, i);
+			return Arrays.copyOf(low, i);
 		}
 
 		public double[] getOpen() {
-			return Arrays.copyOf(this.open, i);
-		}
-
-		public double[] getClose() {
-			return Arrays.copyOf(this.close, i);
+			return Arrays.copyOf(open, i);
 		}
 
 		public double[] getVolume() {
-			return Arrays.copyOf(this.volume, i);
+			return Arrays.copyOf(volume, i);
 		}
 
 		public boolean hasData() {
-			return this.i > -1;
+			return i > -1;
+		}
+
+		public void tick(final double price, final double volume) {
+			// current day?
+			if (lastDate_year == ApplicationContext.getInstance()
+					.getTimeSystem().getCurrentYear()
+					&& lastDate_monthType == ApplicationContext.getInstance()
+							.getTimeSystem().getCurrentMonthType()
+					&& lastDate_dayType == ApplicationContext.getInstance()
+							.getTimeSystem().getCurrentDayType()) {
+				this.volume[i] += volume;
+
+				if (price > high[i]) {
+					high[i] = price;
+				}
+				if (price < low[i]) {
+					low[i] = price;
+				}
+				close[i] = price;
+			} else { // new day
+				if (i < NUMBER_OF_DAYS - 1) {
+					i++;
+				} else {
+					System.arraycopy(date, 1, date, 0, NUMBER_OF_DAYS - 1);
+					System.arraycopy(high, 1, high, 0, NUMBER_OF_DAYS - 1);
+					System.arraycopy(low, 1, low, 0, NUMBER_OF_DAYS - 1);
+					System.arraycopy(open, 1, open, 0, NUMBER_OF_DAYS - 1);
+					System.arraycopy(close, 1, close, 0, NUMBER_OF_DAYS - 1);
+					System.arraycopy(this.volume, 1, this.volume, 0,
+							NUMBER_OF_DAYS - 1);
+				}
+
+				date[i] = ApplicationContext.getInstance().getTimeSystem()
+						.getCurrentDate();
+				high[i] = price;
+				low[i] = price;
+				open[i] = price;
+				close[i] = price;
+				this.volume[i] = volume;
+
+				lastDate_year = ApplicationContext.getInstance()
+						.getTimeSystem().getCurrentYear();
+				lastDate_monthType = ApplicationContext.getInstance()
+						.getTimeSystem().getCurrentMonthType();
+				lastDate_dayType = ApplicationContext.getInstance()
+						.getTimeSystem().getCurrentDayType();
+			}
 		}
 	}
 
-	protected final Map<Currency, Map<GoodType, PriceModel>> priceModelsForGoodTypes = new HashMap<Currency, Map<GoodType, PriceModel>>();
+	private final int NUMBER_OF_DAYS = 180;
 
 	protected final Map<Currency, Map<Currency, PriceModel>> priceModelsForCurrencies = new HashMap<Currency, Map<Currency, PriceModel>>();
 
-	public void market_onTick(double pricePerUnit, GoodType goodType,
-			Currency currency, double amount) {
-		if (!this.priceModelsForGoodTypes.containsKey(currency))
-			this.priceModelsForGoodTypes.put(currency,
-					new HashMap<GoodType, PriceModel>());
+	protected final Map<Currency, Map<GoodType, PriceModel>> priceModelsForGoodTypes = new HashMap<Currency, Map<GoodType, PriceModel>>();
 
-		Map<GoodType, PriceModel> priceModelsForCurrency = this.priceModelsForGoodTypes
-				.get(currency);
-		if (!priceModelsForCurrency.containsKey(goodType))
-			priceModelsForCurrency.put(goodType, new PriceModel());
-		priceModelsForCurrency.get(goodType).tick(pricePerUnit, amount);
+	public Map<Currency, Map<Currency, PriceModel>> getPriceModelsForCurrencies() {
+		return priceModelsForCurrencies;
 	}
 
-	public void market_onTick(double pricePerUnit, Currency commodityCurrency,
-			Currency currency, double amount) {
-		if (!this.priceModelsForCurrencies.containsKey(currency))
-			this.priceModelsForCurrencies.put(currency,
-					new HashMap<Currency, PriceModel>());
+	public Map<Currency, Map<GoodType, PriceModel>> getPriceModelsForGoodTypes() {
+		return priceModelsForGoodTypes;
+	}
 
-		Map<Currency, PriceModel> priceModelsForCurrency = this.priceModelsForCurrencies
+	public void market_onTick(final double pricePerUnit,
+			final Currency commodityCurrency, final Currency currency,
+			final double amount) {
+		if (!priceModelsForCurrencies.containsKey(currency)) {
+			priceModelsForCurrencies.put(currency,
+					new HashMap<Currency, PriceModel>());
+		}
+
+		final Map<Currency, PriceModel> priceModelsForCurrency = priceModelsForCurrencies
 				.get(currency);
-		if (!priceModelsForCurrency.containsKey(commodityCurrency))
+		if (!priceModelsForCurrency.containsKey(commodityCurrency)) {
 			priceModelsForCurrency.put(commodityCurrency, new PriceModel());
+		}
+
 		priceModelsForCurrency.get(commodityCurrency)
 				.tick(pricePerUnit, amount);
 	}
 
-	public Map<Currency, Map<GoodType, PriceModel>> getPriceModelsForGoodTypes() {
-		return this.priceModelsForGoodTypes;
-	}
+	public void market_onTick(final double pricePerUnit,
+			final GoodType goodType, final Currency currency,
+			final double amount) {
+		if (!priceModelsForGoodTypes.containsKey(currency)) {
+			priceModelsForGoodTypes.put(currency,
+					new HashMap<GoodType, PriceModel>());
+		}
 
-	public Map<Currency, Map<Currency, PriceModel>> getPriceModelsForCurrencies() {
-		return this.priceModelsForCurrencies;
+		final Map<GoodType, PriceModel> priceModelsForCurrency = priceModelsForGoodTypes
+				.get(currency);
+		if (!priceModelsForCurrency.containsKey(goodType)) {
+			priceModelsForCurrency.put(goodType, new PriceModel());
+		}
+
+		priceModelsForCurrency.get(goodType).tick(pricePerUnit, amount);
 	}
 
 	public void nextPeriod() {
-		this.notifyListeners();
+		notifyListeners();
 	}
 }

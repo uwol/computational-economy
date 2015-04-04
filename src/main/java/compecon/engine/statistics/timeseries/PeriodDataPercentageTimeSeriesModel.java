@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -37,31 +37,32 @@ public class PeriodDataPercentageTimeSeriesModel<I> extends
 			final String title) {
 		super(initialIndexTypes, title);
 
-		for (I indexType : initialIndexTypes) {
+		for (final I indexType : initialIndexTypes) {
 			this.periodDataAccumulator.put(indexType,
 					new PeriodDataAccumulator());
 		}
 	}
 
-	public void add(I indexType, double amount) {
+	public void add(final I indexType, final double amount) {
 		this.periodDataAccumulator.get(indexType).add(amount);
 	}
 
-	public double getValue(I indexType) {
+	public double getValue(final I indexType) {
 		return this.periodDataAccumulator.get(indexType).getAmount();
 	}
 
+	@Override
 	public void nextPeriod() {
 		double sum = 0;
-		for (PeriodDataAccumulator periodDataAccumulator : this.periodDataAccumulator
+		for (final PeriodDataAccumulator periodDataAccumulator : this.periodDataAccumulator
 				.values()) {
 			sum += periodDataAccumulator.getAmount();
 		}
 
-		for (Entry<I, PeriodDataAccumulator> entry : this.periodDataAccumulator
+		for (final Entry<I, PeriodDataAccumulator> entry : this.periodDataAccumulator
 				.entrySet()) {
 			// write into time series
-			this.timeSeries.get(entry.getKey()).addOrUpdate(
+			timeSeries.get(entry.getKey()).addOrUpdate(
 					new Day(ApplicationContext.getInstance().getTimeSystem()
 							.getCurrentDate()),
 					entry.getValue().getAmount() / sum);

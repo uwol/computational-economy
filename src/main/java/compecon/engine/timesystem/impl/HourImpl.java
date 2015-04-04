@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -27,26 +27,30 @@ import compecon.engine.timesystem.TimeSystemEvent;
 
 public class HourImpl implements Hour {
 
-	private HourType hourType;
+	private final Set<TimeSystemEvent> events = new HashSet<TimeSystemEvent>();
 
-	private Set<TimeSystemEvent> events = new HashSet<TimeSystemEvent>();
+	private final HourType hourType;
 
 	public HourImpl(final HourType hourType) {
 		this.hourType = hourType;
 	}
 
-	public HourType getHourType() {
-		return this.hourType;
-	}
-
+	@Override
 	public void addEvent(final TimeSystemEvent event) {
-		this.events.add(event);
+		events.add(event);
 	}
 
+	@Override
 	public Set<TimeSystemEvent> getEvents() {
-		return this.events;
+		return events;
 	}
 
+	@Override
+	public HourType getHourType() {
+		return hourType;
+	}
+
+	@Override
 	public void removeEvents(final Set<TimeSystemEvent> events) {
 		this.events.removeAll(events);
 	}

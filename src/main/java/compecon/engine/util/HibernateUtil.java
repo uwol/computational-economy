@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,9 +28,90 @@ public class HibernateUtil {
 
 	private static Boolean isActive;
 
+	private static Session session;
+
 	private static final SessionFactory sessionFactory = buildSessionFactory();
 
-	private static Session session;
+	public static Session beginTransaction() {
+		if (HibernateUtil.isActive()) {
+			final Session hibernateSession = HibernateUtil.getCurrentSession();
+			hibernateSession.beginTransaction();
+			return hibernateSession;
+		}
+
+		return null;
+	}
+
+	private static SessionFactory buildSessionFactory() {
+		if (HibernateUtil.isActive()) {
+			final Configuration configuration = new Configuration();
+			configuration.configure("hibernate.cfg.xml");
+			final ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder()
+					.applySettings(configuration.getProperties());
+			final SessionFactory sessionFactory = configuration
+					.buildSessionFactory(serviceRegistryBuilder
+							.buildServiceRegistry());
+			return sessionFactory;
+		}
+
+		return null;
+	}
+
+	public static void clearSession() {
+		if (HibernateUtil.isActive()) {
+			session.clear();
+		}
+	}
+
+	public static void closeCurrentSession() {
+		if (HibernateUtil.isActive()) {
+			HibernateUtil.getCurrentSession().close();
+		}
+	}
+
+	public static void closeSession() {
+		if (HibernateUtil.isActive()) {
+			// close session independent from transaction contexts
+			session.close();
+		}
+	}
+
+	public static void commitTransaction() {
+		if (HibernateUtil.isActive()) {
+			HibernateUtil.getCurrentSession().getTransaction().commit();
+		}
+	}
+
+	public static void flushCurrentSession() {
+		if (HibernateUtil.isActive()) {
+			HibernateUtil.getCurrentSession().flush();
+		}
+	}
+
+	public static void flushSession() {
+		if (HibernateUtil.isActive()) {
+			session.flush();
+		}
+	}
+
+	/*
+	 * CurrentSession -> transactional
+	 */
+	public static Session getCurrentSession() {
+		if (HibernateUtil.isActive()) {
+			return sessionFactory.getCurrentSession();
+		}
+
+		return null;
+	}
+
+	public static Session getSession() {
+		return session;
+	}
+
+	public static SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
 
 	public static boolean isActive() {
 		if (isActive == null) {
@@ -45,24 +126,6 @@ public class HibernateUtil {
 		return isActive;
 	}
 
-	private static SessionFactory buildSessionFactory() {
-		if (HibernateUtil.isActive()) {
-			Configuration configuration = new Configuration();
-			configuration.configure("hibernate.cfg.xml");
-			ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder()
-					.applySettings(configuration.getProperties());
-			SessionFactory sessionFactory = configuration
-					.buildSessionFactory(serviceRegistryBuilder
-							.buildServiceRegistry());
-			return sessionFactory;
-		}
-		return null;
-	}
-
-	public static SessionFactory getSessionFactory() {
-		return sessionFactory;
-	}
-
 	/*
 	 * Non-transactional session
 	 */
@@ -70,65 +133,6 @@ public class HibernateUtil {
 		if (HibernateUtil.isActive()) {
 			// open session independent from transaction contexts
 			session = sessionFactory.openSession();
-		}
-	}
-
-	public static void clearSession() {
-		if (HibernateUtil.isActive()) {
-			session.clear();
-		}
-	}
-
-	public static void closeSession() {
-		if (HibernateUtil.isActive()) {
-			// close session independent from transaction contexts
-			session.close();
-		}
-	}
-
-	public static Session getSession() {
-		return session;
-	}
-
-	public static void flushSession() {
-		if (HibernateUtil.isActive()) {
-			session.flush();
-		}
-	}
-
-	/*
-	 * CurrentSession -> transactional
-	 */
-	public static Session getCurrentSession() {
-		if (HibernateUtil.isActive())
-			return sessionFactory.getCurrentSession();
-		return null;
-	}
-
-	public static void closeCurrentSession() {
-		if (HibernateUtil.isActive()) {
-			HibernateUtil.getCurrentSession().close();
-		}
-	}
-
-	public static void flushCurrentSession() {
-		if (HibernateUtil.isActive()) {
-			HibernateUtil.getCurrentSession().flush();
-		}
-	}
-
-	public static Session beginTransaction() {
-		if (HibernateUtil.isActive()) {
-			Session hibernateSession = HibernateUtil.getCurrentSession();
-			hibernateSession.beginTransaction();
-			return hibernateSession;
-		}
-		return null;
-	}
-
-	public static void commitTransaction() {
-		if (HibernateUtil.isActive()) {
-			HibernateUtil.getCurrentSession().getTransaction().commit();
 		}
 	}
 

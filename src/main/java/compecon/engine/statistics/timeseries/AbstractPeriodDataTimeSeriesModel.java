@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,9 +28,9 @@ public abstract class AbstractPeriodDataTimeSeriesModel {
 
 	protected final int NUMBER_OF_DAYS = 180;
 
-	protected TimeSeries createTimeSeries(String title) {
-		TimeSeries timeSeries = new TimeSeries(title, Day.class);
-		timeSeries.setMaximumItemAge(this.NUMBER_OF_DAYS);
+	protected TimeSeries createTimeSeries(final String title) {
+		final TimeSeries timeSeries = new TimeSeries(title, Day.class);
+		timeSeries.setMaximumItemAge(NUMBER_OF_DAYS);
 		timeSeries.add(new Day(ApplicationContext.getInstance().getTimeSystem()
 				.getCurrentDate()), 0);
 		return timeSeries;

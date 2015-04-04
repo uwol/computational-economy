@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -26,6 +26,15 @@ public enum HourType {
 			17), HOUR_18(18), HOUR_19(19), HOUR_20(20), HOUR_21(21), HOUR_22(22), HOUR_23(
 			23);
 
+	public static HourType getHourType(final int hourNumber) {
+		for (final HourType hourType : HourType.values()) {
+			if (hourType.getHourNumber() == hourNumber) {
+				return hourType;
+			}
+		}
+		return null;
+	}
+
 	private int hourNumber;
 
 	private HourType(final int hourNumber) {
@@ -33,15 +42,6 @@ public enum HourType {
 	}
 
 	public int getHourNumber() {
-		return this.hourNumber;
-	}
-
-	public static HourType getHourType(int hourNumber) {
-		for (HourType hourType : HourType.values()) {
-			if (hourType.getHourNumber() == hourNumber) {
-				return hourType;
-			}
-		}
-		return null;
+		return hourNumber;
 	}
 }

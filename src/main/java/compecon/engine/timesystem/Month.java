@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -27,11 +27,11 @@ import compecon.engine.timesystem.impl.MonthType;
 
 public interface Month {
 
-	public MonthType getMonthType();
-
 	public void addEvent(final TimeSystemEvent event, final DayType dayType,
 			HourType hourType);
 
 	public Set<TimeSystemEvent> getEvents(final DayType dayType,
 			final HourType hourType);
+
+	public MonthType getMonthType();
 }

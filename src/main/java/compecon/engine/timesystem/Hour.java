@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -25,11 +25,11 @@ import compecon.engine.timesystem.impl.HourType;
 
 public interface Hour {
 
-	public HourType getHourType();
-
 	public void addEvent(final TimeSystemEvent event);
 
 	public Set<TimeSystemEvent> getEvents();
+
+	public HourType getHourType();
 
 	public void removeEvents(final Set<TimeSystemEvent> events);
 }

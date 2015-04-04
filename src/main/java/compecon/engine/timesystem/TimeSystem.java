@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -28,29 +28,6 @@ import compecon.engine.timesystem.impl.MonthType;
 
 public interface TimeSystem {
 
-	public Date getCurrentDate();
-
-	public int getCurrentYear();
-
-	public int getCurrentMonthNumberInYear();
-
-	public int getCurrentDayNumberInMonth();
-
-	public int getStartYear();
-
-	public MonthType getCurrentMonthType();
-
-	public DayType getCurrentDayType();
-
-	public HourType getCurrentHourType();
-
-	public HourType suggestRandomHourType();
-
-	public HourType suggestRandomHourType(final HourType minHourType,
-			final HourType maxHourType);
-
-	public boolean isInitializationPhase();
-
 	public void addEvent(final TimeSystemEvent event, final int year,
 			final MonthType monthType, final DayType dayType,
 			final HourType hourType);
@@ -61,15 +38,38 @@ public interface TimeSystem {
 
 	public void addEventForEveryDay(final TimeSystemEvent event);
 
-	public void addEventForEveryMorning(final TimeSystemEvent event);
-
 	public void addEventForEveryEvening(final TimeSystemEvent event);
 
 	public void addEventForEveryHour(final TimeSystemEvent event);
 
+	public void addEventForEveryMorning(final TimeSystemEvent event);
+
 	public void addExternalEvent(final TimeSystemEvent timeSystemEvent);
+
+	public Date getCurrentDate();
+
+	public int getCurrentDayNumberInMonth();
+
+	public DayType getCurrentDayType();
+
+	public HourType getCurrentHourType();
+
+	public int getCurrentMonthNumberInYear();
+
+	public MonthType getCurrentMonthType();
+
+	public int getCurrentYear();
+
+	public int getStartYear();
+
+	public boolean isInitializationPhase();
+
+	public void nextHour();
 
 	public void removeEvents(final Set<TimeSystemEvent> events);
 
-	public void nextHour();
+	public HourType suggestRandomHourType();
+
+	public HourType suggestRandomHourType(final HourType minHourType,
+			final HourType maxHourType);
 }

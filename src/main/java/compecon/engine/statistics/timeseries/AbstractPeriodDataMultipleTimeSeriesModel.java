@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,16 +36,18 @@ public abstract class AbstractPeriodDataMultipleTimeSeriesModel<I> extends
 	public AbstractPeriodDataMultipleTimeSeriesModel(
 			final I[] initialIndexTypes, final String title) {
 		this.indexTypes = initialIndexTypes;
-		for (I indexType : this.indexTypes)
+
+		for (final I indexType : this.indexTypes) {
 			this.timeSeries.put(indexType, createTimeSeries(indexType + " "
 					+ title));
+		}
 	}
 
 	public I[] getIndexTypes() {
 		return this.indexTypes;
 	}
 
-	public TimeSeries getTimeSeries(I indexType) {
+	public TimeSeries getTimeSeries(final I indexType) {
 		return this.timeSeries.get(indexType);
 	}
 

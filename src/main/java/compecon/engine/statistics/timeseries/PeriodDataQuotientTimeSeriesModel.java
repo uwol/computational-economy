@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -31,29 +31,31 @@ public class PeriodDataQuotientTimeSeriesModel extends
 
 	protected final PeriodDataAccumulator periodDataDivisorModel = new PeriodDataAccumulator();
 
-	public PeriodDataQuotientTimeSeriesModel(String title) {
+	public PeriodDataQuotientTimeSeriesModel(final String title) {
 		super(title);
 	}
 
-	public void add(double dividendAmount, double divisorAmount) {
-		this.periodDataDividendModel.add(dividendAmount);
-		this.periodDataDivisorModel.add(divisorAmount);
+	public void add(final double dividendAmount, final double divisorAmount) {
+		periodDataDividendModel.add(dividendAmount);
+		periodDataDivisorModel.add(divisorAmount);
 	}
 
 	public double getValue() {
 		// Double.NaN or Double.Infinite leads to blank JFreeChart diagrams
-		if (this.periodDataDivisorModel.getAmount() == 0.0)
+		if (periodDataDivisorModel.getAmount() == 0.0) {
 			return 0.0;
-		return this.periodDataDividendModel.getAmount()
-				/ this.periodDataDivisorModel.getAmount();
+		}
+		return periodDataDividendModel.getAmount()
+				/ periodDataDivisorModel.getAmount();
 	}
 
+	@Override
 	public void nextPeriod() {
-		this.timeSeries.addOrUpdate(new Day(ApplicationContext.getInstance()
+		timeSeries.addOrUpdate(new Day(ApplicationContext.getInstance()
 				.getTimeSystem().getCurrentDate()), getValue());
 
-		this.periodDataDividendModel.reset();
-		this.periodDataDivisorModel.reset();
+		periodDataDividendModel.reset();
+		periodDataDivisorModel.reset();
 	}
 
 }
