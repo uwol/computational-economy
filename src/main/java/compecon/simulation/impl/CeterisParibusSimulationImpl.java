@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon;
+package compecon.simulation.impl;
 
 import java.io.IOException;
 import java.util.GregorianCalendar;
@@ -31,10 +31,10 @@ import compecon.jmx.JMXRegistration;
 
 /**
  * This is a main method for sequently starting multiple simulations without a
- * dashboard. The goal is ceteris paribus to determine system parameters, which
+ * dashboard. The goal is to determine system parameters ceteris paribus, which
  * maximize a metric, e. g. household utility.
  */
-public class OptimizationRunner {
+public class CeterisParibusSimulationImpl {
 
 	public static void main(final String[] args) throws IOException {
 
@@ -121,7 +121,7 @@ public class OptimizationRunner {
 		 */
 		ApplicationContext.getInstance().getAgentFactory()
 				.constructAgentsFromConfiguration();
-		ApplicationContext.getInstance().getRunner()
+		ApplicationContext.getInstance().getSimulationRunner()
 				.run(new GregorianCalendar(2000, 7, 1).getTime());
 		ApplicationContext.getInstance().getAgentFactory().deconstructAgents();
 

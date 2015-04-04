@@ -20,7 +20,7 @@ Other entities / features:
 * Time system: Agents register their actions as events in a global time system (observer pattern). At runtime agents can be instantiated and deconstructed at arbitrary points in time, enabling a dynamic population. Execution of events is not bound to a fixed sequential order of economic phases, e. g. for production and consumption.
 
 Technologies:
-* Java 1.7, JUnit, Hibernate, JFreeChart, Maven
+* Java 1.8, JUnit, Hibernate, JFreeChart, Maven
 * Stand-alone calculation engine; architecturally separate from visualization dashboard.
 * Optional: SQL server
 

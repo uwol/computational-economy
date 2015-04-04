@@ -138,7 +138,7 @@ public class ApplicationContextFactory {
 		/*
 		 * simulation runner
 		 */
-		ApplicationContext.getInstance().setRunner(new SimulationRunnerImpl());
+		ApplicationContext.getInstance().setSimulationRunner(new SimulationRunnerImpl());
 	}
 
 	/**

@@ -21,6 +21,9 @@ package compecon.engine.runner;
 
 import java.util.Date;
 
+/**
+ * Central runner for the simulation and its time system.
+ */
 public interface SimulationRunner {
 
 	/**
@@ -32,7 +35,7 @@ public interface SimulationRunner {
 	 * start the simulation loop
 	 *
 	 * @param endDate
-	 *            optional end date
+	 *            end date
 	 */
 	public void run(final Date endDate);
 

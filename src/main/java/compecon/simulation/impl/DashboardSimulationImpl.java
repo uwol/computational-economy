@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package compecon;
+package compecon.simulation.impl;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ import compecon.jmx.JMXRegistration;
 /**
  * This is the regular main method for starting a simulation with a dashboard.
  */
-public class DashboardRunner {
+public class DashboardSimulationImpl {
 
 	public static void main(final String[] args) throws IOException {
 		/*
@@ -58,7 +58,7 @@ public class DashboardRunner {
 		 */
 		ApplicationContext.getInstance().getAgentFactory()
 				.constructAgentsFromConfiguration();
-		ApplicationContext.getInstance().getRunner().run();
+		ApplicationContext.getInstance().getSimulationRunner().run();
 		ApplicationContext.getInstance().getAgentFactory().deconstructAgents();
 
 		/*

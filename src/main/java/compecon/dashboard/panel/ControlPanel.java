@@ -84,16 +84,16 @@ public class ControlPanel extends JPanel implements ModelListener {
 					double millisecondsToSleep = ((invertedSliderValue * invertedSliderValue) / (SLIDER_MAX * SLIDER_MAX)) * 3000.0 / 24.0;
 					ApplicationContext
 							.getInstance()
-							.getRunner()
+							.getSimulationRunner()
 							.setMillisecondsToSleepPerHourType(
 									(int) millisecondsToSleep);
 					if (invertedSliderValue >= SLIDER_MAX - 10.0) {
-						ApplicationContext.getInstance().getRunner()
+						ApplicationContext.getInstance().getSimulationRunner()
 								.setPaused(true);
 						dayStepButton.setEnabled(true);
 						hourStepButton.setEnabled(true);
 					} else {
-						ApplicationContext.getInstance().getRunner()
+						ApplicationContext.getInstance().getSimulationRunner()
 								.setPaused(false);
 						dayStepButton.setEnabled(false);
 						hourStepButton.setEnabled(false);
@@ -110,7 +110,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 		dayStepButton.setEnabled(false);
 		dayStepButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ApplicationContext.getInstance().getRunner().stepSingleDay();
+				ApplicationContext.getInstance().getSimulationRunner().stepSingleDay();
 			}
 		});
 		speedSliderPanel.add(dayStepButton);
@@ -118,7 +118,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 		hourStepButton.setEnabled(false);
 		hourStepButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ApplicationContext.getInstance().getRunner()
+				ApplicationContext.getInstance().getSimulationRunner()
 						.stepSingleHour();
 			}
 		});
