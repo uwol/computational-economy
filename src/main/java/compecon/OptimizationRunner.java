@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -36,7 +36,7 @@ import compecon.jmx.JMXRegistration;
  */
 public class OptimizationRunner {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(final String[] args) throws IOException {
 
 		double highestTotalUtility = 0.0;
 		double maxI = -1;
@@ -63,6 +63,35 @@ public class OptimizationRunner {
 
 		System.out.println("max simulation run had total utility: "
 				+ highestTotalUtility + " with i: " + maxI);
+	}
+
+	protected static void overwriteConfiguration(final double i) {
+		System.out.println("overwriting configuration");
+
+		/*
+		 * overwrite default configuration.
+		 */
+		ApplicationContext.getInstance().getConfiguration().householdConfig.number
+				.put(Currency.USDOLLAR, 0);
+		ApplicationContext.getInstance().getConfiguration().householdConfig.number
+				.put(Currency.YEN, 0);
+
+		for (final GoodType goodType : GoodType.values()) {
+			ApplicationContext.getInstance().getConfiguration().factoryConfig.number
+					.get(Currency.USDOLLAR).put(goodType, 0);
+			ApplicationContext.getInstance().getConfiguration().factoryConfig.number
+					.get(Currency.YEN).put(goodType, 0);
+		}
+
+		ApplicationContext.getInstance().getConfiguration().traderConfig.number
+				.put(Currency.USDOLLAR, 0);
+		ApplicationContext.getInstance().getConfiguration().traderConfig.number
+				.put(Currency.YEN, 0);
+
+		/*
+		 * set values for iteration
+		 */
+		ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
 	}
 
 	protected static double runSimulationIteration(final double i)
@@ -109,34 +138,5 @@ public class OptimizationRunner {
 		ApplicationContext.getInstance().reset();
 
 		return totalUtility;
-	}
-
-	protected static void overwriteConfiguration(final double i) {
-		System.out.println("overwriting configuration");
-
-		/*
-		 * overwrite default configuration.
-		 */
-		ApplicationContext.getInstance().getConfiguration().householdConfig.number
-				.put(Currency.USDOLLAR, 0);
-		ApplicationContext.getInstance().getConfiguration().householdConfig.number
-				.put(Currency.YEN, 0);
-
-		for (GoodType goodType : GoodType.values()) {
-			ApplicationContext.getInstance().getConfiguration().factoryConfig.number
-					.get(Currency.USDOLLAR).put(goodType, 0);
-			ApplicationContext.getInstance().getConfiguration().factoryConfig.number
-					.get(Currency.YEN).put(goodType, 0);
-		}
-
-		ApplicationContext.getInstance().getConfiguration().traderConfig.number
-				.put(Currency.USDOLLAR, 0);
-		ApplicationContext.getInstance().getConfiguration().traderConfig.number
-				.put(Currency.YEN, 0);
-
-		/*
-		 * set values for iteration
-		 */
-		ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
 	}
 }

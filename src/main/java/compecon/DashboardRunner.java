@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ import compecon.jmx.JMXRegistration;
  */
 public class DashboardRunner {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(final String[] args) throws IOException {
 		/*
 		 * setup
 		 */
@@ -58,7 +58,7 @@ public class DashboardRunner {
 		 */
 		ApplicationContext.getInstance().getAgentFactory()
 				.constructAgentsFromConfiguration();
-		ApplicationContext.getInstance().getRunner().run(null);
+		ApplicationContext.getInstance().getRunner().run();
 		ApplicationContext.getInstance().getAgentFactory().deconstructAgents();
 
 		/*

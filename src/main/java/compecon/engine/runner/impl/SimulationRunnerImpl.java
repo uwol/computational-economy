@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -29,13 +29,18 @@ public class SimulationRunnerImpl implements SimulationRunner {
 
 	protected boolean killFlag = false;
 
+	protected int millisecondsToSleepPerHourType = 0;
+
 	protected boolean paused = false;
 
 	protected boolean singleDayStep = false;
 
 	protected boolean singleHourStep = false;
 
-	protected int millisecondsToSleepPerHourType = 0;
+	@Override
+	public void run() {
+		run(null);
+	}
 
 	@Override
 	public void run(final Date endDate) {
@@ -79,7 +84,7 @@ public class SimulationRunnerImpl implements SimulationRunner {
 					Thread.sleep(50);
 				}
 			}
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
@@ -96,17 +101,17 @@ public class SimulationRunnerImpl implements SimulationRunner {
 	}
 
 	@Override
-	public void setSingleDayStep() {
-		this.singleDayStep = true;
+	public void stepSingleDay() {
+		singleDayStep = true;
 	}
 
 	@Override
-	public void setSingleHourStep() {
-		this.singleHourStep = true;
+	public void stepSingleHour() {
+		singleHourStep = true;
 	}
 
 	@Override
 	public void stop() {
-		this.killFlag = true;
+		killFlag = true;
 	}
 }

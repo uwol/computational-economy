@@ -110,7 +110,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 		dayStepButton.setEnabled(false);
 		dayStepButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ApplicationContext.getInstance().getRunner().setSingleDayStep();
+				ApplicationContext.getInstance().getRunner().stepSingleDay();
 			}
 		});
 		speedSliderPanel.add(dayStepButton);
@@ -119,7 +119,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 		hourStepButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ApplicationContext.getInstance().getRunner()
-						.setSingleHourStep();
+						.stepSingleHour();
 			}
 		});
 		speedSliderPanel.add(hourStepButton);

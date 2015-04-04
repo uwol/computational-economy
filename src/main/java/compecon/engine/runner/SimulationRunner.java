@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -24,8 +24,13 @@ import java.util.Date;
 public interface SimulationRunner {
 
 	/**
+	 * start the simulation loop without an end date.
+	 */
+	public void run();
+
+	/**
 	 * start the simulation loop
-	 * 
+	 *
 	 * @param endDate
 	 *            optional end date
 	 */
@@ -37,17 +42,17 @@ public interface SimulationRunner {
 	/**
 	 * pauses the simulation loop.
 	 */
-	public void setPaused(final boolean paused);
+	public void setPaused(boolean paused);
 
 	/**
 	 * set a flag that the simulation loop should advance one day.
 	 */
-	public void setSingleDayStep();
+	public void stepSingleDay();
 
 	/**
 	 * set a flag that the simulation loop should advance one hour.
 	 */
-	public void setSingleHourStep();
+	public void stepSingleHour();
 
 	/**
 	 * shuts down the simulation loop.
