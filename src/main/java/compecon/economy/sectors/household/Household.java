@@ -21,6 +21,7 @@ package compecon.economy.sectors.household;
 
 import compecon.economy.agent.Agent;
 import compecon.economy.sectors.financial.BankAccountDelegate;
+import compecon.math.utility.UtilityFunction;
 
 public interface Household extends Agent {
 
@@ -31,4 +32,6 @@ public interface Household extends Agent {
 	public int getContinuousDaysWithUtility();
 
 	public int getDaysWithoutUtility();
+
+	public UtilityFunction getUtilityFunction();
 }

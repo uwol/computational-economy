@@ -313,6 +313,7 @@ public class ModelRegistry {
 				this.currency = currency;
 				utilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " utility");
+
 				for (final GoodType goodType : inputOutputModel
 						.getUtilityFunctionOfHousehold().getInputGoodTypes()) {
 					utilityInputModels.put(
@@ -327,6 +328,7 @@ public class ModelRegistry {
 
 			public void nextPeriod() {
 				utilityOutputModel.nextPeriod();
+
 				for (final PeriodDataAccumulatorTimeSeriesModel periodDataAccumulatorTimeSeriesModel : utilityInputModels
 						.values()) {
 					periodDataAccumulatorTimeSeriesModel.nextPeriod();

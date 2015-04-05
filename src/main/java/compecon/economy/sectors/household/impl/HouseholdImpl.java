@@ -617,6 +617,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		return pricingBehaviour;
 	}
 
+	@Override
 	public UtilityFunction getUtilityFunction() {
 		return utilityFunction;
 	}
