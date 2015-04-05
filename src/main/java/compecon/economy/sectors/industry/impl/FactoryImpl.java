@@ -53,6 +53,7 @@ import compecon.math.util.MathUtil;
 public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 
 	public class ProductionEvent implements TimeSystemEvent {
+
 		protected void buyOptimalProductionFactorsForBudget(final double budget) {
 			if (MathUtil.greater(budget, 0.0)) {
 				// get prices for production factors
@@ -132,6 +133,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			 * important for price equilibrium
 			 */
 			double budgetSpent = 0.0;
+
 			for (final Entry<GoodType, Double> entry : productionFactorsToBuy
 					.entrySet()) {
 				final GoodType goodTypeToBuy = entry.getKey();
@@ -146,6 +148,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 					budgetSpent += priceAndAmount[0];
 				}
 			}
+
 			return budgetSpent;
 		}
 
@@ -202,6 +205,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 					.getPropertyService()
 					.getGoodTypeBalance(FactoryImpl.this, producedGoodType);
 			final double[] prices = pricingBehaviour.getCurrentPriceArray();
+
 			for (final double price : prices) {
 				ApplicationContext
 						.getInstance()
@@ -210,6 +214,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 								getBankAccountTransactionsDelegate(),
 								amountInInventory / (prices.length), price);
 			}
+
 			pricingBehaviour.registerOfferedAmount(amountInInventory);
 
 			getLog().factory_onOfferGoodType(FactoryImpl.this.primaryCurrency,
@@ -259,6 +264,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			 * produce with production factors
 			 */
 			final Map<GoodType, Double> productionFactorsOwned = new HashMap<GoodType, Double>();
+
 			for (final GoodType productionFactor : productionFunction
 					.getInputGoodTypes()) {
 				productionFactorsOwned.put(
@@ -281,6 +287,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			getLog().factory_onProduction(FactoryImpl.this,
 					FactoryImpl.this.primaryCurrency, producedGoodType,
 					producedOutput, productionFactorsOwned);
+
 			if (getLog().isAgentSelectedByClient(FactoryImpl.this)) {
 				getLog().log(FactoryImpl.this, ProductionEvent.class,
 						"produced %s %s", MathUtil.round(producedOutput),

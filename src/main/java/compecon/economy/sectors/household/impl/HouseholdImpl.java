@@ -66,6 +66,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	// configuration constants ------------------------------
 
 	public class DailyLifeEvent implements TimeSystemEvent {
+
 		private double buyGoods(final Map<GoodType, Double> goodsToBuy,
 				final Map<GoodType, PriceFunction> priceFunctions,
 				final double budget) {
@@ -74,9 +75,11 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			 * important for price equilibrium
 			 */
 			double budgetSpent = 0.0;
+
 			for (final Entry<GoodType, Double> entry : goodsToBuy.entrySet()) {
 				final GoodType goodTypeToBuy = entry.getKey();
 				final double amountToBuy = entry.getValue();
+
 				if (MathUtil.greater(amountToBuy, 0.0)) {
 					final double marginalPrice = priceFunctions.get(
 							goodTypeToBuy).getMarginalPrice(0.0);
@@ -99,6 +102,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 					budgetSpent += priceAndAmount[0];
 				}
 			}
+
 			return budgetSpent;
 		}
 
@@ -165,6 +169,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			final int NEW_HOUSEHOLD_FROM_X_DAYS = ApplicationContext
 					.getInstance().getConfiguration().householdConfig
 					.getNewHouseholdFromAgeInDays();
+
 			if (ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
 				if ((ageInDays - NEW_HOUSEHOLD_FROM_X_DAYS)
 						% ApplicationContext.getInstance().getConfiguration().householdConfig
@@ -207,6 +212,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			 * consume goods
 			 */
 			final Map<GoodType, Double> effectiveConsumptionGoodsBundle = new HashMap<GoodType, Double>();
+
 			for (final GoodType goodType : utilityFunction.getInputGoodTypes()) {
 				// only non-durable consumption goods should be consumed
 				assert (!goodType.isDurable());
@@ -215,12 +221,14 @@ public class HouseholdImpl extends AgentImpl implements Household {
 						.getPropertyService()
 						.getGoodTypeBalance(HouseholdImpl.this, goodType);
 				final double amountToConsume;
+
 				if (GoodType.LABOURHOUR.equals(goodType)) {
 					amountToConsume = Math.min(numberOfLabourHoursToConsume,
 							balance);
 				} else {
 					amountToConsume = balance;
 				}
+
 				effectiveConsumptionGoodsBundle.put(goodType, amountToConsume);
 				ApplicationContext
 						.getInstance()
@@ -228,6 +236,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 						.decrementGoodTypeAmount(HouseholdImpl.this, goodType,
 								amountToConsume);
 			}
+
 			final double utility = utilityFunction
 					.calculateUtility(effectiveConsumptionGoodsBundle);
 			getLog().household_onUtility(HouseholdImpl.this,
@@ -265,6 +274,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 						.getGoodTypeBalance(HouseholdImpl.this,
 								GoodType.LABOURHOUR);
 				final double prices[] = pricingBehaviour.getCurrentPriceArray();
+
 				for (final double price : prices) {
 					ApplicationContext
 							.getInstance()
@@ -350,6 +360,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 					.getBalance();
 
 			final double budget;
+
 			// do households save for retirement?
 			if (ApplicationContext.getInstance().getConfiguration().householdConfig
 					.getRetirementSaving()) {
