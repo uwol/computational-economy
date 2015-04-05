@@ -100,6 +100,33 @@ public class ControlPanel extends JPanel implements ModelListener {
 			economicSectorPane.add(initEconomicGrowthButton);
 
 			/*
+			 * init economic contraction
+			 */
+
+			final JButton initEconomicContractionButton = new JButton(
+					"Economic contraction");
+			initEconomicContractionButton
+					.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(final ActionEvent e) {
+							ApplicationContext.getInstance().getTimeSystem()
+									.addExternalEvent(new TimeSystemEvent() {
+										@Override
+										public boolean isDeconstructed() {
+											return false;
+										}
+
+										@Override
+										public void onEvent() {
+											controlModel
+													.initEconomicContraction(currency);
+										}
+									});
+						}
+					});
+			economicSectorPane.add(initEconomicContractionButton);
+
+			/*
 			 * deficit spending
 			 */
 

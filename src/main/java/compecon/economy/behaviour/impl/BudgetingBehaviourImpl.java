@@ -88,6 +88,7 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 					Currency.formatMoneySum(bankAccountBalance), currency,
 					Currency.formatMoneySum(lastMaxCreditRate), currency);
 		}
+
 		return creditBasedBudget;
 	}
 
