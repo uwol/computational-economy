@@ -85,8 +85,8 @@ public class TimeSystemImpl implements TimeSystem {
 	@Override
 	public void addEventEvery(final TimeSystemEvent event, final int year,
 			final MonthType monthType, final DayType dayType,
-			final HourType excepthourType) {
-		assert (excepthourType != null);
+			final HourType exceptHourType) {
+		assert (exceptHourType != null);
 
 		if (!years.containsKey(year)) {
 			years.put(year, new YearImpl());
@@ -94,7 +94,7 @@ public class TimeSystemImpl implements TimeSystem {
 
 		for (final HourType hourType : HourType.values()) {
 			if (!HourType.EVERY.equals(hourType)
-					&& !excepthourType.equals(hourType)) {
+					&& !exceptHourType.equals(hourType)) {
 				years.get(year).addEvent(event, monthType, dayType, hourType);
 			}
 		}

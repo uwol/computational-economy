@@ -34,7 +34,7 @@ public interface TimeSystem {
 
 	public void addEventEvery(final TimeSystemEvent event, final int year,
 			final MonthType monthType, final DayType dayType,
-			final HourType excepthourType);
+			final HourType exceptHourType);
 
 	public void addEventForEveryDay(final TimeSystemEvent event);
 

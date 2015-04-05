@@ -36,6 +36,7 @@ public class ControlModel extends NotificationListenerModel {
 	public void initEconomicGrowth(final Currency currency) {
 		final List<Factory> factories = ApplicationContext.getInstance()
 				.getAgentService().findFactories(currency);
+
 		for (final Factory factory : factories) {
 			final double productivity = factory.getProductionFunction()
 					.getProductivity();
