@@ -125,7 +125,7 @@ public abstract class ConvexFunctionImpl<T> extends FunctionImpl<T> implements
 
 		// special case: check for budget
 		if (MathUtil.lesserEqual(budget, 0.0)) {
-			getLog().log("budget is " + budget + " -> no calculation");
+			getLog().log("budget is %s -> no calculation", budget);
 			getLog().agent_onCalculateOutputMaximizingInputsIterative(budget,
 					0.0, ConvexFunctionTerminationCause.BUDGET_PLANNED);
 

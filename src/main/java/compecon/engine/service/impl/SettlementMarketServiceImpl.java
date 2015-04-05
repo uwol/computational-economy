@@ -234,49 +234,35 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 			if (priceAndAmount[1] > 0) {
 				getLog().log(
 						buyer,
-						"bought "
-								+ MathUtil.round(priceAndAmount[1])
-								+ " units of "
-								+ determineCommodityName(goodType,
-										commodityCurrency, propertyClass)
-								+ " for "
-								+ Currency.formatMoneySum(priceAndAmount[0])
-								+ " "
-								+ buyersBankAccountDelegate.getBankAccount()
-										.getCurrency().getIso4217Code()
-								+ " under constraints [maxAmount: "
-								+ MathUtil.round(maxAmount)
-								+ ", maxTotalPrice: "
-								+ Currency.formatMoneySum(maxTotalPrice)
-								+ " "
-								+ buyersBankAccountDelegate.getBankAccount()
-										.getCurrency().getIso4217Code()
-								+ ", maxPricePerUnit: "
-								+ Currency.formatMoneySum(maxPricePerUnit)
-								+ " "
-								+ buyersBankAccountDelegate.getBankAccount()
-										.getCurrency().getIso4217Code() + "]");
+						"bought %s units of %s for %s %s under constraints [maxAmount: %s, maxTotalPrice: %s %s, maxPricePerUnit: %s %s]",
+						MathUtil.round(priceAndAmount[1]),
+						determineCommodityName(goodType, commodityCurrency,
+								propertyClass),
+						Currency.formatMoneySum(priceAndAmount[0]),
+						buyersBankAccountDelegate.getBankAccount()
+								.getCurrency(),
+						MathUtil.round(maxAmount),
+						Currency.formatMoneySum(maxTotalPrice),
+						buyersBankAccountDelegate.getBankAccount()
+								.getCurrency(),
+						Currency.formatMoneySum(maxPricePerUnit),
+						buyersBankAccountDelegate.getBankAccount()
+								.getCurrency());
 			} else {
 				getLog().log(
 						buyer,
-						"cannot buy "
-								+ determineCommodityName(goodType,
-										commodityCurrency, propertyClass)
-								+ ", since no matching offers for "
-								+ determineCommodityName(goodType,
-										commodityCurrency, propertyClass)
-								+ " under constraints [maxAmount: "
-								+ MathUtil.round(maxAmount)
-								+ ", maxTotalPrice: "
-								+ Currency.formatMoneySum(maxTotalPrice)
-								+ " "
-								+ buyersBankAccountDelegate.getBankAccount()
-										.getCurrency().getIso4217Code()
-								+ ", maxPricePerUnit: "
-								+ Currency.formatMoneySum(maxPricePerUnit)
-								+ " "
-								+ buyersBankAccountDelegate.getBankAccount()
-										.getCurrency().getIso4217Code() + "]");
+						"cannot buy %s, since no matching offers for %s under constraints [maxAmount: %s, maxTotalPrice: %s %s, maxPricePerUnit: %s %s]",
+						determineCommodityName(goodType, commodityCurrency,
+								propertyClass),
+						determineCommodityName(goodType, commodityCurrency,
+								propertyClass),
+						MathUtil.round(maxAmount),
+						Currency.formatMoneySum(maxTotalPrice),
+						buyersBankAccountDelegate.getBankAccount()
+								.getCurrency(),
+						Currency.formatMoneySum(maxPricePerUnit),
+						buyersBankAccountDelegate.getBankAccount()
+								.getCurrency());
 			}
 		}
 

@@ -148,7 +148,7 @@ public class Configuration {
 				number.put(
 						currency,
 						Integer.parseInt(configFile.getProperty("centralBank."
-								+ currency + ".number")));
+								+ currency.name() + ".number")));
 			}
 			assert (number.get(currency) == 0 || number.get(currency) == 1);
 			return number.get(currency);
@@ -203,7 +203,7 @@ public class Configuration {
 				number.put(
 						currency,
 						Integer.parseInt(configFile.getProperty("creditBank."
-								+ currency + ".number")));
+								+ currency.name() + ".number")));
 			}
 			return number.get(currency);
 		}
@@ -264,10 +264,12 @@ public class Configuration {
 
 		public int getNumber(final Currency currency, final GoodType goodType) {
 			if (!number.get(currency).containsKey(goodType)) {
-				number.get(currency).put(
-						goodType,
-						Integer.parseInt(configFile.getProperty("factory."
-								+ currency + "." + goodType + ".number")));
+				number.get(currency)
+						.put(goodType,
+								Integer.parseInt(configFile
+										.getProperty("factory."
+												+ currency.name() + "."
+												+ goodType + ".number")));
 			}
 			return number.get(currency).get(goodType);
 		}
@@ -349,7 +351,7 @@ public class Configuration {
 				number.put(
 						currency,
 						Integer.parseInt(configFile.getProperty("household."
-								+ currency + ".number")));
+								+ currency.name() + ".number")));
 			}
 			return number.get(currency);
 		}
@@ -507,7 +509,7 @@ public class Configuration {
 				number.put(
 						currency,
 						Integer.parseInt(configFile.getProperty("state."
-								+ currency + ".number")));
+								+ currency.name() + ".number")));
 			}
 			assert (number.get(currency) == 0 || number.get(currency) == 1);
 			return number.get(currency);
@@ -548,7 +550,7 @@ public class Configuration {
 				number.put(
 						currency,
 						Integer.parseInt(configFile.getProperty("trader."
-								+ currency + ".number")));
+								+ currency.name() + ".number")));
 			}
 			return number.get(currency);
 		}

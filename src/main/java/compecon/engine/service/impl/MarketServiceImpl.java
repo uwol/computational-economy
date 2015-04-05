@@ -437,16 +437,12 @@ public abstract class MarketServiceImpl implements MarketService {
 			if (getLog().isAgentSelectedByClient(offeror)) {
 				getLog().log(
 						offeror,
-						"offering "
-								+ MathUtil.round(amount)
-								+ " units of "
-								+ commodityCurrency
-								+ " for "
-								+ Currency.formatMoneySum(pricePerUnit)
-								+ " "
-								+ offerorsBankAcountDelegate.getBankAccount()
-										.getCurrency().getIso4217Code()
-								+ " per unit");
+						"offering %s units of %s for %s %s per unit",
+						MathUtil.round(amount),
+						commodityCurrency,
+						Currency.formatMoneySum(pricePerUnit),
+						offerorsBankAcountDelegate.getBankAccount()
+								.getCurrency());
 			}
 		}
 	}
@@ -472,16 +468,12 @@ public abstract class MarketServiceImpl implements MarketService {
 			if (getLog().isAgentSelectedByClient(offeror)) {
 				getLog().log(
 						offeror,
-						"offering "
-								+ MathUtil.round(amount)
-								+ " units of "
-								+ goodType
-								+ " for "
-								+ Currency.formatMoneySum(pricePerUnit)
-								+ " "
-								+ offerorsBankAcountDelegate.getBankAccount()
-										.getCurrency().getIso4217Code()
-								+ " per unit");
+						"offering %s units of %s for %s %s per unit",
+						MathUtil.round(amount),
+						goodType,
+						Currency.formatMoneySum(pricePerUnit),
+						offerorsBankAcountDelegate.getBankAccount()
+								.getCurrency());
 			}
 		}
 	}
@@ -507,16 +499,10 @@ public abstract class MarketServiceImpl implements MarketService {
 				.newInstancePropertyMarketOrder(property, offeror,
 						offerorsBankAcountDelegate, pricePerUnit);
 		if (getLog().isAgentSelectedByClient(offeror)) {
-			getLog().log(
-					offeror,
-					"offering 1 unit of "
-							+ property.getClass().getSimpleName()
-							+ " for "
-							+ Currency.formatMoneySum(pricePerUnit)
-							+ " "
-							+ offerorsBankAcountDelegate.getBankAccount()
-									.getCurrency().getIso4217Code()
-							+ " per unit");
+			getLog().log(offeror, "offering 1 unit of %s for %s %s per unit",
+					property.getClass().getSimpleName(),
+					Currency.formatMoneySum(pricePerUnit),
+					offerorsBankAcountDelegate.getBankAccount().getCurrency());
 		}
 	}
 

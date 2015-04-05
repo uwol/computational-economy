@@ -649,10 +649,9 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 					moneyReservesBankAccount.getOwner())) {
 				getLog().log(
 						moneyReservesBankAccount.getOwner(),
-						"obtained a tender of "
-								+ Currency.formatMoneySum(bond.getFaceValue())
-								+ " " + getPrimaryCurrency()
-								+ " of central bank money from " + this);
+						"obtained a tender of %s %s of central bank money from %s",
+						Currency.formatMoneySum(bond.getFaceValue()),
+						getPrimaryCurrency(), this);
 			}
 		}
 	}

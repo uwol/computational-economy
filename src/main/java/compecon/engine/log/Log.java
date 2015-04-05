@@ -112,16 +112,18 @@ public interface Log {
 
 	public void log(final Agent agent,
 			final Class<? extends TimeSystemEvent> eventClass,
-			final String message);
+			final String message, final Object... parameters);
 
-	public void log(final Agent agent, final String message);
+	public void log(final Agent agent, final String message,
+			final Object... parameters);
 
-	public void log(final BankCustomer bankCustomer, final String message);
+	public void log(final BankCustomer bankCustomer, final String message,
+			final Object... parameters);
 
 	public void log(final MarketParticipant marketParticipant,
-			final String message);
+			final String message, final Object... parameters);
 
-	public void log(final String message);
+	public void log(final String message, final Object... parameters);
 
 	public void market_onTick(final double pricePerUnit,
 			final Currency commodityCurrency, final Currency currency,

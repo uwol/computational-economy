@@ -116,12 +116,10 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 						getLog().log(
 								JointStockCompanyImpl.this,
 								PayDividendEvent.class,
-								"payed dividend of "
-										+ Currency
-												.formatMoneySum(totalDividendPayed)
-										+ " "
-										+ JointStockCompanyImpl.this.bankAccountTransactions
-												.getCurrency().getIso4217Code());
+								"payed dividend of %s %s",
+								Currency.formatMoneySum(totalDividendPayed),
+								JointStockCompanyImpl.this.bankAccountTransactions
+										.getCurrency());
 					}
 				}
 			}

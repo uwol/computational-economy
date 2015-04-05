@@ -123,8 +123,8 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 											TraderImpl.this)) {
 										getLog().log(
 												TraderImpl.this,
-												"priceOfGoodTypeInForeignCurrency is "
-														+ priceOfGoodTypeInForeignCurrency);
+												"priceOfGoodTypeInForeignCurrency is %s",
+												priceOfGoodTypeInForeignCurrency);
 									}
 								} else if (Double
 										.isNaN(priceOfGoodTypeInLocalCurrency)) {
@@ -132,8 +132,8 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 											TraderImpl.this)) {
 										getLog().log(
 												TraderImpl.this,
-												"priceOfGoodTypeInLocalCurrency is "
-														+ priceOfGoodTypeInLocalCurrency);
+												"priceOfGoodTypeInLocalCurrency is %s",
+												priceOfGoodTypeInLocalCurrency);
 									}
 								} else if (Double
 										.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
@@ -141,8 +141,8 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 											TraderImpl.this)) {
 										getLog().log(
 												TraderImpl.this,
-												"priceOfForeignCurrencyInLocalCurrency is "
-														+ priceOfForeignCurrencyInLocalCurrency);
+												"priceOfForeignCurrencyInLocalCurrency is %s",
+												priceOfForeignCurrencyInLocalCurrency);
 									}
 								} else {
 									// inverse_CAR_in_USD -> correct_CAR_in_EUR
@@ -164,43 +164,19 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 												TraderImpl.this)) {
 											getLog().log(
 													TraderImpl.this,
-													"1 "
-															+ goodType
-															+ " = "
-															+ Currency
-																	.formatMoneySum(priceOfGoodTypeInLocalCurrency)
-															+ " "
-															+ primaryCurrency
-																	.getIso4217Code()
-															+ "; "
-															+ "1 "
-															+ goodType
-															+ " = "
-															+ Currency
-																	.formatMoneySum(priceOfGoodTypeInForeignCurrency)
-															+ " "
-															+ foreignCurrency
-																	.getIso4217Code()
-															+ "; "
-															+ "1 "
-															+ foreignCurrency
-																	.getIso4217Code()
-															+ " = "
-															+ Currency
-																	.formatMoneySum(priceOfForeignCurrencyInLocalCurrency)
-															+ " "
-															+ primaryCurrency
-																	.getIso4217Code()
-															+ " -> import price of 1 "
-															+ goodType
-															+ " = "
-															+ Currency
-																	.formatMoneySum(importPriceOfGoodTypeInLocalCurrency)
-															+ " "
-															+ primaryCurrency
-																	.getIso4217Code()
-															+ " -> importing "
-															+ goodType);
+													"1 %s = %s %s; 1 %s = %s %s; 1 %s = %s %s -> import price of 1 %s = %s %s -> importing %s",
+													goodType,
+													Currency.formatMoneySum(priceOfGoodTypeInLocalCurrency),
+													primaryCurrency,
+													goodType,
+													Currency.formatMoneySum(priceOfGoodTypeInForeignCurrency),
+													foreignCurrency,
+													foreignCurrency,
+													Currency.formatMoneySum(priceOfForeignCurrencyInLocalCurrency),
+													primaryCurrency,
+													goodType,
+													Currency.formatMoneySum(importPriceOfGoodTypeInLocalCurrency),
+													primaryCurrency, goodType);
 										}
 
 										/*

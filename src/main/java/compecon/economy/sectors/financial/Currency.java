@@ -54,4 +54,9 @@ public enum Currency {
 	public String getIso4217Code() {
 		return iso4217Code;
 	}
+
+	@Override
+	public String toString() {
+		return getIso4217Code();
+	}
 }

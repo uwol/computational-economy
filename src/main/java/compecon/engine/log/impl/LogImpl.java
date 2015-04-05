@@ -436,37 +436,39 @@ public class LogImpl implements Log {
 	@Override
 	public synchronized void log(final Agent agent,
 			final Class<? extends TimeSystemEvent> eventClass,
-			final String message) {
+			final String message, final Object... parameters) {
 		setAgentCurrentlyActive(agent);
-		log(eventClass.getSimpleName() + ": " + message);
+		log(eventClass.getSimpleName() + ": "
+				+ String.format(message, parameters));
 	}
 
 	// --------
 
 	@Override
-	public synchronized void log(final Agent agent, final String message) {
+	public synchronized void log(final Agent agent, final String message,
+			final Object... parameters) {
 		setAgentCurrentlyActive(agent);
-		log(message);
+		log(message, parameters);
 	}
 
 	@Override
 	public synchronized void log(final BankCustomer bankCustomer,
-			final String message) {
+			final String message, final Object... parameters) {
 		if (bankCustomer instanceof Agent) {
-			log((Agent) bankCustomer, message);
+			log((Agent) bankCustomer, message, parameters);
 		}
 	}
 
 	@Override
 	public synchronized void log(final MarketParticipant marketParticipant,
-			final String message) {
+			final String message, final Object... parameters) {
 		if (marketParticipant instanceof Agent) {
-			log((Agent) marketParticipant, message);
+			log((Agent) marketParticipant, message, parameters);
 		}
 	}
 
 	@Override
-	public void log(final String message) {
+	public void log(final String message, final Object... parameters) {
 		if (agentCurrentlyActive != null
 				&& agentSelectedByClient == agentCurrentlyActive) {
 			ApplicationContext
@@ -475,7 +477,8 @@ public class LogImpl implements Log {
 					.getAgentDetailModel()
 					.logAgentEvent(
 							ApplicationContext.getInstance().getTimeSystem()
-									.getCurrentDate(), message);
+									.getCurrentDate(),
+							String.format(message, parameters));
 		}
 	}
 

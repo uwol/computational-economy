@@ -143,11 +143,10 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 					PricingBehaviourNewPriceDecisionCause.SOLD_NOTHING,
 					-1.0 * priceChangeIncrement);
 			if (getLog().isAgentSelectedByClient(agent)) {
-				getLog().log(
-						agent,
-						prefix + "sold nothing -> lowering price to "
-								+ Currency.formatMoneySum(newPrice) + " "
-								+ denominatedInCurrency.getIso4217Code());
+				getLog().log(agent,
+						"%s sold nothing -> lowering price to %s %s", prefix,
+						Currency.formatMoneySum(newPrice),
+						denominatedInCurrency);
 			}
 			return newPrice;
 		}
@@ -161,11 +160,10 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 					PricingBehaviourNewPriceDecisionCause.SOLD_EVERYTHING,
 					priceChangeIncrement);
 			if (getLog().isAgentSelectedByClient(agent)) {
-				getLog().log(
-						agent,
-						prefix + "sold everything -> raising price to "
-								+ Currency.formatMoneySum(newPrice) + " "
-								+ denominatedInCurrency.getIso4217Code());
+				getLog().log(agent,
+						"%s sold everything -> raising price to %s %s", prefix,
+						Currency.formatMoneySum(newPrice),
+						denominatedInCurrency);
 			}
 			return newPrice;
 		}
@@ -191,13 +189,11 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 					PricingBehaviourNewPriceDecisionCause.SOLD_LESS,
 					-1.0 * priceChangeIncrement);
 			if (getLog().isAgentSelectedByClient(agent)) {
-				getLog().log(
-						agent,
-						prefix + "sold less (before: "
-								+ MathUtil.round(soldAmountInPenultimatePeriod)
-								+ ") -> lowering price to "
-								+ Currency.formatMoneySum(newPrice) + " "
-								+ denominatedInCurrency.getIso4217Code());
+				getLog().log(agent,
+						"%s sold less (before: %s) -> lowering price to %s %s",
+						prefix, MathUtil.round(soldAmountInPenultimatePeriod),
+						Currency.formatMoneySum(newPrice),
+						denominatedInCurrency);
 			}
 			return newPrice;
 		}
@@ -223,23 +219,18 @@ public class PricingBehaviourImpl implements PricingBehaviour {
 					PricingBehaviourNewPriceDecisionCause.SOLD_MORE,
 					priceChangeIncrement);
 			if (getLog().isAgentSelectedByClient(agent)) {
-				getLog().log(
-						agent,
-						prefix + "sold more (before: "
-								+ MathUtil.round(soldAmountInPenultimatePeriod)
-								+ ") -> raising price to "
-								+ Currency.formatMoneySum(newPrice) + " "
-								+ denominatedInCurrency.getIso4217Code());
+				getLog().log(agent,
+						"%s sold more (before: %s) -> raising price to %s %s",
+						prefix, MathUtil.round(soldAmountInPenultimatePeriod),
+						Currency.formatMoneySum(newPrice),
+						denominatedInCurrency);
 			}
 			return newPrice;
 		}
 
 		if (getLog().isAgentSelectedByClient(agent)) {
-			getLog().log(
-					agent,
-					prefix + " newPrice := oldPrice = "
-							+ Currency.formatMoneySum(oldPrice) + " "
-							+ denominatedInCurrency.getIso4217Code());
+			getLog().log(agent, "%s newPrice := oldPrice = %s %s", prefix,
+					Currency.formatMoneySum(oldPrice), denominatedInCurrency);
 		}
 		getLog().pricingBehaviour_onCalculateNewPrice(
 				agent,

@@ -282,11 +282,9 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 					FactoryImpl.this.primaryCurrency, producedGoodType,
 					producedOutput, productionFactorsOwned);
 			if (getLog().isAgentSelectedByClient(FactoryImpl.this)) {
-				getLog().log(
-						FactoryImpl.this,
-						ProductionEvent.class,
-						"produced " + MathUtil.round(producedOutput) + " "
-								+ producedGoodType);
+				getLog().log(FactoryImpl.this, ProductionEvent.class,
+						"produced %s %s", MathUtil.round(producedOutput),
+						producedGoodType);
 			}
 
 			/*

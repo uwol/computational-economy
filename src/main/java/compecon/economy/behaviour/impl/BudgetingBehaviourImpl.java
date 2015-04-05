@@ -83,13 +83,10 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 		if (getLog().isAgentSelectedByClient(BudgetingBehaviourImpl.this.agent)) {
 			getLog().log(
 					BudgetingBehaviourImpl.this.agent,
-					Currency.formatMoneySum(creditBasedBudget) + " "
-							+ currency.getIso4217Code() + " budget = ("
-							+ Currency.formatMoneySum(bankAccountBalance) + " "
-							+ currency.getIso4217Code()
-							+ " bankAccountBalance + "
-							+ Currency.formatMoneySum(lastMaxCreditRate) + " "
-							+ currency.getIso4217Code() + " maxCredit)");
+					"%s %s budget = (%s %s bankAccountBalance + %s %s maxCredit)",
+					Currency.formatMoneySum(creditBasedBudget), currency,
+					Currency.formatMoneySum(bankAccountBalance), currency,
+					Currency.formatMoneySum(lastMaxCreditRate), currency);
 		}
 		return creditBasedBudget;
 	}

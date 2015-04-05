@@ -190,10 +190,9 @@ public class HouseholdImpl extends AgentImpl implements Household {
 					getLog().log(
 							HouseholdImpl.this,
 							DailyLifeEvent.class,
-							"does not have required utility of "
-									+ ApplicationContext.getInstance()
-											.getConfiguration().householdConfig
-											.getRequiredUtilityPerDay());
+							"does not have required utility of %s",
+							ApplicationContext.getInstance().getConfiguration().householdConfig
+									.getRequiredUtilityPerDay());
 				}
 			} else {
 				if (daysWithoutUtility > 0) {
@@ -396,19 +395,14 @@ public class HouseholdImpl extends AgentImpl implements Household {
 					getLog().log(
 							HouseholdImpl.this,
 							DailyLifeEvent.class,
-							"saving "
-									+ Currency.formatMoneySum(moneySumToSave)
-									+ " "
-									+ HouseholdImpl.this.bankAccountTransactions
-											.getCurrency().getIso4217Code()
-									+ " of "
-									+ Currency
-											.formatMoneySum(HouseholdImpl.this.bankAccountTransactions
-													.getBalance())
-									+ " "
-									+ HouseholdImpl.this.bankAccountTransactions
-											.getCurrency().getIso4217Code()
-									+ " income");
+							"saving %s %s of %s %s income",
+							Currency.formatMoneySum(moneySumToSave),
+							HouseholdImpl.this.bankAccountTransactions
+									.getCurrency(),
+							Currency.formatMoneySum(HouseholdImpl.this.bankAccountTransactions
+									.getBalance()),
+							HouseholdImpl.this.bankAccountTransactions
+									.getCurrency());
 				}
 			} else if (moneySumToSave < 0.0) {
 				/*
@@ -427,14 +421,9 @@ public class HouseholdImpl extends AgentImpl implements Household {
 								HouseholdImpl.this.bankAccountTransactions,
 								-1.0 * moneySumToSave, "retirement dissavings");
 				if (getLog().isAgentSelectedByClient(HouseholdImpl.this)) {
-					getLog().log(
-							HouseholdImpl.this,
-							"unsaving "
-									+ Currency.formatMoneySum(-1.0
-											* moneySumToSave)
-									+ " "
-									+ bankAccountSavings.getCurrency()
-											.getIso4217Code());
+					getLog().log(HouseholdImpl.this, "unsaving %s %s",
+							Currency.formatMoneySum(-1.0 * moneySumToSave),
+							bankAccountSavings.getCurrency());
 				}
 			}
 

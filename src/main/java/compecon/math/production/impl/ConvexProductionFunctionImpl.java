@@ -141,7 +141,7 @@ public abstract class ConvexProductionFunctionImpl extends
 
 		// special case: check for budget
 		if (MathUtil.lesserEqual(budget, 0.0)) {
-			getLog().log("budget is " + budget + " -> no calculation");
+			getLog().log("budget is %s -> no calculation", budget);
 			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
 					budget, 0.0,
 					ConvexProductionFunctionTerminationCause.BUDGET_PLANNED);
@@ -155,9 +155,8 @@ public abstract class ConvexProductionFunctionImpl extends
 
 		// special case: check for estimated revenue per unit being 0.0
 		if (MathUtil.lesserEqual(priceOfProducedGoodType, 0.0)) {
-			getLog().log(
-					"priceOfProducedGoodType = " + priceOfProducedGoodType
-							+ " -> no production");
+			getLog().log("priceOfProducedGoodType = %s -> no production",
+					priceOfProducedGoodType);
 			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
 					budget,
 					0.0,
@@ -177,9 +176,8 @@ public abstract class ConvexProductionFunctionImpl extends
 		// as nothing is offered
 		//
 		// if (Double.isNaN(priceOfProducedGoodType)) {
-		// getLog().log("priceOfProducedGoodType = " +
-		// priceOfProducedGoodType
-		// + " -> cautious production");
+		// getLog().log("priceOfProducedGoodType = %s -> cautious production",
+		// priceOfProducedGoodType);
 		// final Map<GoodType, Double> bundleOfInputs = new
 		// LinkedHashMap<GoodType, Double>();
 		// for (GoodType inputType : this.getInputGoodTypes())
@@ -288,15 +286,10 @@ public abstract class ConvexProductionFunctionImpl extends
 							bundleOfInputFactors.put(optimalInputType,
 									oldAmountOfOptimalInputType);
 							getLog().log(
-									MathUtil.round(estimatedMarginalRevenueOfGoodType)
-											+ " estimatedMarginalRevenue"
-											+ " < "
-											+ MathUtil
-													.round(marginalPriceOfOptimalInputTypePerOutput)
-											+ " currentMarginalPriceOfInputPerOutput"
-											+ " -> "
-											+ bundleOfInputFactors.entrySet()
-													.toString());
+									"%s estimatedMarginalRevenue < %s currentMarginalPriceOfInputPerOutput -> %s",
+									MathUtil.round(estimatedMarginalRevenueOfGoodType),
+									MathUtil.round(marginalPriceOfOptimalInputTypePerOutput),
+									bundleOfInputFactors.entrySet().toString());
 							getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
 									budget,
 									budgetSpent,
@@ -315,14 +308,9 @@ public abstract class ConvexProductionFunctionImpl extends
 						// important (see above)
 						bundleOfInputFactors.put(optimalInputType,
 								oldAmountOfOptimalInputType);
-						getLog().log(
-								"output "
-										+ newOutput
-										+ " > maxOutput "
-										+ maxOutput
-										+ " -> "
-										+ bundleOfInputFactors.entrySet()
-												.toString());
+						getLog().log("output %s > maxOutput %s -> %s",
+								newOutput, maxOutput,
+								bundleOfInputFactors.entrySet().toString());
 						getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
 								budget,
 								budgetSpent,

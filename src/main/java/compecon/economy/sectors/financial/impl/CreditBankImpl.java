@@ -160,22 +160,13 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				getLog().log(
 						CreditBankImpl.this,
 						BondsTradingEvent.class,
-						"sumOfPassiveBankAccounts = "
-								+ Currency
-										.formatMoneySum(balanceSumOfPassiveBankAccounts)
-								+ " "
-								+ CreditBankImpl.this.primaryCurrency
-										.getIso4217Code()
-								+ "; faceValueSumOfBonds = "
-								+ Currency.formatMoneySum(faceValueSumOfBonds)
-								+ " "
-								+ CreditBankImpl.this.primaryCurrency
-										.getIso4217Code()
-								+ " => difference = "
-								+ Currency.formatMoneySum(difference)
-								+ " "
-								+ CreditBankImpl.this.primaryCurrency
-										.getIso4217Code());
+						"sumOfPassiveBankAccounts = %s %s; faceValueSumOfBonds = %s %s => difference = %s %s",
+						Currency.formatMoneySum(balanceSumOfPassiveBankAccounts),
+						CreditBankImpl.this.primaryCurrency,
+						Currency.formatMoneySum(faceValueSumOfBonds),
+						CreditBankImpl.this.primaryCurrency,
+						Currency.formatMoneySum(difference),
+						CreditBankImpl.this.primaryCurrency);
 			}
 
 			if (MathUtil.greater(difference, 0.0)) {
@@ -298,22 +289,18 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 								getLog().log(
 										CreditBankImpl.this,
 										CurrencyTradeEvent.class,
-										"-> no arbitrage with "
-												+ foreignCurrency
-														.getIso4217Code()
-												+ ", since budgetForCurrencyTrading is "
-												+ MathUtil
-														.round(budgetForCurrencyTradingPerCurrency_InPrimaryCurrency));
+										"-> no arbitrage with %s, since budgetForCurrencyTrading is %s",
+										foreignCurrency,
+										MathUtil.round(budgetForCurrencyTradingPerCurrency_InPrimaryCurrency));
 							}
 						} else if (Double
 								.isNaN(correctPriceOfForeignCurrencyInLocalCurrency)) {
 							getLog().log(
 									CreditBankImpl.this,
 									CurrencyTradeEvent.class,
-									"-> no arbitrage with "
-											+ foreignCurrency.getIso4217Code()
-											+ ", since correct price of foreign currency is "
-											+ correctPriceOfForeignCurrencyInLocalCurrency);
+									"-> no arbitrage with %s, since correct price of foreign currency is %s",
+									foreignCurrency,
+									correctPriceOfForeignCurrencyInLocalCurrency);
 						} else if (MathUtil
 								.lesser(correctPriceOfForeignCurrencyInLocalCurrency
 										/ (1.0 + ApplicationContext
@@ -326,13 +313,8 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 								getLog().log(
 										CreditBankImpl.this,
 										CurrencyTradeEvent.class,
-										"-> no arbitrage with "
-												+ foreignCurrency
-														.getIso4217Code()
-												+ ", since price of "
-												+ foreignCurrency
-														.getIso4217Code()
-												+ " is too high");
+										"-> no arbitrage with %s, since price of is too high",
+										foreignCurrency, foreignCurrency);
 							}
 						} else {
 							/*
@@ -393,30 +375,16 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 					getLog().log(
 							CreditBankImpl.this,
 							CurrencyTradeEvent.class,
-							"on markets 1 "
-									+ secondCurrency.getIso4217Code()
-									+ " = "
-									+ Currency
-											.formatMoneySum(priceOfSecondCurrencyInFirstCurrency)
-									+ " "
-									+ firstCurrency.getIso4217Code()
-
-									+ " -> correct price of 1 "
-									+ firstCurrency.getIso4217Code()
-									+ " = "
-									+ Currency
-											.formatMoneySum(correctPriceOfFirstCurrencyInSecondCurrency)
-									+ " "
-									+ secondCurrency.getIso4217Code()
-
-									+ "; on markets "
-
-									+ "1 "
-									+ firstCurrency.getIso4217Code()
-									+ " = "
-									+ Currency
-											.formatMoneySum(priceOfFirstCurrencyInSecondCurrency)
-									+ " " + secondCurrency.getIso4217Code());
+							"on markets 1 %s = %s %s -> correct price of 1 %s = %s %s; on markets 1 %s = %s %s",
+							secondCurrency,
+							Currency.formatMoneySum(priceOfSecondCurrencyInFirstCurrency),
+							firstCurrency,
+							firstCurrency,
+							Currency.formatMoneySum(correctPriceOfFirstCurrencyInSecondCurrency),
+							secondCurrency,
+							firstCurrency,
+							Currency.formatMoneySum(priceOfFirstCurrencyInSecondCurrency),
+							secondCurrency);
 				}
 				return correctPriceOfFirstCurrencyInSecondCurrency;
 			}
@@ -507,15 +475,10 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 					getLog().log(
 							CreditBankImpl.this,
 							CurrencyTradeEvent.class,
-							"not offering "
-									+ CreditBankImpl.this.primaryCurrency
-											.getIso4217Code()
-									+ " for foreign currencies, as budget / amount to offer is "
-									+ Currency
-											.formatMoneySum(totalLocalCurrencyBudgetForCurrencyTrading)
-									+ " "
-									+ CreditBankImpl.this.primaryCurrency
-											.getIso4217Code());
+							"not offering %s for foreign currencies, as budget / amount to offer is %s %s",
+							CreditBankImpl.this.primaryCurrency,
+							Currency.formatMoneySum(totalLocalCurrencyBudgetForCurrencyTrading),
+							CreditBankImpl.this.primaryCurrency);
 				}
 			} else {
 				final int numberOfForeignCurrencies = bankAccountsCurrencyTrade
@@ -552,10 +515,8 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 								getLog().log(
 										CreditBankImpl.this,
 										CurrencyTradeEvent.class,
-										"could not calculate price for "
-												+ localCurrency + " in "
-												+ foreignCurrency
-												+ " -> using market price");
+										"could not calculate price for %s in %s -> using market price",
+										localCurrency, foreignCurrency);
 							}
 						}
 
