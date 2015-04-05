@@ -118,6 +118,7 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 		this.summaryStatisticalData = summaryStatisticalData;
 
 		summaryStatisticalData.originalValues = valuesAsArray;
+
 		if (valuesAsArray.length > 0) {
 			summaryStatisticalData.quantil5Percent = Math.max(0.0,
 					valuesAsArray[(int) (valuesAsArray.length * 0.05)]);
@@ -128,6 +129,7 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 			summaryStatisticalData.quantil99Percent = Math.max(0.0,
 					valuesAsArray[(int) (valuesAsArray.length * 0.99)]);
 		}
+
 		for (final double value : valuesAsArray) {
 			summaryStatisticalData.yTotalSum += value;
 		}
@@ -136,6 +138,7 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 				/ summaryStatisticalData.ySumAtPercentOfX.length;
 
 		double sum = 0;
+
 		if (bucketWidth != 0) {
 			for (int i = 0; i < valuesAsArray.length; i++) {
 				/*
@@ -197,6 +200,7 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 		 */
 		final XYSeries seriesLorenzCurve = new XYSeries(
 				referenceCurrency.getIso4217Code() + " lorenz curve");
+
 		for (int i = 0; i < summaryStatisticalData.ySumAtPercentOfX.length; i++) {
 			final double x = i
 					/ (double) summaryStatisticalData.ySumAtPercentOfX.length;
@@ -204,6 +208,7 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 					/ summaryStatisticalData.yTotalSum;
 			seriesLorenzCurve.add(x, y);
 		}
+
 		seriesLorenzCurve.add(1, 1);
 
 		final XYSeries seriesLine = new XYSeries("line of equality "

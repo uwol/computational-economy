@@ -59,6 +59,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 
 		public void log(final String row) {
 			rows.add(row);
+
 			if (rows.size() > ROWS_TO_STORE) {
 				rows.poll();
 			}
@@ -97,10 +98,12 @@ public class AgentDetailModel extends NotificationListenerModel {
 
 	public List<BankAccount> getBankAccountsOfCurrentAgent() {
 		final Agent agent = getLog().getAgentSelectedByClient();
+
 		if (agent != null) {
 			return ApplicationContext.getInstance().getBankAccountDAO()
 					.findAllBankAccountsOfAgent(agent);
 		}
+
 		return new ArrayList<BankAccount>();
 	}
 
@@ -110,10 +113,12 @@ public class AgentDetailModel extends NotificationListenerModel {
 
 	public Map<GoodType, Double> getGoodsOfCurrentAgent() {
 		final Agent agent = getLog().getAgentSelectedByClient();
+
 		if (agent != null) {
 			return ApplicationContext.getInstance().getPropertyService()
 					.getGoodTypeBalances(agent);
 		}
+
 		return new HashMap<GoodType, Double>();
 	}
 
@@ -124,18 +129,22 @@ public class AgentDetailModel extends NotificationListenerModel {
 	public List<AgentLog> getLogsOfCurrentAgent() {
 		final List<AgentLog> logs = new ArrayList<AgentLog>();
 		logs.add(agentLog);
+
 		for (final AgentLog bankAccountLog : bankAccountLogs.values()) {
 			logs.add(bankAccountLog);
 		}
+
 		return logs;
 	}
 
 	public List<Property> getPropertiesOfCurrentAgent() {
 		final Agent agent = getLog().getAgentSelectedByClient();
+
 		if (agent != null) {
 			return ApplicationContext.getInstance().getPropertyService()
 					.findAllPropertiesOfPropertyOwner(agent);
 		}
+
 		return new ArrayList<Property>();
 	}
 

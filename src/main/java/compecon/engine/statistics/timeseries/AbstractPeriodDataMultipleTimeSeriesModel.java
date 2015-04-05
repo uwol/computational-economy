@@ -50,5 +50,4 @@ public abstract class AbstractPeriodDataMultipleTimeSeriesModel<I> extends
 	public TimeSeries getTimeSeries(final I indexType) {
 		return this.timeSeries.get(indexType);
 	}
-
 }

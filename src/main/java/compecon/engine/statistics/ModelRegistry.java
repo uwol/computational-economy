@@ -120,6 +120,7 @@ public class ModelRegistry {
 						.values()) {
 					periodDataAccumulatorTimeSeriesModel.nextPeriod();
 				}
+
 				budgetModel.nextPeriod();
 				consumptionModel.nextPeriod();
 				consumptionRateModel.nextPeriod();
@@ -213,6 +214,7 @@ public class ModelRegistry {
 						.values()) {
 					periodDataAccumulatorTimeSeriesModel.nextPeriod();
 				}
+
 				for (final PeriodDataAccumulatorTimeSeriesModel periodDataAccumulatorTimeSeriesModel : convexProductionFunctionTerminationCauseModels
 						.values()) {
 					periodDataAccumulatorTimeSeriesModel.nextPeriod();
@@ -258,7 +260,6 @@ public class ModelRegistry {
 							new PeriodDataAccumulatorTimeSeriesModel(cause
 									.toString()));
 				}
-
 			}
 
 			public void nextPeriod() {
@@ -410,6 +411,7 @@ public class ModelRegistry {
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
 					final ProductionFunction productionFunction = inputOutputModel
 							.getProductionFunction(goodType);
+
 					// only good types that can be produced form an industry
 					if (productionFunction != null) {
 						industryModels.put(goodType, new IndustryModel(

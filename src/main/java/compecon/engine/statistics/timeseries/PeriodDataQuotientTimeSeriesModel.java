@@ -45,6 +45,7 @@ public class PeriodDataQuotientTimeSeriesModel extends
 		if (periodDataDivisorModel.getAmount() == 0.0) {
 			return 0.0;
 		}
+
 		return periodDataDividendModel.getAmount()
 				/ periodDataDivisorModel.getAmount();
 	}
@@ -57,5 +58,4 @@ public class PeriodDataQuotientTimeSeriesModel extends
 		periodDataDividendModel.reset();
 		periodDataDivisorModel.reset();
 	}
-
 }

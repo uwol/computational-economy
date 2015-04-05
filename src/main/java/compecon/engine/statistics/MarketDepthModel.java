@@ -46,6 +46,7 @@ public class MarketDepthModel extends NotificationListenerModel {
 				.getMarketOrderDAO()
 				.getIteratorThreadsafe(currency, commodityCurrency);
 		double volume = 0.0;
+
 		while (iterator.hasNext()) {
 			final MarketOrder marketOrder = iterator.next();
 			volume += marketOrder.getAmount();
@@ -66,6 +67,7 @@ public class MarketDepthModel extends NotificationListenerModel {
 		final Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
 				.getMarketOrderDAO().getIteratorThreadsafe(currency, goodType);
 		double volume = 0.0;
+
 		while (iterator.hasNext()) {
 			final MarketOrder marketOrder = iterator.next();
 			volume += marketOrder.getAmount();
