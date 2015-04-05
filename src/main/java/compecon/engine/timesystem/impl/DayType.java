@@ -33,6 +33,7 @@ public enum DayType {
 				return dayType;
 			}
 		}
+
 		return null;
 	}
 

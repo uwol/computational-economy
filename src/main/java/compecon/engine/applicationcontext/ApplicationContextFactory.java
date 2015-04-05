@@ -166,7 +166,7 @@ public class ApplicationContextFactory {
 				new SettlementMarketServiceImpl());
 
 		ApplicationContext.getInstance()
-				.setTimeSystem(new TimeSystemImpl(2000));
+				.setTimeSystem(new TimeSystemImpl(2001));
 
 		/*
 		 * configuration
