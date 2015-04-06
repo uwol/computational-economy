@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import compecon.economy.materia.InputOutputModel;
 import compecon.economy.materia.impl.InputOutputModelInterdependenciesImpl;
+import compecon.economy.materia.impl.InputOutputModelMinimalImpl;
 import compecon.economy.materia.impl.InputOutputModelNoDependenciesImpl;
 import compecon.economy.materia.impl.InputOutputModelTestingImpl;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
@@ -182,6 +183,9 @@ public class ApplicationContextFactory {
 
 		switch (configuration.inputOutputModelConfig
 				.getInputOutputModelSetting()) {
+		case InputOutputModelMinimal:
+			inputOutputModel = new InputOutputModelMinimalImpl();
+			break;
 		case InputOutputModelTesting:
 			inputOutputModel = new InputOutputModelTestingImpl();
 			break;

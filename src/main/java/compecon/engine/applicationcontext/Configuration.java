@@ -404,7 +404,7 @@ public class Configuration {
 	}
 
 	public enum InputOutputModelConfigSetting {
-		InputOutputModelInterdependencies, InputOutputModelNoDependencies, InputOutputModelTesting
+		InputOutputModelInterdependencies, InputOutputModelMinimal, InputOutputModelNoDependencies, InputOutputModelTesting
 	}
 
 	public class JointStockCompanyConfig {
