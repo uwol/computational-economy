@@ -83,20 +83,20 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				if (MathUtil.greater(amountToBuy, 0.0)) {
 					final double marginalPrice = priceFunctions.get(
 							goodTypeToBuy).getMarginalPrice(0.0);
+					final double maxPricePerUnitMultiplier = ApplicationContext
+							.getInstance().getConfiguration().householdConfig
+							.getMaxPricePerUnitMultiplier();
 
-					// maxPricePerUnit is significantly important for price
-					// equilibrium; also budget, as in the depth of the markets,
-					// prices can rise, leading to overspending
+					/*
+					 * maxPricePerUnit is significantly important for price
+					 * equilibrium; also budget, as in the depth of the markets,
+					 * prices can rise, leading to overspending
+					 */
 					final double[] priceAndAmount = ApplicationContext
 							.getInstance()
 							.getMarketService()
-							.buy(goodTypeToBuy,
-									amountToBuy,
-									budget,
-									marginalPrice
-											* ApplicationContext.getInstance()
-													.getConfiguration().householdConfig
-													.getMaxPricePerUnitMultiplier(),
+							.buy(goodTypeToBuy, amountToBuy, budget,
+									marginalPrice * maxPricePerUnitMultiplier,
 									HouseholdImpl.this,
 									getBankAccountTransactionsDelegate());
 					budgetSpent += priceAndAmount[0];
