@@ -82,8 +82,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 							* dailyInterestRate;
 
 					// liability account & positive interest rate or asset
-					// account &
-					// negative interest rate
+					// account & negative interest rate
 					if (dailyInterest > 0.0) {
 						transferMoneyInternally(
 								CentralBankImpl.this.bankAccountTransactions,
@@ -101,10 +100,11 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			}
 
 			// profits are transferred to the state, instead of dividends to
-			// share holders etc.
+			// share holders etc. (seigniorage)
 			if (CentralBankImpl.this.bankAccountTransactions.getBalance() > 0.0) {
 				final State state = ApplicationContext.getInstance()
 						.getAgentService().findState(primaryCurrency);
+
 				CentralBankImpl.this.transferMoney(
 						CentralBankImpl.this.bankAccountTransactions, state
 								.getBankAccountTransactionsDelegate()
@@ -184,6 +184,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			// calculate price index
 			statisticalOffice.recalculateAveragePrices();
 			statisticalOffice.recalculatePriceIndex();
+
 			final double priceIndex = statisticalOffice.getPriceIndex();
 			getLog().centralBank_PriceIndex(
 					CentralBankImpl.this.primaryCurrency, priceIndex);
@@ -235,10 +236,12 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			 * set price index weights, must sum up to 1.0
 			 */
 			double priceIndexWeightSum = 0.0;
+
 			for (final GoodType goodType : GoodType.values()) {
 				final double priceIndexWeight = ApplicationContext
 						.getInstance().getConfiguration().centralBankConfig.statisticalOfficeConfig
 						.getPriceIndexWeight(goodType);
+
 				priceIndexWeights.put(goodType, priceIndexWeight);
 				priceIndexWeightSum += priceIndexWeight;
 			}
@@ -288,6 +291,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 				// recalculate average price
 				for (int i = 0; i < monitoredMarginalPricesForGoodType.length; i++) {
 					final double marginalPriceForGoodType = monitoredMarginalPricesForGoodType[i];
+
 					if (marginalPriceForGoodType != 0.0
 							&& !Double.isNaN(marginalPriceForGoodType)
 							&& !Double.isInfinite(marginalPriceForGoodType)) {
@@ -302,6 +306,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 				final double averagePriceForGoodType = priceSumForGoodType
 						/ totalWeight;
+
 				if (!Double.isNaN(totalWeight)
 						&& !Double.isInfinite(totalWeight)) {
 					averageMarginalPricesForGoodTypes.put(entry.getKey(),
@@ -389,10 +394,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 	@Column(name = "effectiveKeyInterestRate")
 	protected double effectiveKeyInterestRate;
-
-	/*
-	 * accessors
-	 */
 
 	@Transient
 	protected int NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
@@ -488,6 +489,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			}
 			customer.onBankCloseBankAccount(bankAccount);
 		}
+
 		ApplicationContext.getInstance().getBankAccountFactory()
 				.deleteAllBankAccounts(this, customer);
 	}
@@ -513,10 +515,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	public BankAccount getBankAccountCentralBankMoney() {
 		return bankAccountCentralBankMoney;
 	}
-
-	/*
-	 * business logic
-	 */
 
 	@Override
 	@Transient
@@ -558,6 +556,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		// -> market situation differs over the day !!!
 		final TimeSystemEvent recalculateAveragePriceIndexEvent = new MarginalPriceSnapshotEvent();
 		timeSystemEvents.add(recalculateAveragePriceIndexEvent);
+
 		ApplicationContext
 				.getInstance()
 				.getTimeSystem()
@@ -590,11 +589,13 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		// count number of snapshots that are taken per day
 		int numberOfSnapshotsPerDay = 0;
+
 		for (final TimeSystemEvent event : CentralBankImpl.this.timeSystemEvents) {
 			if (event instanceof MarginalPriceSnapshotEvent) {
 				numberOfSnapshotsPerDay++;
 			}
 		}
+
 		NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY = numberOfSnapshotsPerDay;
 
 		// statistical office; has to be initialized after calculating

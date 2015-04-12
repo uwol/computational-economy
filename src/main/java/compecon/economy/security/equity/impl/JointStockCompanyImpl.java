@@ -88,6 +88,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 					// pay dividend for each share
 					for (final Property propertyIssued : propertiesIssued) {
 						final Share share = (Share) propertyIssued;
+
 						if (share.getOwner() != null
 								&& share.getOwner() != JointStockCompanyImpl.this) {
 							assert (share.getDividendBankAccountDelegate() != null);
@@ -111,6 +112,7 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 							}
 						}
 					}
+
 					if (getLog().isAgentSelectedByClient(
 							JointStockCompanyImpl.this)) {
 						getLog().log(
@@ -146,10 +148,6 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 		public void onTransfer(final double amount) {
 		}
 	};
-
-	/*
-	 * accessors
-	 */
 
 	@Transient
 	public void assureBankAccountDividends() {

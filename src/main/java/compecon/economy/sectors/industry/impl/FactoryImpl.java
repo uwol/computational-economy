@@ -336,10 +336,6 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 				.deleteFactory(this);
 	}
 
-	/*
-	 * accessors
-	 */
-
 	@Override
 	public GoodType getProducedGoodType() {
 		return producedGoodType;
@@ -392,6 +388,7 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			final double amount, final double pricePerUnit,
 			final Currency currency) {
 		FactoryImpl.this.assureBankAccountTransactions();
+
 		if (FactoryImpl.this.producedGoodType.equals(goodType)) {
 			FactoryImpl.this.pricingBehaviour.registerSelling(amount, amount
 					* pricePerUnit);

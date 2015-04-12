@@ -73,6 +73,7 @@ public class StateImpl extends AgentImpl implements State {
 
 			final double budget = StateImpl.this.bankAccountTransactions
 					.getBalance();
+
 			if (MathUtil.greater(budget, 0.0)) {
 				final List<Household> households = ApplicationContext
 						.getInstance().getHouseholdDAO()
@@ -142,10 +143,6 @@ public class StateImpl extends AgentImpl implements State {
 		}
 	}
 
-	/*
-	 * accessors
-	 */
-
 	@Override
 	public void deconstruct() {
 		super.deconstruct();
@@ -202,6 +199,7 @@ public class StateImpl extends AgentImpl implements State {
 		 */
 		final TimeSystemEvent governmentTransferEvent = new GovernmentTransferEvent();
 		timeSystemEvents.add(governmentTransferEvent);
+
 		ApplicationContext
 				.getInstance()
 				.getTimeSystem()

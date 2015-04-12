@@ -60,6 +60,7 @@ import compecon.math.util.MathUtil;
 public class TraderImpl extends JointStockCompanyImpl implements Trader {
 
 	public class ArbitrageTradingEvent implements TimeSystemEvent {
+
 		protected void buyGoodsForArbitrage() {
 			final int numberOfForeignCurrencies = bankAccountsGoodTrade
 					.keySet().size();
@@ -146,8 +147,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 									}
 								} else {
 									// inverse_CAR_in_USD -> correct_CAR_in_EUR
-									// =
-									// 1.25
+									// = 1.25
 									final double importPriceOfGoodTypeInLocalCurrency = priceOfGoodTypeInForeignCurrency
 											* priceOfForeignCurrencyInLocalCurrency;
 
@@ -236,6 +236,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 							.getMarketService()
 							.removeAllSellingOffers(TraderImpl.this,
 									TraderImpl.this.primaryCurrency, goodType);
+
 					final double amount = ApplicationContext.getInstance()
 							.getPropertyService()
 							.getGoodTypeBalance(TraderImpl.this, goodType);
@@ -244,6 +245,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 							.getMarketService()
 							.getMarginalMarketPrice(
 									TraderImpl.this.primaryCurrency, goodType);
+
 					ApplicationContext
 							.getInstance()
 							.getMarketService()
@@ -300,10 +302,6 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 			}
 		}
 	}
-
-	/*
-	 * accessors
-	 */
 
 	@Override
 	public void deconstruct() {

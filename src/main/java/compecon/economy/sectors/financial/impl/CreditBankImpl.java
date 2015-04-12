@@ -70,6 +70,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 		CentralBankCustomer {
 
 	public class BondsTradingEvent implements TimeSystemEvent {
+
 		protected double calculateBalanceSumOfPassiveSavingBankAccounts() {
 			// bank accounts of non-banks managed by this bank
 			double balanceSumOfPassiveBankAccounts = 0.0;
@@ -81,9 +82,9 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				assert (bankAccount.getCurrency()
 						.equals(CreditBankImpl.this.primaryCurrency));
 
+				// passive account
 				if (bankAccount.getBalance() > 0.0
-						&& TermType.LONG_TERM.equals(bankAccount.getTermType())) { // passive
-																					// account
+						&& TermType.LONG_TERM.equals(bankAccount.getTermType())) {
 					// temporary assertion
 					assert (bankAccount.getOwner() instanceof Household);
 					balanceSumOfPassiveBankAccounts += bankAccount.getBalance();
@@ -93,6 +94,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			assert (balanceSumOfPassiveBankAccounts == 0.0 || ApplicationContext
 					.getInstance().getConfiguration().householdConfig
 					.getRetirementSaving());
+
 			return balanceSumOfPassiveBankAccounts;
 		}
 
@@ -116,6 +118,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 					// currently only state bonds are bought by credit banks;
 					// TODO can and should be modified
 					assert (bond.getIssuer() instanceof State);
+
 					faceValueSumOfBonds += ((FixedRateBond) property)
 							.getFaceValue();
 				}
@@ -124,6 +127,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			assert (faceValueSumOfBonds == 0.0 || ApplicationContext
 					.getInstance().getConfiguration().householdConfig
 					.getRetirementSaving());
+
 			return faceValueSumOfBonds;
 		}
 
@@ -172,12 +176,15 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			if (MathUtil.greater(difference, 0.0)) {
 				final double balanceBeforeTransaction = CreditBankImpl.this.bankAccountBondLoan
 						.getBalance();
+
+				// obtain bond
 				final FixedRateBond fixedRateBond = ApplicationContext
 						.getInstance()
 						.getAgentService()
 						.findState(CreditBankImpl.this.primaryCurrency)
 						.obtainBond(difference, CreditBankImpl.this,
 								getBankAccountBondLoanDelegate());
+
 				assert (fixedRateBond.getOwner() == CreditBankImpl.this);
 
 				fixedRateBond
@@ -252,11 +259,12 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	}
 
 	public class CurrencyTradeEvent implements TimeSystemEvent {
+
 		protected void buyForeignCurrencyForArbitrage() {
 			final int numberOfForeignCurrencies = bankAccountsCurrencyTrade
 					.keySet().size() - 1;
-			if (numberOfForeignCurrencies > 0) {
 
+			if (numberOfForeignCurrencies > 0) {
 				final double budgetForCurrencyTradingPerCurrency_InPrimaryCurrency = calculateLocalCurrencyBudgetForCurrencyTrading()
 						/ numberOfForeignCurrencies;
 
@@ -386,6 +394,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 							Currency.formatMoneySum(priceOfFirstCurrencyInSecondCurrency),
 							secondCurrency);
 				}
+
 				return correctPriceOfFirstCurrencyInSecondCurrency;
 			}
 		}
@@ -425,6 +434,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 							.getMarketService()
 							.getMarginalMarketPrice(localCurrency,
 									foreignCurrency);
+
 					if (Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
 						priceOfForeignCurrencyInLocalCurrency = 1.0;
 					}
@@ -485,6 +495,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 						.keySet().size() - 1;
 				final double partialLocalCurrencyBudgetForCurrency = totalLocalCurrencyBudgetForCurrencyTrading
 						/ numberOfForeignCurrencies;
+
 				// for each foreign currency bank account / foreign currency
 				for (final BankAccount foreignCurrencyBankAccount : bankAccountsCurrencyTrade
 						.values()) {
@@ -510,6 +521,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 									.getMarketService()
 									.getMarginalMarketPrice(foreignCurrency,
 											localCurrency);
+
 							if (getLog().isAgentSelectedByClient(
 									CreditBankImpl.this)) {
 								getLog().log(
@@ -554,6 +566,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			// bank accounts -> -1
 			final int numberOfForeignCurrencies = bankAccountsCurrencyTrade
 					.keySet().size() - 1;
+
 			if (numberOfForeignCurrencies > 0.0) {
 				buyForeignCurrencyForArbitrage();
 				rebuyLocalCurrency();
@@ -570,10 +583,12 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 			// for each foreign currency bank account / foreign currency
 			for (final Currency currency : bankAccountsCurrencyTrade.keySet()) {
 				if (!CreditBankImpl.this.primaryCurrency.equals(currency)) {
+
 					final Currency localCurrency = CreditBankImpl.this.primaryCurrency;
 					final Currency foreignCurrency = currency;
 					final double foreignCurrencyBankAccountBalance = getBankAccountCurrencyTradeDelegate(
 							foreignCurrency).getBankAccount().getBalance();
+
 					/*
 					 * buy local currency for foreign currency
 					 */
@@ -701,10 +716,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	@MapKeyEnumerated
 	protected Map<Currency, BankAccount> bankAccountsCurrencyTrade = new HashMap<Currency, BankAccount>();
 
-	/*
-	 * accessors
-	 */
-
 	@Transient
 	protected Map<Currency, BankAccountDelegate> bankAccountsCurrencyTradeDelegate = new HashMap<Currency, BankAccountDelegate>();
 
@@ -771,6 +782,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 					final CreditBank foreignCurrencyCreditBank = ApplicationContext
 							.getInstance().getAgentService()
 							.findRandomCreditBank(currency);
+
 					if (foreignCurrencyCreditBank != null) {
 						final BankAccount bankAccount = foreignCurrencyCreditBank
 								.openBankAccount(this, currency, true,
@@ -779,7 +791,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 						bankAccountsCurrencyTrade.put(currency, bankAccount);
 					}
 				}
-
 				// local currency
 				else {
 					bankAccountsCurrencyTrade.put(primaryCurrency,
@@ -932,6 +943,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	@Transient
 	private double getSumOfBorrowings(final Currency currency) {
 		double sumOfBorrowings = 0;
+
 		for (final BankAccount creditBankAccount : ApplicationContext
 				.getInstance().getBankAccountDAO()
 				.findAllBankAccountsManagedByBank(CreditBankImpl.this)) {
@@ -941,6 +953,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				}
 			}
 		}
+
 		return sumOfBorrowings;
 	}
 
@@ -1000,9 +1013,11 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 						.getMarketService()
 						.getMarginalMarketPrice(foreignCurrency,
 								primaryCurrency);
+
 				if (Double.isNaN(initialPriceOfLocalCurrencyInForeignCurrency)) {
 					initialPriceOfLocalCurrencyInForeignCurrency = 1.0;
 				}
+
 				localCurrencyPricingBehaviours.put(
 						foreignCurrency,
 						new PricingBehaviourImpl(this, primaryCurrency,
@@ -1027,6 +1042,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				public void onTransfer(final double amount) {
 				}
 			};
+
 			bankAccountsCurrencyTradeDelegate.put(currency, delegate);
 		}
 	}
@@ -1057,6 +1073,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 					.getMarketService()
 					.getMarginalMarketPrice(primaryCurrency,
 							bankAccountEntry.getKey());
+
 			if (!Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
 				final double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry
 						.getValue().getBalance()

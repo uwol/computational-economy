@@ -63,8 +63,6 @@ import compecon.math.utility.UtilityFunction;
 @Entity
 public class HouseholdImpl extends AgentImpl implements Household {
 
-	// configuration constants ------------------------------
-
 	public class DailyLifeEvent implements TimeSystemEvent {
 
 		private double buyGoods(final Map<GoodType, Double> goodsToBuy,
@@ -242,6 +240,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			getLog().household_onUtility(HouseholdImpl.this,
 					HouseholdImpl.this.bankAccountTransactions.getCurrency(),
 					effectiveConsumptionGoodsBundle, utility);
+
 			return utility;
 		}
 
@@ -285,6 +284,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 									amountOfLabourHours / (prices.length),
 									price);
 				}
+
 				pricingBehaviour.registerOfferedAmount(amountOfLabourHours);
 
 				getLog().household_onOfferResult(
@@ -431,6 +431,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 						.transferMoney(bankAccountSavings,
 								HouseholdImpl.this.bankAccountTransactions,
 								-1.0 * moneySumToSave, "retirement dissavings");
+
 				if (getLog().isAgentSelectedByClient(HouseholdImpl.this)) {
 					getLog().log(HouseholdImpl.this, "unsaving %s %s",
 							Currency.formatMoneySum(-1.0 * moneySumToSave),
@@ -441,8 +442,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			return budget;
 		}
 	}
-
-	// dynamic state ------------------------------
 
 	protected class LabourPower implements Refreshable {
 
@@ -547,10 +546,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 	@Transient
 	protected UtilityFunction utilityFunction;
-
-	/*
-	 * accessors
-	 */
 
 	@Transient
 	protected void assureBankAccountSavings() {

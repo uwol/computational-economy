@@ -148,10 +148,6 @@ public abstract class AgentImpl implements Agent {
 		}
 	}
 
-	/*
-	 * accessors
-	 */
-
 	/**
 	 * deregisters the agent from all referencing objects
 	 */
@@ -312,12 +308,14 @@ public abstract class AgentImpl implements Agent {
 		// inventory by value
 		final Map<GoodType, Double> prices = ApplicationContext.getInstance()
 				.getMarketService().getMarginalMarketPrices(primaryCurrency);
+
 		for (final Entry<GoodType, Double> balanceEntry : ApplicationContext
 				.getInstance().getPropertyService().getGoodTypeBalances(this)
 				.entrySet()) {
 			final GoodType goodType = balanceEntry.getKey();
 			final double amount = balanceEntry.getValue();
 			final double price = prices.get(goodType);
+
 			if (!Double.isNaN(price)) {
 				balanceSheet.inventoryValue += amount * price;
 			}
@@ -339,6 +337,7 @@ public abstract class AgentImpl implements Agent {
 			// issued bonds
 			if (propertyIssued instanceof Bond) {
 				final Bond bond = (Bond) property;
+
 				if (!bond.isDeconstructed() && !bond.getOwner().equals(this)) {
 					assert (bond.getOwner() != this);
 
