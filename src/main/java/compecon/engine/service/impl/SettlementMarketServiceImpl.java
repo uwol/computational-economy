@@ -285,9 +285,11 @@ public class SettlementMarketServiceImpl extends MarketServiceImpl implements
 		if (commodityCurrency != null) {
 			return commodityCurrency.getIso4217Code();
 		}
+
 		if (propertyClass != null) {
 			return propertyClass.getSimpleName();
 		}
+
 		return goodType.toString();
 	}
 }

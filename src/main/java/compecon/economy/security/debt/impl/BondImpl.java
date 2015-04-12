@@ -216,6 +216,6 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	public String toString() {
 		return super.toString() + ", issuer=[" + getIssuer() + "], facevalue=["
 				+ Currency.formatMoneySum(faceValue) + "], issuedInCurrency=["
-				+ issuedInCurrency.getIso4217Code() + "]";
+				+ issuedInCurrency + "]";
 	}
 }

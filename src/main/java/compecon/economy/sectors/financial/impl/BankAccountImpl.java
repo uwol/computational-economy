@@ -177,9 +177,8 @@ public class BankAccountImpl implements BankAccount {
 	@Override
 	public String toString() {
 		return "BankAccount [ID: " + id + ", Balance: "
-				+ Currency.formatMoneySum(balance) + " "
-				+ currency.getIso4217Code() + ", Name: " + name + ", Owner: "
-				+ owner + "]";
+				+ Currency.formatMoneySum(balance) + " " + currency
+				+ ", Name: " + name + ", Owner: " + owner + "]";
 	}
 
 	@Override

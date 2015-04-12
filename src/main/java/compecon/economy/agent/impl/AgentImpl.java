@@ -406,7 +406,6 @@ public abstract class AgentImpl implements Agent {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ": id=[" + id
-				+ "], primaryCurrency=[" + primaryCurrency.getIso4217Code()
-				+ "]";
+				+ "], primaryCurrency=[" + primaryCurrency + "]";
 	}
 }
