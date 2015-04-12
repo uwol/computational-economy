@@ -313,7 +313,7 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 								getLog().log(
 										CreditBankImpl.this,
 										CurrencyTradeEvent.class,
-										"-> no arbitrage with %s, since price of is too high",
+										"-> no arbitrage with %s, since price of %s is too high",
 										foreignCurrency, foreignCurrency);
 							}
 						} else {
