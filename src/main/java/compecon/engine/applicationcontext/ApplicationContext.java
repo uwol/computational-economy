@@ -33,6 +33,7 @@ import compecon.engine.dao.TraderDAO;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
 import compecon.engine.factory.AgentFactory;
 import compecon.engine.factory.BankAccountFactory;
+import compecon.engine.factory.BudgetingBehaviourFactory;
 import compecon.engine.factory.CentralBankFactory;
 import compecon.engine.factory.CreditBankFactory;
 import compecon.engine.factory.FactoryFactory;
@@ -40,6 +41,7 @@ import compecon.engine.factory.FixedRateBondFactory;
 import compecon.engine.factory.GoodTypeOwnershipFactory;
 import compecon.engine.factory.HouseholdFactory;
 import compecon.engine.factory.MarketOrderFactory;
+import compecon.engine.factory.PricingBehaviourFactory;
 import compecon.engine.factory.ShareFactory;
 import compecon.engine.factory.StateFactory;
 import compecon.engine.factory.TraderFactory;
@@ -77,6 +79,8 @@ public class ApplicationContext {
 
 	protected BankAccountFactory bankAccountFactory;
 
+	protected BudgetingBehaviourFactory budgetingBehaviourFactory;
+
 	protected CentralBankDAO centralBankDAO;
 
 	protected CentralBankFactory centralBankFactory;
@@ -84,8 +88,6 @@ public class ApplicationContext {
 	protected Configuration configuration;
 
 	protected CreditBankDAO creditBankDAO;
-
-	// factory classes
 
 	protected CreditBankFactory creditBankFactory;
 
@@ -111,17 +113,15 @@ public class ApplicationContext {
 
 	protected MarketOrderDAO marketOrderDAO;
 
-	// services
-
 	protected MarketOrderFactory marketOrderFactory;
 
 	protected SettlementMarketService marketService;
 
 	protected ModelRegistry modelRegistry;
 
-	protected PropertyDAO propertyDAO;
+	protected PricingBehaviourFactory pricingBehaviourFactory;
 
-	// system objects
+	protected PropertyDAO propertyDAO;
 
 	protected PropertyService propertyService;
 
@@ -141,10 +141,6 @@ public class ApplicationContext {
 
 	protected TraderFactory traderFactory;
 
-	/*
-	 * reset
-	 */
-
 	private ApplicationContext() {
 		super();
 	}
@@ -163,6 +159,10 @@ public class ApplicationContext {
 
 	public BankAccountFactory getBankAccountFactory() {
 		return bankAccountFactory;
+	}
+
+	public BudgetingBehaviourFactory getBudgetingBehaviourFactory() {
+		return budgetingBehaviourFactory;
 	}
 
 	public CentralBankDAO getCentralBankDAO() {
@@ -241,6 +241,10 @@ public class ApplicationContext {
 		return modelRegistry;
 	}
 
+	public PricingBehaviourFactory getPricingBehaviourFactory() {
+		return pricingBehaviourFactory;
+	}
+
 	public PropertyDAO getPropertyDAO() {
 		return propertyDAO;
 	}
@@ -300,6 +304,11 @@ public class ApplicationContext {
 	public void setBankAccountFactory(
 			final BankAccountFactory bankAccountFactory) {
 		this.bankAccountFactory = bankAccountFactory;
+	}
+
+	public void setBudgetingBehaviourFactory(
+			final BudgetingBehaviourFactory budgetingBehaviourFactory) {
+		this.budgetingBehaviourFactory = budgetingBehaviourFactory;
 	}
 
 	public void setCentralBankDAO(final CentralBankDAO centralBankDAO) {
@@ -381,6 +390,11 @@ public class ApplicationContext {
 
 	public void setModelRegistry(final ModelRegistry modelRegistry) {
 		this.modelRegistry = modelRegistry;
+	}
+
+	public void setPricingBehaviourFactory(
+			final PricingBehaviourFactory pricingBehaviourFactory) {
+		this.pricingBehaviourFactory = pricingBehaviourFactory;
 	}
 
 	public void setPropertyDAO(final PropertyDAO propertyDAO) {

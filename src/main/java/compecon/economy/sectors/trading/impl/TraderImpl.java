@@ -33,7 +33,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import compecon.economy.behaviour.BudgetingBehaviour;
-import compecon.economy.behaviour.impl.BudgetingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
@@ -363,7 +362,9 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 			bankAccountsGoodTradeDelegate.put(currency, delegate);
 		}
 
-		budgetingBehaviour = new BudgetingBehaviourImpl(this);
+		budgetingBehaviour = ApplicationContext.getInstance()
+				.getBudgetingBehaviourFactory()
+				.newInstanceBudgetingBehaviour(this);
 	}
 
 	/*

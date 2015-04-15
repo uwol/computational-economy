@@ -33,7 +33,6 @@ import org.hibernate.annotations.Index;
 
 import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.behaviour.PricingBehaviour;
-import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.materia.Refreshable;
@@ -645,8 +644,12 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		final double marketPrice = ApplicationContext.getInstance()
 				.getMarketService()
 				.getMarginalMarketPrice(primaryCurrency, GoodType.LABOURHOUR);
-		pricingBehaviour = new PricingBehaviourImpl(this, GoodType.LABOURHOUR,
-				primaryCurrency, marketPrice);
+		pricingBehaviour = ApplicationContext
+				.getInstance()
+				.getPricingBehaviourFactory()
+				.newInstancePricingBehaviour(this, GoodType.LABOURHOUR,
+						primaryCurrency, marketPrice);
+
 		labourPower.refresh();
 	}
 

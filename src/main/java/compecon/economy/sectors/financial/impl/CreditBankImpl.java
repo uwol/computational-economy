@@ -38,7 +38,6 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Index;
 
 import compecon.economy.behaviour.PricingBehaviour;
-import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
@@ -1018,14 +1017,19 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 					initialPriceOfLocalCurrencyInForeignCurrency = 1.0;
 				}
 
-				localCurrencyPricingBehaviours.put(
-						foreignCurrency,
-						new PricingBehaviourImpl(this, primaryCurrency,
+				final double priceChangeIncrement = ApplicationContext
+						.getInstance().getConfiguration().creditBankConfig
+						.getPriceChangeIncrement();
+				final PricingBehaviour pricingBehaviour = ApplicationContext
+						.getInstance()
+						.getPricingBehaviourFactory()
+						.newInstancePricingBehaviour(this, primaryCurrency,
 								foreignCurrency,
 								initialPriceOfLocalCurrencyInForeignCurrency,
-								ApplicationContext.getInstance()
-										.getConfiguration().creditBankConfig
-										.getPriceChangeIncrement()));
+								priceChangeIncrement);
+
+				localCurrencyPricingBehaviours.put(foreignCurrency,
+						pricingBehaviour);
 			}
 		}
 

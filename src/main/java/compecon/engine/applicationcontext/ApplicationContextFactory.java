@@ -29,6 +29,7 @@ import compecon.economy.materia.impl.InputOutputModelTestingImpl;
 import compecon.engine.dao.inmemory.impl.SequenceNumberGeneratorImpl;
 import compecon.engine.factory.impl.AgentImplFactoryImpl;
 import compecon.engine.factory.impl.BankAccountImplFactoryImpl;
+import compecon.engine.factory.impl.BudgetingBehaviourFactoryImpl;
 import compecon.engine.factory.impl.CentralBankImplFactoryImpl;
 import compecon.engine.factory.impl.CreditBankImplFactoryImpl;
 import compecon.engine.factory.impl.FactoryImplFactoryImpl;
@@ -36,6 +37,7 @@ import compecon.engine.factory.impl.FixedRateBondImplFactoryImpl;
 import compecon.engine.factory.impl.GoodTypeOwnershipImplFactoryImpl;
 import compecon.engine.factory.impl.HouseholdImplFactoryImpl;
 import compecon.engine.factory.impl.MarketOrderImplFactoryImpl;
+import compecon.engine.factory.impl.PricingBehaviourFactoryImpl;
 import compecon.engine.factory.impl.ShareImplFactoryImpl;
 import compecon.engine.factory.impl.StateImplFactoryImpl;
 import compecon.engine.factory.impl.TraderImplFactoryImpl;
@@ -133,6 +135,8 @@ public class ApplicationContextFactory {
 				new AgentImplFactoryImpl());
 		ApplicationContext.getInstance().setBankAccountFactory(
 				new BankAccountImplFactoryImpl());
+		ApplicationContext.getInstance().setBudgetingBehaviourFactory(
+				new BudgetingBehaviourFactoryImpl());
 		ApplicationContext.getInstance().setCentralBankFactory(
 				new CentralBankImplFactoryImpl());
 		ApplicationContext.getInstance().setCreditBankFactory(
@@ -147,6 +151,8 @@ public class ApplicationContextFactory {
 				new HouseholdImplFactoryImpl());
 		ApplicationContext.getInstance().setMarketOrderFactory(
 				new MarketOrderImplFactoryImpl());
+		ApplicationContext.getInstance().setPricingBehaviourFactory(
+				new PricingBehaviourFactoryImpl());
 		ApplicationContext.getInstance().setShareFactory(
 				new ShareImplFactoryImpl());
 		ApplicationContext.getInstance().setStateFactory(

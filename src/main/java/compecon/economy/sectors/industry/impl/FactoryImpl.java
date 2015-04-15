@@ -30,8 +30,6 @@ import javax.persistence.Transient;
 
 import compecon.economy.behaviour.BudgetingBehaviour;
 import compecon.economy.behaviour.PricingBehaviour;
-import compecon.economy.behaviour.impl.BudgetingBehaviourImpl;
-import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
 import compecon.economy.sectors.financial.Currency;
@@ -368,9 +366,14 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 		final double marketPrice = ApplicationContext.getInstance()
 				.getMarketService()
 				.getMarginalMarketPrice(primaryCurrency, producedGoodType);
-		pricingBehaviour = new PricingBehaviourImpl(this, producedGoodType,
-				primaryCurrency, marketPrice);
-		budgetingBehaviour = new BudgetingBehaviourImpl(this);
+		pricingBehaviour = ApplicationContext
+				.getInstance()
+				.getPricingBehaviourFactory()
+				.newInstancePricingBehaviour(this, producedGoodType,
+						primaryCurrency, marketPrice);
+		budgetingBehaviour = ApplicationContext.getInstance()
+				.getBudgetingBehaviourFactory()
+				.newInstanceBudgetingBehaviour(this);
 	}
 
 	@Override

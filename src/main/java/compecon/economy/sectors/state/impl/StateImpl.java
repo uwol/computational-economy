@@ -30,7 +30,6 @@ import org.hibernate.annotations.Index;
 
 import compecon.economy.agent.impl.AgentImpl;
 import compecon.economy.behaviour.PricingBehaviour;
-import compecon.economy.behaviour.impl.PricingBehaviourImpl;
 import compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import compecon.economy.materia.GoodType;
 import compecon.economy.property.Property;
@@ -209,8 +208,11 @@ public class StateImpl extends AgentImpl implements State {
 		final double initialInterestRate = ApplicationContext.getInstance()
 				.getAgentService().findCentralBank(primaryCurrency)
 				.getEffectiveKeyInterestRate() + 0.02;
-		pricingBehaviour = new PricingBehaviourImpl(this, FixedRateBond.class,
-				primaryCurrency, initialInterestRate);
+		pricingBehaviour = ApplicationContext
+				.getInstance()
+				.getPricingBehaviourFactory()
+				.newInstancePricingBehaviour(this, FixedRateBond.class,
+						primaryCurrency, initialInterestRate);
 	}
 
 	@Override
