@@ -28,6 +28,11 @@ public class StochasticNumberGeneratorImpl implements RandomNumberGenerator {
 	protected Random random = new Random();
 
 	@Override
+	public Random getRandom() {
+		return random;
+	}
+
+	@Override
 	public int nextInt() {
 		return random.nextInt();
 	}

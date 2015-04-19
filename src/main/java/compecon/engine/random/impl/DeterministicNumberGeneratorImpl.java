@@ -28,6 +28,11 @@ public class DeterministicNumberGeneratorImpl implements RandomNumberGenerator {
 	protected Random random = new Random(100);
 
 	@Override
+	public Random getRandom() {
+		return random;
+	}
+
+	@Override
 	public int nextInt() {
 		return random.nextInt();
 	}

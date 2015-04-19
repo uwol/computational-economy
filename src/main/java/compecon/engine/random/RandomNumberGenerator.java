@@ -19,7 +19,11 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package compecon.engine.random;
 
+import java.util.Random;
+
 public interface RandomNumberGenerator {
+
+	Random getRandom();
 
 	int nextInt();
 

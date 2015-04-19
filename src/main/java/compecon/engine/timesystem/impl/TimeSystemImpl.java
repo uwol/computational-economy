@@ -27,6 +27,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import compecon.engine.applicationcontext.ApplicationContext;
@@ -260,7 +261,9 @@ public class TimeSystemImpl implements TimeSystem {
 		 * shuffled, so that each day gives each agent a new chance of being
 		 * first
 		 */
-		Collections.shuffle(events);
+		final Random random = ApplicationContext.getInstance()
+				.getRandomNumberGenerator().getRandom();
+		Collections.shuffle(events, random);
 
 		for (final TimeSystemEvent event : events) {
 			try {
