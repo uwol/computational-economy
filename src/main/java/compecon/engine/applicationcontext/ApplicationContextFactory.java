@@ -42,7 +42,7 @@ import compecon.engine.factory.impl.ShareImplFactoryImpl;
 import compecon.engine.factory.impl.StateImplFactoryImpl;
 import compecon.engine.factory.impl.TraderImplFactoryImpl;
 import compecon.engine.log.impl.LogImpl;
-import compecon.engine.random.impl.StochasticNumberGeneratorImpl;
+import compecon.engine.random.impl.DeterministicNumberGeneratorImpl;
 import compecon.engine.runner.impl.SimulationRunnerImpl;
 import compecon.engine.service.impl.AgentServiceImpl;
 import compecon.engine.service.impl.HardCashServiceImpl;
@@ -127,7 +127,7 @@ public class ApplicationContextFactory {
 		ApplicationContext.getInstance().reset();
 
 		ApplicationContext.getInstance().setRandomNumberGenerator(
-				new StochasticNumberGeneratorImpl());
+				new DeterministicNumberGeneratorImpl());
 		ApplicationContext.getInstance().setSequenceNumberGenerator(
 				new SequenceNumberGeneratorImpl());
 
