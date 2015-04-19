@@ -20,7 +20,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package compecon.engine.dao.hibernate.impl;
 
 import java.util.List;
-import java.util.Random;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Projections;
@@ -29,6 +28,7 @@ import org.hibernate.criterion.Restrictions;
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
 import compecon.economy.sectors.financial.impl.CreditBankImpl;
+import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.dao.CreditBankDAO;
 
 public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements
@@ -49,7 +49,9 @@ public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements
 		final int count = ((Number) crit.uniqueResult()).intValue();
 
 		if (0 != count) {
-			final int index = new Random().nextInt(count);
+			final int index = ApplicationContext.getInstance()
+					.getRandomNumberGenerator().nextInt(count);
+
 			crit = getSession().createCriteria(CreditBankImpl.class);
 			crit.add(Restrictions.eq("primaryCurrency", currency));
 			return (CreditBankImpl) crit.setFirstResult(index).setMaxResults(1)

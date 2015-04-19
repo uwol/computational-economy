@@ -22,7 +22,6 @@ package compecon.engine.factory.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import compecon.economy.agent.Agent;
@@ -59,8 +58,6 @@ public class AgentImplFactoryImpl implements AgentFactory {
 
 	@Override
 	public void constructAgentsFromConfiguration() {
-		final Random random = new Random();
-
 		for (final Currency currency : Currency.values()) {
 			if (ApplicationContext.getInstance().getConfiguration().stateConfig
 					.getNumber(currency) == 1) {
@@ -114,15 +111,18 @@ public class AgentImplFactoryImpl implements AgentFactory {
 			}
 		}
 
+		final int householdLifeSpanInDays = ApplicationContext.getInstance()
+				.getConfiguration().householdConfig.getLifespanInDays();
+		// division by 2, so that households have time left until
+		// retirement
+		final int householdAgeLimit = householdLifeSpanInDays / 2;
+
 		for (final Currency currency : Currency.values()) {
 			// initialize households
 			for (int i = 0; i < ApplicationContext.getInstance()
 					.getConfiguration().householdConfig.getNumber(currency); i++) {
-				// division, so that households have time left until
-				// retirement
-				final int ageInDays = random.nextInt(ApplicationContext
-						.getInstance().getConfiguration().householdConfig
-						.getLifespanInDays()) / 2;
+				final int ageInDays = ApplicationContext.getInstance()
+						.getRandomNumberGenerator().nextInt(householdAgeLimit);
 				ApplicationContext.getInstance().getHouseholdFactory()
 						.newInstanceHousehold(currency, ageInDays);
 			}

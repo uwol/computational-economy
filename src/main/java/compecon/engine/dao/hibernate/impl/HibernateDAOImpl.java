@@ -21,12 +21,12 @@ package compecon.engine.dao.hibernate.impl;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
-import java.util.Random;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 
+import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.dao.GenericDAO;
 import compecon.engine.util.HibernateUtil;
 
@@ -66,7 +66,9 @@ public class HibernateDAOImpl<T> implements GenericDAO<T> {
 		final int count = ((Number) crit.uniqueResult()).intValue();
 
 		if (0 != count) {
-			final int index = new Random().nextInt(count);
+			final int index = ApplicationContext.getInstance()
+					.getRandomNumberGenerator().nextInt(count);
+
 			crit = getSession().createCriteria(persistentClass);
 			final T entity = (T) crit.setFirstResult(index).setMaxResults(1)
 					.uniqueResult();

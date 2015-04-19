@@ -21,10 +21,10 @@ package compecon.engine.dao.inmemory.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.dao.GenericDAO;
 
 public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
@@ -32,8 +32,6 @@ public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 	protected BiMap<Integer, T> instancesByIds = HashBiMap.create();
 
 	protected int lastId = 0;
-
-	protected Random randomizer = new Random();
 
 	@Override
 	public synchronized void delete(final T entity) {
@@ -54,7 +52,9 @@ public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 	public synchronized T findRandom() {
 		final List<Integer> keys = new ArrayList<Integer>(
 				this.instancesByIds.keySet());
-		final int id = keys.get(this.randomizer.nextInt(keys.size()));
+		final int index = ApplicationContext.getInstance()
+				.getRandomNumberGenerator().nextInt(keys.size());
+		final int id = keys.get(index);
 		return this.instancesByIds.get(id);
 	}
 

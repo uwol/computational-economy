@@ -23,6 +23,7 @@ import java.util.List;
 
 import compecon.economy.sectors.financial.CreditBank;
 import compecon.economy.sectors.financial.Currency;
+import compecon.engine.applicationcontext.ApplicationContext;
 import compecon.engine.dao.CreditBankDAO;
 
 public class CreditBankDAOImpl extends
@@ -38,10 +39,13 @@ public class CreditBankDAOImpl extends
 	@Override
 	public synchronized CreditBank findRandom(final Currency currency) {
 		final List<CreditBank> creditBanks = findAllByCurrency(currency);
+
 		if (creditBanks != null && !creditBanks.isEmpty()) {
-			final int id = randomizer.nextInt(creditBanks.size());
+			final int id = ApplicationContext.getInstance()
+					.getRandomNumberGenerator().nextInt(creditBanks.size());
 			return creditBanks.get(id);
 		}
+
 		return null;
 	}
 

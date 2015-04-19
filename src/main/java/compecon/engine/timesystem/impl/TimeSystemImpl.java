@@ -27,7 +27,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import compecon.engine.applicationcontext.ApplicationContext;
@@ -49,8 +48,6 @@ public class TimeSystemImpl implements TimeSystem {
 	private final List<TimeSystemEvent> externalEvents = new ArrayList<TimeSystemEvent>();
 
 	private GregorianCalendar gregorianCalendar = new GregorianCalendar();
-
-	private final Random random = new Random();
 
 	private final int startYear;
 
@@ -224,8 +221,10 @@ public class TimeSystemImpl implements TimeSystem {
 	@Override
 	public HourType suggestRandomHourType(final HourType minHourType,
 			final HourType maxHourType) {
-		final int randomNumber = random.nextInt(maxHourType.getHourNumber() + 1
-				- minHourType.getHourNumber());
+		final int limit = maxHourType.getHourNumber() + 1
+				- minHourType.getHourNumber();
+		final int randomNumber = ApplicationContext.getInstance()
+				.getRandomNumberGenerator().nextInt(limit);
 		return HourType.getHourType(minHourType.getHourNumber() + randomNumber);
 	}
 
