@@ -81,6 +81,7 @@ public abstract class PropertyImpl implements Property {
 				.deleteProperty(this);
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}

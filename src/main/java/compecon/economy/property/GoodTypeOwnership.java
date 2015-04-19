@@ -25,6 +25,8 @@ import compecon.economy.materia.GoodType;
 
 public interface GoodTypeOwnership {
 
+	public int getId();
+
 	public Map<GoodType, Double> getOwnedGoodTypes();
 
 	public PropertyOwner getPropertyOwner();

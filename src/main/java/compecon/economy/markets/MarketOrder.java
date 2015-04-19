@@ -50,6 +50,8 @@ public interface MarketOrder {
 
 	public GoodType getGoodType();
 
+	public int getId();
+
 	public MarketParticipant getOfferor();
 
 	public BankAccountDelegate getOfferorsBankAcountDelegate();

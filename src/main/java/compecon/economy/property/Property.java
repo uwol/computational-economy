@@ -23,6 +23,8 @@ import compecon.economy.LifecycleEntity;
 
 public interface Property extends LifecycleEntity {
 
+	public int getId();
+
 	public PropertyOwner getOwner();
 
 	public void resetOwner();

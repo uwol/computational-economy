@@ -95,6 +95,10 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		assert (commodityCurrencyOfferorsBankAcountDelegate != null);
 
 		final MarketOrderImpl marketOrder = new MarketOrderImpl();
+		if (!HibernateUtil.isActive()) {
+			marketOrder.setId(ApplicationContext.getInstance()
+					.getSequenceNumberGenerator().getNextId());
+		}
 		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
 				.getCurrency());
 		marketOrder.setCommodityCurrency(currencyToBeOffered);
@@ -120,6 +124,10 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		assert (offerorsBankAcountDelegate != null);
 
 		final MarketOrderImpl marketOrder = new MarketOrderImpl();
+		if (!HibernateUtil.isActive()) {
+			marketOrder.setId(ApplicationContext.getInstance()
+					.getSequenceNumberGenerator().getNextId());
+		}
 		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
 				.getCurrency());
 		marketOrder.setGoodType(goodType);
@@ -143,6 +151,10 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		assert (offerorsBankAcountDelegate != null);
 
 		final MarketOrderImpl marketOrder = new MarketOrderImpl();
+		if (!HibernateUtil.isActive()) {
+			marketOrder.setId(ApplicationContext.getInstance()
+					.getSequenceNumberGenerator().getNextId());
+		}
 		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
 				.getCurrency());
 		marketOrder.setProperty(property);

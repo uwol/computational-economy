@@ -620,10 +620,10 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	public void initialize() {
 		super.initialize();
 
-		DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = ApplicationContext
+		DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = (ApplicationContext
 				.getInstance().getConfiguration().householdConfig
-				.getDaysWithoutUtilityUntilDestructor()
-				+ hashCode()
+				.getDaysWithoutUtilityUntilDestructor() + ApplicationContext
+				.getInstance().getRandomNumberGenerator().nextInt())
 				% ApplicationContext.getInstance().getConfiguration().householdConfig
 						.getDaysWithoutUtilityUntilDestructor();
 

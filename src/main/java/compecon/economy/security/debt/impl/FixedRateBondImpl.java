@@ -118,8 +118,11 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 		if (coupon < fixedRateBond.getCoupon()) {
 			return -1;
 		}
+
+		assert id != fixedRateBond.getId();
+
 		// important, so that two bonds with same price can exists
-		return hashCode() - fixedRateBond.hashCode();
+		return id - fixedRateBond.getId();
 	}
 
 	@Override

@@ -62,6 +62,7 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 		}
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}

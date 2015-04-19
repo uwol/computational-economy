@@ -115,8 +115,11 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		if (getPricePerUnit() < marketOrder.getPricePerUnit()) {
 			return -1;
 		}
+		
+		assert id != marketOrder.getId();
+
 		// important, so that two market offers with same price can exists
-		return hashCode() - marketOrder.hashCode();
+		return id - marketOrder.getId();
 	}
 
 	@Override
@@ -179,6 +182,7 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		return goodType;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
