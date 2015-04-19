@@ -46,9 +46,11 @@ public class GoodTypeOwnershipDAOImpl extends
 				.createCriteria(GoodTypeOwnershipImpl.class)
 				.add(Restrictions.eq("propertyOwner", propertyOwner))
 				.setMaxResults(1).uniqueResult();
+
 		if (object == null) {
 			return null;
 		}
+
 		return (GoodTypeOwnershipImpl) object;
 	}
 

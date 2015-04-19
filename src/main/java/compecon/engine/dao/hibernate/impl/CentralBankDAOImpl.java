@@ -35,9 +35,11 @@ public class CentralBankDAOImpl extends HibernateDAOImpl<CentralBank> implements
 				.createCriteria(CentralBankImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency))
 				.uniqueResult();
+
 		if (object == null) {
 			return null;
 		}
+
 		return (CentralBank) object;
 	}
 }

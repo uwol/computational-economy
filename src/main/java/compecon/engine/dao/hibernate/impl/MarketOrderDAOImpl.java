@@ -41,6 +41,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 		final String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror";
 		final List<MarketOrder> marketOrders = getSession().createQuery(hql)
 				.setEntity("offeror", offeror).list();
+
 		for (final MarketOrder marketOrder : marketOrders) {
 			delete(marketOrder);
 		}
@@ -57,6 +58,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 				.setParameter("currency", currency)
 				.setParameter("propertyClass", propertyClass.getSimpleName())
 				.list();
+
 		for (final MarketOrder marketOrder : marketOrders) {
 			delete(marketOrder);
 		}
@@ -71,6 +73,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 				.setEntity("offeror", offeror)
 				.setParameter("currency", currency)
 				.setParameter("commodityCurrency", commodityCurrency).list();
+
 		for (final MarketOrder marketOrder : marketOrders) {
 			delete(marketOrder);
 		}
@@ -85,6 +88,7 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 				.setEntity("offeror", offeror)
 				.setParameter("currency", currency)
 				.setParameter("goodType", goodType).list();
+
 		for (final MarketOrder marketOrder : marketOrders) {
 			delete(marketOrder);
 		}
@@ -99,9 +103,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 				.setMaxResults(1).setParameter("currency", currency)
 				.setParameter("propertyClass", propertyClass.getSimpleName())
 				.uniqueResult();
+
 		if (marginalPrice == null) {
 			return Double.NaN;
 		}
+
 		return (double) marginalPrice;
 	}
 
@@ -114,9 +120,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 				.setMaxResults(1).setParameter("currency", currency)
 				.setParameter("commodityCurrency", commodityCurrency)
 				.uniqueResult();
+
 		if (marginalPrice == null) {
 			return Double.NaN;
 		}
+
 		return (double) marginalPrice;
 	}
 
@@ -128,9 +136,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 		final Object marginalPrice = getSession().createQuery(hql)
 				.setMaxResults(1).setParameter("currency", currency)
 				.setParameter("goodType", goodType).uniqueResult();
+
 		if (marginalPrice == null) {
 			return Double.NaN;
 		}
+
 		return (double) marginalPrice;
 	}
 
@@ -143,9 +153,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 				.setMaxResults(1).setParameter("currency", currency)
 				.setParameter("commodityCurrency", commodityCurrency)
 				.uniqueResult();
+
 		if (amountSum == null) {
 			return Double.NaN;
 		}
+
 		return (double) amountSum;
 	}
 
@@ -156,9 +168,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 		final Object amountSum = getSession().createQuery(queryString)
 				.setMaxResults(1).setParameter("currency", currency)
 				.setParameter("goodType", goodType).uniqueResult();
+
 		if (amountSum == null) {
 			return Double.NaN;
 		}
+
 		return (double) amountSum;
 	}
 

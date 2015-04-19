@@ -64,6 +64,7 @@ public class HibernateDAOImpl<T> implements GenericDAO<T> {
 		Criteria crit = getSession().createCriteria(persistentClass);
 		crit.setProjection(Projections.rowCount());
 		final int count = ((Number) crit.uniqueResult()).intValue();
+
 		if (0 != count) {
 			final int index = new Random().nextInt(count);
 			crit = getSession().createCriteria(persistentClass);
@@ -71,6 +72,7 @@ public class HibernateDAOImpl<T> implements GenericDAO<T> {
 					.uniqueResult();
 			return entity;
 		}
+
 		return null;
 	}
 

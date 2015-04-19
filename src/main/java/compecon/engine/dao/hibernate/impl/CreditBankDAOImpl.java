@@ -47,6 +47,7 @@ public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements
 		crit.add(Restrictions.eq("primaryCurrency", currency));
 		crit.setProjection(Projections.rowCount());
 		final int count = ((Number) crit.uniqueResult()).intValue();
+
 		if (0 != count) {
 			final int index = new Random().nextInt(count);
 			crit = getSession().createCriteria(CreditBankImpl.class);
@@ -54,6 +55,7 @@ public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements
 			return (CreditBankImpl) crit.setFirstResult(index).setMaxResults(1)
 					.uniqueResult();
 		}
+
 		return null;
 	}
 }

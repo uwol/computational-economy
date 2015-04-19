@@ -33,9 +33,11 @@ public class StateDAOImpl extends HibernateDAOImpl<State> implements StateDAO {
 		final Object object = getSession().createCriteria(StateImpl.class)
 				.add(Restrictions.eq("primaryCurrency", currency))
 				.uniqueResult();
+
 		if (object == null) {
 			return null;
 		}
+
 		return (StateImpl) object;
 	}
 }
