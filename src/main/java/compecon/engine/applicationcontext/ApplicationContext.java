@@ -46,6 +46,7 @@ import compecon.engine.factory.ShareFactory;
 import compecon.engine.factory.StateFactory;
 import compecon.engine.factory.TraderFactory;
 import compecon.engine.log.Log;
+import compecon.engine.random.RandomNumberGenerator;
 import compecon.engine.runner.SimulationRunner;
 import compecon.engine.service.AgentService;
 import compecon.engine.service.HardCashService;
@@ -124,6 +125,8 @@ public class ApplicationContext {
 	protected PropertyDAO propertyDAO;
 
 	protected PropertyService propertyService;
+
+	protected RandomNumberGenerator randomNumberGenerator;
 
 	protected SequenceNumberGeneratorImpl sequenceNumberGenerator;
 
@@ -251,6 +254,10 @@ public class ApplicationContext {
 
 	public PropertyService getPropertyService() {
 		return propertyService;
+	}
+
+	public RandomNumberGenerator getRandomNumberGenerator() {
+		return randomNumberGenerator;
 	}
 
 	public SequenceNumberGeneratorImpl getSequenceNumberGenerator() {
@@ -403,6 +410,11 @@ public class ApplicationContext {
 
 	public void setPropertyService(final PropertyService propertyService) {
 		this.propertyService = propertyService;
+	}
+
+	public void setRandomNumberGenerator(
+			final RandomNumberGenerator randomNumberGenerator) {
+		this.randomNumberGenerator = randomNumberGenerator;
 	}
 
 	public void setSequenceNumberGenerator(
