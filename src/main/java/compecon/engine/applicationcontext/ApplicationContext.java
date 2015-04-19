@@ -294,6 +294,8 @@ public class ApplicationContext {
 
 	public void reset() {
 		instance = null;
+
+		System.gc();
 	}
 
 	public void setAgentFactory(final AgentFactory agentFactory) {
