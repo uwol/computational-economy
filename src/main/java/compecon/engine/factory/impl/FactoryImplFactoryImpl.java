@@ -43,10 +43,12 @@ public class FactoryImplFactoryImpl implements FactoryFactory {
 		assert (primaryCurrency != null);
 
 		final FactoryImpl factory = new FactoryImpl();
+
 		if (!HibernateUtil.isActive()) {
 			factory.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
 		}
+
 		factory.setProducedGoodType(goodType);
 		factory.setPrimaryCurrency(primaryCurrency);
 		factory.setReferenceCredit(ApplicationContext.getInstance()

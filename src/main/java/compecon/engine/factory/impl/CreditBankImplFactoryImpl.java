@@ -52,10 +52,12 @@ public class CreditBankImplFactoryImpl implements CreditBankFactory {
 		assert (offeredCurrencies.contains(primaryCurrency));
 
 		final CreditBankImpl creditBank = new CreditBankImpl();
+
 		if (!HibernateUtil.isActive()) {
 			creditBank.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
 		}
+
 		creditBank.setPrimaryCurrency(primaryCurrency);
 		ApplicationContext.getInstance().getCreditBankDAO().save(creditBank);
 		creditBank.initialize();

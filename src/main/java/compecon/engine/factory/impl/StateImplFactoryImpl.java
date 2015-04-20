@@ -39,6 +39,7 @@ public class StateImplFactoryImpl implements StateFactory {
 		assert (currency != null);
 
 		final StateImpl state = new StateImpl();
+
 		if (!HibernateUtil.isActive()) {
 			state.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());

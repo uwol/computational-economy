@@ -36,6 +36,12 @@ public class ShareImplFactoryImpl implements ShareFactory {
 		assert (issuer != null);
 
 		final ShareImpl share = new ShareImpl();
+
+		if (!HibernateUtil.isActive()) {
+			share.setId(ApplicationContext.getInstance()
+					.getSequenceNumberGenerator().getNextId());
+		}
+
 		share.setIssuer(issuer);
 		share.setOwner(owner);
 		share.initialize();

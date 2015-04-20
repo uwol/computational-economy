@@ -41,10 +41,12 @@ public class HouseholdImplFactoryImpl implements HouseholdFactory {
 		assert (primaryCurrency != null);
 
 		final HouseholdImpl household = new HouseholdImpl();
+
 		if (!HibernateUtil.isActive()) {
 			household.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
 		}
+
 		household.setAgeInDays(ageInDays);
 		household.setPrimaryCurrency(primaryCurrency);
 

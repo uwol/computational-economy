@@ -44,10 +44,12 @@ public class FixedRateBondImplFactoryImpl implements FixedRateBondFactory {
 		assert (faceValue > 0);
 
 		final FixedRateBondImpl fixedRateBond = new FixedRateBondImpl();
+
 		if (!HibernateUtil.isActive()) {
 			fixedRateBond.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());
 		}
+
 		fixedRateBond.setOwner(owner);
 		fixedRateBond.setIssuer(issuer);
 		fixedRateBond

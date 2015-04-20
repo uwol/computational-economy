@@ -66,6 +66,7 @@ public class BankAccountImplFactoryImpl implements BankAccountFactory {
 		assert (moneyType != null);
 
 		final BankAccountImpl bankAccount = new BankAccountImpl();
+
 		if (!HibernateUtil.isActive()) {
 			bankAccount.setId(ApplicationContext.getInstance()
 					.getSequenceNumberGenerator().getNextId());

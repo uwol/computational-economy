@@ -43,6 +43,12 @@ public class GoodTypeOwnershipImplFactoryImpl implements
 		assert (propertyOwner != null);
 
 		final GoodTypeOwnershipImpl goodTypeOwnership = new GoodTypeOwnershipImpl();
+
+		if (!HibernateUtil.isActive()) {
+			goodTypeOwnership.setId(ApplicationContext.getInstance()
+					.getSequenceNumberGenerator().getNextId());
+		}
+
 		goodTypeOwnership.setPropertyOwner(propertyOwner);
 		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
 				.save(goodTypeOwnership);
