@@ -863,10 +863,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 				.deleteAllBankAccounts(this, customer);
 	}
 
-	/*
-	 * assertions
-	 */
-
 	@Override
 	@Transient
 	public void deconstruct() {
@@ -909,10 +905,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	public BankAccountDelegate getBankAccountCentralBankMoneyReservesDelegate() {
 		return bankAccountCentralBankMoneyReservesDelegate;
 	}
-
-	/*
-	 * business logic
-	 */
 
 	public BankAccount getBankAccountCentralBankTransactions() {
 		return bankAccountCentralBankTransactions;
@@ -1214,7 +1206,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank,
 	@Override
 	@Transient
 	public void withdraw(final BankAccount bankAccount, final double amount) {
-
 		assertBankAccountIsManagedByThisBank(bankAccount);
 		assert (amount >= 0.0);
 

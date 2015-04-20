@@ -666,10 +666,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		return balanceSheet;
 	}
 
-	/*
-	 * assertions
-	 */
-
 	@Override
 	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
@@ -685,10 +681,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			final double amount, final double pricePerUnit,
 			final Currency currency) {
 	}
-
-	/*
-	 * business logic
-	 */
 
 	@Override
 	public void onMarketSettlement(final GoodType goodType,

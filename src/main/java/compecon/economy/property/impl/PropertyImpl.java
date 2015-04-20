@@ -65,10 +65,6 @@ public abstract class PropertyImpl implements Property {
 	@JoinColumn(name = "owner_id")
 	protected PropertyOwner owner;
 
-	/*
-	 * accessors
-	 */
-
 	@Transient
 	protected void assertValidOwner() {
 	}
@@ -100,10 +96,6 @@ public abstract class PropertyImpl implements Property {
 	public boolean isDeconstructed() {
 		return isDeconstructed;
 	}
-
-	/*
-	 * business logic
-	 */
 
 	@Override
 	@Transient

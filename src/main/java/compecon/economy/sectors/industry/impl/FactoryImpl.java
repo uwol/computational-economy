@@ -382,10 +382,6 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 			final Currency currency) {
 	}
 
-	/*
-	 * business logic
-	 */
-
 	@Override
 	public void onMarketSettlement(final GoodType goodType,
 			final double amount, final double pricePerUnit,

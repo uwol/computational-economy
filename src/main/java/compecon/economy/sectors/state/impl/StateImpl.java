@@ -168,17 +168,9 @@ public class StateImpl extends AgentImpl implements State {
 		}
 	}
 
-	/*
-	 * assertions
-	 */
-
 	public BankAccount getBankAccountCouponLoans() {
 		return bankAccountCouponLoans;
 	}
-
-	/*
-	 * business logic
-	 */
 
 	@Override
 	@Transient

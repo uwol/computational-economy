@@ -215,17 +215,12 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	 * offering information about markets to agents
 	 */
 	protected class StatisticalOffice {
-		// constants
 
 		protected Map<GoodType, Double> averageMarginalPricesForGoodTypes = new HashMap<GoodType, Double>();
 
 		protected Map<GoodType, double[]> monitoredMarginalPricesForGoodTypesAndPeriods = new HashMap<GoodType, double[]>();
 
-		// state
-
 		protected final int NUMBER_OF_LOGGED_PERIODS = 3;
-
-		// pre-calculated values
 
 		protected double priceIndex = 0.0;
 
@@ -493,10 +488,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		ApplicationContext.getInstance().getBankAccountFactory()
 				.deleteAllBankAccounts(this, customer);
 	}
-
-	/*
-	 * assertions
-	 */
 
 	@Override
 	public void deconstruct() {

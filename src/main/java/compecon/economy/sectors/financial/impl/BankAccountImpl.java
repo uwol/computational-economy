@@ -77,10 +77,6 @@ public class BankAccountImpl implements BankAccount {
 	@Enumerated(EnumType.STRING)
 	protected TermType termType;
 
-	/*
-	 * Accessors
-	 */
-
 	@Override
 	@Transient
 	public void deposit(final double amount) {
@@ -165,10 +161,6 @@ public class BankAccountImpl implements BankAccount {
 	public void setOwner(final BankCustomer owner) {
 		this.owner = owner;
 	}
-
-	/*
-	 * Business logic
-	 */
 
 	public void setTermType(final TermType termType) {
 		this.termType = termType;

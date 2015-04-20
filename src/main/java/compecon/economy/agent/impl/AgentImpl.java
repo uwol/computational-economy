@@ -355,10 +355,6 @@ public abstract class AgentImpl implements Agent {
 		return balanceSheet;
 	}
 
-	/*
-	 * assertions
-	 */
-
 	@Override
 	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
@@ -366,10 +362,6 @@ public abstract class AgentImpl implements Agent {
 			bankAccountTransactions = null;
 		}
 	}
-
-	/*
-	 * business logic
-	 */
 
 	@Override
 	@Transient

@@ -80,12 +80,8 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	@JoinColumn(name = "offeror_id")
 	protected MarketParticipant offeror;
 
-	// market offer type 1: market offer for good type
-
 	@Transient
 	protected BankAccountDelegate offerorsBankAcountDelegate;
-
-	// market offer type 2: market offer for currency / money
 
 	@Column(name = "pricePerUnit")
 	protected double pricePerUnit;
@@ -95,13 +91,9 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	@JoinColumn(name = "property_id")
 	protected Property property;
 
-	// market offer type 3: market offer for property (e.g. shares)
-
 	@Column
 	@Enumerated(EnumType.STRING)
 	protected ValidityPeriod validityPeriod;
-
-	// accessors
 
 	@Override
 	@Transient
@@ -115,7 +107,7 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		if (getPricePerUnit() < marketOrder.getPricePerUnit()) {
 			return -1;
 		}
-		
+
 		assert id != marketOrder.getId();
 
 		// important, so that two market offers with same price can exists
@@ -246,10 +238,6 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	public void setId(final int id) {
 		this.id = id;
 	}
-
-	/*
-	 * business logic
-	 */
 
 	public void setOfferor(final MarketParticipant offeror) {
 		this.offeror = offeror;

@@ -168,18 +168,10 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements
 		return bankAccountDividends;
 	}
 
-	/*
-	 * assertions
-	 */
-
 	@Transient
 	public BankAccountDelegate getBankAccountDividendsDelegate() {
 		return bankAccountDividendsDelegate;
 	}
-
-	/*
-	 * business logic
-	 */
 
 	@Override
 	public void initialize() {

@@ -324,10 +324,6 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 		return excludedGoodTypes;
 	}
 
-	/*
-	 * assertions
-	 */
-
 	@Override
 	public void initialize() {
 		super.initialize();
@@ -366,10 +362,6 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 				.getBudgetingBehaviourFactory()
 				.newInstanceBudgetingBehaviour(this);
 	}
-
-	/*
-	 * business logic
-	 */
 
 	@Override
 	@Transient

@@ -93,10 +93,6 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 		assert (bankAccount.getManagingBank() == this);
 	}
 
-	/*
-	 * accessors
-	 */
-
 	@Transient
 	protected abstract void assertCurrencyIsOffered(final Currency currency);
 
@@ -130,10 +126,6 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 					MoneyType.DEPOSITS);
 		}
 	}
-
-	/*
-	 * assertions
-	 */
 
 	@Transient
 	public void assureBankAccountInterestTransactions() {
@@ -190,10 +182,6 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	public BankAccountDelegate getBankAccountInterestTransactionsDelegate() {
 		return bankAccountInterestTransactionsDelegate;
 	}
-
-	/*
-	 * business logic
-	 */
 
 	@Transient
 	public List<BankAccount> getBankAccounts(final BankCustomer customer) {

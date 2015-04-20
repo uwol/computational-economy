@@ -86,10 +86,6 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 	@Transient
 	protected BankAccountDelegate couponToBankAccountDelegate;
 
-	/*
-	 * accessors
-	 */
-
 	@Override
 	protected void assertValidIssuer() {
 		super.assertValidIssuer();
@@ -165,10 +161,6 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 		super.resetOwner();
 		couponToBankAccountDelegate = null;
 	}
-
-	/*
-	 * business logic
-	 */
 
 	public void setCoupon(final double coupon) {
 		this.coupon = coupon;

@@ -91,10 +91,6 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	@Transient
 	protected Set<TimeSystemEvent> timeSystemEvents = new HashSet<TimeSystemEvent>();
 
-	/*
-	 * accessors
-	 */
-
 	@Override
 	protected void assertValidIssuer() {
 		super.assertValidIssuer();
@@ -180,10 +176,6 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 		faceValueToBankAccountDelegate = null;
 	}
 
-	/*
-	 * assertions
-	 */
-
 	public void setFaceValue(final double faceValue) {
 		this.faceValue = faceValue;
 	}
@@ -192,10 +184,6 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 			final BankAccountDelegate faceValueFromBankAccountDelegate) {
 		this.faceValueFromBankAccountDelegate = faceValueFromBankAccountDelegate;
 	}
-
-	/*
-	 * business logic
-	 */
 
 	@Override
 	public void setFaceValueToBankAccountDelegate(
