@@ -24,6 +24,9 @@ Technologies:
 * Stand-alone calculation engine; architecturally separate from visualization dashboard.
 * Optional: SQL server
 
+Publication:
+* Wolffgang, U.: [A Multi-Agent Non-Stochastic Economic Simulator](http://docs.wolffgang.com/2015-06_CEF2015-322.pdf). In Proc. of the 21st Int. Conf. on Computing in Economics and Finance (CEF 2015), June 2015.
+
 
 ![screenshot1](http://img.literaturedb.com/compecon1.png)
 
