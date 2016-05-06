@@ -28,18 +28,18 @@ Publication:
 * Wolffgang, U.: [A Multi-Agent Non-Stochastic Economic Simulator](http://docs.wolffgang.com/2015-06_CEF2015-322.pdf). In Proc. of the 21st Int. Conf. on Computing in Economics and Finance (CEF 2015), June 2015.
 
 
-![screenshot1](http://img.literaturedb.com/compecon1.png)
+![screenshot1](http://uwol.github.io/img/compecon/compecon1.png)
 
-![screenshot2](http://img.literaturedb.com/compecon2.png)
+![screenshot2](http://uwol.github.io/img/compecon/compecon2.png)
 
-![screenshot3](http://img.literaturedb.com/compecon3.png)
+![screenshot3](http://uwol.github.io/img/compecon/compecon3.png)
 
-![screenshot4](http://img.literaturedb.com/compecon4.png)
+![screenshot4](http://uwol.github.io/img/compecon/compecon4.png)
 
-![screenshot5](http://img.literaturedb.com/compecon5.png)
+![screenshot5](http://uwol.github.io/img/compecon/compecon5.png)
 
-![screenshot6](http://img.literaturedb.com/compecon6.png)
+![screenshot6](http://uwol.github.io/img/compecon/compecon6.png)
 
-![screenshot7](http://img.literaturedb.com/compecon7.png)
+![screenshot7](http://uwol.github.io/img/compecon/compecon7.png)
 
-![screenshot8](http://img.literaturedb.com/compecon8.png)
+![screenshot8](http://uwol.github.io/img/compecon/compecon8.png)
