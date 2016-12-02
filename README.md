@@ -28,18 +28,20 @@ Other entities / features
 * Time system: Agents register their actions as events in a global time system (observer pattern). At runtime agents can be instantiated and deconstructed at arbitrary points in time, enabling a dynamic population. Execution of events is not bound to a fixed sequential order of economic phases, e. g. for production and consumption.
 
 
-Technologies
-------------
-
-* Java 1.8, JUnit, Hibernate, JFreeChart, Maven
-* Stand-alone calculation engine; architecturally separate from visualization dashboard.
-* Optional: SQL server
-
-
 Publication
 -----------
 
 * Wolffgang, U.: [A Multi-Agent Non-Stochastic Economic Simulator](http://uwol.github.io/docs/2015-06_CEF2015-322.pdf). In Proc. of the 21st Int. Conf. on Computing in Economics and Finance (CEF 2015), June 2015.
+
+
+How to run
+----------
+
+Import into Eclipse:
+
+1. Clone or download the repository. 
+2. In Eclipse import the directory as a an `existing Maven project`.
+3. Right click file `src/main/java/io.github.uwol.compecon.simulation.impl.DashboardSimulationImpl.java` and `run as Java application`.
 
 
 Build process
@@ -50,12 +52,6 @@ Build process
 
 ```
 $ mvn clean package
-```
-
-* To only run the tests:
-
-```
-$ mvn clean test
 ```
 
 * You should see output like this:
@@ -80,10 +76,10 @@ Tests run: 44, Failures: 0, Errors: 0, Skipped: 0
 [INFO] ------------------------------------------------------------------------
 ```
 
-* To launch the simulator dashboard run main method
+* To only run the tests:
 
 ```
-io.github.uwol.compecon.simulation.impl.DashboardSimulationImpl.main
+$ mvn clean test
 ```
 
 
