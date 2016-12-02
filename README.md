@@ -1,9 +1,11 @@
 Computational Economy
 =====================
 
-Computational Economy is an agent-based computational economics simulator implemented in Java (https://github.com/uwol).
-
 <a href="https://travis-ci.org/uwol/ComputationalEconomy"><img src="https://api.travis-ci.org/uwol/ComputationalEconomy.png"></a>
+
+This is an agent-based computational economics simulator, which is constituted by agent types *household*, *factory*, *trader*, *credit bank*, *central bank* and *state*.
+The simulator implements a model akin to the Arrow-Debreu model, which adheres to neoclassical microeconomic theory, based on polypoly markets perpetuated by agent market participants.
+The micro-economic agent behaviors induce complex oscillation patterns attracted to macroeconomic equilibria due to the economic feedback cycles of the system.
 
 
 Agent types
