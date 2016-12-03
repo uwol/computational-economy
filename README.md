@@ -39,7 +39,7 @@ Publication
 How to run
 ----------
 
-Import into Eclipse:
+Import into [Eclipse](https://eclipse.org):
 
 1. Clone or download the repository. 
 2. In Eclipse import the directory as a an `existing Maven project`.
