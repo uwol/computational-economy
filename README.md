@@ -1,8 +1,6 @@
 Computational Economy
 =====================
 
-<a href="https://travis-ci.org/uwol/ComputationalEconomy"><img src="https://api.travis-ci.org/uwol/ComputationalEconomy.png"></a>
-
 [![Build](https://api.travis-ci.org/uwol/ComputationalEconomy.png)](https://travis-ci.org/uwol/ComputationalEconomy)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
