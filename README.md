@@ -2,6 +2,7 @@ Computational Economy
 =====================
 
 [![Build](https://api.travis-ci.org/uwol/ComputationalEconomy.png)](https://travis-ci.org/uwol/ComputationalEconomy)
+[![Coverage](https://coveralls.io/repos/github/uwol/ComputationalEconomy/badge.svg?branch=master)](https://coveralls.io/github/uwol/ComputationalEconomy?branch=master)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
 This is an agent-based computational economics simulator, which is constituted by agent types *household*, *factory*, *trader*, *credit bank*, *central bank* and *state*.
