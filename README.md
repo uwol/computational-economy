@@ -1,7 +1,7 @@
 Computational Economy
 =====================
 
-[![Build](https://api.travis-ci.org/uwol/ComputationalEconomy.png)](https://travis-ci.org/uwol/ComputationalEconomy)
+[![Build](https://img.shields.io/travis/uwol/ComputationalEconomy.svg)](https://travis-ci.org/uwol/ComputationalEconomy)
 [![Coverage](https://coveralls.io/repos/github/uwol/ComputationalEconomy/badge.svg?branch=master)](https://coveralls.io/github/uwol/ComputationalEconomy?branch=master)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
@@ -43,7 +43,7 @@ How to run
 
 Import into [Eclipse](https://eclipse.org):
 
-1. Clone or download the repository. 
+1. Clone or download the repository.
 2. In Eclipse import the directory as a an `existing Maven project`.
 3. Right click file `src/main/java/io.github.uwol.compecon.simulation.impl.DashboardSimulationImpl.java` and `run as Java application`.
 
