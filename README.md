@@ -1,35 +1,37 @@
 Computational Economy
 =====================
 
+💫 **Please star**, if you like this work.
+
+This is an **agent-based computational economics simulator**, which is constituted by **agent types** *household*, *factory*, *trader*, *credit bank*, *central bank* and *state*.
+The simulator implements a model akin to the **Arrow-Debreu model**, which adheres to neoclassical microeconomic theory, based on polypoly markets perpetuated by agent market participants.
+The micro-economic agent behaviors induce complex oscillation patterns attracted to **macroeconomic equilibria** due to the economic feedback cycles of the system.
+
 [![Build](https://img.shields.io/travis/uwol/ComputationalEconomy.svg)](https://travis-ci.org/uwol/ComputationalEconomy)
 [![Coverage](https://coveralls.io/repos/github/uwol/ComputationalEconomy/badge.svg?branch=master)](https://coveralls.io/github/uwol/ComputationalEconomy?branch=master)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
-
-This is an agent-based computational economics simulator, which is constituted by agent types *household*, *factory*, *trader*, *credit bank*, *central bank* and *state*.
-The simulator implements a model akin to the Arrow-Debreu model, which adheres to neoclassical microeconomic theory, based on polypoly markets perpetuated by agent market participants.
-The micro-economic agent behaviors induce complex oscillation patterns attracted to macroeconomic equilibria due to the economic feedback cycles of the system.
 
 
 Agent types
 -----------
 
-* Agent type *Household*: Households offer labour hours and consume goods according to CES or Cobb-Douglas utility functions. Intertemporal consumption and retirement saving preferences are modeled by Irving-Fisher and Modigliani intertemporal choice models.
-* Agent type *Factory*: Factories produce multiple goods (e. g. iron, coal, ...) according to an input-output-model based on Cobb-Douglas, CES and root production functions. Depending on the configured economic model, factories produce and accumulate capital goods, which induce economic growth and depreciate over time (-> Solow-Swan).
-* Agent type *Credit bank*: Credit banks manage bank accounts, create money by credit, trade currencies, follow minimum reserve requirements of central banks and buy bonds for deposits (fractional reserve banking).
-* Agent type *Central bank*: Central banks adjust key interest rates based on price indices. Key interest rates induce changes in buying behaviour via a monetary transmission mechanism.
-* Agent type *Trader*: Traders import goods from foreign markets for arbitrage.
-* Agent type *State*: States emit bonds, which are bought by credit banks for customer savings deposits. Thereby, national debt represents retirement savings of households.
+* Agent type *Household*: Households offer labour hours and consume goods according to **CES** or **Cobb-Douglas utility** functions. Intertemporal consumption and retirement saving preferences are modeled by **Irving-Fisher** and **Modigliani intertemporal choice models**.
+* Agent type *Factory*: Factories produce multiple goods (e. g. iron, coal, ...) according to an input-output-model based on **Cobb-Douglas**, **CES** and **root production functions**. Depending on the configured economic model, factories produce and accumulate capital goods, which induce economic growth and depreciate over time (→ **Solow-Swan**).
+* Agent type *Credit bank*: Credit banks manage bank accounts, create money by credit, trade currencies, follow minimum reserve requirements of central banks and buy bonds for deposits (**fractional reserve banking**).
+* Agent type *Central bank*: Central banks adjust key interest rates based on **price indices**. Key interest rates induce changes in buying behaviour via a **monetary transmission mechanism**.
+* Agent type *Trader*: Traders import goods from foreign markets for **arbitrage**.
+* Agent type *State*: States emit **bonds**, which are bought by credit banks for customer savings deposits. Thereby, national debt represents **retirement savings** of households.
 
 
 Other entities / features
 -------------------------
 
-* General equilibrium: Macroeconomic equilibria reproducibly emerge from non-stochastic microeconomic decision making of agents (-> Arrow-Debreu).
-* Markets: Sellers offer goods on markets. Settlement markets transfer ownership of goods and money, automatically.
-* Currencies: National currency zones, foreign exchange markets, arbitrage.
-* Shares: Joint-stock companies are owned by agents and pay dividends to them every period.
-* Bonds: Bonds are given as security for credit in open market operations between central and credit banks.
-* Time system: Agents register their actions as events in a global time system (observer pattern). At runtime agents can be instantiated and deconstructed at arbitrary points in time, enabling a dynamic population. Execution of events is not bound to a fixed sequential order of economic phases, e. g. for production and consumption.
+* General equilibrium: Macroeconomic equilibria reproducibly emerge from non-stochastic microeconomic decision making of agents (→ **Arrow-Debreu**).
+* Markets: Sellers offer goods on markets. **Settlement markets** transfer ownership of goods and money, automatically.
+* Currencies: National **currency zones**, foreign exchange markets, arbitrage.
+* Shares: Joint-stock companies are owned by agents and pay **dividends** to them every period.
+* Bonds: **Bonds** are given as security for credit in open market operations between central and credit banks.
+* Time system: Agents register their actions as events in a **global time system** (observer pattern). At runtime agents can be instantiated and deconstructed at arbitrary points in time, enabling a **dynamic population**. Execution of events is not bound to a fixed sequential order of economic phases, e. g. for production and consumption.
 
 
 Publication
