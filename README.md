@@ -1,11 +1,11 @@
 Computational Economy
 =====================
 
-💫 **Please star**, if you like this work.
-
 This is an **agent-based computational economics simulator**, which is constituted by **agent types** *household*, *factory*, *trader*, *credit bank*, *central bank* and *state*.
 The simulator implements a model akin to the **Arrow-Debreu model**, which adheres to neoclassical microeconomic theory, based on polypoly markets perpetuated by agent market participants.
 The micro-economic agent behaviors induce complex oscillation patterns attracted to **macroeconomic equilibria** due to the economic feedback cycles of the system.
+
+💫 **Star** if you like this work.
 
 [![Build](https://img.shields.io/travis/uwol/ComputationalEconomy.svg)](https://travis-ci.org/uwol/ComputationalEconomy)
 [![Coverage](https://coveralls.io/repos/github/uwol/ComputationalEconomy/badge.svg?branch=master)](https://coveralls.io/github/uwol/ComputationalEconomy?branch=master)
