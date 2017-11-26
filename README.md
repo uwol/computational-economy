@@ -11,6 +11,8 @@ The micro-economic agent behaviors induce complex oscillation patterns attracted
 [![Coverage](https://coveralls.io/repos/github/uwol/ComputationalEconomy/badge.svg?branch=master)](https://coveralls.io/github/uwol/ComputationalEconomy?branch=master)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
+![screenshot1](http://uwol.github.io/img/compecon/compecon1.png)
+
 
 Agent types
 -----------
@@ -91,8 +93,6 @@ $ mvn clean test
 
 Screenshots
 -----------
-
-![screenshot1](http://uwol.github.io/img/compecon/compecon1.png)
 
 ![screenshot2](http://uwol.github.io/img/compecon/compecon2.png)
 
