@@ -7,7 +7,6 @@ The micro-economic agent behaviors induce complex oscillation patterns attracted
 
 💫 **Star** if you like this work.
 
-[![Coverage](https://coveralls.io/repos/github/uwol/computational-economy/badge.svg?branch=master)](https://coveralls.io/github/uwol/computational-economy?branch=master)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
 ![animation](http://uwol.github.io/img/compecon/compecon.gif)
