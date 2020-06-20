@@ -26,13 +26,11 @@ import io.github.uwol.compecon.economy.property.GoodTypeOwnership;
 import io.github.uwol.compecon.economy.property.PropertyOwner;
 import io.github.uwol.compecon.engine.dao.GoodTypeOwnershipDAO;
 
-public class GoodTypeOwnershipDAOImpl extends
-		AbstractIndexedInMemoryDAOImpl<PropertyOwner, GoodTypeOwnership>
+public class GoodTypeOwnershipDAOImpl extends AbstractIndexedInMemoryDAOImpl<PropertyOwner, GoodTypeOwnership>
 		implements GoodTypeOwnershipDAO {
 
 	@Override
-	public synchronized List<GoodTypeOwnership> findAllByPropertyOwner(
-			final PropertyOwner propertyOwner) {
+	public synchronized List<GoodTypeOwnership> findAllByPropertyOwner(final PropertyOwner propertyOwner) {
 		final List<GoodTypeOwnership> goodTypeOwnerships = getInstancesForKey(propertyOwner);
 		if (goodTypeOwnerships != null) {
 			return new ArrayList<GoodTypeOwnership>(goodTypeOwnerships);
@@ -41,8 +39,7 @@ public class GoodTypeOwnershipDAOImpl extends
 	}
 
 	@Override
-	public synchronized GoodTypeOwnership findFirstByPropertyOwner(
-			final PropertyOwner propertyOwner) {
+	public synchronized GoodTypeOwnership findFirstByPropertyOwner(final PropertyOwner propertyOwner) {
 		final List<GoodTypeOwnership> goodTypeOwnerships = getInstancesForKey(propertyOwner);
 		if (goodTypeOwnerships != null && !goodTypeOwnerships.isEmpty()) {
 			return goodTypeOwnerships.get(0);

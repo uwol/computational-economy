@@ -32,7 +32,12 @@ import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.Model
 
 public class TradersPanel extends AbstractChartsPanel implements ModelListener {
 
+	private static final long serialVersionUID = 1L;
+
 	public class TraderPanelForCurrency extends JPanel implements ModelListener {
+
+		private static final long serialVersionUID = 1L;
+
 		protected final Currency currency;
 
 		public TraderPanelForCurrency(final Currency currency) {
@@ -60,8 +65,7 @@ public class TradersPanel extends AbstractChartsPanel implements ModelListener {
 
 		for (final Currency currency : Currency.values()) {
 			final JPanel panelForCurrency = new TraderPanelForCurrency(currency);
-			jTabbedPaneCurrency.addTab(currency.getIso4217Code(),
-					panelForCurrency);
+			jTabbedPaneCurrency.addTab(currency.getIso4217Code(), panelForCurrency);
 		}
 
 		jTabbedPaneCurrency.addChangeListener(new ChangeListener() {

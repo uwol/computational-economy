@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2013 u.wol@wwu.de 
- 
+Copyright (C) 2013 u.wol@wwu.de
+
 This file is part of ComputationalEconomy.
 
 ComputationalEconomy is free software: you can redistribute it and/or modify
@@ -20,8 +20,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package io.github.uwol.compecon.engine.timesystem.impl;
 
 public enum MonthType {
-	EVERY(-1), JANUARY(0), FEBRUARY(1), MARCH(2), APRIL(3), MAY(4), JUNE(5), JULY(
-			6), AUGUST(7), SEPTEBER(8), OCTOBER(9), NOVEMBER(10), DECEMBER(11);
+	EVERY(-1), JANUARY(0), FEBRUARY(1), MARCH(2), APRIL(3), MAY(4), JUNE(5), JULY(6), AUGUST(7), SEPTEBER(8),
+	OCTOBER(9), NOVEMBER(10), DECEMBER(11);
 
 	private int monthNumber;
 

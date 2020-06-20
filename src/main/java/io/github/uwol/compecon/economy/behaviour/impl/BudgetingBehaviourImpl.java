@@ -42,12 +42,11 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 	}
 
 	/*
-	 * maxCredit defines the maximum additional debt the buyer is going to
-	 * accept -> nexus with the monetary sphere
+	 * maxCredit defines the maximum additional debt the buyer is going to accept ->
+	 * nexus with the monetary sphere
 	 */
 	@Override
-	public double calculateTransmissionBasedBudgetForPeriod(
-			final Currency currency, final double bankAccountBalance,
+	public double calculateTransmissionBasedBudgetForPeriod(final Currency currency, final double bankAccountBalance,
 			final double referenceCredit) {
 
 		/*
@@ -58,18 +57,15 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 			lastMaxCreditRate = referenceCredit;
 		}
 
-		final double keyInterestRate = ApplicationContext.getInstance()
-				.getAgentService().findCentralBank(currency)
+		final double keyInterestRate = ApplicationContext.getInstance().getAgentService().findCentralBank(currency)
 				.getEffectiveKeyInterestRate();
 
 		assert (!Double.isNaN(keyInterestRate));
 
-		final double internalRateOfReturn = ApplicationContext.getInstance()
-				.getConfiguration().budgetingBehaviourConfig
+		final double internalRateOfReturn = ApplicationContext.getInstance().getConfiguration().budgetingBehaviourConfig
 				.getInternalRateOfReturn();
-		final double keyInterestRateTransmissionDamper = ApplicationContext
-				.getInstance().getConfiguration().budgetingBehaviourConfig
-				.getKeyInterestRateTransmissionDamper();
+		final double keyInterestRateTransmissionDamper = ApplicationContext.getInstance()
+				.getConfiguration().budgetingBehaviourConfig.getKeyInterestRateTransmissionDamper();
 		lastMaxCreditRate = lastMaxCreditRate
 				* (1.0 + ((internalRateOfReturn - keyInterestRate) / keyInterestRateTransmissionDamper));
 
@@ -77,16 +73,13 @@ public class BudgetingBehaviourImpl implements BudgetingBehaviour {
 		 * transmission mechanism
 		 */
 
-		final double creditBasedBudget = Math.max(0.0, bankAccountBalance
-				+ lastMaxCreditRate);
+		final double creditBasedBudget = Math.max(0.0, bankAccountBalance + lastMaxCreditRate);
 
 		if (getLog().isAgentSelectedByClient(BudgetingBehaviourImpl.this.agent)) {
-			getLog().log(
-					BudgetingBehaviourImpl.this.agent,
+			getLog().log(BudgetingBehaviourImpl.this.agent,
 					"%s %s budget = (%s %s bankAccountBalance + %s %s maxCredit)",
-					Currency.formatMoneySum(creditBasedBudget), currency,
-					Currency.formatMoneySum(bankAccountBalance), currency,
-					Currency.formatMoneySum(lastMaxCreditRate), currency);
+					Currency.formatMoneySum(creditBasedBudget), currency, Currency.formatMoneySum(bankAccountBalance),
+					currency, Currency.formatMoneySum(lastMaxCreditRate), currency);
 		}
 
 		return creditBasedBudget;

@@ -28,19 +28,15 @@ import io.github.uwol.compecon.engine.factory.PricingBehaviourFactory;
 public class PricingBehaviourFactoryImpl implements PricingBehaviourFactory {
 
 	@Override
-	public PricingBehaviour newInstancePricingBehaviour(final AgentImpl agent,
-			final Object offeredObject, final Currency denominatedInCurrency,
-			final double initialPrice) {
-		return new PricingBehaviourImpl(agent, offeredObject,
-				denominatedInCurrency, initialPrice);
+	public PricingBehaviour newInstancePricingBehaviour(final AgentImpl agent, final Object offeredObject,
+			final Currency denominatedInCurrency, final double initialPrice) {
+		return new PricingBehaviourImpl(agent, offeredObject, denominatedInCurrency, initialPrice);
 	}
 
 	@Override
-	public PricingBehaviour newInstancePricingBehaviour(final AgentImpl agent,
-			final Object offeredObject, final Currency denominatedInCurrency,
-			final double initialPrice, final double priceChangeIncrement) {
-		return new PricingBehaviourImpl(agent, offeredObject,
-				denominatedInCurrency, initialPrice, priceChangeIncrement);
+	public PricingBehaviour newInstancePricingBehaviour(final AgentImpl agent, final Object offeredObject,
+			final Currency denominatedInCurrency, final double initialPrice, final double priceChangeIncrement) {
+		return new PricingBehaviourImpl(agent, offeredObject, denominatedInCurrency, initialPrice,
+				priceChangeIncrement);
 	}
-
 }

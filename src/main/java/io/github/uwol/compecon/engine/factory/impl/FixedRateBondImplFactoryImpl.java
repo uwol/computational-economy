@@ -31,11 +31,9 @@ import io.github.uwol.compecon.engine.util.HibernateUtil;
 public class FixedRateBondImplFactoryImpl implements FixedRateBondFactory {
 
 	@Override
-	public FixedRateBond newInstanceFixedRateBond(final Agent owner,
-			final Agent issuer, final Currency currency,
+	public FixedRateBond newInstanceFixedRateBond(final Agent owner, final Agent issuer, final Currency currency,
 			final BankAccountDelegate faceValueFromBankAccountDelegate,
-			final BankAccountDelegate couponFromBankAccountDelegate,
-			final double faceValue, final double coupon) {
+			final BankAccountDelegate couponFromBankAccountDelegate, final double faceValue, final double coupon) {
 		assert (owner != null);
 		assert (issuer != null);
 		assert (currency != null);
@@ -46,16 +44,13 @@ public class FixedRateBondImplFactoryImpl implements FixedRateBondFactory {
 		final FixedRateBondImpl fixedRateBond = new FixedRateBondImpl();
 
 		if (!HibernateUtil.isActive()) {
-			fixedRateBond.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			fixedRateBond.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
 		fixedRateBond.setOwner(owner);
 		fixedRateBond.setIssuer(issuer);
-		fixedRateBond
-				.setFaceValueFromBankAccountDelegate(faceValueFromBankAccountDelegate);
-		fixedRateBond
-				.setCouponFromBankAccountDelegate(couponFromBankAccountDelegate);
+		fixedRateBond.setFaceValueFromBankAccountDelegate(faceValueFromBankAccountDelegate);
+		fixedRateBond.setCouponFromBankAccountDelegate(couponFromBankAccountDelegate);
 		fixedRateBond.setFaceValue(faceValue);
 		fixedRateBond.setCoupon(coupon);
 		fixedRateBond.setIssuedInCurrency(currency);

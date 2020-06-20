@@ -30,16 +30,14 @@ import io.github.uwol.compecon.engine.util.HibernateUtil;
 public class ShareImplFactoryImpl implements ShareFactory {
 
 	@Override
-	public Share newInstanceShare(final Agent owner,
-			final JointStockCompany issuer) {
+	public Share newInstanceShare(final Agent owner, final JointStockCompany issuer) {
 		assert (owner != null);
 		assert (issuer != null);
 
 		final ShareImpl share = new ShareImpl();
 
 		if (!HibernateUtil.isActive()) {
-			share.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			share.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
 		share.setIssuer(issuer);

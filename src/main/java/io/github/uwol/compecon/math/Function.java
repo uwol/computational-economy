@@ -26,31 +26,24 @@ import io.github.uwol.compecon.math.price.PriceFunction;
 
 public interface Function<T> {
 
-	public Map<T, Double> calculateOutputMaximizingInputs(
-			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
+	public Map<T, Double> calculateOutputMaximizingInputs(final Map<T, PriceFunction> priceFunctionsOfInputTypes,
 			final double budget);
 
 	public Map<T, Double> calculateOutputMaximizingInputsByRangeScan(
-			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
-			final double budget);
+			final Map<T, PriceFunction> priceFunctionsOfInputTypes, final double budget);
 
 	public double f(final Map<T, Double> bundleOfInputs);
 
 	/**
-	 * @param bundleOfInputs
-	 *            has to contain all elements from {@link #getInputTypes()} as
-	 *            keys.
-	 * @param priceFunctionsOfInputTypes
-	 *            has to contain all elements from {@link #getInputTypes()} as
-	 *            keys.
-	 * @param inventory
-	 *            null allowed.
+	 * @param bundleOfInputs             has to contain all elements from
+	 *                                   {@link #getInputTypes()} as keys.
+	 * @param priceFunctionsOfInputTypes has to contain all elements from
+	 *                                   {@link #getInputTypes()} as keys.
+	 * @param inventory                  null allowed.
 	 * @return null, if markets are sold out.
 	 */
-	public T findHighestPartialDerivatePerPrice(
-			final Map<T, Double> bundleOfInputs,
-			final Map<T, PriceFunction> priceFunctionsOfInputTypes,
-			final Map<T, Double> inventory);
+	public T findHighestPartialDerivatePerPrice(final Map<T, Double> bundleOfInputs,
+			final Map<T, PriceFunction> priceFunctionsOfInputTypes, final Map<T, Double> inventory);
 
 	public T findLargestPartialDerivate(final Map<T, Double> forBundleOfInputs);
 
@@ -58,9 +51,7 @@ public interface Function<T> {
 
 	public boolean getNeedsAllInputFactorsNonZeroForPartialDerivate();
 
-	public double partialDerivative(final Map<T, Double> forBundleOfInputs,
-			final T withRespectToInput);
+	public double partialDerivative(final Map<T, Double> forBundleOfInputs, final T withRespectToInput);
 
-	public Map<T, Double> partialDerivatives(
-			final Map<T, Double> forBundleOfInputs);
+	public Map<T, Double> partialDerivatives(final Map<T, Double> forBundleOfInputs);
 }

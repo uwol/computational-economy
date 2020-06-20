@@ -23,13 +23,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import io.github.uwol.compecon.engine.service.impl.FixedPriceFunctionImpl;
 import io.github.uwol.compecon.math.price.PriceFunction;
 import io.github.uwol.compecon.math.price.PriceFunction.PriceFunctionConfig;
 import io.github.uwol.compecon.math.util.MathUtil;
-
-import java.util.Set;
 
 public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 
@@ -41,9 +40,8 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 
 	protected final double substitutionFactor;
 
-	public CESFunctionImpl(final double mainCoefficient,
-			final Map<T, Double> coefficients, final double substitutionFactor,
-			final double homogenityFactor) {
+	public CESFunctionImpl(final double mainCoefficient, final Map<T, Double> coefficients,
+			final double substitutionFactor, final double homogenityFactor) {
 		super(false);
 
 		// mainCoefficient has to be > 0
@@ -68,17 +66,14 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	}
 
 	@Override
-	public Map<T, Double> calculateOutputMaximizingInputs(
-			final Map<T, PriceFunction> priceFunctionsOfInputs,
+	public Map<T, Double> calculateOutputMaximizingInputs(final Map<T, PriceFunction> priceFunctionsOfInputs,
 			final double budget) {
 		// check whether the analytical solution is viable
 		final Map<T, Double> fixedPrices = new HashMap<T, Double>();
 
-		for (final Entry<T, PriceFunction> priceFunctionEntry : priceFunctionsOfInputs
-				.entrySet()) {
+		for (final Entry<T, PriceFunction> priceFunctionEntry : priceFunctionsOfInputs.entrySet()) {
 			if (priceFunctionEntry.getValue() instanceof FixedPriceFunctionImpl) {
-				fixedPrices.put(priceFunctionEntry.getKey(), priceFunctionEntry
-						.getValue().getPrice(0.0));
+				fixedPrices.put(priceFunctionEntry.getKey(), priceFunctionEntry.getValue().getPrice(0.0));
 			} else {
 				break;
 			}
@@ -86,28 +81,25 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 
 		// dispatch
 		if (fixedPrices.size() == priceFunctionsOfInputs.size()) {
-			return this
-					.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
-							fixedPrices, budget);
+			return this.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(fixedPrices, budget);
 		} else {
-			return super.calculateOutputMaximizingInputs(
-					priceFunctionsOfInputs, budget);
+			return super.calculateOutputMaximizingInputs(priceFunctionsOfInputs, budget);
 		}
 	}
 
 	/**
-	 * This method implements the analytical solution for the lagrange function
-	 * of an optimization problem under budget constraints. It overwrites the
-	 * general solution for convex functions for performance reasons. <br />
+	 * This method implements the analytical solution for the lagrange function of
+	 * an optimization problem under budget constraints. It overwrites the general
+	 * solution for convex functions for performance reasons. <br />
 	 * <br />
-	 * L(x_1, ..., x_n, l) = a * [c_1 * (x_1)^(-r) + ... + c_n *
-	 * (x_n)^(r)]^(-h/r) + l(p_1 * x_1 + ... + p_n * x_n - b) <br />
+	 * L(x_1, ..., x_n, l) = a * [c_1 * (x_1)^(-r) + ... + c_n * (x_n)^(r)]^(-h/r) +
+	 * l(p_1 * x_1 + ... + p_n * x_n - b) <br />
 	 * <br />
 	 * => <br />
-	 * dL(x_1, ..., x_n, l) / dx_1 = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n
-	 * * (x_n)^(r)]^(-h/r - 1)] * [-r * c_1 * (x_1)^(-r-1)] + l * p_1 <br />
-	 * dL(x_1, ..., x_n, l) / dx_2 = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n
-	 * * (x_n)^(r)]^(-h/r - 1)] * [-r * c_2 * (x_2)^(-r-1)] + l * p_2 <br />
+	 * dL(x_1, ..., x_n, l) / dx_1 = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n *
+	 * (x_n)^(r)]^(-h/r - 1)] * [-r * c_1 * (x_1)^(-r-1)] + l * p_1 <br />
+	 * dL(x_1, ..., x_n, l) / dx_2 = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n *
+	 * (x_n)^(r)]^(-h/r - 1)] * [-r * c_2 * (x_2)^(-r-1)] + l * p_2 <br />
 	 * dL(x_1, ..., x_n, l) / dl = p_1 * x_1 + ... + p_n * x_n - b <br />
 	 * <br />
 	 * <br />
@@ -116,10 +108,10 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	 * dL(x_1, ..., x_n, l) / dl = 0 <br />
 	 * <br />
 	 * => <br />
-	 * l = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r - 1)] *
-	 * [-r * c_1 * (x_1)^(-r-1)] / p_1 <br />
-	 * l = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r - 1)] *
-	 * [-r * c_2 * (x_2)^(-r-1)] / p_2 <br />
+	 * l = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r - 1)] * [-r
+	 * * c_1 * (x_1)^(-r-1)] / p_1 <br />
+	 * l = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r - 1)] * [-r
+	 * * c_2 * (x_2)^(-r-1)] / p_2 <br />
 	 * p_1 * x_1 + ... + p_n * x_n = b <br />
 	 * <br />
 	 * => (1) = (2)<br />
@@ -128,38 +120,32 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	 * x_2 = [(p_1 * c_2) / (p_2 * c_1)]^(1/(r+1)) * x_1 <br />
 	 * x_n = [(p_1 * c_n) / (p_n * c_1)]^(1/(r+1)) * x_1 <br />
 	 * <br />
-	 * b = p_1 * x_1 + p_2 * [(p_1 * c_2) / (p_2 * c_1)]^(1/(r+1)) * x_1 + ... +
-	 * p_n * [(p_1 * c_n) / (p_n * c_1)]^(1/(r+1)) * x_1 <br />
+	 * b = p_1 * x_1 + p_2 * [(p_1 * c_2) / (p_2 * c_1)]^(1/(r+1)) * x_1 + ... + p_n
+	 * * [(p_1 * c_n) / (p_n * c_1)]^(1/(r+1)) * x_1 <br />
 	 * <br />
 	 * x_1 = b / [p_1 + p_2 * [(p_1 * c_2) / (p_2 * c_1)]^(1/(r+1)) + ... + p_n
 	 * [(p_1 * c_n) / (p_n * c_1)]^(1/(r+1))]
 	 */
-	public Map<T, Double> calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
-			final Map<T, Double> pricesOfInputs, final double budget) {
+	public Map<T, Double> calculateOutputMaximizingInputsAnalyticalWithFixedPrices(final Map<T, Double> pricesOfInputs,
+			final double budget) {
 		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 
 		/*
-		 * analytical formula for the optimal solution of a CES function under
-		 * given budget restriction -> lagrange function
+		 * analytical formula for the optimal solution of a CES function under given
+		 * budget restriction -> lagrange function
 		 */
 		for (final T referenceInputType : this.getInputTypes()) {
-			final double referenceInputTypePrice = pricesOfInputs
-					.get(referenceInputType);
+			final double referenceInputTypePrice = pricesOfInputs.get(referenceInputType);
 			double divisor = referenceInputTypePrice;
 
 			for (final T inputType : this.getInputTypes()) {
 				if (!referenceInputType.equals(inputType)) {
-					final double currentInputTypePrice = pricesOfInputs
-							.get(inputType);
-					if (!Double.isNaN(referenceInputTypePrice)
-							&& !Double.isNaN(currentInputTypePrice)) {
-						final double base = referenceInputTypePrice
-								* this.coefficients.get(inputType)
-								/ (currentInputTypePrice * this.coefficients
-										.get(referenceInputType));
+					final double currentInputTypePrice = pricesOfInputs.get(inputType);
+					if (!Double.isNaN(referenceInputTypePrice) && !Double.isNaN(currentInputTypePrice)) {
+						final double base = referenceInputTypePrice * this.coefficients.get(inputType)
+								/ (currentInputTypePrice * this.coefficients.get(referenceInputType));
 						final double exponent = 1.0 / (this.substitutionFactor + 1.0);
-						divisor += currentInputTypePrice
-								* Math.pow(base, exponent);
+						divisor += currentInputTypePrice * Math.pow(base, exponent);
 					}
 				}
 			}
@@ -177,33 +163,33 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	}
 
 	/**
-	 * This method implements the analytical solution for the lagrange function
-	 * of an optimization problem under budget constraints and a step price
-	 * function. It overwrites the general solution for convex functions for
-	 * performance reasons. <br />
+	 * This method implements the analytical solution for the lagrange function of
+	 * an optimization problem under budget constraints and a step price function.
+	 * It overwrites the general solution for convex functions for performance
+	 * reasons. <br />
 	 * <br />
-	 * L(x_1, ..., x_n, l) = a * [c_1 * (x_1)^(-r) + ... + c_n *
-	 * (x_n)^(r)]^(-h/r) + l(p_1(x_1) * x_1 + ... + p_n(x_n) * x_n - b) <br />
+	 * L(x_1, ..., x_n, l) = a * [c_1 * (x_1)^(-r) + ... + c_n * (x_n)^(r)]^(-h/r) +
+	 * l(p_1(x_1) * x_1 + ... + p_n(x_n) * x_n - b) <br />
 	 * <br />
 	 * p_1(x_1) = c_x0_(x_1) + c_xMinus1_(x_1) / x_1 <br />
 	 * ... <br />
 	 * p_n(x_n) = c_x0_(x_n) + c_xMinus1_(x_n) / x_n <br />
 	 * <br />
 	 * => <br />
-	 * L(x_1, ..., x_n, l) = a * [c_1 * (x_1)^(-r) + ... + c_n *
-	 * (x_n)^(r)]^(-h/r) + l((c_x0_(x_1) + c_xMinus1_(x_1) / x_1) * x_1 + ... +
-	 * (c_x0_(x_n) + c_xMinus1_(x_n) / x_n) * x_n - b) <br />
+	 * L(x_1, ..., x_n, l) = a * [c_1 * (x_1)^(-r) + ... + c_n * (x_n)^(r)]^(-h/r) +
+	 * l((c_x0_(x_1) + c_xMinus1_(x_1) / x_1) * x_1 + ... + (c_x0_(x_n) +
+	 * c_xMinus1_(x_n) / x_n) * x_n - b) <br />
 	 * => <br />
-	 * L(x_1, ..., x_n, l) = a * [c_1 * (x_1)^(-r) + ... + c_n *
-	 * (x_n)^(r)]^(-h/r) + l((c_x0_(x_1) * x_1 + c_xMinus1_(x_1) + ... +
-	 * c_x0_(x_n) * x_n + c_xMinus1_(x_n) - b) <br />
+	 * L(x_1, ..., x_n, l) = a * [c_1 * (x_1)^(-r) + ... + c_n * (x_n)^(r)]^(-h/r) +
+	 * l((c_x0_(x_1) * x_1 + c_xMinus1_(x_1) + ... + c_x0_(x_n) * x_n +
+	 * c_xMinus1_(x_n) - b) <br />
 	 * <br />
 	 * => <br />
 	 * <br />
-	 * dL(x_1, ..., x_n, l) / dx_1 = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n
-	 * * (x_n)^(r)]^(-h/r - 1)] * [-r * c_1 * (x_1)^(-r-1)] + l * c_x0_(x_1) <br />
-	 * dL(x_1, ..., x_n, l) / dx_2 = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n
-	 * * (x_n)^(r)]^(-h/r - 1)] * [-r * c_2 * (x_2)^(-r-1)] + l * c_x0_(x_2) <br />
+	 * dL(x_1, ..., x_n, l) / dx_1 = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n *
+	 * (x_n)^(r)]^(-h/r - 1)] * [-r * c_1 * (x_1)^(-r-1)] + l * c_x0_(x_1) <br />
+	 * dL(x_1, ..., x_n, l) / dx_2 = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n *
+	 * (x_n)^(r)]^(-h/r - 1)] * [-r * c_2 * (x_2)^(-r-1)] + l * c_x0_(x_2) <br />
 	 * dL(x_1, ..., x_n, l) / dl = c_x0_(x_1) * x_1 + c_xMinus1_(x_1) + ... +
 	 * c_x0_(x_n) * x_n + c_xMinus1_(x_n) - b <br />
 	 * <br />
@@ -213,12 +199,12 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	 * dL(x_1, ..., x_n, l) / dl = 0 <br />
 	 * <br />
 	 * => <br />
-	 * l = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r - 1)] *
-	 * [-r * c_1 * (x_1)^(-r-1)] / c_x0_(x_1) <br />
-	 * l = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r - 1)] *
-	 * [-r * c_2 * (x_2)^(-r-1)] / c_x0_(x_2) <br />
-	 * c_x0_(x_1) * x_1 + c_xMinus1_(x_1) + ... + c_x0_(x_n) * x_n +
-	 * c_xMinus1_(x_n) = b <br />
+	 * l = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r - 1)] * [-r
+	 * * c_1 * (x_1)^(-r-1)] / c_x0_(x_1) <br />
+	 * l = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r - 1)] * [-r
+	 * * c_2 * (x_2)^(-r-1)] / c_x0_(x_2) <br />
+	 * c_x0_(x_1) * x_1 + c_xMinus1_(x_1) + ... + c_x0_(x_n) * x_n + c_xMinus1_(x_n)
+	 * = b <br />
 	 * <br />
 	 * => (1) = (2)<br />
 	 * c_x0_(x_1) * c_2 * (x_2)^(-r-1) = c_x0_(x_2) * c_1 * (x_1)^(-r-1) <br />
@@ -232,10 +218,10 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	 * b = c_x0_(x_1) * x_1 + c_xMinus1_(x_1) + ... + c_x0_(x_n) * x_n +
 	 * c_xMinus1_(x_n) <br />
 	 * => <br />
-	 * b = c_xMinus1_(x_1) + c_xMinus1_(x_2) + ... + c_xMinus1_(x_n) +
-	 * c_x0_(x_1) * x_1 + c_x0_(x_2) * [(c_x0_(x_1) * c_2) / (c_x0_(x_2) *
-	 * c_1)]^(1/(r+1)) * x_1 + ... + c_x0_(x_n) * [(c_x0_(x_1) * c_n) /
-	 * (c_x0_(x_n) * c_1)]^(1/(r+1)) * x_1 <br />
+	 * b = c_xMinus1_(x_1) + c_xMinus1_(x_2) + ... + c_xMinus1_(x_n) + c_x0_(x_1) *
+	 * x_1 + c_x0_(x_2) * [(c_x0_(x_1) * c_2) / (c_x0_(x_2) * c_1)]^(1/(r+1)) * x_1
+	 * + ... + c_x0_(x_n) * [(c_x0_(x_1) * c_n) / (c_x0_(x_n) * c_1)]^(1/(r+1)) *
+	 * x_1 <br />
 	 * <br />
 	 * x_1 = [b - c_xMinus1_(x_1) - c_xMinus1_(x_2) - ... - c_xMinus1_(x_n)] /
 	 * [c_x0_(x_1) + c_x0_(x_2) * [(c_x0_(x_1) * c_2) / (c_x0_(x_2) *
@@ -244,45 +230,36 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	 */
 	@Override
 	protected Map<T, Double> calculatePossiblyValidOutputMaximizingInputsAnalyticalWithMarketPrices(
-			final Map<T, PriceFunctionConfig> priceFunctionConfigs,
-			final double budget) {
+			final Map<T, PriceFunctionConfig> priceFunctionConfigs, final double budget) {
 		final Map<T, Double> bundleOfInputs = new LinkedHashMap<T, Double>();
 
 		/*
-		 * analytical formula for the optimal solution of a CES function under
-		 * given budget restriction -> lagrange function
+		 * analytical formula for the optimal solution of a CES function under given
+		 * budget restriction -> lagrange function
 		 */
 		double sumOfCoefficientXPowerMinus1 = 0.0;
 
-		for (final PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs
-				.values()) {
+		for (final PriceFunctionConfig priceFunctionConfig : priceFunctionConfigs.values()) {
 			sumOfCoefficientXPowerMinus1 += priceFunctionConfig.coefficientXPowerMinus1;
 		}
 
 		for (final T referenceInputType : this.getInputTypes()) {
-			final double referenceCoefficientXPower0 = priceFunctionConfigs
-					.get(referenceInputType).coefficientXPower0;
+			final double referenceCoefficientXPower0 = priceFunctionConfigs.get(referenceInputType).coefficientXPower0;
 			double divisor = referenceCoefficientXPower0;
 
 			for (final T inputType : this.getInputTypes()) {
 				if (!referenceInputType.equals(inputType)) {
-					final double currentCoefficientXPower0 = priceFunctionConfigs
-							.get(inputType).coefficientXPower0;
-					if (!Double.isNaN(referenceCoefficientXPower0)
-							&& !Double.isNaN(currentCoefficientXPower0)) {
-						final double base = referenceCoefficientXPower0
-								* this.coefficients.get(inputType)
-								/ (currentCoefficientXPower0 * this.coefficients
-										.get(referenceInputType));
+					final double currentCoefficientXPower0 = priceFunctionConfigs.get(inputType).coefficientXPower0;
+					if (!Double.isNaN(referenceCoefficientXPower0) && !Double.isNaN(currentCoefficientXPower0)) {
+						final double base = referenceCoefficientXPower0 * this.coefficients.get(inputType)
+								/ (currentCoefficientXPower0 * this.coefficients.get(referenceInputType));
 						final double exponent = 1.0 / (this.substitutionFactor + 1.0);
-						divisor += currentCoefficientXPower0
-								* Math.pow(base, exponent);
+						divisor += currentCoefficientXPower0 * Math.pow(base, exponent);
 					}
 				}
 			}
 
-			double optimalAmount = (budget - sumOfCoefficientXPowerMinus1)
-					/ divisor;
+			double optimalAmount = (budget - sumOfCoefficientXPowerMinus1) / divisor;
 			if (Double.isNaN(optimalAmount)) {
 				optimalAmount = 0.0;
 			}
@@ -307,9 +284,7 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 			sum += coefficient * Math.pow(input, -this.substitutionFactor);
 		}
 
-		return this.mainCoefficient
-				* Math.pow(sum, (-1.0 * this.homogenityFactor)
-						/ this.substitutionFactor);
+		return this.mainCoefficient * Math.pow(sum, (-1.0 * this.homogenityFactor) / this.substitutionFactor);
 	}
 
 	@Override
@@ -322,12 +297,11 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 	}
 
 	/**
-	 * dy/d(x_1) = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r
-	 * - 1)] * [-r * c_1 * (x_1)^(-r-1)]
+	 * dy/d(x_1) = [(-h/r) * a * [c_1 * (x_1)^(r) + ... + c_n * (x_n)^(r)]^(-h/r -
+	 * 1)] * [-r * c_1 * (x_1)^(-r-1)]
 	 */
 	@Override
-	public double partialDerivative(final Map<T, Double> forBundleOfInputs,
-			final T withRespectToInputType) {
+	public double partialDerivative(final Map<T, Double> forBundleOfInputs, final T withRespectToInputType) {
 		/*
 		 * exterior derivative
 		 */
@@ -337,8 +311,7 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 			final T inputType = entry.getKey();
 			final double coefficient = entry.getValue();
 			final double input = forBundleOfInputs.get(inputType);
-			sum += coefficient
-					* Math.pow(input, -1.0 * this.substitutionFactor);
+			sum += coefficient * Math.pow(input, -1.0 * this.substitutionFactor);
 		}
 
 		final double exponent = (-1.0 * this.homogenityFactor / this.substitutionFactor) - 1.0;
@@ -348,15 +321,10 @@ public class CESFunctionImpl<T> extends AnalyticalConvexFunctionImpl<T> {
 		/*
 		 * interior derivative
 		 */
-		final double coefficient = this.coefficients
-				.get(withRespectToInputType);
-		final double differentialInput = forBundleOfInputs
-				.get(withRespectToInputType);
-		final double interiorDerivative = -1.0
-				* this.substitutionFactor
-				* coefficient
-				* Math.pow(differentialInput,
-						(-1.0 * this.substitutionFactor) - 1.0);
+		final double coefficient = this.coefficients.get(withRespectToInputType);
+		final double differentialInput = forBundleOfInputs.get(withRespectToInputType);
+		final double interiorDerivative = -1.0 * this.substitutionFactor * coefficient
+				* Math.pow(differentialInput, (-1.0 * this.substitutionFactor) - 1.0);
 
 		// Java returns Double.NaN for 0 * Double.INFINITE -> return 0
 		if (exteriorDerivative == 0.0 && Double.isInfinite(interiorDerivative)) {

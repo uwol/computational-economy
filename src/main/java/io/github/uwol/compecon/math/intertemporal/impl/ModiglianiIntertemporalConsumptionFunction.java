@@ -25,23 +25,19 @@ import java.util.Map;
 import io.github.uwol.compecon.math.intertemporal.IntertemporalConsumptionFunction;
 import io.github.uwol.compecon.math.intertemporal.impl.IrvingFisherIntertemporalConsumptionFunction.Period;
 
-public class ModiglianiIntertemporalConsumptionFunction implements
-		IntertemporalConsumptionFunction {
+public class ModiglianiIntertemporalConsumptionFunction implements IntertemporalConsumptionFunction {
 
 	@Override
-	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(
-			final double averageIncomePerPeriod, final double currentAssets,
-			final double keyInterestRate, final int ageInDays,
-			final int lifeSpanInDays, final int retirementAgeInDays) {
+	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(final double averageIncomePerPeriod,
+			final double currentAssets, final double keyInterestRate, final int ageInDays, final int lifeSpanInDays,
+			final int retirementAgeInDays) {
 		final int averageRemainingLifeDays = lifeSpanInDays - ageInDays;
-		final int remainingDaysUntilRetirement = Math.max(retirementAgeInDays
-				- ageInDays, 0);
+		final int remainingDaysUntilRetirement = Math.max(retirementAgeInDays - ageInDays, 0);
 
 		final double dailyConsumption;
 
 		if (averageRemainingLifeDays > 0) {
-			final double lifeConsumption = currentAssets
-					+ averageIncomePerPeriod * remainingDaysUntilRetirement;
+			final double lifeConsumption = currentAssets + averageIncomePerPeriod * remainingDaysUntilRetirement;
 			dailyConsumption = lifeConsumption / averageRemainingLifeDays;
 		} else {
 			// household is deconstructed -> spend everything

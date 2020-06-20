@@ -30,5 +30,4 @@ public interface GoodTypeOwnership {
 	public Map<GoodType, Double> getOwnedGoodTypes();
 
 	public PropertyOwner getPropertyOwner();
-
 }

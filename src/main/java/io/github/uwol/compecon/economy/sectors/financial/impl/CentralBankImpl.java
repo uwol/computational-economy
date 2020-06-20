@@ -35,13 +35,13 @@ import org.hibernate.annotations.Index;
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
+import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
+import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
 import io.github.uwol.compecon.economy.sectors.financial.CentralBank;
 import io.github.uwol.compecon.economy.sectors.financial.CreditBank;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
-import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.state.State;
 import io.github.uwol.compecon.economy.security.debt.FixedRateBond;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
@@ -67,33 +67,27 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		public void onEvent() {
 			assureBankAccountTransactions();
 
-			final double monthlyInterestRate = MathUtil
-					.calculateMonthlyNominalInterestRate(effectiveKeyInterestRate);
+			final double monthlyInterestRate = MathUtil.calculateMonthlyNominalInterestRate(effectiveKeyInterestRate);
 			final double dailyInterestRate = monthlyInterestRate / 30.0;
 
-			for (final BankAccount bankAccount : ApplicationContext
-					.getInstance().getBankAccountDAO()
+			for (final BankAccount bankAccount : ApplicationContext.getInstance().getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(CentralBankImpl.this)) {
 				if (bankAccount.getOwner() != CentralBankImpl.this) {
-					assert (CentralBankImpl.this.primaryCurrency
-							.equals(bankAccount.getCurrency()));
+					assert (CentralBankImpl.this.primaryCurrency.equals(bankAccount.getCurrency()));
 
-					final double dailyInterest = bankAccount.getBalance()
-							* dailyInterestRate;
+					final double dailyInterest = bankAccount.getBalance() * dailyInterestRate;
 
 					// liability account & positive interest rate or asset
 					// account & negative interest rate
 					if (dailyInterest > 0.0) {
-						transferMoneyInternally(
-								CentralBankImpl.this.bankAccountTransactions,
-								bankAccount, dailyInterest);
+						transferMoneyInternally(CentralBankImpl.this.bankAccountTransactions, bankAccount,
+								dailyInterest);
 					}
 					// asset account & positive interest rate or liability
 					// account & negative interest rate
 					else if (dailyInterest < 0.0) {
 						final double absDailyInterest = -1.0 * dailyInterest;
-						transferMoneyInternally(bankAccount,
-								CentralBankImpl.this.bankAccountTransactions,
+						transferMoneyInternally(bankAccount, CentralBankImpl.this.bankAccountTransactions,
 								absDailyInterest);
 					}
 				}
@@ -102,15 +96,11 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			// profits are transferred to the state, instead of dividends to
 			// share holders etc. (seigniorage)
 			if (CentralBankImpl.this.bankAccountTransactions.getBalance() > 0.0) {
-				final State state = ApplicationContext.getInstance()
-						.getAgentService().findState(primaryCurrency);
+				final State state = ApplicationContext.getInstance().getAgentService().findState(primaryCurrency);
 
-				CentralBankImpl.this.transferMoney(
-						CentralBankImpl.this.bankAccountTransactions, state
-								.getBankAccountTransactionsDelegate()
-								.getBankAccount(),
-						CentralBankImpl.this.bankAccountTransactions
-								.getBalance(), "national interest");
+				CentralBankImpl.this.transferMoney(CentralBankImpl.this.bankAccountTransactions,
+						state.getBankAccountTransactionsDelegate().getBankAccount(),
+						CentralBankImpl.this.bankAccountTransactions.getBalance(), "national interest");
 			}
 		}
 	}
@@ -121,57 +111,44 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			final double targetPriceIndexForCurrentPeriod = calculateTargetPriceIndexForPeriod();
 			final double currentPriceIndex = statisticalOffice.getPriceIndex();
 
-			final double defaultEffectiveKeyInterestRate = ApplicationContext
-					.getInstance().getConfiguration().centralBankConfig
-					.getDefaultEffectiveKeyInterestRate();
-			final double maxEffectiveKeyInterestRate = ApplicationContext
-					.getInstance().getConfiguration().centralBankConfig
-					.getMaxEffectiveKeyInterestRate();
-			final double minEffectiveKeyInterestRate = ApplicationContext
-					.getInstance().getConfiguration().centralBankConfig
-					.getMinEffectiveKeyInterestRate();
+			final double defaultEffectiveKeyInterestRate = ApplicationContext.getInstance()
+					.getConfiguration().centralBankConfig.getDefaultEffectiveKeyInterestRate();
+			final double maxEffectiveKeyInterestRate = ApplicationContext.getInstance()
+					.getConfiguration().centralBankConfig.getMaxEffectiveKeyInterestRate();
+			final double minEffectiveKeyInterestRate = ApplicationContext.getInstance()
+					.getConfiguration().centralBankConfig.getMinEffectiveKeyInterestRate();
 
 			final double newEffectiveKeyInterestRate = defaultEffectiveKeyInterestRate
 					+ (((currentPriceIndex - targetPriceIndexForCurrentPeriod) / currentPriceIndex) / 10.0);
 
-			if (Double.isNaN(newEffectiveKeyInterestRate)
-					|| Double.isInfinite(newEffectiveKeyInterestRate)) {
+			if (Double.isNaN(newEffectiveKeyInterestRate) || Double.isInfinite(newEffectiveKeyInterestRate)) {
 				return defaultEffectiveKeyInterestRate;
 			} else {
-				return Math.max(Math.min(newEffectiveKeyInterestRate,
-						maxEffectiveKeyInterestRate),
+				return Math.max(Math.min(newEffectiveKeyInterestRate, maxEffectiveKeyInterestRate),
 						minEffectiveKeyInterestRate);
 			}
 		}
 
 		@Transient
 		protected double calculateTargetPriceIndexForPeriod() {
-			final int yearNumber = ApplicationContext.getInstance()
-					.getTimeSystem().getCurrentYear()
-					- ApplicationContext.getInstance().getTimeSystem()
-							.getStartYear();
-			final double targetPriceLevelForYear = Math
-					.pow((1.0 + ApplicationContext.getInstance()
-							.getConfiguration().centralBankConfig
-							.getInflationTarget()), yearNumber);
+			final int yearNumber = ApplicationContext.getInstance().getTimeSystem().getCurrentYear()
+					- ApplicationContext.getInstance().getTimeSystem().getStartYear();
+			final double targetPriceLevelForYear = Math.pow(
+					(1.0 + ApplicationContext.getInstance().getConfiguration().centralBankConfig.getInflationTarget()),
+					yearNumber);
 
-			final double monthlyNominalInflationTarget = MathUtil
-					.calculateMonthlyNominalInterestRate(ApplicationContext
-							.getInstance().getConfiguration().centralBankConfig
-							.getInflationTarget());
+			final double monthlyNominalInflationTarget = MathUtil.calculateMonthlyNominalInterestRate(
+					ApplicationContext.getInstance().getConfiguration().centralBankConfig.getInflationTarget());
 
-			final double targetPriceLevelForMonth = Math.pow(
-					1.0 + monthlyNominalInflationTarget, ApplicationContext
-							.getInstance().getTimeSystem()
-							.getCurrentMonthNumberInYear() - 1.0) - 1.0;
+			final double targetPriceLevelForMonth = Math.pow(1.0 + monthlyNominalInflationTarget,
+					ApplicationContext.getInstance().getTimeSystem().getCurrentMonthNumberInYear() - 1.0) - 1.0;
 			final double targetPriceLevelForDay = (monthlyNominalInflationTarget / 30.0)
-					* ApplicationContext.getInstance().getTimeSystem()
-							.getCurrentDayNumberInMonth();
+					* ApplicationContext.getInstance().getTimeSystem().getCurrentDayNumberInMonth();
 
-			final double combinedTargetPriceLevel = (targetPriceLevelForYear
-					+ targetPriceLevelForMonth + targetPriceLevelForDay);
-			return ApplicationContext.getInstance().getConfiguration().centralBankConfig
-					.getTargetPriceIndex() * combinedTargetPriceLevel;
+			final double combinedTargetPriceLevel = (targetPriceLevelForYear + targetPriceLevelForMonth
+					+ targetPriceLevelForDay);
+			return ApplicationContext.getInstance().getConfiguration().centralBankConfig.getTargetPriceIndex()
+					* combinedTargetPriceLevel;
 		}
 
 		@Override
@@ -186,14 +163,11 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			statisticalOffice.recalculatePriceIndex();
 
 			final double priceIndex = statisticalOffice.getPriceIndex();
-			getLog().centralBank_PriceIndex(
-					CentralBankImpl.this.primaryCurrency, priceIndex);
+			getLog().centralBank_PriceIndex(CentralBankImpl.this.primaryCurrency, priceIndex);
 
 			// calculate key interest rate
 			effectiveKeyInterestRate = calculateEffectiveKeyInterestRate();
-			getLog().centralBank_KeyInterestRate(
-					CentralBankImpl.this.primaryCurrency,
-					effectiveKeyInterestRate);
+			getLog().centralBank_KeyInterestRate(CentralBankImpl.this.primaryCurrency, effectiveKeyInterestRate);
 		}
 	}
 
@@ -210,9 +184,9 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	/**
-	 * the statistical office takes snapshots of marginal market prices not only
-	 * for the purpose of calculating the price index, but generally for
-	 * offering information about markets to agents
+	 * the statistical office takes snapshots of marginal market prices not only for
+	 * the purpose of calculating the price index, but generally for offering
+	 * information about markets to agents
 	 */
 	protected class StatisticalOffice {
 
@@ -233,9 +207,8 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			double priceIndexWeightSum = 0.0;
 
 			for (final GoodType goodType : GoodType.values()) {
-				final double priceIndexWeight = ApplicationContext
-						.getInstance().getConfiguration().centralBankConfig.statisticalOfficeConfig
-						.getPriceIndexWeight(goodType);
+				final double priceIndexWeight = ApplicationContext.getInstance()
+						.getConfiguration().centralBankConfig.statisticalOfficeConfig.getPriceIndexWeight(goodType);
 
 				priceIndexWeights.put(goodType, priceIndexWeight);
 				priceIndexWeightSum += priceIndexWeight;
@@ -244,28 +217,25 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			assert (priceIndexWeightSum == 1.0);
 
 			/*
-			 * GoodType LABOURHOUR is not monitored, as its market price is not
-			 * influenced by the key interest rate over a transmission mechanism
-			 * in the buying behaviour, but instead by comparison of marginal
-			 * costs and prices in the production behaviour
+			 * GoodType LABOURHOUR is not monitored, as its market price is not influenced
+			 * by the key interest rate over a transmission mechanism in the buying
+			 * behaviour, but instead by comparison of marginal costs and prices in the
+			 * production behaviour
 			 */
 
 			/*
-			 * initialize monitoredMarginalPrices and
-			 * averageMarginalPricesForGoodTypes; prices should be stored for
-			 * all GoodTypes, not only those in the price index
+			 * initialize monitoredMarginalPrices and averageMarginalPricesForGoodTypes;
+			 * prices should be stored for all GoodTypes, not only those in the price index
 			 */
 			for (final GoodType goodType : GoodType.values()) {
 				monitoredMarginalPricesForGoodTypesAndPeriods.put(goodType,
-						new double[NUMBER_OF_LOGGED_PERIODS
-								* NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY]);
+						new double[NUMBER_OF_LOGGED_PERIODS * NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY]);
 
 				averageMarginalPricesForGoodTypes.put(goodType, Double.NaN);
 			}
 		}
 
-		protected double getAverageMarginalPriceForGoodType(
-				final GoodType goodType) {
+		protected double getAverageMarginalPriceForGoodType(final GoodType goodType) {
 			return averageMarginalPricesForGoodTypes.get(goodType);
 		}
 
@@ -275,10 +245,8 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		protected void recalculateAveragePrices() {
 			// for each monitored good type
-			for (final Entry<GoodType, double[]> entry : monitoredMarginalPricesForGoodTypesAndPeriods
-					.entrySet()) {
-				final double[] monitoredMarginalPricesForGoodType = entry
-						.getValue();
+			for (final Entry<GoodType, double[]> entry : monitoredMarginalPricesForGoodTypesAndPeriods.entrySet()) {
+				final double[] monitoredMarginalPricesForGoodType = entry.getValue();
 
 				double priceSumForGoodType = 0.0;
 				double totalWeight = 0;
@@ -287,25 +255,19 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 				for (int i = 0; i < monitoredMarginalPricesForGoodType.length; i++) {
 					final double marginalPriceForGoodType = monitoredMarginalPricesForGoodType[i];
 
-					if (marginalPriceForGoodType != 0.0
-							&& !Double.isNaN(marginalPriceForGoodType)
+					if (marginalPriceForGoodType != 0.0 && !Double.isNaN(marginalPriceForGoodType)
 							&& !Double.isInfinite(marginalPriceForGoodType)) {
 						// weight period by age
-						final double weight = monitoredMarginalPricesForGoodType.length
-								- i;
-						priceSumForGoodType += marginalPriceForGoodType
-								* weight;
+						final double weight = monitoredMarginalPricesForGoodType.length - i;
+						priceSumForGoodType += marginalPriceForGoodType * weight;
 						totalWeight += weight;
 					}
 				}
 
-				final double averagePriceForGoodType = priceSumForGoodType
-						/ totalWeight;
+				final double averagePriceForGoodType = priceSumForGoodType / totalWeight;
 
-				if (!Double.isNaN(totalWeight)
-						&& !Double.isInfinite(totalWeight)) {
-					averageMarginalPricesForGoodTypes.put(entry.getKey(),
-							averagePriceForGoodType);
+				if (!Double.isNaN(totalWeight) && !Double.isInfinite(totalWeight)) {
+					averageMarginalPricesForGoodTypes.put(entry.getKey(), averagePriceForGoodType);
 				}
 			}
 		}
@@ -314,24 +276,19 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			double newPriceIndex = Double.NaN;
 
 			// for basket of good types
-			for (final Entry<GoodType, Double> entry : priceIndexWeights
-					.entrySet()) {
+			for (final Entry<GoodType, Double> entry : priceIndexWeights.entrySet()) {
 				final GoodType goodType = entry.getKey();
 				final Double weight = entry.getValue();
 
 				// average marginal price of the good type
-				final double averageMarginalPrice = averageMarginalPricesForGoodTypes
-						.get(goodType);
+				final double averageMarginalPrice = averageMarginalPricesForGoodTypes.get(goodType);
 
 				// add marginal price for good type to price index, weighted by
 				// defined weight
-				final double newPriceIndexForGoodType = weight
-						* averageMarginalPrice;
+				final double newPriceIndexForGoodType = weight * averageMarginalPrice;
 
-				if (!Double.isNaN(newPriceIndexForGoodType)
-						&& !Double.isInfinite(newPriceIndexForGoodType)) {
-					if (Double.isNaN(newPriceIndex)
-							|| Double.isInfinite(newPriceIndex)) {
+				if (!Double.isNaN(newPriceIndexForGoodType) && !Double.isInfinite(newPriceIndexForGoodType)) {
+					if (Double.isNaN(newPriceIndex) || Double.isInfinite(newPriceIndex)) {
 						newPriceIndex = newPriceIndexForGoodType;
 					} else {
 						newPriceIndex += newPriceIndexForGoodType;
@@ -345,23 +302,16 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		protected void takeSnapshotOfMarginalPrices() {
 			// store marginal prices of monitored good types for this period
-			for (final Entry<GoodType, double[]> entry : monitoredMarginalPricesForGoodTypesAndPeriods
-					.entrySet()) {
+			for (final Entry<GoodType, double[]> entry : monitoredMarginalPricesForGoodTypesAndPeriods.entrySet()) {
 				final double[] pricesForGoodType = entry.getValue();
 
 				// fetch and store current price for this good type
-				final double marginalPriceForGoodType = ApplicationContext
-						.getInstance()
-						.getMarketService()
-						.getMarginalMarketPrice(
-								CentralBankImpl.this.primaryCurrency,
-								entry.getKey());
+				final double marginalPriceForGoodType = ApplicationContext.getInstance().getMarketService()
+						.getMarginalMarketPrice(CentralBankImpl.this.primaryCurrency, entry.getKey());
 
-				if (!Double.isNaN(marginalPriceForGoodType)
-						&& !Double.isInfinite(marginalPriceForGoodType)) {
+				if (!Double.isNaN(marginalPriceForGoodType) && !Double.isInfinite(marginalPriceForGoodType)) {
 					// shift prices of older periods for this good type
-					System.arraycopy(pricesForGoodType, 0, pricesForGoodType,
-							1, pricesForGoodType.length - 1);
+					System.arraycopy(pricesForGoodType, 0, pricesForGoodType, 1, pricesForGoodType.length - 1);
 					pricesForGoodType[0] = marginalPriceForGoodType;
 				}
 			}
@@ -410,13 +360,11 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		if (bankAccountCentralBankMoney == null) {
 			/*
-			 * initialize the banks own bank account and open a customer account
-			 * at this new bank, so that this bank can transfer money from its
-			 * own bank account
+			 * initialize the banks own bank account and open a customer account at this new
+			 * bank, so that this bank can transfer money from its own bank account
 			 */
-			bankAccountCentralBankMoney = getPrimaryBank().openBankAccount(
-					this, primaryCurrency, true, "central bank money",
-					TermType.LONG_TERM, MoneyType.CENTRALBANK_MONEY);
+			bankAccountCentralBankMoney = getPrimaryBank().openBankAccount(this, primaryCurrency, true,
+					"central bank money", TermType.LONG_TERM, MoneyType.CENTRALBANK_MONEY);
 		}
 	}
 
@@ -429,13 +377,11 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		if (bankAccountTransactions == null) {
 			/*
-			 * initialize the banks own bank account and open a customer account
-			 * at this new bank, so that this bank can transfer money from its
-			 * own bank account
+			 * initialize the banks own bank account and open a customer account at this new
+			 * bank, so that this bank can transfer money from its own bank account
 			 */
-			bankAccountTransactions = getPrimaryBank().openBankAccount(this,
-					primaryCurrency, true, "transactions", TermType.SHORT_TERM,
-					MoneyType.DEPOSITS);
+			bankAccountTransactions = getPrimaryBank().openBankAccount(this, primaryCurrency, true, "transactions",
+					TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
@@ -445,38 +391,30 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		assureBankAccountCentralBankMoney();
 
 		// each customer bank account ...
-		for (final BankAccount bankAccount : ApplicationContext.getInstance()
-				.getBankAccountDAO().findAll(this, customer)) {
+		for (final BankAccount bankAccount : ApplicationContext.getInstance().getBankAccountDAO().findAll(this,
+				customer)) {
 			// on closing has to be evened up to 0, so that no money is
 			// lost in the monetary system
 			switch (bankAccount.getMoneyType()) {
 			case DEPOSITS:
-				if (bankAccountTransactions != null
-						&& bankAccount != bankAccountTransactions) {
+				if (bankAccountTransactions != null && bankAccount != bankAccountTransactions) {
 					if (bankAccount.getBalance() >= 0) {
-						this.transferMoney(bankAccount,
-								bankAccountTransactions,
-								bankAccount.getBalance(),
+						this.transferMoney(bankAccount, bankAccountTransactions, bankAccount.getBalance(),
 								"evening-up of closed bank account", true);
 					} else {
-						this.transferMoney(bankAccountTransactions,
-								bankAccount, -1.0 * bankAccount.getBalance(),
+						this.transferMoney(bankAccountTransactions, bankAccount, -1.0 * bankAccount.getBalance(),
 								"evening-up of closed bank account", true);
 					}
 				}
 				break;
 			case CENTRALBANK_MONEY:
-				if (bankAccountCentralBankMoney != null
-						&& bankAccount != bankAccountCentralBankMoney) {
+				if (bankAccountCentralBankMoney != null && bankAccount != bankAccountCentralBankMoney) {
 
 					if (bankAccount.getBalance() >= 0) {
-						this.transferMoney(bankAccount,
-								bankAccountCentralBankMoney,
-								bankAccount.getBalance(),
+						this.transferMoney(bankAccount, bankAccountCentralBankMoney, bankAccount.getBalance(),
 								"evening-up of closed bank account", true);
 					} else {
-						this.transferMoney(bankAccountCentralBankMoney,
-								bankAccount, -1.0 * bankAccount.getBalance(),
+						this.transferMoney(bankAccountCentralBankMoney, bankAccount, -1.0 * bankAccount.getBalance(),
 								"evening-up of closed bank account", true);
 					}
 				}
@@ -485,16 +423,14 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			customer.onBankCloseBankAccount(bankAccount);
 		}
 
-		ApplicationContext.getInstance().getBankAccountFactory()
-				.deleteAllBankAccounts(this, customer);
+		ApplicationContext.getInstance().getBankAccountFactory().deleteAllBankAccounts(this, customer);
 	}
 
 	@Override
 	public void deconstruct() {
 		super.deconstruct();
 
-		ApplicationContext.getInstance().getCentralBankFactory()
-				.deleteCentralBank(this);
+		ApplicationContext.getInstance().getCentralBankFactory().deleteCentralBank(this);
 	}
 
 	@Override
@@ -526,8 +462,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	@Override
 	@Transient
 	public double getReserveRatio() {
-		return ApplicationContext.getInstance().getConfiguration().centralBankConfig
-				.getReserveRatio();
+		return ApplicationContext.getInstance().getConfiguration().centralBankConfig.getReserveRatio();
 	}
 
 	@Override
@@ -537,46 +472,28 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		// calculate interest
 		final TimeSystemEvent interestCalculationEvent = new DailyInterestCalculationEvent();
 		timeSystemEvents.add(interestCalculationEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(interestCalculationEvent, -1, MonthType.EVERY,
-						DayType.EVERY, HourType.HOUR_01);
+		ApplicationContext.getInstance().getTimeSystem().addEvent(interestCalculationEvent, -1, MonthType.EVERY,
+				DayType.EVERY, HourType.HOUR_01);
 
 		// take snapshots of marginal prices multiple times a day
 		// -> market situation differs over the day !!!
 		final TimeSystemEvent recalculateAveragePriceIndexEvent = new MarginalPriceSnapshotEvent();
 		timeSystemEvents.add(recalculateAveragePriceIndexEvent);
 
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(recalculateAveragePriceIndexEvent, -1,
-						MonthType.EVERY, DayType.EVERY, HourType.HOUR_03);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(recalculateAveragePriceIndexEvent, -1,
-						MonthType.EVERY, DayType.EVERY, HourType.HOUR_09);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(recalculateAveragePriceIndexEvent, -1,
-						MonthType.EVERY, DayType.EVERY, HourType.HOUR_15);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(recalculateAveragePriceIndexEvent, -1,
-						MonthType.EVERY, DayType.EVERY, HourType.HOUR_21);
+		ApplicationContext.getInstance().getTimeSystem().addEvent(recalculateAveragePriceIndexEvent, -1,
+				MonthType.EVERY, DayType.EVERY, HourType.HOUR_03);
+		ApplicationContext.getInstance().getTimeSystem().addEvent(recalculateAveragePriceIndexEvent, -1,
+				MonthType.EVERY, DayType.EVERY, HourType.HOUR_09);
+		ApplicationContext.getInstance().getTimeSystem().addEvent(recalculateAveragePriceIndexEvent, -1,
+				MonthType.EVERY, DayType.EVERY, HourType.HOUR_15);
+		ApplicationContext.getInstance().getTimeSystem().addEvent(recalculateAveragePriceIndexEvent, -1,
+				MonthType.EVERY, DayType.EVERY, HourType.HOUR_21);
 
 		// recalculate key interest rate every day
 		final TimeSystemEvent keyInterestRateCalculationEvent = new KeyInterestRateCalculationEvent();
 		timeSystemEvents.add(keyInterestRateCalculationEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(keyInterestRateCalculationEvent, -1, MonthType.EVERY,
-						DayType.EVERY, HourType.HOUR_01);
+		ApplicationContext.getInstance().getTimeSystem().addEvent(keyInterestRateCalculationEvent, -1, MonthType.EVERY,
+				DayType.EVERY, HourType.HOUR_01);
 
 		// count number of snapshots that are taken per day
 		int numberOfSnapshotsPerDay = 0;
@@ -593,8 +510,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		// NUMBER_OF_SNAPSHOTS_PER_DAY
 		statisticalOffice = new StatisticalOffice();
 
-		effectiveKeyInterestRate = ApplicationContext.getInstance()
-				.getConfiguration().centralBankConfig
+		effectiveKeyInterestRate = ApplicationContext.getInstance().getConfiguration().centralBankConfig
 				.getDefaultEffectiveKeyInterestRate();
 	}
 
@@ -614,36 +530,30 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 	@Override
 	@Transient
-	public void obtainTender(final BankAccount moneyReservesBankAccount,
-			final List<FixedRateBond> bonds) {
+	public void obtainTender(final BankAccount moneyReservesBankAccount, final List<FixedRateBond> bonds) {
 		assureBankAccountCentralBankMoney();
 
 		assertIsCustomerOfThisBank(moneyReservesBankAccount.getOwner());
 
 		for (final FixedRateBond bond : bonds) {
 			// bank money creation; fiat money!
-			assert (MoneyType.CENTRALBANK_MONEY.equals(moneyReservesBankAccount
-					.getMoneyType()));
+			assert (MoneyType.CENTRALBANK_MONEY.equals(moneyReservesBankAccount.getMoneyType()));
 
 			// transfer money
 			moneyReservesBankAccount.deposit(bond.getFaceValue());
 
 			// transfer bond
-			ApplicationContext.getInstance().getPropertyService()
-					.transferProperty(bond, bond.getOwner(), this);
+			ApplicationContext.getInstance().getPropertyService().transferProperty(bond, bond.getOwner(), this);
 
 			assert (bond.getOwner() == this);
 
 			bond.setFaceValueToBankAccountDelegate(getBankAccountCentralBankMoneyDelegate());
 			bond.setCouponToBankAccountDelegate(getBankAccountCentralBankMoneyDelegate());
 
-			if (getLog().isAgentSelectedByClient(
-					moneyReservesBankAccount.getOwner())) {
-				getLog().log(
-						moneyReservesBankAccount.getOwner(),
+			if (getLog().isAgentSelectedByClient(moneyReservesBankAccount.getOwner())) {
+				getLog().log(moneyReservesBankAccount.getOwner(),
 						"obtained a tender of %s %s of central bank money from %s",
-						Currency.formatMoneySum(bond.getFaceValue()),
-						getPrimaryCurrency(), this);
+						Currency.formatMoneySum(bond.getFaceValue()), getPrimaryCurrency(), this);
 			}
 		}
 	}
@@ -651,21 +561,18 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	@Override
 	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
-		if (bankAccountCentralBankMoney != null
-				&& bankAccountCentralBankMoney == bankAccount) {
+		if (bankAccountCentralBankMoney != null && bankAccountCentralBankMoney == bankAccount) {
 			bankAccountCentralBankMoney = null;
 		}
 
 		super.onBankCloseBankAccount(bankAccount);
 	}
 
-	public void setBankAccountCentralBankMoney(
-			final BankAccount bankAccountCentralBankMoney) {
+	public void setBankAccountCentralBankMoney(final BankAccount bankAccountCentralBankMoney) {
 		this.bankAccountCentralBankMoney = bankAccountCentralBankMoney;
 	}
 
-	public void setEffectiveKeyInterestRate(
-			final double effectiveKeyInterestRate) {
+	public void setEffectiveKeyInterestRate(final double effectiveKeyInterestRate) {
 		this.effectiveKeyInterestRate = effectiveKeyInterestRate;
 	}
 
@@ -676,15 +583,13 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 	@Override
 	@Transient
-	public void transferMoney(final BankAccount from, final BankAccount to,
-			final double amount, final String subject) {
+	public void transferMoney(final BankAccount from, final BankAccount to, final double amount, final String subject) {
 		this.transferMoney(from, to, amount, subject, false);
 	}
 
 	@Transient
-	protected void transferMoney(final BankAccount from, final BankAccount to,
-			final double amount, final String subject,
-			final boolean negativeAmountOK) {
+	protected void transferMoney(final BankAccount from, final BankAccount to, final double amount,
+			final String subject, final boolean negativeAmountOK) {
 
 		assert (amount >= 0.0 || negativeAmountOK);
 		assert (from != null);
@@ -696,19 +601,13 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 
 		assertIdenticalMoneyType(from, to);
 
-		if (from.getManagingBank() instanceof CentralBankImpl
-				&& to.getManagingBank() instanceof CentralBankImpl) {
-			getLog().bank_onTransfer(from, to, from.getCurrency(), amount,
-					subject);
+		if (from.getManagingBank() instanceof CentralBankImpl && to.getManagingBank() instanceof CentralBankImpl) {
+			getLog().bank_onTransfer(from, to, from.getCurrency(), amount, subject);
 			transferMoneyInternally(from, to, amount);
-		} else if (from.getManagingBank() instanceof CreditBank
-				&& to.getManagingBank() instanceof CentralBankImpl) {
-			transferMoneyFromCreditBankAccountToCentralBankAccount(from, to,
-					amount);
-		} else if (from.getManagingBank() instanceof CentralBankImpl
-				&& to.getManagingBank() instanceof CreditBank) {
-			transferMoneyFromCentralBankAccountToCreditBankAccount(from, to,
-					amount);
+		} else if (from.getManagingBank() instanceof CreditBank && to.getManagingBank() instanceof CentralBankImpl) {
+			transferMoneyFromCreditBankAccountToCentralBankAccount(from, to, amount);
+		} else if (from.getManagingBank() instanceof CentralBankImpl && to.getManagingBank() instanceof CreditBank) {
+			transferMoneyFromCentralBankAccountToCreditBankAccount(from, to, amount);
 		} else {
 			throw new RuntimeException("uncovered case");
 		}
@@ -718,8 +617,8 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Transient
-	private void transferMoneyFromCentralBankAccountToCreditBankAccount(
-			final BankAccount from, final BankAccount to, final double amount) {
+	private void transferMoneyFromCentralBankAccountToCreditBankAccount(final BankAccount from, final BankAccount to,
+			final double amount) {
 		/*
 		 * Checks
 		 */
@@ -729,8 +628,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		assert (from.getCurrency().equals(to.getCurrency()));
 
 		// unusual at the central bank
-		assert (from.getBalance() - amount >= 0.0 || from
-				.getOverdraftPossible());
+		assert (from.getBalance() - amount >= 0.0 || from.getOverdraftPossible());
 
 		assert (to.getManagingBank() instanceof CreditBank);
 
@@ -749,8 +647,8 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Transient
-	private void transferMoneyFromCreditBankAccountToCentralBankAccount(
-			final BankAccount from, final BankAccount to, final double amount) {
+	private void transferMoneyFromCreditBankAccountToCentralBankAccount(final BankAccount from, final BankAccount to,
+			final double amount) {
 		/*
 		 * Checks
 		 */
@@ -777,8 +675,7 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Transient
-	private void transferMoneyInternally(final BankAccount from,
-			final BankAccount to, final double amount) {
+	private void transferMoneyInternally(final BankAccount from, final BankAccount to, final double amount) {
 		assertBankAccountIsManagedByThisBank(from);
 		assertBankAccountIsManagedByThisBank(to);
 
@@ -795,7 +692,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		to.deposit(amount);
 
 		// from and to can be the same
-		assert (MathUtil.equal(fromBalanceBefore + toBalanceBefore,
-				from.getBalance() + to.getBalance()));
+		assert (MathUtil.equal(fromBalanceBefore + toBalanceBefore, from.getBalance() + to.getBalance()));
 	}
 }

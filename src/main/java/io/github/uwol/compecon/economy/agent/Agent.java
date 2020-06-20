@@ -29,8 +29,7 @@ import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.timesystem.TimeSystemEvent;
 
-public interface Agent extends LifecycleEntity, PropertyOwner,
-		MarketParticipant, BankCustomer {
+public interface Agent extends LifecycleEntity, PropertyOwner, MarketParticipant, BankCustomer {
 
 	public BankAccountDelegate getBankAccountTransactionsDelegate();
 
@@ -39,5 +38,4 @@ public interface Agent extends LifecycleEntity, PropertyOwner,
 	public Currency getPrimaryCurrency();
 
 	public Set<TimeSystemEvent> getTimeSystemEvents();
-
 }

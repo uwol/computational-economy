@@ -21,8 +21,7 @@ package io.github.uwol.compecon.engine.statistics.timeseries;
 
 import org.jfree.data.time.TimeSeries;
 
-public abstract class AbstractPeriodDataSingleTimeSeriesModel extends
-		AbstractPeriodDataTimeSeriesModel {
+public abstract class AbstractPeriodDataSingleTimeSeriesModel extends AbstractPeriodDataTimeSeriesModel {
 
 	protected final TimeSeries timeSeries;
 

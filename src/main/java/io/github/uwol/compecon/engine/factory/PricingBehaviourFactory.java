@@ -25,12 +25,9 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 
 public interface PricingBehaviourFactory {
 
-	public PricingBehaviour newInstancePricingBehaviour(final AgentImpl agent,
-			final Object offeredObject, final Currency denominatedInCurrency,
-			final double initialPrice);
+	public PricingBehaviour newInstancePricingBehaviour(final AgentImpl agent, final Object offeredObject,
+			final Currency denominatedInCurrency, final double initialPrice);
 
-	public PricingBehaviour newInstancePricingBehaviour(final AgentImpl agent,
-			final Object offeredObject, final Currency denominatedInCurrency,
-			final double initialPrice, final double priceChangeIncrement);
-
+	public PricingBehaviour newInstancePricingBehaviour(final AgentImpl agent, final Object offeredObject,
+			final Currency denominatedInCurrency, final double initialPrice, final double priceChangeIncrement);
 }

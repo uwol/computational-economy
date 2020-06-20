@@ -23,8 +23,7 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.state.State;
 import io.github.uwol.compecon.engine.dao.StateDAO;
 
-public class StateDAOImpl extends AbstractInMemoryDAOImpl<State> implements
-		StateDAO {
+public class StateDAOImpl extends AbstractInMemoryDAOImpl<State> implements StateDAO {
 
 	@Override
 	public synchronized State findByCurrency(final Currency currency) {

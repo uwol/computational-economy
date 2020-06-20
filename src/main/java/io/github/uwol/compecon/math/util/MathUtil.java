@@ -24,8 +24,7 @@ public class MathUtil {
 	// epsilon for absolute values, not deviation from quotient etc.
 	private static final double defaultEpsilon = 0.00001;
 
-	private static final double defaultRoundPrecision = Math
-			.round(1.0 / defaultEpsilon);
+	private static final double defaultRoundPrecision = Math.round(1.0 / defaultEpsilon);
 
 	/**
 	 * Calculates the monthly nominal interest rate for a given effective yearly
@@ -33,10 +32,8 @@ public class MathUtil {
 	 * <br />
 	 * http://en.wikipedia.org/wiki/Effective_interest_rate
 	 */
-	public static double calculateMonthlyNominalInterestRate(
-			final double effectiveInterestRate) {
-		return effectiveInterestRate
-				/ (1 + ((11 / 24) * effectiveInterestRate)) / 12;
+	public static double calculateMonthlyNominalInterestRate(final double effectiveInterestRate) {
+		return effectiveInterestRate / (1 + ((11 / 24) * effectiveInterestRate)) / 12;
 	}
 
 	public static boolean equal(final double value1, final double value2) {
@@ -105,7 +102,6 @@ public class MathUtil {
 		if (Double.isNaN(value) || Double.isInfinite(value)) {
 			return value;
 		}
-		return Math.round(value * defaultRoundPrecision)
-				/ defaultRoundPrecision;
+		return Math.round(value * defaultRoundPrecision) / defaultRoundPrecision;
 	}
 }

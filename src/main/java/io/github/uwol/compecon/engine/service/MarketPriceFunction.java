@@ -24,8 +24,8 @@ import io.github.uwol.compecon.math.price.PriceFunction;
 public interface MarketPriceFunction extends PriceFunction {
 
 	/**
-	 * resets the market order iterator, thus refreshing the market price
-	 * function to new market situations.
+	 * resets the market order iterator, thus refreshing the market price function
+	 * to new market situations.
 	 */
 	public void reset();
 }

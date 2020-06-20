@@ -49,40 +49,31 @@ public class AgentServiceTest extends CompEconTestSupport {
 	public void testGetAgentMethods() {
 		for (final Currency currency : Currency.values()) {
 			// state
-			Assert.assertNotNull(ApplicationContext.getInstance()
-					.getAgentService().findState(currency));
+			Assert.assertNotNull(ApplicationContext.getInstance().getAgentService().findState(currency));
 
 			// central bank
-			Assert.assertNotNull(ApplicationContext.getInstance()
-					.getAgentService().findCentralBank(currency));
+			Assert.assertNotNull(ApplicationContext.getInstance().getAgentService().findCentralBank(currency));
 
 			// credit banks
-			Assert.assertEquals(2, ApplicationContext.getInstance()
-					.getAgentService().findCreditBanks(currency).size());
+			Assert.assertEquals(2, ApplicationContext.getInstance().getAgentService().findCreditBanks(currency).size());
 
 			// central bank
-			Assert.assertNotNull(ApplicationContext.getInstance()
-					.getAgentService().findRandomCreditBank(currency));
+			Assert.assertNotNull(ApplicationContext.getInstance().getAgentService().findRandomCreditBank(currency));
 
 			// factories
-			Assert.assertEquals(2, ApplicationContext.getInstance()
-					.getAgentService().findFactories(currency).size());
+			Assert.assertEquals(2, ApplicationContext.getInstance().getAgentService().findFactories(currency).size());
 
-			Assert.assertEquals(1, ApplicationContext.getInstance()
-					.getAgentService().findFactories(currency, GoodType.WHEAT)
-					.size());
+			Assert.assertEquals(1,
+					ApplicationContext.getInstance().getAgentService().findFactories(currency, GoodType.WHEAT).size());
 
-			Assert.assertEquals(1, ApplicationContext.getInstance()
-					.getAgentService().findFactories(currency, GoodType.COAL)
-					.size());
+			Assert.assertEquals(1,
+					ApplicationContext.getInstance().getAgentService().findFactories(currency, GoodType.COAL).size());
 
 			// traders
-			Assert.assertEquals(1, ApplicationContext.getInstance()
-					.getAgentService().findTraders(currency).size());
+			Assert.assertEquals(1, ApplicationContext.getInstance().getAgentService().findTraders(currency).size());
 
 			// households
-			Assert.assertEquals(2, ApplicationContext.getInstance()
-					.getAgentService().findHouseholds(currency).size());
+			Assert.assertEquals(2, ApplicationContext.getInstance().getAgentService().findHouseholds(currency).size());
 		}
 	}
 }

@@ -30,7 +30,6 @@ import org.junit.Test;
 import io.github.uwol.compecon.CompEconTestSupport;
 import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.economy.sectors.household.impl.HouseholdImpl;
 import io.github.uwol.compecon.economy.sectors.industry.Factory;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
@@ -41,8 +40,7 @@ public class HouseholdImplTest extends CompEconTestSupport {
 	@Before
 	public void setup() throws IOException {
 		super.setUpApplicationContext(testConfigurationPropertiesFilename);
-		ApplicationContext.getInstance().getAgentFactory()
-				.constructAgentsFromConfiguration();
+		ApplicationContext.getInstance().getAgentFactory().constructAgentsFromConfiguration();
 		ApplicationContext.getInstance().getConfiguration().householdConfig.retirementSaving = false;
 	}
 
@@ -56,56 +54,38 @@ public class HouseholdImplTest extends CompEconTestSupport {
 	public void testDailyLifeEvent() {
 		final Currency currency = Currency.EURO;
 
-		final Household household1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(0);
-		final Household household2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(1);
+		final Household household1_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(0);
+		final Household household2_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(1);
 
-		final Factory factory1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findFactories(currency, GoodType.WHEAT)
-				.get(0);
-		final Factory factory2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findFactories(currency, GoodType.COAL)
-				.get(0);
+		final Factory factory1_EUR = ApplicationContext.getInstance().getAgentService()
+				.findFactories(currency, GoodType.WHEAT).get(0);
+		final Factory factory2_EUR = ApplicationContext.getInstance().getAgentService()
+				.findFactories(currency, GoodType.COAL).get(0);
 
 		// provide money to household 1
-		household2_EUR
-				.getBankAccountTransactionsDelegate()
-				.getBankAccount()
-				.getManagingBank()
-				.transferMoney(
-						household2_EUR.getBankAccountTransactionsDelegate()
-								.getBankAccount(),
-						household1_EUR.getBankAccountTransactionsDelegate()
-								.getBankAccount(), 10.0, "");
+		household2_EUR.getBankAccountTransactionsDelegate().getBankAccount().getManagingBank().transferMoney(
+				household2_EUR.getBankAccountTransactionsDelegate().getBankAccount(),
+				household1_EUR.getBankAccountTransactionsDelegate().getBankAccount(), 10.0, "");
 
-		assertEquals(10.0, household1_EUR.getBankAccountTransactionsDelegate()
-				.getBankAccount().getBalance(), epsilon);
+		assertEquals(10.0, household1_EUR.getBankAccountTransactionsDelegate().getBankAccount().getBalance(), epsilon);
 
 		// provide WHEAT on good market
-		ApplicationContext.getInstance().getPropertyService()
-				.incrementGoodTypeAmount(factory1_EUR, GoodType.WHEAT, 20.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.WHEAT, factory1_EUR,
-						factory1_EUR.getBankAccountTransactionsDelegate(),
-						20.0, 1.0);
+		ApplicationContext.getInstance().getPropertyService().incrementGoodTypeAmount(factory1_EUR, GoodType.WHEAT,
+				20.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.WHEAT, factory1_EUR,
+				factory1_EUR.getBankAccountTransactionsDelegate(), 20.0, 1.0);
 
 		// provide COAL on good market
-		ApplicationContext.getInstance().getPropertyService()
-				.incrementGoodTypeAmount(factory2_EUR, GoodType.COAL, 20.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.COAL, factory2_EUR,
-						factory2_EUR.getBankAccountTransactionsDelegate(),
-						20.0, 1.0);
+		ApplicationContext.getInstance().getPropertyService().incrementGoodTypeAmount(factory2_EUR, GoodType.COAL,
+				20.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.COAL, factory2_EUR,
+				factory2_EUR.getBankAccountTransactionsDelegate(), 20.0, 1.0);
 
 		final int currentAge = household1_EUR.getAgeInDays();
 
-		for (final TimeSystemEvent timeSystemEvent : household1_EUR
-				.getTimeSystemEvents()) {
+		for (final TimeSystemEvent timeSystemEvent : household1_EUR.getTimeSystemEvents()) {
 			if (timeSystemEvent instanceof HouseholdImpl.DailyLifeEvent) {
 				// household 1 buys goods from factories and consumes them
 				timeSystemEvent.onEvent();
@@ -114,27 +94,21 @@ public class HouseholdImplTest extends CompEconTestSupport {
 
 		assertEquals(currentAge + 1, household1_EUR.getAgeInDays());
 
-		assertEquals(0.0, household1_EUR.getBankAccountTransactionsDelegate()
-				.getBankAccount().getBalance(), epsilon);
+		assertEquals(0.0, household1_EUR.getBankAccountTransactionsDelegate().getBankAccount().getBalance(), epsilon);
 
 		assertEquals(15.0,
-				ApplicationContext.getInstance().getPropertyService()
-						.getGoodTypeBalance(factory1_EUR, GoodType.WHEAT),
+				ApplicationContext.getInstance().getPropertyService().getGoodTypeBalance(factory1_EUR, GoodType.WHEAT),
 				epsilon);
-		assertEquals(5.0, factory1_EUR.getBankAccountTransactionsDelegate()
-				.getBankAccount().getBalance(), epsilon);
+		assertEquals(5.0, factory1_EUR.getBankAccountTransactionsDelegate().getBankAccount().getBalance(), epsilon);
 
 		assertEquals(15.0,
-				ApplicationContext.getInstance().getPropertyService()
-						.getGoodTypeBalance(factory2_EUR, GoodType.COAL),
+				ApplicationContext.getInstance().getPropertyService().getGoodTypeBalance(factory2_EUR, GoodType.COAL),
 				epsilon);
-		assertEquals(5.0, factory2_EUR.getBankAccountTransactionsDelegate()
-				.getBankAccount().getBalance(), epsilon);
+		assertEquals(5.0, factory2_EUR.getBankAccountTransactionsDelegate().getBankAccount().getBalance(), epsilon);
 
-		assertEquals(
-				1.552464255,
+		assertEquals(1.552464255,
 				ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityOutputModel
-						.getValue(), epsilon);
+						.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityOutputModel.getValue(),
+				epsilon);
 	}
 }

@@ -34,61 +34,44 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 	@Override
 	public void deleteAllSellingOrders(final MarketParticipant offeror) {
-		ApplicationContext.getInstance().getMarketOrderDAO()
-				.deleteAllSellingOrders(offeror);
+		ApplicationContext.getInstance().getMarketOrderDAO().deleteAllSellingOrders(offeror);
 		HibernateUtil.flushSession();
 	}
 
 	@Override
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency,
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency denominatedInCurrency,
 			final Class<? extends Property> propertyClass) {
-		ApplicationContext
-				.getInstance()
-				.getMarketOrderDAO()
-				.deleteAllSellingOrders(offeror, denominatedInCurrency,
-						propertyClass);
+		ApplicationContext.getInstance().getMarketOrderDAO().deleteAllSellingOrders(offeror, denominatedInCurrency,
+				propertyClass);
 		HibernateUtil.flushSession();
 	}
 
 	@Override
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency,
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency denominatedInCurrency,
 			final Currency commodityCurrency) {
-		ApplicationContext
-				.getInstance()
-				.getMarketOrderDAO()
-				.deleteAllSellingOrders(offeror, denominatedInCurrency,
-						commodityCurrency);
+		ApplicationContext.getInstance().getMarketOrderDAO().deleteAllSellingOrders(offeror, denominatedInCurrency,
+				commodityCurrency);
 		HibernateUtil.flushSession();
 	}
 
 	@Override
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency, final GoodType goodType) {
-		ApplicationContext
-				.getInstance()
-				.getMarketOrderDAO()
-				.deleteAllSellingOrders(offeror, denominatedInCurrency,
-						goodType);
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency denominatedInCurrency,
+			final GoodType goodType) {
+		ApplicationContext.getInstance().getMarketOrderDAO().deleteAllSellingOrders(offeror, denominatedInCurrency,
+				goodType);
 		HibernateUtil.flushSession();
 	}
 
 	@Override
 	public void deleteSellingOrder(final MarketOrder marketOrder) {
-		ApplicationContext.getInstance().getMarketOrderDAO()
-				.delete(marketOrder);
+		ApplicationContext.getInstance().getMarketOrderDAO().delete(marketOrder);
 		HibernateUtil.flushSession();
 	}
 
 	@Override
-	public MarketOrderImpl newInstanceCurrencyMarketOrder(
-			final Currency currencyToBeOffered,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount,
-			final double pricePerUnit,
-			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate) {
+	public MarketOrderImpl newInstanceCurrencyMarketOrder(final Currency currencyToBeOffered,
+			final MarketParticipant offeror, final BankAccountDelegate offerorsBankAcountDelegate, final double amount,
+			final double pricePerUnit, final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate) {
 		assert (currencyToBeOffered != null);
 		assert (offeror != null);
 		assert (offerorsBankAcountDelegate != null);
@@ -97,19 +80,16 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		final MarketOrderImpl marketOrder = new MarketOrderImpl();
 
 		if (!HibernateUtil.isActive()) {
-			marketOrder.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			marketOrder.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
-		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
-				.getCurrency());
+		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount().getCurrency());
 		marketOrder.setCommodityCurrency(currencyToBeOffered);
 		marketOrder.setOfferor(offeror);
 		marketOrder.setOfferorsBankAcountDelegate(offerorsBankAcountDelegate);
 		marketOrder.setAmount(amount);
 		marketOrder.setPricePerUnit(pricePerUnit);
-		marketOrder
-				.setCommodityCurrencyOfferorsBankAccountDelegate(commodityCurrencyOfferorsBankAcountDelegate);
+		marketOrder.setCommodityCurrencyOfferorsBankAccountDelegate(commodityCurrencyOfferorsBankAcountDelegate);
 
 		ApplicationContext.getInstance().getMarketOrderDAO().save(marketOrder);
 		HibernateUtil.flushSession();
@@ -117,10 +97,8 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 	}
 
 	@Override
-	public MarketOrderImpl newInstanceGoodTypeMarketOrder(
-			final GoodType goodType, final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount, final double pricePerUnit) {
+	public MarketOrderImpl newInstanceGoodTypeMarketOrder(final GoodType goodType, final MarketParticipant offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate, final double amount, final double pricePerUnit) {
 		assert (goodType != null);
 		assert (offeror != null);
 		assert (offerorsBankAcountDelegate != null);
@@ -128,12 +106,10 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		final MarketOrderImpl marketOrder = new MarketOrderImpl();
 
 		if (!HibernateUtil.isActive()) {
-			marketOrder.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			marketOrder.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
-		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
-				.getCurrency());
+		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount().getCurrency());
 		marketOrder.setGoodType(goodType);
 		marketOrder.setOfferor(offeror);
 		marketOrder.setOfferorsBankAcountDelegate(offerorsBankAcountDelegate);
@@ -146,10 +122,8 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 	}
 
 	@Override
-	public MarketOrderImpl newInstancePropertyMarketOrder(
-			final Property property, final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double pricePerUnit) {
+	public MarketOrderImpl newInstancePropertyMarketOrder(final Property property, final MarketParticipant offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate, final double pricePerUnit) {
 		assert (property != null);
 		assert (offeror != null);
 		assert (offerorsBankAcountDelegate != null);
@@ -157,12 +131,10 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		final MarketOrderImpl marketOrder = new MarketOrderImpl();
 
 		if (!HibernateUtil.isActive()) {
-			marketOrder.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			marketOrder.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
-		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount()
-				.getCurrency());
+		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount().getCurrency());
 		marketOrder.setProperty(property);
 		marketOrder.setOfferor(offeror);
 		marketOrder.setOfferorsBankAcountDelegate(offerorsBankAcountDelegate);

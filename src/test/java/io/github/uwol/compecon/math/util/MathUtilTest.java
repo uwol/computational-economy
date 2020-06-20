@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.github.uwol.compecon.CompEconTestSupport;
-import io.github.uwol.compecon.math.util.MathUtil;
 
 public class MathUtilTest extends CompEconTestSupport {
 
@@ -46,26 +45,20 @@ public class MathUtilTest extends CompEconTestSupport {
 	@Test
 	public void testCalculateMonthlyNominalInterestRate10() {
 		final double effectiveInterestRate = 0.1;
-		final double monthlyNominalInterestRate = MathUtil
-				.calculateMonthlyNominalInterestRate(effectiveInterestRate);
+		final double monthlyNominalInterestRate = MathUtil.calculateMonthlyNominalInterestRate(effectiveInterestRate);
 
-		final double effectiveInterestRateCheck = Math.pow(
-				monthlyNominalInterestRate + 1.0, 12) - 1.0;
+		final double effectiveInterestRateCheck = Math.pow(monthlyNominalInterestRate + 1.0, 12) - 1.0;
 
-		Assert.assertEquals(effectiveInterestRate, effectiveInterestRateCheck,
-				epsilon);
+		Assert.assertEquals(effectiveInterestRate, effectiveInterestRateCheck, epsilon);
 	}
 
 	@Test
 	public void testCalculateMonthlyNominalInterestRate3() {
 		final double effectiveInterestRate = 0.03;
-		final double monthlyNominalInterestRate = MathUtil
-				.calculateMonthlyNominalInterestRate(effectiveInterestRate);
+		final double monthlyNominalInterestRate = MathUtil.calculateMonthlyNominalInterestRate(effectiveInterestRate);
 
-		final double effectiveInterestRateCheck = Math.pow(
-				monthlyNominalInterestRate + 1.0, 12) - 1.0;
+		final double effectiveInterestRateCheck = Math.pow(monthlyNominalInterestRate + 1.0, 12) - 1.0;
 
-		Assert.assertEquals(effectiveInterestRate, effectiveInterestRateCheck,
-				epsilon);
+		Assert.assertEquals(effectiveInterestRate, effectiveInterestRateCheck, epsilon);
 	}
 }

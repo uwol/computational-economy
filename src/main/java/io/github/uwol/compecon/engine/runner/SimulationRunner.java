@@ -34,13 +34,11 @@ public interface SimulationRunner {
 	/**
 	 * start the simulation loop
 	 *
-	 * @param endDate
-	 *            end date
+	 * @param endDate end date
 	 */
 	public void run(final Date endDate);
 
-	public void setMillisecondsToSleepPerHourType(
-			final int millisecondsToSleepPerHourType);
+	public void setMillisecondsToSleepPerHourType(final int millisecondsToSleepPerHourType);
 
 	/**
 	 * pauses the simulation loop.

@@ -30,8 +30,7 @@ public class YearImpl implements Year {
 	private final HashMap<MonthType, MonthImpl> months = new HashMap<MonthType, MonthImpl>();
 
 	@Override
-	public void addEvent(final TimeSystemEvent event,
-			final MonthType monthType, final DayType dayType,
+	public void addEvent(final TimeSystemEvent event, final MonthType monthType, final DayType dayType,
 			final HourType hourType) {
 		if (!months.containsKey(monthType)) {
 			months.put(monthType, new MonthImpl(monthType));
@@ -41,8 +40,7 @@ public class YearImpl implements Year {
 	}
 
 	@Override
-	public Set<TimeSystemEvent> getEvents(final MonthType monthType,
-			final DayType dayType, final HourType hourType) {
+	public Set<TimeSystemEvent> getEvents(final MonthType monthType, final DayType dayType, final HourType hourType) {
 		final MonthImpl monthExact = months.get(monthType);
 		final MonthImpl monthEvery = months.get(MonthType.EVERY);
 

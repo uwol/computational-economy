@@ -55,8 +55,7 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 
 	protected final Class<? extends Property> propertyClass;
 
-	public MarketPriceFunctionImpl(final MarketServiceImpl marketService,
-			final Currency denominatedInCurrency,
+	public MarketPriceFunctionImpl(final MarketServiceImpl marketService, final Currency denominatedInCurrency,
 			final Class<? extends Property> propertyClass) {
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.marketService = marketService;
@@ -65,8 +64,7 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 		this.propertyClass = propertyClass;
 	}
 
-	public MarketPriceFunctionImpl(final MarketServiceImpl marketService,
-			final Currency denominatedInCurrency,
+	public MarketPriceFunctionImpl(final MarketServiceImpl marketService, final Currency denominatedInCurrency,
 			final Currency commodityCurrency) {
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.marketService = marketService;
@@ -75,8 +73,8 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 		propertyClass = null;
 	}
 
-	public MarketPriceFunctionImpl(final MarketServiceImpl marketService,
-			final Currency denominatedInCurrency, final GoodType goodType) {
+	public MarketPriceFunctionImpl(final MarketServiceImpl marketService, final Currency denominatedInCurrency,
+			final GoodType goodType) {
 		this.denominatedInCurrency = denominatedInCurrency;
 		this.marketService = marketService;
 		commodityCurrency = null;
@@ -86,65 +84,59 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 
 	protected void checkReset(final double forAmount) {
 		/*
-		 * if a preceding call of the market price function has iterated to far
-		 * on market orders, we have to restart on the first market order
+		 * if a preceding call of the market price function has iterated to far on
+		 * market orders, we have to restart on the first market order
 		 */
-		if (marketOrderIterator == null
-				|| amountUntilCurrentMarketOrder > forAmount) {
+		if (marketOrderIterator == null || amountUntilCurrentMarketOrder > forAmount) {
 			reset();
 		}
 	}
 
 	/**
 	 * p(x) = p_1 * x | 0 <= x < a_1 <br />
-	 * p(x) = [p_1 * a_1 + p_2 * (x - a_1)] / [a_1 + (x - a_1)] | a_1 <= x < a_2 <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * (x - a_2)] / [a_1 + (a_2 - a_1) +
-	 * (x - a_2)] | a_2 <= x < a_3 <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + p_4 * (x - a_3)] / [a_1 +
-	 * (a_2 - a_1) + (a_3 - a_2) + (x - a_3)] | a_3 <= x < a_4 <br />
+	 * p(x) = [p_1 * a_1 + p_2 * (x - a_1)] / [a_1 + (x - a_1)] | a_1 <= x < a_2
 	 * <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + ... + p_n * (x - a_(n-1))] /
-	 * [x] | a_(n-1) <= x < a_n <br />
+	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * (x - a_2)] / [a_1 + (a_2 - a_1) + (x -
+	 * a_2)] | a_2 <= x < a_3 <br />
+	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + p_4 * (x - a_3)] / [a_1 + (a_2 -
+	 * a_1) + (a_3 - a_2) + (x - a_3)] | a_3 <= x < a_4 <br />
+	 * <br />
+	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + ... + p_n * (x - a_(n-1))] / [x]
+	 * | a_(n-1) <= x < a_n <br />
 	 * <br />
 	 * => <br />
 	 * <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + ... + p_(n-1) * a_(n-1)] / x
-	 * - a_(n-1) / x + p_n | a_(n-1) <= x < a_n <br />
-	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + ... + p_(n-1) * a_(n-1) - p_n
-	 * * a_(n-1)] / x + p_n | a_(n-1) <= x < a_n <br />
+	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + ... + p_(n-1) * a_(n-1)] / x -
+	 * a_(n-1) / x + p_n | a_(n-1) <= x < a_n <br />
+	 * p(x) = [p_1 * a_1 + p_2 * a_2 + p_3 * a_3 + ... + p_(n-1) * a_(n-1) - p_n *
+	 * a_(n-1)] / x + p_n | a_(n-1) <= x < a_n <br />
 	 */
 	@Override
-	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(
-			final double maxBudget) {
+	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(final double maxBudget) {
 		final List<PriceFunctionConfig> parameterSets = new ArrayList<PriceFunctionConfig>();
-		final Iterator<MarketOrder> iterator = marketService
-				.getMarketOrderIterator(denominatedInCurrency, goodType);
+		final Iterator<MarketOrder> iterator = marketService.getMarketOrderIterator(denominatedInCurrency, goodType);
 
 		// a_(n-1)
 		double intervalLeftBoundary = 0.0;
 		double sumOfPriceTimesAmount = 0.0;
 
 		/*
-		 * calculate step-wise price function parameters, starting with the
-		 * lowest price
+		 * calculate step-wise price function parameters, starting with the lowest price
 		 */
 		while (iterator.hasNext()) {
 			final MarketOrder marketOrder = iterator.next();
 
 			// a_n
-			final double intervalRightBoundary = intervalLeftBoundary
-					+ marketOrder.getAmount();
+			final double intervalRightBoundary = intervalLeftBoundary + marketOrder.getAmount();
 
 			final double coefficientXPower0 = marketOrder.getPricePerUnit();
 			final double coefficientXPowerMinus1 = sumOfPriceTimesAmount
 					- marketOrder.getPricePerUnit() * intervalLeftBoundary;
 
-			parameterSets.add(new PriceFunctionConfig(intervalLeftBoundary,
-					intervalRightBoundary, coefficientXPower0,
+			parameterSets.add(new PriceFunctionConfig(intervalLeftBoundary, intervalRightBoundary, coefficientXPower0,
 					coefficientXPowerMinus1));
 
-			sumOfPriceTimesAmount += marketOrder.getPricePerUnit()
-					* marketOrder.getAmount();
+			sumOfPriceTimesAmount += marketOrder.getPricePerUnit() * marketOrder.getAmount();
 			intervalLeftBoundary = intervalRightBoundary;
 
 			if (sumOfPriceTimesAmount > maxBudget) {
@@ -160,8 +152,7 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 
 		do {
 			if (currentMarketOrder != null) {
-				if (amountUntilCurrentMarketOrder
-						+ currentMarketOrder.getAmount() >= atAmount) {
+				if (amountUntilCurrentMarketOrder + currentMarketOrder.getAmount() >= atAmount) {
 					return currentMarketOrder.getPricePerUnit();
 				}
 			}
@@ -184,12 +175,10 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 		 */
 		do {
 			if (currentMarketOrder != null) {
-				if (amountUntilCurrentMarketOrder
-						+ currentMarketOrder.getAmount() >= atAmount) {
+				if (amountUntilCurrentMarketOrder + currentMarketOrder.getAmount() >= atAmount) {
 					// case 2: regular case
-					return (averagePricePerUnitUntilCurrentMarketOrder
-							* amountUntilCurrentMarketOrder + (atAmount - amountUntilCurrentMarketOrder)
-							* currentMarketOrder.getPricePerUnit())
+					return (averagePricePerUnitUntilCurrentMarketOrder * amountUntilCurrentMarketOrder
+							+ (atAmount - amountUntilCurrentMarketOrder) * currentMarketOrder.getPricePerUnit())
 							/ atAmount;
 				}
 			}
@@ -202,10 +191,9 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 	protected boolean nextMarketOrder() {
 		if (marketOrderIterator.hasNext()) {
 			averagePricePerUnitUntilCurrentMarketOrder = (averagePricePerUnitUntilCurrentMarketOrder
-					* amountUntilCurrentMarketOrder + currentMarketOrder
-					.getPricePerUnit() * currentMarketOrder.getAmount())
-					/ (amountUntilCurrentMarketOrder + currentMarketOrder
-							.getAmount());
+					* amountUntilCurrentMarketOrder
+					+ currentMarketOrder.getPricePerUnit() * currentMarketOrder.getAmount())
+					/ (amountUntilCurrentMarketOrder + currentMarketOrder.getAmount());
 			amountUntilCurrentMarketOrder += currentMarketOrder.getAmount();
 
 			currentMarketOrder = marketOrderIterator.next();
@@ -221,22 +209,18 @@ public class MarketPriceFunctionImpl implements MarketPriceFunction {
 		averagePricePerUnitUntilCurrentMarketOrder = Double.NaN;
 
 		if (goodType != null) {
-			marketOrderIterator = marketService.getMarketOrderIterator(
-					denominatedInCurrency, goodType);
+			marketOrderIterator = marketService.getMarketOrderIterator(denominatedInCurrency, goodType);
 		} else if (commodityCurrency != null) {
-			marketOrderIterator = marketService.getMarketOrderIterator(
-					denominatedInCurrency, commodityCurrency);
+			marketOrderIterator = marketService.getMarketOrderIterator(denominatedInCurrency, commodityCurrency);
 		} else if (propertyClass != null) {
-			marketOrderIterator = marketService.getMarketOrderIterator(
-					denominatedInCurrency, propertyClass);
+			marketOrderIterator = marketService.getMarketOrderIterator(denominatedInCurrency, propertyClass);
 		} else {
 			marketOrderIterator = null;
 		}
 
 		if (marketOrderIterator.hasNext()) {
 			currentMarketOrder = marketOrderIterator.next();
-			averagePricePerUnitUntilCurrentMarketOrder = currentMarketOrder
-					.getPricePerUnit();
+			averagePricePerUnitUntilCurrentMarketOrder = currentMarketOrder.getPricePerUnit();
 		}
 	}
 }

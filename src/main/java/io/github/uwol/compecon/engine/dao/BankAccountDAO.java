@@ -29,30 +29,26 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 public interface BankAccountDAO extends GenericDAO<BankAccount> {
 
 	/**
-	 * WARNING: Should only be called from the bank account factory, which
-	 * ensures a subsequent Hibernate flush.
+	 * WARNING: Should only be called from the bank account factory, which ensures a
+	 * subsequent Hibernate flush.
 	 *
 	 * @see io.github.uwol.compecon.engine.factory.BankAccountFactory
 	 */
 	public void deleteAllBankAccounts(final Bank managingBank);
 
 	/**
-	 * WARNING: Should only be called from the bank account factory, which
-	 * ensures a subsequent Hibernate flush.
+	 * WARNING: Should only be called from the bank account factory, which ensures a
+	 * subsequent Hibernate flush.
 	 *
 	 * @see io.github.uwol.compecon.engine.factory.BankAccountFactory
 	 */
-	public void deleteAllBankAccounts(final Bank managingBank,
-			final BankCustomer owner);
+	public void deleteAllBankAccounts(final Bank managingBank, final BankCustomer owner);
 
-	public List<BankAccount> findAll(final Bank managingBank,
-			final BankCustomer owner);
+	public List<BankAccount> findAll(final Bank managingBank, final BankCustomer owner);
 
-	public List<BankAccount> findAll(final Bank managingBank,
-			final BankCustomer owner, final Currency currency);
+	public List<BankAccount> findAll(final Bank managingBank, final BankCustomer owner, final Currency currency);
 
-	public List<BankAccount> findAllBankAccountsManagedByBank(
-			final Bank managingBank);
+	public List<BankAccount> findAllBankAccountsManagedByBank(final Bank managingBank);
 
 	public List<BankAccount> findAllBankAccountsOfAgent(final BankCustomer owner);
 }

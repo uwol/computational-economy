@@ -31,9 +31,8 @@ import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.dao.BankAccountDAO;
 
-public class BankAccountDAOImpl extends
-		AbstractIndexedInMemoryDAOImpl<BankCustomer, BankAccount> implements
-		BankAccountDAO {
+public class BankAccountDAOImpl extends AbstractIndexedInMemoryDAOImpl<BankCustomer, BankAccount>
+		implements BankAccountDAO {
 
 	protected Map<Bank, List<BankAccount>> bankAccounts = new HashMap<Bank, List<BankAccount>>();
 
@@ -53,8 +52,7 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized void delete(final BankAccount bankAccount) {
-		final List<BankAccount> bankAccountsOfBank = bankAccounts
-				.get(bankAccount.getManagingBank());
+		final List<BankAccount> bankAccountsOfBank = bankAccounts.get(bankAccount.getManagingBank());
 		if (bankAccountsOfBank != null) {
 			bankAccountsOfBank.remove(bankAccount);
 		}
@@ -64,11 +62,9 @@ public class BankAccountDAOImpl extends
 
 	@Override
 	public synchronized void deleteAllBankAccounts(final Bank managingBank) {
-		final List<BankAccount> bankAccountsOfBank = bankAccounts
-				.get(managingBank);
+		final List<BankAccount> bankAccountsOfBank = bankAccounts.get(managingBank);
 		if (bankAccountsOfBank != null) {
-			for (final BankAccount bankAccount : new HashSet<BankAccount>(
-					bankAccountsOfBank)) {
+			for (final BankAccount bankAccount : new HashSet<BankAccount>(bankAccountsOfBank)) {
 				delete(bankAccount);
 			}
 		}
@@ -76,12 +72,10 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized void deleteAllBankAccounts(final Bank managingBank,
-			final BankCustomer owner) {
+	public synchronized void deleteAllBankAccounts(final Bank managingBank, final BankCustomer owner) {
 		final List<BankAccount> bankAccountsOfOwner = getInstancesForKey(owner);
 		if (bankAccountsOfOwner != null) {
-			for (final BankAccount bankAccount : new HashSet<BankAccount>(
-					bankAccountsOfOwner)) {
+			for (final BankAccount bankAccount : new HashSet<BankAccount>(bankAccountsOfOwner)) {
 				if (bankAccount.getManagingBank() == managingBank) {
 					delete(bankAccount);
 				}
@@ -90,8 +84,7 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<BankAccount> findAll(final Bank managingBank,
-			final BankCustomer owner) {
+	public synchronized List<BankAccount> findAll(final Bank managingBank, final BankCustomer owner) {
 		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (final BankAccount bankAccount : findAllBankAccountsOfAgent(owner)) {
 			if (bankAccount.getManagingBank() == managingBank) {
@@ -102,12 +95,11 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<BankAccount> findAll(final Bank managingBank,
-			final BankCustomer owner, final Currency currency) {
+	public synchronized List<BankAccount> findAll(final Bank managingBank, final BankCustomer owner,
+			final Currency currency) {
 		final List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 		for (final BankAccount bankAccount : findAllBankAccountsOfAgent(owner)) {
-			if (bankAccount.getManagingBank() == managingBank
-					&& currency.equals(bankAccount.getCurrency())) {
+			if (bankAccount.getManagingBank() == managingBank && currency.equals(bankAccount.getCurrency())) {
 				bankAccounts.add(bankAccount);
 			}
 		}
@@ -115,18 +107,15 @@ public class BankAccountDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<BankAccount> findAllBankAccountsManagedByBank(
-			final Bank managingBank) {
+	public synchronized List<BankAccount> findAllBankAccountsManagedByBank(final Bank managingBank) {
 		assureInitializedDataStructure(managingBank);
 
-		final List<BankAccount> bankAccountManagedByBank = bankAccounts
-				.get(managingBank);
+		final List<BankAccount> bankAccountManagedByBank = bankAccounts.get(managingBank);
 		return new ArrayList<BankAccount>(bankAccountManagedByBank);
 	}
 
 	@Override
-	public synchronized List<BankAccount> findAllBankAccountsOfAgent(
-			final BankCustomer owner) {
+	public synchronized List<BankAccount> findAllBankAccountsOfAgent(final BankCustomer owner) {
 		final List<BankAccount> bankAccounts = getInstancesForKey(owner);
 		if (bankAccounts != null) {
 			return new ArrayList<BankAccount>(bankAccounts);

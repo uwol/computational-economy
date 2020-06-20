@@ -32,8 +32,8 @@ import io.github.uwol.compecon.engine.statistics.timeseries.PeriodDataAccumulato
 import io.github.uwol.compecon.engine.statistics.timeseries.PeriodDataPercentageTimeSeriesModel;
 import io.github.uwol.compecon.engine.statistics.timeseries.PeriodDataQuotientTimeSeriesModel;
 import io.github.uwol.compecon.math.ConvexFunction.ConvexFunctionTerminationCause;
-import io.github.uwol.compecon.math.production.ProductionFunction;
 import io.github.uwol.compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
+import io.github.uwol.compecon.math.production.ProductionFunction;
 
 public class ModelRegistry {
 
@@ -55,8 +55,8 @@ public class ModelRegistry {
 			public final PeriodDataAccumulatorTimeSeriesModel consumptionModel;
 			public final PeriodDataQuotientTimeSeriesModel consumptionRateModel;
 			/**
-			 * Models metering causes of terminations in convex production
-			 * functions, e. g. marginal costs exceeding marginal revenue.
+			 * Models metering causes of terminations in convex production functions, e. g.
+			 * marginal costs exceeding marginal revenue.
 			 */
 			public final Map<ConvexFunctionTerminationCause, PeriodDataAccumulatorTimeSeriesModel> convexFunctionTerminationCauseModels = new HashMap<ConvexFunctionTerminationCause, PeriodDataAccumulatorTimeSeriesModel>();
 			public final Currency currency;
@@ -72,46 +72,32 @@ public class ModelRegistry {
 			public final UtilityModel utilityModel;
 			public final PeriodDataAccumulatorTimeSeriesModel wageModel;
 
-			public HouseholdsModel(final Currency currency,
-					final InputOutputModel inputOutputModel) {
+			public HouseholdsModel(final Currency currency, final InputOutputModel inputOutputModel) {
 				this.currency = currency;
 
-				for (final ConvexFunctionTerminationCause cause : ConvexFunctionTerminationCause
-						.values()) {
-					convexFunctionTerminationCauseModels.put(
-							cause,
-							new PeriodDataAccumulatorTimeSeriesModel(cause
-									.toString()));
+				for (final ConvexFunctionTerminationCause cause : ConvexFunctionTerminationCause.values()) {
+					convexFunctionTerminationCauseModels.put(cause,
+							new PeriodDataAccumulatorTimeSeriesModel(cause.toString()));
 				}
 
-				consumptionModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " consumption");
+				consumptionModel = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " consumption");
 				consumptionRateModel = new PeriodDataQuotientTimeSeriesModel(
 						currency.getIso4217Code() + " consumption rate");
-				consumptionIncomeRatioModel = new PeriodDataQuotientTimeSeriesModel(
-						"");
-				dividendModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " dividend");
+				consumptionIncomeRatioModel = new PeriodDataQuotientTimeSeriesModel("");
+				dividendModel = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " dividend");
 				governmentTransfersModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " government transfers");
-				incomeModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " income");
-				incomeDistributionModel = new PeriodDataDistributionModel(
-						this.currency);
-				incomeSourceModel = new PeriodDataPercentageTimeSeriesModel<IncomeSource>(
-						IncomeSource.values(), currency.getIso4217Code()
-								+ " income source");
+				incomeModel = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " income");
+				incomeDistributionModel = new PeriodDataDistributionModel(this.currency);
+				incomeSourceModel = new PeriodDataPercentageTimeSeriesModel<IncomeSource>(IncomeSource.values(),
+						currency.getIso4217Code() + " income source");
 				labourHourCapacityModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " " + GoodType.LABOURHOUR
-								+ " cap.");
+						currency.getIso4217Code() + " " + GoodType.LABOURHOUR + " cap.");
 				retiredModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " retired Households");
-				savingModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " saving");
-				savingRateModel = new PeriodDataQuotientTimeSeriesModel(
-						currency.getIso4217Code() + " saving rate");
-				wageModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " wage");
+				savingModel = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " saving");
+				savingRateModel = new PeriodDataQuotientTimeSeriesModel(currency.getIso4217Code() + " saving rate");
+				wageModel = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " wage");
 				utilityModel = new UtilityModel(this.currency, inputOutputModel);
 			}
 
@@ -150,8 +136,8 @@ public class ModelRegistry {
 			public final PeriodDataAccumulatorTimeSeriesModel capitalDepreciationModel;
 
 			/**
-			 * Models metering causes of terminations in convex production
-			 * functions, e. g. marginal costs exceeding marginal revenue.
+			 * Models metering causes of terminations in convex production functions, e. g.
+			 * marginal costs exceeding marginal revenue.
 			 */
 			public final Map<ConvexProductionFunctionTerminationCause, PeriodDataAccumulatorTimeSeriesModel> convexProductionFunctionTerminationCauseModels = new HashMap<ConvexProductionFunctionTerminationCause, PeriodDataAccumulatorTimeSeriesModel>();
 
@@ -165,10 +151,8 @@ public class ModelRegistry {
 
 			public final PeriodDataAccumulatorTimeSeriesModel outputModel;
 
-			public IndustryModel(final Currency currency,
-					final GoodType goodType,
-					final InputOutputModel inputOutputModel,
-					final ProductionFunction productionFunction) {
+			public IndustryModel(final Currency currency, final GoodType goodType,
+					final InputOutputModel inputOutputModel, final ProductionFunction productionFunction) {
 				assert (!GoodType.LABOURHOUR.equals(goodType));
 				assert (productionFunction != null);
 
@@ -176,31 +160,21 @@ public class ModelRegistry {
 				this.goodType = goodType;
 
 				capitalDepreciationModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " " + goodType
-								+ " capital depreciation");
+						currency.getIso4217Code() + " " + goodType + " capital depreciation");
 				outputModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " " + goodType + " output");
 				inventoryModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " " + goodType
-								+ " inventory");
+						currency.getIso4217Code() + " " + goodType + " inventory");
 
-				for (final GoodType inputGoodType : productionFunction
-						.getInputGoodTypes()) {
-					inputModels.put(
-							inputGoodType,
-							new PeriodDataAccumulatorTimeSeriesModel(currency
-									.getIso4217Code()
-									+ " "
-									+ inputGoodType
-									+ " input"));
+				for (final GoodType inputGoodType : productionFunction.getInputGoodTypes()) {
+					inputModels.put(inputGoodType, new PeriodDataAccumulatorTimeSeriesModel(
+							currency.getIso4217Code() + " " + inputGoodType + " input"));
 				}
 
 				for (final ConvexProductionFunctionTerminationCause cause : ConvexProductionFunctionTerminationCause
 						.values()) {
-					convexProductionFunctionTerminationCauseModels.put(
-							cause,
-							new PeriodDataAccumulatorTimeSeriesModel(cause
-									.toString()));
+					convexProductionFunctionTerminationCauseModels.put(cause,
+							new PeriodDataAccumulatorTimeSeriesModel(cause.toString()));
 				}
 			}
 
@@ -233,32 +207,28 @@ public class ModelRegistry {
 			public final PeriodDataAccumulatorTimeSeriesModel pricingBehaviourAveragePriceDecisionCauseModel;
 
 			/**
-			 * Models metering causes of terminations in convex production
-			 * functions, e. g. marginal costs exceeding marginal revenue.
+			 * Models metering causes of terminations in convex production functions, e. g.
+			 * marginal costs exceeding marginal revenue.
 			 */
 			public final Map<PricingBehaviourNewPriceDecisionCause, PeriodDataAccumulatorTimeSeriesModel> pricingBehaviourPriceDecisionCauseModels = new HashMap<PricingBehaviourNewPriceDecisionCause, PeriodDataAccumulatorTimeSeriesModel>();
 
 			public final PeriodDataAccumulatorTimeSeriesModel soldModel;
 
-			public PricingBehaviourModel(final Currency currency,
-					final GoodType goodType) {
+			public PricingBehaviourModel(final Currency currency, final GoodType goodType) {
 				this.currency = currency;
 				this.goodType = goodType;
 
 				offerModel = new PeriodDataAccumulatorTimeSeriesModel(
 						currency.getIso4217Code() + " " + goodType + " offered");
 				soldModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " " + goodType
-								+ " sold (+1 period)");
+						currency.getIso4217Code() + " " + goodType + " sold (+1 period)");
 				pricingBehaviourAveragePriceDecisionCauseModel = new PeriodDataAccumulatorTimeSeriesModel(
 						"Average Decision");
 
 				for (final PricingBehaviourNewPriceDecisionCause cause : PricingBehaviourNewPriceDecisionCause
 						.values()) {
-					pricingBehaviourPriceDecisionCauseModels.put(
-							cause,
-							new PeriodDataAccumulatorTimeSeriesModel(cause
-									.toString()));
+					pricingBehaviourPriceDecisionCauseModels.put(cause,
+							new PeriodDataAccumulatorTimeSeriesModel(cause.toString()));
 				}
 			}
 
@@ -275,8 +245,7 @@ public class ModelRegistry {
 		}
 
 		/**
-		 * model for collecting statistics about the state of this national
-		 * economy
+		 * model for collecting statistics about the state of this national economy
 		 */
 		public class StateModel {
 
@@ -285,8 +254,7 @@ public class ModelRegistry {
 			// currently not used
 			public final UtilityModel utilityModel;
 
-			public StateModel(final Currency currency,
-					final InputOutputModel inputOutputModel) {
+			public StateModel(final Currency currency, final InputOutputModel inputOutputModel) {
 				this.currency = currency;
 
 				utilityModel = new UtilityModel(this.currency, inputOutputModel);
@@ -298,8 +266,7 @@ public class ModelRegistry {
 		}
 
 		/**
-		 * model for collecting statistics about utility of households and
-		 * states
+		 * model for collecting statistics about utility of households and states
 		 */
 		public class UtilityModel {
 
@@ -309,21 +276,13 @@ public class ModelRegistry {
 
 			public final PeriodDataAccumulatorTimeSeriesModel utilityOutputModel;
 
-			public UtilityModel(final Currency currency,
-					final InputOutputModel inputOutputModel) {
+			public UtilityModel(final Currency currency, final InputOutputModel inputOutputModel) {
 				this.currency = currency;
-				utilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(
-						currency.getIso4217Code() + " utility");
+				utilityOutputModel = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " utility");
 
-				for (final GoodType goodType : inputOutputModel
-						.getUtilityFunctionOfHousehold().getInputGoodTypes()) {
-					utilityInputModels.put(
-							goodType,
-							new PeriodDataAccumulatorTimeSeriesModel(currency
-									.getIso4217Code()
-									+ " "
-									+ goodType
-									+ " input"));
+				for (final GoodType goodType : inputOutputModel.getUtilityFunctionOfHousehold().getInputGoodTypes()) {
+					utilityInputModels.put(goodType, new PeriodDataAccumulatorTimeSeriesModel(
+							currency.getIso4217Code() + " " + goodType + " input"));
 				}
 			}
 
@@ -396,65 +355,52 @@ public class ModelRegistry {
 		public final StateModel stateModel;
 
 		/**
-		 * total utility sum of all periods; measurement starts after
-		 * initialization phase; TODO double overflow possible, group
-		 * statistical models that are filled after initialization phase
+		 * total utility sum of all periods; measurement starts after initialization
+		 * phase; TODO double overflow possible, group statistical models that are
+		 * filled after initialization phase
 		 */
 		public final PeriodDataAccumulatorTimeSeriesModel totalUtilityOutputModel;
 
-		public NationalEconomyModel(final Currency currency,
-				final InputOutputModel inputOutputModel) {
+		public NationalEconomyModel(final Currency currency, final InputOutputModel inputOutputModel) {
 			this.currency = currency;
 
 			for (final GoodType goodType : GoodType.values()) {
 				// labour hours are logged via household model
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
-					final ProductionFunction productionFunction = inputOutputModel
-							.getProductionFunction(goodType);
+					final ProductionFunction productionFunction = inputOutputModel.getProductionFunction(goodType);
 
 					// only good types that can be produced form an industry
 					if (productionFunction != null) {
-						industryModels.put(goodType, new IndustryModel(
-								currency, goodType, inputOutputModel,
-								productionFunction));
+						industryModels.put(goodType,
+								new IndustryModel(currency, goodType, inputOutputModel, productionFunction));
 					}
 				}
 			}
 
 			for (final GoodType goodType : GoodType.values()) {
-				pricingBehaviourModels.put(goodType, new PricingBehaviourModel(
-						currency, goodType));
+				pricingBehaviourModels.put(goodType, new PricingBehaviourModel(currency, goodType));
 			}
 
 			householdsModel = new HouseholdsModel(currency, inputOutputModel);
 			stateModel = new StateModel(currency, inputOutputModel);
 
-			for (final Class<? extends Agent> agentType : ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes()) {
-				numberOfAgentsModels.put(
-						agentType,
-						new PeriodDataAccumulatorTimeSeriesModel(currency
-								.getIso4217Code()
-								+ " "
-								+ agentType.getSimpleName()));
+			for (final Class<? extends Agent> agentType : ApplicationContext.getInstance().getAgentFactory()
+					.getAgentTypes()) {
+				numberOfAgentsModels.put(agentType, new PeriodDataAccumulatorTimeSeriesModel(
+						currency.getIso4217Code() + " " + agentType.getSimpleName()));
 			}
 
 			pricesModel = new PricesModel();
 			marketDepthModel = new MarketDepthModel();
 			keyInterestRateModel = new PeriodDataAccumulatorTimeSeriesModel(
 					currency.getIso4217Code() + " key interest rate");
-			moneySupplyM0Model = new PeriodDataAccumulatorTimeSeriesModel(
-					currency.getIso4217Code() + " M0");
-			moneySupplyM1Model = new PeriodDataAccumulatorTimeSeriesModel(
-					currency.getIso4217Code() + " M1");
-			moneySupplyM2Model = new PeriodDataAccumulatorTimeSeriesModel(
-					currency.getIso4217Code() + " M2");
+			moneySupplyM0Model = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " M0");
+			moneySupplyM1Model = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " M1");
+			moneySupplyM2Model = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " M2");
 			moneyCirculationModel = new PeriodDataAccumulatorTimeSeriesModel(
 					currency.getIso4217Code() + " money circulation");
-			moneyVelocityModel = new PeriodDataQuotientTimeSeriesModel(
-					currency.getIso4217Code() + " money velocity");
-			priceIndexModel = new PeriodDataAccumulatorTimeSeriesModel(
-					currency.getIso4217Code() + " price index");
+			moneyVelocityModel = new PeriodDataQuotientTimeSeriesModel(currency.getIso4217Code() + " money velocity");
+			priceIndexModel = new PeriodDataAccumulatorTimeSeriesModel(currency.getIso4217Code() + " price index");
 			creditUtilizationRateModel = new PeriodDataQuotientTimeSeriesModel(
 					currency.getIso4217Code() + " credit util. rate");
 			balanceSheetsModel = new BalanceSheetsModel(currency);
@@ -468,22 +414,18 @@ public class ModelRegistry {
 			return industryModels.get(goodType);
 		}
 
-		public PricingBehaviourModel getPricingBehaviourModel(
-				final GoodType goodType) {
+		public PricingBehaviourModel getPricingBehaviourModel(final GoodType goodType) {
 			return pricingBehaviourModels.get(goodType);
 		}
 
 		public void nextPeriod() {
-			moneyVelocityModel.add(moneyCirculationModel.getValue(),
-					moneySupplyM1Model.getValue());
+			moneyVelocityModel.add(moneyCirculationModel.getValue(), moneySupplyM1Model.getValue());
 
-			for (final IndustryModel goodTypeProductionModel : industryModels
-					.values()) {
+			for (final IndustryModel goodTypeProductionModel : industryModels.values()) {
 				goodTypeProductionModel.nextPeriod();
 			}
 
-			for (final PricingBehaviourModel pricingBehaviourModel : pricingBehaviourModels
-					.values()) {
+			for (final PricingBehaviourModel pricingBehaviourModel : pricingBehaviourModels.values()) {
 				pricingBehaviourModel.nextPeriod();
 			}
 
@@ -499,8 +441,7 @@ public class ModelRegistry {
 			moneyCirculationModel.nextPeriod();
 			moneyVelocityModel.nextPeriod();
 
-			for (final PeriodDataAccumulatorTimeSeriesModel numberOfAgentsModel : numberOfAgentsModels
-					.values()) {
+			for (final PeriodDataAccumulatorTimeSeriesModel numberOfAgentsModel : numberOfAgentsModels.values()) {
 				numberOfAgentsModel.nextPeriod();
 			}
 
@@ -521,8 +462,7 @@ public class ModelRegistry {
 	 */
 	public ModelRegistry(final InputOutputModel inputOutputModel) {
 		for (final Currency currency : Currency.values()) {
-			nationalEconomyModels.put(currency, new NationalEconomyModel(
-					currency, inputOutputModel));
+			nationalEconomyModels.put(currency, new NationalEconomyModel(currency, inputOutputModel));
 		}
 	}
 
@@ -545,8 +485,7 @@ public class ModelRegistry {
 	public void nextPeriod() {
 		agentDetailModel.notifyListeners();
 
-		for (final NationalEconomyModel nationalEconomyModel : nationalEconomyModels
-				.values()) {
+		for (final NationalEconomyModel nationalEconomyModel : nationalEconomyModels.values()) {
 			nationalEconomyModel.nextPeriod();
 		}
 	}

@@ -23,13 +23,9 @@ import java.util.Map;
 
 import io.github.uwol.compecon.math.impl.CobbDouglasFunctionImpl;
 
-public class CobbDouglasIntertemporalConsumptionFunction extends
-		IrvingFisherIntertemporalConsumptionFunction {
+public class CobbDouglasIntertemporalConsumptionFunction extends IrvingFisherIntertemporalConsumptionFunction {
 
-	public CobbDouglasIntertemporalConsumptionFunction(
-			final Map<Period, Double> intertemporalPreferences) {
-		super(
-				new CobbDouglasFunctionImpl<Period>(1.0,
-						intertemporalPreferences));
+	public CobbDouglasIntertemporalConsumptionFunction(final Map<Period, Double> intertemporalPreferences) {
+		super(new CobbDouglasFunctionImpl<Period>(1.0, intertemporalPreferences));
 	}
 }

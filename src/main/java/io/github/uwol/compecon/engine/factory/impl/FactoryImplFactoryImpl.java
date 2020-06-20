@@ -37,29 +37,25 @@ public class FactoryImplFactoryImpl implements FactoryFactory {
 	}
 
 	@Override
-	public Factory newInstanceFactory(final GoodType goodType,
-			final Currency primaryCurrency) {
+	public Factory newInstanceFactory(final GoodType goodType, final Currency primaryCurrency) {
 		assert (goodType != null);
 		assert (primaryCurrency != null);
 
 		final FactoryImpl factory = new FactoryImpl();
 
 		if (!HibernateUtil.isActive()) {
-			factory.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			factory.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
 		factory.setProducedGoodType(goodType);
 		factory.setPrimaryCurrency(primaryCurrency);
-		factory.setReferenceCredit(ApplicationContext.getInstance()
-				.getConfiguration().factoryConfig.getReferenceCredit());
+		factory.setReferenceCredit(
+				ApplicationContext.getInstance().getConfiguration().factoryConfig.getReferenceCredit());
 
-		final ProductionFunction productionFunction = ApplicationContext
-				.getInstance().getInputOutputModel()
+		final ProductionFunction productionFunction = ApplicationContext.getInstance().getInputOutputModel()
 				.getProductionFunction(goodType);
 
-		assert (productionFunction != null) : "no production function defined for good type "
-				+ goodType;
+		assert (productionFunction != null) : "no production function defined for good type " + goodType;
 
 		factory.setProductionFunction(productionFunction);
 

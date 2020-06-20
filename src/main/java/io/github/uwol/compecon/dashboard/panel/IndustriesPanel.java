@@ -40,19 +40,22 @@ import org.jfree.data.xy.XYDataset;
 import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
-import io.github.uwol.compecon.engine.statistics.PricesModel;
 import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.ModelListener;
+import io.github.uwol.compecon.engine.statistics.PricesModel;
 import io.github.uwol.compecon.engine.statistics.PricesModel.PriceModel;
 import io.github.uwol.compecon.math.production.ConvexProductionFunction.ConvexProductionFunctionTerminationCause;
 
-public class IndustriesPanel extends AbstractChartsPanel implements
-		ModelListener {
+public class IndustriesPanel extends AbstractChartsPanel implements ModelListener {
 
-	public class IndustriesPanelForCurrency extends JPanel implements
-			ModelListener {
+	private static final long serialVersionUID = 1L;
 
-		public class IndustriesPanelForGoodTypeInCurrency extends JPanel
-				implements ModelListener {
+	public class IndustriesPanelForCurrency extends JPanel implements ModelListener {
+
+		private static final long serialVersionUID = 1L;
+
+		public class IndustriesPanelForGoodTypeInCurrency extends JPanel implements ModelListener {
+
+			private static final long serialVersionUID = 1L;
 
 			protected final Currency currency;
 
@@ -62,28 +65,24 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 
 			protected JPanel priceTimeSeriesPanel;
 
-			public IndustriesPanelForGoodTypeInCurrency(
-					final Currency currency, final GoodType goodType) {
+			public IndustriesPanelForGoodTypeInCurrency(final Currency currency, final GoodType goodType) {
 				this.currency = currency;
 				this.goodType = goodType;
 
 				setLayout(new GridLayout(0, 2));
 
 				this.add(createProductionPanel(currency, goodType));
-				this.add(createProductionFunctionMechanicsPanel(currency,
-						goodType));
+				this.add(createProductionFunctionMechanicsPanel(currency, goodType));
 				this.add(createFactoryBalanceSheetPanel(currency, goodType));
 				this.add(createGoodTypeSupplyPanel(currency, goodType));
-				this.add(createPricingBehaviourMechanicsPanel(currency,
-						goodType));
+				this.add(createPricingBehaviourMechanicsPanel(currency, goodType));
 
 				// only capital goods are depreciated
 				if (goodType.isDurable()) {
 					this.add(createCapitalDepreciationPanel(currency, goodType));
 				}
 
-				ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).pricesModel
+				ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency).pricesModel
 						.registerListener(this);
 				// no registration with the market depth model, as they call
 				// listeners synchronously
@@ -98,16 +97,14 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 					if (priceTimeSeriesPanel != null) {
 						this.remove(priceTimeSeriesPanel);
 					}
-					priceTimeSeriesPanel = createPriceTimeSeriesChartPanel(
-							currency, goodType);
+					priceTimeSeriesPanel = createPriceTimeSeriesChartPanel(currency, goodType);
 					this.add(priceTimeSeriesPanel);
 
 					// market depth panel
 					if (marketDepthPanel != null) {
 						this.remove(marketDepthPanel);
 					}
-					marketDepthPanel = createMarketDepthPanel(currency,
-							goodType);
+					marketDepthPanel = createMarketDepthPanel(currency, goodType);
 					this.add(marketDepthPanel);
 
 					validate();
@@ -129,13 +126,11 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 				if (!GoodType.LABOURHOUR.equals(outputGoodType)) {
 					// a model has to exist for this panel; might be not the
 					// case when certain good types are unused in simulation
-					if (ApplicationContext.getInstance().getModelRegistry()
-							.getNationalEconomyModel(currency)
+					if (ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
 							.getIndustryModel(outputGoodType) != null) {
 						final IndustriesPanelForGoodTypeInCurrency panelForGoodType = new IndustriesPanelForGoodTypeInCurrency(
 								currency, outputGoodType);
-						jTabbedPaneGoodType.addTab(outputGoodType.name(),
-								panelForGoodType);
+						jTabbedPaneGoodType.addTab(outputGoodType.name(), panelForGoodType);
 					}
 				}
 			}
@@ -168,10 +163,8 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 	public IndustriesPanel() {
 		setLayout(new BorderLayout());
 		for (final Currency currency : Currency.values()) {
-			final IndustriesPanelForCurrency panelForCurrency = new IndustriesPanelForCurrency(
-					currency);
-			jTabbedPaneCurrency.addTab(currency.getIso4217Code(),
-					panelForCurrency);
+			final IndustriesPanelForCurrency panelForCurrency = new IndustriesPanelForCurrency(currency);
+			jTabbedPaneCurrency.addTab(currency.getIso4217Code(), panelForCurrency);
 		}
 
 		jTabbedPaneCurrency.addChangeListener(new ChangeListener() {
@@ -189,142 +182,107 @@ public class IndustriesPanel extends AbstractChartsPanel implements
 		add(jTabbedPaneCurrency, BorderLayout.CENTER);
 	}
 
-	protected ChartPanel createCapitalDepreciationPanel(
-			final Currency currency, final GoodType outputGoodType) {
+	protected ChartPanel createCapitalDepreciationPanel(final Currency currency, final GoodType outputGoodType) {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency)
-				.getIndustryModel(outputGoodType).capitalDepreciationModel
-				.getTimeSeries());
+		timeSeriesCollection
+				.addSeries(ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+						.getIndustryModel(outputGoodType).capitalDepreciationModel.getTimeSeries());
 
-		final JFreeChart chart = ChartFactory
-				.createTimeSeriesChart(outputGoodType.toString()
-						+ " Capital Depreciation", "Date",
-						"Capital Depreciation", timeSeriesCollection, true,
-						true, false);
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart(outputGoodType.toString() + " Capital Depreciation",
+				"Date", "Capital Depreciation", timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
-	protected ChartPanel createGoodTypeSupplyPanel(final Currency currency,
-			final GoodType outputGoodType) {
+	protected ChartPanel createGoodTypeSupplyPanel(final Currency currency, final GoodType outputGoodType) {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency)
-				.getPricingBehaviourModel(outputGoodType).offerModel
-				.getTimeSeries());
-		timeSeriesCollection.addSeries(ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency)
-				.getPricingBehaviourModel(outputGoodType).soldModel
-				.getTimeSeries());
-		timeSeriesCollection.addSeries(ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency)
-				.getIndustryModel(outputGoodType).inventoryModel
-				.getTimeSeries());
-		timeSeriesCollection.addSeries(ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency)
-				.getIndustryModel(outputGoodType).outputModel.getTimeSeries());
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).getPricingBehaviourModel(outputGoodType).offerModel.getTimeSeries());
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).getPricingBehaviourModel(outputGoodType).soldModel.getTimeSeries());
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).getIndustryModel(outputGoodType).inventoryModel.getTimeSeries());
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).getIndustryModel(outputGoodType).outputModel.getTimeSeries());
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				outputGoodType.toString() + " Supply", "Date", "Supply",
-				timeSeriesCollection, true, true, false);
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart(outputGoodType.toString() + " Supply", "Date",
+				"Supply", timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
-	protected ChartPanel createMarketDepthPanel(final Currency currency,
-			final GoodType goodType) {
-		final XYDataset dataset = ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency).marketDepthModel
-				.getMarketDepthDataset(currency, goodType);
-		final JFreeChart chart = ChartFactory.createXYStepAreaChart(goodType
-				+ " Market Depth", "Price", "Volume", dataset,
-				PlotOrientation.VERTICAL, true, true, false);
+	protected ChartPanel createMarketDepthPanel(final Currency currency, final GoodType goodType) {
+		final XYDataset dataset = ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).marketDepthModel.getMarketDepthDataset(currency, goodType);
+		final JFreeChart chart = ChartFactory.createXYStepAreaChart(goodType + " Market Depth", "Price", "Volume",
+				dataset, PlotOrientation.VERTICAL, true, true, false);
 		return new ChartPanel(chart);
 	}
 
-	protected ChartPanel createPriceTimeSeriesChartPanel(
-			final Currency currency, final GoodType goodType) {
-		final JFreeChart priceChart = ChartFactory.createCandlestickChart(
-				goodType + " Prices", "Time",
-				"Price in " + currency.getIso4217Code(),
-				getDefaultHighLowDataset(currency, goodType), false);
+	protected ChartPanel createPriceTimeSeriesChartPanel(final Currency currency, final GoodType goodType) {
+		final JFreeChart priceChart = ChartFactory.createCandlestickChart(goodType + " Prices", "Time",
+				"Price in " + currency.getIso4217Code(), getDefaultHighLowDataset(currency, goodType), false);
 		final ChartPanel chartPanel = new ChartPanel(priceChart);
 		chartPanel.setDomainZoomable(true);
 		chartPanel.setPreferredSize(new java.awt.Dimension(800, 400));
 		return chartPanel;
 	}
 
-	protected ChartPanel createProductionFunctionMechanicsPanel(
-			final Currency currency, final GoodType outputGoodType) {
+	protected ChartPanel createProductionFunctionMechanicsPanel(final Currency currency,
+			final GoodType outputGoodType) {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection.addSeries(ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency)
-				.getIndustryModel(outputGoodType).budgetModel.getTimeSeries());
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).getIndustryModel(outputGoodType).budgetModel.getTimeSeries());
 		for (final ConvexProductionFunctionTerminationCause terminationCause : ConvexProductionFunctionTerminationCause
 				.values()) {
 			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency)
+					.addSeries(ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
 							.getIndustryModel(outputGoodType).convexProductionFunctionTerminationCauseModels
-							.get(terminationCause).getTimeSeries());
+									.get(terminationCause).getTimeSeries());
 		}
 
 		// budget is correct here, as the chart illustrates budget
 		// emergence from these causes
-		final JFreeChart chart = ChartFactory
-				.createTimeSeriesChart(outputGoodType.toString()
-						+ " Production Function Mechanics", "Date",
-						"Budget Spent", timeSeriesCollection, true, true, false);
-		configureChart(chart);
-		return new ChartPanel(chart);
-	}
-
-	protected ChartPanel createProductionPanel(final Currency currency,
-			final GoodType outputGoodType) {
-		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-
-		timeSeriesCollection.addSeries(ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency)
-				.getIndustryModel(outputGoodType).outputModel.getTimeSeries());
-		for (final GoodType inputGoodType : ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency)
-				.getIndustryModel(outputGoodType).inputModels.keySet()) {
-			timeSeriesCollection.addSeries(ApplicationContext.getInstance()
-					.getModelRegistry().getNationalEconomyModel(currency)
-					.getIndustryModel(outputGoodType).inputModels.get(
-					inputGoodType).getTimeSeries());
-		}
-
 		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				outputGoodType.toString() + " Production", "Date", "Output",
+				outputGoodType.toString() + " Production Function Mechanics", "Date", "Budget Spent",
 				timeSeriesCollection, true, true, false);
 		configureChart(chart);
-		chart.addSubtitle(new TextTitle("Inputs: "
-				+ ApplicationContext.getInstance().getInputOutputModel()
-						.getProductionFunction(outputGoodType)
-						.getInputGoodTypes().toString()));
 		return new ChartPanel(chart);
 	}
 
-	protected DefaultHighLowDataset getDefaultHighLowDataset(
-			final Currency currency, final GoodType goodType) {
-		final PricesModel pricesModel = ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency).pricesModel;
+	protected ChartPanel createProductionPanel(final Currency currency, final GoodType outputGoodType) {
+		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		final Map<GoodType, PriceModel> priceModelsForGoodType = pricesModel
-				.getPriceModelsForGoodTypes();
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).getIndustryModel(outputGoodType).outputModel.getTimeSeries());
+		for (final GoodType inputGoodType : ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).getIndustryModel(outputGoodType).inputModels.keySet()) {
+			timeSeriesCollection
+					.addSeries(ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+							.getIndustryModel(outputGoodType).inputModels.get(inputGoodType).getTimeSeries());
+		}
+
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart(outputGoodType.toString() + " Production", "Date",
+				"Output", timeSeriesCollection, true, true, false);
+		configureChart(chart);
+		chart.addSubtitle(new TextTitle("Inputs: " + ApplicationContext.getInstance().getInputOutputModel()
+				.getProductionFunction(outputGoodType).getInputGoodTypes().toString()));
+		return new ChartPanel(chart);
+	}
+
+	protected DefaultHighLowDataset getDefaultHighLowDataset(final Currency currency, final GoodType goodType) {
+		final PricesModel pricesModel = ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).pricesModel;
+
+		final Map<GoodType, PriceModel> priceModelsForGoodType = pricesModel.getPriceModelsForGoodTypes();
 		final PriceModel priceModel = priceModelsForGoodType.get(goodType);
 
 		if (priceModel != null) {
-			return new DefaultHighLowDataset("", priceModel.getDate(),
-					priceModel.getHigh(), priceModel.getLow(),
-					priceModel.getOpen(), priceModel.getClose(),
-					priceModel.getVolume());
+			return new DefaultHighLowDataset("", priceModel.getDate(), priceModel.getHigh(), priceModel.getLow(),
+					priceModel.getOpen(), priceModel.getClose(), priceModel.getVolume());
 		}
 
 		return null;

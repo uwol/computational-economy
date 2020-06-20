@@ -91,7 +91,6 @@ public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 
 	@Override
 	public String toString() {
-		return "id=[" + id + "], propertyOwner=[" + propertyOwner
-				+ "], ownedGoodTypes=[" + ownedGoodTypes + "]";
+		return "id=[" + id + "], propertyOwner=[" + propertyOwner + "], ownedGoodTypes=[" + ownedGoodTypes + "]";
 	}
 }

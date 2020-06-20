@@ -37,8 +37,7 @@ public class MonthImpl implements Month {
 	}
 
 	@Override
-	public void addEvent(final TimeSystemEvent event, final DayType dayType,
-			final HourType hourType) {
+	public void addEvent(final TimeSystemEvent event, final DayType dayType, final HourType hourType) {
 		if (!days.containsKey(dayType)) {
 			days.put(dayType, new DayImpl(dayType));
 		}
@@ -46,8 +45,7 @@ public class MonthImpl implements Month {
 	}
 
 	@Override
-	public Set<TimeSystemEvent> getEvents(final DayType dayType,
-			final HourType hourType) {
+	public Set<TimeSystemEvent> getEvents(final DayType dayType, final HourType hourType) {
 		final DayImpl dayExact = days.get(dayType);
 		final DayImpl dayEvery = days.get(DayType.EVERY);
 

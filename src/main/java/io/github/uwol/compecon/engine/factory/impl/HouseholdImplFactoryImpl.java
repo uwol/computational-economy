@@ -36,35 +36,31 @@ public class HouseholdImplFactoryImpl implements HouseholdFactory {
 	}
 
 	@Override
-	public Household newInstanceHousehold(final Currency primaryCurrency,
-			final int ageInDays) {
+	public Household newInstanceHousehold(final Currency primaryCurrency, final int ageInDays) {
 		assert (primaryCurrency != null);
 
 		final HouseholdImpl household = new HouseholdImpl();
 
 		if (!HibernateUtil.isActive()) {
-			household.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			household.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
 		household.setAgeInDays(ageInDays);
 		household.setPrimaryCurrency(primaryCurrency);
 
-		household.setUtilityFunction(ApplicationContext.getInstance()
-				.getInputOutputModel().getUtilityFunctionOfHousehold());
+		household.setUtilityFunction(
+				ApplicationContext.getInstance().getInputOutputModel().getUtilityFunctionOfHousehold());
 
 		// intertemporal preferences
 		/*
 		 * Map<Period, Double> intertemeporalPreferences = new HashMap<Period,
 		 * Double>(); intertemeporalPreferences.put(Period.CURRENT, 0.5);
 		 * intermeporalPreferences.put(Period.NEXT, 0.5);
-		 * IntertemporalConsumptionFunction intertemporalConsumptionFunction =
-		 * new CobbDouglasIntertemporalConsumptionFunction(
-		 * intertemeporalPreferences);
+		 * IntertemporalConsumptionFunction intertemporalConsumptionFunction = new
+		 * CobbDouglasIntertemporalConsumptionFunction( intertemeporalPreferences);
 		 */
 
-		household
-				.setIntertemporalConsumptionFunction(new ModiglianiIntertemporalConsumptionFunction());
+		household.setIntertemporalConsumptionFunction(new ModiglianiIntertemporalConsumptionFunction());
 
 		ApplicationContext.getInstance().getHouseholdDAO().save(household);
 		household.initialize();

@@ -42,8 +42,8 @@ public class CobbDouglasUtilityFunctionTest extends CompEconTestSupport {
 		final Map<GoodType, Double> preferences = new HashMap<GoodType, Double>();
 		preferences.put(GoodType.KILOWATT, 0.4);
 		preferences.put(GoodType.WHEAT, 0.6);
-		final CobbDouglasUtilityFunctionImpl cobbDouglasUtilityFunction = new CobbDouglasUtilityFunctionImpl(
-				1.0, preferences);
+		final CobbDouglasUtilityFunctionImpl cobbDouglasUtilityFunction = new CobbDouglasUtilityFunctionImpl(1.0,
+				preferences);
 
 		/*
 		 * maximize output under budget restriction
@@ -53,26 +53,22 @@ public class CobbDouglasUtilityFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 		final double budget = 10.0;
 
-		final Map<GoodType, Double> optimalInputs = cobbDouglasUtilityFunction
-				.calculateUtilityMaximizingInputs(prices, budget);
+		final Map<GoodType, Double> optimalInputs = cobbDouglasUtilityFunction.calculateUtilityMaximizingInputs(prices,
+				budget);
 		assertEquals(4.0, optimalInputs.get(GoodType.KILOWATT), epsilon);
 		assertEquals(3.0, optimalInputs.get(GoodType.WHEAT), epsilon);
 
 		/*
 		 * assert output
 		 */
-		assertEquals(3.36586,
-				cobbDouglasUtilityFunction.calculateUtility(optimalInputs),
-				epsilon);
+		assertEquals(3.36586, cobbDouglasUtilityFunction.calculateUtility(optimalInputs), epsilon);
 
 		/*
 		 * assert marginal outputs
 		 */
-		assertEquals(0.336586,
-				cobbDouglasUtilityFunction.calculateMarginalUtility(
-						optimalInputs, GoodType.KILOWATT), epsilon);
-		assertEquals(0.673173,
-				cobbDouglasUtilityFunction.calculateMarginalUtility(
-						optimalInputs, GoodType.WHEAT), epsilon);
+		assertEquals(0.336586, cobbDouglasUtilityFunction.calculateMarginalUtility(optimalInputs, GoodType.KILOWATT),
+				epsilon);
+		assertEquals(0.673173, cobbDouglasUtilityFunction.calculateMarginalUtility(optimalInputs, GoodType.WHEAT),
+				epsilon);
 	}
 }

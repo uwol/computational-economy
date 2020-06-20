@@ -37,8 +37,7 @@ public class HardCashServiceImpl implements HardCashService {
 	}
 
 	@Override
-	public double decrement(final HardCashOwner owner, final Currency currency,
-			final double amount) {
+	public double decrement(final HardCashOwner owner, final Currency currency, final double amount) {
 		assureAgentHasBalances(owner);
 
 		assert (amount >= 0.0);
@@ -74,8 +73,7 @@ public class HardCashServiceImpl implements HardCashService {
 	}
 
 	@Override
-	public double increment(final HardCashOwner owner, final Currency currency,
-			final double amount) {
+	public double increment(final HardCashOwner owner, final Currency currency, final double amount) {
 		assureAgentHasBalances(owner);
 
 		assert (amount > 0.0);

@@ -25,6 +25,5 @@ import io.github.uwol.compecon.economy.security.equity.Share;
 
 public interface ShareFactory {
 
-	public Share newInstanceShare(final Agent owner,
-			final JointStockCompany issuer);
+	public Share newInstanceShare(final Agent owner, final JointStockCompany issuer);
 }

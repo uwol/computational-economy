@@ -28,24 +28,19 @@ import io.github.uwol.compecon.economy.property.PropertyOwner;
 import io.github.uwol.compecon.economy.property.impl.GoodTypeOwnershipImpl;
 import io.github.uwol.compecon.engine.dao.GoodTypeOwnershipDAO;
 
-public class GoodTypeOwnershipDAOImpl extends
-		HibernateDAOImpl<GoodTypeOwnership> implements GoodTypeOwnershipDAO {
+public class GoodTypeOwnershipDAOImpl extends HibernateDAOImpl<GoodTypeOwnership> implements GoodTypeOwnershipDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<GoodTypeOwnership> findAllByPropertyOwner(
-			final PropertyOwner propertyOwner) {
+	public List<GoodTypeOwnership> findAllByPropertyOwner(final PropertyOwner propertyOwner) {
 		return getSession().createCriteria(GoodTypeOwnershipImpl.class)
 				.add(Restrictions.eq("propertyOwner", propertyOwner)).list();
 	}
 
 	@Override
-	public GoodTypeOwnership findFirstByPropertyOwner(
-			final PropertyOwner propertyOwner) {
-		final Object object = getSession()
-				.createCriteria(GoodTypeOwnershipImpl.class)
-				.add(Restrictions.eq("propertyOwner", propertyOwner))
-				.setMaxResults(1).uniqueResult();
+	public GoodTypeOwnership findFirstByPropertyOwner(final PropertyOwner propertyOwner) {
+		final Object object = getSession().createCriteria(GoodTypeOwnershipImpl.class)
+				.add(Restrictions.eq("propertyOwner", propertyOwner)).setMaxResults(1).uniqueResult();
 
 		if (object == null) {
 			return null;
@@ -53,5 +48,4 @@ public class GoodTypeOwnershipDAOImpl extends
 
 		return (GoodTypeOwnershipImpl) object;
 	}
-
 }

@@ -28,9 +28,8 @@ public interface Share extends PropertyIssued {
 
 	/**
 	 * called by the owner of this share when obtaining this share -> dividend
-	 * payments are transfered to the bank account referenced by this bank
-	 * account delegate.
+	 * payments are transfered to the bank account referenced by this bank account
+	 * delegate.
 	 */
-	public void setDividendBankAccountDelegate(
-			BankAccountDelegate dividendBankAccountDelegate);
+	public void setDividendBankAccountDelegate(BankAccountDelegate dividendBankAccountDelegate);
 }

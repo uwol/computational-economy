@@ -32,16 +32,11 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
-import org.hibernate.jmx.StatisticsService;
-
-import io.github.uwol.compecon.engine.util.HibernateUtil;
-
 public class JMXRegistration {
 
 	private static Map<ObjectName, Object> mBeans = new HashMap<ObjectName, Object>();
 
-	private static MBeanServer mBeanServer = ManagementFactory
-			.getPlatformMBeanServer();
+	private static MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
 	public static void close() {
 		for (final Entry<ObjectName, Object> entry : mBeans.entrySet()) {
@@ -57,23 +52,14 @@ public class JMXRegistration {
 	public static void init() {
 		mBeans.clear();
 		try {
-			mBeans.put(new ObjectName("compecon.jmx:type=NumberOfAgentsModel"),
-					new JmxNumberOfAgentsModel());
-			mBeans.put(new ObjectName("compecon.jmx:type=TimeSystemModel"),
-					new JmxTimeSystemModel());
-
-			// hibernate stats mbean
-			final StatisticsService statsMBean = new StatisticsService();
-			statsMBean.setSessionFactory(HibernateUtil.getSessionFactory());
-			statsMBean.setStatisticsEnabled(true);
-			mBeans.put(new ObjectName("Hibernate:application=Statistics"),
-					statsMBean);
+			mBeans.put(new ObjectName("compecon.jmx:type=NumberOfAgentsModel"), new JmxNumberOfAgentsModel());
+			mBeans.put(new ObjectName("compecon.jmx:type=TimeSystemModel"), new JmxTimeSystemModel());
 
 			for (final Entry<ObjectName, Object> entry : mBeans.entrySet()) {
 				mBeanServer.registerMBean(entry.getValue(), entry.getKey());
 			}
-		} catch (MalformedObjectNameException | InstanceAlreadyExistsException
-				| MBeanRegistrationException | NotCompliantMBeanException e) {
+		} catch (MalformedObjectNameException | InstanceAlreadyExistsException | MBeanRegistrationException
+				| NotCompliantMBeanException e) {
 			e.printStackTrace();
 		}
 	}

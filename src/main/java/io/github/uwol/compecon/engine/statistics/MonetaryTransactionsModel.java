@@ -35,22 +35,21 @@ public class MonetaryTransactionsModel extends NotificationListenerModel {
 
 	public MonetaryTransactionsModel() {
 		// from
-		for (final Class<? extends Agent> agentTypeFrom : ApplicationContext
-				.getInstance().getAgentFactory().getAgentTypes()) {
+		for (final Class<? extends Agent> agentTypeFrom : ApplicationContext.getInstance().getAgentFactory()
+				.getAgentTypes()) {
 			final Map<Class<? extends Agent>, PeriodDataAccumulator> toMap = new HashMap<Class<? extends Agent>, PeriodDataAccumulator>();
 			adjacencyMatrix.put(agentTypeFrom, toMap);
 
 			// to
-			for (final Class<? extends Agent> agentTypeTo : ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes()) {
+			for (final Class<? extends Agent> agentTypeTo : ApplicationContext.getInstance().getAgentFactory()
+					.getAgentTypes()) {
 				toMap.put(agentTypeTo, new PeriodDataAccumulator());
 			}
 		}
 	}
 
-	public void bank_onTransfer(final Class<? extends BankCustomer> from,
-			final Class<? extends BankCustomer> to, final Currency currency,
-			final double value) {
+	public void bank_onTransfer(final Class<? extends BankCustomer> from, final Class<? extends BankCustomer> to,
+			final Currency currency, final double value) {
 		adjacencyMatrix.get(from).get(to).add(value);
 	}
 
@@ -61,10 +60,10 @@ public class MonetaryTransactionsModel extends NotificationListenerModel {
 	public void nextPeriod() {
 		notifyListeners();
 
-		for (final Class<? extends Agent> agentTypeFrom : ApplicationContext
-				.getInstance().getAgentFactory().getAgentTypes()) {
-			for (final Class<? extends Agent> agentTypeTo : ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes()) {
+		for (final Class<? extends Agent> agentTypeFrom : ApplicationContext.getInstance().getAgentFactory()
+				.getAgentTypes()) {
+			for (final Class<? extends Agent> agentTypeTo : ApplicationContext.getInstance().getAgentFactory()
+					.getAgentTypes()) {
 				adjacencyMatrix.get(agentTypeFrom).get(agentTypeTo).reset();
 			}
 		}

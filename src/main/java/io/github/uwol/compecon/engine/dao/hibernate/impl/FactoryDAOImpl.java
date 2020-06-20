@@ -29,23 +29,19 @@ import io.github.uwol.compecon.economy.sectors.industry.Factory;
 import io.github.uwol.compecon.economy.sectors.industry.impl.FactoryImpl;
 import io.github.uwol.compecon.engine.dao.FactoryDAO;
 
-public class FactoryDAOImpl extends HibernateDAOImpl<Factory> implements
-		FactoryDAO {
+public class FactoryDAOImpl extends HibernateDAOImpl<Factory> implements FactoryDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Factory> findAllByCurrency(final Currency currency) {
-		return getSession().createCriteria(FactoryImpl.class)
-				.add(Restrictions.eq("primaryCurrency", currency)).list();
+		return getSession().createCriteria(FactoryImpl.class).add(Restrictions.eq("primaryCurrency", currency)).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Factory> findAllByCurrencyAndProducedGoodType(
-			final Currency currency, final GoodType producedGoodType) {
-		return getSession().createCriteria(FactoryImpl.class)
-				.add(Restrictions.eq("primaryCurrency", currency))
-				.add(Restrictions.eq("producedGoodType", producedGoodType))
-				.list();
+	public List<Factory> findAllByCurrencyAndProducedGoodType(final Currency currency,
+			final GoodType producedGoodType) {
+		return getSession().createCriteria(FactoryImpl.class).add(Restrictions.eq("primaryCurrency", currency))
+				.add(Restrictions.eq("producedGoodType", producedGoodType)).list();
 	}
 }

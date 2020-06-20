@@ -55,17 +55,15 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 		resetBalanceSheets();
 	}
 
-	public void agent_onPublishBalanceSheet(final Agent agent,
-			final BalanceSheetDTO balanceSheet) {
+	public void agent_onPublishBalanceSheet(final Agent agent, final BalanceSheetDTO balanceSheet) {
 
-		assert (referenceCurrency.equals(agent.getPrimaryCurrency()) && referenceCurrency
-				.equals(balanceSheet.referenceCurrency));
+		assert (referenceCurrency.equals(agent.getPrimaryCurrency())
+				&& referenceCurrency.equals(balanceSheet.referenceCurrency));
 
 		if (agent instanceof Household) {
 			householdBalanceSheets.put((Household) agent, balanceSheet);
 		} else if (agent instanceof Factory) {
-			factoryBalanceSheets.get(((Factory) agent).getProducedGoodType())
-					.put((Factory) agent, balanceSheet);
+			factoryBalanceSheets.get(((Factory) agent).getProducedGoodType()).put((Factory) agent, balanceSheet);
 		} else if (agent instanceof Trader) {
 			traderBalanceSheets.put((Trader) agent, balanceSheet);
 		} else if (agent instanceof CreditBank) {
@@ -81,8 +79,7 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 		}
 	}
 
-	private void copyBalanceSheetValues(final BalanceSheetDTO from,
-			final BalanceSheetDTO to) {
+	private void copyBalanceSheetValues(final BalanceSheetDTO from, final BalanceSheetDTO to) {
 		if (from == null) {
 			return;
 		}
@@ -100,15 +97,13 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 
 		// add quantitative amount of inventory to national accounts balance
 		// sheet
-		for (final Entry<GoodType, Double> entry : from.inventoryQuantitative
-				.entrySet()) {
+		for (final Entry<GoodType, Double> entry : from.inventoryQuantitative.entrySet()) {
 			final GoodType goodType = entry.getKey();
 			final double amount = entry.getValue();
 			if (!to.inventoryQuantitative.containsKey(goodType)) {
 				to.inventoryQuantitative.put(goodType, 0.0);
 			}
-			final double newAmount = to.inventoryQuantitative.get(goodType)
-					+ amount;
+			final double newAmount = to.inventoryQuantitative.get(goodType) + amount;
 			to.inventoryQuantitative.put(goodType, newAmount);
 		}
 
@@ -125,10 +120,8 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 	}
 
 	public BalanceSheetDTO getCentralBankNationalAccountsBalanceSheet() {
-		final BalanceSheetDTO centralBankNationalAccountsBalanceSheet = new BalanceSheetDTO(
-				referenceCurrency);
-		copyBalanceSheetValues(centralBankBalanceSheet,
-				centralBankNationalAccountsBalanceSheet);
+		final BalanceSheetDTO centralBankNationalAccountsBalanceSheet = new BalanceSheetDTO(referenceCurrency);
+		copyBalanceSheetValues(centralBankBalanceSheet, centralBankNationalAccountsBalanceSheet);
 		return centralBankNationalAccountsBalanceSheet;
 	}
 
@@ -136,13 +129,10 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 	 * aggregates balance sheets of credit banks
 	 */
 	public BalanceSheetDTO getCreditBankNationalAccountsBalanceSheet() {
-		final BalanceSheetDTO creditBankNationalAccountsBalanceSheet = new BalanceSheetDTO(
-				referenceCurrency);
+		final BalanceSheetDTO creditBankNationalAccountsBalanceSheet = new BalanceSheetDTO(referenceCurrency);
 
-		for (final BalanceSheetDTO balanceSheet : creditBankBalanceSheets
-				.values()) {
-			copyBalanceSheetValues(balanceSheet,
-					creditBankNationalAccountsBalanceSheet);
+		for (final BalanceSheetDTO balanceSheet : creditBankBalanceSheets.values()) {
+			copyBalanceSheetValues(balanceSheet, creditBankNationalAccountsBalanceSheet);
 		}
 
 		return creditBankNationalAccountsBalanceSheet;
@@ -152,12 +142,10 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 	 * aggregates balance sheets of factories of all good types
 	 */
 	public BalanceSheetDTO getFactoryNationalAccountsBalanceSheet() {
-		final BalanceSheetDTO factoryNationalAccountsBalanceSheet = new BalanceSheetDTO(
-				referenceCurrency);
+		final BalanceSheetDTO factoryNationalAccountsBalanceSheet = new BalanceSheetDTO(referenceCurrency);
 
 		for (final GoodType goodType : GoodType.values()) {
-			copyBalanceSheetValues(
-					getFactoryNationalAccountsBalanceSheet(goodType),
+			copyBalanceSheetValues(getFactoryNationalAccountsBalanceSheet(goodType),
 					factoryNationalAccountsBalanceSheet);
 		}
 
@@ -167,15 +155,11 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 	/**
 	 * aggregates balance sheets of factories for good type
 	 */
-	public BalanceSheetDTO getFactoryNationalAccountsBalanceSheet(
-			final GoodType goodType) {
-		final BalanceSheetDTO factoryNationalAccountsBalanceSheet = new BalanceSheetDTO(
-				referenceCurrency);
+	public BalanceSheetDTO getFactoryNationalAccountsBalanceSheet(final GoodType goodType) {
+		final BalanceSheetDTO factoryNationalAccountsBalanceSheet = new BalanceSheetDTO(referenceCurrency);
 
-		for (final BalanceSheetDTO balanceSheet : factoryBalanceSheets.get(
-				goodType).values()) {
-			copyBalanceSheetValues(balanceSheet,
-					factoryNationalAccountsBalanceSheet);
+		for (final BalanceSheetDTO balanceSheet : factoryBalanceSheets.get(goodType).values()) {
+			copyBalanceSheetValues(balanceSheet, factoryNationalAccountsBalanceSheet);
 		}
 
 		return factoryNationalAccountsBalanceSheet;
@@ -185,13 +169,10 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 	 * aggregates balance sheets of households
 	 */
 	public BalanceSheetDTO getHouseholdNationalAccountsBalanceSheet() {
-		final BalanceSheetDTO householdNationalAccountsBalanceSheet = new BalanceSheetDTO(
-				referenceCurrency);
+		final BalanceSheetDTO householdNationalAccountsBalanceSheet = new BalanceSheetDTO(referenceCurrency);
 
-		for (final BalanceSheetDTO balanceSheet : householdBalanceSheets
-				.values()) {
-			copyBalanceSheetValues(balanceSheet,
-					householdNationalAccountsBalanceSheet);
+		for (final BalanceSheetDTO balanceSheet : householdBalanceSheets.values()) {
+			copyBalanceSheetValues(balanceSheet, householdNationalAccountsBalanceSheet);
 		}
 
 		return householdNationalAccountsBalanceSheet;
@@ -201,44 +182,30 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 	 * aggregates balance sheets of agents
 	 */
 	public BalanceSheetDTO getNationalAccountsBalanceSheet() {
-		final BalanceSheetDTO nationalAccountsBalanceSheet = new BalanceSheetDTO(
-				referenceCurrency);
-		copyBalanceSheetValues(getHouseholdNationalAccountsBalanceSheet(),
-				nationalAccountsBalanceSheet);
-		copyBalanceSheetValues(getFactoryNationalAccountsBalanceSheet(),
-				nationalAccountsBalanceSheet);
-		copyBalanceSheetValues(getTraderNationalAccountsBalanceSheet(),
-				nationalAccountsBalanceSheet);
-		copyBalanceSheetValues(getCreditBankNationalAccountsBalanceSheet(),
-				nationalAccountsBalanceSheet);
-		copyBalanceSheetValues(centralBankBalanceSheet,
-				nationalAccountsBalanceSheet);
+		final BalanceSheetDTO nationalAccountsBalanceSheet = new BalanceSheetDTO(referenceCurrency);
+		copyBalanceSheetValues(getHouseholdNationalAccountsBalanceSheet(), nationalAccountsBalanceSheet);
+		copyBalanceSheetValues(getFactoryNationalAccountsBalanceSheet(), nationalAccountsBalanceSheet);
+		copyBalanceSheetValues(getTraderNationalAccountsBalanceSheet(), nationalAccountsBalanceSheet);
+		copyBalanceSheetValues(getCreditBankNationalAccountsBalanceSheet(), nationalAccountsBalanceSheet);
+		copyBalanceSheetValues(centralBankBalanceSheet, nationalAccountsBalanceSheet);
 		copyBalanceSheetValues(stateBalanceSheet, nationalAccountsBalanceSheet);
 		return nationalAccountsBalanceSheet;
 	}
 
 	public Map<Class<? extends Agent>, BalanceSheetDTO> getNationalAccountsBalanceSheets() {
 		final Map<Class<? extends Agent>, BalanceSheetDTO> nationalAccountsBalanceSheets = new HashMap<Class<? extends Agent>, BalanceSheetDTO>();
-		nationalAccountsBalanceSheets.put(Household.class,
-				getHouseholdNationalAccountsBalanceSheet());
-		nationalAccountsBalanceSheets.put(Factory.class,
-				getFactoryNationalAccountsBalanceSheet());
-		nationalAccountsBalanceSheets.put(Trader.class,
-				getTraderNationalAccountsBalanceSheet());
-		nationalAccountsBalanceSheets.put(CreditBank.class,
-				getCreditBankNationalAccountsBalanceSheet());
-		nationalAccountsBalanceSheets.put(CentralBank.class,
-				getCentralBankNationalAccountsBalanceSheet());
-		nationalAccountsBalanceSheets.put(State.class,
-				getStateNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(Household.class, getHouseholdNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(Factory.class, getFactoryNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(Trader.class, getTraderNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(CreditBank.class, getCreditBankNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(CentralBank.class, getCentralBankNationalAccountsBalanceSheet());
+		nationalAccountsBalanceSheets.put(State.class, getStateNationalAccountsBalanceSheet());
 		return nationalAccountsBalanceSheets;
 	}
 
 	public BalanceSheetDTO getStateNationalAccountsBalanceSheet() {
-		final BalanceSheetDTO stateNationalAccountsBalanceSheet = new BalanceSheetDTO(
-				referenceCurrency);
-		copyBalanceSheetValues(stateBalanceSheet,
-				stateNationalAccountsBalanceSheet);
+		final BalanceSheetDTO stateNationalAccountsBalanceSheet = new BalanceSheetDTO(referenceCurrency);
+		copyBalanceSheetValues(stateBalanceSheet, stateNationalAccountsBalanceSheet);
 		return stateNationalAccountsBalanceSheet;
 	}
 
@@ -246,12 +213,10 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 	 * aggregates balance sheets of traders
 	 */
 	public BalanceSheetDTO getTraderNationalAccountsBalanceSheet() {
-		final BalanceSheetDTO traderNationalAccountsBalanceSheet = new BalanceSheetDTO(
-				referenceCurrency);
+		final BalanceSheetDTO traderNationalAccountsBalanceSheet = new BalanceSheetDTO(referenceCurrency);
 
 		for (final BalanceSheetDTO balanceSheet : traderBalanceSheets.values()) {
-			copyBalanceSheetValues(balanceSheet,
-					traderNationalAccountsBalanceSheet);
+			copyBalanceSheetValues(balanceSheet, traderNationalAccountsBalanceSheet);
 		}
 
 		return traderNationalAccountsBalanceSheet;
@@ -267,8 +232,7 @@ public class BalanceSheetsModel extends NotificationListenerModel {
 		factoryBalanceSheets.clear();
 
 		for (final GoodType goodType : GoodType.values()) {
-			factoryBalanceSheets.put(goodType,
-					new HashMap<Factory, BalanceSheetDTO>());
+			factoryBalanceSheets.put(goodType, new HashMap<Factory, BalanceSheetDTO>());
 		}
 
 		traderBalanceSheets.clear();

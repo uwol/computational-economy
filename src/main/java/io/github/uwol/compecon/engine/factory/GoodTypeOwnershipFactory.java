@@ -24,9 +24,7 @@ import io.github.uwol.compecon.economy.property.PropertyOwner;
 
 public interface GoodTypeOwnershipFactory {
 
-	public void deleteGoodTypeOwnership(
-			final GoodTypeOwnership goodTypeOwnership);
+	public void deleteGoodTypeOwnership(final GoodTypeOwnership goodTypeOwnership);
 
-	public GoodTypeOwnership newInstanceGoodTypeOwnership(
-			final PropertyOwner propertyOwner);
+	public GoodTypeOwnership newInstanceGoodTypeOwnership(final PropertyOwner propertyOwner);
 }

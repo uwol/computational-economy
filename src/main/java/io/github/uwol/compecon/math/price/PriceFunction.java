@@ -42,11 +42,10 @@ public interface PriceFunction {
 		public final double coefficientXPower0;
 
 		/**
-		 * i. e. budget spent for preceeding offers - budget needed to buy the
-		 * amount offered in those preceeding offers, when buying with
-		 * pricePerUnit of current market offer -> negative value of money saved
-		 * because preceeding offers were cheaper than the current one in the
-		 * price step function <br />
+		 * i. e. budget spent for preceeding offers - budget needed to buy the amount
+		 * offered in those preceeding offers, when buying with pricePerUnit of current
+		 * market offer -> negative value of money saved because preceeding offers were
+		 * cheaper than the current one in the price step function <br />
 		 * <br />
 		 * to be divided by x
 		 */
@@ -56,10 +55,8 @@ public interface PriceFunction {
 
 		public final double intervalRightBoundary;
 
-		public PriceFunctionConfig(final double intervalLeftBoundary,
-				final double intervalRightBoundary,
-				final double coefficientXPower0,
-				final double coefficientXPowerMinus1) {
+		public PriceFunctionConfig(final double intervalLeftBoundary, final double intervalRightBoundary,
+				final double coefficientXPower0, final double coefficientXPowerMinus1) {
 			this.intervalLeftBoundary = intervalLeftBoundary;
 			this.intervalRightBoundary = intervalRightBoundary;
 			this.coefficientXPower0 = coefficientXPower0;
@@ -68,8 +65,7 @@ public interface PriceFunction {
 
 		@Override
 		public String toString() {
-			return coefficientXPower0 + " + " + coefficientXPowerMinus1
-					+ "/x | x in [" + intervalLeftBoundary + ", "
+			return coefficientXPower0 + " + " + coefficientXPowerMinus1 + "/x | x in [" + intervalLeftBoundary + ", "
 					+ intervalRightBoundary + "]";
 		}
 	}
@@ -78,8 +74,7 @@ public interface PriceFunction {
 	 * @return coefficients of polynomial price function; exponent = position in
 	 *         array
 	 */
-	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(
-			double maxBudget);
+	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(double maxBudget);
 
 	/**
 	 * marginal price at the given amount

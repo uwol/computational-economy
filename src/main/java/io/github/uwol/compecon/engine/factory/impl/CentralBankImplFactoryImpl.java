@@ -41,8 +41,7 @@ public class CentralBankImplFactoryImpl implements CentralBankFactory {
 		final CentralBankImpl centralBank = new CentralBankImpl();
 
 		if (!HibernateUtil.isActive()) {
-			centralBank.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			centralBank.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
 		centralBank.setPrimaryCurrency(currency);

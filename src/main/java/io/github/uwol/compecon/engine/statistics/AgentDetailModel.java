@@ -79,8 +79,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 
 	protected AgentLog currentLog = agentLog;
 
-	protected DateFormat iso8601DateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
+	protected DateFormat iso8601DateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public void agent_onConstruct(final Agent agent) {
 		agents.add(agent);
@@ -100,8 +99,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 		final Agent agent = getLog().getAgentSelectedByClient();
 
 		if (agent != null) {
-			return ApplicationContext.getInstance().getBankAccountDAO()
-					.findAllBankAccountsOfAgent(agent);
+			return ApplicationContext.getInstance().getBankAccountDAO().findAllBankAccountsOfAgent(agent);
 		}
 
 		return new ArrayList<BankAccount>();
@@ -115,8 +113,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 		final Agent agent = getLog().getAgentSelectedByClient();
 
 		if (agent != null) {
-			return ApplicationContext.getInstance().getPropertyService()
-					.getGoodTypeBalances(agent);
+			return ApplicationContext.getInstance().getPropertyService().getGoodTypeBalances(agent);
 		}
 
 		return new HashMap<GoodType, Double>();
@@ -141,8 +138,7 @@ public class AgentDetailModel extends NotificationListenerModel {
 		final Agent agent = getLog().getAgentSelectedByClient();
 
 		if (agent != null) {
-			return ApplicationContext.getInstance().getPropertyService()
-					.findAllPropertiesOfPropertyOwner(agent);
+			return ApplicationContext.getInstance().getPropertyService().findAllPropertiesOfPropertyOwner(agent);
 		}
 
 		return new ArrayList<Property>();
@@ -153,10 +149,8 @@ public class AgentDetailModel extends NotificationListenerModel {
 		notifyListeners();
 	}
 
-	public void logBankAccountEvent(final Date date,
-			final BankAccount bankAccount, final String message) {
-		bankAccountLogs.get(bankAccount).log(
-				iso8601DateFormat.format(date) + "     " + message);
+	public void logBankAccountEvent(final Date date, final BankAccount bankAccount, final String message) {
+		bankAccountLogs.get(bankAccount).log(iso8601DateFormat.format(date) + "     " + message);
 		notifyListeners();
 	}
 
@@ -168,11 +162,8 @@ public class AgentDetailModel extends NotificationListenerModel {
 		bankAccountLogs.clear();
 
 		for (final BankAccount bankAccount : getBankAccountsOfCurrentAgent()) {
-			bankAccountLogs.put(
-					bankAccount,
-					new AgentLog(bankAccount.getName() + " ["
-							+ bankAccount.getId() + ", "
-							+ bankAccount.getCurrency() + "]"));
+			bankAccountLogs.put(bankAccount, new AgentLog(
+					bankAccount.getName() + " [" + bankAccount.getId() + ", " + bankAccount.getCurrency() + "]"));
 		}
 
 		currentLog = agentLog;

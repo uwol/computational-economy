@@ -30,7 +30,5 @@ public interface CreditBankFactory {
 
 	public CreditBank newInstanceCreditBank(final Currency offeredCurrency);
 
-	public CreditBank newInstanceCreditBank(
-			final Set<Currency> offeredCurrencies,
-			final Currency primaryCurrency);
+	public CreditBank newInstanceCreditBank(final Set<Currency> offeredCurrencies, final Currency primaryCurrency);
 }

@@ -26,9 +26,7 @@ import io.github.uwol.compecon.economy.property.PropertyOwner;
 
 public interface GoodTypeOwnershipDAO extends GenericDAO<GoodTypeOwnership> {
 
-	public List<GoodTypeOwnership> findAllByPropertyOwner(
-			final PropertyOwner propertyOwner);
+	public List<GoodTypeOwnership> findAllByPropertyOwner(final PropertyOwner propertyOwner);
 
-	public GoodTypeOwnership findFirstByPropertyOwner(
-			final PropertyOwner propertyOwner);
+	public GoodTypeOwnership findFirstByPropertyOwner(final PropertyOwner propertyOwner);
 }

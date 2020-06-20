@@ -40,26 +40,20 @@ public abstract class CompEconTestSupport {
 
 	protected final String testConfigurationPropertiesFilename = "testing.configuration.properties";
 
-	protected void assertOutputIsOptimalUnderBudget(
-			final FunctionImpl<GoodType> function,
-			final double budgetRestriction,
-			final Map<GoodType, PriceFunction> priceFunctions,
+	protected void assertOutputIsOptimalUnderBudget(final FunctionImpl<GoodType> function,
+			final double budgetRestriction, final Map<GoodType, PriceFunction> priceFunctions,
 			final Map<GoodType, Double> referenceBundleOfInputs) {
 
 		final Map<GoodType, Double> rangeScanBundleOfInputs = function
-				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
-						budgetRestriction);
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions, budgetRestriction);
 
 		// check that budget restriction is not violated
 		double sumOfCostsOfOptimalBundleOfInputs = 0.0;
-		for (final Entry<GoodType, Double> inputEntry : rangeScanBundleOfInputs
-				.entrySet()) {
-			final double priceOfGoodType = priceFunctions.get(
-					inputEntry.getKey()).getPrice(inputEntry.getValue());
+		for (final Entry<GoodType, Double> inputEntry : rangeScanBundleOfInputs.entrySet()) {
+			final double priceOfGoodType = priceFunctions.get(inputEntry.getKey()).getPrice(inputEntry.getValue());
 			if (!Double.isNaN(priceOfGoodType)) {
-				sumOfCostsOfOptimalBundleOfInputs += priceFunctions.get(
-						inputEntry.getKey()).getPrice(inputEntry.getValue())
-						* inputEntry.getValue();
+				sumOfCostsOfOptimalBundleOfInputs += priceFunctions.get(inputEntry.getKey())
+						.getPrice(inputEntry.getValue()) * inputEntry.getValue();
 			}
 		}
 
@@ -68,69 +62,52 @@ public abstract class CompEconTestSupport {
 
 		// check that budget restriction is not violated
 		double sumOfCostsOfReferenceBundleOfInputs = 0.0;
-		for (final Entry<GoodType, Double> inputEntry : referenceBundleOfInputs
-				.entrySet()) {
-			final double priceOfGoodType = priceFunctions.get(
-					inputEntry.getKey()).getPrice(inputEntry.getValue());
+		for (final Entry<GoodType, Double> inputEntry : referenceBundleOfInputs.entrySet()) {
+			final double priceOfGoodType = priceFunctions.get(inputEntry.getKey()).getPrice(inputEntry.getValue());
 			if (!Double.isNaN(priceOfGoodType)) {
-				sumOfCostsOfReferenceBundleOfInputs += priceOfGoodType
-						* inputEntry.getValue();
+				sumOfCostsOfReferenceBundleOfInputs += priceOfGoodType * inputEntry.getValue();
 			}
 		}
 
 		// referenceBundleOfInputs violates the budget restriction?
 		assert (sumOfCostsOfReferenceBundleOfInputs <= budgetRestriction);
 
-		assertTrue(function.f(rangeScanBundleOfInputs) <= function
-				.f(referenceBundleOfInputs));
+		assertTrue(function.f(rangeScanBundleOfInputs) <= function.f(referenceBundleOfInputs));
 	}
 
 	/**
 	 * check that partial derivatives per price are identical. Criterion for an
 	 * optimum.
 	 */
-	protected void assertPartialDerivativesPerPriceAreEqual(
-			final FunctionImpl<GoodType> function,
-			final Map<GoodType, Double> bundleOfInputs,
-			final Map<GoodType, PriceFunction> priceFunctions) {
-		final Map<GoodType, Double> partialDerivatives = function
-				.partialDerivatives(bundleOfInputs);
-		for (final Entry<GoodType, Double> outerPartialDerivativeEntry : partialDerivatives
-				.entrySet()) {
-			final PriceFunction outerPriceFunction = priceFunctions
-					.get(outerPartialDerivativeEntry.getKey());
+	protected void assertPartialDerivativesPerPriceAreEqual(final FunctionImpl<GoodType> function,
+			final Map<GoodType, Double> bundleOfInputs, final Map<GoodType, PriceFunction> priceFunctions) {
+		final Map<GoodType, Double> partialDerivatives = function.partialDerivatives(bundleOfInputs);
+		for (final Entry<GoodType, Double> outerPartialDerivativeEntry : partialDerivatives.entrySet()) {
+			final PriceFunction outerPriceFunction = priceFunctions.get(outerPartialDerivativeEntry.getKey());
 			final double outerMarginalPrice = outerPriceFunction
-					.getMarginalPrice(bundleOfInputs
-							.get(outerPartialDerivativeEntry.getKey()));
+					.getMarginalPrice(bundleOfInputs.get(outerPartialDerivativeEntry.getKey()));
 			if (!Double.isNaN(outerMarginalPrice)) {
-				for (final Entry<GoodType, Double> innerPartialDerivativeEntry : partialDerivatives
-						.entrySet()) {
-					final PriceFunction innerPriceFunction = priceFunctions
-							.get(innerPartialDerivativeEntry.getKey());
+				for (final Entry<GoodType, Double> innerPartialDerivativeEntry : partialDerivatives.entrySet()) {
+					final PriceFunction innerPriceFunction = priceFunctions.get(innerPartialDerivativeEntry.getKey());
 					final double innerMarginalPrice = innerPriceFunction
-							.getMarginalPrice(bundleOfInputs
-									.get(innerPartialDerivativeEntry.getKey()));
+							.getMarginalPrice(bundleOfInputs.get(innerPartialDerivativeEntry.getKey()));
 					if (!Double.isNaN(innerMarginalPrice)) {
-						final double innerPartialDerivativePerPrice = innerPartialDerivativeEntry
-								.getValue() / innerMarginalPrice;
-						final double outerPartialDerivativePerPrice = outerPartialDerivativeEntry
-								.getValue() / outerMarginalPrice;
-						assertEquals(innerPartialDerivativePerPrice,
-								outerPartialDerivativePerPrice, epsilon);
+						final double innerPartialDerivativePerPrice = innerPartialDerivativeEntry.getValue()
+								/ innerMarginalPrice;
+						final double outerPartialDerivativePerPrice = outerPartialDerivativeEntry.getValue()
+								/ outerMarginalPrice;
+						assertEquals(innerPartialDerivativePerPrice, outerPartialDerivativePerPrice, epsilon);
 					}
 				}
 			}
 		}
 	}
 
-	protected void setUpApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
+	protected void setUpApplicationContext(final String configurationPropertiesFilename) throws IOException {
 		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory
-					.configureHibernateApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureHibernateApplicationContext(configurationPropertiesFilename);
 		} else {
-			ApplicationContextFactory
-					.configureInMemoryApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
 		}
 
 		// init database connection
@@ -139,26 +116,18 @@ public abstract class CompEconTestSupport {
 
 	protected void setUpTestAgents() {
 		for (final Currency currency : Currency.values()) {
-			ApplicationContext.getInstance().getAgentService()
-					.findCentralBank(currency);
+			ApplicationContext.getInstance().getAgentService().findCentralBank(currency);
 
-			ApplicationContext.getInstance().getCreditBankFactory()
-					.newInstanceCreditBank(currency);
-			ApplicationContext.getInstance().getCreditBankFactory()
-					.newInstanceCreditBank(currency);
+			ApplicationContext.getInstance().getCreditBankFactory().newInstanceCreditBank(currency);
+			ApplicationContext.getInstance().getCreditBankFactory().newInstanceCreditBank(currency);
 
-			ApplicationContext.getInstance().getFactoryFactory()
-					.newInstanceFactory(GoodType.WHEAT, currency);
-			ApplicationContext.getInstance().getFactoryFactory()
-					.newInstanceFactory(GoodType.COAL, currency);
+			ApplicationContext.getInstance().getFactoryFactory().newInstanceFactory(GoodType.WHEAT, currency);
+			ApplicationContext.getInstance().getFactoryFactory().newInstanceFactory(GoodType.COAL, currency);
 
-			ApplicationContext.getInstance().getHouseholdFactory()
-					.newInstanceHousehold(currency, 0);
-			ApplicationContext.getInstance().getHouseholdFactory()
-					.newInstanceHousehold(currency, 0);
+			ApplicationContext.getInstance().getHouseholdFactory().newInstanceHousehold(currency, 0);
+			ApplicationContext.getInstance().getHouseholdFactory().newInstanceHousehold(currency, 0);
 
-			ApplicationContext.getInstance().getTraderFactory()
-					.newInstanceTrader(currency);
+			ApplicationContext.getInstance().getTraderFactory().newInstanceTrader(currency);
 		}
 
 		HibernateUtil.flushSession();

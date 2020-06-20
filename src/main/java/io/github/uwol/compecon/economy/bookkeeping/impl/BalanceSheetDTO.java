@@ -26,9 +26,9 @@ import java.util.Set;
 
 import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
-import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
+import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.security.equity.Share;
 
 public class BalanceSheetDTO {
@@ -114,17 +114,14 @@ public class BalanceSheetDTO {
 	public void addBankAccountBalance(final BankAccount bankAccount) {
 		if (bankAccount != null) {
 			if (bankAccount.getBalance() > 0.0) {
-				addCash(bankAccount.getMoneyType(), bankAccount.getTermType(),
-						bankAccount.getBalance());
+				addCash(bankAccount.getMoneyType(), bankAccount.getTermType(), bankAccount.getBalance());
 			} else {
-				addLoan(bankAccount.getMoneyType(), bankAccount.getTermType(),
-						-1.0 * bankAccount.getBalance());
+				addLoan(bankAccount.getMoneyType(), bankAccount.getTermType(), -1.0 * bankAccount.getBalance());
 			}
 		}
 	}
 
-	protected void addCash(final MoneyType moneyType, final TermType termType,
-			final double value) {
+	protected void addCash(final MoneyType moneyType, final TermType termType, final double value) {
 		switch (moneyType) {
 		case DEPOSITS:
 			switch (termType) {
@@ -149,8 +146,7 @@ public class BalanceSheetDTO {
 		}
 	}
 
-	protected void addLoan(final MoneyType moneyType, final TermType termType,
-			final double value) {
+	protected void addLoan(final MoneyType moneyType, final TermType termType, final double value) {
 		switch (moneyType) {
 		case DEPOSITS:
 			switch (termType) {
@@ -176,21 +172,18 @@ public class BalanceSheetDTO {
 	}
 
 	public double getBalanceActive() {
-		return hardCash + cashGiroShortTerm + cashGiroLongTerm
-				+ cashCentralBankShortTerm + cashCentralBankLongTerm
+		return hardCash + cashGiroShortTerm + cashGiroLongTerm + cashCentralBankShortTerm + cashCentralBankLongTerm
 				+ cashForeignCurrency + bankLoans + bonds + inventoryValue;
 	}
 
 	public double getBalancePassive() {
-		return loansGiroShortTerm + loansGiroLongTerm
-				+ loansCentralBankShortTerm + loansCentralBankLongTerm
+		return loansGiroShortTerm + loansGiroLongTerm + loansCentralBankShortTerm + loansCentralBankLongTerm
 				+ financialLiabilities + bankBorrowings + getEquity();
 	}
 
 	public double getEquity() {
-		return getBalanceActive() - loansGiroShortTerm - loansGiroLongTerm
-				- loansCentralBankShortTerm - loansCentralBankLongTerm
-				- financialLiabilities - bankBorrowings;
+		return getBalanceActive() - loansGiroShortTerm - loansGiroLongTerm - loansCentralBankShortTerm
+				- loansCentralBankLongTerm - financialLiabilities - bankBorrowings;
 	}
 
 }

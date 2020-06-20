@@ -34,11 +34,11 @@ import org.hibernate.annotations.Index;
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import io.github.uwol.compecon.economy.sectors.financial.Bank;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
+import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
+import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
-import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 
@@ -88,8 +88,7 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	};
 
 	@Transient
-	protected void assertBankAccountIsManagedByThisBank(
-			final BankAccount bankAccount) {
+	protected void assertBankAccountIsManagedByThisBank(final BankAccount bankAccount) {
 		assert (bankAccount.getManagingBank() == this);
 	}
 
@@ -97,16 +96,14 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	protected abstract void assertCurrencyIsOffered(final Currency currency);
 
 	@Transient
-	protected void assertIdenticalMoneyType(final BankAccount from,
-			final BankAccount to) {
+	protected void assertIdenticalMoneyType(final BankAccount from, final BankAccount to) {
 		assert (from.getMoneyType() != null);
 		assert (from.getMoneyType().equals(to.getMoneyType()));
 	}
 
 	@Transient
 	protected void assertIsCustomerOfThisBank(final BankCustomer customer) {
-		assert (ApplicationContext.getInstance().getBankAccountDAO()
-				.findAll(this, customer).size() > 0);
+		assert (ApplicationContext.getInstance().getBankAccountDAO().findAll(this, customer).size() > 0);
 	}
 
 	@Transient
@@ -117,13 +114,11 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 
 		if (bankAccountBondLoan == null) {
 			/*
-			 * initialize the banks own bank account and open a customer account
-			 * at this new bank, so that this bank can transfer money from its
-			 * own bank account
+			 * initialize the banks own bank account and open a customer account at this new
+			 * bank, so that this bank can transfer money from its own bank account
 			 */
-			bankAccountBondLoan = getPrimaryBank().openBankAccount(this,
-					primaryCurrency, true, "bond loans", TermType.LONG_TERM,
-					MoneyType.DEPOSITS);
+			bankAccountBondLoan = getPrimaryBank().openBankAccount(this, primaryCurrency, true, "bond loans",
+					TermType.LONG_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
@@ -135,13 +130,11 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 
 		if (bankAccountInterestTransactions == null) {
 			/*
-			 * initialize the banks own bank account and open a customer account
-			 * at this new bank, so that this bank can transfer money from its
-			 * own bank account
+			 * initialize the banks own bank account and open a customer account at this new
+			 * bank, so that this bank can transfer money from its own bank account
 			 */
-			bankAccountInterestTransactions = getPrimaryBank().openBankAccount(
-					this, primaryCurrency, true, "interest transactions",
-					TermType.SHORT_TERM, MoneyType.DEPOSITS);
+			bankAccountInterestTransactions = getPrimaryBank().openBankAccount(this, primaryCurrency, true,
+					"interest transactions", TermType.SHORT_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
@@ -149,16 +142,14 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	public void deconstruct() {
 		isDeconstructed = true;
 
-		final List<BankCustomer> customers = new ArrayList<BankCustomer>(
-				getCustomers());
+		final List<BankCustomer> customers = new ArrayList<BankCustomer>(getCustomers());
 		for (final BankCustomer customer : customers) {
 			// implicitly deletes the associated bank accounts
 			closeCustomerAccount(customer);
 		}
 
 		// mandatory, so that this bank is removed from the DAOs index structure
-		ApplicationContext.getInstance().getBankAccountFactory()
-				.deleteAllBankAccounts(this);
+		ApplicationContext.getInstance().getBankAccountFactory().deleteAllBankAccounts(this);
 
 		super.deconstruct();
 	}
@@ -185,22 +176,19 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 
 	@Transient
 	public List<BankAccount> getBankAccounts(final BankCustomer customer) {
-		return ApplicationContext.getInstance().getBankAccountDAO()
-				.findAll(this, customer);
+		return ApplicationContext.getInstance().getBankAccountDAO().findAll(this, customer);
 	}
 
 	@Transient
-	public List<BankAccount> getBankAccounts(final BankCustomer customer,
-			final Currency currency) {
-		return ApplicationContext.getInstance().getBankAccountDAO()
-				.findAll(this, customer, currency);
+	public List<BankAccount> getBankAccounts(final BankCustomer customer, final Currency currency) {
+		return ApplicationContext.getInstance().getBankAccountDAO().findAll(this, customer, currency);
 	}
 
 	@Transient
 	public Set<BankCustomer> getCustomers() {
 		final Set<BankCustomer> customers = new HashSet<BankCustomer>();
-		for (final BankAccount bankAccount : ApplicationContext.getInstance()
-				.getBankAccountDAO().findAllBankAccountsManagedByBank(this)) {
+		for (final BankAccount bankAccount : ApplicationContext.getInstance().getBankAccountDAO()
+				.findAllBankAccountsManagedByBank(this)) {
 			customers.add(bankAccount.getOwner());
 		}
 		return customers;
@@ -221,8 +209,8 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 		final BalanceSheetDTO balanceSheet = super.issueBalanceSheet();
 
 		// bank accounts of customers managed by this bank
-		for (final BankAccount bankAccount : ApplicationContext.getInstance()
-				.getBankAccountDAO().findAllBankAccountsManagedByBank(this)) {
+		for (final BankAccount bankAccount : ApplicationContext.getInstance().getBankAccountDAO()
+				.findAllBankAccountsManagedByBank(this)) {
 			assert (bankAccount.getCurrency().equals(primaryCurrency));
 
 			if (bankAccount.getBalance() > 0.0) { // passive account
@@ -245,8 +233,7 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	@Override
 	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
-		if (bankAccountInterestTransactions != null
-				&& bankAccountInterestTransactions == bankAccount) {
+		if (bankAccountInterestTransactions != null && bankAccountInterestTransactions == bankAccount) {
 			bankAccountInterestTransactions = null;
 		}
 
@@ -259,18 +246,13 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 
 	@Override
 	@Transient
-	public BankAccount openBankAccount(final BankCustomer customer,
-			final Currency currency, final boolean overdraftPossible,
-			final String name, final TermType termType,
-			final MoneyType moneyType) {
+	public BankAccount openBankAccount(final BankCustomer customer, final Currency currency,
+			final boolean overdraftPossible, final String name, final TermType termType, final MoneyType moneyType) {
 		assert (!isDeconstructed());
 		assertCurrencyIsOffered(currency);
 
-		final BankAccount bankAccount = ApplicationContext
-				.getInstance()
-				.getBankAccountFactory()
-				.newInstanceBankAccount(customer, currency, overdraftPossible,
-						this, name, termType, moneyType);
+		final BankAccount bankAccount = ApplicationContext.getInstance().getBankAccountFactory()
+				.newInstanceBankAccount(customer, currency, overdraftPossible, this, name, termType, moneyType);
 		return bankAccount;
 	}
 
@@ -278,8 +260,7 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 		this.bankAccountBondLoan = bankAccountBondLoan;
 	}
 
-	public void setBankAccountInterestTransactions(
-			final BankAccount bankAccountBondCoupon) {
+	public void setBankAccountInterestTransactions(final BankAccount bankAccountBondCoupon) {
 		bankAccountInterestTransactions = bankAccountBondCoupon;
 	}
 }

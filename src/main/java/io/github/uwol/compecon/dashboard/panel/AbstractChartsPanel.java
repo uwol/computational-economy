@@ -42,6 +42,8 @@ import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 
 public abstract class AbstractChartsPanel extends JPanel {
 
+	private static final long serialVersionUID = 1L;
+
 	protected void configureChart(final JFreeChart chart) {
 		chart.setBackgroundPaint(Color.white);
 		final XYPlot plot = (XYPlot) chart.getPlot();
@@ -60,131 +62,144 @@ public abstract class AbstractChartsPanel extends JPanel {
 	}
 
 	protected JPanel createCentralBankBalanceSheetPanel(final Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
+
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(currency) {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected BalanceSheetDTO getBalanceSheet() {
 				return ApplicationContext.getInstance().getModelRegistry()
 						.getNationalEconomyModel(currency).balanceSheetsModel
-						.getCentralBankNationalAccountsBalanceSheet();
+								.getCentralBankNationalAccountsBalanceSheet();
 			}
 		};
+
 		return new BalanceSheetPanel(currency, balanceSheetTableModel,
-				"Balance Sheet for " + currency.getIso4217Code()
-						+ " Central Bank");
+				"Balance Sheet for " + currency.getIso4217Code() + " Central Bank");
 	}
 
 	protected JPanel createCreditBankBalanceSheetPanel(final Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
+
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(currency) {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected BalanceSheetDTO getBalanceSheet() {
 				return ApplicationContext.getInstance().getModelRegistry()
 						.getNationalEconomyModel(currency).balanceSheetsModel
-						.getCreditBankNationalAccountsBalanceSheet();
+								.getCreditBankNationalAccountsBalanceSheet();
 			}
 		};
+
 		return new BalanceSheetPanel(currency, balanceSheetTableModel,
-				"Balance Sheet for " + currency.getIso4217Code()
-						+ " Credit Banks");
+				"Balance Sheet for " + currency.getIso4217Code() + " Credit Banks");
 	}
 
 	protected JPanel createFactoryBalanceSheetPanel(final Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
+
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(currency) {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected BalanceSheetDTO getBalanceSheet() {
 				return ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).balanceSheetsModel
-						.getFactoryNationalAccountsBalanceSheet();
+						.getNationalEconomyModel(currency).balanceSheetsModel.getFactoryNationalAccountsBalanceSheet();
 			}
 		};
+
 		return new BalanceSheetPanel(currency, balanceSheetTableModel,
 				"Balance Sheet for " + currency.getIso4217Code() + " Factories");
 	}
 
-	protected JPanel createFactoryBalanceSheetPanel(final Currency currency,
-			final GoodType goodType) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
+	protected JPanel createFactoryBalanceSheetPanel(final Currency currency, final GoodType goodType) {
+
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(currency) {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected BalanceSheetDTO getBalanceSheet() {
 				return ApplicationContext.getInstance().getModelRegistry()
 						.getNationalEconomyModel(currency).balanceSheetsModel
-						.getFactoryNationalAccountsBalanceSheet(goodType);
+								.getFactoryNationalAccountsBalanceSheet(goodType);
 			}
 		};
+
 		return new BalanceSheetPanel(currency, balanceSheetTableModel,
-				"Balance Sheet for " + currency.getIso4217Code() + " "
-						+ goodType + " Factories");
+				"Balance Sheet for " + currency.getIso4217Code() + " " + goodType + " Factories");
 	}
 
 	protected JPanel createHouseholdBalanceSheetPanel(final Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
+
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(currency) {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected BalanceSheetDTO getBalanceSheet() {
 				return ApplicationContext.getInstance().getModelRegistry()
 						.getNationalEconomyModel(currency).balanceSheetsModel
-						.getHouseholdNationalAccountsBalanceSheet();
+								.getHouseholdNationalAccountsBalanceSheet();
 			}
 		};
+
 		return new BalanceSheetPanel(currency, balanceSheetTableModel,
-				"Balance Sheet for " + currency.getIso4217Code()
-						+ " Households");
+				"Balance Sheet for " + currency.getIso4217Code() + " Households");
 	}
 
-	protected ChartPanel createPricingBehaviourMechanicsPanel(
-			final Currency currency, final GoodType goodType) {
+	protected ChartPanel createPricingBehaviourMechanicsPanel(final Currency currency, final GoodType goodType) {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (final PricingBehaviourNewPriceDecisionCause decisionCause : PricingBehaviourNewPriceDecisionCause
 				.values()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).pricingBehaviourModels
-							.get(goodType).pricingBehaviourPriceDecisionCauseModels
-							.get(decisionCause).getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).pricingBehaviourModels
+							.get(goodType).pricingBehaviourPriceDecisionCauseModels.get(decisionCause).getTimeSeries());
 		}
 
-		timeSeriesCollection
-				.addSeries(ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).pricingBehaviourModels
-						.get(goodType).pricingBehaviourAveragePriceDecisionCauseModel
-						.getTimeSeries());
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).pricingBehaviourModels
+						.get(goodType).pricingBehaviourAveragePriceDecisionCauseModel.getTimeSeries());
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(goodType
-				+ " Pricing Behaviour Mechanics", "Date", "Budget Spent",
-				timeSeriesCollection, true, true, false);
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart(goodType + " Pricing Behaviour Mechanics", "Date",
+				"Budget Spent", timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}
 
 	protected JPanel createStateBalanceSheetPanel(final Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
+
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(currency) {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected BalanceSheetDTO getBalanceSheet() {
 				return ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).balanceSheetsModel
-						.getStateNationalAccountsBalanceSheet();
+						.getNationalEconomyModel(currency).balanceSheetsModel.getStateNationalAccountsBalanceSheet();
 			}
 		};
+
 		return new BalanceSheetPanel(currency, balanceSheetTableModel,
 				"Balance Sheet for " + currency.getIso4217Code() + " State");
 	}
 
 	protected JPanel createTraderBalanceSheetPanel(final Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
+
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(currency) {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected BalanceSheetDTO getBalanceSheet() {
 				return ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).balanceSheetsModel
-						.getTraderNationalAccountsBalanceSheet();
+						.getNationalEconomyModel(currency).balanceSheetsModel.getTraderNationalAccountsBalanceSheet();
 			}
 		};
+
 		return new BalanceSheetPanel(currency, balanceSheetTableModel,
 				"Balance Sheet for " + currency.getIso4217Code() + " Traders");
 	}

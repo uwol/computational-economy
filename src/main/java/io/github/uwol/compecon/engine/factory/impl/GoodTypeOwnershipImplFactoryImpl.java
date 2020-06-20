@@ -26,32 +26,26 @@ import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.GoodTypeOwnershipFactory;
 import io.github.uwol.compecon.engine.util.HibernateUtil;
 
-public class GoodTypeOwnershipImplFactoryImpl implements
-		GoodTypeOwnershipFactory {
+public class GoodTypeOwnershipImplFactoryImpl implements GoodTypeOwnershipFactory {
 
 	@Override
-	public void deleteGoodTypeOwnership(
-			final GoodTypeOwnership goodTypeOwnership) {
-		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
-				.delete(goodTypeOwnership);
+	public void deleteGoodTypeOwnership(final GoodTypeOwnership goodTypeOwnership) {
+		ApplicationContext.getInstance().getGoodTypeOwnershipDAO().delete(goodTypeOwnership);
 		HibernateUtil.flushSession();
 	}
 
 	@Override
-	public GoodTypeOwnership newInstanceGoodTypeOwnership(
-			final PropertyOwner propertyOwner) {
+	public GoodTypeOwnership newInstanceGoodTypeOwnership(final PropertyOwner propertyOwner) {
 		assert (propertyOwner != null);
 
 		final GoodTypeOwnershipImpl goodTypeOwnership = new GoodTypeOwnershipImpl();
 
 		if (!HibernateUtil.isActive()) {
-			goodTypeOwnership.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			goodTypeOwnership.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
 		goodTypeOwnership.setPropertyOwner(propertyOwner);
-		ApplicationContext.getInstance().getGoodTypeOwnershipDAO()
-				.save(goodTypeOwnership);
+		ApplicationContext.getInstance().getGoodTypeOwnershipDAO().save(goodTypeOwnership);
 		HibernateUtil.flushSession();
 		return goodTypeOwnership;
 	}

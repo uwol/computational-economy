@@ -29,12 +29,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.github.uwol.compecon.CompEconTestSupport;
-import io.github.uwol.compecon.math.intertemporal.IntertemporalConsumptionFunction;
-import io.github.uwol.compecon.math.intertemporal.impl.ModiglianiIntertemporalConsumptionFunction;
 import io.github.uwol.compecon.math.intertemporal.impl.IrvingFisherIntertemporalConsumptionFunction.Period;
+import io.github.uwol.compecon.math.intertemporal.impl.ModiglianiIntertemporalConsumptionFunction;
 
-public class ModiglianiIntertemporalConsumptionFunctionTest extends
-		CompEconTestSupport {
+public class ModiglianiIntertemporalConsumptionFunctionTest extends CompEconTestSupport {
 
 	@Before
 	public void setup() throws IOException {
@@ -65,15 +63,11 @@ public class ModiglianiIntertemporalConsumptionFunctionTest extends
 		final int lifeSpanInDays = 80 * 365;
 		final int retirementAgeInDays = 65 * 365;
 
-		final Map<Period, Double> consumptionPlan = consumptionFunction
-				.calculateUtilityMaximizingConsumptionPlan(income, assets,
-						keyInterestRate, ageInDays, lifeSpanInDays,
-						retirementAgeInDays);
+		final Map<Period, Double> consumptionPlan = consumptionFunction.calculateUtilityMaximizingConsumptionPlan(
+				income, assets, keyInterestRate, ageInDays, lifeSpanInDays, retirementAgeInDays);
 
-		assertEquals(27.397260273972602, consumptionPlan.get(Period.CURRENT),
-				epsilon);
-		assertEquals(27.397260273972602, consumptionPlan.get(Period.NEXT),
-				epsilon);
+		assertEquals(27.397260273972602, consumptionPlan.get(Period.CURRENT), epsilon);
+		assertEquals(27.397260273972602, consumptionPlan.get(Period.NEXT), epsilon);
 	}
 
 	@Test
@@ -93,10 +87,8 @@ public class ModiglianiIntertemporalConsumptionFunctionTest extends
 		final int lifeSpanInDays = 80 * 365;
 		final int retirementAgeInDays = 65 * 365;
 
-		final Map<Period, Double> consumptionPlan = consumptionFunction
-				.calculateUtilityMaximizingConsumptionPlan(income, assets,
-						keyInterestRate, ageInDays, lifeSpanInDays,
-						retirementAgeInDays);
+		final Map<Period, Double> consumptionPlan = consumptionFunction.calculateUtilityMaximizingConsumptionPlan(
+				income, assets, keyInterestRate, ageInDays, lifeSpanInDays, retirementAgeInDays);
 
 		assertEquals(75.0, consumptionPlan.get(Period.CURRENT), epsilon);
 		assertEquals(75.0, consumptionPlan.get(Period.NEXT), epsilon);

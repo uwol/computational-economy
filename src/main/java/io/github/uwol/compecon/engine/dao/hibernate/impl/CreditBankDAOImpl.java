@@ -31,14 +31,13 @@ import io.github.uwol.compecon.economy.sectors.financial.impl.CreditBankImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.dao.CreditBankDAO;
 
-public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements
-		CreditBankDAO {
+public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements CreditBankDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<CreditBank> findAllByCurrency(final Currency currency) {
-		return getSession().createCriteria(CreditBankImpl.class)
-				.add(Restrictions.eq("primaryCurrency", currency)).list();
+		return getSession().createCriteria(CreditBankImpl.class).add(Restrictions.eq("primaryCurrency", currency))
+				.list();
 	}
 
 	@Override
@@ -49,13 +48,11 @@ public class CreditBankDAOImpl extends HibernateDAOImpl<CreditBank> implements
 		final int count = ((Number) crit.uniqueResult()).intValue();
 
 		if (0 != count) {
-			final int index = ApplicationContext.getInstance()
-					.getRandomNumberGenerator().nextInt(count);
+			final int index = ApplicationContext.getInstance().getRandomNumberGenerator().nextInt(count);
 
 			crit = getSession().createCriteria(CreditBankImpl.class);
 			crit.add(Restrictions.eq("primaryCurrency", currency));
-			return (CreditBankImpl) crit.setFirstResult(index).setMaxResults(1)
-					.uniqueResult();
+			return (CreditBankImpl) crit.setFirstResult(index).setMaxResults(1).uniqueResult();
 		}
 
 		return null;

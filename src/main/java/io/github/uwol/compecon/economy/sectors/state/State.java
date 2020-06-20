@@ -30,7 +30,6 @@ public interface State extends Agent {
 
 	public BankAccountDelegate getBankAccountCouponLoansDelegate();
 
-	public FixedRateBond obtainBond(final double faceValue,
-			final PropertyOwner buyer,
+	public FixedRateBond obtainBond(final double faceValue, final PropertyOwner buyer,
 			final BankAccountDelegate buyerBankAccountDelegate);
 }

@@ -39,6 +39,8 @@ import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.Model
 
 public class AgentsPanel extends AbstractChartsPanel implements ModelListener {
 
+	private static final long serialVersionUID = 1L;
+
 	public AgentsPanel() {
 
 		setLayout(new BorderLayout());
@@ -52,38 +54,30 @@ public class AgentsPanel extends AbstractChartsPanel implements ModelListener {
 
 			panelForCurrency.setBackground(Color.lightGray);
 
-			for (final Class<? extends Agent> agentType : ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes()) {
-				panelForCurrency
-						.add(createAgentNumberPanel(currency, agentType));
+			for (final Class<? extends Agent> agentType : ApplicationContext.getInstance().getAgentFactory()
+					.getAgentTypes()) {
+				panelForCurrency.add(createAgentNumberPanel(currency, agentType));
 			}
 		}
 
 		add(jTabbedPane, BorderLayout.CENTER);
 	}
 
-	protected ChartPanel createAgentNumberPanel(final Currency currency,
-			final Class<? extends Agent> agentType) {
+	protected ChartPanel createAgentNumberPanel(final Currency currency, final Class<? extends Agent> agentType) {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection
-				.addSeries(ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).numberOfAgentsModels
-						.get(agentType).getTimeSeries());
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).numberOfAgentsModels.get(agentType).getTimeSeries());
 
 		// in case of households
 		if (Household.class.isAssignableFrom(agentType)) {
 			// show retired households
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).householdsModel.retiredModel
-							.getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).householdsModel.retiredModel.getTimeSeries());
 		}
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart("# "
-				+ agentType.getSimpleName() + " Agents", "Date", "# Agents",
-				timeSeriesCollection, true, true, false);
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("# " + agentType.getSimpleName() + " Agents",
+				"Date", "# Agents", timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}

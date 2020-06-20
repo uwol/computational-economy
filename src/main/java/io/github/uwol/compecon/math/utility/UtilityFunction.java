@@ -27,20 +27,18 @@ import io.github.uwol.compecon.math.price.PriceFunction;
 
 public interface UtilityFunction {
 
-	public double calculateMarginalUtility(
-			Map<GoodType, Double> bundleOfInputGoods,
+	public double calculateMarginalUtility(Map<GoodType, Double> bundleOfInputGoods,
 			GoodType differentialInputGoodType);
 
 	public double calculateUtility(Map<GoodType, Double> bundleOfInputGoods);
 
 	/**
-	 * This method implements the analytical solution for the lagrange function
-	 * of an optimization problem under budget constraints. It overwrites the
-	 * general solution for convex functions because of performance reasons.
+	 * This method implements the analytical solution for the lagrange function of
+	 * an optimization problem under budget constraints. It overwrites the general
+	 * solution for convex functions because of performance reasons.
 	 */
 	public Map<GoodType, Double> calculateUtilityMaximizingInputs(
-			Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
-			double budget);
+			Map<GoodType, PriceFunction> priceFunctionsOfInputGoods, double budget);
 
 	public Set<GoodType> getInputGoodTypes();
 }

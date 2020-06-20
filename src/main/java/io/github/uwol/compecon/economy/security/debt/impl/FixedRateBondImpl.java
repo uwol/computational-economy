@@ -23,6 +23,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
+import com.google.common.base.Objects;
+
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.security.debt.FixedRateBond;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
@@ -33,8 +35,7 @@ import io.github.uwol.compecon.engine.timesystem.impl.MonthType;
 import io.github.uwol.compecon.math.util.MathUtil;
 
 @Entity
-public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
-		Comparable<FixedRateBond> {
+public class FixedRateBondImpl extends BondImpl implements FixedRateBond, Comparable<FixedRateBond> {
 
 	public class TransferCouponEvent implements TimeSystemEvent {
 		@Override
@@ -49,20 +50,12 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 			assertValidIssuer();
 
 			if (couponToBankAccountDelegate != null) {
-				final double dailyCouponValue = MathUtil
-						.calculateMonthlyNominalInterestRate(coupon)
-						/ 30.0
+				final double dailyCouponValue = MathUtil.calculateMonthlyNominalInterestRate(coupon) / 30.0
 						* FixedRateBondImpl.this.faceValue;
 				if (dailyCouponValue > 0) {
-					couponFromBankAccountDelegate
-							.getBankAccount()
-							.getManagingBank()
-							.transferMoney(
-									couponFromBankAccountDelegate
-											.getBankAccount(),
-									couponToBankAccountDelegate
-											.getBankAccount(),
-									dailyCouponValue, "bond coupon");
+					couponFromBankAccountDelegate.getBankAccount().getManagingBank().transferMoney(
+							couponFromBankAccountDelegate.getBankAccount(),
+							couponToBankAccountDelegate.getBankAccount(), dailyCouponValue, "bond coupon");
 				}
 			}
 		}
@@ -72,16 +65,14 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 	protected double coupon; // interest rate in percent
 
 	/**
-	 * sender bank account (of the bond issuer and seller) for the periodical
-	 * coupon
+	 * sender bank account (of the bond issuer and seller) for the periodical coupon
 	 */
 	@Transient
 	protected BankAccountDelegate couponFromBankAccountDelegate;
 
 	/**
-	 * receiver bank account (of the bond buyer) for the periodical coupon;
-	 * null, if the bond has not been transfered to a owner different from the
-	 * issuer.
+	 * receiver bank account (of the bond buyer) for the periodical coupon; null, if
+	 * the bond has not been transfered to a owner different from the issuer.
 	 */
 	@Transient
 	protected BankAccountDelegate couponToBankAccountDelegate;
@@ -90,16 +81,15 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 	protected void assertValidIssuer() {
 		super.assertValidIssuer();
 
-		assert (getIssuer() == couponFromBankAccountDelegate.getBankAccount()
-				.getOwner());
+		assert (getIssuer() == couponFromBankAccountDelegate.getBankAccount().getOwner());
 	}
 
 	@Override
 	protected void assertValidOwner() {
 		super.assertValidOwner();
 
-		assert (couponToBankAccountDelegate == null || owner
-				.equals(couponToBankAccountDelegate.getBankAccount().getOwner()));
+		assert (couponToBankAccountDelegate == null
+				|| Objects.equal(owner, couponToBankAccountDelegate.getBankAccount().getOwner()));
 	}
 
 	@Override
@@ -148,11 +138,8 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 		// payed before possible deconstruction at HOUR_01
 		final TimeSystemEvent transferCouponEvent = new TransferCouponEvent();
 		timeSystemEvents.add(transferCouponEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(transferCouponEvent, -1, MonthType.EVERY,
-						DayType.EVERY, HourType.HOUR_00);
+		ApplicationContext.getInstance().getTimeSystem().addEvent(transferCouponEvent, -1, MonthType.EVERY,
+				DayType.EVERY, HourType.HOUR_00);
 	}
 
 	@Override
@@ -166,14 +153,12 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond,
 		this.coupon = coupon;
 	}
 
-	public void setCouponFromBankAccountDelegate(
-			final BankAccountDelegate couponFromBankAccountDelegate) {
+	public void setCouponFromBankAccountDelegate(final BankAccountDelegate couponFromBankAccountDelegate) {
 		this.couponFromBankAccountDelegate = couponFromBankAccountDelegate;
 	}
 
 	@Override
-	public void setCouponToBankAccountDelegate(
-			final BankAccountDelegate couponToBankAccountDelegate) {
+	public void setCouponToBankAccountDelegate(final BankAccountDelegate couponToBankAccountDelegate) {
 		this.couponToBankAccountDelegate = couponToBankAccountDelegate;
 	}
 

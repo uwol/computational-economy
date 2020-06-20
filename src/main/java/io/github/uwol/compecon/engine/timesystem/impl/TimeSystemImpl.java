@@ -41,8 +41,7 @@ import io.github.uwol.compecon.engine.util.HibernateUtil;
  */
 public class TimeSystemImpl implements TimeSystem {
 
-	private final SimpleDateFormat dayFormat = new SimpleDateFormat(
-			"dd.MM.yyyy HH:mm");
+	private final SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
 	private int dayNumber = 0;
 
@@ -55,19 +54,16 @@ public class TimeSystemImpl implements TimeSystem {
 	private final Map<Integer, YearImpl> years = new HashMap<Integer, YearImpl>();
 
 	public TimeSystemImpl(final int year) {
-		gregorianCalendar = new GregorianCalendar(year,
-				MonthType.JANUARY.getMonthNumber(),
+		gregorianCalendar = new GregorianCalendar(year, MonthType.JANUARY.getMonthNumber(),
 				DayType.DAY_01.getDayNumber());
 		startYear = year;
 	}
 
 	/**
-	 * @param year
-	 *            -1 for every year
+	 * @param year -1 for every year
 	 */
 	@Override
-	public void addEvent(final TimeSystemEvent event, final int year,
-			final MonthType monthType, final DayType dayType,
+	public void addEvent(final TimeSystemEvent event, final int year, final MonthType monthType, final DayType dayType,
 			final HourType hourType) {
 		if (!years.containsKey(year)) {
 			years.put(year, new YearImpl());
@@ -77,13 +73,11 @@ public class TimeSystemImpl implements TimeSystem {
 	}
 
 	/**
-	 * @param year
-	 *            -1 for every year
+	 * @param year -1 for every year
 	 */
 	@Override
-	public void addEventEvery(final TimeSystemEvent event, final int year,
-			final MonthType monthType, final DayType dayType,
-			final HourType exceptHourType) {
+	public void addEventEvery(final TimeSystemEvent event, final int year, final MonthType monthType,
+			final DayType dayType, final HourType exceptHourType) {
 		assert (exceptHourType != null);
 
 		if (!years.containsKey(year)) {
@@ -91,8 +85,7 @@ public class TimeSystemImpl implements TimeSystem {
 		}
 
 		for (final HourType hourType : HourType.values()) {
-			if (!HourType.EVERY.equals(hourType)
-					&& !exceptHourType.equals(hourType)) {
+			if (!HourType.EVERY.equals(hourType) && !exceptHourType.equals(hourType)) {
 				years.get(year).addEvent(event, monthType, dayType, hourType);
 			}
 		}
@@ -119,8 +112,7 @@ public class TimeSystemImpl implements TimeSystem {
 	}
 
 	@Override
-	public synchronized void addExternalEvent(
-			final TimeSystemEvent timeSystemEvent) {
+	public synchronized void addExternalEvent(final TimeSystemEvent timeSystemEvent) {
 		externalEvents.add(timeSystemEvent);
 	}
 
@@ -136,14 +128,12 @@ public class TimeSystemImpl implements TimeSystem {
 
 	@Override
 	public DayType getCurrentDayType() {
-		return DayType.getDayType(gregorianCalendar
-				.get(GregorianCalendar.DAY_OF_MONTH));
+		return DayType.getDayType(gregorianCalendar.get(GregorianCalendar.DAY_OF_MONTH));
 	}
 
 	@Override
 	public HourType getCurrentHourType() {
-		return HourType.getHourType(gregorianCalendar
-				.get(GregorianCalendar.HOUR_OF_DAY));
+		return HourType.getHourType(gregorianCalendar.get(GregorianCalendar.HOUR_OF_DAY));
 	}
 
 	/*
@@ -157,8 +147,7 @@ public class TimeSystemImpl implements TimeSystem {
 
 	@Override
 	public MonthType getCurrentMonthType() {
-		return MonthType.getMonthType(gregorianCalendar
-				.get(GregorianCalendar.MONTH));
+		return MonthType.getMonthType(gregorianCalendar.get(GregorianCalendar.MONTH));
 	}
 
 	@Override
@@ -180,13 +169,10 @@ public class TimeSystemImpl implements TimeSystem {
 	@Override
 	public void nextHour() {
 		gregorianCalendar.add(GregorianCalendar.HOUR_OF_DAY, 1);
-		ApplicationContext.getInstance().getLog()
-				.notifyTimeSystem_nextHour(getCurrentDate());
+		ApplicationContext.getInstance().getLog().notifyTimeSystem_nextHour(getCurrentDate());
 
-		if (HourType.getHourType(gregorianCalendar
-				.get(GregorianCalendar.HOUR_OF_DAY)) == HourType.HOUR_00) {
-			ApplicationContext.getInstance().getLog()
-					.notifyTimeSystem_nextDay(getCurrentDate());
+		if (HourType.getHourType(gregorianCalendar.get(GregorianCalendar.HOUR_OF_DAY)) == HourType.HOUR_00) {
+			ApplicationContext.getInstance().getLog().notifyTimeSystem_nextDay(getCurrentDate());
 			dayNumber++;
 		}
 
@@ -220,12 +206,9 @@ public class TimeSystemImpl implements TimeSystem {
 	 */
 
 	@Override
-	public HourType suggestRandomHourType(final HourType minHourType,
-			final HourType maxHourType) {
-		final int limit = maxHourType.getHourNumber() + 1
-				- minHourType.getHourNumber();
-		final int randomNumber = ApplicationContext.getInstance()
-				.getRandomNumberGenerator().nextInt(limit);
+	public HourType suggestRandomHourType(final HourType minHourType, final HourType maxHourType) {
+		final int limit = maxHourType.getHourNumber() + 1 - minHourType.getHourNumber();
+		final int randomNumber = ApplicationContext.getInstance().getRandomNumberGenerator().nextInt(limit);
 		return HourType.getHourType(minHourType.getHourNumber() + randomNumber);
 	}
 
@@ -247,31 +230,26 @@ public class TimeSystemImpl implements TimeSystem {
 		final List<TimeSystemEvent> events = new ArrayList<TimeSystemEvent>();
 
 		if (yearExact != null) {
-			events.addAll(yearExact.getEvents(currentMonthType, currentDayType,
-					currentHourType));
+			events.addAll(yearExact.getEvents(currentMonthType, currentDayType, currentHourType));
 		}
 
 		if (yearEvery != null) {
-			events.addAll(yearEvery.getEvents(currentMonthType, currentDayType,
-					currentHourType));
+			events.addAll(yearEvery.getEvents(currentMonthType, currentDayType, currentHourType));
 		}
 
 		/*
-		 * important: every time this method is called, events have to be
-		 * shuffled, so that each day gives each agent a new chance of being
-		 * first
+		 * important: every time this method is called, events have to be shuffled, so
+		 * that each day gives each agent a new chance of being first
 		 */
-		final Random random = ApplicationContext.getInstance()
-				.getRandomNumberGenerator().getRandom();
+		final Random random = ApplicationContext.getInstance().getRandomNumberGenerator().getRandom();
 		Collections.shuffle(events, random);
 
 		for (final TimeSystemEvent event : events) {
 			try {
 				/*
-				 * it may happen, that an event deconstructs an agent, and that
-				 * agent has registered other events for the same point in time
-				 * -> they are contained in the events-list -> check for
-				 * deconstruction
+				 * it may happen, that an event deconstructs an agent, and that agent has
+				 * registered other events for the same point in time -> they are contained in
+				 * the events-list -> check for deconstruction
 				 */
 				if (!event.isDeconstructed()) {
 					event.onEvent();

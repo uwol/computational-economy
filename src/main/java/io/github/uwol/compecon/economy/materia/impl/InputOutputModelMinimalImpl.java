@@ -32,8 +32,7 @@ import io.github.uwol.compecon.math.utility.impl.CobbDouglasUtilityFunctionImpl;
 public class InputOutputModelMinimalImpl implements InputOutputModel {
 
 	@Override
-	public ProductionFunction getProductionFunction(
-			final GoodType outputGoodType) {
+	public ProductionFunction getProductionFunction(final GoodType outputGoodType) {
 		switch (outputGoodType) {
 		case COAL:
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 5.0);

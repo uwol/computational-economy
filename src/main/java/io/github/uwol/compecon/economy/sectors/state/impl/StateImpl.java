@@ -35,12 +35,12 @@ import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.property.Property;
 import io.github.uwol.compecon.economy.property.PropertyOwner;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
+import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
+import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.CentralBank;
 import io.github.uwol.compecon.economy.sectors.financial.CreditBank;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
-import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.impl.BankAccountImpl;
 import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.economy.sectors.state.State;
@@ -70,34 +70,26 @@ public class StateImpl extends AgentImpl implements State {
 		private void transferBudgetToHouseholds() {
 			assureBankAccountTransactions();
 
-			final double budget = StateImpl.this.bankAccountTransactions
-					.getBalance();
+			final double budget = StateImpl.this.bankAccountTransactions.getBalance();
 
 			if (MathUtil.greater(budget, 0.0)) {
-				final List<Household> households = ApplicationContext
-						.getInstance().getHouseholdDAO()
+				final List<Household> households = ApplicationContext.getInstance().getHouseholdDAO()
 						.findAllByCurrency(StateImpl.this.primaryCurrency);
 
 				if (households.size() > 0) {
-					final double budgetPerHousehold = budget
-							/ households.size();
+					final double budgetPerHousehold = budget / households.size();
 
 					for (final Household household : households) {
 						assert (!household.isDeconstructed());
 
-						final BankAccount householdBankAccount = household
-								.getBankAccountGovernmentTransfersDelegate()
+						final BankAccount householdBankAccount = household.getBankAccountGovernmentTransfersDelegate()
 								.getBankAccount();
 
-						StateImpl.this.bankAccountTransactions
-								.getManagingBank().transferMoney(
-										StateImpl.this.bankAccountTransactions,
-										householdBankAccount,
-										budgetPerHousehold,
-										"government transfer");
+						StateImpl.this.bankAccountTransactions.getManagingBank().transferMoney(
+								StateImpl.this.bankAccountTransactions, householdBankAccount, budgetPerHousehold,
+								"government transfer");
 
-						household.getBankAccountGovernmentTransfersDelegate()
-								.onTransfer(budgetPerHousehold);
+						household.getBankAccountGovernmentTransfersDelegate().onTransfer(budgetPerHousehold);
 					}
 				}
 			}
@@ -136,9 +128,8 @@ public class StateImpl extends AgentImpl implements State {
 
 		// initialize bank account
 		if (bankAccountCouponLoans == null) {
-			bankAccountCouponLoans = getPrimaryBank().openBankAccount(this,
-					primaryCurrency, true, "loans", TermType.LONG_TERM,
-					MoneyType.DEPOSITS);
+			bankAccountCouponLoans = getPrimaryBank().openBankAccount(this, primaryCurrency, true, "loans",
+					TermType.LONG_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
@@ -154,14 +145,12 @@ public class StateImpl extends AgentImpl implements State {
 	public void doDeficitSpending() {
 		assureBankAccountTransactions();
 
-		for (final CreditBank creditBank : ApplicationContext.getInstance()
-				.getAgentService().findCreditBanks(primaryCurrency)) {
-			for (final BankAccount bankAccount : ApplicationContext
-					.getInstance().getBankAccountDAO()
+		for (final CreditBank creditBank : ApplicationContext.getInstance().getAgentService()
+				.findCreditBanks(primaryCurrency)) {
+			for (final BankAccount bankAccount : ApplicationContext.getInstance().getBankAccountDAO()
 					.findAllBankAccountsManagedByBank(creditBank)) {
 				if (bankAccount.getOwner() != this) {
-					bankAccountTransactions.getManagingBank().transferMoney(
-							bankAccountTransactions, bankAccount, 5000,
+					bankAccountTransactions.getManagingBank().transferMoney(bankAccountTransactions, bankAccount, 5000,
 							"deficit spending");
 				}
 			}
@@ -183,28 +172,20 @@ public class StateImpl extends AgentImpl implements State {
 		super.initialize();
 
 		/*
-		 * has to happen every hour, so that not all money is spent on one
-		 * distinct hour a day! else this would lead to significant distortions
-		 * on markets, as the savings of the whole economy flow through the
-		 * state via state bonds.
+		 * has to happen every hour, so that not all money is spent on one distinct hour
+		 * a day! else this would lead to significant distortions on markets, as the
+		 * savings of the whole economy flow through the state via state bonds.
 		 */
 		final TimeSystemEvent governmentTransferEvent = new GovernmentTransferEvent();
 		timeSystemEvents.add(governmentTransferEvent);
 
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEventEvery(governmentTransferEvent, -1, MonthType.EVERY,
-						DayType.EVERY, HourType.EVERY);
+		ApplicationContext.getInstance().getTimeSystem().addEventEvery(governmentTransferEvent, -1, MonthType.EVERY,
+				DayType.EVERY, HourType.EVERY);
 
-		final double initialInterestRate = ApplicationContext.getInstance()
-				.getAgentService().findCentralBank(primaryCurrency)
-				.getEffectiveKeyInterestRate() + 0.02;
-		pricingBehaviour = ApplicationContext
-				.getInstance()
-				.getPricingBehaviourFactory()
-				.newInstancePricingBehaviour(this, FixedRateBond.class,
-						primaryCurrency, initialInterestRate);
+		final double initialInterestRate = ApplicationContext.getInstance().getAgentService()
+				.findCentralBank(primaryCurrency).getEffectiveKeyInterestRate() + 0.02;
+		pricingBehaviour = ApplicationContext.getInstance().getPricingBehaviourFactory()
+				.newInstancePricingBehaviour(this, FixedRateBond.class, primaryCurrency, initialInterestRate);
 	}
 
 	@Override
@@ -220,43 +201,33 @@ public class StateImpl extends AgentImpl implements State {
 
 	@Override
 	@Transient
-	public FixedRateBond obtainBond(final double faceValue,
-			final PropertyOwner buyer,
+	public FixedRateBond obtainBond(final double faceValue, final PropertyOwner buyer,
 			final BankAccountDelegate buyerBankAccountDelegate) {
 		assureBankAccountCouponLoans();
 
 		assert (buyer == buyerBankAccountDelegate.getBankAccount().getOwner());
 
 		// TODO alternative: price := this.pricingBehaviour.getCurrentPrice();
-		final CentralBank centralBank = ApplicationContext.getInstance()
-				.getAgentService().findCentralBank(primaryCurrency);
+		final CentralBank centralBank = ApplicationContext.getInstance().getAgentService()
+				.findCentralBank(primaryCurrency);
 		final double coupon = centralBank.getEffectiveKeyInterestRate()
-				+ ApplicationContext.getInstance().getConfiguration().stateConfig
-						.getBondMargin();
+				+ ApplicationContext.getInstance().getConfiguration().stateConfig.getBondMargin();
 
 		// coupons have to be payed from a separate bank account, so that bonds
 		// can be re-bought with same face value after bond deconstruction
-		final FixedRateBond fixedRateBond = ApplicationContext
-				.getInstance()
-				.getFixedRateBondFactory()
-				.newInstanceFixedRateBond(this, this, primaryCurrency,
-						getBankAccountTransactionsDelegate(),
+		final FixedRateBond fixedRateBond = ApplicationContext.getInstance().getFixedRateBondFactory()
+				.newInstanceFixedRateBond(this, this, primaryCurrency, getBankAccountTransactionsDelegate(),
 						getBankAccountCouponLoansDelegate(), faceValue, coupon);
 
 		// transfer money
-		buyerBankAccountDelegate
-				.getBankAccount()
-				.getManagingBank()
-				.transferMoney(buyerBankAccountDelegate.getBankAccount(),
-						bankAccountTransactions, faceValue,
-						"payment for " + fixedRateBond);
+		buyerBankAccountDelegate.getBankAccount().getManagingBank().transferMoney(
+				buyerBankAccountDelegate.getBankAccount(), bankAccountTransactions, faceValue,
+				"payment for " + fixedRateBond);
 
 		// transfer bond
-		ApplicationContext.getInstance().getPropertyService()
-				.transferProperty(fixedRateBond, this, buyer);
+		ApplicationContext.getInstance().getPropertyService().transferProperty(fixedRateBond, this, buyer);
 
-		assert (fixedRateBond.getOwner() == buyerBankAccountDelegate
-				.getBankAccount().getOwner());
+		assert (fixedRateBond.getOwner() == buyerBankAccountDelegate.getBankAccount().getOwner());
 
 		return fixedRateBond;
 	}
@@ -264,8 +235,7 @@ public class StateImpl extends AgentImpl implements State {
 	@Override
 	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
-		if (bankAccountCouponLoans != null
-				&& bankAccountCouponLoans == bankAccount) {
+		if (bankAccountCouponLoans != null && bankAccountCouponLoans == bankAccount) {
 			bankAccountCouponLoans = null;
 		}
 
@@ -273,28 +243,23 @@ public class StateImpl extends AgentImpl implements State {
 	}
 
 	@Override
-	public void onMarketSettlement(final Currency commodityCurrency,
-			final double amount, final double pricePerUnit,
+	public void onMarketSettlement(final Currency commodityCurrency, final double amount, final double pricePerUnit,
 			final Currency currency) {
 	}
 
 	@Override
-	public void onMarketSettlement(final GoodType goodType,
-			final double amount, final double pricePerUnit,
+	public void onMarketSettlement(final GoodType goodType, final double amount, final double pricePerUnit,
 			final Currency currency) {
 	}
 
 	@Override
-	public void onMarketSettlement(final Property property,
-			final double totalPrice, final Currency currency) {
+	public void onMarketSettlement(final Property property, final double totalPrice, final Currency currency) {
 		if (property instanceof FixedRateBond) {
-			StateImpl.this.pricingBehaviour.registerSelling(
-					((FixedRateBond) property).getFaceValue(), totalPrice);
+			StateImpl.this.pricingBehaviour.registerSelling(((FixedRateBond) property).getFaceValue(), totalPrice);
 		}
 	}
 
-	public void setBankAccountCouponLoans(
-			final BankAccount bankAccountCouponLoans) {
+	public void setBankAccountCouponLoans(final BankAccount bankAccountCouponLoans) {
 		this.bankAccountCouponLoans = bankAccountCouponLoans;
 	}
 

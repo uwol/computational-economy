@@ -25,8 +25,7 @@ import io.github.uwol.compecon.math.intertemporal.impl.IrvingFisherIntertemporal
 
 public interface IntertemporalConsumptionFunction {
 
-	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(
-			final double averageIncomePerPeriod, final double currentAssets,
-			final double keyInterestRate, final int ageInDays,
-			final int lifeSpanInDays, final int retirementAgeInDays);
+	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(final double averageIncomePerPeriod,
+			final double currentAssets, final double keyInterestRate, final int ageInDays, final int lifeSpanInDays,
+			final int retirementAgeInDays);
 }

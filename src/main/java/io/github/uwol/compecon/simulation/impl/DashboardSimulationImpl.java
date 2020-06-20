@@ -36,16 +36,13 @@ public class DashboardSimulationImpl {
 		/*
 		 * setup
 		 */
-		final String configurationPropertiesFilename = System.getProperty(
-				"configuration.properties",
+		final String configurationPropertiesFilename = System.getProperty("configuration.properties",
 				"interdependencies.configuration.properties");
 
 		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory
-					.configureHibernateApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureHibernateApplicationContext(configurationPropertiesFilename);
 		} else {
-			ApplicationContextFactory
-					.configureInMemoryApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
 		}
 
 		new Dashboard();
@@ -56,8 +53,7 @@ public class DashboardSimulationImpl {
 		/*
 		 * run simulation
 		 */
-		ApplicationContext.getInstance().getAgentFactory()
-				.constructAgentsFromConfiguration();
+		ApplicationContext.getInstance().getAgentFactory().constructAgentsFromConfiguration();
 		ApplicationContext.getInstance().getSimulationRunner().run();
 		ApplicationContext.getInstance().getAgentFactory().deconstructAgents();
 

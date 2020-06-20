@@ -54,53 +54,48 @@ public class PropertyDAOTest extends CompEconTestSupport {
 		final Currency currency = Currency.EURO;
 
 		// prepare
-		final State state_EUR = ApplicationContext.getInstance()
-				.getAgentService().findState(currency);
-		final CreditBank creditBank1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findCreditBanks(currency).get(0);
+		final State state_EUR = ApplicationContext.getInstance().getAgentService().findState(currency);
+		final CreditBank creditBank1_EUR = ApplicationContext.getInstance().getAgentService().findCreditBanks(currency)
+				.get(0);
 
 		final Bond bond = state_EUR.obtainBond(1000, creditBank1_EUR,
 				creditBank1_EUR.getBankAccountTransactionsDelegate());
 
 		// total number
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAll().size());
+		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO().findAll().size());
 
 		// owner
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state_EUR).size());
+		assertEquals(0,
+				ApplicationContext.getInstance().getPropertyDAO().findAllPropertiesOfPropertyOwner(state_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesOfPropertyOwner(creditBank1_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Bond.class)
-				.size());
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Bond.class).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Share.class)
-				.size());
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Share.class).size());
 
 		// issuer
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state_EUR).size());
+		assertEquals(1,
+				ApplicationContext.getInstance().getPropertyDAO().findAllPropertiesIssuedByAgent(state_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesIssuedByAgent(state_EUR, Bond.class).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesIssuedByAgent(state_EUR, Share.class).size());
 
 		// random access
-		assertEquals(bond, ApplicationContext.getInstance().getPropertyDAO()
-				.findRandom());
+		assertEquals(bond, ApplicationContext.getInstance().getPropertyDAO().findRandom());
 
 		bond.deconstruct();
 
 		// owner
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state_EUR).size());
+		assertEquals(0,
+				ApplicationContext.getInstance().getPropertyDAO().findAllPropertiesOfPropertyOwner(state_EUR).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesOfPropertyOwner(creditBank1_EUR).size());
 
 		// issuer
-		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesIssuedByAgent(state_EUR).size());
+		assertEquals(0,
+				ApplicationContext.getInstance().getPropertyDAO().findAllPropertiesIssuedByAgent(state_EUR).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesIssuedByAgent(state_EUR, Bond.class).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
@@ -112,42 +107,34 @@ public class PropertyDAOTest extends CompEconTestSupport {
 		final Currency currency = Currency.EURO;
 
 		// prepare
-		final State state_EUR = ApplicationContext.getInstance()
-				.getAgentService().findState(currency);
-		final CreditBank creditBank1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findCreditBanks(currency).get(0);
+		final State state_EUR = ApplicationContext.getInstance().getAgentService().findState(currency);
+		final CreditBank creditBank1_EUR = ApplicationContext.getInstance().getAgentService().findCreditBanks(currency)
+				.get(0);
 
-		final Bond bond1 = state_EUR.obtainBond(1000, creditBank1_EUR,
-				creditBank1_EUR.getBankAccountTransactionsDelegate());
+		state_EUR.obtainBond(1000, creditBank1_EUR, creditBank1_EUR.getBankAccountTransactionsDelegate());
 		final Bond bond2 = state_EUR.obtainBond(1000, creditBank1_EUR,
 				creditBank1_EUR.getBankAccountTransactionsDelegate());
-		final Share share1 = ApplicationContext.getInstance().getShareFactory()
-				.newInstanceShare(creditBank1_EUR, creditBank1_EUR);
+		ApplicationContext.getInstance().getShareFactory().newInstanceShare(creditBank1_EUR, creditBank1_EUR);
 
 		// total number
-		assertEquals(3, ApplicationContext.getInstance().getPropertyDAO()
-				.findAll().size());
+		assertEquals(3, ApplicationContext.getInstance().getPropertyDAO().findAll().size());
 
 		// transfer
-		ApplicationContext.getInstance().getPropertyService()
-				.transferProperty(bond2, creditBank1_EUR, state_EUR);
+		ApplicationContext.getInstance().getPropertyService().transferProperty(bond2, creditBank1_EUR, state_EUR);
 
 		// owner
-		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state_EUR).size());
+		assertEquals(1,
+				ApplicationContext.getInstance().getPropertyDAO().findAllPropertiesOfPropertyOwner(state_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesOfPropertyOwner(state_EUR, Bond.class).size());
 		assertEquals(0, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(state_EUR, Share.class)
-				.size());
+				.findAllPropertiesOfPropertyOwner(state_EUR, Share.class).size());
 
 		assertEquals(2, ApplicationContext.getInstance().getPropertyDAO()
 				.findAllPropertiesOfPropertyOwner(creditBank1_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Bond.class)
-				.size());
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Bond.class).size());
 		assertEquals(1, ApplicationContext.getInstance().getPropertyDAO()
-				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Share.class)
-				.size());
+				.findAllPropertiesOfPropertyOwner(creditBank1_EUR, Share.class).size());
 	}
 }

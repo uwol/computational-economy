@@ -39,10 +39,10 @@ import io.github.uwol.compecon.economy.materia.Refreshable;
 import io.github.uwol.compecon.economy.property.Property;
 import io.github.uwol.compecon.economy.property.PropertyOwner;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
-import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
-import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
+import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
+import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.impl.BankAccountImpl;
 import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.economy.security.equity.Share;
@@ -65,11 +65,10 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	public class DailyLifeEvent implements TimeSystemEvent {
 
 		private double buyGoods(final Map<GoodType, Double> goodsToBuy,
-				final Map<GoodType, PriceFunction> priceFunctions,
-				final double budget) {
+				final Map<GoodType, PriceFunction> priceFunctions, final double budget) {
 			/*
-			 * buy production factors; maxPricePerUnit is significantly
-			 * important for price equilibrium
+			 * buy production factors; maxPricePerUnit is significantly important for price
+			 * equilibrium
 			 */
 			double budgetSpent = 0.0;
 
@@ -78,24 +77,18 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				final double amountToBuy = entry.getValue();
 
 				if (MathUtil.greater(amountToBuy, 0.0)) {
-					final double marginalPrice = priceFunctions.get(
-							goodTypeToBuy).getMarginalPrice(0.0);
-					final double maxPricePerUnitMultiplier = ApplicationContext
-							.getInstance().getConfiguration().householdConfig
-							.getMaxPricePerUnitMultiplier();
+					final double marginalPrice = priceFunctions.get(goodTypeToBuy).getMarginalPrice(0.0);
+					final double maxPricePerUnitMultiplier = ApplicationContext.getInstance()
+							.getConfiguration().householdConfig.getMaxPricePerUnitMultiplier();
 
 					/*
-					 * maxPricePerUnit is significantly important for price
-					 * equilibrium; also budget, as in the depth of the markets,
-					 * prices can rise, leading to overspending
+					 * maxPricePerUnit is significantly important for price equilibrium; also
+					 * budget, as in the depth of the markets, prices can rise, leading to
+					 * overspending
 					 */
-					final double[] priceAndAmount = ApplicationContext
-							.getInstance()
-							.getMarketService()
-							.buy(goodTypeToBuy, amountToBuy, budget,
-									marginalPrice * maxPricePerUnitMultiplier,
-									HouseholdImpl.this,
-									getBankAccountTransactionsDelegate());
+					final double[] priceAndAmount = ApplicationContext.getInstance().getMarketService().buy(
+							goodTypeToBuy, amountToBuy, budget, marginalPrice * maxPricePerUnitMultiplier,
+							HouseholdImpl.this, getBankAccountTransactionsDelegate());
 					budgetSpent += priceAndAmount[0];
 				}
 			}
@@ -108,27 +101,21 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 			if (MathUtil.greater(budget, 0.0)) {
 				// get prices for good types
-				final Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
-						.getInstance()
-						.getMarketService()
-						.getFixedPriceFunctions(
-								HouseholdImpl.this.primaryCurrency,
+				final Map<GoodType, PriceFunction> priceFunctions = ApplicationContext.getInstance().getMarketService()
+						.getFixedPriceFunctions(HouseholdImpl.this.primaryCurrency,
 								utilityFunction.getInputGoodTypes());
 
 				// calculate optimal consumption plan
 				getLog().setAgentCurrentlyActive(HouseholdImpl.this);
 				final Map<GoodType, Double> utilityMaximizingGoodsBundle = utilityFunction
-						.calculateUtilityMaximizingInputs(priceFunctions,
-								budget);
-				numberOfLabourHoursToConsume = utilityMaximizingGoodsBundle
-						.get(GoodType.LABOURHOUR);
+						.calculateUtilityMaximizingInputs(priceFunctions, budget);
+				numberOfLabourHoursToConsume = utilityMaximizingGoodsBundle.get(GoodType.LABOURHOUR);
 
 				// no labour hours should be bought on markets
 				utilityMaximizingGoodsBundle.remove(GoodType.LABOURHOUR);
 
 				// buy goods
-				final double budgetSpent = buyGoods(
-						utilityMaximizingGoodsBundle, priceFunctions, budget);
+				final double budgetSpent = buyGoods(utilityMaximizingGoodsBundle, priceFunctions, budget);
 
 				assert (MathUtil.lesserEqual(budgetSpent, budget * 1.1));
 			}
@@ -140,11 +127,8 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			/*
 			 * buy shares / capital -> equity savings
 			 */
-			ApplicationContext
-					.getInstance()
-					.getMarketService()
-					.buy(Share.class, 1.0, 0.0, 0.0, HouseholdImpl.this,
-							getBankAccountTransactionsDelegate());
+			ApplicationContext.getInstance().getMarketService().buy(Share.class, 1.0, 0.0, 0.0, HouseholdImpl.this,
+					getBankAccountTransactionsDelegate());
 		}
 
 		protected void checkCallDestructor() {
@@ -152,8 +136,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			 * potentially, call destructor
 			 */
 			if (daysWithoutUtility > DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR) {
-				if (!ApplicationContext.getInstance().getTimeSystem()
-						.isInitializationPhase()) {
+				if (!ApplicationContext.getInstance().getTimeSystem().isInitializationPhase()) {
 					deconstruct();
 				}
 			}
@@ -163,19 +146,15 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			/*
 			 * potentially, derive new household
 			 */
-			final int NEW_HOUSEHOLD_FROM_X_DAYS = ApplicationContext
-					.getInstance().getConfiguration().householdConfig
+			final int NEW_HOUSEHOLD_FROM_X_DAYS = ApplicationContext.getInstance().getConfiguration().householdConfig
 					.getNewHouseholdFromAgeInDays();
 
 			if (ageInDays >= NEW_HOUSEHOLD_FROM_X_DAYS) {
 				if ((ageInDays - NEW_HOUSEHOLD_FROM_X_DAYS)
 						% ApplicationContext.getInstance().getConfiguration().householdConfig
 								.getNewHouseholdEveryXDays() == 0) {
-					ApplicationContext
-							.getInstance()
-							.getHouseholdFactory()
-							.newInstanceHousehold(
-									HouseholdImpl.this.primaryCurrency, 0);
+					ApplicationContext.getInstance().getHouseholdFactory()
+							.newInstanceHousehold(HouseholdImpl.this.primaryCurrency, 0);
 				}
 			}
 		}
@@ -189,10 +168,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				daysWithoutUtility++;
 				continuousDaysWithUtility = 0;
 				if (getLog().isAgentSelectedByClient(HouseholdImpl.this)) {
-					getLog().log(
-							HouseholdImpl.this,
-							DailyLifeEvent.class,
-							"does not have required utility of %s",
+					getLog().log(HouseholdImpl.this, DailyLifeEvent.class, "does not have required utility of %s",
 							ApplicationContext.getInstance().getConfiguration().householdConfig
 									.getRequiredUtilityPerDay());
 				}
@@ -214,30 +190,23 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				// only non-durable consumption goods should be consumed
 				assert (!goodType.isDurable());
 
-				final double balance = ApplicationContext.getInstance()
-						.getPropertyService()
+				final double balance = ApplicationContext.getInstance().getPropertyService()
 						.getGoodTypeBalance(HouseholdImpl.this, goodType);
 				final double amountToConsume;
 
 				if (GoodType.LABOURHOUR.equals(goodType)) {
-					amountToConsume = Math.min(numberOfLabourHoursToConsume,
-							balance);
+					amountToConsume = Math.min(numberOfLabourHoursToConsume, balance);
 				} else {
 					amountToConsume = balance;
 				}
 
 				effectiveConsumptionGoodsBundle.put(goodType, amountToConsume);
-				ApplicationContext
-						.getInstance()
-						.getPropertyService()
-						.decrementGoodTypeAmount(HouseholdImpl.this, goodType,
-								amountToConsume);
+				ApplicationContext.getInstance().getPropertyService().decrementGoodTypeAmount(HouseholdImpl.this,
+						goodType, amountToConsume);
 			}
 
-			final double utility = utilityFunction
-					.calculateUtility(effectiveConsumptionGoodsBundle);
-			getLog().household_onUtility(HouseholdImpl.this,
-					HouseholdImpl.this.bankAccountTransactions.getCurrency(),
+			final double utility = utilityFunction.calculateUtility(effectiveConsumptionGoodsBundle);
+			getLog().household_onUtility(HouseholdImpl.this, HouseholdImpl.this.bankAccountTransactions.getCurrency(),
 					effectiveConsumptionGoodsBundle, utility);
 
 			return utility;
@@ -252,13 +221,8 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			/*
 			 * remove labour hour offers
 			 */
-			ApplicationContext
-					.getInstance()
-					.getMarketService()
-					.removeAllSellingOffers(
-							HouseholdImpl.this,
-							HouseholdImpl.this.bankAccountTransactions
-									.getCurrency(), GoodType.LABOURHOUR);
+			ApplicationContext.getInstance().getMarketService().removeAllSellingOffers(HouseholdImpl.this,
+					HouseholdImpl.this.bankAccountTransactions.getCurrency(), GoodType.LABOURHOUR);
 
 			// if not retired
 			if (ageInDays < ApplicationContext.getInstance().getConfiguration().householdConfig
@@ -266,28 +230,19 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				/*
 				 * offer labour hours
 				 */
-				final double amountOfLabourHours = ApplicationContext
-						.getInstance()
-						.getPropertyService()
-						.getGoodTypeBalance(HouseholdImpl.this,
-								GoodType.LABOURHOUR);
+				final double amountOfLabourHours = ApplicationContext.getInstance().getPropertyService()
+						.getGoodTypeBalance(HouseholdImpl.this, GoodType.LABOURHOUR);
 				final double prices[] = pricingBehaviour.getCurrentPriceArray();
 
 				for (final double price : prices) {
-					ApplicationContext
-							.getInstance()
-							.getMarketService()
-							.placeSellingOffer(GoodType.LABOURHOUR,
-									HouseholdImpl.this,
-									getBankAccountTransactionsDelegate(),
-									amountOfLabourHours / (prices.length),
-									price);
+					ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.LABOURHOUR,
+							HouseholdImpl.this, getBankAccountTransactionsDelegate(),
+							amountOfLabourHours / (prices.length), price);
 				}
 
 				pricingBehaviour.registerOfferedAmount(amountOfLabourHours);
 
-				getLog().household_onOfferResult(
-						HouseholdImpl.this.primaryCurrency,
+				getLog().household_onOfferResult(HouseholdImpl.this.primaryCurrency,
 						pricingBehaviour.getLastOfferedAmount(),
 						ApplicationContext.getInstance().getConfiguration().householdConfig
 								.getNumberOfLabourHoursPerDay());
@@ -301,14 +256,12 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			/*
 			 * potentially call destructor
 			 */
-			if (ageInDays > ApplicationContext.getInstance().getConfiguration().householdConfig
-					.getLifespanInDays()) {
+			if (ageInDays > ApplicationContext.getInstance().getConfiguration().householdConfig.getLifespanInDays()) {
 				deconstruct();
 				return;
 			}
 
-			getLog().household_AmountSold(HouseholdImpl.this.primaryCurrency,
-					pricingBehaviour.getLastSoldAmount());
+			getLog().household_AmountSold(HouseholdImpl.this.primaryCurrency, pricingBehaviour.getLastSoldAmount());
 
 			/*
 			 * simulation mechanics
@@ -335,9 +288,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 			// households make no debt; safety epsilon due to iterative
 			// deviations
-			assert (MathUtil.greaterEqual(
-					HouseholdImpl.this.bankAccountTransactions.getBalance(),
-					0.0));
+			assert (MathUtil.greaterEqual(HouseholdImpl.this.bankAccountTransactions.getBalance(), 0.0));
 			assert (MathUtil.greaterEqual(bankAccountSavings.getBalance(), 0.0));
 
 			checkRequiredUtilityPerDay(utility);
@@ -351,27 +302,19 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			/*
 			 * calculate budget
 			 */
-			final double keyInterestRate = ApplicationContext.getInstance()
-					.getAgentService()
-					.findCentralBank(HouseholdImpl.this.primaryCurrency)
-					.getEffectiveKeyInterestRate();
-			final double income = HouseholdImpl.this.bankAccountTransactions
-					.getBalance();
+			final double keyInterestRate = ApplicationContext.getInstance().getAgentService()
+					.findCentralBank(HouseholdImpl.this.primaryCurrency).getEffectiveKeyInterestRate();
+			final double income = HouseholdImpl.this.bankAccountTransactions.getBalance();
 
 			final double budget;
 
 			// do households save for retirement?
-			if (ApplicationContext.getInstance().getConfiguration().householdConfig
-					.getRetirementSaving()) {
+			if (ApplicationContext.getInstance().getConfiguration().householdConfig.getRetirementSaving()) {
 				final Map<Period, Double> intertemporalConsumptionPlan = intertemporalConsumptionFunction
-						.calculateUtilityMaximizingConsumptionPlan(income,
-								bankAccountSavings.getBalance(),
+						.calculateUtilityMaximizingConsumptionPlan(income, bankAccountSavings.getBalance(),
 								keyInterestRate, ageInDays,
-								ApplicationContext.getInstance()
-										.getConfiguration().householdConfig
-										.getLifespanInDays(),
-								ApplicationContext.getInstance()
-										.getConfiguration().householdConfig
+								ApplicationContext.getInstance().getConfiguration().householdConfig.getLifespanInDays(),
+								ApplicationContext.getInstance().getConfiguration().householdConfig
 										.getRetirementAgeInDays());
 				budget = intertemporalConsumptionPlan.get(Period.CURRENT);
 			} else {
@@ -384,10 +327,9 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			/*
 			 * logging
 			 */
-			getLog().household_onIncomeWageDividendTransfersConsumptionSaving(
-					primaryCurrency, income, moneySumToConsume, moneySumToSave,
-					pricingBehaviour.getLastSoldValue(),
-					dividendSinceLastPeriod, governmentTransfersSinceLastPeriod);
+			getLog().household_onIncomeWageDividendTransfersConsumptionSaving(primaryCurrency, income,
+					moneySumToConsume, moneySumToSave, pricingBehaviour.getLastSoldValue(), dividendSinceLastPeriod,
+					governmentTransfersSinceLastPeriod);
 
 			dividendSinceLastPeriod = 0;
 			governmentTransfersSinceLastPeriod = 0;
@@ -396,29 +338,21 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				/*
 				 * save money for retirement
 				 */
-				HouseholdImpl.this.bankAccountTransactions.getManagingBank()
-						.transferMoney(
-								HouseholdImpl.this.bankAccountTransactions,
-								bankAccountSavings, moneySumToSave,
-								"retirement savings");
+				HouseholdImpl.this.bankAccountTransactions.getManagingBank().transferMoney(
+						HouseholdImpl.this.bankAccountTransactions, bankAccountSavings, moneySumToSave,
+						"retirement savings");
 				if (getLog().isAgentSelectedByClient(HouseholdImpl.this)) {
-					getLog().log(
-							HouseholdImpl.this,
-							DailyLifeEvent.class,
-							"saving %s %s of %s %s income",
+					getLog().log(HouseholdImpl.this, DailyLifeEvent.class, "saving %s %s of %s %s income",
 							Currency.formatMoneySum(moneySumToSave),
-							HouseholdImpl.this.bankAccountTransactions
-									.getCurrency(),
-							Currency.formatMoneySum(HouseholdImpl.this.bankAccountTransactions
-									.getBalance()),
-							HouseholdImpl.this.bankAccountTransactions
-									.getCurrency());
+							HouseholdImpl.this.bankAccountTransactions.getCurrency(),
+							Currency.formatMoneySum(HouseholdImpl.this.bankAccountTransactions.getBalance()),
+							HouseholdImpl.this.bankAccountTransactions.getCurrency());
 				}
 			} else if (moneySumToSave < 0.0) {
 				/*
-				 * dissavings can happen also when not retired, yet, in case of
-				 * no income due to average conmption premise (e. g. Modigliani
-				 * intertemporal consumption function)
+				 * dissavings can happen also when not retired, yet, in case of no income due to
+				 * average conmption premise (e. g. Modigliani intertemporal consumption
+				 * function)
 				 */
 
 				getLog().household_onRetired(HouseholdImpl.this);
@@ -426,14 +360,11 @@ public class HouseholdImpl extends AgentImpl implements Household {
 				/*
 				 * spend saved retirement money
 				 */
-				HouseholdImpl.this.bankAccountTransactions.getManagingBank()
-						.transferMoney(bankAccountSavings,
-								HouseholdImpl.this.bankAccountTransactions,
-								-1.0 * moneySumToSave, "retirement dissavings");
+				HouseholdImpl.this.bankAccountTransactions.getManagingBank().transferMoney(bankAccountSavings,
+						HouseholdImpl.this.bankAccountTransactions, -1.0 * moneySumToSave, "retirement dissavings");
 
 				if (getLog().isAgentSelectedByClient(HouseholdImpl.this)) {
-					getLog().log(HouseholdImpl.this, "unsaving %s %s",
-							Currency.formatMoneySum(-1.0 * moneySumToSave),
+					getLog().log(HouseholdImpl.this, "unsaving %s %s", Currency.formatMoneySum(-1.0 * moneySumToSave),
 							bankAccountSavings.getCurrency());
 				}
 			}
@@ -446,39 +377,27 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 		@Override
 		public void exhaust() {
-			ApplicationContext
-					.getInstance()
-					.getPropertyService()
-					.resetGoodTypeAmount(HouseholdImpl.this,
-							GoodType.LABOURHOUR);
+			ApplicationContext.getInstance().getPropertyService().resetGoodTypeAmount(HouseholdImpl.this,
+					GoodType.LABOURHOUR);
 		}
 
 		public double getNumberOfLabourHoursAvailable() {
-			return ApplicationContext
-					.getInstance()
-					.getPropertyService()
-					.getGoodTypeBalance(HouseholdImpl.this, GoodType.LABOURHOUR);
+			return ApplicationContext.getInstance().getPropertyService().getGoodTypeBalance(HouseholdImpl.this,
+					GoodType.LABOURHOUR);
 		}
 
 		@Override
 		public boolean isExhausted() {
-			return ApplicationContext
-					.getInstance()
-					.getPropertyService()
-					.getGoodTypeBalance(HouseholdImpl.this, GoodType.LABOURHOUR) <= 0;
+			return ApplicationContext.getInstance().getPropertyService().getGoodTypeBalance(HouseholdImpl.this,
+					GoodType.LABOURHOUR) <= 0;
 		}
 
 		@Override
 		public void refresh() {
 			exhaust();
-			ApplicationContext
-					.getInstance()
-					.getPropertyService()
-					.incrementGoodTypeAmount(
-							HouseholdImpl.this,
-							GoodType.LABOURHOUR,
-							ApplicationContext.getInstance().getConfiguration().householdConfig
-									.getNumberOfLabourHoursPerDay());
+			ApplicationContext.getInstance().getPropertyService().incrementGoodTypeAmount(HouseholdImpl.this,
+					GoodType.LABOURHOUR,
+					ApplicationContext.getInstance().getConfiguration().householdConfig.getNumberOfLabourHoursPerDay());
 		}
 	}
 
@@ -554,9 +473,8 @@ public class HouseholdImpl extends AgentImpl implements Household {
 
 		// initialize bank account
 		if (bankAccountSavings == null) {
-			bankAccountSavings = getPrimaryBank().openBankAccount(this,
-					primaryCurrency, false, "savings", TermType.LONG_TERM,
-					MoneyType.DEPOSITS);
+			bankAccountSavings = getPrimaryBank().openBankAccount(this, primaryCurrency, false, "savings",
+					TermType.LONG_TERM, MoneyType.DEPOSITS);
 		}
 	}
 
@@ -569,8 +487,7 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	public void deconstruct() {
 		super.deconstruct();
 
-		ApplicationContext.getInstance().getHouseholdFactory()
-				.deleteHousehold(this);
+		ApplicationContext.getInstance().getHouseholdFactory().deleteHousehold(this);
 	}
 
 	@Override
@@ -620,35 +537,22 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	public void initialize() {
 		super.initialize();
 
-		DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = (ApplicationContext
-				.getInstance().getConfiguration().householdConfig
-				.getDaysWithoutUtilityUntilDestructor() + ApplicationContext
-				.getInstance().getRandomNumberGenerator().nextInt())
+		DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR = (ApplicationContext.getInstance().getConfiguration().householdConfig
+				.getDaysWithoutUtilityUntilDestructor()
+				+ ApplicationContext.getInstance().getRandomNumberGenerator().nextInt())
 				% ApplicationContext.getInstance().getConfiguration().householdConfig
 						.getDaysWithoutUtilityUntilDestructor();
 
 		// daily life at random HourType
 		final TimeSystemEvent dailyLifeEvent = new DailyLifeEvent();
 		timeSystemEvents.add(dailyLifeEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(
-						dailyLifeEvent,
-						-1,
-						MonthType.EVERY,
-						DayType.EVERY,
-						ApplicationContext.getInstance().getTimeSystem()
-								.suggestRandomHourType());
+		ApplicationContext.getInstance().getTimeSystem().addEvent(dailyLifeEvent, -1, MonthType.EVERY, DayType.EVERY,
+				ApplicationContext.getInstance().getTimeSystem().suggestRandomHourType());
 
-		final double marketPrice = ApplicationContext.getInstance()
-				.getMarketService()
+		final double marketPrice = ApplicationContext.getInstance().getMarketService()
 				.getMarginalMarketPrice(primaryCurrency, GoodType.LABOURHOUR);
-		pricingBehaviour = ApplicationContext
-				.getInstance()
-				.getPricingBehaviourFactory()
-				.newInstancePricingBehaviour(this, GoodType.LABOURHOUR,
-						primaryCurrency, marketPrice);
+		pricingBehaviour = ApplicationContext.getInstance().getPricingBehaviourFactory()
+				.newInstancePricingBehaviour(this, GoodType.LABOURHOUR, primaryCurrency, marketPrice);
 
 		labourPower.refresh();
 	}
@@ -677,30 +581,26 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	}
 
 	@Override
-	public void onMarketSettlement(final Currency commodityCurrency,
-			final double amount, final double pricePerUnit,
+	public void onMarketSettlement(final Currency commodityCurrency, final double amount, final double pricePerUnit,
 			final Currency currency) {
 	}
 
 	@Override
-	public void onMarketSettlement(final GoodType goodType,
-			final double amount, final double pricePerUnit,
+	public void onMarketSettlement(final GoodType goodType, final double amount, final double pricePerUnit,
 			final Currency currency) {
 		if (GoodType.LABOURHOUR.equals(goodType)) {
-			HouseholdImpl.this.pricingBehaviour.registerSelling(amount, amount
-					* pricePerUnit);
+			HouseholdImpl.this.pricingBehaviour.registerSelling(amount, amount * pricePerUnit);
 		}
 	}
 
 	@Override
-	public void onMarketSettlement(final Property property,
-			final double pricePerUnit, final Currency currency) {
+	public void onMarketSettlement(final Property property, final double pricePerUnit, final Currency currency) {
 	}
 
 	@Override
 	@Transient
-	public void onPropertyTransferred(final Property property,
-			final PropertyOwner oldOwner, final PropertyOwner newOwner) {
+	public void onPropertyTransferred(final Property property, final PropertyOwner oldOwner,
+			final PropertyOwner newOwner) {
 		super.onPropertyTransferred(property, oldOwner, newOwner);
 
 		if (newOwner == this && property instanceof Share) {
@@ -708,16 +608,12 @@ public class HouseholdImpl extends AgentImpl implements Household {
 			share.setDividendBankAccountDelegate(getBankAccountDividendDelegate());
 
 			/*
-			 * check that shares have correct bank account delegate, and sell
-			 * shares that are denominated in an incorrect currency
+			 * check that shares have correct bank account delegate, and sell shares that
+			 * are denominated in an incorrect currency
 			 */
-			if (!HouseholdImpl.this.primaryCurrency.equals(share.getIssuer()
-					.getPrimaryCurrency())) {
-				ApplicationContext
-						.getInstance()
-						.getMarketService()
-						.placeSellingOffer(share, HouseholdImpl.this,
-								getBankAccountTransactionsDelegate(), 0.0);
+			if (!HouseholdImpl.this.primaryCurrency.equals(share.getIssuer().getPrimaryCurrency())) {
+				ApplicationContext.getInstance().getMarketService().placeSellingOffer(share, HouseholdImpl.this,
+						getBankAccountTransactionsDelegate(), 0.0);
 			}
 		}
 	}

@@ -53,8 +53,7 @@ public class SimulationRunnerImpl implements SimulationRunner {
 				}
 				// end date reached
 				else if (endDate != null
-						&& ApplicationContext.getInstance().getTimeSystem()
-								.getCurrentDate().after(endDate)) {
+						&& ApplicationContext.getInstance().getTimeSystem().getCurrentDate().after(endDate)) {
 					break;
 				}
 				// normal mode
@@ -68,8 +67,7 @@ public class SimulationRunnerImpl implements SimulationRunner {
 				else if (paused && singleDayStep) {
 					ApplicationContext.getInstance().getTimeSystem().nextHour();
 					if (HourType.HOUR_00
-							.equals(ApplicationContext.getInstance()
-									.getTimeSystem().getCurrentHourType())) {
+							.equals(ApplicationContext.getInstance().getTimeSystem().getCurrentHourType())) {
 						singleDayStep = false;
 					}
 				}
@@ -90,8 +88,7 @@ public class SimulationRunnerImpl implements SimulationRunner {
 	}
 
 	@Override
-	public void setMillisecondsToSleepPerHourType(
-			final int millisecondsToSleepPerHourType) {
+	public void setMillisecondsToSleepPerHourType(final int millisecondsToSleepPerHourType) {
 		this.millisecondsToSleepPerHourType = millisecondsToSleepPerHourType;
 	}
 

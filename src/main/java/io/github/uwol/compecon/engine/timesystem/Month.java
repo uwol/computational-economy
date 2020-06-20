@@ -27,11 +27,9 @@ import io.github.uwol.compecon.engine.timesystem.impl.MonthType;
 
 public interface Month {
 
-	public void addEvent(final TimeSystemEvent event, final DayType dayType,
-			HourType hourType);
+	public void addEvent(final TimeSystemEvent event, final DayType dayType, HourType hourType);
 
-	public Set<TimeSystemEvent> getEvents(final DayType dayType,
-			final HourType hourType);
+	public Set<TimeSystemEvent> getEvents(final DayType dayType, final HourType hourType);
 
 	public MonthType getMonthType();
 }

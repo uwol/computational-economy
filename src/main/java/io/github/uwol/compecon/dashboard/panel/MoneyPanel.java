@@ -32,6 +32,8 @@ import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.Model
 
 public class MoneyPanel extends AbstractChartsPanel implements ModelListener {
 
+	private static final long serialVersionUID = 1L;
+
 	public MoneyPanel() {
 		setLayout(new GridLayout(0, 2));
 
@@ -47,16 +49,12 @@ public class MoneyPanel extends AbstractChartsPanel implements ModelListener {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (final Currency currency : Currency.values()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).creditUtilizationRateModel
-							.getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).creditUtilizationRateModel.getTimeSeries());
 		}
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Credit Utilization Rate", "Date", "Credit Utilization Rate",
-				timeSeriesCollection, true, true, false);
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("Credit Utilization Rate", "Date",
+				"Credit Utilization Rate", timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}
@@ -65,15 +63,11 @@ public class MoneyPanel extends AbstractChartsPanel implements ModelListener {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (final Currency currency : Currency.values()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).keyInterestRateModel
-							.getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).keyInterestRateModel.getTimeSeries());
 		}
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Key Interest Rate", "Date", "Key Interest Rate",
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("Key Interest Rate", "Date", "Key Interest Rate",
 				timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
@@ -83,15 +77,11 @@ public class MoneyPanel extends AbstractChartsPanel implements ModelListener {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (final Currency currency : Currency.values()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).moneyCirculationModel
-							.getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).moneyCirculationModel.getTimeSeries());
 		}
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Money Circulation", "Date", "Money Circulation",
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("Money Circulation", "Date", "Money Circulation",
 				timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
@@ -101,31 +91,21 @@ public class MoneyPanel extends AbstractChartsPanel implements ModelListener {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (final Currency currency : Currency.values()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).moneySupplyM0Model
-							.getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).moneySupplyM0Model.getTimeSeries());
 		}
 
 		for (final Currency currency : Currency.values()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).moneySupplyM1Model
-							.getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).moneySupplyM1Model.getTimeSeries());
 		}
 
 		for (final Currency currency : Currency.values()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).moneySupplyM2Model
-							.getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).moneySupplyM2Model.getTimeSeries());
 		}
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Money Supply to Non-Banks", "Date", "Money Supply",
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("Money Supply to Non-Banks", "Date", "Money Supply",
 				timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
@@ -135,15 +115,11 @@ public class MoneyPanel extends AbstractChartsPanel implements ModelListener {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (final Currency currency : Currency.values()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).moneyVelocityModel
-							.getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).moneyVelocityModel.getTimeSeries());
 		}
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Velocity of Money", "Date", "Velocity of Money",
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("Velocity of Money", "Date", "Velocity of Money",
 				timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
@@ -153,16 +129,12 @@ public class MoneyPanel extends AbstractChartsPanel implements ModelListener {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
 		for (final Currency currency : Currency.values()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).priceIndexModel
-							.getTimeSeries());
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).priceIndexModel.getTimeSeries());
 		}
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Price Index", "Date", "Price Index", timeSeriesCollection,
-				true, true, false);
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("Price Index", "Date", "Price Index",
+				timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}

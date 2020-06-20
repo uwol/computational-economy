@@ -25,9 +25,8 @@ import io.github.uwol.compecon.economy.sectors.financial.CentralBank;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.dao.CentralBankDAO;
 
-public class CentralBankDAOImpl extends
-		AbstractIndexedInMemoryDAOImpl<Currency, CentralBank> implements
-		CentralBankDAO {
+public class CentralBankDAOImpl extends AbstractIndexedInMemoryDAOImpl<Currency, CentralBank>
+		implements CentralBankDAO {
 
 	@Override
 	public synchronized CentralBank findByCurrency(final Currency currency) {

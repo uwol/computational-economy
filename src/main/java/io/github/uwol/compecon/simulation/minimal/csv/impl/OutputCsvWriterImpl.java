@@ -26,15 +26,13 @@ import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.engine.statistics.ModelRegistry.NationalEconomyModel.IndustryModel;
 import io.github.uwol.compecon.engine.statistics.accumulator.PeriodDataQuotientAccumulator;
 
-public class OutputCsvWriterImpl extends CsvPeriodWriterImpl implements
-		SeriesChangeListener {
+public class OutputCsvWriterImpl extends CsvPeriodWriterImpl implements SeriesChangeListener {
 
 	protected final PeriodDataQuotientAccumulator accumulator = new PeriodDataQuotientAccumulator();
 
 	protected final IndustryModel industryModel;
 
-	public OutputCsvWriterImpl(final String csvFileName,
-			final IndustryModel industryModel, final GoodType goodType) {
+	public OutputCsvWriterImpl(final String csvFileName, final IndustryModel industryModel, final GoodType goodType) {
 		super(csvFileName);
 
 		this.industryModel = industryModel;
@@ -51,8 +49,7 @@ public class OutputCsvWriterImpl extends CsvPeriodWriterImpl implements
 		}
 
 		if (isPeriodEnd()) {
-			writeCsvLine(getPeriodLabel(),
-					Double.toString(accumulator.getAmount()));
+			writeCsvLine(getPeriodLabel(), Double.toString(accumulator.getAmount()));
 			accumulator.reset();
 		}
 	}

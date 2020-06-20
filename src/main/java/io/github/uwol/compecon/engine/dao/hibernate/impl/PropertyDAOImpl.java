@@ -31,44 +31,36 @@ import io.github.uwol.compecon.economy.property.impl.PropertyImpl;
 import io.github.uwol.compecon.economy.property.impl.PropertyIssuedImpl;
 import io.github.uwol.compecon.engine.dao.PropertyDAO;
 
-public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements
-		PropertyDAO {
+public class PropertyDAOImpl extends HibernateDAOImpl<Property> implements PropertyDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
-		return getSession().createCriteria(PropertyIssuedImpl.class)
-				.add(Restrictions.eq("issuer", issuer)).list();
+		return getSession().createCriteria(PropertyIssuedImpl.class).add(Restrictions.eq("issuer", issuer)).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
 			final Class<? extends PropertyIssued> propertyClass) {
-		return getSession().createCriteria(propertyClass)
-				.add(Restrictions.eq("issuer", issuer)).list();
+		return getSession().createCriteria(propertyClass).add(Restrictions.eq("issuer", issuer)).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Property> findAllPropertiesOfPropertyOwner(
-			final PropertyOwner propertyOwner) {
-		return getSession().createCriteria(PropertyImpl.class)
-				.add(Restrictions.eq("owner", propertyOwner)).list();
+	public List<Property> findAllPropertiesOfPropertyOwner(final PropertyOwner propertyOwner) {
+		return getSession().createCriteria(PropertyImpl.class).add(Restrictions.eq("owner", propertyOwner)).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Property> findAllPropertiesOfPropertyOwner(
-			final PropertyOwner propertyOwner,
+	public List<Property> findAllPropertiesOfPropertyOwner(final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass) {
-		return getSession().createCriteria(propertyClass)
-				.add(Restrictions.eq("owner", propertyOwner)).list();
+		return getSession().createCriteria(propertyClass).add(Restrictions.eq("owner", propertyOwner)).list();
 	}
 
 	@Override
-	public void transferProperty(final PropertyOwner oldOwner,
-			final PropertyOwner newOwner, final Property property) {
+	public void transferProperty(final PropertyOwner oldOwner, final PropertyOwner newOwner, final Property property) {
 		property.setOwner(newOwner);
 	}
 }

@@ -28,10 +28,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.github.uwol.compecon.CompEconTestSupport;
-import io.github.uwol.compecon.economy.sectors.financial.CreditBank;
-import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
+import io.github.uwol.compecon.economy.sectors.financial.CreditBank;
+import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 
@@ -54,66 +54,63 @@ public class BankAccountDAOTest extends CompEconTestSupport {
 		final Currency currency = Currency.EURO;
 
 		// prepare
-		final CreditBank creditBank1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findCreditBanks(currency).get(0);
-		final Household household1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(0);
-		final Household household2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(1);
+		final CreditBank creditBank1_EUR = ApplicationContext.getInstance().getAgentService().findCreditBanks(currency)
+				.get(0);
+		final Household household1_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(0);
+		final Household household2_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(1);
 
 		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
 				.findAllBankAccountsManagedByBank(creditBank1_EUR).size());
-		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
-				.findAll(creditBank1_EUR, household1_EUR).size());
+		assertEquals(0,
+				ApplicationContext.getInstance().getBankAccountDAO().findAll(creditBank1_EUR, household1_EUR).size());
 		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
 				.findAll(creditBank1_EUR, household1_EUR, currency).size());
-		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
-				.findAllBankAccountsOfAgent(household1_EUR).size());
+		assertEquals(0,
+				ApplicationContext.getInstance().getBankAccountDAO().findAllBankAccountsOfAgent(household1_EUR).size());
 
 		// create bank account for household 1
-		creditBank1_EUR.openBankAccount(household1_EUR, currency, false,
-				"test bank account", TermType.SHORT_TERM, MoneyType.DEPOSITS);
+		creditBank1_EUR.openBankAccount(household1_EUR, currency, false, "test bank account", TermType.SHORT_TERM,
+				MoneyType.DEPOSITS);
 
 		// create bank account for household 2
-		creditBank1_EUR.openBankAccount(household2_EUR, currency, false,
-				"test bank account", TermType.SHORT_TERM, MoneyType.DEPOSITS);
+		creditBank1_EUR.openBankAccount(household2_EUR, currency, false, "test bank account", TermType.SHORT_TERM,
+				MoneyType.DEPOSITS);
 
 		assertEquals(2, ApplicationContext.getInstance().getBankAccountDAO()
 				.findAllBankAccountsManagedByBank(creditBank1_EUR).size());
-		assertEquals(1, ApplicationContext.getInstance().getBankAccountDAO()
-				.findAll(creditBank1_EUR, household1_EUR).size());
+		assertEquals(1,
+				ApplicationContext.getInstance().getBankAccountDAO().findAll(creditBank1_EUR, household1_EUR).size());
 		assertEquals(1, ApplicationContext.getInstance().getBankAccountDAO()
 				.findAll(creditBank1_EUR, household1_EUR, currency).size());
 		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
-				.findAll(creditBank1_EUR, household1_EUR, Currency.USDOLLAR)
-				.size());
-		assertEquals(1, ApplicationContext.getInstance().getBankAccountDAO()
-				.findAllBankAccountsOfAgent(household1_EUR).size());
+				.findAll(creditBank1_EUR, household1_EUR, Currency.USDOLLAR).size());
+		assertEquals(1,
+				ApplicationContext.getInstance().getBankAccountDAO().findAllBankAccountsOfAgent(household1_EUR).size());
 
 		// delete bank accounts of household 1
-		ApplicationContext.getInstance().getBankAccountFactory()
-				.deleteAllBankAccounts(creditBank1_EUR, household1_EUR);
+		ApplicationContext.getInstance().getBankAccountFactory().deleteAllBankAccounts(creditBank1_EUR, household1_EUR);
 
 		assertEquals(1, ApplicationContext.getInstance().getBankAccountDAO()
 				.findAllBankAccountsManagedByBank(creditBank1_EUR).size());
-		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
-				.findAll(creditBank1_EUR, household1_EUR).size());
+		assertEquals(0,
+				ApplicationContext.getInstance().getBankAccountDAO().findAll(creditBank1_EUR, household1_EUR).size());
 		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
 				.findAll(creditBank1_EUR, household1_EUR, currency).size());
-		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
-				.findAllBankAccountsOfAgent(household1_EUR).size());
+		assertEquals(0,
+				ApplicationContext.getInstance().getBankAccountDAO().findAllBankAccountsOfAgent(household1_EUR).size());
 
 		// delete bank accounts managed by credit bank 1
-		ApplicationContext.getInstance().getBankAccountFactory()
-				.deleteAllBankAccounts(creditBank1_EUR);
+		ApplicationContext.getInstance().getBankAccountFactory().deleteAllBankAccounts(creditBank1_EUR);
 
 		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
 				.findAllBankAccountsManagedByBank(creditBank1_EUR).size());
-		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
-				.findAll(creditBank1_EUR, household2_EUR).size());
+		assertEquals(0,
+				ApplicationContext.getInstance().getBankAccountDAO().findAll(creditBank1_EUR, household2_EUR).size());
 		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
 				.findAll(creditBank1_EUR, household2_EUR, currency).size());
-		assertEquals(0, ApplicationContext.getInstance().getBankAccountDAO()
-				.findAllBankAccountsOfAgent(household2_EUR).size());
+		assertEquals(0,
+				ApplicationContext.getInstance().getBankAccountDAO().findAllBankAccountsOfAgent(household2_EUR).size());
 	}
 }

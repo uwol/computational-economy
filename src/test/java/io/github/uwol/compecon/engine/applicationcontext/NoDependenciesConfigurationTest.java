@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.github.uwol.compecon.CompEconTestSupport;
-import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class NoDependenciesConfigurationTest extends CompEconTestSupport {
@@ -36,8 +35,7 @@ public class NoDependenciesConfigurationTest extends CompEconTestSupport {
 		super.setUpApplicationContext("nodependencies.configuration.properties");
 
 		if (!HibernateUtil.isActive()) {
-			ApplicationContext.getInstance().getAgentFactory()
-					.constructAgentsFromConfiguration();
+			ApplicationContext.getInstance().getAgentFactory().constructAgentsFromConfiguration();
 		}
 	}
 

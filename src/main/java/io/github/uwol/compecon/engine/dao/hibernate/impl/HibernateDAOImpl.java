@@ -36,8 +36,8 @@ public class HibernateDAOImpl<T> implements GenericDAO<T> {
 
 	@SuppressWarnings("unchecked")
 	public HibernateDAOImpl() {
-		this.persistentClass = (Class<T>) ((ParameterizedType) getClass()
-				.getGenericSuperclass()).getActualTypeArguments()[0];
+		this.persistentClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
+				.getActualTypeArguments()[0];
 	}
 
 	@Override
@@ -66,12 +66,10 @@ public class HibernateDAOImpl<T> implements GenericDAO<T> {
 		final int count = ((Number) crit.uniqueResult()).intValue();
 
 		if (0 != count) {
-			final int index = ApplicationContext.getInstance()
-					.getRandomNumberGenerator().nextInt(count);
+			final int index = ApplicationContext.getInstance().getRandomNumberGenerator().nextInt(count);
 
 			crit = getSession().createCriteria(persistentClass);
-			final T entity = (T) crit.setFirstResult(index).setMaxResults(1)
-					.uniqueResult();
+			final T entity = (T) crit.setFirstResult(index).setMaxResults(1).uniqueResult();
 			return entity;
 		}
 

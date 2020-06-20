@@ -32,15 +32,13 @@ import io.github.uwol.compecon.economy.property.Property;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.dao.MarketOrderDAO;
 
-public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
-		MarketOrderDAO {
+public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements MarketOrderDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllSellingOrders(final MarketParticipant offeror) {
 		final String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror";
-		final List<MarketOrder> marketOrders = getSession().createQuery(hql)
-				.setEntity("offeror", offeror).list();
+		final List<MarketOrder> marketOrders = getSession().createQuery(hql).setEntity("offeror", offeror).list();
 
 		for (final MarketOrder marketOrder : marketOrders) {
 			delete(marketOrder);
@@ -49,15 +47,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency currency,
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency currency,
 			final Class<? extends Property> propertyClass) {
 		final String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.currency = :currency AND m.property.class = :propertyClass";
-		final List<MarketOrder> marketOrders = getSession().createQuery(hql)
-				.setEntity("offeror", offeror)
-				.setParameter("currency", currency)
-				.setParameter("propertyClass", propertyClass.getSimpleName())
-				.list();
+		final List<MarketOrder> marketOrders = getSession().createQuery(hql).setEntity("offeror", offeror)
+				.setParameter("currency", currency).setParameter("propertyClass", propertyClass.getSimpleName()).list();
 
 		for (final MarketOrder marketOrder : marketOrders) {
 			delete(marketOrder);
@@ -66,13 +60,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency currency, final Currency commodityCurrency) {
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency currency,
+			final Currency commodityCurrency) {
 		final String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.currency = :currency AND m.commodityCurrency = :commodityCurrency";
-		final List<MarketOrder> marketOrders = getSession().createQuery(hql)
-				.setEntity("offeror", offeror)
-				.setParameter("currency", currency)
-				.setParameter("commodityCurrency", commodityCurrency).list();
+		final List<MarketOrder> marketOrders = getSession().createQuery(hql).setEntity("offeror", offeror)
+				.setParameter("currency", currency).setParameter("commodityCurrency", commodityCurrency).list();
 
 		for (final MarketOrder marketOrder : marketOrders) {
 			delete(marketOrder);
@@ -81,13 +73,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency currency, final GoodType goodType) {
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency currency,
+			final GoodType goodType) {
 		final String hql = "FROM MarketOrderImpl m WHERE m.offeror = :offeror AND m.currency = :currency AND m.goodType = :goodType";
-		final List<MarketOrder> marketOrders = getSession().createQuery(hql)
-				.setEntity("offeror", offeror)
-				.setParameter("currency", currency)
-				.setParameter("goodType", goodType).list();
+		final List<MarketOrder> marketOrders = getSession().createQuery(hql).setEntity("offeror", offeror)
+				.setParameter("currency", currency).setParameter("goodType", goodType).list();
 
 		for (final MarketOrder marketOrder : marketOrders) {
 			delete(marketOrder);
@@ -95,14 +85,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	}
 
 	@Override
-	public double findMarginalPrice(final Currency currency,
-			final Class<? extends Property> propertyClass) {
+	public double findMarginalPrice(final Currency currency, final Class<? extends Property> propertyClass) {
 		final String hql = "SELECT m.pricePerUnit FROM MarketOrderImpl m "
 				+ " WHERE m.currency = :currency AND m.property.class = :propertyClass ORDER BY pricePerUnit ASC";
-		final Object marginalPrice = getSession().createQuery(hql)
-				.setMaxResults(1).setParameter("currency", currency)
-				.setParameter("propertyClass", propertyClass.getSimpleName())
-				.uniqueResult();
+		final Object marginalPrice = getSession().createQuery(hql).setMaxResults(1).setParameter("currency", currency)
+				.setParameter("propertyClass", propertyClass.getSimpleName()).uniqueResult();
 
 		if (marginalPrice == null) {
 			return Double.NaN;
@@ -112,14 +99,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	}
 
 	@Override
-	public double findMarginalPrice(final Currency currency,
-			final Currency commodityCurrency) {
+	public double findMarginalPrice(final Currency currency, final Currency commodityCurrency) {
 		final String hql = "SELECT m.pricePerUnit FROM MarketOrderImpl m "
 				+ "WHERE m.currency = :currency AND m.commodityCurrency = :commodityCurrency ORDER BY pricePerUnit ASC";
-		final Object marginalPrice = getSession().createQuery(hql)
-				.setMaxResults(1).setParameter("currency", currency)
-				.setParameter("commodityCurrency", commodityCurrency)
-				.uniqueResult();
+		final Object marginalPrice = getSession().createQuery(hql).setMaxResults(1).setParameter("currency", currency)
+				.setParameter("commodityCurrency", commodityCurrency).uniqueResult();
 
 		if (marginalPrice == null) {
 			return Double.NaN;
@@ -129,12 +113,10 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	}
 
 	@Override
-	public double findMarginalPrice(final Currency currency,
-			final GoodType goodType) {
+	public double findMarginalPrice(final Currency currency, final GoodType goodType) {
 		final String hql = "SELECT m.pricePerUnit FROM MarketOrderImpl m "
 				+ "WHERE m.currency = :currency AND m.goodType = :goodType ORDER BY pricePerUnit ASC";
-		final Object marginalPrice = getSession().createQuery(hql)
-				.setMaxResults(1).setParameter("currency", currency)
+		final Object marginalPrice = getSession().createQuery(hql).setMaxResults(1).setParameter("currency", currency)
 				.setParameter("goodType", goodType).uniqueResult();
 
 		if (marginalPrice == null) {
@@ -145,14 +127,11 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	}
 
 	@Override
-	public double getAmountSum(final Currency currency,
-			final Currency commodityCurrency) {
+	public double getAmountSum(final Currency currency, final Currency commodityCurrency) {
 		final String queryString = "SUM(m.pricePerUnit * m.amount) FROM MarketOrderImpl m "
 				+ "WHERE m.currency = :currency AND m.commodityCurrency = :commodityCurrency";
-		final Object amountSum = getSession().createQuery(queryString)
-				.setMaxResults(1).setParameter("currency", currency)
-				.setParameter("commodityCurrency", commodityCurrency)
-				.uniqueResult();
+		final Object amountSum = getSession().createQuery(queryString).setMaxResults(1)
+				.setParameter("currency", currency).setParameter("commodityCurrency", commodityCurrency).uniqueResult();
 
 		if (amountSum == null) {
 			return Double.NaN;
@@ -165,9 +144,8 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	public double getAmountSum(final Currency currency, final GoodType goodType) {
 		final String queryString = "SUM(m.pricePerUnit * m.amount) FROM MarketOrderImpl m "
 				+ "WHERE m.currency = :currency AND m.goodType = :goodType";
-		final Object amountSum = getSession().createQuery(queryString)
-				.setMaxResults(1).setParameter("currency", currency)
-				.setParameter("goodType", goodType).uniqueResult();
+		final Object amountSum = getSession().createQuery(queryString).setMaxResults(1)
+				.setParameter("currency", currency).setParameter("goodType", goodType).uniqueResult();
 
 		if (amountSum == null) {
 			return Double.NaN;
@@ -177,53 +155,40 @@ public class MarketOrderDAOImpl extends HibernateDAOImpl<MarketOrder> implements
 	}
 
 	@Override
-	public Iterator<MarketOrder> getIterator(final Currency currency,
-			final Class<? extends Property> propertyClass) {
+	public Iterator<MarketOrder> getIterator(final Currency currency, final Class<? extends Property> propertyClass) {
 		final String queryString = "FROM MarketOrderImpl m "
-				+ "WHERE m.currency = :currency AND m.property.class = :propertyClass "
-				+ "ORDER BY m.pricePerUnit ASC";
-		final ScrollableResults itemCursor = getSession()
-				.createQuery(queryString).setParameter("currency", currency)
-				.setParameter("propertyClass", propertyClass.getSimpleName())
-				.scroll(ScrollMode.FORWARD_ONLY);
+				+ "WHERE m.currency = :currency AND m.property.class = :propertyClass " + "ORDER BY m.pricePerUnit ASC";
+		final ScrollableResults itemCursor = getSession().createQuery(queryString).setParameter("currency", currency)
+				.setParameter("propertyClass", propertyClass.getSimpleName()).scroll(ScrollMode.FORWARD_ONLY);
 		return new HibernateIteratorImpl<MarketOrder>(itemCursor);
 	}
 
 	@Override
-	public Iterator<MarketOrder> getIterator(final Currency currency,
-			final Currency commodityCurrency) {
+	public Iterator<MarketOrder> getIterator(final Currency currency, final Currency commodityCurrency) {
 		final String queryString = "FROM MarketOrderImpl m "
 				+ "WHERE m.currency = :currency AND m.commodityCurrency = :commodityCurrency "
 				+ "ORDER BY m.pricePerUnit ASC";
-		final ScrollableResults itemCursor = getSession()
-				.createQuery(queryString).setParameter("currency", currency)
-				.setParameter("commodityCurrency", commodityCurrency)
-				.scroll(ScrollMode.FORWARD_ONLY);
+		final ScrollableResults itemCursor = getSession().createQuery(queryString).setParameter("currency", currency)
+				.setParameter("commodityCurrency", commodityCurrency).scroll(ScrollMode.FORWARD_ONLY);
 		return new HibernateIteratorImpl<MarketOrder>(itemCursor);
 	}
 
 	@Override
-	public Iterator<MarketOrder> getIterator(final Currency currency,
-			final GoodType goodType) {
+	public Iterator<MarketOrder> getIterator(final Currency currency, final GoodType goodType) {
 		final String queryString = "FROM MarketOrderImpl m "
-				+ "WHERE m.currency = :currency AND m.goodType = :goodType "
-				+ "ORDER BY m.pricePerUnit ASC";
-		final ScrollableResults itemCursor = getSession()
-				.createQuery(queryString).setParameter("currency", currency)
-				.setParameter("goodType", goodType)
-				.scroll(ScrollMode.FORWARD_ONLY);
+				+ "WHERE m.currency = :currency AND m.goodType = :goodType " + "ORDER BY m.pricePerUnit ASC";
+		final ScrollableResults itemCursor = getSession().createQuery(queryString).setParameter("currency", currency)
+				.setParameter("goodType", goodType).scroll(ScrollMode.FORWARD_ONLY);
 		return new HibernateIteratorImpl<MarketOrder>(itemCursor);
 	}
 
 	@Override
-	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency,
-			final Currency commodityCurrency) {
+	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency, final Currency commodityCurrency) {
 		return this.getIterator(currency, commodityCurrency);
 	}
 
 	@Override
-	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency,
-			final GoodType goodType) {
+	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency, final GoodType goodType) {
 		return this.getIterator(currency, goodType);
 	}
 }

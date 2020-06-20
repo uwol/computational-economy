@@ -40,6 +40,8 @@ import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.Model
 
 public class Dashboard extends JFrame implements ModelListener {
 
+	private static final long serialVersionUID = 1L;
+
 	protected final AgentsPanel agentsPanel = new AgentsPanel();
 
 	protected final BanksPanel banksPanel = new BanksPanel();
@@ -93,8 +95,7 @@ public class Dashboard extends JFrame implements ModelListener {
 			public void stateChanged(final ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
 					final JTabbedPane pane = (JTabbedPane) e.getSource();
-					final ModelListener selectedComponent = (ModelListener) pane
-							.getSelectedComponent();
+					final ModelListener selectedComponent = (ModelListener) pane.getSelectedComponent();
 					selectedComponent.notifyListener();
 				}
 			}
@@ -118,8 +119,7 @@ public class Dashboard extends JFrame implements ModelListener {
 	@Override
 	public void notifyListener() {
 		if (isShowing()) {
-			final ModelListener panel = (ModelListener) jTabbedPane
-					.getSelectedComponent();
+			final ModelListener panel = (ModelListener) jTabbedPane.getSelectedComponent();
 			panel.notifyListener();
 		}
 	}

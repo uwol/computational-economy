@@ -26,9 +26,7 @@ import io.github.uwol.compecon.economy.security.debt.FixedRateBond;
 
 public interface FixedRateBondFactory {
 
-	public FixedRateBond newInstanceFixedRateBond(final Agent owner,
-			final Agent issuer, final Currency currency,
+	public FixedRateBond newInstanceFixedRateBond(final Agent owner, final Agent issuer, final Currency currency,
 			final BankAccountDelegate faceValueFromBankAccountDelegate,
-			final BankAccountDelegate couponFromBankAccountDelegate,
-			final double faceValue, final double coupon);
+			final BankAccountDelegate couponFromBankAccountDelegate, final double faceValue, final double coupon);
 }

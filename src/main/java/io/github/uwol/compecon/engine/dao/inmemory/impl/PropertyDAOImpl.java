@@ -28,9 +28,8 @@ import io.github.uwol.compecon.economy.property.PropertyIssued;
 import io.github.uwol.compecon.economy.property.PropertyOwner;
 import io.github.uwol.compecon.engine.dao.PropertyDAO;
 
-public class PropertyDAOImpl extends
-		AbstractDoubleIndexedInMemoryDAOImpl<PropertyOwner, Property> implements
-		PropertyDAO {
+public class PropertyDAOImpl extends AbstractDoubleIndexedInMemoryDAOImpl<PropertyOwner, Property>
+		implements PropertyDAO {
 
 	@Override
 	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer) {
@@ -45,8 +44,7 @@ public class PropertyDAOImpl extends
 	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
 			final Class<? extends PropertyIssued> propertyClass) {
 		final List<Property> propertiesIssuedByAgent = new ArrayList<Property>();
-		for (final Property propertyIssued : this
-				.findAllPropertiesIssuedByAgent(issuer)) {
+		for (final Property propertyIssued : this.findAllPropertiesIssuedByAgent(issuer)) {
 			if (propertyClass.isAssignableFrom(propertyIssued.getClass())) {
 				propertiesIssuedByAgent.add(propertyIssued);
 			}
@@ -55,8 +53,7 @@ public class PropertyDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<Property> findAllPropertiesOfPropertyOwner(
-			final PropertyOwner propertyOwner) {
+	public synchronized List<Property> findAllPropertiesOfPropertyOwner(final PropertyOwner propertyOwner) {
 		final List<Property> propertiesOfPropertyOwner = getInstancesForFirstKey(propertyOwner);
 		if (propertiesOfPropertyOwner != null) {
 			return new ArrayList<Property>(propertiesOfPropertyOwner);
@@ -65,12 +62,10 @@ public class PropertyDAOImpl extends
 	}
 
 	@Override
-	public List<Property> findAllPropertiesOfPropertyOwner(
-			final PropertyOwner propertyOwner,
+	public List<Property> findAllPropertiesOfPropertyOwner(final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass) {
 		final List<Property> propertiesOfClass = new ArrayList<Property>();
-		for (final Property property : this
-				.findAllPropertiesOfPropertyOwner(propertyOwner)) {
+		for (final Property property : this.findAllPropertiesOfPropertyOwner(propertyOwner)) {
 			if (propertyClass.isAssignableFrom(property.getClass())) {
 				propertiesOfClass.add(property);
 			}
@@ -81,16 +76,15 @@ public class PropertyDAOImpl extends
 	@Override
 	public synchronized void save(final Property property) {
 		if (property instanceof PropertyIssued) {
-			super.save(property.getOwner(),
-					((PropertyIssued) property).getIssuer(), property);
+			super.save(property.getOwner(), ((PropertyIssued) property).getIssuer(), property);
 		} else {
 			super.save(property.getOwner(), property);
 		}
 	}
 
 	@Override
-	public synchronized void transferProperty(final PropertyOwner oldOwner,
-			final PropertyOwner newOwner, final Property property) {
+	public synchronized void transferProperty(final PropertyOwner oldOwner, final PropertyOwner newOwner,
+			final Property property) {
 		// the property is deleted and re-saved, so that the
 		// agent-property-index is updated
 		delete(property);

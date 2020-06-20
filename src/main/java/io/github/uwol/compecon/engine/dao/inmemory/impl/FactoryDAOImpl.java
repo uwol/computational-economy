@@ -27,8 +27,7 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.industry.Factory;
 import io.github.uwol.compecon.engine.dao.FactoryDAO;
 
-public class FactoryDAOImpl extends
-		AbstractIndexedInMemoryDAOImpl<Currency, Factory> implements FactoryDAO {
+public class FactoryDAOImpl extends AbstractIndexedInMemoryDAOImpl<Currency, Factory> implements FactoryDAO {
 
 	@Override
 	public synchronized List<Factory> findAllByCurrency(final Currency currency) {
@@ -36,8 +35,8 @@ public class FactoryDAOImpl extends
 	}
 
 	@Override
-	public synchronized List<Factory> findAllByCurrencyAndProducedGoodType(
-			final Currency currency, final GoodType producedGoodType) {
+	public synchronized List<Factory> findAllByCurrencyAndProducedGoodType(final Currency currency,
+			final GoodType producedGoodType) {
 		final List<Factory> factoriesProducingGoodType = new ArrayList<Factory>();
 		for (final Factory factory : getInstancesForKey(currency)) {
 			if (producedGoodType.equals(factory.getProducedGoodType())) {

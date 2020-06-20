@@ -36,16 +36,13 @@ public abstract class ProductionFunctionImpl implements ProductionFunction {
 	}
 
 	@Override
-	public double calculateMarginalOutput(
-			final Map<GoodType, Double> bundleOfProductionFactors,
+	public double calculateMarginalOutput(final Map<GoodType, Double> bundleOfProductionFactors,
 			final GoodType differentialGoodType) {
-		return delegate.partialDerivative(bundleOfProductionFactors,
-				differentialGoodType);
+		return delegate.partialDerivative(bundleOfProductionFactors, differentialGoodType);
 	}
 
 	@Override
-	public double calculateOutput(
-			final Map<GoodType, Double> bundleOfProductionFactors) {
+	public double calculateOutput(final Map<GoodType, Double> bundleOfProductionFactors) {
 		return delegate.f(bundleOfProductionFactors);
 	}
 
@@ -59,9 +56,7 @@ public abstract class ProductionFunctionImpl implements ProductionFunction {
 	 */
 	protected GoodType selectProductionFactorWithHighestMarginalOutputPerPrice(
 			final Map<GoodType, Double> bundleOfInputGoods,
-			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
-			final Map<GoodType, Double> capital) {
-		return delegate.findHighestPartialDerivatePerPrice(bundleOfInputGoods,
-				priceFunctionsOfInputGoods, capital);
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods, final Map<GoodType, Double> capital) {
+		return delegate.findHighestPartialDerivatePerPrice(bundleOfInputGoods, priceFunctionsOfInputGoods, capital);
 	}
 }

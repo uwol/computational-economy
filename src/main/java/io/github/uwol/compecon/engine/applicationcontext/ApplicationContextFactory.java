@@ -56,133 +56,107 @@ public class ApplicationContextFactory {
 	/**
 	 * Configures the application context with Hibernate DAOs.
 	 */
-	public static void configureHibernateApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
+	public static void configureHibernateApplicationContext(final String configurationPropertiesFilename)
+			throws IOException {
 
 		configureMinimalApplicationContext(configurationPropertiesFilename);
 
 		// Hibernate DAOs
 
-		ApplicationContext.getInstance().setBankAccountDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.BankAccountDAOImpl());
-		ApplicationContext.getInstance().setCentralBankDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.CentralBankDAOImpl());
-		ApplicationContext.getInstance().setCreditBankDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.CreditBankDAOImpl());
-		ApplicationContext
-				.getInstance()
-				.setGoodTypeOwnershipDAO(
-						new io.github.uwol.compecon.engine.dao.hibernate.impl.GoodTypeOwnershipDAOImpl());
-		ApplicationContext.getInstance().setHouseholdDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.HouseholdDAOImpl());
-		ApplicationContext.getInstance().setFactoryDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.FactoryDAOImpl());
-		ApplicationContext.getInstance().setMarketOrderDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.MarketOrderDAOImpl());
-		ApplicationContext.getInstance().setPropertyDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.PropertyDAOImpl());
-		ApplicationContext.getInstance().setStateDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.StateDAOImpl());
-		ApplicationContext.getInstance().setTraderDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.TraderDAOImpl());
+		ApplicationContext.getInstance()
+				.setBankAccountDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.BankAccountDAOImpl());
+		ApplicationContext.getInstance()
+				.setCentralBankDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.CentralBankDAOImpl());
+		ApplicationContext.getInstance()
+				.setCreditBankDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.CreditBankDAOImpl());
+		ApplicationContext.getInstance().setGoodTypeOwnershipDAO(
+				new io.github.uwol.compecon.engine.dao.hibernate.impl.GoodTypeOwnershipDAOImpl());
+		ApplicationContext.getInstance()
+				.setHouseholdDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.HouseholdDAOImpl());
+		ApplicationContext.getInstance()
+				.setFactoryDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.FactoryDAOImpl());
+		ApplicationContext.getInstance()
+				.setMarketOrderDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.MarketOrderDAOImpl());
+		ApplicationContext.getInstance()
+				.setPropertyDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.PropertyDAOImpl());
+		ApplicationContext.getInstance()
+				.setStateDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.StateDAOImpl());
+		ApplicationContext.getInstance()
+				.setTraderDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.TraderDAOImpl());
 	}
 
 	/**
 	 * Configures the application context with in-memory DAOs.
 	 */
-	public static void configureInMemoryApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
+	public static void configureInMemoryApplicationContext(final String configurationPropertiesFilename)
+			throws IOException {
 
 		configureMinimalApplicationContext(configurationPropertiesFilename);
 
 		// in-memory DAOs
 
-		ApplicationContext.getInstance().setBankAccountDAO(
-				new io.github.uwol.compecon.engine.dao.inmemory.impl.BankAccountDAOImpl());
-		ApplicationContext.getInstance().setCentralBankDAO(
-				new io.github.uwol.compecon.engine.dao.inmemory.impl.CentralBankDAOImpl());
-		ApplicationContext.getInstance().setCreditBankDAO(
-				new io.github.uwol.compecon.engine.dao.inmemory.impl.CreditBankDAOImpl());
-		ApplicationContext
-				.getInstance()
-				.setGoodTypeOwnershipDAO(
-						new io.github.uwol.compecon.engine.dao.inmemory.impl.GoodTypeOwnershipDAOImpl());
-		ApplicationContext.getInstance().setHouseholdDAO(
-				new io.github.uwol.compecon.engine.dao.inmemory.impl.HouseholdDAOImpl());
-		ApplicationContext.getInstance().setFactoryDAO(
-				new io.github.uwol.compecon.engine.dao.inmemory.impl.FactoryDAOImpl());
-		ApplicationContext.getInstance().setMarketOrderDAO(
-				new io.github.uwol.compecon.engine.dao.inmemory.impl.MarketOrderDAOImpl());
-		ApplicationContext.getInstance().setPropertyDAO(
-				new io.github.uwol.compecon.engine.dao.inmemory.impl.PropertyDAOImpl());
-		ApplicationContext.getInstance().setStateDAO(
-				new io.github.uwol.compecon.engine.dao.inmemory.impl.StateDAOImpl());
-		ApplicationContext.getInstance().setTraderDAO(
-				new io.github.uwol.compecon.engine.dao.inmemory.impl.TraderDAOImpl());
+		ApplicationContext.getInstance()
+				.setBankAccountDAO(new io.github.uwol.compecon.engine.dao.inmemory.impl.BankAccountDAOImpl());
+		ApplicationContext.getInstance()
+				.setCentralBankDAO(new io.github.uwol.compecon.engine.dao.inmemory.impl.CentralBankDAOImpl());
+		ApplicationContext.getInstance()
+				.setCreditBankDAO(new io.github.uwol.compecon.engine.dao.inmemory.impl.CreditBankDAOImpl());
+		ApplicationContext.getInstance().setGoodTypeOwnershipDAO(
+				new io.github.uwol.compecon.engine.dao.inmemory.impl.GoodTypeOwnershipDAOImpl());
+		ApplicationContext.getInstance()
+				.setHouseholdDAO(new io.github.uwol.compecon.engine.dao.inmemory.impl.HouseholdDAOImpl());
+		ApplicationContext.getInstance()
+				.setFactoryDAO(new io.github.uwol.compecon.engine.dao.inmemory.impl.FactoryDAOImpl());
+		ApplicationContext.getInstance()
+				.setMarketOrderDAO(new io.github.uwol.compecon.engine.dao.inmemory.impl.MarketOrderDAOImpl());
+		ApplicationContext.getInstance()
+				.setPropertyDAO(new io.github.uwol.compecon.engine.dao.inmemory.impl.PropertyDAOImpl());
+		ApplicationContext.getInstance()
+				.setStateDAO(new io.github.uwol.compecon.engine.dao.inmemory.impl.StateDAOImpl());
+		ApplicationContext.getInstance()
+				.setTraderDAO(new io.github.uwol.compecon.engine.dao.inmemory.impl.TraderDAOImpl());
 	}
 
-	protected static void configureMinimalApplicationContext(
-			final String configurationPropertiesFilename) throws IOException {
+	protected static void configureMinimalApplicationContext(final String configurationPropertiesFilename)
+			throws IOException {
 		// reset application context
 		ApplicationContext.getInstance().reset();
 
-		ApplicationContext.getInstance().setRandomNumberGenerator(
-				new DeterministicNumberGeneratorImpl());
-		ApplicationContext.getInstance().setSequenceNumberGenerator(
-				new SequenceNumberGeneratorImpl());
+		ApplicationContext.getInstance().setRandomNumberGenerator(new DeterministicNumberGeneratorImpl());
+		ApplicationContext.getInstance().setSequenceNumberGenerator(new SequenceNumberGeneratorImpl());
 
 		/*
 		 * factory classes
 		 */
-		ApplicationContext.getInstance().setAgentFactory(
-				new AgentImplFactoryImpl());
-		ApplicationContext.getInstance().setBankAccountFactory(
-				new BankAccountImplFactoryImpl());
-		ApplicationContext.getInstance().setBudgetingBehaviourFactory(
-				new BudgetingBehaviourFactoryImpl());
-		ApplicationContext.getInstance().setCentralBankFactory(
-				new CentralBankImplFactoryImpl());
-		ApplicationContext.getInstance().setCreditBankFactory(
-				new CreditBankImplFactoryImpl());
-		ApplicationContext.getInstance().setFactoryFactory(
-				new FactoryImplFactoryImpl());
-		ApplicationContext.getInstance().setFixedRateBondFactory(
-				new FixedRateBondImplFactoryImpl());
-		ApplicationContext.getInstance().setGoodTypeOwnershipFactory(
-				new GoodTypeOwnershipImplFactoryImpl());
-		ApplicationContext.getInstance().setHouseholdFactory(
-				new HouseholdImplFactoryImpl());
-		ApplicationContext.getInstance().setMarketOrderFactory(
-				new MarketOrderImplFactoryImpl());
-		ApplicationContext.getInstance().setPricingBehaviourFactory(
-				new PricingBehaviourFactoryImpl());
-		ApplicationContext.getInstance().setShareFactory(
-				new ShareImplFactoryImpl());
-		ApplicationContext.getInstance().setStateFactory(
-				new StateImplFactoryImpl());
-		ApplicationContext.getInstance().setTraderFactory(
-				new TraderImplFactoryImpl());
+		ApplicationContext.getInstance().setAgentFactory(new AgentImplFactoryImpl());
+		ApplicationContext.getInstance().setBankAccountFactory(new BankAccountImplFactoryImpl());
+		ApplicationContext.getInstance().setBudgetingBehaviourFactory(new BudgetingBehaviourFactoryImpl());
+		ApplicationContext.getInstance().setCentralBankFactory(new CentralBankImplFactoryImpl());
+		ApplicationContext.getInstance().setCreditBankFactory(new CreditBankImplFactoryImpl());
+		ApplicationContext.getInstance().setFactoryFactory(new FactoryImplFactoryImpl());
+		ApplicationContext.getInstance().setFixedRateBondFactory(new FixedRateBondImplFactoryImpl());
+		ApplicationContext.getInstance().setGoodTypeOwnershipFactory(new GoodTypeOwnershipImplFactoryImpl());
+		ApplicationContext.getInstance().setHouseholdFactory(new HouseholdImplFactoryImpl());
+		ApplicationContext.getInstance().setMarketOrderFactory(new MarketOrderImplFactoryImpl());
+		ApplicationContext.getInstance().setPricingBehaviourFactory(new PricingBehaviourFactoryImpl());
+		ApplicationContext.getInstance().setShareFactory(new ShareImplFactoryImpl());
+		ApplicationContext.getInstance().setStateFactory(new StateImplFactoryImpl());
+		ApplicationContext.getInstance().setTraderFactory(new TraderImplFactoryImpl());
 
 		/*
 		 * services
 		 */
-		ApplicationContext.getInstance()
-				.setAgentService(new AgentServiceImpl());
-		ApplicationContext.getInstance().setHardCashService(
-				new HardCashServiceImpl());
-		ApplicationContext.getInstance().setPropertyService(
-				new PropertyServiceImpl());
-		ApplicationContext.getInstance().setMarketService(
-				new SettlementMarketServiceImpl());
+		ApplicationContext.getInstance().setAgentService(new AgentServiceImpl());
+		ApplicationContext.getInstance().setHardCashService(new HardCashServiceImpl());
+		ApplicationContext.getInstance().setPropertyService(new PropertyServiceImpl());
+		ApplicationContext.getInstance().setMarketService(new SettlementMarketServiceImpl());
 
-		ApplicationContext.getInstance()
-				.setTimeSystem(new TimeSystemImpl(2001));
+		ApplicationContext.getInstance().setTimeSystem(new TimeSystemImpl(2001));
 
 		/*
 		 * configuration
 		 */
-		final Configuration configuration = new Configuration(
-				configurationPropertiesFilename);
+		final Configuration configuration = new Configuration(configurationPropertiesFilename);
 		ApplicationContext.getInstance().setConfiguration(configuration);
 
 		/*
@@ -190,8 +164,7 @@ public class ApplicationContextFactory {
 		 */
 		final InputOutputModel inputOutputModel;
 
-		switch (configuration.inputOutputModelConfig
-				.getInputOutputModelSetting()) {
+		switch (configuration.inputOutputModelConfig.getInputOutputModelSetting()) {
 		case InputOutputModelMinimal:
 			inputOutputModel = new InputOutputModelMinimalImpl();
 			break;
@@ -213,14 +186,12 @@ public class ApplicationContextFactory {
 		/*
 		 * model registry
 		 */
-		ApplicationContext.getInstance().setModelRegistry(
-				new ModelRegistry(inputOutputModel));
+		ApplicationContext.getInstance().setModelRegistry(new ModelRegistry(inputOutputModel));
 		ApplicationContext.getInstance().setLog(new LogImpl());
 
 		/*
 		 * simulation runner
 		 */
-		ApplicationContext.getInstance().setSimulationRunner(
-				new SimulationRunnerImpl());
+		ApplicationContext.getInstance().setSimulationRunner(new SimulationRunnerImpl());
 	}
 }

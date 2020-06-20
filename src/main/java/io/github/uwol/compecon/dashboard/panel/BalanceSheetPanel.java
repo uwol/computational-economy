@@ -32,15 +32,15 @@ import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.Model
 
 public class BalanceSheetPanel extends JPanel implements ModelListener {
 
+	private static final long serialVersionUID = 1L;
+
 	protected final BalanceSheetTableModel balanceSheetTableModel;
 
-	public BalanceSheetPanel(final Currency referenceCurrency,
-			final BalanceSheetTableModel balanceSheetTableModel,
+	public BalanceSheetPanel(final Currency referenceCurrency, final BalanceSheetTableModel balanceSheetTableModel,
 			final String title) {
 		this.balanceSheetTableModel = balanceSheetTableModel;
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		final TitledBorder titleBorder = BorderFactory
-				.createTitledBorder(title);
+		final TitledBorder titleBorder = BorderFactory.createTitledBorder(title);
 		titleBorder.setTitleJustification(TitledBorder.CENTER);
 		setBorder(titleBorder);
 		final JTable balanceSheetTable = new JTable(balanceSheetTableModel);

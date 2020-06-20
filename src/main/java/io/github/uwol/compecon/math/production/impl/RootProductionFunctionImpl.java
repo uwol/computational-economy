@@ -24,8 +24,7 @@ import io.github.uwol.compecon.math.impl.RootFunctionImpl;
 
 public class RootProductionFunctionImpl extends ConvexProductionFunctionImpl {
 
-	public RootProductionFunctionImpl(final GoodType inputGoodType,
-			final double coefficient) {
+	public RootProductionFunctionImpl(final GoodType inputGoodType, final double coefficient) {
 		super(new RootFunctionImpl<GoodType>(inputGoodType, coefficient));
 	}
 

@@ -28,13 +28,11 @@ import io.github.uwol.compecon.engine.timesystem.impl.MonthType;
 
 public interface TimeSystem {
 
-	public void addEvent(final TimeSystemEvent event, final int year,
-			final MonthType monthType, final DayType dayType,
+	public void addEvent(final TimeSystemEvent event, final int year, final MonthType monthType, final DayType dayType,
 			final HourType hourType);
 
-	public void addEventEvery(final TimeSystemEvent event, final int year,
-			final MonthType monthType, final DayType dayType,
-			final HourType exceptHourType);
+	public void addEventEvery(final TimeSystemEvent event, final int year, final MonthType monthType,
+			final DayType dayType, final HourType exceptHourType);
 
 	public void addEventForEveryDay(final TimeSystemEvent event);
 
@@ -70,6 +68,5 @@ public interface TimeSystem {
 
 	public HourType suggestRandomHourType();
 
-	public HourType suggestRandomHourType(final HourType minHourType,
-			final HourType maxHourType);
+	public HourType suggestRandomHourType(final HourType minHourType, final HourType maxHourType);
 }

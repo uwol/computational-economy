@@ -21,12 +21,10 @@ package io.github.uwol.compecon.economy.materia;
 
 public enum GoodType {
 
-	CLOTHING(false, false, Sector.SECONDARY), COAL(false, false, Sector.PRIMARY), COTTON(
-			false, false, Sector.PRIMARY), FOOD(false, false, Sector.SECONDARY), IRON(
-			false, false, Sector.PRIMARY), KILOWATT(false, false,
-			Sector.SECONDARY), LABOURHOUR(false, false, Sector.TERTIARY), MACHINE(
-			false, true, Sector.SECONDARY), REALESTATE(false, false,
-			Sector.SECONDARY), WHEAT(false, false, Sector.PRIMARY);
+	CLOTHING(false, false, Sector.SECONDARY), COAL(false, false, Sector.PRIMARY), COTTON(false, false, Sector.PRIMARY),
+	FOOD(false, false, Sector.SECONDARY), IRON(false, false, Sector.PRIMARY), KILOWATT(false, false, Sector.SECONDARY),
+	LABOURHOUR(false, false, Sector.TERTIARY), MACHINE(false, true, Sector.SECONDARY),
+	REALESTATE(false, false, Sector.SECONDARY), WHEAT(false, false, Sector.PRIMARY);
 
 	// CRAFT(false, false, Sector.TERTIARY), EDUCATION(false, false,
 	// Sector.TERTIARY),
@@ -39,7 +37,8 @@ public enum GoodType {
 
 	/**
 	 * capital goods are durable goods <br />
-	 * consumption goods mostly are not durable goods, but can be (e. g. cars) <br />
+	 * consumption goods mostly are not durable goods, but can be (e. g. cars)
+	 * <br />
 	 * <br />
 	 * http://en.wikipedia.org/wiki/Capital_good
 	 */
@@ -49,8 +48,7 @@ public enum GoodType {
 
 	protected final boolean wholeNumber;
 
-	private GoodType(final boolean wholeNumber, final boolean durable,
-			final Sector sector) {
+	private GoodType(final boolean wholeNumber, final boolean durable, final Sector sector) {
 		this.durable = durable;
 		this.wholeNumber = wholeNumber;
 		this.sector = sector;

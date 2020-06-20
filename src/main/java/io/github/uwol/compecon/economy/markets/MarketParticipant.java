@@ -26,14 +26,11 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 
 public interface MarketParticipant extends PropertyOwner {
 
-	public void onMarketSettlement(final Currency commodityCurrency,
-			final double amount, final double pricePerUnit,
+	public void onMarketSettlement(final Currency commodityCurrency, final double amount, final double pricePerUnit,
 			final Currency currency);
 
-	public void onMarketSettlement(final GoodType goodType,
-			final double amount, final double pricePerUnit,
+	public void onMarketSettlement(final GoodType goodType, final double amount, final double pricePerUnit,
 			final Currency currency);
 
-	public void onMarketSettlement(final Property property,
-			final double pricePerUnit, final Currency currency);
+	public void onMarketSettlement(final Property property, final double pricePerUnit, final Currency currency);
 }

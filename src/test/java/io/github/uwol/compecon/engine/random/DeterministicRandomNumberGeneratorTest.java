@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import io.github.uwol.compecon.CompEconTestSupport;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
-import io.github.uwol.compecon.engine.random.RandomNumberGenerator;
 import io.github.uwol.compecon.engine.random.impl.DeterministicNumberGeneratorImpl;
 
 public class DeterministicRandomNumberGeneratorTest extends CompEconTestSupport {
@@ -37,8 +36,7 @@ public class DeterministicRandomNumberGeneratorTest extends CompEconTestSupport 
 	public void setup() throws IOException {
 		super.setUpApplicationContext(testConfigurationPropertiesFilename);
 
-		ApplicationContext.getInstance().setRandomNumberGenerator(
-				new DeterministicNumberGeneratorImpl());
+		ApplicationContext.getInstance().setRandomNumberGenerator(new DeterministicNumberGeneratorImpl());
 	}
 
 	@Override
@@ -49,8 +47,7 @@ public class DeterministicRandomNumberGeneratorTest extends CompEconTestSupport 
 
 	@Test
 	public void testGetAgentMethods() {
-		final RandomNumberGenerator randomNumberGenerator = ApplicationContext
-				.getInstance().getRandomNumberGenerator();
+		final RandomNumberGenerator randomNumberGenerator = ApplicationContext.getInstance().getRandomNumberGenerator();
 
 		final int nextInt = randomNumberGenerator.nextInt();
 		final int nextInt2 = randomNumberGenerator.nextInt();

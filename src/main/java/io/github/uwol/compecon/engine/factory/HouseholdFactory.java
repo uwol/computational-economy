@@ -26,6 +26,5 @@ public interface HouseholdFactory {
 
 	public void deleteHousehold(final Household agent);
 
-	public Household newInstanceHousehold(final Currency primaryCurrency,
-			final int ageInDays);
+	public Household newInstanceHousehold(final Currency primaryCurrency, final int ageInDays);
 }

@@ -63,79 +63,43 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 
 		final Currency currency = Currency.EURO;
 
-		final Household household1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(0);
-		final Household household2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(1);
+		final Household household1_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(0);
+		final Household household2_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(1);
 
 		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, GoodType.KILOWATT),
+				ApplicationContext.getInstance().getMarketService().getMarginalMarketPrice(currency, GoodType.KILOWATT),
 				epsilon);
 		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, GoodType.WHEAT),
+				ApplicationContext.getInstance().getMarketService().getMarginalMarketPrice(currency, GoodType.WHEAT),
 				epsilon);
 		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, GoodType.COAL),
+				ApplicationContext.getInstance().getMarketService().getMarginalMarketPrice(currency, GoodType.COAL),
 				epsilon);
 		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, GoodType.IRON),
+				ApplicationContext.getInstance().getMarketService().getMarginalMarketPrice(currency, GoodType.IRON),
 				epsilon);
 
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
-						household1_EUR.getBankAccountTransactionsDelegate(),
-						200.0, 2.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						50.0, 1.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.KILOWATT, household1_EUR,
+				household1_EUR.getBankAccountTransactionsDelegate(), 200.0, 2.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.KILOWATT, household2_EUR,
+				household2_EUR.getBankAccountTransactionsDelegate(), 50.0, 1.0);
 
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
-						household1_EUR.getBankAccountTransactionsDelegate(),
-						200.0, 4.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.WHEAT, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						40.0, 1.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.WHEAT, household1_EUR,
+				household1_EUR.getBankAccountTransactionsDelegate(), 200.0, 4.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.WHEAT, household2_EUR,
+				household2_EUR.getBankAccountTransactionsDelegate(), 40.0, 1.0);
 
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.COAL, household1_EUR,
-						household1_EUR.getBankAccountTransactionsDelegate(),
-						150.0, 5.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.COAL, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						60.0, 1.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.COAL, household1_EUR,
+				household1_EUR.getBankAccountTransactionsDelegate(), 150.0, 5.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.COAL, household2_EUR,
+				household2_EUR.getBankAccountTransactionsDelegate(), 60.0, 1.0);
 
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.IRON, household1_EUR,
-						household1_EUR.getBankAccountTransactionsDelegate(),
-						220.0, 3.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.IRON, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						770.0, 1.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.IRON, household1_EUR,
+				household1_EUR.getBankAccountTransactionsDelegate(), 220.0, 3.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.IRON, household2_EUR,
+				household2_EUR.getBankAccountTransactionsDelegate(), 770.0, 1.0);
 
 		/*
 		 * prepare function
@@ -145,25 +109,20 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		exponents.put(GoodType.WHEAT, 0.25);
 		exponents.put(GoodType.COAL, 0.25);
 		exponents.put(GoodType.IRON, 0.25);
-		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(
-				1.0, exponents);
+		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(1.0,
+				exponents);
 
 		/*
 		 * maximize output under budget restriction
 		 */
-		final Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.getMarketPriceFunctions(
-						currency,
-						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT,
-								GoodType.COAL, GoodType.IRON });
+		final Map<GoodType, PriceFunction> priceFunctions = ApplicationContext.getInstance().getMarketService()
+				.getMarketPriceFunctions(currency,
+						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT, GoodType.COAL, GoodType.IRON });
 
 		final double budget = 1000;
 
 		final Map<GoodType, Double> optimalInputsIterative = cobbDouglasFunction
-				.calculateOutputMaximizingInputsIterative(priceFunctions,
-						budget, numberOfIterations);
+				.calculateOutputMaximizingInputsIterative(priceFunctions, budget, numberOfIterations);
 
 		/*
 		 * assert inputs
@@ -176,8 +135,7 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		/*
 		 * assert marginal outputs
 		 */
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsIterative, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsIterative, priceFunctions);
 	}
 
 	@Test
@@ -189,8 +147,8 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		exponents.put(GoodType.COAL, 0.1);
 		exponents.put(GoodType.KILOWATT, 0.3);
 		exponents.put(GoodType.WHEAT, 0.6);
-		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(
-				1.0, exponents);
+		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(1.0,
+				exponents);
 
 		/*
 		 * maximize output under budget restriction
@@ -201,80 +159,63 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, 2.0);
 
 		final Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.COAL,
-				new FixedPriceFunctionImpl(Double.NaN));
+		priceFunctions.put(GoodType.COAL, new FixedPriceFunctionImpl(Double.NaN));
 		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
 		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 
 		final double budget = 10.0;
 
 		final Map<GoodType, Double> optimalInputsAnalyticalFixedPrices = cobbDouglasFunction
-				.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
-						prices, budget);
+				.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(prices, budget);
 		final Map<GoodType, Double> optimalInputsAnalyticalPriceFunctions = cobbDouglasFunction
-				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
-						priceFunctions, budget);
+				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(priceFunctions, budget);
 		final Map<GoodType, Double> optimalInputsIterative = cobbDouglasFunction
-				.calculateOutputMaximizingInputsIterative(priceFunctions,
-						budget, numberOfIterations);
+				.calculateOutputMaximizingInputsIterative(priceFunctions, budget, numberOfIterations);
 		final Map<GoodType, Double> optimalInputsBruteForce = cobbDouglasFunction
-				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
-						budget);
-		final Map<GoodType, Double> optimalInputs = cobbDouglasFunction
-				.calculateOutputMaximizingInputs(priceFunctions, budget);
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions, budget);
+		final Map<GoodType, Double> optimalInputs = cobbDouglasFunction.calculateOutputMaximizingInputs(priceFunctions,
+				budget);
 
 		/*
 		 * assert inputs
 		 */
-		assertEquals(0.0,
-				optimalInputsAnalyticalFixedPrices.get(GoodType.COAL), epsilon);
-		assertEquals(0.0,
-				optimalInputsAnalyticalFixedPrices.get(GoodType.KILOWATT),
-				epsilon);
-		assertEquals(0.0,
-				optimalInputsAnalyticalFixedPrices.get(GoodType.WHEAT), epsilon);
+		assertEquals(0.0, optimalInputsAnalyticalFixedPrices.get(GoodType.COAL), epsilon);
+		assertEquals(0.0, optimalInputsAnalyticalFixedPrices.get(GoodType.KILOWATT), epsilon);
+		assertEquals(0.0, optimalInputsAnalyticalFixedPrices.get(GoodType.WHEAT), epsilon);
 
-		for (final GoodType goodType : optimalInputsAnalyticalFixedPrices
-				.keySet()) {
+		for (final GoodType goodType : optimalInputsAnalyticalFixedPrices.keySet()) {
 			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
-					optimalInputsAnalyticalPriceFunctions.get(goodType),
+					optimalInputsAnalyticalPriceFunctions.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType), optimalInputsIterative.get(goodType),
 					epsilon);
-			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
-					optimalInputsIterative.get(goodType), epsilon);
-			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
-					optimalInputsBruteForce.get(goodType), epsilon);
-			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
-					optimalInputs.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType), optimalInputsBruteForce.get(goodType),
+					epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType), optimalInputs.get(goodType), epsilon);
 		}
 
 		/*
 		 * assert output
 		 */
-		assertEquals(0.0,
-				cobbDouglasFunction.f(optimalInputsAnalyticalFixedPrices),
-				epsilon);
+		assertEquals(0.0, cobbDouglasFunction.f(optimalInputsAnalyticalFixedPrices), epsilon);
 
-		assertOutputIsOptimalUnderBudget(cobbDouglasFunction, budget,
-				priceFunctions, optimalInputsAnalyticalFixedPrices);
+		assertOutputIsOptimalUnderBudget(cobbDouglasFunction, budget, priceFunctions,
+				optimalInputsAnalyticalFixedPrices);
 
 		/*
 		 * assert marginal outputs
 		 */
-		assertEquals(0.0, cobbDouglasFunction.partialDerivative(
-				optimalInputsAnalyticalFixedPrices, GoodType.KILOWATT), epsilon);
-		assertEquals(0.0, cobbDouglasFunction.partialDerivative(
-				optimalInputsAnalyticalFixedPrices, GoodType.WHEAT), epsilon);
+		assertEquals(0.0, cobbDouglasFunction.partialDerivative(optimalInputsAnalyticalFixedPrices, GoodType.KILOWATT),
+				epsilon);
+		assertEquals(0.0, cobbDouglasFunction.partialDerivative(optimalInputsAnalyticalFixedPrices, GoodType.WHEAT),
+				epsilon);
 
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsAnalyticalFixedPrices, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsAnalyticalPriceFunctions, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsIterative, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsBruteForce, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputs, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsAnalyticalFixedPrices,
+				priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsAnalyticalPriceFunctions,
+				priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsIterative, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsBruteForce, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputs, priceFunctions);
 	}
 
 	@Test
@@ -285,8 +226,8 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		final Map<GoodType, Double> exponents = new HashMap<GoodType, Double>();
 		exponents.put(GoodType.KILOWATT, 0.4);
 		exponents.put(GoodType.WHEAT, 0.6);
-		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(
-				1.0, exponents);
+		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(1.0,
+				exponents);
 
 		/*
 		 * maximize output under budget restriction
@@ -297,78 +238,62 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		prices.put(GoodType.WHEAT, 2.0);
 
 		final Map<GoodType, PriceFunction> priceFunctions = new HashMap<GoodType, PriceFunction>();
-		priceFunctions.put(GoodType.COAL,
-				new FixedPriceFunctionImpl(Double.NaN));
+		priceFunctions.put(GoodType.COAL, new FixedPriceFunctionImpl(Double.NaN));
 		priceFunctions.put(GoodType.KILOWATT, new FixedPriceFunctionImpl(1.0));
 		priceFunctions.put(GoodType.WHEAT, new FixedPriceFunctionImpl(2.0));
 
 		final double budget = 10.0;
 
 		final Map<GoodType, Double> optimalInputsAnalyticalFixedPrices = cobbDouglasFunction
-				.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(
-						prices, budget);
+				.calculateOutputMaximizingInputsAnalyticalWithFixedPrices(prices, budget);
 		final Map<GoodType, Double> optimalInputsAnalyticalPriceFunctions = cobbDouglasFunction
-				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
-						priceFunctions, budget);
+				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(priceFunctions, budget);
 		final Map<GoodType, Double> optimalInputsIterative = cobbDouglasFunction
-				.calculateOutputMaximizingInputsIterative(priceFunctions,
-						budget, numberOfIterations);
+				.calculateOutputMaximizingInputsIterative(priceFunctions, budget, numberOfIterations);
 		final Map<GoodType, Double> optimalInputsBruteForce = cobbDouglasFunction
-				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
-						budget);
-		final Map<GoodType, Double> optimalInputs = cobbDouglasFunction
-				.calculateOutputMaximizingInputs(priceFunctions, budget);
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions, budget);
+		final Map<GoodType, Double> optimalInputs = cobbDouglasFunction.calculateOutputMaximizingInputs(priceFunctions,
+				budget);
 
 		/*
 		 * assert inputs
 		 */
-		assertEquals(4.,
-				optimalInputsAnalyticalFixedPrices.get(GoodType.KILOWATT),
-				epsilon);
-		assertEquals(3.,
-				optimalInputsAnalyticalFixedPrices.get(GoodType.WHEAT), epsilon);
+		assertEquals(4., optimalInputsAnalyticalFixedPrices.get(GoodType.KILOWATT), epsilon);
+		assertEquals(3., optimalInputsAnalyticalFixedPrices.get(GoodType.WHEAT), epsilon);
 
-		for (final GoodType goodType : optimalInputsAnalyticalFixedPrices
-				.keySet()) {
+		for (final GoodType goodType : optimalInputsAnalyticalFixedPrices.keySet()) {
 			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
-					optimalInputsAnalyticalPriceFunctions.get(goodType),
+					optimalInputsAnalyticalPriceFunctions.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType), optimalInputsIterative.get(goodType),
 					epsilon);
-			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
-					optimalInputsIterative.get(goodType), epsilon);
-			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
-					optimalInputsBruteForce.get(goodType), epsilon);
-			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType),
-					optimalInputs.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType), optimalInputsBruteForce.get(goodType),
+					epsilon);
+			assertEquals(optimalInputsAnalyticalFixedPrices.get(goodType), optimalInputs.get(goodType), epsilon);
 		}
 
 		/*
 		 * assert output
 		 */
-		assertEquals(3.36586,
-				cobbDouglasFunction.f(optimalInputsAnalyticalFixedPrices),
-				epsilon);
+		assertEquals(3.36586, cobbDouglasFunction.f(optimalInputsAnalyticalFixedPrices), epsilon);
 
-		assertOutputIsOptimalUnderBudget(cobbDouglasFunction, budget,
-				priceFunctions, optimalInputsAnalyticalFixedPrices);
+		assertOutputIsOptimalUnderBudget(cobbDouglasFunction, budget, priceFunctions,
+				optimalInputsAnalyticalFixedPrices);
 
 		/*
 		 * assert marginal outputs
 		 */
-		assertEquals(0.336586, cobbDouglasFunction.partialDerivative(
-				optimalInputsAnalyticalFixedPrices, GoodType.KILOWATT), epsilon);
-		assertEquals(0.673173, cobbDouglasFunction.partialDerivative(
-				optimalInputsAnalyticalFixedPrices, GoodType.WHEAT), epsilon);
+		assertEquals(0.336586,
+				cobbDouglasFunction.partialDerivative(optimalInputsAnalyticalFixedPrices, GoodType.KILOWATT), epsilon);
+		assertEquals(0.673173,
+				cobbDouglasFunction.partialDerivative(optimalInputsAnalyticalFixedPrices, GoodType.WHEAT), epsilon);
 
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsAnalyticalFixedPrices, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsAnalyticalPriceFunctions, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsIterative, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsBruteForce, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputs, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsAnalyticalFixedPrices,
+				priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsAnalyticalPriceFunctions,
+				priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsIterative, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsBruteForce, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputs, priceFunctions);
 	}
 
 	@Test
@@ -380,45 +305,27 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 
 		final Currency currency = Currency.EURO;
 
-		final Household household1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(0);
-		final Household household2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(1);
+		final Household household1_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(0);
+		final Household household2_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(1);
 
 		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, GoodType.KILOWATT),
+				ApplicationContext.getInstance().getMarketService().getMarginalMarketPrice(currency, GoodType.KILOWATT),
 				epsilon);
 		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, GoodType.WHEAT),
+				ApplicationContext.getInstance().getMarketService().getMarginalMarketPrice(currency, GoodType.WHEAT),
 				epsilon);
 
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
-						household1_EUR.getBankAccountTransactionsDelegate(),
-						5.0, 2.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						5.0, 1.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.KILOWATT, household1_EUR,
+				household1_EUR.getBankAccountTransactionsDelegate(), 5.0, 2.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.KILOWATT, household2_EUR,
+				household2_EUR.getBankAccountTransactionsDelegate(), 5.0, 1.0);
 
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
-						household1_EUR.getBankAccountTransactionsDelegate(),
-						3.0, 2.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.WHEAT, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						2.0, 1.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.WHEAT, household1_EUR,
+				household1_EUR.getBankAccountTransactionsDelegate(), 3.0, 2.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.WHEAT, household2_EUR,
+				household2_EUR.getBankAccountTransactionsDelegate(), 2.0, 1.0);
 
 		/*
 		 * prepare function
@@ -426,38 +333,30 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		final Map<GoodType, Double> exponents = new HashMap<GoodType, Double>();
 		exponents.put(GoodType.KILOWATT, 0.4);
 		exponents.put(GoodType.WHEAT, 0.6);
-		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(
-				1.0, exponents);
+		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(1.0,
+				exponents);
 
 		/*
 		 * maximize output under budget restriction
 		 */
-		final Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.getMarketPriceFunctions(currency,
-						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT });
+		final Map<GoodType, PriceFunction> priceFunctions = ApplicationContext.getInstance().getMarketService()
+				.getMarketPriceFunctions(currency, new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT });
 
 		final double budget = 10.0;
 
 		final Map<GoodType, Double> optimalInputsAnalytical = cobbDouglasFunction
-				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
-						priceFunctions, budget);
+				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(priceFunctions, budget);
 		final Map<GoodType, Double> optimalInputsIterative = cobbDouglasFunction
-				.calculateOutputMaximizingInputsIterative(priceFunctions,
-						budget, numberOfIterations);
+				.calculateOutputMaximizingInputsIterative(priceFunctions, budget, numberOfIterations);
 		final Map<GoodType, Double> optimalInputsBruteForce = cobbDouglasFunction
-				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
-						budget);
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions, budget);
 
 		/*
 		 * assert inputs
 		 */
 		for (final GoodType goodType : optimalInputsAnalytical.keySet()) {
-			assertEquals(optimalInputsAnalytical.get(goodType),
-					optimalInputsIterative.get(goodType), epsilon);
-			assertEquals(optimalInputsAnalytical.get(goodType),
-					optimalInputsBruteForce.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalytical.get(goodType), optimalInputsIterative.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalytical.get(goodType), optimalInputsBruteForce.get(goodType), epsilon);
 		}
 
 		/*
@@ -467,12 +366,9 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		/*
 		 * assert marginal outputs
 		 */
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsAnalytical, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsIterative, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsBruteForce, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsAnalytical, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsIterative, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsBruteForce, priceFunctions);
 	}
 
 	@Test
@@ -484,45 +380,27 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 
 		final Currency currency = Currency.EURO;
 
-		final Household household1_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(0);
-		final Household household2_EUR = ApplicationContext.getInstance()
-				.getAgentService().findHouseholds(currency).get(1);
+		final Household household1_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(0);
+		final Household household2_EUR = ApplicationContext.getInstance().getAgentService().findHouseholds(currency)
+				.get(1);
 
 		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, GoodType.KILOWATT),
+				ApplicationContext.getInstance().getMarketService().getMarginalMarketPrice(currency, GoodType.KILOWATT),
 				epsilon);
 		assertEquals(Double.NaN,
-				ApplicationContext.getInstance().getMarketService()
-						.getMarginalMarketPrice(currency, GoodType.WHEAT),
+				ApplicationContext.getInstance().getMarketService().getMarginalMarketPrice(currency, GoodType.WHEAT),
 				epsilon);
 
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.KILOWATT, household1_EUR,
-						household1_EUR.getBankAccountTransactionsDelegate(),
-						20.0, 2.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.KILOWATT, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						5.0, 1.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.KILOWATT, household1_EUR,
+				household1_EUR.getBankAccountTransactionsDelegate(), 20.0, 2.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.KILOWATT, household2_EUR,
+				household2_EUR.getBankAccountTransactionsDelegate(), 5.0, 1.0);
 
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.WHEAT, household1_EUR,
-						household1_EUR.getBankAccountTransactionsDelegate(),
-						20.0, 2.0);
-		ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.placeSellingOffer(GoodType.WHEAT, household2_EUR,
-						household2_EUR.getBankAccountTransactionsDelegate(),
-						4.0, 1.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.WHEAT, household1_EUR,
+				household1_EUR.getBankAccountTransactionsDelegate(), 20.0, 2.0);
+		ApplicationContext.getInstance().getMarketService().placeSellingOffer(GoodType.WHEAT, household2_EUR,
+				household2_EUR.getBankAccountTransactionsDelegate(), 4.0, 1.0);
 
 		/*
 		 * prepare function
@@ -530,17 +408,14 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		final Map<GoodType, Double> exponents = new HashMap<GoodType, Double>();
 		exponents.put(GoodType.KILOWATT, 0.4);
 		exponents.put(GoodType.WHEAT, 0.6);
-		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(
-				1.0, exponents);
+		final CobbDouglasFunctionImpl<GoodType> cobbDouglasFunction = new CobbDouglasFunctionImpl<GoodType>(1.0,
+				exponents);
 
 		/*
 		 * maximize output under budget restriction
 		 */
-		final Map<GoodType, PriceFunction> priceFunctions = ApplicationContext
-				.getInstance()
-				.getMarketService()
-				.getMarketPriceFunctions(currency,
-						new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT });
+		final Map<GoodType, PriceFunction> priceFunctions = ApplicationContext.getInstance().getMarketService()
+				.getMarketPriceFunctions(currency, new GoodType[] { GoodType.KILOWATT, GoodType.WHEAT });
 
 		// TODO: problematic with 6.7 < budget < 15.8 as
 		// partialDerivativesPerPrice
@@ -548,23 +423,18 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		final double budget = 21;
 
 		final Map<GoodType, Double> optimalInputsAnalytical = cobbDouglasFunction
-				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(
-						priceFunctions, budget);
+				.calculateOutputMaximizingInputsAnalyticalWithPriceFunctions(priceFunctions, budget);
 		final Map<GoodType, Double> optimalInputsIterative = cobbDouglasFunction
-				.calculateOutputMaximizingInputsIterative(priceFunctions,
-						budget, numberOfIterations);
+				.calculateOutputMaximizingInputsIterative(priceFunctions, budget, numberOfIterations);
 		final Map<GoodType, Double> optimalInputsBruteForce = cobbDouglasFunction
-				.calculateOutputMaximizingInputsByRangeScan(priceFunctions,
-						budget);
+				.calculateOutputMaximizingInputsByRangeScan(priceFunctions, budget);
 
 		/*
 		 * assert inputs
 		 */
 		for (final GoodType goodType : optimalInputsAnalytical.keySet()) {
-			assertEquals(optimalInputsAnalytical.get(goodType),
-					optimalInputsIterative.get(goodType), epsilon);
-			assertEquals(optimalInputsAnalytical.get(goodType),
-					optimalInputsBruteForce.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalytical.get(goodType), optimalInputsIterative.get(goodType), epsilon);
+			assertEquals(optimalInputsAnalytical.get(goodType), optimalInputsBruteForce.get(goodType), epsilon);
 		}
 
 		/*
@@ -574,11 +444,8 @@ public class CobbDouglasFunctionTest extends CompEconTestSupport {
 		/*
 		 * assert marginal outputs
 		 */
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsAnalytical, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsIterative, priceFunctions);
-		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction,
-				optimalInputsBruteForce, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsAnalytical, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsIterative, priceFunctions);
+		assertPartialDerivativesPerPriceAreEqual(cobbDouglasFunction, optimalInputsBruteForce, priceFunctions);
 	}
 }

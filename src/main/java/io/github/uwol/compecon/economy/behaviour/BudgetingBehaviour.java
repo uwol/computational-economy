@@ -23,8 +23,7 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 
 public interface BudgetingBehaviour {
 
-	public double calculateTransmissionBasedBudgetForPeriod(
-			final Currency currency, final double bankAccountBalance,
+	public double calculateTransmissionBasedBudgetForPeriod(final Currency currency, final double bankAccountBalance,
 			final double referenceCredit);
 
 	public double getCreditBasedBudgetCapacity();

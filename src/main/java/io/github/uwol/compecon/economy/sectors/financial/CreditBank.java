@@ -23,18 +23,17 @@ public interface CreditBank extends Bank {
 
 	public void deposit(final BankAccount bankAccount, final double amount);
 
-	public void depositCash(final BankCustomer customer, final BankAccount to,
-			final double amount, final Currency currency);
+	public void depositCash(final BankCustomer customer, final BankAccount to, final double amount,
+			final Currency currency);
 
 	public BankAccountDelegate getBankAccountCentralBankMoneyReservesDelegate();
 
 	public BankAccountDelegate getBankAccountCentralBankTransactionsDelegate();
 
-	public BankAccountDelegate getBankAccountCurrencyTradeDelegate(
-			final Currency currency);
+	public BankAccountDelegate getBankAccountCurrencyTradeDelegate(final Currency currency);
 
 	public void withdraw(final BankAccount bankAccount, final double amount);
 
-	public double withdrawCash(final BankCustomer customer,
-			final BankAccount from, final double amount, final Currency currency);
+	public double withdrawCash(final BankCustomer customer, final BankAccount from, final double amount,
+			final Currency currency);
 }

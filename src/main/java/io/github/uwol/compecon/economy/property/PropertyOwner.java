@@ -24,9 +24,9 @@ import io.github.uwol.compecon.economy.LifecycleEntity;
 public interface PropertyOwner extends LifecycleEntity {
 
 	/**
-	 * this method is called after a property transfer from oldOwner to newOwner
-	 * on both property owners.
+	 * this method is called after a property transfer from oldOwner to newOwner on
+	 * both property owners.
 	 */
-	public void onPropertyTransferred(final Property property,
-			final PropertyOwner oldOwner, final PropertyOwner newOwner);
+	public void onPropertyTransferred(final Property property, final PropertyOwner oldOwner,
+			final PropertyOwner newOwner);
 }

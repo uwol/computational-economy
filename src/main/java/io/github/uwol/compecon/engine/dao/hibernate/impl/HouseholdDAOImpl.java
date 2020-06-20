@@ -28,13 +28,12 @@ import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.economy.sectors.household.impl.HouseholdImpl;
 import io.github.uwol.compecon.engine.dao.HouseholdDAO;
 
-public class HouseholdDAOImpl extends HibernateDAOImpl<Household> implements
-		HouseholdDAO {
+public class HouseholdDAOImpl extends HibernateDAOImpl<Household> implements HouseholdDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Household> findAllByCurrency(final Currency currency) {
-		return getSession().createCriteria(HouseholdImpl.class)
-				.add(Restrictions.eq("primaryCurrency", currency)).list();
+		return getSession().createCriteria(HouseholdImpl.class).add(Restrictions.eq("primaryCurrency", currency))
+				.list();
 	}
 }

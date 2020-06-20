@@ -20,13 +20,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package io.github.uwol.compecon.simulation.minimal.csv.impl;
 
 import io.github.uwol.compecon.economy.materia.GoodType;
-import io.github.uwol.compecon.engine.statistics.PricesModel;
 import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.ModelListener;
+import io.github.uwol.compecon.engine.statistics.PricesModel;
 import io.github.uwol.compecon.engine.statistics.PricesModel.PriceModel;
 import io.github.uwol.compecon.engine.statistics.accumulator.PeriodDataQuotientAccumulator;
 
-public class PriceCsvWriterImpl extends CsvPeriodWriterImpl implements
-		ModelListener {
+public class PriceCsvWriterImpl extends CsvPeriodWriterImpl implements ModelListener {
 
 	protected final PeriodDataQuotientAccumulator accumulator = new PeriodDataQuotientAccumulator();
 
@@ -34,8 +33,7 @@ public class PriceCsvWriterImpl extends CsvPeriodWriterImpl implements
 
 	protected final PricesModel pricesModel;
 
-	public PriceCsvWriterImpl(final String csvFileName,
-			final PricesModel pricesModel, final GoodType goodType) {
+	public PriceCsvWriterImpl(final String csvFileName, final PricesModel pricesModel, final GoodType goodType) {
 		super(csvFileName);
 
 		this.goodType = goodType;
@@ -46,8 +44,7 @@ public class PriceCsvWriterImpl extends CsvPeriodWriterImpl implements
 
 	@Override
 	public void notifyListener() {
-		final PriceModel priceModel = pricesModel.getPriceModelsForGoodTypes()
-				.get(goodType);
+		final PriceModel priceModel = pricesModel.getPriceModelsForGoodTypes().get(goodType);
 
 		if (priceModel != null) {
 			final double[] close = priceModel.getClose();
@@ -59,8 +56,7 @@ public class PriceCsvWriterImpl extends CsvPeriodWriterImpl implements
 		}
 
 		if (isPeriodEnd()) {
-			writeCsvLine(getPeriodLabel(),
-					Double.toString(accumulator.getAmount()));
+			writeCsvLine(getPeriodLabel(), Double.toString(accumulator.getAmount()));
 			accumulator.reset();
 		}
 	}

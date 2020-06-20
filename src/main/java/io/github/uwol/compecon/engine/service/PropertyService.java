@@ -33,8 +33,7 @@ public interface PropertyService {
 	/**
 	 * @see #incrementGoodTypeAmount(PropertyOwner, GoodType, double)
 	 */
-	public double decrementGoodTypeAmount(final PropertyOwner propertyOwner,
-			final GoodType goodType, double amount);
+	public double decrementGoodTypeAmount(final PropertyOwner propertyOwner, final GoodType goodType, double amount);
 
 	/**
 	 * deletes the given property from the persistence backend.
@@ -47,9 +46,9 @@ public interface PropertyService {
 	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer);
 
 	/**
-	 * returns all properties issued by the given agent, which are assignable to
-	 * the given property class. E. g. for the property class "Share" all owned
-	 * objects of "ShareImpl" are returned.
+	 * returns all properties issued by the given agent, which are assignable to the
+	 * given property class. E. g. for the property class "Share" all owned objects
+	 * of "ShareImpl" are returned.
 	 */
 	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
 			final Class<? extends PropertyIssued> propertyClass);
@@ -57,48 +56,42 @@ public interface PropertyService {
 	/**
 	 * returns all properties owned by the given property owner.
 	 */
-	public List<Property> findAllPropertiesOfPropertyOwner(
-			final PropertyOwner propertyOwner);
+	public List<Property> findAllPropertiesOfPropertyOwner(final PropertyOwner propertyOwner);
 
 	/**
 	 * returns all properties owned by the given property owner, which are
-	 * assignable to the given property class. E. g. for the property class
-	 * "Share" all owned objects of "ShareImpl" are returned.
+	 * assignable to the given property class. E. g. for the property class "Share"
+	 * all owned objects of "ShareImpl" are returned.
 	 */
-	public List<Property> findAllPropertiesOfPropertyOwner(
-			final PropertyOwner propertyOwner,
+	public List<Property> findAllPropertiesOfPropertyOwner(final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass);
 
 	/**
 	 * returns the amounts of all capital owned by the given property owner.
 	 */
-	public Map<GoodType, Double> getCapitalBalances(
-			final PropertyOwner propertyOwner);
+	public Map<GoodType, Double> getCapitalBalances(final PropertyOwner propertyOwner);
 
 	/**
 	 * returns the amount of given good type owned by the given property owner.
 	 */
-	public double getGoodTypeBalance(final PropertyOwner propertyOwner,
-			final GoodType goodType);
+	public double getGoodTypeBalance(final PropertyOwner propertyOwner, final GoodType goodType);
 
 	/**
 	 * returns the amounts of all good types owned by the given property owner.
 	 */
-	public Map<GoodType, Double> getGoodTypeBalances(
-			final PropertyOwner propertyOwner);
+	public Map<GoodType, Double> getGoodTypeBalances(final PropertyOwner propertyOwner);
 
 	/**
 	 * @see #decrementGoodTypeAmount(PropertyOwner, GoodType, double)
 	 */
-	public double incrementGoodTypeAmount(final PropertyOwner propertyOwner,
-			final GoodType goodType, final double amount);
+	public double incrementGoodTypeAmount(final PropertyOwner propertyOwner, final GoodType goodType,
+			final double amount);
 
 	/**
-	 * Resets the owned amount of the given good type for the property owner to
-	 * 0. Needed for cases, when goods are consumed.
+	 * Resets the owned amount of the given good type for the property owner to 0.
+	 * Needed for cases, when goods are consumed.
 	 */
-	public void resetGoodTypeAmount(final PropertyOwner propertyOwner,
-			final GoodType goodType);
+	public void resetGoodTypeAmount(final PropertyOwner propertyOwner, final GoodType goodType);
 
 	/**
 	 * transfers all properties from the given oldOwner to a random new owner.
@@ -109,14 +102,12 @@ public interface PropertyService {
 	/**
 	 * Transfers the given amount of good from the old owner to the new owner.
 	 */
-	public void transferGoodTypeAmount(final GoodType goodType,
-			final PropertyOwner oldOwner, final PropertyOwner newOwner,
-			final double amount);
+	public void transferGoodTypeAmount(final GoodType goodType, final PropertyOwner oldOwner,
+			final PropertyOwner newOwner, final double amount);
 
 	/**
-	 * Transfers the given property from the old owner to the new owner. Both
-	 * owners are informed on the transaction via their callback methods.
+	 * Transfers the given property from the old owner to the new owner. Both owners
+	 * are informed on the transaction via their callback methods.
 	 */
-	public void transferProperty(final Property property,
-			final PropertyOwner oldOwner, final PropertyOwner newOwner);
+	public void transferProperty(final Property property, final PropertyOwner oldOwner, final PropertyOwner newOwner);
 }

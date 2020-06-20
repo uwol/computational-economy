@@ -42,13 +42,12 @@ public class TraderImplFactoryImpl implements TraderFactory {
 		final TraderImpl trader = new TraderImpl();
 
 		if (!HibernateUtil.isActive()) {
-			trader.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			trader.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
 		trader.setPrimaryCurrency(primaryCurrency);
-		trader.setReferenceCredit(ApplicationContext.getInstance()
-				.getConfiguration().traderConfig.getReferenceCredit());
+		trader.setReferenceCredit(
+				ApplicationContext.getInstance().getConfiguration().traderConfig.getReferenceCredit());
 
 		// excluded good types
 		trader.getExcludedGoodTypes().add(GoodType.LABOURHOUR);

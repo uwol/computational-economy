@@ -25,8 +25,7 @@ import java.util.Set;
 
 import io.github.uwol.compecon.math.Function;
 
-public class RootFunctionImpl<T> extends ConvexFunctionImpl<T> implements
-		Function<T> {
+public class RootFunctionImpl<T> extends ConvexFunctionImpl<T> implements Function<T> {
 
 	protected double coefficient;
 
@@ -41,8 +40,7 @@ public class RootFunctionImpl<T> extends ConvexFunctionImpl<T> implements
 
 	@Override
 	public double f(final Map<T, Double> bundleOfInputs) {
-		return this.coefficient
-				* Math.pow(bundleOfInputs.get(this.inputType), 0.5);
+		return this.coefficient * Math.pow(bundleOfInputs.get(this.inputType), 0.5);
 	}
 
 	public double getCoefficient() {
@@ -57,11 +55,9 @@ public class RootFunctionImpl<T> extends ConvexFunctionImpl<T> implements
 	}
 
 	@Override
-	public double partialDerivative(final Map<T, Double> forBundleOfInputs,
-			final T withRespectToInputType) {
+	public double partialDerivative(final Map<T, Double> forBundleOfInputs, final T withRespectToInputType) {
 		if (this.inputType.equals(withRespectToInputType)) {
-			return this.coefficient * 0.5
-					* Math.pow(forBundleOfInputs.get(this.inputType), -0.5);
+			return this.coefficient * 0.5 * Math.pow(forBundleOfInputs.get(this.inputType), -0.5);
 		}
 		return 0.0;
 	}

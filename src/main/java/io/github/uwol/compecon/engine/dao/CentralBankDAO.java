@@ -25,5 +25,4 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 public interface CentralBankDAO extends GenericDAO<CentralBank> {
 
 	public CentralBank findByCurrency(final Currency currency);
-
 }

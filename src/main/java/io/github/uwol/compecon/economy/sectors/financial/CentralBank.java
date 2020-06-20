@@ -37,6 +37,5 @@ public interface CentralBank extends Bank {
 
 	public double getReserveRatio();
 
-	public void obtainTender(final BankAccount moneyReservesBankAccount,
-			final List<FixedRateBond> bonds);
+	public void obtainTender(final BankAccount moneyReservesBankAccount, final List<FixedRateBond> bonds);
 }

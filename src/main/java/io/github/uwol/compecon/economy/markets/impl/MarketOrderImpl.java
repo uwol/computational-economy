@@ -49,8 +49,7 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 @Table(name = "MarketOrder")
 @org.hibernate.annotations.Table(appliesTo = "MarketOrder", indexes = {
 		@Index(name = "IDX_MO_GP", columnNames = { "goodType", "pricePerUnit" }),
-		@Index(name = "IDX_MO_CP", columnNames = { "commodityCurrency",
-				"pricePerUnit" }) })
+		@Index(name = "IDX_MO_CP", columnNames = { "commodityCurrency", "pricePerUnit" }) })
 public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 
 	@Column(name = "amount")
@@ -138,8 +137,8 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	}
 
 	/**
-	 * the currency to be traded as the commodity; not the currency of the
-	 * offeror's bank account!
+	 * the currency to be traded as the commodity; not the currency of the offeror's
+	 * bank account!
 	 */
 	@Override
 	public Currency getCommodityCurrency() {
@@ -222,8 +221,7 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	}
 
 	@Transient
-	public void setCommodityCurrencyOfferorsBankAccountDelegate(
-			final BankAccountDelegate bankAccountDelegate) {
+	public void setCommodityCurrencyOfferorsBankAccountDelegate(final BankAccountDelegate bankAccountDelegate) {
 		commodityCurrencyOfferorsBankAcountDelegate = bankAccountDelegate;
 	}
 
@@ -244,8 +242,7 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	}
 
 	@Transient
-	public void setOfferorsBankAcountDelegate(
-			final BankAccountDelegate offerorsBankAcountDelegate) {
+	public void setOfferorsBankAcountDelegate(final BankAccountDelegate offerorsBankAcountDelegate) {
 		this.offerorsBankAcountDelegate = offerorsBankAcountDelegate;
 	}
 
@@ -263,9 +260,8 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 
 	@Override
 	public String toString() {
-		return "id=[" + id + "], currency=[" + currency + "], amount=["
-				+ amount + "], pricePerUnit=[" + pricePerUnit + "], goodType=["
-				+ goodType + "], commodityCurrency=[" + commodityCurrency
-				+ "], property=[" + property + "]";
+		return "id=[" + id + "], currency=[" + currency + "], amount=[" + amount + "], pricePerUnit=[" + pricePerUnit
+				+ "], goodType=[" + goodType + "], commodityCurrency=[" + commodityCurrency + "], property=[" + property
+				+ "]";
 	}
 }

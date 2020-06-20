@@ -43,6 +43,8 @@ import io.github.uwol.compecon.engine.timesystem.TimeSystemEvent;
 
 public class ControlPanel extends JPanel implements ModelListener {
 
+	private static final long serialVersionUID = 1L;
+
 	protected final ControlModel controlModel = new ControlModel();
 
 	protected final JLabel dateTimeLabel = new JLabel();
@@ -60,8 +62,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 
 		this.add(createEconomicSectorsPane());
 
-		ApplicationContext.getInstance().getModelRegistry()
-				.getTimeSystemModel().registerListener(this);
+		ApplicationContext.getInstance().getModelRegistry().getTimeSystemModel().registerListener(this);
 	}
 
 	protected JTabbedPane createEconomicSectorsPane() {
@@ -69,32 +70,28 @@ public class ControlPanel extends JPanel implements ModelListener {
 
 		for (final Currency currency : Currency.values()) {
 			final JPanel economicSectorPane = new JPanel();
-			economicSectorsPane.addTab(currency.getIso4217Code(),
-					economicSectorPane);
-			economicSectorPane.setLayout(new BoxLayout(economicSectorPane,
-					BoxLayout.PAGE_AXIS));
+			economicSectorsPane.addTab(currency.getIso4217Code(), economicSectorPane);
+			economicSectorPane.setLayout(new BoxLayout(economicSectorPane, BoxLayout.PAGE_AXIS));
 
 			/*
 			 * init economic growth
 			 */
 
-			final JButton initEconomicGrowthButton = new JButton(
-					"Economic growth");
+			final JButton initEconomicGrowthButton = new JButton("Economic growth");
 			initEconomicGrowthButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(final ActionEvent e) {
-					ApplicationContext.getInstance().getTimeSystem()
-							.addExternalEvent(new TimeSystemEvent() {
-								@Override
-								public boolean isDeconstructed() {
-									return false;
-								}
+					ApplicationContext.getInstance().getTimeSystem().addExternalEvent(new TimeSystemEvent() {
+						@Override
+						public boolean isDeconstructed() {
+							return false;
+						}
 
-								@Override
-								public void onEvent() {
-									controlModel.initEconomicGrowth(currency);
-								}
-							});
+						@Override
+						public void onEvent() {
+							controlModel.initEconomicGrowth(currency);
+						}
+					});
 				}
 			});
 			economicSectorPane.add(initEconomicGrowthButton);
@@ -103,50 +100,44 @@ public class ControlPanel extends JPanel implements ModelListener {
 			 * init economic contraction
 			 */
 
-			final JButton initEconomicContractionButton = new JButton(
-					"Economic contraction");
-			initEconomicContractionButton
-					.addActionListener(new ActionListener() {
+			final JButton initEconomicContractionButton = new JButton("Economic contraction");
+			initEconomicContractionButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					ApplicationContext.getInstance().getTimeSystem().addExternalEvent(new TimeSystemEvent() {
 						@Override
-						public void actionPerformed(final ActionEvent e) {
-							ApplicationContext.getInstance().getTimeSystem()
-									.addExternalEvent(new TimeSystemEvent() {
-										@Override
-										public boolean isDeconstructed() {
-											return false;
-										}
+						public boolean isDeconstructed() {
+							return false;
+						}
 
-										@Override
-										public void onEvent() {
-											controlModel
-													.initEconomicContraction(currency);
-										}
-									});
+						@Override
+						public void onEvent() {
+							controlModel.initEconomicContraction(currency);
 						}
 					});
+				}
+			});
 			economicSectorPane.add(initEconomicContractionButton);
 
 			/*
 			 * deficit spending
 			 */
 
-			final JButton doDeficitSpendingButton = new JButton(
-					"Deficit spending");
+			final JButton doDeficitSpendingButton = new JButton("Deficit spending");
 			doDeficitSpendingButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(final ActionEvent e) {
-					ApplicationContext.getInstance().getTimeSystem()
-							.addExternalEvent(new TimeSystemEvent() {
-								@Override
-								public boolean isDeconstructed() {
-									return false;
-								}
+					ApplicationContext.getInstance().getTimeSystem().addExternalEvent(new TimeSystemEvent() {
+						@Override
+						public boolean isDeconstructed() {
+							return false;
+						}
 
-								@Override
-								public void onEvent() {
-									controlModel.deficitSpending(currency);
-								}
-							});
+						@Override
+						public void onEvent() {
+							controlModel.deficitSpending(currency);
+						}
+					});
 				}
 			});
 			economicSectorPane.add(doDeficitSpendingButton);
@@ -155,23 +146,21 @@ public class ControlPanel extends JPanel implements ModelListener {
 			 * init households
 			 */
 
-			final JButton init100HouseholdsButton = new JButton(
-					"Init 100 Households");
+			final JButton init100HouseholdsButton = new JButton("Init 100 Households");
 			init100HouseholdsButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(final ActionEvent e) {
-					ApplicationContext.getInstance().getTimeSystem()
-							.addExternalEvent(new TimeSystemEvent() {
-								@Override
-								public boolean isDeconstructed() {
-									return false;
-								}
+					ApplicationContext.getInstance().getTimeSystem().addExternalEvent(new TimeSystemEvent() {
+						@Override
+						public boolean isDeconstructed() {
+							return false;
+						}
 
-								@Override
-								public void onEvent() {
-									controlModel.initHouseholds(currency);
-								}
-							});
+						@Override
+						public void onEvent() {
+							controlModel.initHouseholds(currency);
+						}
+					});
 				}
 			});
 			economicSectorPane.add(init100HouseholdsButton);
@@ -187,8 +176,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 
 		speedSliderPanel.add(dateTimeLabel);
 
-		final JSlider millisecondsToSleepPerHourType = new JSlider(
-				JSlider.HORIZONTAL, 0, SLIDER_MAX, SLIDER_MAX);
+		final JSlider millisecondsToSleepPerHourType = new JSlider(JSlider.HORIZONTAL, 0, SLIDER_MAX, SLIDER_MAX);
 		millisecondsToSleepPerHourType.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
@@ -196,20 +184,16 @@ public class ControlPanel extends JPanel implements ModelListener {
 				if (!source.getValueIsAdjusting()) {
 					final double sliderValue = source.getValue();
 					final double invertedSliderValue = SLIDER_MAX - sliderValue;
-					final double millisecondsToSleep = ((invertedSliderValue * invertedSliderValue) / (SLIDER_MAX * SLIDER_MAX)) * 3000.0 / 24.0;
-					ApplicationContext
-							.getInstance()
-							.getSimulationRunner()
-							.setMillisecondsToSleepPerHourType(
-									(int) millisecondsToSleep);
+					final double millisecondsToSleep = ((invertedSliderValue * invertedSliderValue)
+							/ (SLIDER_MAX * SLIDER_MAX)) * 3000.0 / 24.0;
+					ApplicationContext.getInstance().getSimulationRunner()
+							.setMillisecondsToSleepPerHourType((int) millisecondsToSleep);
 					if (invertedSliderValue >= SLIDER_MAX - 10.0) {
-						ApplicationContext.getInstance().getSimulationRunner()
-								.setPaused(true);
+						ApplicationContext.getInstance().getSimulationRunner().setPaused(true);
 						dayStepButton.setEnabled(true);
 						hourStepButton.setEnabled(true);
 					} else {
-						ApplicationContext.getInstance().getSimulationRunner()
-								.setPaused(false);
+						ApplicationContext.getInstance().getSimulationRunner().setPaused(false);
 						dayStepButton.setEnabled(false);
 						hourStepButton.setEnabled(false);
 					}
@@ -226,8 +210,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 		dayStepButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				ApplicationContext.getInstance().getSimulationRunner()
-						.stepSingleDay();
+				ApplicationContext.getInstance().getSimulationRunner().stepSingleDay();
 			}
 		});
 		speedSliderPanel.add(dayStepButton);
@@ -236,8 +219,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 		hourStepButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				ApplicationContext.getInstance().getSimulationRunner()
-						.stepSingleHour();
+				ApplicationContext.getInstance().getSimulationRunner().stepSingleHour();
 			}
 		});
 		speedSliderPanel.add(hourStepButton);
@@ -251,7 +233,7 @@ public class ControlPanel extends JPanel implements ModelListener {
 	}
 
 	private void refreshDateTime() {
-		dateTimeLabel.setText(new SimpleDateFormat().format(ApplicationContext
-				.getInstance().getTimeSystem().getCurrentDate()));
+		dateTimeLabel.setText(
+				new SimpleDateFormat().format(ApplicationContext.getInstance().getTimeSystem().getCurrentDate()));
 	}
 }

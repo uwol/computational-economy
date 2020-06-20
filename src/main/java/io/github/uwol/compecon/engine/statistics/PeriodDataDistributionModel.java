@@ -121,22 +121,17 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 		summaryStatisticalData.originalValues = valuesAsArray;
 
 		if (valuesAsArray.length > 0) {
-			summaryStatisticalData.quantil5Percent = Math.max(0.0,
-					valuesAsArray[(int) (valuesAsArray.length * 0.05)]);
-			summaryStatisticalData.quantil50Percent = Math.max(0.0,
-					valuesAsArray[(int) (valuesAsArray.length * 0.5)]);
-			summaryStatisticalData.quantil95Percent = Math.max(0.0,
-					valuesAsArray[(int) (valuesAsArray.length * 0.95)]);
-			summaryStatisticalData.quantil99Percent = Math.max(0.0,
-					valuesAsArray[(int) (valuesAsArray.length * 0.99)]);
+			summaryStatisticalData.quantil5Percent = Math.max(0.0, valuesAsArray[(int) (valuesAsArray.length * 0.05)]);
+			summaryStatisticalData.quantil50Percent = Math.max(0.0, valuesAsArray[(int) (valuesAsArray.length * 0.5)]);
+			summaryStatisticalData.quantil95Percent = Math.max(0.0, valuesAsArray[(int) (valuesAsArray.length * 0.95)]);
+			summaryStatisticalData.quantil99Percent = Math.max(0.0, valuesAsArray[(int) (valuesAsArray.length * 0.99)]);
 		}
 
 		for (final double value : valuesAsArray) {
 			summaryStatisticalData.yTotalSum += value;
 		}
 
-		final int bucketWidth = valuesAsArray.length
-				/ summaryStatisticalData.ySumAtPercentOfX.length;
+		final int bucketWidth = valuesAsArray.length / summaryStatisticalData.ySumAtPercentOfX.length;
 
 		double sum = 0;
 
@@ -146,8 +141,7 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 				 * xWith..PercentY
 				 */
 				sum += valuesAsArray[i];
-				if (sum > (summaryStatisticalData.yTotalSum * 0.9)
-						&& summaryStatisticalData.xWith90PercentY == 0) {
+				if (sum > (summaryStatisticalData.yTotalSum * 0.9) && summaryStatisticalData.xWith90PercentY == 0) {
 					summaryStatisticalData.xWith90PercentY = i;
 				} else if (sum > (summaryStatisticalData.yTotalSum * 0.8)
 						&& summaryStatisticalData.xWith80PercentY == 0) {
@@ -191,29 +185,24 @@ public class PeriodDataDistributionModel extends NotificationListenerModel {
 		 * create dataset for histogram
 		 */
 		final HistogramDataset datasetHistogram = new HistogramDataset();
-		datasetHistogram.addSeries(referenceCurrency.getIso4217Code(),
-				valuesAsArray, NUMBER_OF_BINS, 0,
+		datasetHistogram.addSeries(referenceCurrency.getIso4217Code(), valuesAsArray, NUMBER_OF_BINS, 0,
 				summaryStatisticalData.quantil99Percent);
 		datasetsHistogram = datasetHistogram;
 
 		/*
 		 * create dataset for lorenz curve
 		 */
-		final XYSeries seriesLorenzCurve = new XYSeries(
-				referenceCurrency.getIso4217Code() + " lorenz curve");
+		final XYSeries seriesLorenzCurve = new XYSeries(referenceCurrency.getIso4217Code() + " lorenz curve");
 
 		for (int i = 0; i < summaryStatisticalData.ySumAtPercentOfX.length; i++) {
-			final double x = i
-					/ (double) summaryStatisticalData.ySumAtPercentOfX.length;
-			final double y = summaryStatisticalData.ySumAtPercentOfX[i]
-					/ summaryStatisticalData.yTotalSum;
+			final double x = i / (double) summaryStatisticalData.ySumAtPercentOfX.length;
+			final double y = summaryStatisticalData.ySumAtPercentOfX[i] / summaryStatisticalData.yTotalSum;
 			seriesLorenzCurve.add(x, y);
 		}
 
 		seriesLorenzCurve.add(1, 1);
 
-		final XYSeries seriesLine = new XYSeries("line of equality "
-				+ referenceCurrency.getIso4217Code());
+		final XYSeries seriesLine = new XYSeries("line of equality " + referenceCurrency.getIso4217Code());
 		seriesLine.add(0, 0);
 		seriesLine.add(1, 1);
 

@@ -33,8 +33,7 @@ import io.github.uwol.compecon.math.utility.impl.CESUtilityFunctionImpl;
 public class InputOutputModelTestingImpl implements InputOutputModel {
 
 	@Override
-	public ProductionFunction getProductionFunction(
-			final GoodType outputGoodType) {
+	public ProductionFunction getProductionFunction(final GoodType outputGoodType) {
 		switch (outputGoodType) {
 		case MACHINE:
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 5.0);
@@ -43,14 +42,12 @@ public class InputOutputModelTestingImpl implements InputOutputModel {
 			final Map<GoodType, Double> parametersWheat = new LinkedHashMap<GoodType, Double>();
 			parametersWheat.put(GoodType.LABOURHOUR, 1.0);
 			parametersWheat.put(GoodType.MACHINE, 0.2);
-			return new CESProductionFunctionImpl(50.0, parametersWheat, -0.7,
-					0.65);
+			return new CESProductionFunctionImpl(50.0, parametersWheat, -0.7, 0.65);
 		case COAL:
 			final Map<GoodType, Double> parametersCoal = new LinkedHashMap<GoodType, Double>();
 			parametersCoal.put(GoodType.LABOURHOUR, 1.0);
 			parametersCoal.put(GoodType.MACHINE, 0.2);
-			return new CESProductionFunctionImpl(50.0, parametersCoal, -0.7,
-					0.65);
+			return new CESProductionFunctionImpl(50.0, parametersCoal, -0.7, 0.65);
 
 		default:
 			return null;

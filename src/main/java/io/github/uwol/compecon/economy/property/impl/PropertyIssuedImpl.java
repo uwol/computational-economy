@@ -31,8 +31,7 @@ import io.github.uwol.compecon.economy.agent.impl.AgentImpl;
 import io.github.uwol.compecon.economy.property.PropertyIssued;
 
 @Entity
-public abstract class PropertyIssuedImpl extends PropertyImpl implements
-		PropertyIssued {
+public abstract class PropertyIssuedImpl extends PropertyImpl implements PropertyIssued {
 
 	@ManyToOne(targetEntity = AgentImpl.class)
 	@JoinColumn(name = "issuer_id")

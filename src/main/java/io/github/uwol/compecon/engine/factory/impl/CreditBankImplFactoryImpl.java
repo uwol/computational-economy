@@ -45,17 +45,14 @@ public class CreditBankImplFactoryImpl implements CreditBankFactory {
 	}
 
 	@Override
-	public CreditBank newInstanceCreditBank(
-			final Set<Currency> offeredCurrencies,
-			final Currency primaryCurrency) {
+	public CreditBank newInstanceCreditBank(final Set<Currency> offeredCurrencies, final Currency primaryCurrency) {
 		assert (primaryCurrency != null);
 		assert (offeredCurrencies.contains(primaryCurrency));
 
 		final CreditBankImpl creditBank = new CreditBankImpl();
 
 		if (!HibernateUtil.isActive()) {
-			creditBank.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			creditBank.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
 		creditBank.setPrimaryCurrency(primaryCurrency);

@@ -25,15 +25,13 @@ import org.jfree.data.general.SeriesChangeListener;
 import io.github.uwol.compecon.engine.statistics.accumulator.PeriodDataQuotientAccumulator;
 import io.github.uwol.compecon.engine.statistics.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 
-public class M1CsvWriterImpl extends CsvPeriodWriterImpl implements
-		SeriesChangeListener {
+public class M1CsvWriterImpl extends CsvPeriodWriterImpl implements SeriesChangeListener {
 
 	protected final PeriodDataQuotientAccumulator accumulator = new PeriodDataQuotientAccumulator();
 
 	protected final PeriodDataAccumulatorTimeSeriesModel m1Model;
 
-	public M1CsvWriterImpl(final String csvFileName,
-			final PeriodDataAccumulatorTimeSeriesModel m1Model) {
+	public M1CsvWriterImpl(final String csvFileName, final PeriodDataAccumulatorTimeSeriesModel m1Model) {
 		super(csvFileName);
 
 		this.m1Model = m1Model;
@@ -50,8 +48,7 @@ public class M1CsvWriterImpl extends CsvPeriodWriterImpl implements
 		}
 
 		if (isPeriodEnd()) {
-			writeCsvLine(getPeriodLabel(),
-					Double.toString(accumulator.getAmount()));
+			writeCsvLine(getPeriodLabel(), Double.toString(accumulator.getAmount()));
 			accumulator.reset();
 		}
 	}

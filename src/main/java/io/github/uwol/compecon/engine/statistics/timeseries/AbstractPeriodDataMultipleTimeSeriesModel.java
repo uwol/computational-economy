@@ -24,8 +24,7 @@ import java.util.Map;
 
 import org.jfree.data.time.TimeSeries;
 
-public abstract class AbstractPeriodDataMultipleTimeSeriesModel<I> extends
-		AbstractPeriodDataTimeSeriesModel {
+public abstract class AbstractPeriodDataMultipleTimeSeriesModel<I> extends AbstractPeriodDataTimeSeriesModel {
 
 	protected final I[] indexTypes;
 
@@ -33,13 +32,11 @@ public abstract class AbstractPeriodDataMultipleTimeSeriesModel<I> extends
 
 	protected String titleSuffix;
 
-	public AbstractPeriodDataMultipleTimeSeriesModel(
-			final I[] initialIndexTypes, final String title) {
+	public AbstractPeriodDataMultipleTimeSeriesModel(final I[] initialIndexTypes, final String title) {
 		this.indexTypes = initialIndexTypes;
 
 		for (final I indexType : this.indexTypes) {
-			this.timeSeries.put(indexType, createTimeSeries(indexType + " "
-					+ title));
+			this.timeSeries.put(indexType, createTimeSeries(indexType + " " + title));
 		}
 	}
 

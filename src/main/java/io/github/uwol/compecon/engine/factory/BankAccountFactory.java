@@ -21,22 +21,20 @@ package io.github.uwol.compecon.engine.factory;
 
 import io.github.uwol.compecon.economy.sectors.financial.Bank;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
-import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
-import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
+import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
+import io.github.uwol.compecon.economy.sectors.financial.Currency;
 
 public interface BankAccountFactory {
 
 	public void deleteAllBankAccounts(final Bank managingBank);
 
-	public void deleteAllBankAccounts(final Bank managingBank,
-			final BankCustomer customer);
+	public void deleteAllBankAccounts(final Bank managingBank, final BankCustomer customer);
 
 	public void deleteBankAccount(final BankAccount bankAccount);
 
-	public BankAccount newInstanceBankAccount(final BankCustomer owner,
-			final Currency currency, final boolean overdraftPossible,
-			final Bank managingBank, final String name,
-			final TermType termType, final MoneyType moneyType);
+	public BankAccount newInstanceBankAccount(final BankCustomer owner, final Currency currency,
+			final boolean overdraftPossible, final Bank managingBank, final String name, final TermType termType,
+			final MoneyType moneyType);
 }

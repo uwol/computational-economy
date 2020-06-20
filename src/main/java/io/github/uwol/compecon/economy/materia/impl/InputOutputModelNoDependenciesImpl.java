@@ -32,8 +32,7 @@ import io.github.uwol.compecon.math.utility.impl.CESUtilityFunctionImpl;
 public class InputOutputModelNoDependenciesImpl implements InputOutputModel {
 
 	@Override
-	public ProductionFunction getProductionFunction(
-			final GoodType outputGoodType) {
+	public ProductionFunction getProductionFunction(final GoodType outputGoodType) {
 		switch (outputGoodType) {
 		case IRON:
 			return new RootProductionFunctionImpl(GoodType.LABOURHOUR, 100.0);

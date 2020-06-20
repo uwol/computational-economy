@@ -22,8 +22,8 @@ package io.github.uwol.compecon.economy.sectors.financial;
 public interface BankCustomer extends HardCashOwner {
 
 	/**
-	 * this method is called in the event that the bank of the bank account
-	 * closes the bank account, so that the customer agent can react.
+	 * this method is called in the event that the bank of the bank account closes
+	 * the bank account, so that the customer agent can react.
 	 */
 	public void onBankCloseBankAccount(final BankAccount bankAccount);
 }

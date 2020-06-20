@@ -27,12 +27,10 @@ import io.github.uwol.compecon.engine.timesystem.impl.MonthType;
 
 public interface Year {
 
-	public void addEvent(final TimeSystemEvent event,
-			final MonthType monthType, final DayType dayType,
+	public void addEvent(final TimeSystemEvent event, final MonthType monthType, final DayType dayType,
 			final HourType hourType);
 
-	public Set<TimeSystemEvent> getEvents(final MonthType monthType,
-			final DayType dayType, final HourType hourType);
+	public Set<TimeSystemEvent> getEvents(final MonthType monthType, final DayType dayType, final HourType hourType);
 
 	public void removeEvents(final Set<TimeSystemEvent> events);
 }

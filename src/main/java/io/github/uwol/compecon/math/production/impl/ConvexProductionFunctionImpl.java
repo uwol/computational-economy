@@ -32,36 +32,28 @@ import io.github.uwol.compecon.math.price.PriceFunction;
 import io.github.uwol.compecon.math.production.ConvexProductionFunction;
 import io.github.uwol.compecon.math.util.MathUtil;
 
-public abstract class ConvexProductionFunctionImpl extends
-		ProductionFunctionImpl implements ConvexProductionFunction {
+public abstract class ConvexProductionFunctionImpl extends ProductionFunctionImpl implements ConvexProductionFunction {
 
 	protected ConvexProductionFunctionImpl(final Function<GoodType> delegate) {
 		super(delegate);
 	}
 
 	@Override
-	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(
-			final double priceOfProducedGoodType,
-			final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
-			final Map<GoodType, Double> capital, final double budget,
-			final double maxOutput, final double margin) {
-		return this.calculateProfitMaximizingProductionFactorsIterative(
-				priceOfProducedGoodType, priceFunctionsOfInputTypes, capital,
-				budget, maxOutput, margin, ApplicationContext.getInstance()
-						.getConfiguration().mathConfig.getNumberOfIterations());
+	public Map<GoodType, Double> calculateProfitMaximizingProductionFactors(final double priceOfProducedGoodType,
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes, final Map<GoodType, Double> capital,
+			final double budget, final double maxOutput, final double margin) {
+		return this.calculateProfitMaximizingProductionFactorsIterative(priceOfProducedGoodType,
+				priceFunctionsOfInputTypes, capital, budget, maxOutput, margin,
+				ApplicationContext.getInstance().getConfiguration().mathConfig.getNumberOfIterations());
 	}
 
 	public Map<GoodType, Double> calculateProfitMaximizingProductionFactorsIterative(
-			final double priceOfProducedGoodType,
-			final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
-			final Map<GoodType, Double> capital, final double budget,
-			final double maxOutput, final double margin,
+			final double priceOfProducedGoodType, final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
+			final Map<GoodType, Double> capital, final double budget, final double maxOutput, final double margin,
 			final int numberOfIterations) {
-		return this.calculateProfitMaximizingProductionFactorsIterative(
-				priceOfProducedGoodType, priceFunctionsOfInputTypes, capital,
-				budget, maxOutput, margin, numberOfIterations,
-				ApplicationContext.getInstance().getConfiguration().mathConfig
-						.getInitializationValue());
+		return this.calculateProfitMaximizingProductionFactorsIterative(priceOfProducedGoodType,
+				priceFunctionsOfInputTypes, capital, budget, maxOutput, margin, numberOfIterations,
+				ApplicationContext.getInstance().getConfiguration().mathConfig.getInitializationValue());
 	}
 
 	/**
@@ -72,18 +64,15 @@ public abstract class ConvexProductionFunctionImpl extends
 	 *
 	 */
 	protected Map<GoodType, Double> calculateProfitMaximizingProductionFactorsIterative(
-			final double priceOfProducedGoodType,
-			final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
-			final Map<GoodType, Double> capital, final double budget,
-			final double maxOutput, final double margin,
+			final double priceOfProducedGoodType, final Map<GoodType, PriceFunction> priceFunctionsOfInputTypes,
+			final Map<GoodType, Double> capital, final double budget, final double maxOutput, final double margin,
 			final int numberOfIterations, final double initializationValue) {
 
 		assert (numberOfIterations > 0);
 
 		if (capital != null) {
 			for (final Entry<GoodType, Double> entry : capital.entrySet()) {
-				assert (entry.getKey().isDurable()) : "capital good "
-						+ entry.getKey() + " is not durable";
+				assert (entry.getKey().isDurable()) : "capital good " + entry.getKey() + " is not durable";
 				assert (entry.getValue() != null);
 			}
 		}
@@ -94,8 +83,7 @@ public abstract class ConvexProductionFunctionImpl extends
 		final Map<GoodType, Double> capitalNullSafe = new HashMap<GoodType, Double>();
 		for (final GoodType inputType : getInputGoodTypes()) {
 			if (capital != null) {
-				capitalNullSafe.put(inputType,
-						MathUtil.nullSafeValue(capital.get(inputType)));
+				capitalNullSafe.put(inputType, MathUtil.nullSafeValue(capital.get(inputType)));
 			} else {
 				capitalNullSafe.put(inputType, 0.0);
 			}
@@ -108,8 +96,7 @@ public abstract class ConvexProductionFunctionImpl extends
 			// if the good type is not available as capital
 			if (capitalAmount <= 0.0) {
 				// if the good type is not available on markets
-				if (Double.isNaN(priceFunctionsOfInputTypes.get(inputType)
-						.getPrice(0.0))) {
+				if (Double.isNaN(priceFunctionsOfInputTypes.get(inputType).getPrice(0.0))) {
 					inputsAreUnavailable = true;
 					break;
 				}
@@ -123,13 +110,10 @@ public abstract class ConvexProductionFunctionImpl extends
 		// special case: if some input prices are NaN, then not all inputs can
 		// be set. This becomes a problem, if all inputs have to be set ->
 		// return zero input
-		if (inputsAreUnavailable
-				&& delegate.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
+		if (inputsAreUnavailable && delegate.getNeedsAllInputFactorsNonZeroForPartialDerivate()) {
 			getLog().log(
 					"at least one of the prices is Double.NaN, but the production function needs all inputs set -> no calculation");
-			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
-					budget,
-					0.0,
+			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(budget, 0.0,
 					ConvexProductionFunctionTerminationCause.INPUT_FACTOR_UNAVAILABLE);
 
 			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
@@ -142,8 +126,7 @@ public abstract class ConvexProductionFunctionImpl extends
 		// special case: check for budget
 		if (MathUtil.lesserEqual(budget, 0.0)) {
 			getLog().log("budget is %s -> no calculation", budget);
-			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
-					budget, 0.0,
+			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(budget, 0.0,
 					ConvexProductionFunctionTerminationCause.BUDGET_PLANNED);
 
 			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
@@ -155,11 +138,8 @@ public abstract class ConvexProductionFunctionImpl extends
 
 		// special case: check for estimated revenue per unit being 0.0
 		if (MathUtil.lesserEqual(priceOfProducedGoodType, 0.0)) {
-			getLog().log("priceOfProducedGoodType = %s -> no production",
-					priceOfProducedGoodType);
-			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
-					budget,
-					0.0,
+			getLog().log("priceOfProducedGoodType = %s -> no production", priceOfProducedGoodType);
+			getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(budget, 0.0,
 					ConvexProductionFunctionTerminationCause.ESTIMATED_REVENUE_PER_UNIT_ZERO);
 
 			final Map<GoodType, Double> bundleOfInputs = new LinkedHashMap<GoodType, Double>();
@@ -188,8 +168,7 @@ public abstract class ConvexProductionFunctionImpl extends
 		/*
 		 * initialization
 		 */
-		final Map<GoodType, Double> bundleOfInputFactors = new HashMap<GoodType, Double>(
-				capitalNullSafe);
+		final Map<GoodType, Double> bundleOfInputFactors = new HashMap<GoodType, Double>(capitalNullSafe);
 
 		// determine initialization value
 		final double initializationValueForInputs;
@@ -202,8 +181,7 @@ public abstract class ConvexProductionFunctionImpl extends
 		// set initialization value
 		for (final GoodType inputType : getInputGoodTypes()) {
 			bundleOfInputFactors.put(inputType,
-					MathUtil.nullSafeValue(bundleOfInputFactors.get(inputType))
-							+ initializationValueForInputs);
+					MathUtil.nullSafeValue(bundleOfInputFactors.get(inputType)) + initializationValueForInputs);
 		}
 
 		// ------ calculation -----------------------------------------
@@ -214,85 +192,67 @@ public abstract class ConvexProductionFunctionImpl extends
 		double budgetSpent = 0.0;
 
 		// maximize profit
-		final int NUMBER_OF_ITERATIONS = getInputGoodTypes().size()
-				* numberOfIterations;
+		final int NUMBER_OF_ITERATIONS = getInputGoodTypes().size() * numberOfIterations;
 		final double budgetPerIteration = budget / NUMBER_OF_ITERATIONS;
 
 		while (true) {
 			// would this iteration lead to overspending of the budget?
 			if (MathUtil.greater(budgetSpent + budgetPerIteration, budget)) {
 				getLog().log("budget planned completely");
-				getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
-						budget, budgetSpent,
+				getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(budget, budgetSpent,
 						ConvexProductionFunctionTerminationCause.BUDGET_PLANNED);
 				break;
 			}
 
 			final GoodType optimalInputType = selectProductionFactorWithHighestMarginalOutputPerPrice(
-					bundleOfInputFactors, priceFunctionsOfInputTypes,
-					capitalNullSafe);
+					bundleOfInputFactors, priceFunctionsOfInputTypes, capitalNullSafe);
 
 			// no optimal input type could be found, i. e. markets are sold out
 			if (optimalInputType == null) {
 				getLog().log("no optimal input found -> terminating");
-				getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
-						budget,
-						budgetSpent,
+				getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(budget, budgetSpent,
 						ConvexProductionFunctionTerminationCause.NO_INPUT_AVAILABLE);
 				break;
 			} else {
-				final double oldAmountOfOptimalInputType = bundleOfInputFactors
-						.get(optimalInputType);
-				final double priceRelevantAmountOfOptimalInputType = Math.max(
-						bundleOfInputFactors.get(optimalInputType)
-								- capitalNullSafe.get(optimalInputType), 0.0);
-				final double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes
-						.get(optimalInputType).getMarginalPrice(
-								priceRelevantAmountOfOptimalInputType);
+				final double oldAmountOfOptimalInputType = bundleOfInputFactors.get(optimalInputType);
+				final double priceRelevantAmountOfOptimalInputType = Math
+						.max(bundleOfInputFactors.get(optimalInputType) - capitalNullSafe.get(optimalInputType), 0.0);
+				final double marginalPriceOfOptimalInputType = priceFunctionsOfInputTypes.get(optimalInputType)
+						.getMarginalPrice(priceRelevantAmountOfOptimalInputType);
 
 				// additional amounts have to grow slowly, so that the solution
 				// space is not left
 				final double additionalAmountOfInputType = Math.min(
 						budgetPerIteration / marginalPriceOfOptimalInputType,
-						Math.max(priceRelevantAmountOfOptimalInputType,
-								initializationValue));
-				bundleOfInputFactors.put(optimalInputType,
-						oldAmountOfOptimalInputType
-								+ additionalAmountOfInputType);
+						Math.max(priceRelevantAmountOfOptimalInputType, initializationValue));
+				bundleOfInputFactors.put(optimalInputType, oldAmountOfOptimalInputType + additionalAmountOfInputType);
 
 				{
-					final double estimatedMarginalRevenueOfGoodType = priceOfProducedGoodType
-							/ (1.0 + margin);
-					final double marginalOutputOfOptimalInputType = calculateMarginalOutput(
-							bundleOfInputFactors, optimalInputType);
+					final double estimatedMarginalRevenueOfGoodType = priceOfProducedGoodType / (1.0 + margin);
+					final double marginalOutputOfOptimalInputType = calculateMarginalOutput(bundleOfInputFactors,
+							optimalInputType);
 					final double marginalPriceOfOptimalInputTypePerOutput = marginalPriceOfOptimalInputType
 							/ marginalOutputOfOptimalInputType;
 
 					/*
-					 * ensure that marginal revenue > marginal cost with NEW
-					 * amount; calculation strictly has to happen with NEW
-					 * amount, so that no inputs at all are chosen in case that
-					 * marginal costs per unit > marginal revenue per unit ->
-					 * effect on pricing behaviour, as nothing is bought
+					 * ensure that marginal revenue > marginal cost with NEW amount; calculation
+					 * strictly has to happen with NEW amount, so that no inputs at all are chosen
+					 * in case that marginal costs per unit > marginal revenue per unit -> effect on
+					 * pricing behaviour, as nothing is bought
 					 */
 					if (!Double.isNaN(estimatedMarginalRevenueOfGoodType)
-							&& !Double
-									.isInfinite(estimatedMarginalRevenueOfGoodType)) {
+							&& !Double.isInfinite(estimatedMarginalRevenueOfGoodType)) {
 						// a polypoly is assumed -> price = marginal revenue
 						if (MathUtil.lesser(estimatedMarginalRevenueOfGoodType,
 								marginalPriceOfOptimalInputTypePerOutput)) {
 							// revert amount of optimal good type
 							// important (see above)
-							bundleOfInputFactors.put(optimalInputType,
-									oldAmountOfOptimalInputType);
-							getLog().log(
-									"%s estimatedMarginalRevenue < %s currentMarginalPriceOfInputPerOutput -> %s",
+							bundleOfInputFactors.put(optimalInputType, oldAmountOfOptimalInputType);
+							getLog().log("%s estimatedMarginalRevenue < %s currentMarginalPriceOfInputPerOutput -> %s",
 									MathUtil.round(estimatedMarginalRevenueOfGoodType),
 									MathUtil.round(marginalPriceOfOptimalInputTypePerOutput),
 									bundleOfInputFactors.entrySet().toString());
-							getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
-									budget,
-									budgetSpent,
+							getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(budget, budgetSpent,
 									ConvexProductionFunctionTerminationCause.MARGINAL_REVENUE_EXCEEDED);
 							break;
 						}
@@ -302,25 +262,19 @@ public abstract class ConvexProductionFunctionImpl extends
 				{
 					// check maxOutput
 					final double newOutput = calculateOutput(bundleOfInputFactors);
-					if (!Double.isNaN(maxOutput)
-							&& MathUtil.greater(newOutput, maxOutput)) {
+					if (!Double.isNaN(maxOutput) && MathUtil.greater(newOutput, maxOutput)) {
 						// revert amount of optimal good type
 						// important (see above)
-						bundleOfInputFactors.put(optimalInputType,
-								oldAmountOfOptimalInputType);
-						getLog().log("output %s > maxOutput %s -> %s",
-								newOutput, maxOutput,
+						bundleOfInputFactors.put(optimalInputType, oldAmountOfOptimalInputType);
+						getLog().log("output %s > maxOutput %s -> %s", newOutput, maxOutput,
 								bundleOfInputFactors.entrySet().toString());
-						getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(
-								budget,
-								budgetSpent,
+						getLog().factory_onCalculateProfitMaximizingProductionFactorsIterative(budget, budgetSpent,
 								ConvexProductionFunctionTerminationCause.MAX_OUTPUT_EXCEEDED);
 						break;
 					}
 				}
 
-				budgetSpent += marginalPriceOfOptimalInputType
-						* additionalAmountOfInputType;
+				budgetSpent += marginalPriceOfOptimalInputType * additionalAmountOfInputType;
 			}
 		}
 
@@ -328,9 +282,7 @@ public abstract class ConvexProductionFunctionImpl extends
 
 		// reset initialization values
 		for (final GoodType inputType : getInputGoodTypes()) {
-			bundleOfInputFactors.put(inputType,
-					bundleOfInputFactors.get(inputType)
-							- initializationValueForInputs);
+			bundleOfInputFactors.put(inputType, bundleOfInputFactors.get(inputType) - initializationValueForInputs);
 		}
 
 		return bundleOfInputFactors;

@@ -27,6 +27,5 @@ public interface FactoryFactory {
 
 	public void deleteFactory(final Factory agent);
 
-	public Factory newInstanceFactory(final GoodType goodType,
-			final Currency primaryCurrency);
+	public Factory newInstanceFactory(final GoodType goodType, final Currency primaryCurrency);
 }

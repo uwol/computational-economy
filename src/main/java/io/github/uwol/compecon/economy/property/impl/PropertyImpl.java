@@ -48,7 +48,8 @@ import io.github.uwol.compecon.engine.dao.PropertyDAO;
  */
 @Entity
 @Table(name = "Property")
-@org.hibernate.annotations.Table(appliesTo = "Property", indexes = { @Index(name = "IDX_P_DTYPE", columnNames = { "DTYPE" }) })
+@org.hibernate.annotations.Table(appliesTo = "Property", indexes = {
+		@Index(name = "IDX_P_DTYPE", columnNames = { "DTYPE" }) })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DTYPE")
 public abstract class PropertyImpl implements Property {
@@ -73,8 +74,7 @@ public abstract class PropertyImpl implements Property {
 	@Transient
 	public void deconstruct() {
 		isDeconstructed = true;
-		ApplicationContext.getInstance().getPropertyService()
-				.deleteProperty(this);
+		ApplicationContext.getInstance().getPropertyService().deleteProperty(this);
 	}
 
 	@Override

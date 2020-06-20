@@ -26,13 +26,10 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.dao.CreditBankDAO;
 
-public class CreditBankDAOImpl extends
-		AbstractIndexedInMemoryDAOImpl<Currency, CreditBank> implements
-		CreditBankDAO {
+public class CreditBankDAOImpl extends AbstractIndexedInMemoryDAOImpl<Currency, CreditBank> implements CreditBankDAO {
 
 	@Override
-	public synchronized List<CreditBank> findAllByCurrency(
-			final Currency currency) {
+	public synchronized List<CreditBank> findAllByCurrency(final Currency currency) {
 		return getInstancesForKey(currency);
 	}
 
@@ -41,8 +38,7 @@ public class CreditBankDAOImpl extends
 		final List<CreditBank> creditBanks = findAllByCurrency(currency);
 
 		if (creditBanks != null && !creditBanks.isEmpty()) {
-			final int id = ApplicationContext.getInstance()
-					.getRandomNumberGenerator().nextInt(creditBanks.size());
+			final int id = ApplicationContext.getInstance().getRandomNumberGenerator().nextInt(creditBanks.size());
 			return creditBanks.get(id);
 		}
 

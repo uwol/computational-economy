@@ -19,7 +19,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package io.github.uwol.compecon.simulation.minimal.impl;
 
-import java.util.Date;
 import java.util.List;
 
 import io.github.uwol.compecon.economy.materia.GoodType;
@@ -31,26 +30,22 @@ import io.github.uwol.compecon.engine.timesystem.TimeSystemEvent;
 public class ExogenousShockEvent implements TimeSystemEvent {
 
 	protected void contraction() {
-		final List<Factory> factories = ApplicationContext.getInstance()
-				.getAgentService().findFactories(Currency.EURO, GoodType.WHEAT);
+		final List<Factory> factories = ApplicationContext.getInstance().getAgentService().findFactories(Currency.EURO,
+				GoodType.WHEAT);
 
 		for (final Factory factory : factories) {
-			final double productivity = factory.getProductionFunction()
-					.getProductivity();
-			factory.getProductionFunction()
-					.setProductivity(productivity / 1.05);
+			final double productivity = factory.getProductionFunction().getProductivity();
+			factory.getProductionFunction().setProductivity(productivity / 1.05);
 		}
 	}
 
 	protected void growth() {
-		final List<Factory> factories = ApplicationContext.getInstance()
-				.getAgentService().findFactories(Currency.EURO, GoodType.WHEAT);
+		final List<Factory> factories = ApplicationContext.getInstance().getAgentService().findFactories(Currency.EURO,
+				GoodType.WHEAT);
 
 		for (final Factory factory : factories) {
-			final double productivity = factory.getProductionFunction()
-					.getProductivity();
-			factory.getProductionFunction()
-					.setProductivity(productivity * 1.05);
+			final double productivity = factory.getProductionFunction().getProductivity();
+			factory.getProductionFunction().setProductivity(productivity * 1.05);
 		}
 	}
 
@@ -61,8 +56,7 @@ public class ExogenousShockEvent implements TimeSystemEvent {
 
 	@Override
 	public void onEvent() {
-		final Date date = ApplicationContext.getInstance().getTimeSystem()
-				.getCurrentDate();
+		ApplicationContext.getInstance().getTimeSystem().getCurrentDate();
 
 		contraction();
 	}

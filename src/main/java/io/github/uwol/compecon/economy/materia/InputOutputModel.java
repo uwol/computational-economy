@@ -35,9 +35,9 @@ public interface InputOutputModel {
 	/**
 	 * utility function for households modeling consumption preferences; each
 	 * GoodType has to be contained here (at least transitively via the
-	 * input-output-model), so that the corresponding price on the market can
-	 * come to an equilibrium; preference for labour hour has to be high enough,
-	 * so that labour hour prices do not fall endlessly
+	 * input-output-model), so that the corresponding price on the market can come
+	 * to an equilibrium; preference for labour hour has to be high enough, so that
+	 * labour hour prices do not fall endlessly
 	 */
 	public UtilityFunction getUtilityFunctionOfHousehold();
 }

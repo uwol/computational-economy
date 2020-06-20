@@ -22,23 +22,22 @@ package io.github.uwol.compecon.dashboard.model;
 import javax.swing.table.AbstractTableModel;
 
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
-import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
+import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.ModelListener;
 
-public abstract class BalanceSheetTableModel extends AbstractTableModel
-		implements ModelListener {
+public abstract class BalanceSheetTableModel extends AbstractTableModel implements ModelListener {
+
+	private static final long serialVersionUID = 1L;
 
 	protected BalanceSheetDTO balanceSheet;
 
-	protected final String columnNames[] = { "Active Account", "Value",
-			"Passive Account", "Value" };
+	protected final String columnNames[] = { "Active Account", "Value", "Passive Account", "Value" };
 
 	public BalanceSheetTableModel(final Currency currency) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).balanceSheetsModel
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency).balanceSheetsModel
 				.registerListener(this);
 	}
 
@@ -73,11 +72,9 @@ public abstract class BalanceSheetTableModel extends AbstractTableModel
 			case 2:
 				return "Cash " + MoneyType.DEPOSITS + " " + TermType.LONG_TERM;
 			case 3:
-				return "Cash " + MoneyType.CENTRALBANK_MONEY + " "
-						+ TermType.SHORT_TERM;
+				return "Cash " + MoneyType.CENTRALBANK_MONEY + " " + TermType.SHORT_TERM;
 			case 4:
-				return "Cash " + MoneyType.CENTRALBANK_MONEY + " "
-						+ TermType.LONG_TERM;
+				return "Cash " + MoneyType.CENTRALBANK_MONEY + " " + TermType.LONG_TERM;
 
 			case 5:
 				return "Cash Foreign Currency";
@@ -106,15 +103,12 @@ public abstract class BalanceSheetTableModel extends AbstractTableModel
 			case 2:
 				return Currency.formatMoneySum(balanceSheet.cashGiroLongTerm);
 			case 3:
-				return Currency
-						.formatMoneySum(balanceSheet.cashCentralBankShortTerm);
+				return Currency.formatMoneySum(balanceSheet.cashCentralBankShortTerm);
 			case 4:
-				return Currency
-						.formatMoneySum(balanceSheet.cashCentralBankLongTerm);
+				return Currency.formatMoneySum(balanceSheet.cashCentralBankLongTerm);
 
 			case 5:
-				return Currency
-						.formatMoneySum(balanceSheet.cashForeignCurrency);
+				return Currency.formatMoneySum(balanceSheet.cashForeignCurrency);
 			case 6:
 				return Currency.formatMoneySum(balanceSheet.bonds);
 			case 7:
@@ -131,16 +125,13 @@ public abstract class BalanceSheetTableModel extends AbstractTableModel
 		else if (columnIndex == 2) {
 			switch (rowIndex) {
 			case 1:
-				return "Loans " + MoneyType.DEPOSITS + " "
-						+ TermType.SHORT_TERM;
+				return "Loans " + MoneyType.DEPOSITS + " " + TermType.SHORT_TERM;
 			case 2:
 				return "Loans " + MoneyType.DEPOSITS + " " + TermType.LONG_TERM;
 			case 3:
-				return "Loans " + MoneyType.CENTRALBANK_MONEY + " "
-						+ TermType.SHORT_TERM;
+				return "Loans " + MoneyType.CENTRALBANK_MONEY + " " + TermType.SHORT_TERM;
 			case 4:
-				return "Loans " + MoneyType.CENTRALBANK_MONEY + " "
-						+ TermType.LONG_TERM;
+				return "Loans " + MoneyType.CENTRALBANK_MONEY + " " + TermType.LONG_TERM;
 
 			case 6:
 				return "Fin. Liabilities (Bonds)";
@@ -164,22 +155,18 @@ public abstract class BalanceSheetTableModel extends AbstractTableModel
 			case 2:
 				return Currency.formatMoneySum(balanceSheet.loansGiroLongTerm);
 			case 3:
-				return Currency
-						.formatMoneySum(balanceSheet.loansCentralBankShortTerm);
+				return Currency.formatMoneySum(balanceSheet.loansCentralBankShortTerm);
 			case 4:
-				return Currency
-						.formatMoneySum(balanceSheet.loansCentralBankLongTerm);
+				return Currency.formatMoneySum(balanceSheet.loansCentralBankLongTerm);
 
 			case 6:
-				return Currency
-						.formatMoneySum(balanceSheet.financialLiabilities);
+				return Currency.formatMoneySum(balanceSheet.financialLiabilities);
 			case 7:
 				return Currency.formatMoneySum(balanceSheet.bankBorrowings);
 			case 8:
 				return Currency.formatMoneySum(balanceSheet.getEquity());
 			case 10:
-				return Currency
-						.formatMoneySum(balanceSheet.getBalancePassive());
+				return Currency.formatMoneySum(balanceSheet.getBalancePassive());
 			default:
 				return null;
 			}

@@ -28,18 +28,15 @@ import org.jfree.data.time.Day;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.statistics.accumulator.PeriodDataAccumulator;
 
-public class PeriodDataPercentageTimeSeriesModel<I> extends
-		AbstractPeriodDataMultipleTimeSeriesModel<I> {
+public class PeriodDataPercentageTimeSeriesModel<I> extends AbstractPeriodDataMultipleTimeSeriesModel<I> {
 
 	protected final Map<I, PeriodDataAccumulator> periodDataAccumulator = new HashMap<I, PeriodDataAccumulator>();
 
-	public PeriodDataPercentageTimeSeriesModel(final I[] initialIndexTypes,
-			final String title) {
+	public PeriodDataPercentageTimeSeriesModel(final I[] initialIndexTypes, final String title) {
 		super(initialIndexTypes, title);
 
 		for (final I indexType : initialIndexTypes) {
-			this.periodDataAccumulator.put(indexType,
-					new PeriodDataAccumulator());
+			this.periodDataAccumulator.put(indexType, new PeriodDataAccumulator());
 		}
 	}
 
@@ -54,17 +51,14 @@ public class PeriodDataPercentageTimeSeriesModel<I> extends
 	@Override
 	public void nextPeriod() {
 		double sum = 0;
-		for (final PeriodDataAccumulator periodDataAccumulator : this.periodDataAccumulator
-				.values()) {
+		for (final PeriodDataAccumulator periodDataAccumulator : this.periodDataAccumulator.values()) {
 			sum += periodDataAccumulator.getAmount();
 		}
 
-		for (final Entry<I, PeriodDataAccumulator> entry : this.periodDataAccumulator
-				.entrySet()) {
+		for (final Entry<I, PeriodDataAccumulator> entry : this.periodDataAccumulator.entrySet()) {
 			// write into time series
 			timeSeries.get(entry.getKey()).addOrUpdate(
-					new Day(ApplicationContext.getInstance().getTimeSystem()
-							.getCurrentDate()),
+					new Day(ApplicationContext.getInstance().getTimeSystem().getCurrentDate()),
 					entry.getValue().getAmount() / sum);
 			entry.getValue();
 		}

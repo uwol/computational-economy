@@ -38,8 +38,7 @@ public interface AgentService {
 
 	public List<Factory> findFactories(final Currency currency);
 
-	public List<Factory> findFactories(final Currency currency,
-			final GoodType producedGoodType);
+	public List<Factory> findFactories(final Currency currency, final GoodType producedGoodType);
 
 	public List<Household> findHouseholds(final Currency currency);
 
@@ -50,5 +49,4 @@ public interface AgentService {
 	public State findState(final Currency currency);
 
 	public List<Trader> findTraders(final Currency currency);
-
 }

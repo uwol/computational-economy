@@ -50,8 +50,7 @@ public class CeterisParibusSimulationImpl {
 
 				final double totalUtility = runSimulationIteration(i);
 
-				System.out.println("simulation run finished for i: " + i
-						+ " with totalUtility: " + totalUtility);
+				System.out.println("simulation run finished for i: " + i + " with totalUtility: " + totalUtility);
 
 				if (totalUtility > highestTotalUtility) {
 					System.out.println("total utility improved");
@@ -61,8 +60,7 @@ public class CeterisParibusSimulationImpl {
 			}
 		}
 
-		System.out.println("max simulation run had total utility: "
-				+ highestTotalUtility + " with i: " + maxI);
+		System.out.println("max simulation run had total utility: " + highestTotalUtility + " with i: " + maxI);
 	}
 
 	protected static void overwriteConfiguration(final double i) {
@@ -71,44 +69,36 @@ public class CeterisParibusSimulationImpl {
 		/*
 		 * overwrite default configuration.
 		 */
-		ApplicationContext.getInstance().getConfiguration().householdConfig.number
-				.put(Currency.USDOLLAR, 0);
-		ApplicationContext.getInstance().getConfiguration().householdConfig.number
-				.put(Currency.YEN, 0);
+		ApplicationContext.getInstance().getConfiguration().householdConfig.number.put(Currency.USDOLLAR, 0);
+		ApplicationContext.getInstance().getConfiguration().householdConfig.number.put(Currency.YEN, 0);
 
 		for (final GoodType goodType : GoodType.values()) {
-			ApplicationContext.getInstance().getConfiguration().factoryConfig.number
-					.get(Currency.USDOLLAR).put(goodType, 0);
-			ApplicationContext.getInstance().getConfiguration().factoryConfig.number
-					.get(Currency.YEN).put(goodType, 0);
+			ApplicationContext.getInstance().getConfiguration().factoryConfig.number.get(Currency.USDOLLAR)
+					.put(goodType, 0);
+			ApplicationContext.getInstance().getConfiguration().factoryConfig.number.get(Currency.YEN).put(goodType, 0);
 		}
 
-		ApplicationContext.getInstance().getConfiguration().traderConfig.number
-				.put(Currency.USDOLLAR, 0);
-		ApplicationContext.getInstance().getConfiguration().traderConfig.number
-				.put(Currency.YEN, 0);
+		ApplicationContext.getInstance().getConfiguration().traderConfig.number.put(Currency.USDOLLAR, 0);
+		ApplicationContext.getInstance().getConfiguration().traderConfig.number.put(Currency.YEN, 0);
 
 		/*
 		 * set values for iteration
 		 */
-		ApplicationContext.getInstance().getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
+		ApplicationContext.getInstance()
+				.getConfiguration().pricingBehaviourConfig.defaultPriceChangeIncrementExplicit = i;
 	}
 
-	protected static double runSimulationIteration(final double i)
-			throws IOException {
+	protected static double runSimulationIteration(final double i) throws IOException {
 		/*
 		 * setup
 		 */
-		final String configurationPropertiesFilename = System.getProperty(
-				"configuration.properties",
+		final String configurationPropertiesFilename = System.getProperty("configuration.properties",
 				"interdependencies.configuration.properties");
 
 		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory
-					.configureHibernateApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureHibernateApplicationContext(configurationPropertiesFilename);
 		} else {
-			ApplicationContextFactory
-					.configureInMemoryApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
 		}
 
 		overwriteConfiguration(i);
@@ -119,15 +109,12 @@ public class CeterisParibusSimulationImpl {
 		/*
 		 * run simulation
 		 */
-		ApplicationContext.getInstance().getAgentFactory()
-				.constructAgentsFromConfiguration();
-		ApplicationContext.getInstance().getSimulationRunner()
-				.run(new GregorianCalendar(2000, 7, 1).getTime());
+		ApplicationContext.getInstance().getAgentFactory().constructAgentsFromConfiguration();
+		ApplicationContext.getInstance().getSimulationRunner().run(new GregorianCalendar(2000, 7, 1).getTime());
 		ApplicationContext.getInstance().getAgentFactory().deconstructAgents();
 
-		final double totalUtility = ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(Currency.EURO).totalUtilityOutputModel
-				.getValue();
+		final double totalUtility = ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(Currency.EURO).totalUtilityOutputModel.getValue();
 
 		/*
 		 * reset application context

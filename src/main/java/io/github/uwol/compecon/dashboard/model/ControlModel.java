@@ -29,38 +29,30 @@ import io.github.uwol.compecon.engine.statistics.NotificationListenerModel;
 public class ControlModel extends NotificationListenerModel {
 
 	public void deficitSpending(final Currency currency) {
-		ApplicationContext.getInstance().getAgentService().findState(currency)
-				.doDeficitSpending();
+		ApplicationContext.getInstance().getAgentService().findState(currency).doDeficitSpending();
 	}
 
 	public void initEconomicContraction(final Currency currency) {
-		final List<Factory> factories = ApplicationContext.getInstance()
-				.getAgentService().findFactories(currency);
+		final List<Factory> factories = ApplicationContext.getInstance().getAgentService().findFactories(currency);
 
 		for (final Factory factory : factories) {
-			final double productivity = factory.getProductionFunction()
-					.getProductivity();
-			factory.getProductionFunction()
-					.setProductivity(productivity / 1.05);
+			final double productivity = factory.getProductionFunction().getProductivity();
+			factory.getProductionFunction().setProductivity(productivity / 1.05);
 		}
 	}
 
 	public void initEconomicGrowth(final Currency currency) {
-		final List<Factory> factories = ApplicationContext.getInstance()
-				.getAgentService().findFactories(currency);
+		final List<Factory> factories = ApplicationContext.getInstance().getAgentService().findFactories(currency);
 
 		for (final Factory factory : factories) {
-			final double productivity = factory.getProductionFunction()
-					.getProductivity();
-			factory.getProductionFunction()
-					.setProductivity(productivity * 1.05);
+			final double productivity = factory.getProductionFunction().getProductivity();
+			factory.getProductionFunction().setProductivity(productivity * 1.05);
 		}
 	}
 
 	public void initHouseholds(final Currency currency) {
 		for (int i = 0; i < 100; i++) {
-			ApplicationContext.getInstance().getHouseholdFactory()
-					.newInstanceHousehold(currency, 0);
+			ApplicationContext.getInstance().getHouseholdFactory().newInstanceHousehold(currency, 0);
 		}
 	}
 }

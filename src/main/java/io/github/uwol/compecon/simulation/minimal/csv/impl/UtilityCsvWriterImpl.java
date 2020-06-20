@@ -25,15 +25,13 @@ import org.jfree.data.general.SeriesChangeListener;
 import io.github.uwol.compecon.engine.statistics.ModelRegistry.NationalEconomyModel.UtilityModel;
 import io.github.uwol.compecon.engine.statistics.accumulator.PeriodDataQuotientAccumulator;
 
-public class UtilityCsvWriterImpl extends CsvPeriodWriterImpl implements
-		SeriesChangeListener {
+public class UtilityCsvWriterImpl extends CsvPeriodWriterImpl implements SeriesChangeListener {
 
 	protected final PeriodDataQuotientAccumulator accumulator = new PeriodDataQuotientAccumulator();
 
 	protected final UtilityModel utilityModel;
 
-	public UtilityCsvWriterImpl(final String csvFileName,
-			final UtilityModel utilityModel) {
+	public UtilityCsvWriterImpl(final String csvFileName, final UtilityModel utilityModel) {
 		super(csvFileName);
 
 		this.utilityModel = utilityModel;
@@ -50,8 +48,7 @@ public class UtilityCsvWriterImpl extends CsvPeriodWriterImpl implements
 		}
 
 		if (isPeriodEnd()) {
-			writeCsvLine(getPeriodLabel(),
-					Double.toString(accumulator.getAmount()));
+			writeCsvLine(getPeriodLabel(), Double.toString(accumulator.getAmount()));
 			accumulator.reset();
 		}
 	}

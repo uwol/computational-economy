@@ -43,27 +43,29 @@ import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.ModelListener;
 import io.github.uwol.compecon.engine.statistics.accumulator.PeriodDataAccumulator;
 
-public class NationalAccountsPanel extends AbstractChartsPanel implements
-		ModelListener {
+public class NationalAccountsPanel extends AbstractChartsPanel implements ModelListener {
 
-	public class NationalAccountsPanelForCurrency extends JPanel implements
-			ModelListener {
+	private static final long serialVersionUID = 1L;
 
-		public class MonetaryTransactionsTableModel extends AbstractTableModel
-				implements ModelListener {
+	public class NationalAccountsPanelForCurrency extends JPanel implements ModelListener {
+
+		private static final long serialVersionUID = 1L;
+
+		public class MonetaryTransactionsTableModel extends AbstractTableModel implements ModelListener {
+
+			private static final long serialVersionUID = 1L;
 
 			public final Currency referenceCurrency;
 
-			protected Object[][] transientTableData = new Object[ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes().size()][ApplicationContext
-					.getInstance().getAgentFactory().getAgentTypes().size() + 1];
+			protected Object[][] transientTableData = new Object[ApplicationContext.getInstance().getAgentFactory()
+					.getAgentTypes()
+					.size()][ApplicationContext.getInstance().getAgentFactory().getAgentTypes().size() + 1];
 
-			public MonetaryTransactionsTableModel(
-					final Currency referenceCurrency) {
+			public MonetaryTransactionsTableModel(final Currency referenceCurrency) {
 				this.referenceCurrency = referenceCurrency;
+
 				ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(referenceCurrency).monetaryTransactionsModel
-						.registerListener(this);
+						.getNationalEconomyModel(referenceCurrency).monetaryTransactionsModel.registerListener(this);
 			}
 
 			@Override
@@ -76,8 +78,9 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 				if (columnIndex == 0) {
 					return "from / to";
 				}
-				return ApplicationContext.getInstance().getAgentFactory()
-						.getAgentTypes().get(columnIndex - 1).getSimpleName();
+
+				return ApplicationContext.getInstance().getAgentFactory().getAgentTypes().get(columnIndex - 1)
+						.getSimpleName();
 			}
 
 			@Override
@@ -95,16 +98,13 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 				// source data model
 				final Map<Class<? extends Agent>, Map<Class<? extends Agent>, PeriodDataAccumulator>> adjacencyMatrixForCurrency = ApplicationContext
 						.getInstance().getModelRegistry()
-						.getNationalEconomyModel(referenceCurrency).monetaryTransactionsModel
-						.getAdjacencyMatrix();
+						.getNationalEconomyModel(referenceCurrency).monetaryTransactionsModel.getAdjacencyMatrix();
 
 				// for all agent types as sources of monetary transactions
 				// -> rows
-				for (int i = 0; i < ApplicationContext.getInstance()
-						.getAgentFactory().getAgentTypes().size(); i++) {
-					final Class<? extends Agent> agentTypeFrom = ApplicationContext
-							.getInstance().getAgentFactory().getAgentTypes()
-							.get(i);
+				for (int i = 0; i < ApplicationContext.getInstance().getAgentFactory().getAgentTypes().size(); i++) {
+					final Class<? extends Agent> agentTypeFrom = ApplicationContext.getInstance().getAgentFactory()
+							.getAgentTypes().get(i);
 					final Map<Class<? extends Agent>, PeriodDataAccumulator> adjacencyMatrixForCurrencyAndFromAgentType = adjacencyMatrixForCurrency
 							.get(agentTypeFrom);
 
@@ -115,19 +115,17 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 					// transactions
 					// ->
 					// columns
-					for (int j = 0; j < ApplicationContext.getInstance()
-							.getAgentFactory().getAgentTypes().size(); j++) {
-						final Class<? extends Agent> agentTypeTo = ApplicationContext
-								.getInstance().getAgentFactory()
+					for (int j = 0; j < ApplicationContext.getInstance().getAgentFactory().getAgentTypes()
+							.size(); j++) {
+						final Class<? extends Agent> agentTypeTo = ApplicationContext.getInstance().getAgentFactory()
 								.getAgentTypes().get(j);
 						final PeriodDataAccumulator periodTransactionVolume = adjacencyMatrixForCurrencyAndFromAgentType
 								.get(agentTypeTo);
-						transientTableData[i][j + 1] = Currency
-								.formatMoneySum(periodTransactionVolume
-										.getAmount());
+						transientTableData[i][j + 1] = Currency.formatMoneySum(periodTransactionVolume.getAmount());
 						periodTransactionVolume.reset();
 					}
 				}
+
 				fireTableDataChanged();
 			}
 		}
@@ -140,8 +138,7 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 
 		public NationalAccountsPanelForCurrency(final Currency currency) {
 			this.currency = currency;
-			monetaryTransactionsTableModel = new MonetaryTransactionsTableModel(
-					currency);
+			monetaryTransactionsTableModel = new MonetaryTransactionsTableModel(currency);
 
 			setLayout(new GridLayout(0, 3));
 
@@ -155,20 +152,14 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 			this.add(createStateBalanceSheetPanel(currency));
 
 			// panel for monetary transactions
-			final JTable monetaryTransactionsTable = new JTable(
-					monetaryTransactionsTableModel);
-			final JScrollPane monetaryTransactionsJScrollPane = new JScrollPane(
-					monetaryTransactionsTable);
-			monetaryTransactionsJScrollPane.setPreferredSize(new Dimension(-1,
-					250));
+			final JTable monetaryTransactionsTable = new JTable(monetaryTransactionsTableModel);
+			final JScrollPane monetaryTransactionsJScrollPane = new JScrollPane(monetaryTransactionsTable);
+			monetaryTransactionsJScrollPane.setPreferredSize(new Dimension(-1, 250));
 
 			final JPanel monetaryTransactionsTablePanel = new JPanel();
-			monetaryTransactionsTablePanel.setBorder(BorderFactory
-					.createTitledBorder(
-							BorderFactory.createEtchedBorder(),
-							"Monetary Transactions in "
-									+ currency.getIso4217Code(),
-							TitledBorder.CENTER, TitledBorder.TOP));
+			monetaryTransactionsTablePanel.setBorder(BorderFactory.createTitledBorder(
+					BorderFactory.createEtchedBorder(), "Monetary Transactions in " + currency.getIso4217Code(),
+					TitledBorder.CENTER, TitledBorder.TOP));
 			monetaryTransactionsTablePanel.setLayout(new BorderLayout());
 			monetaryTransactionsTablePanel.add(monetaryTransactionsJScrollPane);
 			this.add(monetaryTransactionsTablePanel);
@@ -185,10 +176,8 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 		setLayout(new BorderLayout());
 
 		for (final Currency currency : Currency.values()) {
-			final NationalAccountsPanelForCurrency panelForCurrency = new NationalAccountsPanelForCurrency(
-					currency);
-			jTabbedPaneCurrency.addTab(currency.getIso4217Code(),
-					panelForCurrency);
+			final NationalAccountsPanelForCurrency panelForCurrency = new NationalAccountsPanelForCurrency(currency);
+			jTabbedPaneCurrency.addTab(currency.getIso4217Code(), panelForCurrency);
 			panelForCurrency.setBackground(Color.lightGray);
 		}
 
@@ -208,15 +197,18 @@ public class NationalAccountsPanel extends AbstractChartsPanel implements
 	}
 
 	protected JPanel createNationalBalanceSheetPanel(final Currency currency) {
-		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(
-				currency) {
+
+		final BalanceSheetTableModel balanceSheetTableModel = new BalanceSheetTableModel(currency) {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected BalanceSheetDTO getBalanceSheet() {
 				return ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).balanceSheetsModel
-						.getNationalAccountsBalanceSheet();
+						.getNationalEconomyModel(currency).balanceSheetsModel.getNationalAccountsBalanceSheet();
 			}
 		};
+
 		return new BalanceSheetPanel(currency, balanceSheetTableModel,
 				"National Balance Sheet for " + currency.getIso4217Code());
 	}

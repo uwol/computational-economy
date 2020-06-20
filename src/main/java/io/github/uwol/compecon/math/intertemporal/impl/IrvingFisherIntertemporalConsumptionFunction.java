@@ -28,8 +28,7 @@ import io.github.uwol.compecon.math.impl.ConvexFunctionImpl;
 import io.github.uwol.compecon.math.intertemporal.IntertemporalConsumptionFunction;
 import io.github.uwol.compecon.math.price.PriceFunction;
 
-public abstract class IrvingFisherIntertemporalConsumptionFunction implements
-		IntertemporalConsumptionFunction {
+public abstract class IrvingFisherIntertemporalConsumptionFunction implements IntertemporalConsumptionFunction {
 
 	public enum Period {
 		CURRENT, NEXT;
@@ -37,16 +36,14 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 
 	protected final ConvexFunctionImpl<Period> delegate;
 
-	protected IrvingFisherIntertemporalConsumptionFunction(
-			final ConvexFunctionImpl<Period> delegate) {
+	protected IrvingFisherIntertemporalConsumptionFunction(final ConvexFunctionImpl<Period> delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(
-			final double averageIncomePerPeriod, final double currentAssets,
-			final double keyInterestRate, final int ageInDays,
-			final int lifeSpanInDays, final int retirementAgeInDays) {
+	public Map<Period, Double> calculateUtilityMaximizingConsumptionPlan(final double averageIncomePerPeriod,
+			final double currentAssets, final double keyInterestRate, final int ageInDays, final int lifeSpanInDays,
+			final int retirementAgeInDays) {
 
 		// price levels
 		final Map<Period, PriceFunction> priceLevelsOfPeriods = new HashMap<Period, PriceFunction>();
@@ -63,21 +60,18 @@ public abstract class IrvingFisherIntertemporalConsumptionFunction implements
 			// budget, discounted to current period
 			final double periodIncome = averageIncomePerPeriod;
 			final int periodNumber = period.ordinal();
-			discountedBudget += periodIncome
-					/ Math.pow(1.0 + keyInterestRate, periodNumber);
+			discountedBudget += periodIncome / Math.pow(1.0 + keyInterestRate, periodNumber);
 		}
 
 		// resulting consumption plan
-		final Map<Period, Double> intermediateResult = delegate
-				.calculateOutputMaximizingInputs(priceLevelsOfPeriods,
-						discountedBudget);
+		final Map<Period, Double> intermediateResult = delegate.calculateOutputMaximizingInputs(priceLevelsOfPeriods,
+				discountedBudget);
 
 		for (final Entry<Period, Double> entry : intermediateResult.entrySet()) {
 			// add interest to consumption plan
 			final double periodConsumption = entry.getValue();
 			final int periodNumber = entry.getKey().ordinal();
-			final double discountedValue = periodConsumption
-					* Math.pow(1.0 + keyInterestRate, periodNumber);
+			final double discountedValue = periodConsumption * Math.pow(1.0 + keyInterestRate, periodNumber);
 			intermediateResult.put(entry.getKey(), discountedValue);
 		}
 

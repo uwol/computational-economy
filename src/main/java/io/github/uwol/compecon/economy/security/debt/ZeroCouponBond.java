@@ -20,5 +20,4 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 package io.github.uwol.compecon.economy.security.debt;
 
 public interface ZeroCouponBond extends Bond {
-
 }

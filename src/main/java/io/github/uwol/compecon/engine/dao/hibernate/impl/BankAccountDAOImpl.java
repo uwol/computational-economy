@@ -27,8 +27,7 @@ import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.dao.BankAccountDAO;
 
-public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
-		BankAccountDAO {
+public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements BankAccountDAO {
 
 	@Override
 	public void deleteAllBankAccounts(final Bank managingBank) {
@@ -39,10 +38,8 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 	}
 
 	@Override
-	public void deleteAllBankAccounts(final Bank managingBank,
-			final BankCustomer owner) {
-		final List<BankAccount> bankAccounts = this
-				.findAll(managingBank, owner);
+	public void deleteAllBankAccounts(final Bank managingBank, final BankCustomer owner) {
+		final List<BankAccount> bankAccounts = this.findAll(managingBank, owner);
 		for (final BankAccount bankAccount : bankAccounts) {
 			delete(bankAccount);
 		}
@@ -50,32 +47,24 @@ public class BankAccountDAOImpl extends HibernateDAOImpl<BankAccount> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAll(final Bank managingBank,
-			final BankCustomer owner) {
+	public List<BankAccount> findAll(final Bank managingBank, final BankCustomer owner) {
 		final String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank AND ba.owner = :owner";
-		return getSession().createQuery(hql)
-				.setEntity("managingBank", managingBank)
-				.setEntity("owner", owner).list();
+		return getSession().createQuery(hql).setEntity("managingBank", managingBank).setEntity("owner", owner).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAll(final Bank managingBank,
-			final BankCustomer owner, final Currency currency) {
+	public List<BankAccount> findAll(final Bank managingBank, final BankCustomer owner, final Currency currency) {
 		final String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank AND ba.owner = :owner AND ba.currency = :currency";
-		return getSession().createQuery(hql)
-				.setEntity("managingBank", managingBank)
-				.setEntity("owner", owner).setParameter("currency", currency)
-				.list();
+		return getSession().createQuery(hql).setEntity("managingBank", managingBank).setEntity("owner", owner)
+				.setParameter("currency", currency).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<BankAccount> findAllBankAccountsManagedByBank(
-			final Bank managingBank) {
+	public List<BankAccount> findAllBankAccountsManagedByBank(final Bank managingBank) {
 		final String hql = "FROM BankAccountImpl ba WHERE ba.managingBank = :managingBank";
-		return getSession().createQuery(hql)
-				.setEntity("managingBank", managingBank).list();
+		return getSession().createQuery(hql).setEntity("managingBank", managingBank).list();
 	}
 
 	@SuppressWarnings("unchecked")

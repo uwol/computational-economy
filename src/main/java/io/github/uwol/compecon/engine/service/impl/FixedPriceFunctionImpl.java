@@ -30,10 +30,8 @@ public class FixedPriceFunctionImpl implements PriceFunction {
 	}
 
 	@Override
-	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(
-			final double maxBudget) {
-		return new PriceFunctionConfig[] { new PriceFunctionConfig(0.0,
-				Double.POSITIVE_INFINITY, fixedPrice, 0.0) };
+	public PriceFunctionConfig[] getAnalyticalPriceFunctionParameters(final double maxBudget) {
+		return new PriceFunctionConfig[] { new PriceFunctionConfig(0.0, Double.POSITIVE_INFINITY, fixedPrice, 0.0) };
 	}
 
 	@Override

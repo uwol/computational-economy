@@ -29,10 +29,9 @@ public abstract class AbstractPeriodDataTimeSeriesModel {
 	protected final int NUMBER_OF_DAYS = 180;
 
 	protected TimeSeries createTimeSeries(final String title) {
-		final TimeSeries timeSeries = new TimeSeries(title, Day.class);
+		final TimeSeries timeSeries = new TimeSeries(title);
 		timeSeries.setMaximumItemAge(NUMBER_OF_DAYS);
-		timeSeries.add(new Day(ApplicationContext.getInstance().getTimeSystem()
-				.getCurrentDate()), 0);
+		timeSeries.add(new Day(ApplicationContext.getInstance().getTimeSystem().getCurrentDate()), 0);
 		return timeSeries;
 	}
 

@@ -41,8 +41,7 @@ public class StateImplFactoryImpl implements StateFactory {
 		final StateImpl state = new StateImpl();
 
 		if (!HibernateUtil.isActive()) {
-			state.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
+			state.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 		}
 
 		state.setPrimaryCurrency(currency);

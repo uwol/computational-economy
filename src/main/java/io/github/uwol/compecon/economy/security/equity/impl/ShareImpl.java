@@ -45,8 +45,7 @@ public class ShareImpl extends PropertyIssuedImpl implements Share {
 	}
 
 	@Override
-	public void setDividendBankAccountDelegate(
-			final BankAccountDelegate dividendBankAccountDelegate) {
+	public void setDividendBankAccountDelegate(final BankAccountDelegate dividendBankAccountDelegate) {
 		this.dividendBankAccountDelegate = dividendBankAccountDelegate;
 	}
 }

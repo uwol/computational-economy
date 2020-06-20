@@ -29,6 +29,5 @@ public interface FactoryDAO extends GenericDAO<Factory> {
 
 	public List<Factory> findAllByCurrency(final Currency currency);
 
-	public List<Factory> findAllByCurrencyAndProducedGoodType(
-			final Currency currency, final GoodType producedGoodType);
+	public List<Factory> findAllByCurrencyAndProducedGoodType(final Currency currency, final GoodType producedGoodType);
 }

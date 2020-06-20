@@ -26,6 +26,5 @@ import io.github.uwol.compecon.economy.security.equity.JointStockCompany;
 
 public interface Trader extends Agent, JointStockCompany {
 
-	public BankAccountDelegate getBankAccountGoodsTradeDelegate(
-			final Currency currency);
+	public BankAccountDelegate getBankAccountGoodsTradeDelegate(final Currency currency);
 }

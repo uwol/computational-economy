@@ -33,11 +33,9 @@ public interface PropertyDAO extends GenericDAO<Property> {
 	public List<Property> findAllPropertiesIssuedByAgent(final Agent issuer,
 			final Class<? extends PropertyIssued> propertyClass);
 
-	public List<Property> findAllPropertiesOfPropertyOwner(
-			final PropertyOwner propertyOwner);
+	public List<Property> findAllPropertiesOfPropertyOwner(final PropertyOwner propertyOwner);
 
-	public List<Property> findAllPropertiesOfPropertyOwner(
-			final PropertyOwner propertyOwner,
+	public List<Property> findAllPropertiesOfPropertyOwner(final PropertyOwner propertyOwner,
 			final Class<? extends Property> propertyClass);
 
 	/**
@@ -46,6 +44,5 @@ public interface PropertyDAO extends GenericDAO<Property> {
 	 *
 	 * @see io.github.uwol.compecon.engine.service.PropertyService
 	 */
-	public void transferProperty(final PropertyOwner oldOwner,
-			final PropertyOwner newOwner, final Property property);
+	public void transferProperty(final PropertyOwner oldOwner, final PropertyOwner newOwner, final Property property);
 }

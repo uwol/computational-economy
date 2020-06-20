@@ -28,8 +28,7 @@ import io.github.uwol.compecon.math.impl.ConvexFunctionImpl;
  */
 public abstract class ConvexUtilityFunctionImpl extends UtilityFunctionImpl {
 
-	protected ConvexUtilityFunctionImpl(
-			final ConvexFunctionImpl<GoodType> delegate) {
+	protected ConvexUtilityFunctionImpl(final ConvexFunctionImpl<GoodType> delegate) {
 		super(delegate);
 	}
 }

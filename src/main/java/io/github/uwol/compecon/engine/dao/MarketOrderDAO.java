@@ -30,67 +30,57 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 public interface MarketOrderDAO extends GenericDAO<MarketOrder> {
 
 	/**
-	 * WARNING: Should only be called from the market order factory, which
-	 * ensures a subsequent Hibernate flush.
+	 * WARNING: Should only be called from the market order factory, which ensures a
+	 * subsequent Hibernate flush.
 	 *
 	 * @see io.github.uwol.compecon.engine.factory.MarketOrderFactory
 	 */
 	public void deleteAllSellingOrders(final MarketParticipant offeror);
 
 	/**
-	 * WARNING: Should only be called from the market order factory, which
-	 * ensures a subsequent Hibernate flush.
+	 * WARNING: Should only be called from the market order factory, which ensures a
+	 * subsequent Hibernate flush.
 	 *
 	 * @see io.github.uwol.compecon.engine.factory.MarketOrderFactory
 	 */
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency currency,
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency currency,
 			final Class<? extends Property> propertyClass);
 
 	/**
-	 * WARNING: Should only be called from the market order factory, which
-	 * ensures a subsequent Hibernate flush.
+	 * WARNING: Should only be called from the market order factory, which ensures a
+	 * subsequent Hibernate flush.
 	 *
 	 * @see io.github.uwol.compecon.engine.factory.MarketOrderFactory
 	 */
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency currency, final Currency commodityCurrency);
-
-	/**
-	 * WARNING: Should only be called from the market order factory, which
-	 * ensures a subsequent Hibernate flush.
-	 *
-	 * @see io.github.uwol.compecon.engine.factory.MarketOrderFactory
-	 */
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency currency, final GoodType goodType);
-
-	public double findMarginalPrice(final Currency currency,
-			final Class<? extends Property> propertyClass);
-
-	public double findMarginalPrice(final Currency currency,
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency currency,
 			final Currency commodityCurrency);
 
-	public double findMarginalPrice(final Currency currency,
+	/**
+	 * WARNING: Should only be called from the market order factory, which ensures a
+	 * subsequent Hibernate flush.
+	 *
+	 * @see io.github.uwol.compecon.engine.factory.MarketOrderFactory
+	 */
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency currency,
 			final GoodType goodType);
 
-	public double getAmountSum(final Currency currency,
-			final Currency commodityCurrency);
+	public double findMarginalPrice(final Currency currency, final Class<? extends Property> propertyClass);
+
+	public double findMarginalPrice(final Currency currency, final Currency commodityCurrency);
+
+	public double findMarginalPrice(final Currency currency, final GoodType goodType);
+
+	public double getAmountSum(final Currency currency, final Currency commodityCurrency);
 
 	public double getAmountSum(final Currency currency, final GoodType goodType);
 
-	public Iterator<MarketOrder> getIterator(final Currency currency,
-			final Class<? extends Property> propertyClass);
+	public Iterator<MarketOrder> getIterator(final Currency currency, final Class<? extends Property> propertyClass);
 
-	public Iterator<MarketOrder> getIterator(final Currency currency,
-			final Currency commodityCurrency);
+	public Iterator<MarketOrder> getIterator(final Currency currency, final Currency commodityCurrency);
 
-	public Iterator<MarketOrder> getIterator(final Currency currency,
-			final GoodType goodType);
+	public Iterator<MarketOrder> getIterator(final Currency currency, final GoodType goodType);
 
-	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency,
-			final Currency commodityCurrency);
+	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency, final Currency commodityCurrency);
 
-	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency,
-			final GoodType goodType);
+	public Iterator<MarketOrder> getIteratorThreadsafe(final Currency currency, final GoodType goodType);
 }

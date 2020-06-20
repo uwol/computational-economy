@@ -32,8 +32,7 @@ public abstract class CsvPeriodWriterImpl extends CsvWriterImpl {
 	}
 
 	private Date getCurrentDate() {
-		final Date date = ApplicationContext.getInstance().getTimeSystem()
-				.getCurrentDate();
+		final Date date = ApplicationContext.getInstance().getTimeSystem().getCurrentDate();
 		return date;
 	}
 
@@ -44,6 +43,7 @@ public abstract class CsvPeriodWriterImpl extends CsvWriterImpl {
 		return dateFormat.format(currentDate);
 	}
 
+	@SuppressWarnings("unused")
 	private String getMonthString() {
 		final Date currentDate = getCurrentDate();
 
@@ -55,6 +55,7 @@ public abstract class CsvPeriodWriterImpl extends CsvWriterImpl {
 		return getDateString();
 	}
 
+	@SuppressWarnings("unused")
 	private String getWeekString() {
 		final Date currentDate = getCurrentDate();
 
@@ -62,15 +63,14 @@ public abstract class CsvPeriodWriterImpl extends CsvWriterImpl {
 		return dateFormat.format(currentDate);
 	}
 
+	@SuppressWarnings("unused")
 	private boolean isEndOfMonth() {
-		final Date currentDate = ApplicationContext.getInstance()
-				.getTimeSystem().getCurrentDate();
+		final Date currentDate = ApplicationContext.getInstance().getTimeSystem().getCurrentDate();
 
 		final Calendar calendar = Calendar.getInstance();
 		calendar.setTime(currentDate);
 
-		final int maxDayInMonth = calendar
-				.getActualMaximum(Calendar.DAY_OF_MONTH);
+		final int maxDayInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 		final int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
 
 		final boolean result = dayOfMonth == maxDayInMonth;
@@ -78,8 +78,7 @@ public abstract class CsvPeriodWriterImpl extends CsvWriterImpl {
 	}
 
 	private boolean isEndOfWeek() {
-		final Date currentDate = ApplicationContext.getInstance()
-				.getTimeSystem().getCurrentDate();
+		final Date currentDate = ApplicationContext.getInstance().getTimeSystem().getCurrentDate();
 
 		final Calendar calendar = Calendar.getInstance();
 		calendar.setTime(currentDate);

@@ -36,8 +36,8 @@ public class Configuration {
 
 		public HourType getBalanceSheetPublicationHourType() {
 			if (balanceSheetPublicationHourType == null) {
-				balanceSheetPublicationHourType = HourType.valueOf(configFile
-						.getProperty("agent.balanceSheetPublicationHourType"));
+				balanceSheetPublicationHourType = HourType
+						.valueOf(configFile.getProperty("agent.balanceSheetPublicationHourType"));
 			}
 			return balanceSheetPublicationHourType;
 		}
@@ -52,8 +52,7 @@ public class Configuration {
 		public double getInternalRateOfReturn() {
 			if (internalRateOfReturn == null) {
 				internalRateOfReturn = Double
-						.parseDouble(configFile
-								.getProperty("budgetingBehaviour.internalRateOfReturn"));
+						.parseDouble(configFile.getProperty("budgetingBehaviour.internalRateOfReturn"));
 			}
 			return internalRateOfReturn;
 		}
@@ -61,8 +60,7 @@ public class Configuration {
 		public double getKeyInterestRateTransmissionDamper() {
 			if (keyInterestRateTransmissionDamper == null) {
 				keyInterestRateTransmissionDamper = Double
-						.parseDouble(configFile
-								.getProperty("budgetingBehaviour.keyInterestRateTransmissionDamper"));
+						.parseDouble(configFile.getProperty("budgetingBehaviour.keyInterestRateTransmissionDamper"));
 			}
 			return keyInterestRateTransmissionDamper;
 		}
@@ -79,11 +77,9 @@ public class Configuration {
 			public double getPriceIndexWeight(final GoodType goodType) {
 				if (!priceIndexWeights.containsKey(goodType)) {
 					final String priceIndexWeightProperty = configFile
-							.getProperty("centralBank.statisticalOffice.priceIndexWeights."
-									+ goodType);
+							.getProperty("centralBank.statisticalOffice.priceIndexWeights." + goodType);
 					if (priceIndexWeightProperty != null) {
-						priceIndexWeights.put(goodType,
-								Double.parseDouble(priceIndexWeightProperty));
+						priceIndexWeights.put(goodType, Double.parseDouble(priceIndexWeightProperty));
 					} else {
 						priceIndexWeights.put(goodType, 0.0);
 					}
@@ -111,16 +107,14 @@ public class Configuration {
 		public double getDefaultEffectiveKeyInterestRate() {
 			if (defaultEffectiveKeyInterestRate == null) {
 				defaultEffectiveKeyInterestRate = Double
-						.parseDouble(configFile
-								.getProperty("centralBank.defaultEffectiveKeyInterestRate"));
+						.parseDouble(configFile.getProperty("centralBank.defaultEffectiveKeyInterestRate"));
 			}
 			return defaultEffectiveKeyInterestRate;
 		}
 
 		public double getInflationTarget() {
 			if (inflationTarget == null) {
-				inflationTarget = Double.parseDouble(configFile
-						.getProperty("centralBank.inflationTarget"));
+				inflationTarget = Double.parseDouble(configFile.getProperty("centralBank.inflationTarget"));
 			}
 			return inflationTarget;
 		}
@@ -128,8 +122,7 @@ public class Configuration {
 		public double getMaxEffectiveKeyInterestRate() {
 			if (maxEffectiveKeyInterestRate == null) {
 				maxEffectiveKeyInterestRate = Double
-						.parseDouble(configFile
-								.getProperty("centralBank.maxEffectiveKeyInterestRate"));
+						.parseDouble(configFile.getProperty("centralBank.maxEffectiveKeyInterestRate"));
 			}
 			return maxEffectiveKeyInterestRate;
 		}
@@ -137,18 +130,15 @@ public class Configuration {
 		public double getMinEffectiveKeyInterestRate() {
 			if (minEffectiveKeyInterestRate == null) {
 				minEffectiveKeyInterestRate = Double
-						.parseDouble(configFile
-								.getProperty("centralBank.minEffectiveKeyInterestRate"));
+						.parseDouble(configFile.getProperty("centralBank.minEffectiveKeyInterestRate"));
 			}
 			return minEffectiveKeyInterestRate;
 		}
 
 		public int getNumber(final Currency currency) {
 			if (!number.containsKey(currency)) {
-				number.put(
-						currency,
-						Integer.parseInt(configFile.getProperty("centralBank."
-								+ currency.name() + ".number")));
+				number.put(currency,
+						Integer.parseInt(configFile.getProperty("centralBank." + currency.name() + ".number")));
 			}
 			assert (number.get(currency) == 0 || number.get(currency) == 1);
 			return number.get(currency);
@@ -156,16 +146,14 @@ public class Configuration {
 
 		public double getReserveRatio() {
 			if (reserveRatio == null) {
-				reserveRatio = Double.parseDouble(configFile
-						.getProperty("centralBank.reserveRatio"));
+				reserveRatio = Double.parseDouble(configFile.getProperty("centralBank.reserveRatio"));
 			}
 			return reserveRatio;
 		}
 
 		public double getTargetPriceIndex() {
 			if (targetPriceIndex == null) {
-				targetPriceIndex = Double.parseDouble(configFile
-						.getProperty("centralBank.targetPriceIndex"));
+				targetPriceIndex = Double.parseDouble(configFile.getProperty("centralBank.targetPriceIndex"));
 			}
 			return targetPriceIndex;
 		}
@@ -184,34 +172,30 @@ public class Configuration {
 
 		public double getMaxCreditForCurrencyTrading() {
 			if (maxCreditForCurrencyTrading == null) {
-				maxCreditForCurrencyTrading = Double.parseDouble(configFile
-						.getProperty("creditBank.maxCreditForCurrencyTrading"));
+				maxCreditForCurrencyTrading = Double
+						.parseDouble(configFile.getProperty("creditBank.maxCreditForCurrencyTrading"));
 			}
 			return maxCreditForCurrencyTrading;
 		}
 
 		public double getMinArbitrageMargin() {
 			if (minArbitrageMargin == null) {
-				minArbitrageMargin = Double.parseDouble(configFile
-						.getProperty("creditBank.minArbitrageMargin"));
+				minArbitrageMargin = Double.parseDouble(configFile.getProperty("creditBank.minArbitrageMargin"));
 			}
 			return minArbitrageMargin;
 		}
 
 		public int getNumber(final Currency currency) {
 			if (!number.containsKey(currency)) {
-				number.put(
-						currency,
-						Integer.parseInt(configFile.getProperty("creditBank."
-								+ currency.name() + ".number")));
+				number.put(currency,
+						Integer.parseInt(configFile.getProperty("creditBank." + currency.name() + ".number")));
 			}
 			return number.get(currency);
 		}
 
 		public double getPriceChangeIncrement() {
 			if (priceChangeIncrement == null) {
-				priceChangeIncrement = Double.parseDouble(configFile
-						.getProperty("creditBank.priceChangeIncrement"));
+				priceChangeIncrement = Double.parseDouble(configFile.getProperty("creditBank.priceChangeIncrement"));
 			}
 			return priceChangeIncrement;
 		}
@@ -222,8 +206,8 @@ public class Configuration {
 
 		public int getLogNumberOfAgentsLogSize() {
 			if (logNumberOfAgentsLogSize == null) {
-				logNumberOfAgentsLogSize = Integer.parseInt(configFile
-						.getProperty("dashboard.log.numberOfAgentsLogSize"));
+				logNumberOfAgentsLogSize = Integer
+						.parseInt(configFile.getProperty("dashboard.log.numberOfAgentsLogSize"));
 			}
 			return logNumberOfAgentsLogSize;
 		}
@@ -248,36 +232,29 @@ public class Configuration {
 		public double getCapitalDepreciationRatioPerPeriod() {
 			if (capitalDepreciationRatioPerPeriod == null) {
 				capitalDepreciationRatioPerPeriod = Double
-						.parseDouble(configFile
-								.getProperty("factory.capitalDepreciationRatioPerPeriod"));
+						.parseDouble(configFile.getProperty("factory.capitalDepreciationRatioPerPeriod"));
 			}
 			return capitalDepreciationRatioPerPeriod;
 		}
 
 		public double getMargin() {
 			if (margin == null) {
-				margin = Double.parseDouble(configFile
-						.getProperty("factory.margin"));
+				margin = Double.parseDouble(configFile.getProperty("factory.margin"));
 			}
 			return margin;
 		}
 
 		public int getNumber(final Currency currency, final GoodType goodType) {
 			if (!number.get(currency).containsKey(goodType)) {
-				number.get(currency)
-						.put(goodType,
-								Integer.parseInt(configFile
-										.getProperty("factory."
-												+ currency.name() + "."
-												+ goodType + ".number")));
+				number.get(currency).put(goodType, Integer
+						.parseInt(configFile.getProperty("factory." + currency.name() + "." + goodType + ".number")));
 			}
 			return number.get(currency).get(goodType);
 		}
 
 		public double getReferenceCredit() {
 			if (referenceCredit == null) {
-				referenceCredit = Double.parseDouble(configFile
-						.getProperty("factory.referenceCredit"));
+				referenceCredit = Double.parseDouble(configFile.getProperty("factory.referenceCredit"));
 			}
 			return referenceCredit;
 		}
@@ -308,82 +285,74 @@ public class Configuration {
 		public int getDaysWithoutUtilityUntilDestructor() {
 			if (daysWithoutUtilityUntilDestructor == null) {
 				daysWithoutUtilityUntilDestructor = Integer
-						.parseInt(configFile
-								.getProperty("household.daysWithoutUtilityUntilDestructor"));
+						.parseInt(configFile.getProperty("household.daysWithoutUtilityUntilDestructor"));
 			}
 			return daysWithoutUtilityUntilDestructor;
 		}
 
 		public int getLifespanInDays() {
 			if (lifespanInDays == null) {
-				lifespanInDays = Integer.parseInt(configFile
-						.getProperty("household.lifespanInDays"));
+				lifespanInDays = Integer.parseInt(configFile.getProperty("household.lifespanInDays"));
 			}
 			return lifespanInDays;
 		}
 
 		public double getMaxPricePerUnitMultiplier() {
 			if (maxPricePerUnitMultiplier == null) {
-				maxPricePerUnitMultiplier = Double.parseDouble(configFile
-						.getProperty("household.maxPricePerUnitMultiplier"));
+				maxPricePerUnitMultiplier = Double
+						.parseDouble(configFile.getProperty("household.maxPricePerUnitMultiplier"));
 			}
 			return maxPricePerUnitMultiplier;
 		}
 
 		public int getNewHouseholdEveryXDays() {
 			if (newHouseholdEveryXDays == null) {
-				newHouseholdEveryXDays = Integer.parseInt(configFile
-						.getProperty("household.newHouseholdEveryXDays"));
+				newHouseholdEveryXDays = Integer.parseInt(configFile.getProperty("household.newHouseholdEveryXDays"));
 			}
 			return newHouseholdEveryXDays;
 		}
 
 		public int getNewHouseholdFromAgeInDays() {
 			if (newHouseholdFromAgeInDays == null) {
-				newHouseholdFromAgeInDays = Integer.parseInt(configFile
-						.getProperty("household.newHouseholdFromAgeInDays"));
+				newHouseholdFromAgeInDays = Integer
+						.parseInt(configFile.getProperty("household.newHouseholdFromAgeInDays"));
 			}
 			return newHouseholdFromAgeInDays;
 		}
 
 		public int getNumber(final Currency currency) {
 			if (!number.containsKey(currency)) {
-				number.put(
-						currency,
-						Integer.parseInt(configFile.getProperty("household."
-								+ currency.name() + ".number")));
+				number.put(currency,
+						Integer.parseInt(configFile.getProperty("household." + currency.name() + ".number")));
 			}
 			return number.get(currency);
 		}
 
 		public int getNumberOfLabourHoursPerDay() {
 			if (numberOfLabourHoursPerDay == null) {
-				numberOfLabourHoursPerDay = Integer.parseInt(configFile
-						.getProperty("household.numberOfLabourHoursPerDay"));
+				numberOfLabourHoursPerDay = Integer
+						.parseInt(configFile.getProperty("household.numberOfLabourHoursPerDay"));
 			}
 			return numberOfLabourHoursPerDay;
 		}
 
 		public double getRequiredUtilityPerDay() {
 			if (requiredUtilityPerDay == null) {
-				requiredUtilityPerDay = Double.parseDouble(configFile
-						.getProperty("household.requiredUtilityPerDay"));
+				requiredUtilityPerDay = Double.parseDouble(configFile.getProperty("household.requiredUtilityPerDay"));
 			}
 			return requiredUtilityPerDay;
 		}
 
 		public int getRetirementAgeInDays() {
 			if (retirementAgeInDays == null) {
-				retirementAgeInDays = Integer.parseInt(configFile
-						.getProperty("household.retirementAgeInDays"));
+				retirementAgeInDays = Integer.parseInt(configFile.getProperty("household.retirementAgeInDays"));
 			}
 			return retirementAgeInDays;
 		}
 
 		public boolean getRetirementSaving() {
 			if (retirementSaving == null) {
-				retirementSaving = Boolean.parseBoolean(configFile
-						.getProperty("household.retirementSaving"));
+				retirementSaving = Boolean.parseBoolean(configFile.getProperty("household.retirementSaving"));
 			}
 			return retirementSaving;
 		}
@@ -404,7 +373,8 @@ public class Configuration {
 	}
 
 	public enum InputOutputModelConfigSetting {
-		InputOutputModelInterdependencies, InputOutputModelMinimal, InputOutputModelNoDependencies, InputOutputModelTesting
+		InputOutputModelInterdependencies, InputOutputModelMinimal, InputOutputModelNoDependencies,
+		InputOutputModelTesting
 	}
 
 	public class JointStockCompanyConfig {
@@ -414,8 +384,7 @@ public class Configuration {
 		public int getInitialNumberOfShares() {
 			if (initialNumberOfShares == null) {
 				initialNumberOfShares = Integer
-						.parseInt(configFile
-								.getProperty("jointStockCompany.initialNumberOfShares"));
+						.parseInt(configFile.getProperty("jointStockCompany.initialNumberOfShares"));
 			}
 			return initialNumberOfShares;
 		}
@@ -430,16 +399,14 @@ public class Configuration {
 		public double getInitializationValue() {
 			if (initializationValueForInputFactorsNonZero == null) {
 				initializationValueForInputFactorsNonZero = Double
-						.parseDouble(configFile
-								.getProperty("math.initializationValue"));
+						.parseDouble(configFile.getProperty("math.initializationValue"));
 			}
 			return initializationValueForInputFactorsNonZero;
 		}
 
 		public int getNumberOfIterations() {
 			if (numberOfIterations == null) {
-				numberOfIterations = Integer.parseInt(configFile
-						.getProperty("math.numberOfIterations"));
+				numberOfIterations = Integer.parseInt(configFile.getProperty("math.numberOfIterations"));
 			}
 			return numberOfIterations;
 		}
@@ -457,16 +424,16 @@ public class Configuration {
 
 		public double getDefaultInitialPrice() {
 			if (defaultInitialPrice == null) {
-				defaultInitialPrice = Double.parseDouble(configFile
-						.getProperty("pricingBehaviour.defaultInitialPrice"));
+				defaultInitialPrice = Double
+						.parseDouble(configFile.getProperty("pricingBehaviour.defaultInitialPrice"));
 			}
 			return defaultInitialPrice;
 		}
 
 		public int getDefaultNumberOfPrices() {
 			if (defaultNumberOfPrices == null) {
-				defaultNumberOfPrices = Integer.parseInt(configFile
-						.getProperty("pricingBehaviour.defaultNumberOfPrices"));
+				defaultNumberOfPrices = Integer
+						.parseInt(configFile.getProperty("pricingBehaviour.defaultNumberOfPrices"));
 			}
 			return defaultNumberOfPrices;
 		}
@@ -474,8 +441,7 @@ public class Configuration {
 		public double getDefaultPriceChangeIncrementExplicit() {
 			if (defaultPriceChangeIncrementExplicit == null) {
 				defaultPriceChangeIncrementExplicit = Double
-						.parseDouble(configFile
-								.getProperty("pricingBehaviour.defaultPriceChangeIncrementExplicit"));
+						.parseDouble(configFile.getProperty("pricingBehaviour.defaultPriceChangeIncrementExplicit"));
 			}
 			return defaultPriceChangeIncrementExplicit;
 		}
@@ -483,8 +449,7 @@ public class Configuration {
 		public double getDefaultPriceChangeIncrementImplicit() {
 			if (defaultPriceChangeIncrementImplicit == null) {
 				defaultPriceChangeIncrementImplicit = Double
-						.parseDouble(configFile
-								.getProperty("pricingBehaviour.defaultPriceChangeIncrementImplicit"));
+						.parseDouble(configFile.getProperty("pricingBehaviour.defaultPriceChangeIncrementImplicit"));
 			}
 			return defaultPriceChangeIncrementImplicit;
 		}
@@ -498,18 +463,14 @@ public class Configuration {
 
 		public double getBondMargin() {
 			if (bondMargin == null) {
-				bondMargin = Double.parseDouble(configFile
-						.getProperty("state.bondMargin"));
+				bondMargin = Double.parseDouble(configFile.getProperty("state.bondMargin"));
 			}
 			return bondMargin;
 		}
 
 		public int getNumber(final Currency currency) {
 			if (!number.containsKey(currency)) {
-				number.put(
-						currency,
-						Integer.parseInt(configFile.getProperty("state."
-								+ currency.name() + ".number")));
+				number.put(currency, Integer.parseInt(configFile.getProperty("state." + currency.name() + ".number")));
 			}
 			assert (number.get(currency) == 0 || number.get(currency) == 1);
 			return number.get(currency);
@@ -522,8 +483,8 @@ public class Configuration {
 
 		public int getInitializationPhaseInDays() {
 			if (initializationPhaseInDays == null) {
-				initializationPhaseInDays = Integer.parseInt(configFile
-						.getProperty("timeSystem.initializationPhaseInDays"));
+				initializationPhaseInDays = Integer
+						.parseInt(configFile.getProperty("timeSystem.initializationPhaseInDays"));
 			}
 			return initializationPhaseInDays;
 		}
@@ -539,26 +500,21 @@ public class Configuration {
 
 		public double getArbitrageMargin() {
 			if (arbitrageMargin == null) {
-				arbitrageMargin = Double.parseDouble(configFile
-						.getProperty("trader.arbitrageMargin"));
+				arbitrageMargin = Double.parseDouble(configFile.getProperty("trader.arbitrageMargin"));
 			}
 			return arbitrageMargin;
 		}
 
 		public int getNumber(final Currency currency) {
 			if (!number.containsKey(currency)) {
-				number.put(
-						currency,
-						Integer.parseInt(configFile.getProperty("trader."
-								+ currency.name() + ".number")));
+				number.put(currency, Integer.parseInt(configFile.getProperty("trader." + currency.name() + ".number")));
 			}
 			return number.get(currency);
 		}
 
 		public double getReferenceCredit() {
 			if (referenceCredit == null) {
-				referenceCredit = Double.parseDouble(configFile
-						.getProperty("trader.referenceCredit"));
+				referenceCredit = Double.parseDouble(configFile.getProperty("trader.referenceCredit"));
 			}
 			return referenceCredit;
 		}
@@ -596,7 +552,6 @@ public class Configuration {
 
 	public Configuration(final String configFilename) throws IOException {
 		System.out.println("loading configuration file " + configFilename);
-		configFile.load(Configuration.class.getClassLoader()
-				.getResourceAsStream(configFilename));
+		configFile.load(Configuration.class.getClassLoader().getResourceAsStream(configFilename));
 	}
 }

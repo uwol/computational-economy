@@ -26,15 +26,12 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.impl.CentralBankImpl;
 import io.github.uwol.compecon.engine.dao.CentralBankDAO;
 
-public class CentralBankDAOImpl extends HibernateDAOImpl<CentralBank> implements
-		CentralBankDAO {
+public class CentralBankDAOImpl extends HibernateDAOImpl<CentralBank> implements CentralBankDAO {
 
 	@Override
 	public CentralBank findByCurrency(final Currency currency) {
-		final Object object = getSession()
-				.createCriteria(CentralBankImpl.class)
-				.add(Restrictions.eq("primaryCurrency", currency))
-				.uniqueResult();
+		final Object object = getSession().createCriteria(CentralBankImpl.class)
+				.add(Restrictions.eq("primaryCurrency", currency)).uniqueResult();
 
 		if (object == null) {
 			return null;

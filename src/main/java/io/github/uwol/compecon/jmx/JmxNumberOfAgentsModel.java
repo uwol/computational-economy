@@ -28,21 +28,18 @@ public class JmxNumberOfAgentsModel implements JmxNumberOfAgentsModelMBean {
 	@Override
 	public int getNumberOfHouseholdsEuro() {
 		return (int) ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(Currency.EURO).numberOfAgentsModels
-				.get(Household.class).getValue();
+				.getNationalEconomyModel(Currency.EURO).numberOfAgentsModels.get(Household.class).getValue();
 	}
 
 	@Override
 	public int getNumberOfHouseholdsUsdollar() {
 		return (int) ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(Currency.USDOLLAR).numberOfAgentsModels
-				.get(Household.class).getValue();
+				.getNationalEconomyModel(Currency.USDOLLAR).numberOfAgentsModels.get(Household.class).getValue();
 	}
 
 	@Override
 	public int getNumberOfHouseholdsYen() {
 		return (int) ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(Currency.YEN).numberOfAgentsModels
-				.get(Household.class).getValue();
+				.getNationalEconomyModel(Currency.YEN).numberOfAgentsModels.get(Household.class).getValue();
 	}
 }

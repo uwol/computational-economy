@@ -25,13 +25,10 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.engine.dao.HouseholdDAO;
 
-public class HouseholdDAOImpl extends
-		AbstractIndexedInMemoryDAOImpl<Currency, Household> implements
-		HouseholdDAO {
+public class HouseholdDAOImpl extends AbstractIndexedInMemoryDAOImpl<Currency, Household> implements HouseholdDAO {
 
 	@Override
-	public synchronized List<Household> findAllByCurrency(
-			final Currency currency) {
+	public synchronized List<Household> findAllByCurrency(final Currency currency) {
 		return getInstancesForKey(currency);
 	}
 

@@ -36,25 +36,20 @@ public abstract class UtilityFunctionImpl implements UtilityFunction {
 	}
 
 	@Override
-	public double calculateMarginalUtility(
-			final Map<GoodType, Double> bundleOfInputGoods,
+	public double calculateMarginalUtility(final Map<GoodType, Double> bundleOfInputGoods,
 			final GoodType differentialInputGoodType) {
-		return delegate.partialDerivative(bundleOfInputGoods,
-				differentialInputGoodType);
+		return delegate.partialDerivative(bundleOfInputGoods, differentialInputGoodType);
 	}
 
 	@Override
-	public double calculateUtility(
-			final Map<GoodType, Double> bundleOfInputGoods) {
+	public double calculateUtility(final Map<GoodType, Double> bundleOfInputGoods) {
 		return delegate.f(bundleOfInputGoods);
 	}
 
 	@Override
 	public Map<GoodType, Double> calculateUtilityMaximizingInputs(
-			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods,
-			final double budget) {
-		return delegate.calculateOutputMaximizingInputs(
-				priceFunctionsOfInputGoods, budget);
+			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods, final double budget) {
+		return delegate.calculateOutputMaximizingInputs(priceFunctionsOfInputGoods, budget);
 	}
 
 	@Override
@@ -62,10 +57,8 @@ public abstract class UtilityFunctionImpl implements UtilityFunction {
 		return delegate.getInputTypes();
 	}
 
-	protected GoodType selectInputWithHighestMarginalUtilityPerPrice(
-			final Map<GoodType, Double> bundleOfInputGoods,
+	protected GoodType selectInputWithHighestMarginalUtilityPerPrice(final Map<GoodType, Double> bundleOfInputGoods,
 			final Map<GoodType, PriceFunction> priceFunctionsOfInputGoods) {
-		return delegate.findHighestPartialDerivatePerPrice(bundleOfInputGoods,
-				priceFunctionsOfInputGoods, null);
+		return delegate.findHighestPartialDerivatePerPrice(bundleOfInputGoods, priceFunctionsOfInputGoods, null);
 	}
 }

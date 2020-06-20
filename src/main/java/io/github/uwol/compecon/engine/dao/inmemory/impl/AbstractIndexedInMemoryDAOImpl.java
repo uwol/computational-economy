@@ -24,8 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
-		AbstractInMemoryDAOImpl<V> {
+public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends AbstractInMemoryDAOImpl<V> {
 
 	private final Map<K, List<V>> indexedInstances = new HashMap<K, List<V>>();
 
@@ -40,8 +39,7 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 		final List<K> keys = getKeysForInstance(instance);
 		if (keys != null) {
 			for (final K key : new ArrayList<K>(keys)) {
-				final List<V> indexedInstancesForKey = this.indexedInstances
-						.get(key);
+				final List<V> indexedInstancesForKey = this.indexedInstances.get(key);
 				if (indexedInstancesForKey != null) {
 					indexedInstancesForKey.remove(instance);
 					if (indexedInstancesForKey.isEmpty()) {
@@ -49,8 +47,7 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 					}
 				}
 
-				final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
-						.get(instance);
+				final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys.get(instance);
 				if (instanceIndexedKeysForInstance != null) {
 					instanceIndexedKeysForInstance.remove(key);
 					if (instanceIndexedKeysForInstance.isEmpty()) {
@@ -86,12 +83,10 @@ public abstract class AbstractIndexedInMemoryDAOImpl<K, V> extends
 			indexedInstancesForKey.add(instance);
 
 			// store the key
-			List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
-					.get(instance);
+			List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys.get(instance);
 			if (instanceIndexedKeysForInstance == null) {
 				instanceIndexedKeysForInstance = new ArrayList<K>();
-				this.instanceIndexedKeys.put(instance,
-						instanceIndexedKeysForInstance);
+				this.instanceIndexedKeys.put(instance, instanceIndexedKeysForInstance);
 			}
 			instanceIndexedKeysForInstance.add(key);
 		}

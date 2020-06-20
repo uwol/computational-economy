@@ -310,13 +310,11 @@ public class ApplicationContext {
 		this.bankAccountDAO = bankAccountDAO;
 	}
 
-	public void setBankAccountFactory(
-			final BankAccountFactory bankAccountFactory) {
+	public void setBankAccountFactory(final BankAccountFactory bankAccountFactory) {
 		this.bankAccountFactory = bankAccountFactory;
 	}
 
-	public void setBudgetingBehaviourFactory(
-			final BudgetingBehaviourFactory budgetingBehaviourFactory) {
+	public void setBudgetingBehaviourFactory(final BudgetingBehaviourFactory budgetingBehaviourFactory) {
 		this.budgetingBehaviourFactory = budgetingBehaviourFactory;
 	}
 
@@ -324,8 +322,7 @@ public class ApplicationContext {
 		this.centralBankDAO = centralBankDAO;
 	}
 
-	public void setCentralBankFactory(
-			final CentralBankFactory centralBankFactory) {
+	public void setCentralBankFactory(final CentralBankFactory centralBankFactory) {
 		this.centralBankFactory = centralBankFactory;
 	}
 
@@ -349,18 +346,15 @@ public class ApplicationContext {
 		this.factoryFactory = factoryFactory;
 	}
 
-	public void setFixedRateBondFactory(
-			final FixedRateBondFactory fixedRateBondFactory) {
+	public void setFixedRateBondFactory(final FixedRateBondFactory fixedRateBondFactory) {
 		this.fixedRateBondFactory = fixedRateBondFactory;
 	}
 
-	public void setGoodTypeOwnershipDAO(
-			final GoodTypeOwnershipDAO goodTypeOwnershipDAO) {
+	public void setGoodTypeOwnershipDAO(final GoodTypeOwnershipDAO goodTypeOwnershipDAO) {
 		this.goodTypeOwnershipDAO = goodTypeOwnershipDAO;
 	}
 
-	public void setGoodTypeOwnershipFactory(
-			final GoodTypeOwnershipFactory goodTypeOwnershipFactory) {
+	public void setGoodTypeOwnershipFactory(final GoodTypeOwnershipFactory goodTypeOwnershipFactory) {
 		this.goodTypeOwnershipFactory = goodTypeOwnershipFactory;
 	}
 
@@ -388,8 +382,7 @@ public class ApplicationContext {
 		this.marketOrderDAO = marketOrderDAO;
 	}
 
-	public void setMarketOrderFactory(
-			final MarketOrderFactory marketOrderFactory) {
+	public void setMarketOrderFactory(final MarketOrderFactory marketOrderFactory) {
 		this.marketOrderFactory = marketOrderFactory;
 	}
 
@@ -401,8 +394,7 @@ public class ApplicationContext {
 		this.modelRegistry = modelRegistry;
 	}
 
-	public void setPricingBehaviourFactory(
-			final PricingBehaviourFactory pricingBehaviourFactory) {
+	public void setPricingBehaviourFactory(final PricingBehaviourFactory pricingBehaviourFactory) {
 		this.pricingBehaviourFactory = pricingBehaviourFactory;
 	}
 
@@ -414,13 +406,11 @@ public class ApplicationContext {
 		this.propertyService = propertyService;
 	}
 
-	public void setRandomNumberGenerator(
-			final RandomNumberGenerator randomNumberGenerator) {
+	public void setRandomNumberGenerator(final RandomNumberGenerator randomNumberGenerator) {
 		this.randomNumberGenerator = randomNumberGenerator;
 	}
 
-	public void setSequenceNumberGenerator(
-			final SequenceNumberGeneratorImpl sequenceNumberGenerator) {
+	public void setSequenceNumberGenerator(final SequenceNumberGeneratorImpl sequenceNumberGenerator) {
 		this.sequenceNumberGenerator = sequenceNumberGenerator;
 	}
 

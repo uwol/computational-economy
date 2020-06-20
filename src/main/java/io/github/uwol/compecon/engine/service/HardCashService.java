@@ -24,13 +24,11 @@ import io.github.uwol.compecon.economy.sectors.financial.HardCashOwner;
 
 public interface HardCashService {
 
-	public double decrement(final HardCashOwner owner, final Currency currency,
-			final double amount);
+	public double decrement(final HardCashOwner owner, final Currency currency, final double amount);
 
 	public void deregister(final HardCashOwner owner);
 
 	public double getBalance(final HardCashOwner owner, final Currency currency);
 
-	public double increment(final HardCashOwner owner, final Currency currency,
-			final double amount);
+	public double increment(final HardCashOwner owner, final Currency currency, final double amount);
 }

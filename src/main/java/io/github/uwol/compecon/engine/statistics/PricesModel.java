@@ -37,8 +37,8 @@ import io.github.uwol.compecon.engine.timesystem.impl.MonthType;
 public class PricesModel extends NotificationListenerModel {
 
 	/**
-	 * Model storing prices for a good type or commodity currency, denominated
-	 * in a given currency.
+	 * Model storing prices for a good type or commodity currency, denominated in a
+	 * given currency.
 	 */
 	public class PriceModel {
 
@@ -85,12 +85,9 @@ public class PricesModel extends NotificationListenerModel {
 
 		public void tick(final double price, final double volume) {
 			// current day?
-			if (lastDate_year == ApplicationContext.getInstance()
-					.getTimeSystem().getCurrentYear()
-					&& lastDate_monthType == ApplicationContext.getInstance()
-							.getTimeSystem().getCurrentMonthType()
-					&& lastDate_dayType == ApplicationContext.getInstance()
-							.getTimeSystem().getCurrentDayType()) {
+			if (lastDate_year == ApplicationContext.getInstance().getTimeSystem().getCurrentYear()
+					&& lastDate_monthType == ApplicationContext.getInstance().getTimeSystem().getCurrentMonthType()
+					&& lastDate_dayType == ApplicationContext.getInstance().getTimeSystem().getCurrentDayType()) {
 				this.volume[i] += volume;
 
 				if (price > high[i]) {
@@ -109,24 +106,19 @@ public class PricesModel extends NotificationListenerModel {
 					System.arraycopy(low, 1, low, 0, NUMBER_OF_DAYS - 1);
 					System.arraycopy(open, 1, open, 0, NUMBER_OF_DAYS - 1);
 					System.arraycopy(close, 1, close, 0, NUMBER_OF_DAYS - 1);
-					System.arraycopy(this.volume, 1, this.volume, 0,
-							NUMBER_OF_DAYS - 1);
+					System.arraycopy(this.volume, 1, this.volume, 0, NUMBER_OF_DAYS - 1);
 				}
 
-				date[i] = ApplicationContext.getInstance().getTimeSystem()
-						.getCurrentDate();
+				date[i] = ApplicationContext.getInstance().getTimeSystem().getCurrentDate();
 				high[i] = price;
 				low[i] = price;
 				open[i] = price;
 				close[i] = price;
 				this.volume[i] = volume;
 
-				lastDate_year = ApplicationContext.getInstance()
-						.getTimeSystem().getCurrentYear();
-				lastDate_monthType = ApplicationContext.getInstance()
-						.getTimeSystem().getCurrentMonthType();
-				lastDate_dayType = ApplicationContext.getInstance()
-						.getTimeSystem().getCurrentDayType();
+				lastDate_year = ApplicationContext.getInstance().getTimeSystem().getCurrentYear();
+				lastDate_monthType = ApplicationContext.getInstance().getTimeSystem().getCurrentMonthType();
+				lastDate_dayType = ApplicationContext.getInstance().getTimeSystem().getCurrentDayType();
 			}
 		}
 	}
@@ -145,19 +137,16 @@ public class PricesModel extends NotificationListenerModel {
 		return priceModelsForGoodTypes;
 	}
 
-	public void market_onTick(final double pricePerUnit,
-			final Currency commodityCurrency, final double amount) {
+	public void market_onTick(final double pricePerUnit, final Currency commodityCurrency, final double amount) {
 
 		if (!priceModelsForCurrencies.containsKey(commodityCurrency)) {
 			priceModelsForCurrencies.put(commodityCurrency, new PriceModel());
 		}
 
-		priceModelsForCurrencies.get(commodityCurrency).tick(pricePerUnit,
-				amount);
+		priceModelsForCurrencies.get(commodityCurrency).tick(pricePerUnit, amount);
 	}
 
-	public void market_onTick(final double pricePerUnit,
-			final GoodType goodType, final double amount) {
+	public void market_onTick(final double pricePerUnit, final GoodType goodType, final double amount) {
 
 		if (!priceModelsForGoodTypes.containsKey(goodType)) {
 			priceModelsForGoodTypes.put(goodType, new PriceModel());

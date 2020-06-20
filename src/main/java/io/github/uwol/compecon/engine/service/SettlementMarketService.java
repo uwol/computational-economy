@@ -30,42 +30,34 @@ public interface SettlementMarketService extends MarketService {
 	/**
 	 * @return total price and total amount
 	 */
-	public double[] buy(final Class<? extends Property> propertyClass,
-			final double maxAmount, final double maxTotalPrice,
-			final double maxPricePerUnit, final MarketParticipant buyer,
+	public double[] buy(final Class<? extends Property> propertyClass, final double maxAmount,
+			final double maxTotalPrice, final double maxPricePerUnit, final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate);
 
 	/**
 	 * Buy a foreign currency with another currency
 	 *
-	 * @param commodityCurrency
-	 *            Currency to buy
-	 * @param maxAmount
-	 *            Amount to buy
-	 * @param maxTotalPrice
-	 *            Max amount to pay in local currency
-	 * @param maxPricePerUnit
-	 *            Max price of foreign currency in local currency
+	 * @param commodityCurrency                     Currency to buy
+	 * @param maxAmount                             Amount to buy
+	 * @param maxTotalPrice                         Max amount to pay in local
+	 *                                              currency
+	 * @param maxPricePerUnit                       Max price of foreign currency in
+	 *                                              local currency
 	 * @param buyer
 	 * @param buyersBankAccount
-	 * @param buyersBankAccountForCommodityCurrency
-	 *            Bank account that should receive the bought foreign currency
+	 * @param buyersBankAccountForCommodityCurrency Bank account that should receive
+	 *                                              the bought foreign currency
 	 * @return total price and total amount
 	 */
-	public double[] buy(
-			final Currency commodityCurrency,
-			final double maxAmount,
-			final double maxTotalPrice,
-			final double maxPricePerUnit,
-			final MarketParticipant buyer,
+	public double[] buy(final Currency commodityCurrency, final double maxAmount, final double maxTotalPrice,
+			final double maxPricePerUnit, final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate,
 			final BankAccountDelegate buyersBankAccountForCommodityCurrencyDelegate);
 
 	/**
 	 * @return total price and total amount
 	 */
-	public double[] buy(final GoodType goodType, final double maxAmount,
-			final double maxTotalPrice, final double maxPricePerUnit,
-			final MarketParticipant buyer,
+	public double[] buy(final GoodType goodType, final double maxAmount, final double maxTotalPrice,
+			final double maxPricePerUnit, final MarketParticipant buyer,
 			final BankAccountDelegate buyersBankAccountDelegate);
 }

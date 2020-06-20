@@ -24,8 +24,7 @@ import org.jfree.data.time.Day;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.statistics.accumulator.PeriodDataAccumulator;
 
-public class PeriodDataAccumulatorTimeSeriesModel extends
-		AbstractPeriodDataSingleTimeSeriesModel {
+public class PeriodDataAccumulatorTimeSeriesModel extends AbstractPeriodDataSingleTimeSeriesModel {
 
 	protected final PeriodDataAccumulator periodDataAccumulator = new PeriodDataAccumulator();
 
@@ -43,8 +42,7 @@ public class PeriodDataAccumulatorTimeSeriesModel extends
 
 	@Override
 	public void nextPeriod() {
-		timeSeries.addOrUpdate(new Day(ApplicationContext.getInstance()
-				.getTimeSystem().getCurrentDate()),
+		timeSeries.addOrUpdate(new Day(ApplicationContext.getInstance().getTimeSystem().getCurrentDate()),
 				periodDataAccumulator.getAmount());
 		periodDataAccumulator.reset();
 	}

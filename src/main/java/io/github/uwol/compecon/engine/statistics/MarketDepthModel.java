@@ -37,13 +37,10 @@ import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
  */
 public class MarketDepthModel extends NotificationListenerModel {
 
-	public XYDataset getMarketDepthDataset(final Currency currency,
-			final Currency commodityCurrency) {
-		final XYSeries series = new XYSeries(commodityCurrency.getIso4217Code()
-				+ " ask");
+	public XYDataset getMarketDepthDataset(final Currency currency, final Currency commodityCurrency) {
+		final XYSeries series = new XYSeries(commodityCurrency.getIso4217Code() + " ask");
 
-		final Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
-				.getMarketOrderDAO()
+		final Iterator<MarketOrder> iterator = ApplicationContext.getInstance().getMarketOrderDAO()
 				.getIteratorThreadsafe(currency, commodityCurrency);
 		double volume = 0.0;
 
@@ -60,12 +57,11 @@ public class MarketDepthModel extends NotificationListenerModel {
 		return dataset;
 	}
 
-	public XYDataset getMarketDepthDataset(final Currency currency,
-			final GoodType goodType) {
+	public XYDataset getMarketDepthDataset(final Currency currency, final GoodType goodType) {
 		final XYSeries series = new XYSeries(goodType + " ask");
 
-		final Iterator<MarketOrder> iterator = ApplicationContext.getInstance()
-				.getMarketOrderDAO().getIteratorThreadsafe(currency, goodType);
+		final Iterator<MarketOrder> iterator = ApplicationContext.getInstance().getMarketOrderDAO()
+				.getIteratorThreadsafe(currency, goodType);
 		double volume = 0.0;
 
 		while (iterator.hasNext()) {

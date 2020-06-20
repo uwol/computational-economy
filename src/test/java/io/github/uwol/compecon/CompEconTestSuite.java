@@ -43,14 +43,11 @@ import io.github.uwol.compecon.math.util.MathUtilTest;
 import io.github.uwol.compecon.math.utility.CobbDouglasUtilityFunctionTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ MathUtilTest.class, InterdependenciesConfigurationTest.class,
-		NoDependenciesConfigurationTest.class, TestingConfigurationTest.class,
-		BankAccountDAOTest.class, HouseholdDAOTest.class,
-		PropertyDAOTest.class, AgentServiceTest.class, MarketServiceTest.class,
-		PropertyServiceTest.class, CreditBankTest.class,
-		HouseholdImplTest.class, FactoryImplTest.class,
-		ModiglianiIntertemporalConsumptionFunctionTest.class,
-		CobbDouglasFunctionTest.class, CobbDouglasUtilityFunctionTest.class,
-		CobbDouglasProductionFunctionTest.class, CESFunctionTest.class })
+@SuiteClasses({ MathUtilTest.class, InterdependenciesConfigurationTest.class, NoDependenciesConfigurationTest.class,
+		TestingConfigurationTest.class, BankAccountDAOTest.class, HouseholdDAOTest.class, PropertyDAOTest.class,
+		AgentServiceTest.class, MarketServiceTest.class, PropertyServiceTest.class, CreditBankTest.class,
+		HouseholdImplTest.class, FactoryImplTest.class, ModiglianiIntertemporalConsumptionFunctionTest.class,
+		CobbDouglasFunctionTest.class, CobbDouglasUtilityFunctionTest.class, CobbDouglasProductionFunctionTest.class,
+		CESFunctionTest.class })
 public class CompEconTestSuite {
 }

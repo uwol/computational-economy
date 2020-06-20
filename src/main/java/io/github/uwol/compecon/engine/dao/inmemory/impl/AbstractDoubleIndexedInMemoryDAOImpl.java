@@ -24,8 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
-		AbstractIndexedInMemoryDAOImpl<K, V> {
+public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends AbstractIndexedInMemoryDAOImpl<K, V> {
 
 	private final Map<K, List<V>> indexedInstances = new HashMap<K, List<V>>();
 
@@ -40,8 +39,7 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 		final List<K> secondKeys = getSecondKeysForInstance(instance);
 		if (secondKeys != null) {
 			for (final K secondKey : new ArrayList<K>(secondKeys)) {
-				final List<V> indexedInstanceForKey = this.indexedInstances
-						.get(secondKey);
+				final List<V> indexedInstanceForKey = this.indexedInstances.get(secondKey);
 				if (indexedInstanceForKey != null) {
 					indexedInstanceForKey.remove(instance);
 					if (indexedInstanceForKey.isEmpty()) {
@@ -49,8 +47,7 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 					}
 				}
 
-				final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
-						.get(instance);
+				final List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys.get(instance);
 				if (instanceIndexedKeysForInstance != null) {
 					instanceIndexedKeysForInstance.remove(secondKey);
 					if (instanceIndexedKeysForInstance.isEmpty()) {
@@ -83,12 +80,10 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 		return this.instanceIndexedKeys.get(instance);
 	}
 
-	protected synchronized void save(final K firstKey, final K secondKey,
-			final V instance) {
+	protected synchronized void save(final K firstKey, final K secondKey, final V instance) {
 		if (secondKey != null && instance != null) {
 			// store the value
-			List<V> indexedInstancesForKey = this.indexedInstances
-					.get(secondKey);
+			List<V> indexedInstancesForKey = this.indexedInstances.get(secondKey);
 			if (indexedInstancesForKey == null) {
 				indexedInstancesForKey = new ArrayList<V>();
 				this.indexedInstances.put(secondKey, indexedInstancesForKey);
@@ -96,12 +91,10 @@ public abstract class AbstractDoubleIndexedInMemoryDAOImpl<K, V> extends
 			indexedInstancesForKey.add(instance);
 
 			// store the key
-			List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys
-					.get(instance);
+			List<K> instanceIndexedKeysForInstance = this.instanceIndexedKeys.get(instance);
 			if (instanceIndexedKeysForInstance == null) {
 				instanceIndexedKeysForInstance = new ArrayList<K>();
-				this.instanceIndexedKeys.put(instance,
-						instanceIndexedKeysForInstance);
+				this.instanceIndexedKeys.put(instance, instanceIndexedKeysForInstance);
 			}
 			instanceIndexedKeysForInstance.add(secondKey);
 		}

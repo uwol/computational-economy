@@ -51,48 +51,39 @@ public class LogImpl implements Log {
 	// --------
 
 	@Override
-	public void agent_CreditUtilization(final Agent agent,
-			final double creditUtilization, final double creditCapacity) {
+	public void agent_CreditUtilization(final Agent agent, final double creditUtilization,
+			final double creditCapacity) {
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(agent.getPrimaryCurrency()).creditUtilizationRateModel
-				.add(creditUtilization, creditCapacity);
+				.getNationalEconomyModel(agent.getPrimaryCurrency()).creditUtilizationRateModel.add(creditUtilization,
+						creditCapacity);
 	}
 
 	@Override
-	public void agent_onCalculateOutputMaximizingInputsIterative(
-			final double budget, final double budgetSpent,
+	public void agent_onCalculateOutputMaximizingInputsIterative(final double budget, final double budgetSpent,
 			final ConvexFunctionTerminationCause terminationCause) {
 		if (agentCurrentlyActive != null) {
 			// TODO temporary assumption
 			assert (agentCurrentlyActive instanceof Household || agentCurrentlyActive instanceof State);
 
 			final double weightForCause;
-			if (ConvexFunctionTerminationCause.BUDGET_PLANNED
-					.equals(terminationCause)) {
+			if (ConvexFunctionTerminationCause.BUDGET_PLANNED.equals(terminationCause)) {
 				weightForCause = budgetSpent;
 			} else {
 				weightForCause = budget - budgetSpent;
 			}
 
-			ApplicationContext
-					.getInstance()
-					.getModelRegistry()
-					.getNationalEconomyModel(
-							agentCurrentlyActive.getPrimaryCurrency()).householdsModel.convexFunctionTerminationCauseModels
-					.get(terminationCause).add(weightForCause);
-			ApplicationContext
-					.getInstance()
-					.getModelRegistry()
-					.getNationalEconomyModel(
-							agentCurrentlyActive.getPrimaryCurrency()).householdsModel.budgetModel
-					.add(budget);
+			ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(
+					agentCurrentlyActive.getPrimaryCurrency()).householdsModel.convexFunctionTerminationCauseModels
+							.get(terminationCause).add(weightForCause);
+			ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(agentCurrentlyActive.getPrimaryCurrency()).householdsModel.budgetModel
+							.add(budget);
 		}
 	}
 
 	@Override
 	public void agent_onConstruct(final Agent agent) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getAgentDetailModel().agent_onConstruct(agent);
+		ApplicationContext.getInstance().getModelRegistry().getAgentDetailModel().agent_onConstruct(agent);
 		if (isAgentSelectedByClient(agent)) {
 			log(agent, agent + " constructed");
 		}
@@ -100,8 +91,7 @@ public class LogImpl implements Log {
 
 	@Override
 	public void agent_onDeconstruct(final Agent agent) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getAgentDetailModel().agent_onDeconstruct(agent);
+		ApplicationContext.getInstance().getModelRegistry().getAgentDetailModel().agent_onDeconstruct(agent);
 		if (isAgentSelectedByClient(agent)) {
 			log(agent, agent + " deconstructed");
 		}
@@ -120,41 +110,35 @@ public class LogImpl implements Log {
 		final Class<? extends Agent> agentType = agent.getClass();
 
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(agent.getPrimaryCurrency()).numberOfAgentsModels
-				.get(agentType).add(1);
+				.getNationalEconomyModel(agent.getPrimaryCurrency()).numberOfAgentsModels.get(agentType).add(1);
 	}
 
 	@Override
-	public void agent_onPublishBalanceSheet(final Agent agent,
-			final BalanceSheetDTO balanceSheet) {
+	public void agent_onPublishBalanceSheet(final Agent agent, final BalanceSheetDTO balanceSheet) {
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(balanceSheet.referenceCurrency).balanceSheetsModel
-				.agent_onPublishBalanceSheet(agent, balanceSheet);
+						.agent_onPublishBalanceSheet(agent, balanceSheet);
 
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM0Model
-				.add(balanceSheet.hardCash);
+				.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM0Model.add(balanceSheet.hardCash);
 		// TODO: what about money in the private banking system? -> M1
 		// definition
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM1Model
-				.add(balanceSheet.hardCash + balanceSheet.cashGiroShortTerm);
+						.add(balanceSheet.hardCash + balanceSheet.cashGiroShortTerm);
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(balanceSheet.referenceCurrency).moneySupplyM2Model
-				.add(balanceSheet.hardCash + balanceSheet.cashGiroShortTerm
-						+ balanceSheet.cashGiroLongTerm);
+						.add(balanceSheet.hardCash + balanceSheet.cashGiroShortTerm + balanceSheet.cashGiroLongTerm);
 	}
 
 	// --------
 
 	private void agent_onUtility(final Agent agent, final Currency currency,
-			final Map<GoodType, Double> bundleOfGoodsToConsume,
-			final double utility) {
+			final Map<GoodType, Double> bundleOfGoodsToConsume, final double utility) {
 		if (this.isAgentSelectedByClient(agent)) {
 			String log = "consumed ";
 			int i = 0;
-			for (final Entry<GoodType, Double> entry : bundleOfGoodsToConsume
-					.entrySet()) {
+			for (final Entry<GoodType, Double> entry : bundleOfGoodsToConsume.entrySet()) {
 				log += MathUtil.round(entry.getValue()) + " " + entry.getKey();
 				if (i < bundleOfGoodsToConsume.size() - 1) {
 					log += ", ";
@@ -166,153 +150,108 @@ public class LogImpl implements Log {
 			this.log(agent, log);
 		}
 
-		if (!ApplicationContext.getInstance().getTimeSystem()
-				.isInitializationPhase()) {
+		if (!ApplicationContext.getInstance().getTimeSystem().isInitializationPhase()) {
 			ApplicationContext.getInstance().getModelRegistry()
-					.getNationalEconomyModel(currency).totalUtilityOutputModel
-					.add(utility);
+					.getNationalEconomyModel(currency).totalUtilityOutputModel.add(utility);
 		}
 	}
 
 	@Override
-	public void bank_onTransfer(final BankAccount from, final BankAccount to,
-			final Currency currency, final double value, final String subject) {
+	public void bank_onTransfer(final BankAccount from, final BankAccount to, final Currency currency,
+			final double value, final String subject) {
 		// only if this is a transfer between agents; alternatively it could be
 		// a transfer between bank accounts of this agent
 		if (from.getOwner() != to.getOwner()) {
 			ApplicationContext.getInstance().getModelRegistry()
 					.getNationalEconomyModel(currency).monetaryTransactionsModel
-					.bank_onTransfer(from.getOwner().getClass(), to.getOwner()
-							.getClass(), currency, value);
-			ApplicationContext.getInstance().getModelRegistry()
-					.getNationalEconomyModel(currency).moneyCirculationModel
+							.bank_onTransfer(from.getOwner().getClass(), to.getOwner().getClass(), currency, value);
+			ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency).moneyCirculationModel
 					.add(value);
 		}
 
 		if (isAgentSelectedByClient(from.getOwner())) {
-			final String message = " --- " + Currency.formatMoneySum(value)
-					+ " " + currency.getIso4217Code() + " ---> " + to + ": "
-					+ subject;
-			ApplicationContext
-					.getInstance()
-					.getModelRegistry()
-					.getAgentDetailModel()
-					.logBankAccountEvent(
-							ApplicationContext.getInstance().getTimeSystem()
-									.getCurrentDate(), from, message);
+			final String message = " --- " + Currency.formatMoneySum(value) + " " + currency.getIso4217Code() + " ---> "
+					+ to + ": " + subject;
+			ApplicationContext.getInstance().getModelRegistry().getAgentDetailModel().logBankAccountEvent(
+					ApplicationContext.getInstance().getTimeSystem().getCurrentDate(), from, message);
 		}
 		if (isAgentSelectedByClient(to.getOwner())) {
-			final String message = " <--- " + Currency.formatMoneySum(value)
-					+ " " + currency.getIso4217Code() + " --- " + from + ": "
-					+ subject;
-			ApplicationContext
-					.getInstance()
-					.getModelRegistry()
-					.getAgentDetailModel()
-					.logBankAccountEvent(
-							ApplicationContext.getInstance().getTimeSystem()
-									.getCurrentDate(), to, message);
+			final String message = " <--- " + Currency.formatMoneySum(value) + " " + currency.getIso4217Code() + " --- "
+					+ from + ": " + subject;
+			ApplicationContext.getInstance().getModelRegistry().getAgentDetailModel().logBankAccountEvent(
+					ApplicationContext.getInstance().getTimeSystem().getCurrentDate(), to, message);
 		}
 	}
 
 	// --------
 
 	@Override
-	public void centralBank_KeyInterestRate(final Currency currency,
-			final double keyInterestRate) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).keyInterestRateModel
+	public void centralBank_KeyInterestRate(final Currency currency, final double keyInterestRate) {
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency).keyInterestRateModel
 				.add(keyInterestRate);
 	}
 
 	@Override
-	public void centralBank_PriceIndex(final Currency currency,
-			final double priceIndex) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).priceIndexModel
+	public void centralBank_PriceIndex(final Currency currency, final double priceIndex) {
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency).priceIndexModel
 				.add(priceIndex);
 	}
 
 	@Override
-	public void factory_AmountSold(final Currency currency,
-			final GoodType outputGoodType, final double amountSold) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency)
-				.getPricingBehaviourModel(outputGoodType).soldModel
-				.add(amountSold);
+	public void factory_AmountSold(final Currency currency, final GoodType outputGoodType, final double amountSold) {
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(outputGoodType).soldModel.add(amountSold);
 	}
 
 	@Override
-	public void factory_onCalculateProfitMaximizingProductionFactorsIterative(
-			final double budget, final double budgetSpent,
-			final ConvexProductionFunctionTerminationCause terminationCause) {
+	public void factory_onCalculateProfitMaximizingProductionFactorsIterative(final double budget,
+			final double budgetSpent, final ConvexProductionFunctionTerminationCause terminationCause) {
 		if (agentCurrentlyActive != null) {
 			assert (agentCurrentlyActive instanceof Factory);
 
 			final double weightForCause;
-			if (ConvexProductionFunctionTerminationCause.BUDGET_PLANNED
-					.equals(terminationCause)) {
+			if (ConvexProductionFunctionTerminationCause.BUDGET_PLANNED.equals(terminationCause)) {
 				weightForCause = budgetSpent;
 			} else {
 				weightForCause = budget - budgetSpent;
 			}
 
 			final Currency currency = agentCurrentlyActive.getPrimaryCurrency();
-			ApplicationContext
-					.getInstance()
-					.getModelRegistry()
-					.getNationalEconomyModel(currency)
-					.getIndustryModel(
-							((Factory) agentCurrentlyActive)
-									.getProducedGoodType()).convexProductionFunctionTerminationCauseModels
-					.get(terminationCause).add(weightForCause);
-			ApplicationContext
-					.getInstance()
-					.getModelRegistry()
-					.getNationalEconomyModel(currency)
-					.getIndustryModel(
-							((Factory) agentCurrentlyActive)
-									.getProducedGoodType()).budgetModel
-					.add(budget);
+			ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+					.getIndustryModel(((Factory) agentCurrentlyActive)
+							.getProducedGoodType()).convexProductionFunctionTerminationCauseModels.get(terminationCause)
+									.add(weightForCause);
+			ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+					.getIndustryModel(((Factory) agentCurrentlyActive).getProducedGoodType()).budgetModel.add(budget);
 		}
 	}
 
 	@Override
-	public void factory_onCapitalDepreciation(final Factory factory,
-			final GoodType capitalGoodType, final double depreciation) {
-		this.log(factory, "depreciation of " + depreciation
-				+ " units on capital good " + capitalGoodType);
+	public void factory_onCapitalDepreciation(final Factory factory, final GoodType capitalGoodType,
+			final double depreciation) {
+		this.log(factory, "depreciation of " + depreciation + " units on capital good " + capitalGoodType);
 		ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(factory.getPrimaryCurrency()).industryModels
-				.get(capitalGoodType).capitalDepreciationModel
-				.add(depreciation);
+						.get(capitalGoodType).capitalDepreciationModel.add(depreciation);
 	}
 
 	@Override
-	public void factory_onOfferGoodType(final Currency currency,
-			final GoodType outputGoodType, final double amountOffered,
-			final double inventory) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency)
-				.getPricingBehaviourModel(outputGoodType).offerModel
-				.add(amountOffered);
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency)
+	public void factory_onOfferGoodType(final Currency currency, final GoodType outputGoodType,
+			final double amountOffered, final double inventory) {
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(outputGoodType).offerModel.add(amountOffered);
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
 				.getIndustryModel(outputGoodType).inventoryModel.add(inventory);
 	}
 
 	@Override
-	public void factory_onProduction(final Factory factory,
-			final Currency currency, final GoodType outputGoodType,
+	public void factory_onProduction(final Factory factory, final Currency currency, final GoodType outputGoodType,
 			final double output, final Map<GoodType, Double> inputs) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency)
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
 				.getIndustryModel(outputGoodType).outputModel.add(output);
 		for (final Entry<GoodType, Double> input : inputs.entrySet()) {
-			ApplicationContext.getInstance().getModelRegistry()
-					.getNationalEconomyModel(currency)
-					.getIndustryModel(outputGoodType).inputModels.get(
-					input.getKey()).add(input.getValue());
+			ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+					.getIndustryModel(outputGoodType).inputModels.get(input.getKey()).add(input.getValue());
 		}
 	}
 
@@ -322,72 +261,54 @@ public class LogImpl implements Log {
 	}
 
 	@Override
-	public void household_AmountSold(final Currency currency,
-			final double labourHoursSold) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency)
-				.getPricingBehaviourModel(GoodType.LABOURHOUR).soldModel
-				.add(labourHoursSold);
+	public void household_AmountSold(final Currency currency, final double labourHoursSold) {
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(GoodType.LABOURHOUR).soldModel.add(labourHoursSold);
 	}
 
 	@Override
-	public void household_onIncomeWageDividendTransfersConsumptionSaving(
-			final Currency currency, final double income,
-			final double consumptionAmount, final double savingAmount,
-			final double wage, final double dividend,
+	public void household_onIncomeWageDividendTransfersConsumptionSaving(final Currency currency, final double income,
+			final double consumptionAmount, final double savingAmount, final double wage, final double dividend,
 			final double governmentTransfers) {
 
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.consumptionModel
-				.add(consumptionAmount);
+				.getNationalEconomyModel(currency).householdsModel.consumptionModel.add(consumptionAmount);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.incomeModel
-				.add(income);
+				.getNationalEconomyModel(currency).householdsModel.incomeModel.add(income);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.consumptionRateModel
-				.add(consumptionAmount, income);
+				.getNationalEconomyModel(currency).householdsModel.consumptionRateModel.add(consumptionAmount, income);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.consumptionIncomeRatioModel
-				.add(consumptionAmount, income);
+				.getNationalEconomyModel(currency).householdsModel.consumptionIncomeRatioModel.add(consumptionAmount,
+						income);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.savingModel
-				.add(savingAmount);
+				.getNationalEconomyModel(currency).householdsModel.savingModel.add(savingAmount);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.savingRateModel
-				.add(savingAmount, income);
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.wageModel
+				.getNationalEconomyModel(currency).householdsModel.savingRateModel.add(savingAmount, income);
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency).householdsModel.wageModel
 				.add(wage);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.dividendModel
-				.add(dividend);
+				.getNationalEconomyModel(currency).householdsModel.dividendModel.add(dividend);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.governmentTransfersModel
-				.add(governmentTransfers);
+				.getNationalEconomyModel(currency).householdsModel.governmentTransfersModel.add(governmentTransfers);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.incomeSourceModel
-				.add(IncomeSource.WAGE, wage);
+				.getNationalEconomyModel(currency).householdsModel.incomeSourceModel.add(IncomeSource.WAGE, wage);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.incomeSourceModel
-				.add(IncomeSource.DIVIDEND, dividend);
+				.getNationalEconomyModel(currency).householdsModel.incomeSourceModel.add(IncomeSource.DIVIDEND,
+						dividend);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.incomeSourceModel
-				.add(IncomeSource.TRANSFERS, governmentTransfers);
+				.getNationalEconomyModel(currency).householdsModel.incomeSourceModel.add(IncomeSource.TRANSFERS,
+						governmentTransfers);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel
-				.add(income);
+				.getNationalEconomyModel(currency).householdsModel.incomeDistributionModel.add(income);
 	}
 
 	@Override
-	public void household_onOfferResult(final Currency currency,
-			final double labourHoursOffered, final double labourHourCapacity) {
+	public void household_onOfferResult(final Currency currency, final double labourHoursOffered,
+			final double labourHourCapacity) {
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+				.getPricingBehaviourModel(GoodType.LABOURHOUR).offerModel.add(labourHoursOffered);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency)
-				.getPricingBehaviourModel(GoodType.LABOURHOUR).offerModel
-				.add(labourHoursOffered);
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.labourHourCapacityModel
-				.add(labourHourCapacity);
+				.getNationalEconomyModel(currency).householdsModel.labourHourCapacityModel.add(labourHourCapacity);
 	}
 
 	// --------
@@ -395,24 +316,19 @@ public class LogImpl implements Log {
 	@Override
 	public void household_onRetired(final Household household) {
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(household.getPrimaryCurrency()).householdsModel.retiredModel
-				.add(1);
+				.getNationalEconomyModel(household.getPrimaryCurrency()).householdsModel.retiredModel.add(1);
 	}
 
 	@Override
-	public void household_onUtility(final Household household,
-			final Currency currency,
-			final Map<GoodType, Double> bundleOfGoodsToConsume,
-			final double utility) {
+	public void household_onUtility(final Household household, final Currency currency,
+			final Map<GoodType, Double> bundleOfGoodsToConsume, final double utility) {
 		agent_onUtility(household, currency, bundleOfGoodsToConsume, utility);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityOutputModel
-				.add(utility);
-		for (final Entry<GoodType, Double> entry : bundleOfGoodsToConsume
-				.entrySet()) {
+				.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityOutputModel.add(utility);
+		for (final Entry<GoodType, Double> entry : bundleOfGoodsToConsume.entrySet()) {
 			ApplicationContext.getInstance().getModelRegistry()
 					.getNationalEconomyModel(currency).householdsModel.utilityModel.utilityInputModels
-					.get(entry.getKey()).add(entry.getValue());
+							.get(entry.getKey()).add(entry.getValue());
 		}
 	}
 
@@ -427,41 +343,35 @@ public class LogImpl implements Log {
 	}
 
 	@Override
-	public boolean isAgentSelectedByClient(
-			final MarketParticipant marketParticipant) {
-		return marketParticipant != null
-				&& agentSelectedByClient == marketParticipant;
+	public boolean isAgentSelectedByClient(final MarketParticipant marketParticipant) {
+		return marketParticipant != null && agentSelectedByClient == marketParticipant;
 	}
 
 	@Override
-	public synchronized void log(final Agent agent,
-			final Class<? extends TimeSystemEvent> eventClass,
+	public synchronized void log(final Agent agent, final Class<? extends TimeSystemEvent> eventClass,
 			final String message, final Object... parameters) {
 		setAgentCurrentlyActive(agent);
-		log(eventClass.getSimpleName() + ": "
-				+ String.format(message, parameters));
+		log(eventClass.getSimpleName() + ": " + String.format(message, parameters));
 	}
 
 	// --------
 
 	@Override
-	public synchronized void log(final Agent agent, final String message,
-			final Object... parameters) {
+	public synchronized void log(final Agent agent, final String message, final Object... parameters) {
 		setAgentCurrentlyActive(agent);
 		log(message, parameters);
 	}
 
 	@Override
-	public synchronized void log(final BankCustomer bankCustomer,
-			final String message, final Object... parameters) {
+	public synchronized void log(final BankCustomer bankCustomer, final String message, final Object... parameters) {
 		if (bankCustomer instanceof Agent) {
 			log((Agent) bankCustomer, message, parameters);
 		}
 	}
 
 	@Override
-	public synchronized void log(final MarketParticipant marketParticipant,
-			final String message, final Object... parameters) {
+	public synchronized void log(final MarketParticipant marketParticipant, final String message,
+			final Object... parameters) {
 		if (marketParticipant instanceof Agent) {
 			log((Agent) marketParticipant, message, parameters);
 		}
@@ -469,37 +379,27 @@ public class LogImpl implements Log {
 
 	@Override
 	public void log(final String message, final Object... parameters) {
-		if (agentCurrentlyActive != null
-				&& agentSelectedByClient == agentCurrentlyActive) {
-			ApplicationContext
-					.getInstance()
-					.getModelRegistry()
-					.getAgentDetailModel()
-					.logAgentEvent(
-							ApplicationContext.getInstance().getTimeSystem()
-									.getCurrentDate(),
-							String.format(message, parameters));
+		if (agentCurrentlyActive != null && agentSelectedByClient == agentCurrentlyActive) {
+			ApplicationContext.getInstance().getModelRegistry().getAgentDetailModel().logAgentEvent(
+					ApplicationContext.getInstance().getTimeSystem().getCurrentDate(),
+					String.format(message, parameters));
 		}
 	}
 
 	@Override
-	public void market_onTick(final double pricePerUnit,
-			final Currency commodityCurrency, final Currency currency,
+	public void market_onTick(final double pricePerUnit, final Currency commodityCurrency, final Currency currency,
 			final double amount) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).pricesModel.market_onTick(
-				pricePerUnit, commodityCurrency, amount);
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency).pricesModel
+				.market_onTick(pricePerUnit, commodityCurrency, amount);
 	}
 
 	// --------
 
 	@Override
-	public void market_onTick(final double pricePerUnit,
-			final GoodType goodType, final Currency currency,
+	public void market_onTick(final double pricePerUnit, final GoodType goodType, final Currency currency,
 			final double amount) {
-		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).pricesModel.market_onTick(
-				pricePerUnit, goodType, amount);
+		ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency).pricesModel
+				.market_onTick(pricePerUnit, goodType, amount);
 	}
 
 	@Override
@@ -516,8 +416,7 @@ public class LogImpl implements Log {
 
 	@Override
 	public void pricingBehaviour_onCalculateNewPrice(final Agent agent,
-			final PricingBehaviourNewPriceDecisionCause decisionCause,
-			final double weight) {
+			final PricingBehaviourNewPriceDecisionCause decisionCause, final double weight) {
 		final GoodType goodType;
 		if (agent instanceof Household) {
 			goodType = GoodType.LABOURHOUR;
@@ -529,14 +428,11 @@ public class LogImpl implements Log {
 
 		if (goodType != null) {
 			final Currency currency = agent.getPrimaryCurrency();
-			ApplicationContext.getInstance().getModelRegistry()
-					.getNationalEconomyModel(currency)
-					.getPricingBehaviourModel(goodType).pricingBehaviourPriceDecisionCauseModels
-					.get(decisionCause).add(weight);
-			ApplicationContext.getInstance().getModelRegistry()
-					.getNationalEconomyModel(currency)
-					.getPricingBehaviourModel(goodType).pricingBehaviourAveragePriceDecisionCauseModel
-					.add(weight);
+			ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+					.getPricingBehaviourModel(goodType).pricingBehaviourPriceDecisionCauseModels.get(decisionCause)
+							.add(weight);
+			ApplicationContext.getInstance().getModelRegistry().getNationalEconomyModel(currency)
+					.getPricingBehaviourModel(goodType).pricingBehaviourAveragePriceDecisionCauseModel.add(weight);
 		}
 	}
 
@@ -557,17 +453,14 @@ public class LogImpl implements Log {
 	// currently not used
 	@Override
 	public void state_onUtility(final State state, final Currency currency,
-			final Map<GoodType, Double> bundleOfGoodsToConsume,
-			final double utility) {
+			final Map<GoodType, Double> bundleOfGoodsToConsume, final double utility) {
 		agent_onUtility(state, currency, bundleOfGoodsToConsume, utility);
 		ApplicationContext.getInstance().getModelRegistry()
-				.getNationalEconomyModel(currency).stateModel.utilityModel.utilityOutputModel
-				.add(utility);
-		for (final Entry<GoodType, Double> entry : bundleOfGoodsToConsume
-				.entrySet()) {
+				.getNationalEconomyModel(currency).stateModel.utilityModel.utilityOutputModel.add(utility);
+		for (final Entry<GoodType, Double> entry : bundleOfGoodsToConsume.entrySet()) {
 			ApplicationContext.getInstance().getModelRegistry()
-					.getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels
-					.get(entry.getKey()).add(entry.getValue());
+					.getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels.get(entry.getKey())
+							.add(entry.getValue());
 		}
 	}
 }

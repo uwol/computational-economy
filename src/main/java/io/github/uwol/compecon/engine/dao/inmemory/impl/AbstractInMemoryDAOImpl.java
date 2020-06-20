@@ -51,10 +51,8 @@ public abstract class AbstractInMemoryDAOImpl<T> implements GenericDAO<T> {
 
 	@Override
 	public synchronized T findRandom() {
-		final List<Integer> keys = new ArrayList<Integer>(
-				this.instancesByIds.keySet());
-		final int index = ApplicationContext.getInstance()
-				.getRandomNumberGenerator().nextInt(keys.size());
+		final List<Integer> keys = new ArrayList<Integer>(this.instancesByIds.keySet());
+		final int index = ApplicationContext.getInstance().getRandomNumberGenerator().nextInt(keys.size());
 		final int id = keys.get(index);
 		return this.instancesByIds.get(id);
 	}

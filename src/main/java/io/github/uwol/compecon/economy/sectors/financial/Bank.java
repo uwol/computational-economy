@@ -32,11 +32,8 @@ public interface Bank extends Agent, JointStockCompany {
 
 	public BankAccountDelegate getBankAccountInterestTransactionsDelegate();
 
-	public BankAccount openBankAccount(final BankCustomer customer,
-			final Currency currency, final boolean overdraftPossible,
-			final String name, final TermType termType,
-			final MoneyType moneyType);
+	public BankAccount openBankAccount(final BankCustomer customer, final Currency currency,
+			final boolean overdraftPossible, final String name, final TermType termType, final MoneyType moneyType);
 
-	public void transferMoney(final BankAccount from, final BankAccount to,
-			final double amount, final String subject);
+	public void transferMoney(final BankAccount from, final BankAccount to, final double amount, final String subject);
 }

@@ -26,8 +26,7 @@ import io.github.uwol.compecon.math.impl.CobbDouglasFunctionImpl;
 
 public class CobbDouglasUtilityFunctionImpl extends ConvexUtilityFunctionImpl {
 
-	public CobbDouglasUtilityFunctionImpl(final double coefficient,
-			final Map<GoodType, Double> exponents) {
+	public CobbDouglasUtilityFunctionImpl(final double coefficient, final Map<GoodType, Double> exponents) {
 		super(new CobbDouglasFunctionImpl<GoodType>(coefficient, exponents));
 	}
 }

@@ -26,15 +26,13 @@ import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.engine.statistics.ModelRegistry.NationalEconomyModel.PricingBehaviourModel;
 import io.github.uwol.compecon.engine.statistics.accumulator.PeriodDataQuotientAccumulator;
 
-public class SoldCsvWriterImpl extends CsvPeriodWriterImpl implements
-		SeriesChangeListener {
+public class SoldCsvWriterImpl extends CsvPeriodWriterImpl implements SeriesChangeListener {
 
 	protected final PeriodDataQuotientAccumulator accumulator = new PeriodDataQuotientAccumulator();
 
 	protected final PricingBehaviourModel pricingBehaviourModel;
 
-	public SoldCsvWriterImpl(final String csvFileName,
-			final PricingBehaviourModel pricingBehaviourModel,
+	public SoldCsvWriterImpl(final String csvFileName, final PricingBehaviourModel pricingBehaviourModel,
 			final GoodType goodType) {
 		super(csvFileName);
 
@@ -52,8 +50,7 @@ public class SoldCsvWriterImpl extends CsvPeriodWriterImpl implements
 		}
 
 		if (isPeriodEnd()) {
-			writeCsvLine(getPeriodLabel(),
-					Double.toString(accumulator.getAmount()));
+			writeCsvLine(getPeriodLabel(), Double.toString(accumulator.getAmount()));
 			accumulator.reset();
 		}
 	}

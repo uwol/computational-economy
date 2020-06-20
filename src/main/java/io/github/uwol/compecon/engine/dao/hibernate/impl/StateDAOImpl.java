@@ -31,8 +31,7 @@ public class StateDAOImpl extends HibernateDAOImpl<State> implements StateDAO {
 	@Override
 	public StateImpl findByCurrency(final Currency currency) {
 		final Object object = getSession().createCriteria(StateImpl.class)
-				.add(Restrictions.eq("primaryCurrency", currency))
-				.uniqueResult();
+				.add(Restrictions.eq("primaryCurrency", currency)).uniqueResult();
 
 		if (object == null) {
 			return null;

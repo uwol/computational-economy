@@ -26,10 +26,10 @@ import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContextFactory;
-import io.github.uwol.compecon.engine.statistics.PricesModel;
 import io.github.uwol.compecon.engine.statistics.ModelRegistry.NationalEconomyModel.IndustryModel;
 import io.github.uwol.compecon.engine.statistics.ModelRegistry.NationalEconomyModel.PricingBehaviourModel;
 import io.github.uwol.compecon.engine.statistics.ModelRegistry.NationalEconomyModel.UtilityModel;
+import io.github.uwol.compecon.engine.statistics.PricesModel;
 import io.github.uwol.compecon.engine.statistics.timeseries.PeriodDataAccumulatorTimeSeriesModel;
 import io.github.uwol.compecon.engine.timesystem.impl.DayType;
 import io.github.uwol.compecon.engine.timesystem.impl.HourType;
@@ -48,148 +48,111 @@ public class EvaluationSimulationImpl {
 		runSimulationIteration(2, 1);
 	}
 
-	protected static M1CsvWriterImpl registerM1FileWriter(final int scenario,
-			final int iteration) {
-		final PeriodDataAccumulatorTimeSeriesModel m1Model = ApplicationContext
-				.getInstance().getModelRegistry()
+	protected static M1CsvWriterImpl registerM1FileWriter(final int scenario, final int iteration) {
+		final PeriodDataAccumulatorTimeSeriesModel m1Model = ApplicationContext.getInstance().getModelRegistry()
 				.getNationalEconomyModel(Currency.EURO).moneySupplyM1Model;
-		final String csvFileName = String.format("csv/%s_%s_m1.csv", scenario,
-				iteration);
-		final M1CsvWriterImpl m1FileWriter = new M1CsvWriterImpl(csvFileName,
-				m1Model);
+		final String csvFileName = String.format("csv/%s_%s_m1.csv", scenario, iteration);
+		final M1CsvWriterImpl m1FileWriter = new M1CsvWriterImpl(csvFileName, m1Model);
 
 		m1Model.getTimeSeries().addChangeListener(m1FileWriter);
 
 		return m1FileWriter;
 	}
 
-	protected static OutputCsvWriterImpl registerOutputFileWriter(
-			final int scenario, final int iteration, final GoodType goodType) {
-		final IndustryModel industryModel = ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(Currency.EURO).industryModels
-				.get(goodType);
-		final String csvFileName = String.format("csv/%s_%s_%s_output.csv",
-				scenario, iteration, goodType);
-		final OutputCsvWriterImpl outputFileWriter = new OutputCsvWriterImpl(
-				csvFileName, industryModel, goodType);
+	protected static OutputCsvWriterImpl registerOutputFileWriter(final int scenario, final int iteration,
+			final GoodType goodType) {
+		final IndustryModel industryModel = ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(Currency.EURO).industryModels.get(goodType);
+		final String csvFileName = String.format("csv/%s_%s_%s_output.csv", scenario, iteration, goodType);
+		final OutputCsvWriterImpl outputFileWriter = new OutputCsvWriterImpl(csvFileName, industryModel, goodType);
 
-		industryModel.outputModel.getTimeSeries().addChangeListener(
-				outputFileWriter);
+		industryModel.outputModel.getTimeSeries().addChangeListener(outputFileWriter);
 
 		return outputFileWriter;
 	}
 
-	protected static PriceCsvWriterImpl registerPriceFileWriter(
-			final int scenario, final int iteration, final GoodType goodType) {
-		final PricesModel pricesModel = ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(Currency.EURO).pricesModel;
-		final String csvFileName = String.format("csv/%s_%s_%s_prices.csv",
-				scenario, iteration, goodType);
-		final PriceCsvWriterImpl priceFileWriter = new PriceCsvWriterImpl(
-				csvFileName, pricesModel, goodType);
+	protected static PriceCsvWriterImpl registerPriceFileWriter(final int scenario, final int iteration,
+			final GoodType goodType) {
+		final PricesModel pricesModel = ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(Currency.EURO).pricesModel;
+		final String csvFileName = String.format("csv/%s_%s_%s_prices.csv", scenario, iteration, goodType);
+		final PriceCsvWriterImpl priceFileWriter = new PriceCsvWriterImpl(csvFileName, pricesModel, goodType);
 
 		pricesModel.registerListener(priceFileWriter);
 
 		return priceFileWriter;
 	}
 
-	protected static SoldCsvWriterImpl registerSoldFileWriter(
-			final int scenario, final int iteration, final GoodType goodType) {
-		final PricingBehaviourModel pricingBehaviourModel = ApplicationContext
-				.getInstance().getModelRegistry()
-				.getNationalEconomyModel(Currency.EURO)
-				.getPricingBehaviourModel(goodType);
-		final String csvFileName = String.format("csv/%s_%s_%s_sold.csv",
-				scenario, iteration, goodType);
-		final SoldCsvWriterImpl soldFileWriter = new SoldCsvWriterImpl(
-				csvFileName, pricingBehaviourModel, goodType);
+	protected static SoldCsvWriterImpl registerSoldFileWriter(final int scenario, final int iteration,
+			final GoodType goodType) {
+		final PricingBehaviourModel pricingBehaviourModel = ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(Currency.EURO).getPricingBehaviourModel(goodType);
+		final String csvFileName = String.format("csv/%s_%s_%s_sold.csv", scenario, iteration, goodType);
+		final SoldCsvWriterImpl soldFileWriter = new SoldCsvWriterImpl(csvFileName, pricingBehaviourModel, goodType);
 
-		pricingBehaviourModel.soldModel.getTimeSeries().addChangeListener(
-				soldFileWriter);
+		pricingBehaviourModel.soldModel.getTimeSeries().addChangeListener(soldFileWriter);
 
 		return soldFileWriter;
 	}
 
-	protected static UtilityCsvWriterImpl registerUtilityFileWriter(
-			final int scenario, final int iteration) {
-		final UtilityModel utilityModel = ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(Currency.EURO).householdsModel.utilityModel;
-		final String csvFileName = String.format("csv/%s_%s_utility.csv",
-				scenario, iteration);
-		final UtilityCsvWriterImpl utilityFileWriter = new UtilityCsvWriterImpl(
-				csvFileName, utilityModel);
+	protected static UtilityCsvWriterImpl registerUtilityFileWriter(final int scenario, final int iteration) {
+		final UtilityModel utilityModel = ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(Currency.EURO).householdsModel.utilityModel;
+		final String csvFileName = String.format("csv/%s_%s_utility.csv", scenario, iteration);
+		final UtilityCsvWriterImpl utilityFileWriter = new UtilityCsvWriterImpl(csvFileName, utilityModel);
 
-		utilityModel.utilityOutputModel.getTimeSeries().addChangeListener(
-				utilityFileWriter);
+		utilityModel.utilityOutputModel.getTimeSeries().addChangeListener(utilityFileWriter);
 
 		return utilityFileWriter;
 	}
 
-	protected static void runSimulationIteration(final int scenario,
-			final int iteration) throws IOException {
-		System.out.println("running scenario " + scenario + ", iteration "
-				+ iteration);
+	protected static void runSimulationIteration(final int scenario, final int iteration) throws IOException {
+		System.out.println("running scenario " + scenario + ", iteration " + iteration);
 
 		/*
 		 * setup
 		 */
-		final String configurationPropertiesFilename = System.getProperty(
-				"configuration.properties", "minimal.configuration.properties");
+		final String configurationPropertiesFilename = System.getProperty("configuration.properties",
+				"minimal.configuration.properties");
 
 		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory
-					.configureHibernateApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureHibernateApplicationContext(configurationPropertiesFilename);
 		} else {
-			ApplicationContextFactory
-					.configureInMemoryApplicationContext(configurationPropertiesFilename);
+			ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
 		}
 
 		/*
 		 * register model listeners
 		 */
-		final PriceCsvWriterImpl coalPriceWriter = registerPriceFileWriter(
-				scenario, iteration, GoodType.COAL);
-		final PriceCsvWriterImpl wheatPriceWriter = registerPriceFileWriter(
-				scenario, iteration, GoodType.WHEAT);
-		final PriceCsvWriterImpl labourHourPriceWriter = registerPriceFileWriter(
-				scenario, iteration, GoodType.LABOURHOUR);
+		final PriceCsvWriterImpl coalPriceWriter = registerPriceFileWriter(scenario, iteration, GoodType.COAL);
+		final PriceCsvWriterImpl wheatPriceWriter = registerPriceFileWriter(scenario, iteration, GoodType.WHEAT);
+		final PriceCsvWriterImpl labourHourPriceWriter = registerPriceFileWriter(scenario, iteration,
+				GoodType.LABOURHOUR);
 
-		final OutputCsvWriterImpl coalOutputWriter = registerOutputFileWriter(
-				scenario, iteration, GoodType.COAL);
-		final OutputCsvWriterImpl wheatOutputWriter = registerOutputFileWriter(
-				scenario, iteration, GoodType.WHEAT);
+		final OutputCsvWriterImpl coalOutputWriter = registerOutputFileWriter(scenario, iteration, GoodType.COAL);
+		final OutputCsvWriterImpl wheatOutputWriter = registerOutputFileWriter(scenario, iteration, GoodType.WHEAT);
 
-		final SoldCsvWriterImpl coalSoldWriter = registerSoldFileWriter(
-				scenario, iteration, GoodType.COAL);
-		final SoldCsvWriterImpl wheatSoldWriter = registerSoldFileWriter(
-				scenario, iteration, GoodType.WHEAT);
-		final SoldCsvWriterImpl labourHourSoldWriter = registerSoldFileWriter(
-				scenario, iteration, GoodType.LABOURHOUR);
+		final SoldCsvWriterImpl coalSoldWriter = registerSoldFileWriter(scenario, iteration, GoodType.COAL);
+		final SoldCsvWriterImpl wheatSoldWriter = registerSoldFileWriter(scenario, iteration, GoodType.WHEAT);
+		final SoldCsvWriterImpl labourHourSoldWriter = registerSoldFileWriter(scenario, iteration, GoodType.LABOURHOUR);
 
-		final UtilityCsvWriterImpl utilityWriter = registerUtilityFileWriter(
-				scenario, iteration);
+		final UtilityCsvWriterImpl utilityWriter = registerUtilityFileWriter(scenario, iteration);
 
-		final M1CsvWriterImpl m1Writer = registerM1FileWriter(scenario,
-				iteration);
+		final M1CsvWriterImpl m1Writer = registerM1FileWriter(scenario, iteration);
 
 		/*
 		 * register exogenous shock
 		 */
 		if (scenario == 2) {
-			ApplicationContext
-					.getInstance()
-					.getTimeSystem()
-					.addEvent(new ExogenousShockEvent(), 2002, MonthType.EVERY,
-							DayType.DAY_01, HourType.HOUR_01);
+			ApplicationContext.getInstance().getTimeSystem().addEvent(new ExogenousShockEvent(), 2002, MonthType.EVERY,
+					DayType.DAY_01, HourType.HOUR_01);
 		}
 
 		/*
 		 * run simulation
 		 */
-		ApplicationContext.getInstance().getAgentFactory()
-				.constructAgentsFromConfiguration();
-		ApplicationContext.getInstance().getSimulationRunner()
-				.run(new GregorianCalendar(2003, 12, 31).getTime());
+		ApplicationContext.getInstance().getAgentFactory().constructAgentsFromConfiguration();
+		ApplicationContext.getInstance().getSimulationRunner().run(new GregorianCalendar(2003, 12, 31).getTime());
 		ApplicationContext.getInstance().getAgentFactory().deconstructAgents();
 
 		/*

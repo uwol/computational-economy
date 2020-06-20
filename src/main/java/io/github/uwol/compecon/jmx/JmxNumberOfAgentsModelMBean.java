@@ -26,5 +26,4 @@ public interface JmxNumberOfAgentsModelMBean {
 	public int getNumberOfHouseholdsUsdollar();
 
 	public int getNumberOfHouseholdsYen();
-
 }

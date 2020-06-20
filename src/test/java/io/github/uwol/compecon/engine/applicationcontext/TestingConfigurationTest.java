@@ -26,15 +26,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.github.uwol.compecon.CompEconTestSupport;
-import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 
 public class TestingConfigurationTest extends CompEconTestSupport {
 
 	@Before
 	public void setup() throws IOException {
 		super.setUpApplicationContext("testing.configuration.properties");
-		ApplicationContext.getInstance().getAgentFactory()
-				.constructAgentsFromConfiguration();
+		ApplicationContext.getInstance().getAgentFactory().constructAgentsFromConfiguration();
 	}
 
 	@Override

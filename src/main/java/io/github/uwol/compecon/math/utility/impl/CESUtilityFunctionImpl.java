@@ -26,10 +26,8 @@ import io.github.uwol.compecon.math.impl.CESFunctionImpl;
 
 public class CESUtilityFunctionImpl extends ConvexUtilityFunctionImpl {
 
-	public CESUtilityFunctionImpl(final double mainUtilityLevel,
-			final Map<GoodType, Double> coefficients,
+	public CESUtilityFunctionImpl(final double mainUtilityLevel, final Map<GoodType, Double> coefficients,
 			final double substitutionFactor, final double homogenityFactor) {
-		super(new CESFunctionImpl<GoodType>(mainUtilityLevel, coefficients,
-				substitutionFactor, homogenityFactor));
+		super(new CESFunctionImpl<GoodType>(mainUtilityLevel, coefficients, substitutionFactor, homogenityFactor));
 	}
 }

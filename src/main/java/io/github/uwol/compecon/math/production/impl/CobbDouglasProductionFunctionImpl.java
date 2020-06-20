@@ -24,12 +24,10 @@ import java.util.Map;
 import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.math.impl.CobbDouglasFunctionImpl;
 
-public class CobbDouglasProductionFunctionImpl extends
-		ConvexProductionFunctionImpl {
-	public CobbDouglasProductionFunctionImpl(final double factorProductivity,
-			final Map<GoodType, Double> exponents) {
-		super(new CobbDouglasFunctionImpl<GoodType>(factorProductivity,
-				exponents));
+public class CobbDouglasProductionFunctionImpl extends ConvexProductionFunctionImpl {
+
+	public CobbDouglasProductionFunctionImpl(final double factorProductivity, final Map<GoodType, Double> exponents) {
+		super(new CobbDouglasFunctionImpl<GoodType>(factorProductivity, exponents));
 	}
 
 	@Override
@@ -39,7 +37,6 @@ public class CobbDouglasProductionFunctionImpl extends
 
 	@Override
 	public void setProductivity(final double productivity) {
-		((CobbDouglasFunctionImpl<GoodType>) delegate)
-				.setCoefficient(productivity);
+		((CobbDouglasFunctionImpl<GoodType>) delegate).setCoefficient(productivity);
 	}
 }

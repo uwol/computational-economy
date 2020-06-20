@@ -25,8 +25,7 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.trading.Trader;
 import io.github.uwol.compecon.engine.dao.TraderDAO;
 
-public class TraderDAOImpl extends
-		AbstractIndexedInMemoryDAOImpl<Currency, Trader> implements TraderDAO {
+public class TraderDAOImpl extends AbstractIndexedInMemoryDAOImpl<Currency, Trader> implements TraderDAO {
 
 	@Override
 	public synchronized List<Trader> findAllByCurrency(final Currency currency) {

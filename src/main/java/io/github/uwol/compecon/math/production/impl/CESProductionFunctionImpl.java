@@ -25,11 +25,10 @@ import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.math.impl.CESFunctionImpl;
 
 public class CESProductionFunctionImpl extends ConvexProductionFunctionImpl {
-	public CESProductionFunctionImpl(final double factorProductivity,
-			final Map<GoodType, Double> coefficients,
+
+	public CESProductionFunctionImpl(final double factorProductivity, final Map<GoodType, Double> coefficients,
 			final double substitutionFactor, final double homogenityFactor) {
-		super(new CESFunctionImpl<GoodType>(factorProductivity, coefficients,
-				substitutionFactor, homogenityFactor));
+		super(new CESFunctionImpl<GoodType>(factorProductivity, coefficients, substitutionFactor, homogenityFactor));
 	}
 
 	@Override

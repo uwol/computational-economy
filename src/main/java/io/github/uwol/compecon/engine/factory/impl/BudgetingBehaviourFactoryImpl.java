@@ -30,5 +30,4 @@ public class BudgetingBehaviourFactoryImpl implements BudgetingBehaviourFactory 
 	public BudgetingBehaviour newInstanceBudgetingBehaviour(final Agent agent) {
 		return new BudgetingBehaviourImpl(agent);
 	}
-
 }

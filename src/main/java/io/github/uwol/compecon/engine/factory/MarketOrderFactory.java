@@ -30,34 +30,24 @@ public interface MarketOrderFactory {
 
 	public void deleteAllSellingOrders(final MarketParticipant offeror);
 
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency,
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency denominatedInCurrency,
 			final Class<? extends Property> propertyClass);
 
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency,
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency denominatedInCurrency,
 			final Currency commodityCurrency);
 
-	public void deleteAllSellingOrders(final MarketParticipant offeror,
-			final Currency denominatedInCurrency, final GoodType goodType);
+	public void deleteAllSellingOrders(final MarketParticipant offeror, final Currency denominatedInCurrency,
+			final GoodType goodType);
 
 	public void deleteSellingOrder(final MarketOrder marketOrder);
 
-	public MarketOrder newInstanceCurrencyMarketOrder(
-			final Currency currencyToBeOffered,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount,
-			final double pricePerUnit,
-			final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate);
+	public MarketOrder newInstanceCurrencyMarketOrder(final Currency currencyToBeOffered,
+			final MarketParticipant offeror, final BankAccountDelegate offerorsBankAcountDelegate, final double amount,
+			final double pricePerUnit, final BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate);
 
-	public MarketOrder newInstanceGoodTypeMarketOrder(final GoodType goodType,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double amount, final double pricePerUnit);
+	public MarketOrder newInstanceGoodTypeMarketOrder(final GoodType goodType, final MarketParticipant offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate, final double amount, final double pricePerUnit);
 
-	public MarketOrder newInstancePropertyMarketOrder(final Property property,
-			final MarketParticipant offeror,
-			final BankAccountDelegate offerorsBankAcountDelegate,
-			final double pricePerUnit);
+	public MarketOrder newInstancePropertyMarketOrder(final Property property, final MarketParticipant offeror,
+			final BankAccountDelegate offerorsBankAcountDelegate, final double pricePerUnit);
 }

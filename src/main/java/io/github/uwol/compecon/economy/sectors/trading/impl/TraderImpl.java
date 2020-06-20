@@ -37,11 +37,11 @@ import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.property.Property;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
+import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
+import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.CreditBank;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
-import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.impl.BankAccountImpl;
 import io.github.uwol.compecon.economy.sectors.trading.Trader;
 import io.github.uwol.compecon.economy.security.equity.impl.JointStockCompanyImpl;
@@ -61,19 +61,13 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 	public class ArbitrageTradingEvent implements TimeSystemEvent {
 
 		protected void buyGoodsForArbitrage() {
-			final int numberOfForeignCurrencies = bankAccountsGoodTrade
-					.keySet().size();
+			final int numberOfForeignCurrencies = bankAccountsGoodTrade.keySet().size();
 
-			final double budget = budgetingBehaviour
-					.calculateTransmissionBasedBudgetForPeriod(
-							TraderImpl.this.bankAccountTransactions
-									.getCurrency(),
-							TraderImpl.this.bankAccountTransactions
-									.getBalance(),
-							TraderImpl.this.referenceCredit);
+			final double budget = budgetingBehaviour.calculateTransmissionBasedBudgetForPeriod(
+					TraderImpl.this.bankAccountTransactions.getCurrency(),
+					TraderImpl.this.bankAccountTransactions.getBalance(), TraderImpl.this.referenceCredit);
 
-			final double budgetPerForeignCurrencyInLocalCurrency = budget
-					/ numberOfForeignCurrencies;
+			final double budgetPerForeignCurrencyInLocalCurrency = budget / numberOfForeignCurrencies;
 
 			if (MathUtil.greater(budgetPerForeignCurrencyInLocalCurrency, 0.0)) {
 				/*
@@ -85,12 +79,11 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 						final Currency foreignCurrency = currency;
 
 						/*
-						 * determine the budget (local currency) for this good
-						 * type, that can be spent for buying foreign currency
+						 * determine the budget (local currency) for this good type, that can be spent
+						 * for buying foreign currency
 						 */
 						final double budgetPerGoodTypeAndForeignCurrencyInLocalCurrency = budgetPerForeignCurrencyInLocalCurrency
-								/ (GoodType.values().length - excludedGoodTypes
-										.size());
+								/ (GoodType.values().length - excludedGoodTypes.size());
 
 						/*
 						 * for each good type
@@ -99,49 +92,28 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 							if (!excludedGoodTypes.contains(goodType)) {
 
 								// e.g. CAR_in_EUR = 10
-								final double priceOfGoodTypeInLocalCurrency = ApplicationContext
-										.getInstance()
-										.getMarketService()
-										.getMarginalMarketPrice(localCurrency,
-												goodType);
+								final double priceOfGoodTypeInLocalCurrency = ApplicationContext.getInstance()
+										.getMarketService().getMarginalMarketPrice(localCurrency, goodType);
 								// e.g. CAR_in_USD = 11
-								final double priceOfGoodTypeInForeignCurrency = ApplicationContext
-										.getInstance()
-										.getMarketService()
-										.getMarginalMarketPrice(
-												foreignCurrency, goodType);
+								final double priceOfGoodTypeInForeignCurrency = ApplicationContext.getInstance()
+										.getMarketService().getMarginalMarketPrice(foreignCurrency, goodType);
 								// e.g. exchange rate for EUR/USD = 1.0
-								final double priceOfForeignCurrencyInLocalCurrency = ApplicationContext
-										.getInstance()
-										.getMarketService()
-										.getMarginalMarketPrice(localCurrency,
-												foreignCurrency);
+								final double priceOfForeignCurrencyInLocalCurrency = ApplicationContext.getInstance()
+										.getMarketService().getMarginalMarketPrice(localCurrency, foreignCurrency);
 
-								if (Double
-										.isNaN(priceOfGoodTypeInForeignCurrency)) {
-									if (getLog().isAgentSelectedByClient(
-											TraderImpl.this)) {
-										getLog().log(
-												TraderImpl.this,
-												"priceOfGoodTypeInForeignCurrency is %s",
+								if (Double.isNaN(priceOfGoodTypeInForeignCurrency)) {
+									if (getLog().isAgentSelectedByClient(TraderImpl.this)) {
+										getLog().log(TraderImpl.this, "priceOfGoodTypeInForeignCurrency is %s",
 												priceOfGoodTypeInForeignCurrency);
 									}
-								} else if (Double
-										.isNaN(priceOfGoodTypeInLocalCurrency)) {
-									if (getLog().isAgentSelectedByClient(
-											TraderImpl.this)) {
-										getLog().log(
-												TraderImpl.this,
-												"priceOfGoodTypeInLocalCurrency is %s",
+								} else if (Double.isNaN(priceOfGoodTypeInLocalCurrency)) {
+									if (getLog().isAgentSelectedByClient(TraderImpl.this)) {
+										getLog().log(TraderImpl.this, "priceOfGoodTypeInLocalCurrency is %s",
 												priceOfGoodTypeInLocalCurrency);
 									}
-								} else if (Double
-										.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
-									if (getLog().isAgentSelectedByClient(
-											TraderImpl.this)) {
-										getLog().log(
-												TraderImpl.this,
-												"priceOfForeignCurrencyInLocalCurrency is %s",
+								} else if (Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
+									if (getLog().isAgentSelectedByClient(TraderImpl.this)) {
+										getLog().log(TraderImpl.this, "priceOfForeignCurrencyInLocalCurrency is %s",
 												priceOfForeignCurrencyInLocalCurrency);
 									}
 								} else {
@@ -150,65 +122,42 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 									final double importPriceOfGoodTypeInLocalCurrency = priceOfGoodTypeInForeignCurrency
 											* priceOfForeignCurrencyInLocalCurrency;
 
-									if (MathUtil
-											.greater(
-													priceOfGoodTypeInLocalCurrency
-															/ (1.0 + ApplicationContext
-																	.getInstance()
-																	.getConfiguration().traderConfig
-																	.getArbitrageMargin()),
-													importPriceOfGoodTypeInLocalCurrency)) {
+									if (MathUtil.greater(
+											priceOfGoodTypeInLocalCurrency / (1.0
+													+ ApplicationContext.getInstance().getConfiguration().traderConfig
+															.getArbitrageMargin()),
+											importPriceOfGoodTypeInLocalCurrency)) {
 
-										if (getLog().isAgentSelectedByClient(
-												TraderImpl.this)) {
-											getLog().log(
-													TraderImpl.this,
+										if (getLog().isAgentSelectedByClient(TraderImpl.this)) {
+											getLog().log(TraderImpl.this,
 													"1 %s = %s %s; 1 %s = %s %s; 1 %s = %s %s -> import price of 1 %s = %s %s -> importing %s",
-													goodType,
-													Currency.formatMoneySum(priceOfGoodTypeInLocalCurrency),
-													primaryCurrency,
-													goodType,
+													goodType, Currency.formatMoneySum(priceOfGoodTypeInLocalCurrency),
+													primaryCurrency, goodType,
 													Currency.formatMoneySum(priceOfGoodTypeInForeignCurrency),
-													foreignCurrency,
-													foreignCurrency,
+													foreignCurrency, foreignCurrency,
 													Currency.formatMoneySum(priceOfForeignCurrencyInLocalCurrency),
-													primaryCurrency,
-													goodType,
+													primaryCurrency, goodType,
 													Currency.formatMoneySum(importPriceOfGoodTypeInLocalCurrency),
 													primaryCurrency, goodType);
 										}
 
 										/*
-										 * buy foreign currency with local
-										 * currency
+										 * buy foreign currency with local currency
 										 */
-										ApplicationContext
-												.getInstance()
-												.getMarketService()
-												.buy(foreignCurrency,
-														Double.NaN,
-														budgetPerGoodTypeAndForeignCurrencyInLocalCurrency,
-														priceOfForeignCurrencyInLocalCurrency,
-														TraderImpl.this,
-														getBankAccountTransactionsDelegate(),
-														getBankAccountGoodsTradeDelegate(foreignCurrency));
+										ApplicationContext.getInstance().getMarketService().buy(foreignCurrency,
+												Double.NaN, budgetPerGoodTypeAndForeignCurrencyInLocalCurrency,
+												priceOfForeignCurrencyInLocalCurrency, TraderImpl.this,
+												getBankAccountTransactionsDelegate(),
+												getBankAccountGoodsTradeDelegate(foreignCurrency));
 
 										/*
-										 * buy goods of good type with foreign
-										 * currency
+										 * buy goods of good type with foreign currency
 										 */
-										ApplicationContext
-												.getInstance()
-												.getMarketService()
-												.buy(goodType,
-														Double.NaN,
-														getBankAccountGoodsTradeDelegate(
-																foreignCurrency)
-																.getBankAccount()
-																.getBalance(),
-														priceOfGoodTypeInForeignCurrency,
-														TraderImpl.this,
-														getBankAccountGoodsTradeDelegate(foreignCurrency));
+										ApplicationContext.getInstance().getMarketService().buy(goodType, Double.NaN,
+												getBankAccountGoodsTradeDelegate(foreignCurrency).getBankAccount()
+														.getBalance(),
+												priceOfGoodTypeInForeignCurrency, TraderImpl.this,
+												getBankAccountGoodsTradeDelegate(foreignCurrency));
 									}
 								}
 							}
@@ -225,32 +174,20 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 
 		protected void offerGoods() {
 			/*
-			 * for each good type offer owned goods at market price -> price
-			 * taker
+			 * for each good type offer owned goods at market price -> price taker
 			 */
 			for (final GoodType goodType : GoodType.values()) {
 				if (!excludedGoodTypes.contains(goodType)) {
-					ApplicationContext
-							.getInstance()
-							.getMarketService()
-							.removeAllSellingOffers(TraderImpl.this,
-									TraderImpl.this.primaryCurrency, goodType);
+					ApplicationContext.getInstance().getMarketService().removeAllSellingOffers(TraderImpl.this,
+							TraderImpl.this.primaryCurrency, goodType);
 
-					final double amount = ApplicationContext.getInstance()
-							.getPropertyService()
+					final double amount = ApplicationContext.getInstance().getPropertyService()
 							.getGoodTypeBalance(TraderImpl.this, goodType);
-					final double marketPrice = ApplicationContext
-							.getInstance()
-							.getMarketService()
-							.getMarginalMarketPrice(
-									TraderImpl.this.primaryCurrency, goodType);
+					final double marketPrice = ApplicationContext.getInstance().getMarketService()
+							.getMarginalMarketPrice(TraderImpl.this.primaryCurrency, goodType);
 
-					ApplicationContext
-							.getInstance()
-							.getMarketService()
-							.placeSellingOffer(goodType, TraderImpl.this,
-									getBankAccountTransactionsDelegate(),
-									amount, marketPrice);
+					ApplicationContext.getInstance().getMarketService().placeSellingOffer(goodType, TraderImpl.this,
+							getBankAccountTransactionsDelegate(), amount, marketPrice);
 				}
 			}
 		}
@@ -288,15 +225,11 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 		}
 
 		for (final Currency currency : Currency.values()) {
-			if (!currency.equals(primaryCurrency)
-					&& !bankAccountsGoodTrade.containsKey(currency)) {
-				final CreditBank foreignCurrencyCreditBank = ApplicationContext
-						.getInstance().getAgentService()
+			if (!currency.equals(primaryCurrency) && !bankAccountsGoodTrade.containsKey(currency)) {
+				final CreditBank foreignCurrencyCreditBank = ApplicationContext.getInstance().getAgentService()
 						.findRandomCreditBank(currency);
-				final BankAccount bankAccount = foreignCurrencyCreditBank
-						.openBankAccount(this, currency, true,
-								"foreign currency", TermType.SHORT_TERM,
-								MoneyType.DEPOSITS);
+				final BankAccount bankAccount = foreignCurrencyCreditBank.openBankAccount(this, currency, true,
+						"foreign currency", TermType.SHORT_TERM, MoneyType.DEPOSITS);
 				bankAccountsGoodTrade.put(currency, bankAccount);
 			}
 		}
@@ -311,8 +244,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 
 	@Override
 	@Transient
-	public BankAccountDelegate getBankAccountGoodsTradeDelegate(
-			final Currency currency) {
+	public BankAccountDelegate getBankAccountGoodsTradeDelegate(final Currency currency) {
 		return bankAccountsGoodTradeDelegate.get(currency);
 	}
 
@@ -331,16 +263,8 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 		// arbitrage trading event every hour
 		final TimeSystemEvent arbitrageTradingEvent = new ArbitrageTradingEvent();
 		timeSystemEvents.add(arbitrageTradingEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(
-						arbitrageTradingEvent,
-						-1,
-						MonthType.EVERY,
-						DayType.EVERY,
-						ApplicationContext.getInstance().getTimeSystem()
-								.suggestRandomHourType());
+		ApplicationContext.getInstance().getTimeSystem().addEvent(arbitrageTradingEvent, -1, MonthType.EVERY,
+				DayType.EVERY, ApplicationContext.getInstance().getTimeSystem().suggestRandomHourType());
 
 		// initialize good trade bank account delegates
 		for (final Currency currency : Currency.values()) {
@@ -358,8 +282,7 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 			bankAccountsGoodTradeDelegate.put(currency, delegate);
 		}
 
-		budgetingBehaviour = ApplicationContext.getInstance()
-				.getBudgetingBehaviourFactory()
+		budgetingBehaviour = ApplicationContext.getInstance().getBudgetingBehaviourFactory()
 				.newInstanceBudgetingBehaviour(this);
 	}
 
@@ -371,16 +294,11 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 		final BalanceSheetDTO balanceSheet = super.issueBalanceSheet();
 
 		// add balances of foreign currency bank accounts
-		for (final Entry<Currency, BankAccount> bankAccountEntry : bankAccountsGoodTrade
-				.entrySet()) {
-			final double priceOfForeignCurrencyInLocalCurrency = ApplicationContext
-					.getInstance()
-					.getMarketService()
-					.getMarginalMarketPrice(primaryCurrency,
-							bankAccountEntry.getKey());
+		for (final Entry<Currency, BankAccount> bankAccountEntry : bankAccountsGoodTrade.entrySet()) {
+			final double priceOfForeignCurrencyInLocalCurrency = ApplicationContext.getInstance().getMarketService()
+					.getMarginalMarketPrice(primaryCurrency, bankAccountEntry.getKey());
 			if (!Double.isNaN(priceOfForeignCurrencyInLocalCurrency)) {
-				final double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry
-						.getValue().getBalance()
+				final double valueOfForeignCurrencyInLocalCurrency = bankAccountEntry.getValue().getBalance()
 						* priceOfForeignCurrencyInLocalCurrency;
 				balanceSheet.cashForeignCurrency += valueOfForeignCurrencyInLocalCurrency;
 			}
@@ -393,8 +311,8 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
 		if (bankAccountsGoodTrade != null) {
-			for (final Entry<Currency, BankAccount> entry : new HashMap<Currency, BankAccount>(
-					bankAccountsGoodTrade).entrySet()) {
+			for (final Entry<Currency, BankAccount> entry : new HashMap<Currency, BankAccount>(bankAccountsGoodTrade)
+					.entrySet()) {
 				if (entry.getValue() == bankAccount) {
 					bankAccountsGoodTrade.remove(entry.getKey());
 				}
@@ -405,25 +323,21 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 	}
 
 	@Override
-	public void onMarketSettlement(final Currency commodityCurrency,
-			final double amount, final double pricePerUnit,
+	public void onMarketSettlement(final Currency commodityCurrency, final double amount, final double pricePerUnit,
 			final Currency currency) {
 	}
 
 	@Override
-	public void onMarketSettlement(final GoodType goodType,
-			final double amount, final double pricePerUnit,
+	public void onMarketSettlement(final GoodType goodType, final double amount, final double pricePerUnit,
 			final Currency currency) {
 		TraderImpl.this.assureBankAccountTransactions();
 	}
 
 	@Override
-	public void onMarketSettlement(final Property property,
-			final double totalPrice, final Currency currency) {
+	public void onMarketSettlement(final Property property, final double totalPrice, final Currency currency) {
 	}
 
-	public void setBankAccountsGoodTrade(
-			final Map<Currency, BankAccount> bankAccountsGoodsTrade) {
+	public void setBankAccountsGoodTrade(final Map<Currency, BankAccount> bankAccountsGoodsTrade) {
 		bankAccountsGoodTrade = bankAccountsGoodsTrade;
 	}
 

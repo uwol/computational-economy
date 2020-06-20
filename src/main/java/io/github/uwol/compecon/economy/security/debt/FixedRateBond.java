@@ -29,6 +29,5 @@ public interface FixedRateBond extends Bond {
 
 	public BankAccountDelegate getCouponToBankAccountDelegate();
 
-	public void setCouponToBankAccountDelegate(
-			final BankAccountDelegate couponToBankAccountDelegate);
+	public void setCouponToBankAccountDelegate(final BankAccountDelegate couponToBankAccountDelegate);
 }

@@ -39,7 +39,12 @@ import io.github.uwol.compecon.engine.statistics.NotificationListenerModel.Model
 
 public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 
+	private static final long serialVersionUID = 1L;
+
 	public class StatePanelForCurrency extends JPanel implements ModelListener {
+
+		private static final long serialVersionUID = 1L;
+
 		protected final Currency currency;
 
 		public StatePanelForCurrency(final Currency currency) {
@@ -64,8 +69,7 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 
 		for (final Currency currency : Currency.values()) {
 			final JPanel panelForCurrency = new StatePanelForCurrency(currency);
-			jTabbedPaneCurrency.addTab(currency.getIso4217Code(),
-					panelForCurrency);
+			jTabbedPaneCurrency.addTab(currency.getIso4217Code(), panelForCurrency);
 		}
 
 		jTabbedPaneCurrency.addChangeListener(new ChangeListener() {
@@ -73,8 +77,7 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 			public void stateChanged(final ChangeEvent e) {
 				if (e.getSource() instanceof JTabbedPane) {
 					final JTabbedPane pane = (JTabbedPane) e.getSource();
-					final StatePanelForCurrency selectedComponent = (StatePanelForCurrency) pane
-							.getSelectedComponent();
+					final StatePanelForCurrency selectedComponent = (StatePanelForCurrency) pane.getSelectedComponent();
 					selectedComponent.notifyListener();
 				}
 			}
@@ -86,14 +89,11 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 	protected ChartPanel createGovernmentTransfersPanel(final Currency currency) {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection
-				.addSeries(ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).householdsModel.governmentTransfersModel
-						.getTimeSeries());
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).householdsModel.governmentTransfersModel.getTimeSeries());
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"Government Transfers", "Date", "Government Transfers",
-				timeSeriesCollection, true, true, false);
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("Government Transfers", "Date",
+				"Government Transfers", timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}
@@ -101,24 +101,18 @@ public class StatesPanel extends AbstractChartsPanel implements ModelListener {
 	protected ChartPanel createUtilityPanel(final Currency currency) {
 		final TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
 
-		timeSeriesCollection
-				.addSeries(ApplicationContext.getInstance().getModelRegistry()
-						.getNationalEconomyModel(currency).stateModel.utilityModel.utilityOutputModel
-						.getTimeSeries());
+		timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).stateModel.utilityModel.utilityOutputModel.getTimeSeries());
 
-		for (final GoodType inputGoodType : ApplicationContext.getInstance()
-				.getModelRegistry().getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels
-				.keySet()) {
-			timeSeriesCollection
-					.addSeries(ApplicationContext.getInstance()
-							.getModelRegistry()
-							.getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels
-							.get(inputGoodType).getTimeSeries());
+		for (final GoodType inputGoodType : ApplicationContext.getInstance().getModelRegistry()
+				.getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels.keySet()) {
+			timeSeriesCollection.addSeries(ApplicationContext.getInstance().getModelRegistry()
+					.getNationalEconomyModel(currency).stateModel.utilityModel.utilityInputModels.get(inputGoodType)
+							.getTimeSeries());
 		}
 
-		final JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				"State Utility", "Date", "Utility", timeSeriesCollection, true,
-				true, false);
+		final JFreeChart chart = ChartFactory.createTimeSeriesChart("State Utility", "Date", "Utility",
+				timeSeriesCollection, true, true, false);
 		configureChart(chart);
 		return new ChartPanel(chart);
 	}

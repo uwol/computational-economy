@@ -168,9 +168,8 @@ public class BankAccountImpl implements BankAccount {
 
 	@Override
 	public String toString() {
-		return "BankAccount [ID: " + id + ", Balance: "
-				+ Currency.formatMoneySum(balance) + " " + currency
-				+ ", Name: " + name + ", Owner: " + owner + "]";
+		return "BankAccount [ID: " + id + ", Balance: " + Currency.formatMoneySum(balance) + " " + currency + ", Name: "
+				+ name + ", Owner: " + owner + "]";
 	}
 
 	@Override

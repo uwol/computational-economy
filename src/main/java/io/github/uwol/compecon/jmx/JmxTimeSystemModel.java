@@ -27,7 +27,6 @@ public class JmxTimeSystemModel implements JmxTimeSystemModelMBean {
 
 	@Override
 	public Date getCurrentDate() {
-		return ApplicationContext.getInstance().getTimeSystem()
-				.getCurrentDate();
+		return ApplicationContext.getInstance().getTimeSystem().getCurrentDate();
 	}
 }

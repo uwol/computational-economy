@@ -28,6 +28,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 
+import com.google.common.base.Objects;
+
 import io.github.uwol.compecon.economy.property.impl.PropertyIssuedImpl;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
@@ -52,14 +54,9 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 			assertValidIssuer();
 
 			if (faceValueToBankAccountDelegate != null) {
-				faceValueFromBankAccountDelegate
-						.getBankAccount()
-						.getManagingBank()
-						.transferMoney(
-								faceValueFromBankAccountDelegate
-										.getBankAccount(),
-								faceValueToBankAccountDelegate.getBankAccount(),
-								faceValue, "bond face value");
+				faceValueFromBankAccountDelegate.getBankAccount().getManagingBank().transferMoney(
+						faceValueFromBankAccountDelegate.getBankAccount(),
+						faceValueToBankAccountDelegate.getBankAccount(), faceValue, "bond face value");
 			}
 			deconstruct(); // delete bond from simulation
 		}
@@ -69,16 +66,16 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	protected double faceValue; // par value or principal
 
 	/**
-	 * sender bank account (of the bond issuer and seller) for the final face
-	 * value re-transfer at the end of the bond life cycle
+	 * sender bank account (of the bond issuer and seller) for the final face value
+	 * re-transfer at the end of the bond life cycle
 	 */
 	@Transient
 	protected BankAccountDelegate faceValueFromBankAccountDelegate;
 
 	/**
 	 * receiver bank account (of the bond buyer) for the final face value
-	 * re-transfer at the end of the bond life cycle. null, if the bond has not
-	 * been transfered to a owner different from the issuer.
+	 * re-transfer at the end of the bond life cycle. null, if the bond has not been
+	 * transfered to a owner different from the issuer.
 	 */
 	@Transient
 	protected BankAccountDelegate faceValueToBankAccountDelegate;
@@ -95,15 +92,13 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	protected void assertValidIssuer() {
 		super.assertValidIssuer();
 
-		assert (getIssuer() == faceValueFromBankAccountDelegate
-				.getBankAccount().getOwner());
+		assert (getIssuer() == faceValueFromBankAccountDelegate.getBankAccount().getOwner());
 	}
 
 	@Override
 	protected void assertValidOwner() {
-		assert (faceValueToBankAccountDelegate == null || owner
-				.equals(faceValueToBankAccountDelegate.getBankAccount()
-						.getOwner()));
+		assert (faceValueToBankAccountDelegate == null
+				|| Objects.equal(owner, faceValueToBankAccountDelegate.getBankAccount().getOwner()));
 	}
 
 	@Override
@@ -112,8 +107,7 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 		super.deconstruct();
 
 		// deregister from TimeSystem
-		ApplicationContext.getInstance().getTimeSystem()
-				.removeEvents(timeSystemEvents);
+		ApplicationContext.getInstance().getTimeSystem().removeEvents(timeSystemEvents);
 	}
 
 	@Override
@@ -155,18 +149,10 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 		// has to be at HOUR_01, so that at HOUR_00 the last coupon can be payed
 		final TimeSystemEvent transferFaceValueEvent = new TransferFaceValueEvent();
 		timeSystemEvents.add(transferFaceValueEvent);
-		ApplicationContext
-				.getInstance()
-				.getTimeSystem()
-				.addEvent(
-						transferFaceValueEvent,
-						ApplicationContext.getInstance().getTimeSystem()
-								.getCurrentYear()
-								+ termInYears,
-						ApplicationContext.getInstance().getTimeSystem()
-								.getCurrentMonthType(),
-						ApplicationContext.getInstance().getTimeSystem()
-								.getCurrentDayType(), HourType.HOUR_01);
+		ApplicationContext.getInstance().getTimeSystem().addEvent(transferFaceValueEvent,
+				ApplicationContext.getInstance().getTimeSystem().getCurrentYear() + termInYears,
+				ApplicationContext.getInstance().getTimeSystem().getCurrentMonthType(),
+				ApplicationContext.getInstance().getTimeSystem().getCurrentDayType(), HourType.HOUR_01);
 	}
 
 	@Override
@@ -180,14 +166,12 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 		this.faceValue = faceValue;
 	}
 
-	public void setFaceValueFromBankAccountDelegate(
-			final BankAccountDelegate faceValueFromBankAccountDelegate) {
+	public void setFaceValueFromBankAccountDelegate(final BankAccountDelegate faceValueFromBankAccountDelegate) {
 		this.faceValueFromBankAccountDelegate = faceValueFromBankAccountDelegate;
 	}
 
 	@Override
-	public void setFaceValueToBankAccountDelegate(
-			final BankAccountDelegate faceValueToBankAccountDelegate) {
+	public void setFaceValueToBankAccountDelegate(final BankAccountDelegate faceValueToBankAccountDelegate) {
 		this.faceValueToBankAccountDelegate = faceValueToBankAccountDelegate;
 	}
 
@@ -202,8 +186,7 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	@Override
 	@Transient
 	public String toString() {
-		return super.toString() + ", issuer=[" + getIssuer() + "], facevalue=["
-				+ Currency.formatMoneySum(faceValue) + "], issuedInCurrency=["
-				+ issuedInCurrency + "]";
+		return super.toString() + ", issuer=[" + getIssuer() + "], facevalue=[" + Currency.formatMoneySum(faceValue)
+				+ "], issuedInCurrency=[" + issuedInCurrency + "]";
 	}
 }
