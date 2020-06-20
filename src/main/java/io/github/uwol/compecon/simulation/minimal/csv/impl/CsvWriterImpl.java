@@ -22,8 +22,6 @@ package io.github.uwol.compecon.simulation.minimal.csv.impl;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.apache.commons.lang3.StringUtils;
-
 public abstract class CsvWriterImpl {
 
 	protected final String COMMA_DELIMITER = ";";
@@ -51,7 +49,7 @@ public abstract class CsvWriterImpl {
 
 	protected void writeCsvLine(final String... values) {
 		try {
-			writer.append(StringUtils.join(values, COMMA_DELIMITER));
+			writer.append(String.join(COMMA_DELIMITER, values));
 			writer.append(NEW_LINE_SEPARATOR);
 		} catch (final IOException e) {
 			e.printStackTrace();
