@@ -53,7 +53,7 @@ Import into [Eclipse](https://eclipse.org):
 Build process
 -------------
 
-* The build process is based on Maven (version 3 or higher). Building requires a JDK 8.
+* The build process is based on Maven (version 3 or higher). Building requires JDK 11.
 * To build, run:
 
 ```
