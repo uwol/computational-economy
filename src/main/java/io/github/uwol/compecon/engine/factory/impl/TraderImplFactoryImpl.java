@@ -25,14 +25,12 @@ import io.github.uwol.compecon.economy.sectors.trading.Trader;
 import io.github.uwol.compecon.economy.sectors.trading.impl.TraderImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.TraderFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class TraderImplFactoryImpl implements TraderFactory {
 
 	@Override
 	public void deleteTrader(final Trader agent) {
 		ApplicationContext.getInstance().getTraderDAO().delete(agent);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -41,9 +39,7 @@ public class TraderImplFactoryImpl implements TraderFactory {
 
 		final TraderImpl trader = new TraderImpl();
 
-		if (!HibernateUtil.isActive()) {
-			trader.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		trader.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		trader.setPrimaryCurrency(primaryCurrency);
 		trader.setReferenceCredit(
@@ -59,7 +55,7 @@ public class TraderImplFactoryImpl implements TraderFactory {
 
 		ApplicationContext.getInstance().getTraderDAO().save(trader);
 		trader.initialize();
-		HibernateUtil.flushSession();
+
 		return trader;
 	}
 }

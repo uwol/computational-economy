@@ -22,38 +22,16 @@ package io.github.uwol.compecon.economy.property.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyEnumerated;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
-import io.github.uwol.compecon.economy.agent.impl.AgentImpl;
 import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.property.GoodTypeOwnership;
 import io.github.uwol.compecon.economy.property.PropertyOwner;
 
-@Entity
-@Table(name = "GoodTypeOwnership")
 public class GoodTypeOwnershipImpl implements GoodTypeOwnership {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
 	protected int id;
 
-	@ElementCollection
-	@CollectionTable(name = "GoodTypeOwnership_OwnedGoodTypes", joinColumns = @JoinColumn(name = "goodtypeownership_id"))
-	@MapKeyEnumerated(EnumType.STRING)
 	private Map<GoodType, Double> ownedGoodTypes = new HashMap<GoodType, Double>();
 
-	@OneToOne(targetEntity = AgentImpl.class)
-	@JoinColumn(name = "propertyOwner_id", nullable = false)
 	protected PropertyOwner propertyOwner;
 
 	public GoodTypeOwnershipImpl() {

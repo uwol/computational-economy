@@ -33,7 +33,6 @@ import io.github.uwol.compecon.economy.property.PropertyOwner;
 import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.service.PropertyService;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 import io.github.uwol.compecon.math.util.MathUtil;
 
 /**
@@ -67,13 +66,11 @@ public class PropertyServiceImpl implements PropertyService {
 		final GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
 		final double oldBalance = goodTypeOwnership.getOwnedGoodTypes().get(goodType);
 
-		assert (MathUtil.lesserEqual(amount, oldBalance)) : "cannot decrement " + amount + " from " + oldBalance + " "
-				+ goodType;
+		assert (MathUtil.lesserEqual(amount, oldBalance))
+				: "cannot decrement " + amount + " from " + oldBalance + " " + goodType;
 
 		final double newBalance = Math.max(oldBalance - amount, 0);
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, newBalance);
-
-		HibernateUtil.flushSession();
 
 		return newBalance;
 	}
@@ -81,7 +78,6 @@ public class PropertyServiceImpl implements PropertyService {
 	@Override
 	public void deleteProperty(final Property property) {
 		ApplicationContext.getInstance().getPropertyDAO().delete(property);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -144,8 +140,6 @@ public class PropertyServiceImpl implements PropertyService {
 		final double newBalance = goodTypeOwnership.getOwnedGoodTypes().get(goodType) + amount;
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, newBalance);
 
-		HibernateUtil.flushSession();
-
 		return newBalance;
 	}
 
@@ -153,8 +147,6 @@ public class PropertyServiceImpl implements PropertyService {
 	public void resetGoodTypeAmount(final PropertyOwner propertyOwner, final GoodType goodType) {
 		final GoodTypeOwnership goodTypeOwnership = assureGoodTypeOwnership(propertyOwner);
 		goodTypeOwnership.getOwnedGoodTypes().put(goodType, 0.0);
-
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -208,8 +200,6 @@ public class PropertyServiceImpl implements PropertyService {
 			final PropertyOwner newOwner, final double amount) {
 		decrementGoodTypeAmount(oldOwner, goodType, amount);
 		incrementGoodTypeAmount(newOwner, goodType, amount);
-
-		HibernateUtil.flushSession();
 	}
 
 	/**
@@ -227,7 +217,5 @@ public class PropertyServiceImpl implements PropertyService {
 		if (newOwner != null) {
 			newOwner.onPropertyTransferred(property, oldOwner, newOwner);
 		}
-
-		HibernateUtil.flushSession();
 	}
 }

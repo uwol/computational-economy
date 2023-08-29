@@ -19,66 +19,32 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package io.github.uwol.compecon.economy.sectors.financial.impl;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
-
-import io.github.uwol.compecon.economy.agent.impl.AgentImpl;
 import io.github.uwol.compecon.economy.sectors.financial.Bank;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
 import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 
-@Entity
-@Table(name = "BankAccount")
 public class BankAccountImpl implements BankAccount {
 
-	@Column(name = "balance")
 	protected double balance;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "currency")
-	@Index(name = "IDX_BA_CURRENCY")
 	protected Currency currency;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	protected int id;
 
-	@ManyToOne(targetEntity = BankImpl.class)
-	@JoinColumn(name = "managingBank_id")
-	@Index(name = "IDX_BA_MANAGINGBANK")
 	protected Bank managingBank;
 
-	@Enumerated(EnumType.STRING)
 	protected MoneyType moneyType;
 
-	@Column(name = "name")
 	protected String name;
 
-	@Column(name = "overdraftPossible")
 	protected boolean overdraftPossible = true;
 
-	@ManyToOne(targetEntity = AgentImpl.class)
-	@JoinColumn(name = "agent_id")
-	@Index(name = "IDX_BA_OWNER")
 	protected BankCustomer owner;
 
-	@Enumerated(EnumType.STRING)
 	protected TermType termType;
 
 	@Override
-	@Transient
 	public void deposit(final double amount) {
 		assert (!Double.isNaN(amount) && !Double.isInfinite(amount) && amount >= 0.0);
 
@@ -173,7 +139,6 @@ public class BankAccountImpl implements BankAccount {
 	}
 
 	@Override
-	@Transient
 	public void withdraw(final double amount) {
 		assert (!Double.isNaN(amount) && !Double.isInfinite(amount) && amount >= 0.0);
 		assert (amount <= balance || overdraftPossible);

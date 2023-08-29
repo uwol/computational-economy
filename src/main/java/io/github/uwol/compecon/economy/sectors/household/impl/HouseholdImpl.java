@@ -23,14 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
-
 import io.github.uwol.compecon.economy.agent.impl.AgentImpl;
 import io.github.uwol.compecon.economy.behaviour.PricingBehaviour;
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
@@ -43,7 +35,6 @@ import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.financial.impl.BankAccountImpl;
 import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.economy.security.equity.Share;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
@@ -59,7 +50,6 @@ import io.github.uwol.compecon.math.utility.UtilityFunction;
 /**
  * Agent type Household offers labour hours and consumes goods.
  */
-@Entity
 public class HouseholdImpl extends AgentImpl implements Household {
 
 	public class DailyLifeEvent implements TimeSystemEvent {
@@ -401,10 +391,8 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		}
 	}
 
-	@Column(name = "ageInDays")
 	protected int ageInDays = 0;
 
-	@Transient
 	protected final BankAccountDelegate bankAccountDividendDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -418,7 +406,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		}
 	};
 
-	@Transient
 	protected final BankAccountDelegate bankAccountGovernmentTransfersDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -432,40 +419,27 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		}
 	};
 
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountSavings_id")
-	@Index(name = "IDX_A_BA_SAVINGS")
 	// bank account for savings
 	protected BankAccount bankAccountSavings;
 
-	@Column(name = "continuousDaysWithUtility")
 	protected int continuousDaysWithUtility = 0;
 
-	@Transient
 	protected int DAYS_WITHOUT_UTILITY_UNTIL_DESTRUCTOR;
 
-	@Column(name = "daysWithoutUtility")
 	protected int daysWithoutUtility = 0;
 
-	@Transient
 	protected double dividendSinceLastPeriod;
 
-	@Transient
 	protected double governmentTransfersSinceLastPeriod;
 
-	@Transient
 	protected IntertemporalConsumptionFunction intertemporalConsumptionFunction;
 
-	@Transient
 	protected LabourPower labourPower = new LabourPower();
 
-	@Transient
 	protected PricingBehaviour pricingBehaviour;
 
-	@Transient
 	protected UtilityFunction utilityFunction;
 
-	@Transient
 	protected void assureBankAccountSavings() {
 		if (isDeconstructed) {
 			return;
@@ -478,7 +452,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		}
 	}
 
-	@Transient
 	protected void assureDividendBankAccount() {
 		assureBankAccountTransactions();
 	}
@@ -495,13 +468,11 @@ public class HouseholdImpl extends AgentImpl implements Household {
 		return ageInDays;
 	}
 
-	@Transient
 	public BankAccountDelegate getBankAccountDividendDelegate() {
 		return bankAccountDividendDelegate;
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountGovernmentTransfersDelegate() {
 		return bankAccountGovernmentTransfersDelegate;
 	}
@@ -558,7 +529,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	}
 
 	@Override
-	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
 		assureBankAccountSavings();
 
@@ -571,7 +541,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	}
 
 	@Override
-	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
 		if (bankAccountSavings != null && bankAccountSavings == bankAccount) {
 			bankAccountSavings = null;
@@ -598,7 +567,6 @@ public class HouseholdImpl extends AgentImpl implements Household {
 	}
 
 	@Override
-	@Transient
 	public void onPropertyTransferred(final Property property, final PropertyOwner oldOwner,
 			final PropertyOwner newOwner) {
 		super.onPropertyTransferred(property, oldOwner, newOwner);

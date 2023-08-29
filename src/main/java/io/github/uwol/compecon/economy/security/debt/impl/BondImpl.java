@@ -19,14 +19,9 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package io.github.uwol.compecon.economy.security.debt.impl;
 
+import java.beans.Transient;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Transient;
 
 import com.google.common.base.Objects;
 
@@ -38,7 +33,6 @@ import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.timesystem.TimeSystemEvent;
 import io.github.uwol.compecon.engine.timesystem.impl.HourType;
 
-@Entity
 public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 
 	public class TransferFaceValueEvent implements TimeSystemEvent {
@@ -62,14 +56,12 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 		}
 	}
 
-	@Column(name = "faceValue")
 	protected double faceValue; // par value or principal
 
 	/**
 	 * sender bank account (of the bond issuer and seller) for the final face value
 	 * re-transfer at the end of the bond life cycle
 	 */
-	@Transient
 	protected BankAccountDelegate faceValueFromBankAccountDelegate;
 
 	/**
@@ -77,15 +69,12 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	 * re-transfer at the end of the bond life cycle. null, if the bond has not been
 	 * transfered to a owner different from the issuer.
 	 */
-	@Transient
 	protected BankAccountDelegate faceValueToBankAccountDelegate;
 
-	@Enumerated(value = EnumType.STRING)
 	protected Currency issuedInCurrency;
 
 	protected int termInYears = 1;
 
-	@Transient
 	protected Set<TimeSystemEvent> timeSystemEvents = new HashSet<TimeSystemEvent>();
 
 	@Override
@@ -102,7 +91,6 @@ public abstract class BondImpl extends PropertyIssuedImpl implements Bond {
 	}
 
 	@Override
-	@Transient
 	public void deconstruct() {
 		super.deconstruct();
 

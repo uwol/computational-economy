@@ -24,7 +24,6 @@ import java.io.IOException;
 import io.github.uwol.compecon.dashboard.Dashboard;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContextFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 import io.github.uwol.compecon.jmx.JMXRegistration;
 
 /**
@@ -39,15 +38,10 @@ public class DashboardSimulationImpl {
 		final String configurationPropertiesFilename = System.getProperty("configuration.properties",
 				"interdependencies.configuration.properties");
 
-		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory.configureHibernateApplicationContext(configurationPropertiesFilename);
-		} else {
-			ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
-		}
+		ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
 
 		new Dashboard();
 
-		HibernateUtil.openSession();
 		JMXRegistration.init();
 
 		/*
@@ -61,8 +55,6 @@ public class DashboardSimulationImpl {
 		 * tear down
 		 */
 		JMXRegistration.close();
-		HibernateUtil.flushSession();
-		HibernateUtil.closeSession();
 		ApplicationContext.getInstance().reset();
 	}
 }

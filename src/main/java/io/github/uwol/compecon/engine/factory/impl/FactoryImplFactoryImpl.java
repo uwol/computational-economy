@@ -25,7 +25,6 @@ import io.github.uwol.compecon.economy.sectors.industry.Factory;
 import io.github.uwol.compecon.economy.sectors.industry.impl.FactoryImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.FactoryFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 import io.github.uwol.compecon.math.production.ProductionFunction;
 
 public class FactoryImplFactoryImpl implements FactoryFactory {
@@ -33,7 +32,6 @@ public class FactoryImplFactoryImpl implements FactoryFactory {
 	@Override
 	public void deleteFactory(final Factory agent) {
 		ApplicationContext.getInstance().getFactoryDAO().delete(agent);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -43,9 +41,7 @@ public class FactoryImplFactoryImpl implements FactoryFactory {
 
 		final FactoryImpl factory = new FactoryImpl();
 
-		if (!HibernateUtil.isActive()) {
-			factory.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		factory.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		factory.setProducedGoodType(goodType);
 		factory.setPrimaryCurrency(primaryCurrency);
@@ -61,7 +57,7 @@ public class FactoryImplFactoryImpl implements FactoryFactory {
 
 		ApplicationContext.getInstance().getFactoryDAO().save(factory);
 		factory.initialize();
-		HibernateUtil.flushSession();
+
 		return factory;
 	}
 }

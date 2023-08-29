@@ -21,13 +21,6 @@ package io.github.uwol.compecon.economy.sectors.state.impl;
 
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
-
 import io.github.uwol.compecon.economy.agent.impl.AgentImpl;
 import io.github.uwol.compecon.economy.behaviour.PricingBehaviour;
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
@@ -41,7 +34,6 @@ import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.CentralBank;
 import io.github.uwol.compecon.economy.sectors.financial.CreditBank;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.financial.impl.BankAccountImpl;
 import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.economy.sectors.state.State;
 import io.github.uwol.compecon.economy.security.debt.FixedRateBond;
@@ -52,7 +44,6 @@ import io.github.uwol.compecon.engine.timesystem.impl.HourType;
 import io.github.uwol.compecon.engine.timesystem.impl.MonthType;
 import io.github.uwol.compecon.math.util.MathUtil;
 
-@Entity
 public class StateImpl extends AgentImpl implements State {
 
 	public class GovernmentTransferEvent implements TimeSystemEvent {
@@ -66,7 +57,6 @@ public class StateImpl extends AgentImpl implements State {
 			transferBudgetToHouseholds();
 		}
 
-		@Transient
 		private void transferBudgetToHouseholds() {
 			assureBankAccountTransactions();
 
@@ -99,12 +89,8 @@ public class StateImpl extends AgentImpl implements State {
 	/**
 	 * bank account for financing the coupon of issued bonds
 	 */
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountCouponLoans_id")
-	@Index(name = "IDX_A_BA_COUPONLOANS")
 	protected BankAccount bankAccountCouponLoans;
 
-	@Transient
 	protected final BankAccountDelegate bankAccountCouponLoansDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -117,10 +103,8 @@ public class StateImpl extends AgentImpl implements State {
 		}
 	};
 
-	@Transient
 	protected PricingBehaviour pricingBehaviour;
 
-	@Transient
 	public void assureBankAccountCouponLoans() {
 		if (isDeconstructed) {
 			return;
@@ -141,7 +125,6 @@ public class StateImpl extends AgentImpl implements State {
 	}
 
 	@Override
-	@Transient
 	public void doDeficitSpending() {
 		assureBankAccountTransactions();
 
@@ -162,7 +145,6 @@ public class StateImpl extends AgentImpl implements State {
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountCouponLoansDelegate() {
 		return bankAccountCouponLoansDelegate;
 	}
@@ -189,7 +171,6 @@ public class StateImpl extends AgentImpl implements State {
 	}
 
 	@Override
-	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
 		final BalanceSheetDTO balanceSheet = super.issueBalanceSheet();
 
@@ -200,7 +181,6 @@ public class StateImpl extends AgentImpl implements State {
 	}
 
 	@Override
-	@Transient
 	public FixedRateBond obtainBond(final double faceValue, final PropertyOwner buyer,
 			final BankAccountDelegate buyerBankAccountDelegate) {
 		assureBankAccountCouponLoans();
@@ -233,7 +213,6 @@ public class StateImpl extends AgentImpl implements State {
 	}
 
 	@Override
-	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
 		if (bankAccountCouponLoans != null && bankAccountCouponLoans == bankAccount) {
 			bankAccountCouponLoans = null;

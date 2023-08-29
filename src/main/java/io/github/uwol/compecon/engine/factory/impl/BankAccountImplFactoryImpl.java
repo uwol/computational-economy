@@ -21,44 +21,35 @@ package io.github.uwol.compecon.engine.factory.impl;
 
 import io.github.uwol.compecon.economy.sectors.financial.Bank;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
-import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
-import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
+import io.github.uwol.compecon.economy.sectors.financial.BankCustomer;
+import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.impl.BankAccountImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.BankAccountFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class BankAccountImplFactoryImpl implements BankAccountFactory {
 
 	@Override
 	public void deleteAllBankAccounts(final Bank managingBank) {
-		ApplicationContext.getInstance().getBankAccountDAO()
-				.deleteAllBankAccounts(managingBank);
-		HibernateUtil.flushSession();
+		ApplicationContext.getInstance().getBankAccountDAO().deleteAllBankAccounts(managingBank);
 	}
 
 	@Override
-	public void deleteAllBankAccounts(final Bank managingBank,
-			final BankCustomer owner) {
-		ApplicationContext.getInstance().getBankAccountDAO()
-				.deleteAllBankAccounts(managingBank, owner);
-		HibernateUtil.flushSession();
+	public void deleteAllBankAccounts(final Bank managingBank, final BankCustomer owner) {
+		ApplicationContext.getInstance().getBankAccountDAO().deleteAllBankAccounts(managingBank, owner);
 	}
 
 	@Override
 	public void deleteBankAccount(final BankAccount bankAccount) {
-		ApplicationContext.getInstance().getBankAccountDAO()
-				.delete(bankAccount);
-		HibernateUtil.flushSession();
+		ApplicationContext.getInstance().getBankAccountDAO().delete(bankAccount);
 	}
 
 	@Override
-	public BankAccount newInstanceBankAccount(final BankCustomer owner,
-			final Currency currency, final boolean overdraftPossible,
-			final Bank managingBank, final String name,
-			final TermType termType, final MoneyType moneyType) {
+	public BankAccount newInstanceBankAccount(final BankCustomer owner, final Currency currency,
+			final boolean overdraftPossible, final Bank managingBank, final String name, final TermType termType,
+			final MoneyType moneyType) {
 		assert (owner != null);
 		assert (currency != null);
 		assert (managingBank != null);
@@ -67,10 +58,7 @@ public class BankAccountImplFactoryImpl implements BankAccountFactory {
 
 		final BankAccountImpl bankAccount = new BankAccountImpl();
 
-		if (!HibernateUtil.isActive()) {
-			bankAccount.setId(ApplicationContext.getInstance()
-					.getSequenceNumberGenerator().getNextId());
-		}
+		bankAccount.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		bankAccount.setOwner(owner);
 		bankAccount.setOverdraftPossible(overdraftPossible);
@@ -81,7 +69,7 @@ public class BankAccountImplFactoryImpl implements BankAccountFactory {
 		bankAccount.setMoneyType(moneyType);
 
 		ApplicationContext.getInstance().getBankAccountDAO().save(bankAccount);
-		HibernateUtil.flushSession();
+
 		return bankAccount;
 	}
 }

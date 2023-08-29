@@ -21,13 +21,6 @@ package io.github.uwol.compecon.economy.security.equity.impl;
 
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
-
 import io.github.uwol.compecon.economy.agent.impl.AgentImpl;
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import io.github.uwol.compecon.economy.materia.GoodType;
@@ -37,7 +30,6 @@ import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.financial.impl.BankAccountImpl;
 import io.github.uwol.compecon.economy.security.equity.JointStockCompany;
 import io.github.uwol.compecon.economy.security.equity.Share;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
@@ -51,7 +43,6 @@ import io.github.uwol.compecon.math.util.MathUtil;
  * Joint-stock companies are owned by agents and pay dividends to them every
  * period.
  */
-@Entity
 public abstract class JointStockCompanyImpl extends AgentImpl implements JointStockCompany {
 
 	public class PayDividendEvent implements TimeSystemEvent {
@@ -110,12 +101,8 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements JointSt
 	/**
 	 * bank account for dividends to be payed to share holders
 	 */
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountDividends_id")
-	@Index(name = "IDX_A_BA_DIVIDENDS")
 	protected BankAccount bankAccountDividends;
 
-	@Transient
 	protected final BankAccountDelegate bankAccountDividendsDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -128,7 +115,6 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements JointSt
 		}
 	};
 
-	@Transient
 	public void assureBankAccountDividends() {
 		if (isDeconstructed) {
 			return;
@@ -146,7 +132,6 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements JointSt
 		return bankAccountDividends;
 	}
 
-	@Transient
 	public BankAccountDelegate getBankAccountDividendsDelegate() {
 		return bankAccountDividendsDelegate;
 	}
@@ -163,7 +148,6 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements JointSt
 	}
 
 	@Override
-	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
 		assureBankAccountDividends();
 
@@ -176,7 +160,6 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements JointSt
 	}
 
 	@Override
-	@Transient
 	public void issueShares() {
 		// issue initial shares
 		for (int i = 0; i < ApplicationContext.getInstance().getConfiguration().jointStockCompanyConfig
@@ -189,7 +172,6 @@ public abstract class JointStockCompanyImpl extends AgentImpl implements JointSt
 	}
 
 	@Override
-	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
 		if (bankAccountDividends != null && bankAccountDividends == bankAccount) {
 			bankAccountDividends = null;

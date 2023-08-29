@@ -25,18 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.MapKeyEnumerated;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.Index;
-
 import io.github.uwol.compecon.economy.behaviour.PricingBehaviour;
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import io.github.uwol.compecon.economy.materia.GoodType;
@@ -64,7 +52,6 @@ import io.github.uwol.compecon.math.util.MathUtil;
  * Agent type credit bank manages bank accounts, creates money by credit and
  * follows minimum reserve requirements of central banks.
  */
-@Entity
 public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankCustomer {
 
 	public class BondsTradingEvent implements TimeSystemEvent {
@@ -531,12 +518,8 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	/**
 	 * bank account for money reserves in the central bank
 	 */
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountCbMoneyReserves_id")
-	@Index(name = "IDX_CB_BA_CBMONEYRESERVES")
 	protected BankAccount bankAccountCentralBankMoneyReserves;
 
-	@Transient
 	protected final BankAccountDelegate bankAccountCentralBankMoneyReservesDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -553,12 +536,8 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	 * bank account for basic daily transactions with the central bank -> money
 	 * transfers to other banks
 	 */
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountCbTransactions_id")
-	@Index(name = "IDX_CB_BA_CBTRANSACTIONS")
 	protected BankAccount bankAccountCentralBankTransactions;
 
-	@Transient
 	protected final BankAccountDelegate bankAccountCentralBankTransactionsDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -571,25 +550,17 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 		}
 	};
 
-	@OneToMany(targetEntity = BankAccountImpl.class)
-	@JoinTable(name = "CreditBank_ForeignCurrencyBankAccounts", joinColumns = @JoinColumn(name = "creditBank_id"), inverseJoinColumns = @JoinColumn(name = "bankAccount_id"))
-	@Cascade(value = { CascadeType.DELETE })
-	@MapKeyEnumerated
 	protected Map<Currency, BankAccount> bankAccountsCurrencyTrade = new HashMap<Currency, BankAccount>();
 
-	@Transient
 	protected Map<Currency, BankAccountDelegate> bankAccountsCurrencyTradeDelegate = new HashMap<Currency, BankAccountDelegate>();
 
-	@Transient
 	protected Map<Currency, PricingBehaviour> localCurrencyPricingBehaviours = new HashMap<Currency, PricingBehaviour>();
 
 	@Override
-	@Transient
 	protected void assertCurrencyIsOffered(final Currency currency) {
 		assert (primaryCurrency.equals(currency));
 	}
 
-	@Transient
 	public void assureBankAccountCentralBankMoneyReserves() {
 		if (isDeconstructed) {
 			return;
@@ -603,7 +574,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 		}
 	}
 
-	@Transient
 	public void assureBankAccountCentralBankTransactions() {
 		if (isDeconstructed) {
 			return;
@@ -617,7 +587,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 		}
 	}
 
-	@Transient
 	public void assureBankAccountsCurrencyTrade() {
 		if (isDeconstructed) {
 			return;
@@ -650,7 +619,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 		}
 	}
 
-	@Transient
 	@Override
 	public void assureBankAccountTransactions() {
 		if (isDeconstructed) {
@@ -668,7 +636,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public void closeCustomerAccount(final BankCustomer customer) {
 		assureBankAccountTransactions();
 
@@ -707,7 +674,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public void deconstruct() {
 		super.deconstruct();
 
@@ -715,7 +681,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public void deposit(final BankAccount bankAccount, final double amount) {
 
 		assertBankAccountIsManagedByThisBank(bankAccount);
@@ -725,7 +690,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public void depositCash(final BankCustomer customer, final BankAccount to, final double amount,
 			final Currency currency) {
 		assertIsCustomerOfThisBank(customer);
@@ -742,7 +706,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountCentralBankMoneyReservesDelegate() {
 		return bankAccountCentralBankMoneyReservesDelegate;
 	}
@@ -752,13 +715,11 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountCentralBankTransactionsDelegate() {
 		return bankAccountCentralBankTransactionsDelegate;
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountCurrencyTradeDelegate(final Currency currency) {
 		return bankAccountsCurrencyTradeDelegate.get(currency);
 	}
@@ -771,7 +732,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 		return localCurrencyPricingBehaviours;
 	}
 
-	@Transient
 	private double getSumOfBorrowings(final Currency currency) {
 		double sumOfBorrowings = 0;
 
@@ -857,7 +817,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
 		assureBankAccountCentralBankTransactions();
 		assureBankAccountCentralBankMoneyReserves();
@@ -890,7 +849,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
 		if (bankAccountCentralBankTransactions != null && bankAccountCentralBankTransactions == bankAccount) {
 			bankAccountCentralBankTransactions = null;
@@ -949,7 +907,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public void transferMoney(final BankAccount from, final BankAccount to, final double amount, final String subject) {
 		assert (!isDeconstructed);
 
@@ -997,7 +954,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public void withdraw(final BankAccount bankAccount, final double amount) {
 		assertBankAccountIsManagedByThisBank(bankAccount);
 		assert (amount >= 0.0);
@@ -1006,7 +962,6 @@ public class CreditBankImpl extends BankImpl implements CreditBank, CentralBankC
 	}
 
 	@Override
-	@Transient
 	public double withdrawCash(final BankCustomer customer, final BankAccount from, final double amount,
 			final Currency currency) {
 		assertIsCustomerOfThisBank(customer);

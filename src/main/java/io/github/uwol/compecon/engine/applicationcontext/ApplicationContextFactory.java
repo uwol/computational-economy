@@ -54,38 +54,6 @@ import io.github.uwol.compecon.engine.timesystem.impl.TimeSystemImpl;
 public class ApplicationContextFactory {
 
 	/**
-	 * Configures the application context with Hibernate DAOs.
-	 */
-	public static void configureHibernateApplicationContext(final String configurationPropertiesFilename)
-			throws IOException {
-
-		configureMinimalApplicationContext(configurationPropertiesFilename);
-
-		// Hibernate DAOs
-
-		ApplicationContext.getInstance()
-				.setBankAccountDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.BankAccountDAOImpl());
-		ApplicationContext.getInstance()
-				.setCentralBankDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.CentralBankDAOImpl());
-		ApplicationContext.getInstance()
-				.setCreditBankDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.CreditBankDAOImpl());
-		ApplicationContext.getInstance().setGoodTypeOwnershipDAO(
-				new io.github.uwol.compecon.engine.dao.hibernate.impl.GoodTypeOwnershipDAOImpl());
-		ApplicationContext.getInstance()
-				.setHouseholdDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.HouseholdDAOImpl());
-		ApplicationContext.getInstance()
-				.setFactoryDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.FactoryDAOImpl());
-		ApplicationContext.getInstance()
-				.setMarketOrderDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.MarketOrderDAOImpl());
-		ApplicationContext.getInstance()
-				.setPropertyDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.PropertyDAOImpl());
-		ApplicationContext.getInstance()
-				.setStateDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.StateDAOImpl());
-		ApplicationContext.getInstance()
-				.setTraderDAO(new io.github.uwol.compecon.engine.dao.hibernate.impl.TraderDAOImpl());
-	}
-
-	/**
 	 * Configures the application context with in-memory DAOs.
 	 */
 	public static void configureInMemoryApplicationContext(final String configurationPropertiesFilename)

@@ -41,7 +41,6 @@ import io.github.uwol.compecon.economy.sectors.trading.Trader;
 import io.github.uwol.compecon.economy.sectors.trading.impl.TraderImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.AgentFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class AgentImplFactoryImpl implements AgentFactory {
 
@@ -59,20 +58,16 @@ public class AgentImplFactoryImpl implements AgentFactory {
 	@Override
 	public void constructAgentsFromConfiguration() {
 		for (final Currency currency : Currency.values()) {
-			if (ApplicationContext.getInstance().getConfiguration().stateConfig
-					.getNumber(currency) == 1) {
+			if (ApplicationContext.getInstance().getConfiguration().stateConfig.getNumber(currency) == 1) {
 				// initialize states
-				ApplicationContext.getInstance().getAgentService()
-						.findState(currency);
+				ApplicationContext.getInstance().getAgentService().findState(currency);
 			}
 		}
 
 		for (final Currency currency : Currency.values()) {
-			if (ApplicationContext.getInstance().getConfiguration().centralBankConfig
-					.getNumber(currency) == 1) {
+			if (ApplicationContext.getInstance().getConfiguration().centralBankConfig.getNumber(currency) == 1) {
 				// initialize central banks
-				ApplicationContext.getInstance().getAgentService()
-						.findCentralBank(currency);
+				ApplicationContext.getInstance().getAgentService().findCentralBank(currency);
 			}
 		}
 
@@ -81,10 +76,10 @@ public class AgentImplFactoryImpl implements AgentFactory {
 			offeredCurrencies.add(currency);
 
 			// initialize credit banks
-			for (int i = 0; i < ApplicationContext.getInstance()
-					.getConfiguration().creditBankConfig.getNumber(currency); i++) {
-				ApplicationContext.getInstance().getCreditBankFactory()
-						.newInstanceCreditBank(offeredCurrencies, currency);
+			for (int i = 0; i < ApplicationContext.getInstance().getConfiguration().creditBankConfig
+					.getNumber(currency); i++) {
+				ApplicationContext.getInstance().getCreditBankFactory().newInstanceCreditBank(offeredCurrencies,
+						currency);
 			}
 		}
 
@@ -92,11 +87,9 @@ public class AgentImplFactoryImpl implements AgentFactory {
 			// initialize factories
 			for (final GoodType goodType : GoodType.values()) {
 				if (!GoodType.LABOURHOUR.equals(goodType)) {
-					for (int i = 0; i < ApplicationContext.getInstance()
-							.getConfiguration().factoryConfig.getNumber(
-							currency, goodType); i++) {
-						ApplicationContext.getInstance().getFactoryFactory()
-								.newInstanceFactory(goodType, currency);
+					for (int i = 0; i < ApplicationContext.getInstance().getConfiguration().factoryConfig
+							.getNumber(currency, goodType); i++) {
+						ApplicationContext.getInstance().getFactoryFactory().newInstanceFactory(goodType, currency);
 					}
 				}
 			}
@@ -104,62 +97,52 @@ public class AgentImplFactoryImpl implements AgentFactory {
 
 		for (final Currency currency : Currency.values()) {
 			// initialize traders
-			for (int i = 0; i < ApplicationContext.getInstance()
-					.getConfiguration().traderConfig.getNumber(currency); i++) {
-				ApplicationContext.getInstance().getTraderFactory()
-						.newInstanceTrader(currency);
+			for (int i = 0; i < ApplicationContext.getInstance().getConfiguration().traderConfig
+					.getNumber(currency); i++) {
+				ApplicationContext.getInstance().getTraderFactory().newInstanceTrader(currency);
 			}
 		}
 
-		final int householdLifeSpanInDays = ApplicationContext.getInstance()
-				.getConfiguration().householdConfig.getLifespanInDays();
+		final int householdLifeSpanInDays = ApplicationContext.getInstance().getConfiguration().householdConfig
+				.getLifespanInDays();
 		// division by 2, so that households have time left until
 		// retirement
 		final int householdAgeLimit = householdLifeSpanInDays / 2;
 
 		for (final Currency currency : Currency.values()) {
 			// initialize households
-			for (int i = 0; i < ApplicationContext.getInstance()
-					.getConfiguration().householdConfig.getNumber(currency); i++) {
-				final int ageInDays = ApplicationContext.getInstance()
-						.getRandomNumberGenerator().nextInt(householdAgeLimit);
-				ApplicationContext.getInstance().getHouseholdFactory()
-						.newInstanceHousehold(currency, ageInDays);
+			for (int i = 0; i < ApplicationContext.getInstance().getConfiguration().householdConfig
+					.getNumber(currency); i++) {
+				final int ageInDays = ApplicationContext.getInstance().getRandomNumberGenerator()
+						.nextInt(householdAgeLimit);
+				ApplicationContext.getInstance().getHouseholdFactory().newInstanceHousehold(currency, ageInDays);
 			}
 		}
-
-		HibernateUtil.flushSession();
 	}
 
 	@Override
 	public void deconstructAgents() {
-		for (final Household household : ApplicationContext.getInstance()
-				.getHouseholdDAO().findAll()) {
+		for (final Household household : ApplicationContext.getInstance().getHouseholdDAO().findAll()) {
 			household.deconstruct();
 		}
 
-		for (final Trader trader : ApplicationContext.getInstance()
-				.getTraderDAO().findAll()) {
+		for (final Trader trader : ApplicationContext.getInstance().getTraderDAO().findAll()) {
 			trader.deconstruct();
 		}
 
-		for (final Factory factory : ApplicationContext.getInstance()
-				.getFactoryDAO().findAll()) {
+		for (final Factory factory : ApplicationContext.getInstance().getFactoryDAO().findAll()) {
 			factory.deconstruct();
 		}
 
-		for (final CreditBank creditBank : ApplicationContext.getInstance()
-				.getCreditBankDAO().findAll()) {
+		for (final CreditBank creditBank : ApplicationContext.getInstance().getCreditBankDAO().findAll()) {
 			creditBank.deconstruct();
 		}
 
-		for (final CentralBank centralBank : ApplicationContext.getInstance()
-				.getCentralBankDAO().findAll()) {
+		for (final CentralBank centralBank : ApplicationContext.getInstance().getCentralBankDAO().findAll()) {
 			centralBank.deconstruct();
 		}
 
-		for (final State state : ApplicationContext.getInstance().getStateDAO()
-				.findAll()) {
+		for (final State state : ApplicationContext.getInstance().getStateDAO().findAll()) {
 			state.deconstruct();
 		}
 	}

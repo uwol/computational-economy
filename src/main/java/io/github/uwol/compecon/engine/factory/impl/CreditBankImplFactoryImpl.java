@@ -27,14 +27,12 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.impl.CreditBankImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.CreditBankFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class CreditBankImplFactoryImpl implements CreditBankFactory {
 
 	@Override
 	public void deleteCreditBank(final CreditBank agent) {
 		ApplicationContext.getInstance().getCreditBankDAO().delete(agent);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -51,14 +49,12 @@ public class CreditBankImplFactoryImpl implements CreditBankFactory {
 
 		final CreditBankImpl creditBank = new CreditBankImpl();
 
-		if (!HibernateUtil.isActive()) {
-			creditBank.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		creditBank.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		creditBank.setPrimaryCurrency(primaryCurrency);
 		ApplicationContext.getInstance().getCreditBankDAO().save(creditBank);
 		creditBank.initialize();
-		HibernateUtil.flushSession();
+
 		return creditBank;
 	}
 

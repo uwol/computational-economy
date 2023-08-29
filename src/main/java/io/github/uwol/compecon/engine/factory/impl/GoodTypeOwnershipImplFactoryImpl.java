@@ -24,14 +24,12 @@ import io.github.uwol.compecon.economy.property.PropertyOwner;
 import io.github.uwol.compecon.economy.property.impl.GoodTypeOwnershipImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.GoodTypeOwnershipFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class GoodTypeOwnershipImplFactoryImpl implements GoodTypeOwnershipFactory {
 
 	@Override
 	public void deleteGoodTypeOwnership(final GoodTypeOwnership goodTypeOwnership) {
 		ApplicationContext.getInstance().getGoodTypeOwnershipDAO().delete(goodTypeOwnership);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -40,13 +38,11 @@ public class GoodTypeOwnershipImplFactoryImpl implements GoodTypeOwnershipFactor
 
 		final GoodTypeOwnershipImpl goodTypeOwnership = new GoodTypeOwnershipImpl();
 
-		if (!HibernateUtil.isActive()) {
-			goodTypeOwnership.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		goodTypeOwnership.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		goodTypeOwnership.setPropertyOwner(propertyOwner);
 		ApplicationContext.getInstance().getGoodTypeOwnershipDAO().save(goodTypeOwnership);
-		HibernateUtil.flushSession();
+
 		return goodTypeOwnership;
 	}
 }

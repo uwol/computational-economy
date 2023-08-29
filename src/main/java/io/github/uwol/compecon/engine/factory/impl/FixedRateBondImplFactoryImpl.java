@@ -26,7 +26,6 @@ import io.github.uwol.compecon.economy.security.debt.FixedRateBond;
 import io.github.uwol.compecon.economy.security.debt.impl.FixedRateBondImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.FixedRateBondFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class FixedRateBondImplFactoryImpl implements FixedRateBondFactory {
 
@@ -43,9 +42,7 @@ public class FixedRateBondImplFactoryImpl implements FixedRateBondFactory {
 
 		final FixedRateBondImpl fixedRateBond = new FixedRateBondImpl();
 
-		if (!HibernateUtil.isActive()) {
-			fixedRateBond.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		fixedRateBond.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		fixedRateBond.setOwner(owner);
 		fixedRateBond.setIssuer(issuer);
@@ -56,7 +53,7 @@ public class FixedRateBondImplFactoryImpl implements FixedRateBondFactory {
 		fixedRateBond.setIssuedInCurrency(currency);
 		fixedRateBond.initialize();
 		ApplicationContext.getInstance().getPropertyDAO().save(fixedRateBond);
-		HibernateUtil.flushSession();
+
 		return fixedRateBond;
 	}
 }

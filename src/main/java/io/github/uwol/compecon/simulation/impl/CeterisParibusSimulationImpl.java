@@ -26,7 +26,6 @@ import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContextFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 import io.github.uwol.compecon.jmx.JMXRegistration;
 
 /**
@@ -95,15 +94,10 @@ public class CeterisParibusSimulationImpl {
 		final String configurationPropertiesFilename = System.getProperty("configuration.properties",
 				"interdependencies.configuration.properties");
 
-		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory.configureHibernateApplicationContext(configurationPropertiesFilename);
-		} else {
-			ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
-		}
+		ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
 
 		overwriteConfiguration(i);
 
-		HibernateUtil.openSession();
 		JMXRegistration.init();
 
 		/*
@@ -120,8 +114,6 @@ public class CeterisParibusSimulationImpl {
 		 * reset application context
 		 */
 		JMXRegistration.close();
-		HibernateUtil.flushSession();
-		HibernateUtil.closeSession();
 		ApplicationContext.getInstance().reset();
 
 		return totalUtility;

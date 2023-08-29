@@ -19,83 +19,41 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package io.github.uwol.compecon.economy.markets.impl;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
-
-import io.github.uwol.compecon.economy.agent.impl.AgentImpl;
 import io.github.uwol.compecon.economy.markets.MarketOrder;
 import io.github.uwol.compecon.economy.markets.MarketParticipant;
 import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.property.Property;
-import io.github.uwol.compecon.economy.property.impl.PropertyImpl;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 
 /**
  * http://en.wikipedia.org/wiki/Order_%28exchange%29
  */
-@Entity
-@Table(name = "MarketOrder")
-@org.hibernate.annotations.Table(appliesTo = "MarketOrder", indexes = {
-		@Index(name = "IDX_MO_GP", columnNames = { "goodType", "pricePerUnit" }),
-		@Index(name = "IDX_MO_CP", columnNames = { "commodityCurrency", "pricePerUnit" }) })
 public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 
-	@Column(name = "amount")
 	protected double amount;
 
-	@Column(name = "commodityCurrency")
-	@Enumerated(EnumType.STRING)
 	protected Currency commodityCurrency;
 
-	@Transient
 	protected BankAccountDelegate commodityCurrencyOfferorsBankAcountDelegate;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "currency")
-	@Index(name = "IDX_MO_CURRENCY")
 	protected Currency currency;
 
-	@Column
-	@Enumerated(EnumType.STRING)
 	protected GoodType goodType;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
 	protected int id;
 
-	@ManyToOne(targetEntity = AgentImpl.class)
-	@JoinColumn(name = "offeror_id")
 	protected MarketParticipant offeror;
 
-	@Transient
 	protected BankAccountDelegate offerorsBankAcountDelegate;
 
-	@Column(name = "pricePerUnit")
 	protected double pricePerUnit;
 
-	@ManyToOne(targetEntity = PropertyImpl.class)
-	@Index(name = "IDX_MO_PROPERTY")
-	@JoinColumn(name = "property_id")
 	protected Property property;
 
-	@Column
-	@Enumerated(EnumType.STRING)
 	protected ValidityPeriod validityPeriod;
 
 	@Override
-	@Transient
 	public int compareTo(final MarketOrder marketOrder) {
 		if (this == marketOrder) {
 			return 0;
@@ -114,7 +72,6 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	}
 
 	@Override
-	@Transient
 	public void decrementAmount(final double amount) {
 		this.amount -= amount;
 	}
@@ -125,7 +82,6 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	}
 
 	@Override
-	@Transient
 	public Object getCommodity() {
 		if (CommodityType.CURRENCY.equals(getCommodityType())) {
 			return commodityCurrency;
@@ -146,13 +102,11 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getCommodityCurrencyOfferorsBankAccountDelegate() {
 		return commodityCurrencyOfferorsBankAcountDelegate;
 	}
 
 	@Override
-	@Transient
 	public CommodityType getCommodityType() {
 		if (commodityCurrency != null) {
 			return CommodityType.CURRENCY;
@@ -184,7 +138,6 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getOfferorsBankAcountDelegate() {
 		return offerorsBankAcountDelegate;
 	}
@@ -194,7 +147,6 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		return pricePerUnit;
 	}
 
-	@Transient
 	public double getPriceTotal() {
 		return pricePerUnit * getAmount();
 	}
@@ -220,7 +172,6 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		commodityCurrency = currency;
 	}
 
-	@Transient
 	public void setCommodityCurrencyOfferorsBankAccountDelegate(final BankAccountDelegate bankAccountDelegate) {
 		commodityCurrencyOfferorsBankAcountDelegate = bankAccountDelegate;
 	}
@@ -241,7 +192,6 @@ public class MarketOrderImpl implements MarketOrder, Comparable<MarketOrder> {
 		this.offeror = offeror;
 	}
 
-	@Transient
 	public void setOfferorsBankAcountDelegate(final BankAccountDelegate offerorsBankAcountDelegate) {
 		this.offerorsBankAcountDelegate = offerorsBankAcountDelegate;
 	}

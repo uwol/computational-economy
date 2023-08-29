@@ -23,11 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Transient;
-
 import io.github.uwol.compecon.economy.behaviour.BudgetingBehaviour;
 import io.github.uwol.compecon.economy.behaviour.PricingBehaviour;
 import io.github.uwol.compecon.economy.materia.GoodType;
@@ -47,7 +42,6 @@ import io.github.uwol.compecon.math.util.MathUtil;
  * Agent type factory produces arbitrary goods by combining production factors
  * machine and labour hour.
  */
-@Entity
 public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 
 	public class ProductionEvent implements TimeSystemEvent {
@@ -252,16 +246,12 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 		}
 	}
 
-	@Transient
 	protected BudgetingBehaviour budgetingBehaviour;
 
-	@Transient
 	protected PricingBehaviour pricingBehaviour;
 
-	@Enumerated(EnumType.STRING)
 	protected GoodType producedGoodType;
 
-	@Transient
 	protected ProductionFunction productionFunction;
 
 	@Override
@@ -277,7 +267,6 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 	}
 
 	@Override
-	@Transient
 	public ProductionFunction getProductionFunction() {
 		return productionFunction;
 	}
@@ -323,7 +312,6 @@ public class FactoryImpl extends JointStockCompanyImpl implements Factory {
 		this.producedGoodType = producedGoodType;
 	}
 
-	@Transient
 	public void setProductionFunction(final ProductionFunction productionFunction) {
 		this.productionFunction = productionFunction;
 	}

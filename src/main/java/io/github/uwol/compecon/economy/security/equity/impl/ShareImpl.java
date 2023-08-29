@@ -19,17 +19,12 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package io.github.uwol.compecon.economy.security.equity.impl;
 
-import javax.persistence.Entity;
-import javax.persistence.Transient;
-
 import io.github.uwol.compecon.economy.property.impl.PropertyIssuedImpl;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.security.equity.Share;
 
-@Entity
 public class ShareImpl extends PropertyIssuedImpl implements Share {
 
-	@Transient
 	protected BankAccountDelegate dividendBankAccountDelegate;
 
 	@Override
@@ -38,7 +33,6 @@ public class ShareImpl extends PropertyIssuedImpl implements Share {
 	}
 
 	@Override
-	@Transient
 	public void resetOwner() {
 		super.resetOwner();
 		dividendBankAccountDelegate = null;

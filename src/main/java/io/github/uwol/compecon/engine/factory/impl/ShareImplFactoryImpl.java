@@ -25,7 +25,6 @@ import io.github.uwol.compecon.economy.security.equity.Share;
 import io.github.uwol.compecon.economy.security.equity.impl.ShareImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.ShareFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class ShareImplFactoryImpl implements ShareFactory {
 
@@ -36,15 +35,13 @@ public class ShareImplFactoryImpl implements ShareFactory {
 
 		final ShareImpl share = new ShareImpl();
 
-		if (!HibernateUtil.isActive()) {
-			share.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		share.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		share.setIssuer(issuer);
 		share.setOwner(owner);
 		share.initialize();
 		ApplicationContext.getInstance().getPropertyDAO().save(share);
-		HibernateUtil.flushSession();
+
 		return share;
 	}
 }

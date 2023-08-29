@@ -19,11 +19,8 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package io.github.uwol.compecon.economy.security.debt.impl;
 
-import javax.persistence.Entity;
-
 import io.github.uwol.compecon.economy.security.debt.ZeroCouponBond;
 
-@Entity
 public class ZeroCouponBondImpl extends BondImpl implements ZeroCouponBond {
 
 	@Override

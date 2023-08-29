@@ -33,7 +33,6 @@ import java.util.Set;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.timesystem.TimeSystem;
 import io.github.uwol.compecon.engine.timesystem.TimeSystemEvent;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 /**
  * Agents register their actions as events in the time system (observer
@@ -270,8 +269,5 @@ public class TimeSystemImpl implements TimeSystem {
 			}
 			externalEvents.clear();
 		}
-
-		// flush state to database
-		HibernateUtil.flushSession();
 	}
 }

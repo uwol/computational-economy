@@ -34,7 +34,6 @@ import io.github.uwol.compecon.engine.statistics.timeseries.PeriodDataAccumulato
 import io.github.uwol.compecon.engine.timesystem.impl.DayType;
 import io.github.uwol.compecon.engine.timesystem.impl.HourType;
 import io.github.uwol.compecon.engine.timesystem.impl.MonthType;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 import io.github.uwol.compecon.simulation.minimal.csv.impl.M1CsvWriterImpl;
 import io.github.uwol.compecon.simulation.minimal.csv.impl.OutputCsvWriterImpl;
 import io.github.uwol.compecon.simulation.minimal.csv.impl.PriceCsvWriterImpl;
@@ -115,11 +114,7 @@ public class EvaluationSimulationImpl {
 		final String configurationPropertiesFilename = System.getProperty("configuration.properties",
 				"minimal.configuration.properties");
 
-		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory.configureHibernateApplicationContext(configurationPropertiesFilename);
-		} else {
-			ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
-		}
+		ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
 
 		/*
 		 * register model listeners

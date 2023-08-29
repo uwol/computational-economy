@@ -28,14 +28,12 @@ import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.MarketOrderFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 	@Override
 	public void deleteAllSellingOrders(final MarketParticipant offeror) {
 		ApplicationContext.getInstance().getMarketOrderDAO().deleteAllSellingOrders(offeror);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -43,7 +41,6 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 			final Class<? extends Property> propertyClass) {
 		ApplicationContext.getInstance().getMarketOrderDAO().deleteAllSellingOrders(offeror, denominatedInCurrency,
 				propertyClass);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -51,7 +48,6 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 			final Currency commodityCurrency) {
 		ApplicationContext.getInstance().getMarketOrderDAO().deleteAllSellingOrders(offeror, denominatedInCurrency,
 				commodityCurrency);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -59,13 +55,11 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 			final GoodType goodType) {
 		ApplicationContext.getInstance().getMarketOrderDAO().deleteAllSellingOrders(offeror, denominatedInCurrency,
 				goodType);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
 	public void deleteSellingOrder(final MarketOrder marketOrder) {
 		ApplicationContext.getInstance().getMarketOrderDAO().delete(marketOrder);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -79,9 +73,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 		final MarketOrderImpl marketOrder = new MarketOrderImpl();
 
-		if (!HibernateUtil.isActive()) {
-			marketOrder.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		marketOrder.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount().getCurrency());
 		marketOrder.setCommodityCurrency(currencyToBeOffered);
@@ -92,7 +84,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		marketOrder.setCommodityCurrencyOfferorsBankAccountDelegate(commodityCurrencyOfferorsBankAcountDelegate);
 
 		ApplicationContext.getInstance().getMarketOrderDAO().save(marketOrder);
-		HibernateUtil.flushSession();
+
 		return marketOrder;
 	}
 
@@ -105,9 +97,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 		final MarketOrderImpl marketOrder = new MarketOrderImpl();
 
-		if (!HibernateUtil.isActive()) {
-			marketOrder.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		marketOrder.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount().getCurrency());
 		marketOrder.setGoodType(goodType);
@@ -117,7 +107,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		marketOrder.setPricePerUnit(pricePerUnit);
 
 		ApplicationContext.getInstance().getMarketOrderDAO().save(marketOrder);
-		HibernateUtil.flushSession();
+
 		return marketOrder;
 	}
 
@@ -130,9 +120,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 
 		final MarketOrderImpl marketOrder = new MarketOrderImpl();
 
-		if (!HibernateUtil.isActive()) {
-			marketOrder.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		marketOrder.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		marketOrder.setCurrency(offerorsBankAcountDelegate.getBankAccount().getCurrency());
 		marketOrder.setProperty(property);
@@ -142,7 +130,7 @@ public class MarketOrderImplFactoryImpl implements MarketOrderFactory {
 		marketOrder.setPricePerUnit(pricePerUnit);
 
 		ApplicationContext.getInstance().getMarketOrderDAO().save(marketOrder);
-		HibernateUtil.flushSession();
+
 		return marketOrder;
 	}
 

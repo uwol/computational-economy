@@ -24,7 +24,6 @@ import io.github.uwol.compecon.economy.sectors.household.Household;
 import io.github.uwol.compecon.economy.sectors.household.impl.HouseholdImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.HouseholdFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 import io.github.uwol.compecon.math.intertemporal.impl.ModiglianiIntertemporalConsumptionFunction;
 
 public class HouseholdImplFactoryImpl implements HouseholdFactory {
@@ -32,7 +31,6 @@ public class HouseholdImplFactoryImpl implements HouseholdFactory {
 	@Override
 	public void deleteHousehold(final Household agent) {
 		ApplicationContext.getInstance().getHouseholdDAO().delete(agent);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -41,9 +39,7 @@ public class HouseholdImplFactoryImpl implements HouseholdFactory {
 
 		final HouseholdImpl household = new HouseholdImpl();
 
-		if (!HibernateUtil.isActive()) {
-			household.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		household.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		household.setAgeInDays(ageInDays);
 		household.setPrimaryCurrency(primaryCurrency);
@@ -64,7 +60,7 @@ public class HouseholdImplFactoryImpl implements HouseholdFactory {
 
 		ApplicationContext.getInstance().getHouseholdDAO().save(household);
 		household.initialize();
-		HibernateUtil.flushSession();
+
 		return household;
 	}
 

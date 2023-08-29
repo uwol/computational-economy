@@ -24,23 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
-
 import io.github.uwol.compecon.economy.agent.Agent;
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import io.github.uwol.compecon.economy.materia.GoodType;
@@ -53,7 +36,6 @@ import io.github.uwol.compecon.economy.sectors.financial.BankAccount.MoneyType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.financial.impl.BankAccountImpl;
 import io.github.uwol.compecon.economy.security.debt.Bond;
 import io.github.uwol.compecon.economy.security.equity.Share;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
@@ -62,12 +44,6 @@ import io.github.uwol.compecon.engine.timesystem.TimeSystemEvent;
 import io.github.uwol.compecon.engine.timesystem.impl.DayType;
 import io.github.uwol.compecon.engine.timesystem.impl.MonthType;
 
-@Entity
-@Table(name = "Agent")
-@org.hibernate.annotations.Table(appliesTo = "Agent", indexes = {
-		@Index(name = "IDX_A_DTYPE", columnNames = { "DTYPE" }) })
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "DTYPE")
 public abstract class AgentImpl implements Agent {
 
 	public class BalanceSheetPublicationEvent implements TimeSystemEvent {
@@ -90,12 +66,8 @@ public abstract class AgentImpl implements Agent {
 	/**
 	 * bank account for basic daily transactions
 	 */
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountTransactions_id")
-	@Index(name = "IDX_A_BA_TRANSACTIONS")
 	protected BankAccount bankAccountTransactions;
 
-	@Transient
 	protected final BankAccountDelegate bankAccountTransactionsDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -108,32 +80,22 @@ public abstract class AgentImpl implements Agent {
 		}
 	};
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
 	protected int id;
 
-	@Column(name = "isDeconstructed")
 	protected boolean isDeconstructed = false;
 
-	@Transient
 	private boolean isInitialized = false;
 
-	@Column(name = "primaryCurrency")
-	@Enumerated(EnumType.STRING)
-	@Index(name = "IDX_A_PRIMARYCURRENCY")
 	protected Currency primaryCurrency;
 
 	/**
 	 * maxCredit limits the demand for money when buying production input factors,
 	 * thus limiting M1 in the monetary system
 	 */
-	@Column(name = "referenceCredit")
 	protected double referenceCredit;
 
-	@Transient
 	protected Set<TimeSystemEvent> timeSystemEvents = new HashSet<TimeSystemEvent>();
 
-	@Transient
 	protected void assureBankAccountTransactions() {
 		if (isDeconstructed) {
 			return;
@@ -152,7 +114,6 @@ public abstract class AgentImpl implements Agent {
 	 * deregisters the agent from all referencing objects
 	 */
 	@Override
-	@Transient
 	public void deconstruct() {
 		isDeconstructed = true;
 
@@ -193,7 +154,6 @@ public abstract class AgentImpl implements Agent {
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountTransactionsDelegate() {
 		return bankAccountTransactionsDelegate;
 	}
@@ -203,12 +163,10 @@ public abstract class AgentImpl implements Agent {
 		return id;
 	}
 
-	@Transient
 	protected Log getLog() {
 		return ApplicationContext.getInstance().getLog();
 	}
 
-	@Transient
 	protected Bank getPrimaryBank() {
 		assureBankAccountTransactions();
 		return bankAccountTransactions.getManagingBank();
@@ -249,7 +207,6 @@ public abstract class AgentImpl implements Agent {
 		return isDeconstructed;
 	}
 
-	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
 		assureBankAccountTransactions();
 
@@ -339,7 +296,6 @@ public abstract class AgentImpl implements Agent {
 	}
 
 	@Override
-	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
 		if (bankAccountTransactions == bankAccount) {
 			bankAccountTransactions = null;
@@ -347,7 +303,6 @@ public abstract class AgentImpl implements Agent {
 	}
 
 	@Override
-	@Transient
 	public void onPropertyTransferred(final Property property, final PropertyOwner oldOwner,
 			final PropertyOwner newOwner) {
 	}

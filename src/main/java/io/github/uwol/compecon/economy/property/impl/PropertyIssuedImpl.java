@@ -19,26 +19,13 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package io.github.uwol.compecon.economy.property.impl;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
-
 import io.github.uwol.compecon.economy.agent.Agent;
-import io.github.uwol.compecon.economy.agent.impl.AgentImpl;
 import io.github.uwol.compecon.economy.property.PropertyIssued;
 
-@Entity
 public abstract class PropertyIssuedImpl extends PropertyImpl implements PropertyIssued {
 
-	@ManyToOne(targetEntity = AgentImpl.class)
-	@JoinColumn(name = "issuer_id")
-	@Index(name = "IDX_P_ISSUER")
 	protected Agent issuer;
 
-	@Transient
 	protected void assertValidIssuer() {
 	}
 

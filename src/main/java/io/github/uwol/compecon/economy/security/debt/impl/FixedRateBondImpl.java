@@ -19,10 +19,6 @@ along with ComputationalEconomy. If not, see <http://www.gnu.org/licenses/>.
 
 package io.github.uwol.compecon.economy.security.debt.impl;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
-
 import com.google.common.base.Objects;
 
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
@@ -34,7 +30,6 @@ import io.github.uwol.compecon.engine.timesystem.impl.HourType;
 import io.github.uwol.compecon.engine.timesystem.impl.MonthType;
 import io.github.uwol.compecon.math.util.MathUtil;
 
-@Entity
 public class FixedRateBondImpl extends BondImpl implements FixedRateBond, Comparable<FixedRateBond> {
 
 	public class TransferCouponEvent implements TimeSystemEvent {
@@ -61,20 +56,17 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond, Compar
 		}
 	}
 
-	@Column(name = "coupon")
 	protected double coupon; // interest rate in percent
 
 	/**
 	 * sender bank account (of the bond issuer and seller) for the periodical coupon
 	 */
-	@Transient
 	protected BankAccountDelegate couponFromBankAccountDelegate;
 
 	/**
 	 * receiver bank account (of the bond buyer) for the periodical coupon; null, if
 	 * the bond has not been transfered to a owner different from the issuer.
 	 */
-	@Transient
 	protected BankAccountDelegate couponToBankAccountDelegate;
 
 	@Override
@@ -93,7 +85,6 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond, Compar
 	}
 
 	@Override
-	@Transient
 	public int compareTo(final FixedRateBond fixedRateBond) {
 		if (this == fixedRateBond) {
 			return 0;
@@ -143,7 +134,6 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond, Compar
 	}
 
 	@Override
-	@Transient
 	public void resetOwner() {
 		super.resetOwner();
 		couponToBankAccountDelegate = null;
@@ -163,7 +153,6 @@ public class FixedRateBondImpl extends BondImpl implements FixedRateBond, Compar
 	}
 
 	@Override
-	@Transient
 	public String toString() {
 		return super.toString() + ", coupon=[" + coupon + "]";
 	}

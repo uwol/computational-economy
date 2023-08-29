@@ -24,13 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
-
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import io.github.uwol.compecon.economy.sectors.financial.Bank;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
@@ -42,18 +35,13 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 
-@Entity
 public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 
 	/**
 	 * bank account for financing bonds
 	 */
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountBondLoan_id")
-	@Index(name = "IDX_B_BA_BONDLOAN")
 	protected BankAccount bankAccountBondLoan;
 
-	@Transient
 	protected final BankAccountDelegate bankAccountBondLoanDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -69,12 +57,8 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	/**
 	 * bank account for receiving bond coupons
 	 */
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountBondCoupon_id")
-	@Index(name = "IDX_B_BA_BONDCOUPON")
 	protected BankAccount bankAccountInterestTransactions;
 
-	@Transient
 	protected final BankAccountDelegate bankAccountInterestTransactionsDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -87,26 +71,21 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 		}
 	};
 
-	@Transient
 	protected void assertBankAccountIsManagedByThisBank(final BankAccount bankAccount) {
 		assert (bankAccount.getManagingBank() == this);
 	}
 
-	@Transient
 	protected abstract void assertCurrencyIsOffered(final Currency currency);
 
-	@Transient
 	protected void assertIdenticalMoneyType(final BankAccount from, final BankAccount to) {
 		assert (from.getMoneyType() != null);
 		assert (from.getMoneyType().equals(to.getMoneyType()));
 	}
 
-	@Transient
 	protected void assertIsCustomerOfThisBank(final BankCustomer customer) {
 		assert (ApplicationContext.getInstance().getBankAccountDAO().findAll(this, customer).size() > 0);
 	}
 
-	@Transient
 	public void assureBankAccountBondLoan() {
 		if (isDeconstructed) {
 			return;
@@ -122,7 +101,6 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 		}
 	}
 
-	@Transient
 	public void assureBankAccountInterestTransactions() {
 		if (isDeconstructed) {
 			return;
@@ -159,7 +137,6 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountBondLoanDelegate() {
 		return bankAccountBondLoanDelegate;
 	}
@@ -169,22 +146,18 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountInterestTransactionsDelegate() {
 		return bankAccountInterestTransactionsDelegate;
 	}
 
-	@Transient
 	public List<BankAccount> getBankAccounts(final BankCustomer customer) {
 		return ApplicationContext.getInstance().getBankAccountDAO().findAll(this, customer);
 	}
 
-	@Transient
 	public List<BankAccount> getBankAccounts(final BankCustomer customer, final Currency currency) {
 		return ApplicationContext.getInstance().getBankAccountDAO().findAll(this, customer, currency);
 	}
 
-	@Transient
 	public Set<BankCustomer> getCustomers() {
 		final Set<BankCustomer> customers = new HashSet<BankCustomer>();
 		for (final BankAccount bankAccount : ApplicationContext.getInstance().getBankAccountDAO()
@@ -195,13 +168,11 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	}
 
 	@Override
-	@Transient
 	protected Bank getPrimaryBank() {
 		return this;
 	}
 
 	@Override
-	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
 		assureBankAccountBondLoan();
 		assureBankAccountInterestTransactions();
@@ -231,7 +202,6 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	}
 
 	@Override
-	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
 		if (bankAccountInterestTransactions != null && bankAccountInterestTransactions == bankAccount) {
 			bankAccountInterestTransactions = null;
@@ -245,7 +215,6 @@ public abstract class BankImpl extends JointStockCompanyImpl implements Bank {
 	}
 
 	@Override
-	@Transient
 	public BankAccount openBankAccount(final BankCustomer customer, final Currency currency,
 			final boolean overdraftPossible, final String name, final TermType termType, final MoneyType moneyType) {
 		assert (!isDeconstructed());

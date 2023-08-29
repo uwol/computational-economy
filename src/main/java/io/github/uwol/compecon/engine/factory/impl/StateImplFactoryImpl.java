@@ -24,14 +24,12 @@ import io.github.uwol.compecon.economy.sectors.state.State;
 import io.github.uwol.compecon.economy.sectors.state.impl.StateImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.StateFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class StateImplFactoryImpl implements StateFactory {
 
 	@Override
 	public void deleteState(final State agent) {
 		ApplicationContext.getInstance().getStateDAO().delete(agent);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -40,14 +38,12 @@ public class StateImplFactoryImpl implements StateFactory {
 
 		final StateImpl state = new StateImpl();
 
-		if (!HibernateUtil.isActive()) {
-			state.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		state.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		state.setPrimaryCurrency(currency);
 		ApplicationContext.getInstance().getStateDAO().save(state);
 		state.initialize();
-		HibernateUtil.flushSession();
+
 		return state;
 	}
 

@@ -25,13 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.MapKeyEnumerated;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
-
 import io.github.uwol.compecon.economy.behaviour.BudgetingBehaviour;
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import io.github.uwol.compecon.economy.materia.GoodType;
@@ -42,7 +35,6 @@ import io.github.uwol.compecon.economy.sectors.financial.BankAccount.TermType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccountDelegate;
 import io.github.uwol.compecon.economy.sectors.financial.CreditBank;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
-import io.github.uwol.compecon.economy.sectors.financial.impl.BankAccountImpl;
 import io.github.uwol.compecon.economy.sectors.trading.Trader;
 import io.github.uwol.compecon.economy.security.equity.impl.JointStockCompanyImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
@@ -55,7 +47,6 @@ import io.github.uwol.compecon.math.util.MathUtil;
  * Agent type Trader imports goods and sells them on his domestic market.
  * Traders are price takers.
  */
-@Entity
 public class TraderImpl extends JointStockCompanyImpl implements Trader {
 
 	public class ArbitrageTradingEvent implements TimeSystemEvent {
@@ -204,21 +195,14 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 		}
 	}
 
-	@OneToMany(targetEntity = BankAccountImpl.class)
-	@JoinTable(name = "Trader_BankAccountsGoodTrade", joinColumns = @JoinColumn(name = "trader_id"), inverseJoinColumns = @JoinColumn(name = "bankAccount_id"))
-	@MapKeyEnumerated
 	protected Map<Currency, BankAccount> bankAccountsGoodTrade = new HashMap<Currency, BankAccount>();
 
-	@Transient
 	protected Map<Currency, BankAccountDelegate> bankAccountsGoodTradeDelegate = new HashMap<Currency, BankAccountDelegate>();
 
-	@Transient
 	protected BudgetingBehaviour budgetingBehaviour;
 
-	@Transient
 	protected Set<GoodType> excludedGoodTypes = new HashSet<GoodType>();
 
-	@Transient
 	public void assureBankAccountsGoodTrade() {
 		if (isDeconstructed) {
 			return;
@@ -243,7 +227,6 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountGoodsTradeDelegate(final Currency currency) {
 		return bankAccountsGoodTradeDelegate.get(currency);
 	}
@@ -287,7 +270,6 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 	}
 
 	@Override
-	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
 		assureBankAccountsGoodTrade();
 
@@ -308,7 +290,6 @@ public class TraderImpl extends JointStockCompanyImpl implements Trader {
 	}
 
 	@Override
-	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
 		if (bankAccountsGoodTrade != null) {
 			for (final Entry<Currency, BankAccount> entry : new HashMap<Currency, BankAccount>(bankAccountsGoodTrade)

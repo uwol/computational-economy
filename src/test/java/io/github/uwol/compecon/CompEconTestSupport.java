@@ -30,7 +30,6 @@ import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContextFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 import io.github.uwol.compecon.math.impl.FunctionImpl;
 import io.github.uwol.compecon.math.price.PriceFunction;
 
@@ -104,14 +103,7 @@ public abstract class CompEconTestSupport {
 	}
 
 	protected void setUpApplicationContext(final String configurationPropertiesFilename) throws IOException {
-		if (HibernateUtil.isActive()) {
-			ApplicationContextFactory.configureHibernateApplicationContext(configurationPropertiesFilename);
-		} else {
-			ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
-		}
-
-		// init database connection
-		HibernateUtil.openSession();
+		ApplicationContextFactory.configureInMemoryApplicationContext(configurationPropertiesFilename);
 	}
 
 	protected void setUpTestAgents() {
@@ -129,15 +121,10 @@ public abstract class CompEconTestSupport {
 
 			ApplicationContext.getInstance().getTraderFactory().newInstanceTrader(currency);
 		}
-
-		HibernateUtil.flushSession();
 	}
 
 	protected void tearDown() {
 		ApplicationContext.getInstance().getAgentFactory().deconstructAgents();
-
-		HibernateUtil.flushSession();
-		HibernateUtil.closeSession();
 
 		ApplicationContext.getInstance().reset();
 	}

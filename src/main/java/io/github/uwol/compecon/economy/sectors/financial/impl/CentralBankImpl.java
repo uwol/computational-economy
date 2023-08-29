@@ -24,14 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
-
 import io.github.uwol.compecon.economy.bookkeeping.impl.BalanceSheetDTO;
 import io.github.uwol.compecon.economy.materia.GoodType;
 import io.github.uwol.compecon.economy.sectors.financial.BankAccount;
@@ -54,7 +46,6 @@ import io.github.uwol.compecon.math.util.MathUtil;
 /**
  * Agent type central bank adjusts key interest rates based on price indices.
  */
-@Entity
 public class CentralBankImpl extends BankImpl implements CentralBank {
 
 	public class DailyInterestCalculationEvent implements TimeSystemEvent {
@@ -106,7 +97,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	public class KeyInterestRateCalculationEvent implements TimeSystemEvent {
-		@Transient
 		protected double calculateEffectiveKeyInterestRate() {
 			final double targetPriceIndexForCurrentPeriod = calculateTargetPriceIndexForPeriod();
 			final double currentPriceIndex = statisticalOffice.getPriceIndex();
@@ -129,7 +119,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 			}
 		}
 
-		@Transient
 		protected double calculateTargetPriceIndexForPeriod() {
 			final int yearNumber = ApplicationContext.getInstance().getTimeSystem().getCurrentYear()
 					- ApplicationContext.getInstance().getTimeSystem().getStartYear();
@@ -318,13 +307,9 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		}
 	}
 
-	@OneToOne(targetEntity = BankAccountImpl.class)
-	@JoinColumn(name = "bankAccountCentralBankMoney_id")
-	@Index(name = "IDX_A_BA_CENTRALBANKMONEY")
 	// bank account for central bank money
 	protected BankAccount bankAccountCentralBankMoney;
 
-	@Transient
 	protected final BankAccountDelegate bankAccountCentralBankMoneyDelegate = new BankAccountDelegate() {
 		@Override
 		public BankAccount getBankAccount() {
@@ -337,22 +322,17 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		}
 	};
 
-	@Column(name = "effectiveKeyInterestRate")
 	protected double effectiveKeyInterestRate;
 
-	@Transient
 	protected int NUMBER_OF_MARGINAL_PRICE_SNAPSHOTS_PER_DAY;
 
-	@Transient
 	protected StatisticalOffice statisticalOffice;
 
 	@Override
-	@Transient
 	protected void assertCurrencyIsOffered(final Currency currency) {
 		assert (primaryCurrency == currency);
 	}
 
-	@Transient
 	public void assureBankAccountCentralBankMoney() {
 		if (isDeconstructed) {
 			return;
@@ -368,7 +348,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		}
 	}
 
-	@Transient
 	@Override
 	public void assureBankAccountTransactions() {
 		if (isDeconstructed) {
@@ -386,7 +365,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Override
-	@Transient
 	public void closeCustomerAccount(final BankCustomer customer) {
 		assureBankAccountCentralBankMoney();
 
@@ -434,7 +412,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Override
-	@Transient
 	public double getAverageMarginalPriceForGoodType(final GoodType goodType) {
 		return statisticalOffice.getAverageMarginalPriceForGoodType(goodType);
 	}
@@ -444,7 +421,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Override
-	@Transient
 	public BankAccountDelegate getBankAccountCentralBankMoneyDelegate() {
 		return bankAccountCentralBankMoneyDelegate;
 	}
@@ -460,7 +436,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Override
-	@Transient
 	public double getReserveRatio() {
 		return ApplicationContext.getInstance().getConfiguration().centralBankConfig.getReserveRatio();
 	}
@@ -515,7 +490,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Override
-	@Transient
 	protected BalanceSheetDTO issueBalanceSheet() {
 		assureBankAccountCentralBankMoney();
 
@@ -529,7 +503,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Override
-	@Transient
 	public void obtainTender(final BankAccount moneyReservesBankAccount, final List<FixedRateBond> bonds) {
 		assureBankAccountCentralBankMoney();
 
@@ -559,7 +532,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Override
-	@Transient
 	public void onBankCloseBankAccount(final BankAccount bankAccount) {
 		if (bankAccountCentralBankMoney != null && bankAccountCentralBankMoney == bankAccount) {
 			bankAccountCentralBankMoney = null;
@@ -582,12 +554,10 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 	}
 
 	@Override
-	@Transient
 	public void transferMoney(final BankAccount from, final BankAccount to, final double amount, final String subject) {
 		this.transferMoney(from, to, amount, subject, false);
 	}
 
-	@Transient
 	protected void transferMoney(final BankAccount from, final BankAccount to, final double amount,
 			final String subject, final boolean negativeAmountOK) {
 
@@ -616,7 +586,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		assert (toBalanceBefore + amount == to.getBalance());
 	}
 
-	@Transient
 	private void transferMoneyFromCentralBankAccountToCreditBankAccount(final BankAccount from, final BankAccount to,
 			final double amount) {
 		/*
@@ -646,7 +615,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		assert (toBalanceBefore + amount == to.getBalance());
 	}
 
-	@Transient
 	private void transferMoneyFromCreditBankAccountToCentralBankAccount(final BankAccount from, final BankAccount to,
 			final double amount) {
 		/*
@@ -674,7 +642,6 @@ public class CentralBankImpl extends BankImpl implements CentralBank {
 		assert (toBalanceBefore + amount == to.getBalance());
 	}
 
-	@Transient
 	private void transferMoneyInternally(final BankAccount from, final BankAccount to, final double amount) {
 		assertBankAccountIsManagedByThisBank(from);
 		assertBankAccountIsManagedByThisBank(to);

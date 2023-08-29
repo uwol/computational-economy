@@ -24,14 +24,12 @@ import io.github.uwol.compecon.economy.sectors.financial.Currency;
 import io.github.uwol.compecon.economy.sectors.financial.impl.CentralBankImpl;
 import io.github.uwol.compecon.engine.applicationcontext.ApplicationContext;
 import io.github.uwol.compecon.engine.factory.CentralBankFactory;
-import io.github.uwol.compecon.engine.util.HibernateUtil;
 
 public class CentralBankImplFactoryImpl implements CentralBankFactory {
 
 	@Override
 	public void deleteCentralBank(final CentralBank agent) {
 		ApplicationContext.getInstance().getCentralBankDAO().delete(agent);
-		HibernateUtil.flushSession();
 	}
 
 	@Override
@@ -40,14 +38,12 @@ public class CentralBankImplFactoryImpl implements CentralBankFactory {
 
 		final CentralBankImpl centralBank = new CentralBankImpl();
 
-		if (!HibernateUtil.isActive()) {
-			centralBank.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
-		}
+		centralBank.setId(ApplicationContext.getInstance().getSequenceNumberGenerator().getNextId());
 
 		centralBank.setPrimaryCurrency(currency);
 		ApplicationContext.getInstance().getCentralBankDAO().save(centralBank);
 		centralBank.initialize();
-		HibernateUtil.flushSession();
+
 		return centralBank;
 	}
 }
